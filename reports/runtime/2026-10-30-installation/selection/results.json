@@ -1,0 +1,95 @@
+[
+  {
+    "id": "mcuve_absolute_negative_effect",
+    "status": "pass",
+    "error": null,
+    "metrics": {
+      "selected": [
+        0,
+        4
+      ],
+      "negative_effect_feature": 0,
+      "retained_negative_effect": true,
+      "training_sample_units": 80
+    },
+    "implementation": "MCUVESelector",
+    "source_relation": "Independent MC-UVE implementation: absolute coefficient stability, fixed seed, standardized OVR-PLS1; not the archived signed ranking",
+    "started_at_shanghai": "2026-10-30T17:14:11.875191+08:00",
+    "duration_seconds": 0.03143
+  },
+  {
+    "id": "bounded_iriv_three_features",
+    "status": "pass",
+    "error": null,
+    "metrics": {
+      "input_features": 3,
+      "selected": [
+        0
+      ],
+      "candidate_evaluations": 6,
+      "random_rejection_loop": false
+    },
+    "implementation": "BoundedIRIVInspiredSelector",
+    "source_relation": "Independent IRIV-inspired replacement: bounded paired inclusion/exclusion and backward elimination; not an exact IRIV recreation",
+    "started_at_shanghai": "2026-10-30T17:14:11.906874+08:00",
+    "duration_seconds": 0.01889
+  },
+  {
+    "id": "selector_sample_group_aggregation",
+    "status": "pass",
+    "error": null,
+    "metrics": {
+      "input_scans": 89,
+      "fitted_physical_sample_units": 80,
+      "sample_unit": "physical_sample_means",
+      "query_transform_shape": [
+        3,
+        3
+      ],
+      "fit_state_unchanged": true
+    },
+    "implementation": "MCUVESelector(groups=...)",
+    "source_relation": "Repeat scans are averaged within the training physical sample before resampling; this is an explicit new implementation choice",
+    "started_at_shanghai": "2026-10-30T17:14:11.926041+08:00",
+    "duration_seconds": 0.02606
+  },
+  {
+    "id": "cars_multiclass_not_ordinal",
+    "status": "pass",
+    "error": null,
+    "metrics": {
+      "classes": 3,
+      "selected": [
+        0,
+        2
+      ],
+      "class_id_permutation_invariant": true,
+      "target_encoding": "one-hot OVR coefficient norms"
+    },
+    "implementation": "CARSStyleSelector(task='classification')",
+    "source_relation": "Independent multiclass adaptation uses one-hot OVR PLS coefficient norms; arbitrary class IDs are not treated as concentrations",
+    "started_at_shanghai": "2026-10-30T17:14:11.952400+08:00",
+    "duration_seconds": 0.05907
+  },
+  {
+    "id": "cars_style_training_only_example",
+    "status": "pass",
+    "error": null,
+    "metrics": {
+      "input_kind": "supplied example calibration data",
+      "training_rows": 60,
+      "input_features": 700,
+      "selected_features": 43,
+      "query_shape": [
+        20,
+        43
+      ],
+      "query_used_in_fitting": false,
+      "internal_mse_is_not_external_validation": true
+    },
+    "implementation": "CARSStyleSelector",
+    "source_relation": "Independent CARS-style exponential pruning/weighted sampling with fixed PLS components; no exact numerical equivalence or novelty claim",
+    "started_at_shanghai": "2026-10-30T17:14:12.011796+08:00",
+    "duration_seconds": 0.04738
+  }
+]

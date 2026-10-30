@@ -3,6 +3,7 @@ import argparse
 from datetime import datetime
 import importlib.metadata
 import json
+import re
 from pathlib import Path
 import subprocess
 import sys
@@ -43,7 +44,8 @@ def main():
         cp=subprocess.run([sys.executable,'-m','unittest','discover','-s','tests','-v'],capture_output=True,text=True)
         (args.output/'unit_tests.log').write_text(cp.stdout+cp.stderr)
         if cp.returncode:raise RuntimeError('Unit tests failed; see unit_tests.log')
-        return {'tests':7,'returncode':cp.returncode}
+        match=re.search(r'Ran (\d+) tests?',cp.stdout+cp.stderr)
+        return {'tests':int(match.group(1)) if match else None,'returncode':cp.returncode}
     run('python_existing_unit_suite',units,'synthetic engineering fixtures, not medicinal-plant performance')
     corn=loadmat(source('0308 CARS+UVE.rar','corn_m5_starch.mat'))
     for name,estimator in [('pls',PLSRegression(n_components=4,scale=False)),('svr',make_pipeline(StandardScaler(),SVR(C=10)))]:

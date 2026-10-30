@@ -26,7 +26,8 @@ def main():
     parser.add_argument("--octave", required=True, type=Path)
     parser.add_argument("--inventory", required=True, type=Path)
     parser.add_argument("--output", required=True, type=Path)
-    parser.add_argument("--phase", choices=["first", "compatibility", "focused", "vectorized", "final", "ssa-full", "targeted", "targeted-corrected", "texture-array"], default="first")
+    parser.add_argument("--phase", choices=["first", "compatibility", "focused", "vectorized", "final", "ssa-full", "targeted", "targeted-corrected", "texture-array", "ready"], default="first")
+    parser.add_argument("--case", nargs="+", help="Select named cases within a phase")
     args = parser.parse_args()
     args.output.mkdir(parents=True, exist_ok=True)
     records = json.loads(args.inventory.read_text())
@@ -66,7 +67,8 @@ def main():
     add("core_pca_kmeans", "0627卷积神经网络+PCA_Kmeans（可用2）.rar", "main0627.m", body="load('data.mat'); [coeff,scores,latent,tsq,explained,mu]=pca(xtrain); k=min(10,columns(scores)); projected=(xtest-mu)*coeff(:,1:k); idx=kmeans(scores(:,1:k),12,'Replicates',1); assert(rows(projected)==rows(xtest)); metrics=struct('train_rows',rows(xtrain),'test_rows',rows(xtest),'features',columns(xtrain),'pca_components',k,'clusters',numel(unique(idx)));", stage="core_function")
     add("core_libsvm", "0627卷积神经网络+PCA_Kmeans（可用2）.rar", "main0627.m", body="load('data.mat'); mu=mean(xtrain); sd=std(xtrain); sd(sd==0)=1; a=(xtrain-mu)./sd; b=(xtest-mu)./sd; M=svmtrain(ytrain,a,sprintf('-q -c 1 -g %.16g',1/columns(a))); [p,acc]=svmpredict(ytest,b,M,'-q'); assert(numel(p)==rows(xtest)); metrics=struct('example_accuracy_percent',acc(1),'train_rows',rows(a),'test_rows',rows(b));", stage="core_function")
 
-    if args.phase in {"compatibility", "focused"}:
+    initial_jobs=list(jobs)
+    if args.phase in {"compatibility", "focused", "ready"}:
         jobs=[]
         for name in ["SVM（可用）","BPNN（可用）","cnn_4","main","PLS","PLS-Prediction-shenyin","PLS1","LSSVM","syqpcx程序(1)","平滑曲线"]:
             add("raw_text_"+name,"standalone_texts",name+".m",edits=["TXT copied byte-for-byte to .m for execution"])
@@ -130,6 +132,20 @@ def main():
     if args.phase=='texture-array':
         jobs=[]
         add('texture_direct_rgb_array','docx_code','Texture.m',stage='isolated_defect',recipe='texture_small,texture_array',body="a=Texture(uint8(cat(3,255*ones(16),zeros(16),zeros(16))));b=Texture(uint8(255*rand(16,16,3)));assert(all(isfinite(a)));assert(max(abs(a-b))<1e-12);metrics=struct('fixture_size',16,'max_feature_difference',max(abs(a-b)),'first_features',a,'finding','stored GLCM conditions do not use image values');",edits=['Reduce hard-coded loop dimensions to 16; pass RGB arrays directly to bypass palette PNG decoding; preserve stored GLCM conditions'],timeout=30)
+    if args.phase=='ready':
+        allowed={'compat_pls_original','compat_cars_uve_main','compat_uve_noise','compat_mcuve_0308',
+                 'patched_cars_error_scaling','patched_iriv_small_dimension',
+                 'compat_libsvm_three_outputs','compat_edge_fixture','compat_sg_filter'}
+        jobs=[j for j in jobs if j['id'] in allowed]
+        jobs.extend(j for j in initial_jobs if j['id'] in {'core_pls_cv','core_plslda','core_random_frog','core_pca_kmeans'})
+        add('ready_ssa_smoke','麻雀算法优化SVM-沈-2021-0802.zip','SSA_SVM_main.m',stage='compatibility',recipe='split_locals,crossvalind,ssa_smoke,plot_apis',edits=['Local function/API compatibility; six agents and three iterations; example execution only'],timeout=120)
+        add('ready_vectorized_bp','BPNN.zip','BP.m',stage='performance_patch',recipe='mapminmax,rands,remove_web,vectorize_bp',edits=['Declared headless/math API compatibility; equivalent vectorized sample gradient; original ten epochs'],timeout=90)
+        add('ready_uve_regression_demo','UVE.zip','demo_PLS_Regression.m',stage='compatibility',recipe='plotmcuve',edits=['Add missing plotting helper; retain original regression demo settings'],timeout=120)
+    if args.case:
+        available={j['id'] for j in jobs}
+        unknown=set(args.case)-available
+        if unknown:parser.error('Unknown case IDs: '+', '.join(sorted(unknown)))
+        jobs=[j for j in jobs if j['id'] in args.case]
 
     prelude = "warning('off','Octave:shadowed-function'); warning('off','Octave:gnuplot-graphics'); pkg load statistics signal io image optim; set(0,'defaultfigurevisible','off'); graphics_toolkit('gnuplot'); rand('seed',42); randn('seed',42);\n"
     results = []

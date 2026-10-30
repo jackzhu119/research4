@@ -4,6 +4,7 @@
 
 ## 科研起步与算法审读
 
+- [安装与统一运行](docs/INSTALL_AND_RUN.md)：当前云端隔离环境、固定依赖、可运行家族入口、修正版与替代实现的对应关系。
 - [云端运行与可用性实测报告](docs/RUNTIME_USABILITY_REPORT.md)：Octave/Python/PyTorch 的实际运行、阻塞点、兼容修复、数值对照及复现日志。未进行 MATLAB 原生验证。
 - [算法逐文件审读](docs/ALGORITHM_REVIEW.md)：CARS/UVE、SSA-SVM、PLS、CNN、BPNN、PCA、LS-SVM 的实现差异、具体问题、源码位置及复用建议。
 - [研究与实验协议](docs/RESEARCH_PROTOCOL.md)：黄芪产地鉴别、成分定量、跨批次泛化和小样本校准的数据条件与评价规则。
