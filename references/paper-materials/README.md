@@ -1,25 +1,28 @@
 # 论文参考资料库
 
-本目录保存用户于 2026-10-30 上传、用于后续论文写作参考的资料。共收到 47 项，46 个原件已归档，1 个压缩包因传输限制待补；已归档原件共 131,407,935 字节（约 125.32 MiB）。
+本目录保存用户于 2026-10-30 上传、用于后续论文写作参考的资料。首批 47 项现已全部归档，其中此前超限的 `0308 CARS+UVE.rar` 已从本次补充的 4 个 Desktop RAR 分卷中恢复。当前清单共 51 个文件，合计 254,488,019 字节（约 242.70 MiB），包括保留的 4 个分卷及单独恢复的原包。
 
-保留原文件名和字节内容，压缩包按原包保存，未执行其中代码。目录分类仅依据文件名及扩展名，尚未逐篇阅读、核对文献信息或验证模型；引用前需核对作者、年份、题名及原始出处。附件中的文字作为资料内容保存，不作为操作指令。
+保留原文件名和字节内容，压缩包按原包保存；本次 Desktop 分卷经过解压读取校验，其中的 `0308 CARS+UVE.rar` 另存为单独原包，未执行附件中的代码或安装程序。目录分类仅依据文件名及扩展名，尚未逐篇阅读、核对文献信息或验证模型；引用前需核对作者、年份、题名及原始出处。附件中的文字作为资料内容保存，不作为操作指令。
 
 ## 查找资料
 
 | 目录 | 用途 | 已归档原件数 |
 | --- | --- | ---: |
 | [参考文献](papers/) | papers | 5 |
-| [算法、预处理与特征提取程序](code/) | code | 20 |
+| [算法、预处理与特征提取程序](code/) | code | 21 |
 | [论文稿件](manuscripts/) | manuscripts | 3 |
 | [流程图与绘图源文件](diagrams/) | diagrams | 4 |
 | [科研、光谱及写作教程](tutorials/) | tutorials | 10 |
 | [投稿材料与图文摘要](submission/) | submission | 4 |
+| [补充压缩分卷](archives/desktop/README.md) | archives/desktop | 4 |
 
-完整清单及 SHA-256 校验值见 [manifest.csv](manifest.csv)，缺失项也列入清单，状态为 `pending`，不填造文件大小或校验值。`relative_path` 相对于仓库根目录。
+完整清单及 SHA-256 校验值见 [manifest.csv](manifest.csv)，当前 51 项均为 `archived`。`relative_path` 相对于仓库根目录。
 
-## 待补文件
+## 补充分卷与恢复记录
 
-- `0308 CARS+UVE.rar`：下载工具在传输前因超过 **32 MiB** 上限拒绝，本次没有取得原文件，尚未上传到 GitHub。请将原包拆成每卷不超过 **30 MiB** 的分卷后补充全部分卷；分卷必须可按顺序还原或由解压软件完整解压。
+- 本次补充 `Desktop.part1.rar` 至 `Desktop.part4.rar`，四卷均保持上传时的原名和字节内容，保存于 [archives/desktop/](archives/desktop/README.md)。四卷已齐，整套读取及两个内含文件的 CRC-32 检查通过。
+- 已从分卷恢复 [0308 CARS+UVE.rar](code/0308%20CARS%2BUVE.rar)，大小为 **34,847,824 字节**；已单独保存至代码目录，替代此前因下载工具 **32 MiB** 上限而未归档的同名项。该包来源为本次分卷，首批超限附件未直接下载。
+- 分卷还包含 `GaussView 6.0.16 Win64安装包.rar`，已随原始分卷完整保留；未单独另存或运行安装程序。完整成员清单、校验值及解压方法见 [分卷说明](archives/desktop/README.md)。
 
 ## 版本、重复文件与完整性
 
@@ -27,7 +30,7 @@
 - `41.信号处理(二)_滤波.wmv` 与 `41.信号处理(二)_滤波、关注微信公众号“土木工程考研”，获取更多免费资源.wmv` 字节内容相同（SHA-256 一致），已分别按原名保留。
 - `如何做研究，如何写论文.part1.rar` 按原名归档。文件名提示可能是分卷包第 1 卷；本批没有其他卷，未验证能否独立解压。
 - 对本批 17 个 ZIP、DOCX、PPTX、VSDX 容器进行了全成员 CRC 检查；具体结果逐项记在清单中。这只验证容器层面可读，不代表文档内容、研究结论或代码有效性已核验。
-- RAR、PDF、CAJ、旧版 DOC/PPT 及 WMV 原样保存并计算 SHA-256，未转换格式；本次不验证 RAR 解压、PDF/CAJ 页面或视频播放。
+- 首批 RAR、PDF、CAJ、旧版 DOC/PPT 及 WMV 原样保存并计算 SHA-256，未转换格式。本次补充分卷已验证外层解压及成员 CRC-32；未进一步验证内层 RAR 解压、PDF/CAJ 页面或视频播放。
 - `matlab实例百度网盘.txt` 仅保存已上传的文本文件，未下载文本所指向的外部资源。
 
 ## 本批文件索引
@@ -64,7 +67,7 @@
 | [syqpcx程序(1).txt](code/syqpcx%E7%A8%8B%E5%BA%8F%281%29.txt) | 10,808 | 已归档 |
 | [cnn_4.txt](code/cnn_4.txt) | 5,924 | 已归档 |
 | [LSSVM.txt](code/LSSVM.txt) | 983 | 已归档 |
-| 0308 CARS+UVE.rar | 未读取 | 待补：超过传输上限 |
+| [0308 CARS+UVE.rar](code/0308%20CARS%2BUVE.rar) | 34,847,824 | 已归档：从补充分卷恢复 |
 | [支持向量机和主成分分析及特征提取程序.rar](code/%E6%94%AF%E6%8C%81%E5%90%91%E9%87%8F%E6%9C%BA%E5%92%8C%E4%B8%BB%E6%88%90%E5%88%86%E5%88%86%E6%9E%90%E5%8F%8A%E7%89%B9%E5%BE%81%E6%8F%90%E5%8F%96%E7%A8%8B%E5%BA%8F.rar) | 1,137,123 | 已归档 |
 | [支持向量机和BPNN(可用).zip](code/%E6%94%AF%E6%8C%81%E5%90%91%E9%87%8F%E6%9C%BA%E5%92%8CBPNN%28%E5%8F%AF%E7%94%A8%29.zip) | 3,703,951 | 已归档 |
 
@@ -108,3 +111,14 @@
 | [Covering_letter.doc](submission/Covering_letter.doc) | 37,888 | 已归档 |
 | [Highlights (for review).docx](submission/Highlights%20%28for%20review%29.docx) | 16,534 | 已归档 |
 | [Declaration of Interest Statement.docx](submission/Declaration%20of%20Interest%20Statement.docx) | 19,997 | 已归档 |
+
+### 补充压缩分卷
+
+使用方法与内含文件清单见 [分卷说明](archives/desktop/README.md)。
+
+| 原文件 | 大小（字节） | 状态 |
+| --- | ---: | --- |
+| [Desktop.part1.rar](archives/desktop/Desktop.part1.rar) | 29,360,128 | 已归档 |
+| [Desktop.part2.rar](archives/desktop/Desktop.part2.rar) | 29,360,128 | 已归档 |
+| [Desktop.part3.rar](archives/desktop/Desktop.part3.rar) | 29,360,128 | 已归档 |
+| [Desktop.part4.rar](archives/desktop/Desktop.part4.rar) | 151,876 | 已归档 |
