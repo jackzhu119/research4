@@ -116,7 +116,7 @@ def main():
     out = args.output_dir / "人参太赫兹数据_中文标注.xlsx"
     wb.save(out)
     with (args.output_dir / "sample_labels.csv").open("w", encoding="utf-8-sig", newline="") as f:
-        writer = csv.writer(f)
+        writer = csv.writer(f, lineterminator="\n")
         writer.writerow([cell.value for cell in metadata[1]])
         writer.writerows(metadata_rows)
     summary = {
