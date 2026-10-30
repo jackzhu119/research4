@@ -4,6 +4,7 @@
 
 ## 科研起步与算法审读
 
+- [云端运行与可用性实测报告](docs/RUNTIME_USABILITY_REPORT.md)：Octave/Python/PyTorch 的实际运行、阻塞点、兼容修复、数值对照及复现日志。未进行 MATLAB 原生验证。
 - [算法逐文件审读](docs/ALGORITHM_REVIEW.md)：CARS/UVE、SSA-SVM、PLS、CNN、BPNN、PCA、LS-SVM 的实现差异、具体问题、源码位置及复用建议。
 - [研究与实验协议](docs/RESEARCH_PROTOCOL.md)：黄芪产地鉴别、成分定量、跨批次泛化和小样本校准的数据条件与评价规则。
 - [基础代码使用](docs/RESEARCH_STARTER.md)：正确读取尺寸声明异常的 Excel、SVC/SVR/PLS 嵌套分组验证及测试。

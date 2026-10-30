@@ -2,6 +2,8 @@
 
 算法问题及优先路线分别见 [算法审读](ALGORITHM_REVIEW.md)、[实验协议](RESEARCH_PROTOCOL.md)。原始资料仍位于 `references/`，本目录的新实现没有复制原压缩包源码。
 
+后续已开展 [Octave/Python 云端可用性实测](RUNTIME_USABILITY_REPORT.md)，其中包含原算法入口运行、明确标注的兼容/逻辑补丁和 CNN 结构迁移。实验场景脚本位于 `scripts/runtime/`，与下面的正式基础接口分开记录。
+
 ## 安装与工程验证
 
 在仓库根目录运行：
