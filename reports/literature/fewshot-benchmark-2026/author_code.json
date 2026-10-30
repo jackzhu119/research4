@@ -1,0 +1,194 @@
+{
+  "checked_date": "2026-10-30",
+  "repository": "https://github.com/ivgase/spectroscopy-fewshot-benchmark",
+  "branch": "main",
+  "observed_head_commit": "13771327980ba904641dcdec3037822d4baec34f",
+  "head_commit_date": "2026-09-06T10:45:47Z",
+  "snapshot_caveat": "Current main is after the uploaded2026paper publication; no paper-specific tag/commit binding verified. Read-only code observations must not be used to assert all published runs used this exact revision.",
+  "access_method": "GitHub connector, read-only; no repository scripts executed, no datasets/weights/dependencies downloaded",
+  "read_scope": "README and five core source files; cached text copies in ignored outputs directory only",
+  "files": [
+    {
+      "path": "README.md",
+      "permalink": "https://github.com/ivgase/spectroscopy-fewshot-benchmark/blob/13771327980ba904641dcdec3037822d4baec34f/README.md",
+      "cached_path": "outputs/fewshot-paper-reading/author_code_sources/README.md",
+      "sha256_of_cached_text": "aeed80d8e671e7955ecfe619312fa403860822b7e43060210e9d5a1349c2755a"
+    },
+    {
+      "path": "train_protonet.py",
+      "permalink": "https://github.com/ivgase/spectroscopy-fewshot-benchmark/blob/13771327980ba904641dcdec3037822d4baec34f/train_protonet.py",
+      "cached_path": "outputs/fewshot-paper-reading/author_code_sources/train_protonet.py",
+      "sha256_of_cached_text": "16ae903aae0f9d270cdf230737ae6bf261d642bfe558cb2cf0b25f7acc5cc473"
+    },
+    {
+      "path": "models/protonet.py",
+      "permalink": "https://github.com/ivgase/spectroscopy-fewshot-benchmark/blob/13771327980ba904641dcdec3037822d4baec34f/models/protonet.py",
+      "cached_path": "outputs/fewshot-paper-reading/author_code_sources/models__protonet.py",
+      "sha256_of_cached_text": "e7b268b4068cdf4458fdce1a8d79e615791c48337e164250ad0648740707787b"
+    },
+    {
+      "path": "datasets_fewshot.py",
+      "permalink": "https://github.com/ivgase/spectroscopy-fewshot-benchmark/blob/13771327980ba904641dcdec3037822d4baec34f/datasets_fewshot.py",
+      "cached_path": "outputs/fewshot-paper-reading/author_code_sources/datasets_fewshot.py",
+      "sha256_of_cached_text": "bfb2f801c73d82f7e2aeb9eca6c7cc30c6ee8009045d0aca0acebb5c48adc439"
+    },
+    {
+      "path": "preprocessing.py",
+      "permalink": "https://github.com/ivgase/spectroscopy-fewshot-benchmark/blob/13771327980ba904641dcdec3037822d4baec34f/preprocessing.py",
+      "cached_path": "outputs/fewshot-paper-reading/author_code_sources/preprocessing.py",
+      "sha256_of_cached_text": "71ab64e0b83013a74223413f79bdd2b7dbe44428b6ab5ec4b426292caaab6ba6"
+    },
+    {
+      "path": "train_tf.py",
+      "permalink": "https://github.com/ivgase/spectroscopy-fewshot-benchmark/blob/13771327980ba904641dcdec3037822d4baec34f/train_tf.py",
+      "cached_path": "outputs/fewshot-paper-reading/author_code_sources/train_tf.py",
+      "sha256_of_cached_text": "4f70812b556d9c9616e00860fe9555ed20474916d139a56646e2081a9dbf7ef1"
+    }
+  ],
+  "findings": [
+    {
+      "id": "regression_not_class_prototypes",
+      "evidence": [
+        {
+          "path": "models/protonet.py",
+          "lines": "99-119"
+        },
+        {
+          "path": "train_protonet.py",
+          "lines": "134-142"
+        }
+      ],
+      "observation": "Every support embedding is used as a reference point; softmax(-Euclidean distance/temperature) weights are multiplied by the continuous support target vector. Training uses MSE. The unused foreground/background helper is not the regression execution path.",
+      "implication": "For origin classification use class prototypes and categorical targets/cross-entropy, or a clearly specified classification variant; do not feed arbitrary origin integers into this regression head. Convex weighting also limits regression predictions to the support-target range."
+    },
+    {
+      "id": "frozen_embedding_at_target_test",
+      "evidence": [
+        {
+          "path": "models/protonet.py",
+          "lines": "90-119,155-169"
+        }
+      ],
+      "observation": "Evaluation uses torch.no_grad and does not adapt the encoder; the new task is represented by its support embeddings/labels. During meta-training query labels intentionally supervise the encoder loss.",
+      "implication": "Separate source/meta-training query labels from held-out target query labels; using source query loss for meta-training is expected."
+    },
+    {
+      "id": "ft_target_query_not_backpropagated",
+      "evidence": [
+        {
+          "path": "train_tf.py",
+          "lines": "65-95"
+        }
+      ],
+      "observation": "Target adaptation gradients are computed on the support DataLoader only; query metrics are computed under no_grad after each adaptation epoch. The function returns the final epoch, with no query-best selection visible in this function.",
+      "implication": "Do not call it target-query label leakage merely because query_y is passed for metrics. A future user must still avoid tuning epochs/hyperparameters on those logged final query metrics."
+    },
+    {
+      "id": "target_normalization_label_budget",
+      "evidence": [
+        {
+          "path": "datasets_fewshot.py",
+          "lines": "487-503,391-410"
+        },
+        {
+          "path": "preprocessing.py",
+          "lines": "23-38,50-58"
+        }
+      ],
+      "observation": "MixedDataset fits preprocessing, including y StandardScaler, on the entire task support pool before MixedTask.sample draws K labels. Query is transformed, not used to fit the scaler. The transform object is reused across tasks but outputs are materialized immediately.",
+      "implication": "A strict K-label target protocol must fit target-label normalization on the selected K labels, use a source-only fixed scale, or explicitly count the extra labelled pool statistics. This is an extra-support-label information condition, not query-y fit leakage. Affine normalization commutes with this ProtoNet weighted mean and R2 is affine invariant, so the impact is model/metric specific, not proof all published results are invalid."
+    },
+    {
+      "id": "source_label_budget_differs_in_visible_training_paths",
+      "evidence": [
+        {
+          "path": "train_tf.py",
+          "lines": "136-157,179-207"
+        },
+        {
+          "path": "train_protonet.py",
+          "lines": "134-147"
+        }
+      ],
+      "observation": "FT pretraining gradients use source support; source query is used under no_grad for source validation metrics. ProtoNet training samples source support/query and propagates query MSE.",
+      "implication": "When adapting the design, match and disclose how source samples/labels are allocated to gradient training and validation. This is a difference in current visible training paths, not proof that all published comparisons were unfair."
+    },
+    {
+      "id": "cpu_port_not_drop_in",
+      "evidence": [
+        {
+          "path": "models/protonet.py",
+          "lines": "35-49"
+        },
+        {
+          "path": "datasets_fewshot.py",
+          "lines": "350-351,454-458"
+        },
+        {
+          "path": "train_protonet.py",
+          "lines": "118-125"
+        }
+      ],
+      "observation": "Distance tensor uses unconditional .cuda(); MixedTask/MixedDataset default device=cuda, and the training script does not pass its CPU/GPU selection into these dataset constructors.",
+      "implication": "CPU-only reuse requires replacing hard-coded devices and explicitly propagating device. No runtime attempt was made here."
+    },
+    {
+      "id": "physical_sample_independence_not_established",
+      "evidence": [
+        {
+          "path": "datasets_fewshot.py",
+          "lines": "465-503,391-443"
+        },
+        {
+          "path": "README.md",
+          "lines": "98-106"
+        }
+      ],
+      "observation": "The loader trusts splits.csv and separate support/query CSVs, retaining row indices. The reviewed source does not verify physical sample IDs, repeated scans, duplicate spectra, batches, or cross-task physical overlap.",
+      "implication": "Our THz work must retain herb/pellet/scan/batch IDs and audit them across source/support/query; separate CSV files alone are insufficient proof."
+    },
+    {
+      "id": "fixed_draws_and_same_query",
+      "evidence": [
+        {
+          "path": "datasets_fewshot.py",
+          "lines": "412-448"
+        },
+        {
+          "path": "train_protonet.py",
+          "lines": "259-292"
+        }
+      ],
+      "observation": "Fixed sampled support/query indices are cached by shot count in dataset directories; query_dataloader then permits full query-pool evaluation. Cached support draws can persist across repeats and methods.",
+      "implication": "Specify whether repeats vary model seeds, support sampling or both. For a clean calibration curve fix an independent query pool and use nested support draws across K; do not claim cached repeated runs are independent support resamples."
+    },
+    {
+      "id": "preprocessing_defaults_not_identical",
+      "evidence": [
+        {
+          "path": "train_protonet.py",
+          "lines": "61-62,99"
+        },
+        {
+          "path": "train_tf.py",
+          "lines": "121"
+        }
+      ],
+      "observation": "ProtoNet SG is optional via --savgol (default false); FT hardcodes savgol=True with15-point/order2/first derivative.",
+      "implication": "Match actual preprocessing flags and physical spectral spacing for fair comparison. Do not treat README example commands as a verified reproduction of the paper configuration."
+    },
+    {
+      "id": "simclr_not_audited",
+      "evidence": [
+        {
+          "path": "README.md",
+          "lines": "118-223"
+        }
+      ],
+      "observation": "The limited read covered the five source files listed in this audit; it did not verify SimCLR+FT/PR implementation.",
+      "implication": "The paper methods can be described from its PDF, but this source audit cannot certify their implementation or model-head architecture."
+    }
+  ],
+  "model_runs": 0,
+  "full_repository_runtime_audit": false
+}

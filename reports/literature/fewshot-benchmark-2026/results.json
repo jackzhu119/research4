@@ -1,0 +1,394 @@
+{
+  "source": "User-uploaded main PDF;13pages;10.1016/j.engappai.2025.113593",
+  "read_scope": "Full main paper sections3–6 and Tables1–4/Figs1–7; Table1/Fig1 visually verified onPDFp4, Table3 visually verified onPDFp6, and Table4/Fig2 visually verified onPDFp7. AppendicesA–D are separate online supplement and not contained in the uploaded13page mainPDF. No model execution.",
+  "task_type": "All benchmark tasks are continuous-valued regression onNIR/MIR spectra; notTHz and not geographical-origin class prediction.",
+  "sample_count_unit": "Table1 explicitly defines Samples as number of spectra, not independently verified physical specimens.",
+  "counts": {
+    "datasets": 9,
+    "spectra_total": 111767,
+    "Mango": {
+      "spectra": 11691,
+      "tasks": 12,
+      "Year_tasks": 4,
+      "Year_Region_tasks": 8
+    },
+    "Soil": {
+      "spectra": 88867,
+      "tasks": 889,
+      "MIR_tasks": 704,
+      "NIR_tasks": 185
+    },
+    "TRIP": {
+      "spectra": 11209,
+      "tasks": 24
+    },
+    "tasks_total_including_both_Mango_representations": 925
+  },
+  "split_evidence": {
+    "support_query": "Each task has labeled support for adaptation and previously unseen query for performance; p3sec3.1.1.",
+    "table1_random_50_percent_support_query": [
+      "Soil_OSSL",
+      "Diesel_Fuel",
+      "Corn",
+      "Melamine"
+    ],
+    "other_sources": "Table1 says preserve original split; it does not independently demonstrate physical-specimen/batch disjointness.",
+    "task_train_validation_test": "MainFig1 shows test group/task totals, not full exactmeta train/validation/test assignments; AppendixA required. Sec4.4 says11TRIPtrainingtasks augmented with9tasks fromMango/Soil to20.",
+    "standard_support": 25,
+    "gradient_adaptation_epochs_main_protocol": 10,
+    "extreme_support_tested": [
+      5,
+      10,
+      25
+    ],
+    "one_and_three_shot": "Not tested as explicit conditions in main paper; do not attribute1/3shot success to this paper."
+  },
+  "Table2_p5": {
+    "columns": [
+      "MMD",
+      "FIS"
+    ],
+    "values": {
+      "Mango_Year": [
+        0.032,
+        0.7268
+      ],
+      "Mango_Year_Region": [
+        0.0356,
+        0.533
+      ],
+      "Soil_MIR": [
+        0.1781,
+        0.1942
+      ],
+      "Soil_NIR": [
+        0.1576,
+        0.1642
+      ],
+      "TRIP": [
+        0.2984,
+        0.0813
+      ]
+    }
+  },
+  "Table3_p6": {
+    "support_total_per_task": 25,
+    "columns": [
+      "Mango_Year",
+      "Mango_Year_Region",
+      "Soil_MIR",
+      "Soil_NIR",
+      "TRIP"
+    ],
+    "values": {
+      "MSE": {
+        "Individual": [
+          1.239,
+          1.023,
+          0.769,
+          0.86,
+          0.759
+        ],
+        "SimCLR_MLP": [
+          1.049,
+          0.888,
+          0.927,
+          0.828,
+          0.78
+        ],
+        "SimCLR_PR": [
+          0.848,
+          0.84,
+          0.777,
+          0.817,
+          0.705
+        ],
+        "Fine_tuning": [
+          0.338,
+          0.318,
+          0.841,
+          0.745,
+          2.972
+        ],
+        "SNAIL": [
+          0.342,
+          0.444,
+          0.736,
+          0.656,
+          1.457
+        ],
+        "MAML": [
+          0.225,
+          0.263,
+          0.695,
+          0.759,
+          0.555
+        ],
+        "Prototypical_Networks": [
+          0.183,
+          0.173,
+          0.432,
+          0.51,
+          0.58
+        ]
+      },
+      "MAE": {
+        "Individual": [
+          0.911,
+          0.812,
+          0.561,
+          0.64,
+          0.648
+        ],
+        "SimCLR_MLP": [
+          0.857,
+          0.777,
+          0.641,
+          0.622,
+          0.628
+        ],
+        "SimCLR_PR": [
+          0.688,
+          0.669,
+          0.653,
+          0.671,
+          0.596
+        ],
+        "Fine_tuning": [
+          0.454,
+          0.444,
+          0.602,
+          0.582,
+          1.288
+        ],
+        "SNAIL": [
+          0.476,
+          0.544,
+          0.56,
+          0.56,
+          0.992
+        ],
+        "MAML": [
+          0.382,
+          0.398,
+          0.534,
+          0.585,
+          0.494
+        ],
+        "Prototypical_Networks": [
+          0.345,
+          0.319,
+          0.351,
+          0.424,
+          0.49
+        ]
+      },
+      "R2": {
+        "Individual": [
+          -0.174,
+          -0.015,
+          0.288,
+          0.129,
+          0.175
+        ],
+        "SimCLR_MLP": [
+          0.005,
+          0.138,
+          0.138,
+          0.156,
+          0.225
+        ],
+        "SimCLR_PR": [
+          0.121,
+          0.147,
+          0.214,
+          0.165,
+          0.291
+        ],
+        "Fine_tuning": [
+          0.679,
+          0.678,
+          0.201,
+          0.246,
+          -2.975
+        ],
+        "SNAIL": [
+          0.66,
+          0.516,
+          0.207,
+          -0.992,
+          -0.785
+        ],
+        "MAML": [
+          0.767,
+          0.732,
+          0.327,
+          0.21,
+          0.344
+        ],
+        "Prototypical_Networks": [
+          0.826,
+          0.825,
+          0.61,
+          0.492,
+          0.429
+        ]
+      }
+    },
+    "units": "Targets standardized; MSE/MAE are not native concentration units andR2 is not classification accuracy."
+  },
+  "Table4_p7": {
+    "metric": "R2",
+    "columns": [
+      "Mango_5",
+      "Mango_10",
+      "Mango_25",
+      "Soil_5",
+      "Soil_10",
+      "Soil_25",
+      "TRIP_5",
+      "TRIP_10",
+      "TRIP_25"
+    ],
+    "values": {
+      "Individual": [
+        -0.049,
+        -0.022,
+        -0.092,
+        0.006,
+        0.076,
+        0.208,
+        -0.31,
+        0.122,
+        0.179
+      ],
+      "SimCLR_MLP": [
+        -0.295,
+        -0.044,
+        0.071,
+        -0.054,
+        0.042,
+        0.147,
+        -0.207,
+        0.073,
+        0.225
+      ],
+      "SimCLR_PR": [
+        -0.112,
+        0.077,
+        0.134,
+        -0.133,
+        0.14,
+        0.189,
+        -0.101,
+        0.175,
+        0.291
+      ],
+      "Fine_tuning": [
+        0.575,
+        0.712,
+        0.736,
+        0.069,
+        0.107,
+        0.223,
+        -2.2,
+        -2.19,
+        -2.975
+      ],
+      "SNAIL": [
+        -1.658,
+        0.416,
+        0.588,
+        -260.705,
+        -113.312,
+        -0.393,
+        -2.268,
+        -0.898,
+        -0.785
+      ],
+      "MAML": [
+        0.601,
+        0.744,
+        0.746,
+        0.006,
+        -0.051,
+        0.269,
+        -0.095,
+        0.249,
+        0.344
+      ],
+      "Prototypical_Networks": [
+        0.424,
+        0.767,
+        0.851,
+        0.149,
+        0.336,
+        0.551,
+        -0.115,
+        0.251,
+        0.429
+      ]
+    }
+  },
+  "findings": [
+    {
+      "claim": "ProtoNet generally strong at25support, but not universal winner",
+      "evidence": "Table3:lowestMSE/MAE andhighestR2 for bothMango andSoil;TRIPMSE MAML0.555 beatsProto0.580, whileProtoMAE0.490/R2.429 slightly/better thanMAML.494/.344."
+    },
+    {
+      "claim": "MAML not uniformly aboveFT",
+      "evidence": "Table3SoilNIRMSE MAML0.759 vsFT0.745;MAE.585vs.582;R2.210vs.246."
+    },
+    {
+      "claim": "5shot not guaranteed adequate",
+      "evidence": "Table4TRIP5shot MAML−.095,Proto−.115,all7methodsR2negative;Mango5shotFT.575beatsProto.424."
+    },
+    {
+      "claim": "Model-basedSNAIL poor/unstable",
+      "evidence": "Table4SoilSNAILR2−260.705at5shot,−113.312at10shot;Table3MangoSNAILbelowFT. Do not say allmeta-learning families succeed."
+    },
+    {
+      "claim": "80percent is error reduction relative to a weakFT comparator, not accuracy gain",
+      "evidence": "Table3TRIPMSEFT2.972vsMAML.555/Proto.580 means81.3/80.5percent reduction. Relative toIndividual.759,Proto reduction isabout23.6percent, not80percent."
+    },
+    {
+      "claim": "Related tasks andmore support can makeFT competitive",
+      "evidence": "Fig2 andsecs4.2/5describeMangoFT approachingmeta methods as support grows; highheterogeneityTRIPFTcanlag evenIndividual."
+    }
+  ],
+  "internal_reporting_questions": [
+    {
+      "issue": "Abstract/conclusionuniversality stronger than tables",
+      "detail": "Abstractclaimsconsistentoutperformance;sec6callsmeta superiorirrespectiveofsupport/taskheterogeneity. Table3MAMLandSNAILcounterexamples,Table4Mango5shotFTbeatsProto,allTRIP5shotR2negative. Stateconditional empirical findings."
+    },
+    {
+      "issue": "Mango25shotR2inTable4not simple meanofTable3",
+      "detail": "Table3MangoYear/YearRegionFT.679/.678 andProto.826/.825 implymeans.6785/.8255;Table4Mango25FT.736/Proto.851. Soil25meanmatchesTable3rounding. Mayreflectdifferentruns/protocol, notestablishederror; supplement/codeor authorsneededbeforemergingtables."
+    },
+    {
+      "issue": "Statisticalsignificanceevidencepartial",
+      "detail": "Table3captionreportscritical-differenceanalysisalpha=.05,topcliqueProto+MAML(no significantdifference),AppendixC. MainPDFdoesnotshowtestprocedure/taskindependence/statistics/p-valuesorresamplingcounts; do notsaynostats,butdo notclaimindependentreproduction."
+    },
+    {
+      "issue": "Table3R2rankcannotbeassumedidenticaltoMSErank",
+      "detail": "TRIPMAMLhaslowerMSEthanProtobuthigherR2forProto. Aggregatedtaskmetricscanrankdifferently; do notforceasinglewinnerwithouttaskweightingdetails."
+    }
+  ],
+  "robustness_and_explainability": {
+    "Fig3_p8": "Augment11TRIPtrainingtaskswith9Mango/Soiltasks;authorsreportbetterMSEfrom20tasks. ThisisnotproofanyunrelatedspectrumbankhelpsTHzclasses.",
+    "Fig4_p9": "CGLcasein/lactate/glucoseshareexact67queryspectraandsupport. PCAandtarget-latentalignmentareillustrative; sharedencoderfeatureswithsameinputscannotaloneprovechemicaldisentanglementorindependenttaskdomains.",
+    "Fig5_p9": "MangoFTandProtobothhighalignmentr~.93–.94; qualitativeevidenceofsharedtarget/homogeneoussetting,notcausalbandidentity.",
+    "Fig6_p10": "SyntheticAWGN,gain/axisdrift,baselinetrends,andcombination;plottedmodelisProtoNet. Stressperturbationsareinjected,notnewrealinstrumentorbatchvalidation. Magnitudes/repeatsmainPDFnotdetailed.",
+    "Fig7_p10": "OneMangoqualitativecaseSHAP(GradientExplainer)andXGradCAM(1D);paperexplicitlydeniesdefinitivephysico-chemicalbandassignment. NoquantitativeGaussian/DFTmechanismvalidationprovided.",
+    "Gaussian_word_caution": "Gaussian kernel/noise inMMD/stresstestsareprobabilityfunctions; notGaussianquantum-chemistrysoftware."
+  },
+  "safe_adaptation_to_user": [
+    "Borrowtask/support/querydesignandcomparisonframeworkfirst; replacecontinuousywithoriginclassesandclassificationloss/metrics.",
+    "Forclosedsetorigincalibration,tasksshouldrepresentnewbatch/day/devicecontextswithknownoriginclasses,notoneclassper task.",
+    "Needmultipleindependentphysicalspecimensanddomains; repeatedscansorwindowsfromsame405columnsarenotnewtasks.",
+    "Do notstandardizeintegerorigincodesasregressiontargets, or reportR2asoriginaccuracy.",
+    "Fixedqueryacrosssupportsizes/methods;supportmustremainseparatefromqueryandtraining; choosehyperparametersonsourcetrain/validationtasks.",
+    "AdaptnoiseperturbationsusingmeasuredTHzrepeatability;validateonrealbatches.",
+    "Useattributiontoselectcandidatebandsforstandard-purity/chemical/DFTtests,notasproofmolecularorigin."
+  ]
+}

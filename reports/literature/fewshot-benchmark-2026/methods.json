@@ -1,0 +1,272 @@
+{
+  "paper": {
+    "title": "A task-oriented few-shot spectroscopy benchmark: Empirical evaluation of meta-learning approaches",
+    "authors": [
+      "Iván Garzón",
+      "Guillermo Gomez-Trenado",
+      "Sergio Damas"
+    ],
+    "journal": "Engineering Applications of Artificial Intelligence",
+    "year": 2026,
+    "volume": 167,
+    "article": "113593",
+    "doi": "10.1016/j.engappai.2025.113593",
+    "pdf_pages": 13,
+    "source": "User-uploaded original PDF; /workspace/attachments/bdd435bf-afa9-44a9-ae0b-e6b10c8ffb07/1-s2.0-S0952197625036255-main.pdf"
+  },
+  "reading_scope": "Primary focus on §§3.1–3.5 pp3–5; protocol clarifications §§4.1/4.3/4.5/4.7 and Discussion pp5–10; no code executed and no supplementary PDF inspected in this subtask.",
+  "central_distinction": {
+    "finding": "The evaluated supervised task is continuous regression on NIR/MIR spectra, not geographical-origin classification and not THz-TDS.",
+    "evidence": "§3 first paragraph p3; §3.5 p5 states shared ResNet1D encoder and scalar regression head.",
+    "implication": "Borrow task construction, support/query separation and evaluation design; a categorical origin classifier requires a different output, loss, sampling and metrics."
+  },
+  "task_structure": {
+    "definition": "Each dataset/property/domain can define a distinct regression task; tasks form training/validation/testing collections. Every task has labelled support used for adaptation and previously unseen query used for evaluation.",
+    "pages": [
+      3,
+      4
+    ],
+    "mango": {
+      "tasks": 12,
+      "by_year": 4,
+      "by_year_region": 8,
+      "spectra": 11691,
+      "target": "Dry-matter percentage",
+      "note": "Year and year-region are alternative partition schemes over the same source collection, not extra independent fruit cohorts."
+    },
+    "soil": {
+      "tasks": 889,
+      "nir_tasks": 185,
+      "mir_tasks": 704,
+      "spectra": 88867,
+      "target": "Soil properties across regions; tasks defined region × property"
+    },
+    "trip": {
+      "tasks": 24,
+      "spectra": 11209,
+      "target": "Different industrial properties/components/recipes; one task per target/problem"
+    },
+    "split_scope": "Figure1 shows task categories/counts, not exact meta-train/meta-validation/meta-test membership. Main text points to AppendixA. Table1 identifies random50%support/query for four marked datasets; all other sources preserve original splits. Original physical-sample group independence cannot be concluded from this table."
+  },
+  "datasets_table1_p4": [
+    {
+      "name": "Soil(OSSL)",
+      "spectra": 88867,
+      "bands": 2752,
+      "tasks": 889,
+      "task": "Region×properties",
+      "random_half_support_query": true
+    },
+    {
+      "name": "Mango",
+      "spectra": 11691,
+      "bands": 281,
+      "tasks": 12,
+      "task": "Season or Season×Region",
+      "random_half_support_query": false
+    },
+    {
+      "name": "DieselFuel",
+      "spectra": 784,
+      "bands": 410,
+      "tasks": 7,
+      "task": "Seven properties",
+      "random_half_support_query": true
+    },
+    {
+      "name": "Corn",
+      "spectra": 240,
+      "bands": 700,
+      "tasks": 4,
+      "task": "Four properties",
+      "random_half_support_query": true
+    },
+    {
+      "name": "CGL",
+      "spectra": 231,
+      "bands": 117,
+      "tasks": 4,
+      "task": "Four components",
+      "random_half_support_query": false
+    },
+    {
+      "name": "NIRShootout",
+      "spectra": 654,
+      "bands": 650,
+      "tasks": 3,
+      "task": "Three properties",
+      "random_half_support_query": false
+    },
+    {
+      "name": "Melamine",
+      "spectra": 8117,
+      "bands": 346,
+      "tasks": 4,
+      "task": "Four recipes",
+      "random_half_support_query": true
+    },
+    {
+      "name": "WheatKernel",
+      "spectra": 523,
+      "bands": 100,
+      "tasks": 1,
+      "task": "One property",
+      "random_half_support_query": false
+    },
+    {
+      "name": "Egg",
+      "spectra": 660,
+      "bands": 331,
+      "tasks": 1,
+      "task": "One property",
+      "random_half_support_query": false
+    }
+  ],
+  "preprocessing": {
+    "section": "§3.2 p4",
+    "sg": "Savitzky–Golay first derivative used for smoothing/differentiation. Exact window/order/boundary handling not present in main paragraph.",
+    "target_scaling": "Each response standardized to mean0/std1 to balance tasks of different units/ranges. Main paragraph does not specify which partitions fit mean/std.",
+    "unknowns": [
+      "Exact wavelength/input-length harmonization across these very different spectral grids",
+      "Exact task membership and adaptation pools",
+      "Training-only vs all-task statistics for target normalization",
+      "Hyperparameter-search split and detailed backbone configuration"
+    ],
+    "adaptation_warning": "Origin labels must not be z-scored as arbitrary continuous province integers. For classification use categorical labels/appropriate loss; training-only spectrum transforms and feature selection."
+  },
+  "heterogeneity": {
+    "section": "§3.3 pp4–5",
+    "mmd": "Squared distance between kernel mean embeddings, Gaussian/RBF kernel; lower means closer input-feature distributions under this measurement/representation.",
+    "fis": "Cosine similarity of per-task Pearson(inputFeature,target) vectors; higher means similar feature-target relation.",
+    "table2": {
+      "mango_year": {
+        "mmd": 0.032,
+        "fis": 0.7268
+      },
+      "mango_year_region": {
+        "mmd": 0.0356,
+        "fis": 0.533
+      },
+      "soil_mir": {
+        "mmd": 0.1781,
+        "fis": 0.1942
+      },
+      "soil_nir": {
+        "mmd": 0.1576,
+        "fis": 0.1642
+      },
+      "trip": {
+        "mmd": 0.2984,
+        "fis": 0.0813
+      }
+    },
+    "interpretation_limits": [
+      "MMD is representation/kernel dependent, not a physical distance or a guarantee a particular learner wins.",
+      "FIS as written is regression-specific. Pearson against integer-coded origins changes with arbitrary relabelling; use class-appropriate feature importance if adapting this idea.",
+      "Do not use finalquery labels to choose methods/features. If using targetquery features for diagnostics/adaptation, declare the transductive setting rather than claiming a strictly inductive setup."
+    ]
+  },
+  "methods": {
+    "section": "§3.4–3.5 p5; §4.5 p8",
+    "common_backbone": "Shared ResNet-based1D convolutional encoder; scalar regression target. Main paper refers to AppendixB for exact architecture/hyperparameters and sensitivity tests.",
+    "entries": [
+      {
+        "name": "Fine-tuning(FT)",
+        "mechanism": "Pretrain on source/training tasks then fully retrain/adapt the network on labelled targetsupport.",
+        "not_same_as": "Merely fitting a new linear head with a frozen encoder; main FT definition is full-network adaptation."
+      },
+      {
+        "name": "MAML",
+        "mechanism": "Episodic meta-training learns an initialization suitable for a few gradient steps on a newtask.",
+        "conditions": "Requires a collection of genuine tasks/meta-training episodes, not just one tiny pooled table."
+      },
+      {
+        "name": "PrototypicalNetworks",
+        "mechanism": "Regression predictions use weighted distances/comparisons to support prototypes in learned embedding space. Shared encoder is not re-adapted at testtime (§4.5).",
+        "conditions": "This is a regression variant; cannot assume paper uses the categorical class-centroid/softmax head normally used in N-wayK-shot classification."
+      },
+      {
+        "name": "SNAIL",
+        "mechanism": "Temporal-convolution/attention model processes labelled taskcontext for rapid prediction.",
+        "conditions": "Paper notes originally successful classification methods may not work well after regression adaptation."
+      },
+      {
+        "name": "SimCLR+MLP",
+        "mechanism": "Contrastive pretraining on augmented spectral pairs; freeze encoder, train a two-layerMLP on targetsupport for regression.",
+        "augmentation": "Noise, gain/offset, smoothing and randomcrop described in main text.",
+        "not_same_as": "Generic SimCLR+full-fine-tuning; backbone is frozen."
+      },
+      {
+        "name": "SimCLR+PR",
+        "mechanism": "Contrastively pretrain encoder then use ProtoNet-style distance-based support adaptation without further gradient training.",
+        "conditions": "It isolates contrastive representation+prototype inference from episodicProtoNet meta-training."
+      },
+      {
+        "name": "Individual",
+        "mechanism": "Train a model only on the targetsupport examples, with no transferred prior knowledge.",
+        "role": "Baseline needed to detect harmful or unnecessary transfer."
+      }
+    ],
+    "fairness_statement": "SameResNet-based baseline used to reduce architectural confounding; each method gridsearched independently. Main paper does not fully specify search split, so cannot infer tuned parameters never saw testtasks without supplement/code audit."
+  },
+  "support_protocol": {
+    "sections": "§4.1 pp5–6; §4.3 p7",
+    "default": "25support instances per regressiontask; target adaptation described as10epochs followed by evaluation on query.",
+    "extreme_support_sizes": [
+      5,
+      10,
+      25
+    ],
+    "count_unit": "Total labelled instances per regressiontask, not per-classKshots.",
+    "qualification": "SpecificProtoNet/SimCLR+PR mechanisms use prototype inference without further encoder training; the generic10epochs sentence must not be applied literally as10gradientepochs to every method.",
+    "adaptation_for_user": "For a known-origin classification task defineK independent physical samples per class, and report both K/class and totalNK. Keep a fixed independent query pool across K, methods and repeats; a single physical sample’s repeated scans must stay together."
+  },
+  "explainability": {
+    "sections": "§3.5 p5; §4.7 p8; Discussion p10",
+    "methods": [
+      "SHAP(GradientExplainer)",
+      "XGrad-CAM adapted to1D"
+    ],
+    "meaning": "Qualitative model-dependent wavelength/region relevance overlays, not definitive physicochemical band assignments.",
+    "conditions": [
+      "XGrad-CAM requires usable convolutional activations/gradients; the common-neural-framework wording does not make it a drop-in explanation for SVM.",
+      "External standard compounds, chemistry measurements and appropriate molecular/crystal calculations are needed to support peak assignments.",
+      "The paper does not perform Gaussian quantum-chemistry simulation; Gaussian kernel/noise are mathematical terms."
+    ]
+  },
+  "missing_supplement": {
+    "evidence": "p11 AppendixA SupplementaryData points online; mainPDF pp11–13 ends in reference list. AppendixA/B/C/D cited in maintext are not supplied in this13-page file.",
+    "details_needed": [
+      "Full dataset/tasksplit documentation",
+      "Exact model and ProtoNet-regression implementation",
+      "SG and spectral harmonization details",
+      "Learning rates, optimization steps and hyperparameter-search partitions",
+      "Statistical-test and longer-adaptation details"
+    ],
+    "cannot_claim": "Full reproducibility or exact source-code behavior from maintext alone."
+  },
+  "recommended_transfer_to_zaoren": [
+    {
+      "priority": 1,
+      "idea": "Make batch/year/instrument-defined targettasks and physical-sample-aware support/query evaluation before adding complex learners.",
+      "constraint": "Every task for known-origin classification must contain the relevant origin classes; one origin file alone is not a completeN-way classificationtask."
+    },
+    {
+      "priority": 2,
+      "idea": "Compare source-onlySVM/PLS-DA, support-only, conventionalfine-tuning and a classificationProtoNet using the same spectralencoder/featurebudget.",
+      "constraint": "Keep n/alpha as physically aligned inputs, not a fictitious2Dimage; only include deep learners if independent sample/domain counts justify them."
+    },
+    {
+      "priority": 3,
+      "idea": "Measure domain similarity and show sample-level learningcurves and qualitative attributions.",
+      "constraint": "Define classification-appropriate importance, avoid targetlabel leakage, and preserve uncertainty/failure cases."
+    },
+    {
+      "priority": 4,
+      "idea": "If later predicting a chemically measured constituent concentration, the article’s scalarregression/fewshot protocol is more directly reusable.",
+      "constraint": "IndependentHPLC/UPLC referencevalues, units and concentrationrange are required; origin integers are not concentrationtargets."
+    }
+  ],
+  "new_model_runs": 0,
+  "new_dft_calculations": 0
+}
