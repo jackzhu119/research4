@@ -1,0 +1,92 @@
+{
+  "created_at_utc": "2026-10-30T10:06:32.502530+00:00",
+  "registration_scope": "Locally fixed stage-two exploratory protocol, not a public preregistration or confirmation of novelty",
+  "classification": {
+    "datasets": [
+      "qsi_huangqi_raman",
+      "qsi_huangqi_uv",
+      "qsi_raspberry",
+      "qsi_shihu3"
+    ],
+    "unit": "exact-duplicate-collapsed source rows; unknown physical specimen/batch groups",
+    "outer_split": "5-fold stratified, seed20261030, freeze before inspecting model scores",
+    "inner_split": "train-only 3-fold, identical within each outer fold across models",
+    "representations": [
+      "full",
+      "cars12",
+      "mcuve20",
+      "mcuve100",
+      "stable_mcuve10x10"
+    ],
+    "classifiers": [
+      "SVC",
+      "one-hot PLS-DA"
+    ],
+    "preprocessing": [
+      "raw",
+      "SNV"
+    ],
+    "retained_features_mcuve": "ceil(0.1p), at least5, same across MCUVE20/100/stable",
+    "success_assessment": "Report all outer predictions, accuracy/balanced accuracy/macroF1/MCC, feature counts and time; no automatic deployment winner chosen from these test scores",
+    "caveats": [
+      "Huangqi Raman and UV same cohort",
+      "exact duplicates collapsed; near-replicate IDs unavailable",
+      "stability frequency/Jaccard are training diagnostics, not out-of-batch robustness or FDR control"
+    ]
+  },
+  "transfer": {
+    "datasets": [
+      "Pharma instrument1 supplied Train+Validate to instrument2 supplied Test",
+      "Wheat A1.CAL to new-sample vliadA",
+      "Wheat A1.CAL to new-sample vliadB"
+    ],
+    "source_representations": [
+      "full",
+      "mcuve20",
+      "mcuve100",
+      "stable_mcuve10x10"
+    ],
+    "source_model": "PLS; source-only raw/SNV and1,2,3,5,8 components inner3fold selection",
+    "shots_total": [
+      1,
+      3,
+      5,
+      10,
+      20
+    ],
+    "repeats": 20,
+    "seed": 42,
+    "query_policy": "Each repeat fixes query after reserving maxshots20 target records; nested firstk support, same query for all k and methods",
+    "methods": [
+      "none",
+      "bias_unshrunk",
+      "affine_unshrunk",
+      "affine_shrinkage_lambda1",
+      "target_support_only_frozen_source_representation",
+      "source_plus_support_frozen_source_representation"
+    ],
+    "calibration_regularization": 1.0,
+    "query_label_use": "metrics only; never preprocessing/selector/regularization/model fitting",
+    "metrics": [
+      "RMSE",
+      "MAE",
+      "R2",
+      "bias",
+      "RPD"
+    ],
+    "uncertainty": "repeat SD is descriptive; repeated query sets overlap and are not independent studies",
+    "caveats": [
+      "Recovered record/positional IDs are limited by source documentation",
+      "WheatA and B use same150 new-sample targets, not independent cohorts",
+      "Pharma assay mg/tablet; wheat response units not independently verified"
+    ]
+  },
+  "deliverables": [
+    "audited source catalog with availability tiers",
+    "frozen input/split/code hashes",
+    "new modules and meaningful tests",
+    "actual positive and negative benchmark results",
+    "reviewable GitHub commit and reports"
+  ],
+  "novelty": "Prior-art EMCUVE voting and SAFS+calibration already exist; module combination alone is not a new algorithm"
+}

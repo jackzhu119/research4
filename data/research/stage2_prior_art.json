@@ -1,0 +1,189 @@
+{
+  "reviewed_at_utc": "2026-10-30T10:01:38.382326+00:00",
+  "scope": "Rapid targeted prior-art check for stage2 stable variable selection and few-label calibration; not a systematic or exhaustive novelty review",
+  "n_primary_references": 8,
+  "novelty_established": false,
+  "guarantees": {
+    "frequency_is_p_value": false,
+    "fdr_control_established": false,
+    "cross_batch_generalization_established": false
+  },
+  "references": [
+    {
+      "id": "cars_li_2009",
+      "title": "Key wavelengths screening using competitive adaptive reweighted sampling method for multivariate calibration",
+      "authors": [
+        "Hongdong Li",
+        "Yizeng Liang",
+        "Qingsong Xu",
+        "Dongsheng Cao"
+      ],
+      "year": 2009,
+      "journal": "Analytica Chimica Acta 648(1):77–84",
+      "doi": "10.1016/j.aca.2009.06.046",
+      "primary_url": "https://pubmed.ncbi.nlm.nih.gov/19616692/",
+      "publisher_url": "https://doi.org/10.1016/j.aca.2009.06.046",
+      "verified_scope": "PubMed bibliographic record and full abstract; publisher indexed abstract",
+      "relevant_existing_idea": "PLS coefficient importance, Monte Carlo sampling, exponential reduction and adaptive reweighting; CV subset choice.",
+      "implication_for_stage2": "Existing CARS and CARS-style roots require attribution. Resampling CARS supports is an engineering extension until a clearly differentiated method and external evidence are established.",
+      "not_claimed": "Exact reproduction of archived MATLAB behavior by the independent Python selector."
+    },
+    {
+      "id": "mcuve_cai_2008",
+      "title": "A variable selection method based on uninformative variable elimination for multivariate calibration of near-infrared spectra",
+      "authors": [
+        "Wensheng Cai",
+        "Yankun Li",
+        "Xueguang Shao"
+      ],
+      "year": 2008,
+      "journal": "Chemometrics and Intelligent Laboratory Systems 90(2):188–194",
+      "doi": "10.1016/j.chemolab.2007.10.001",
+      "primary_url": "https://www.sciencedirect.com/science/article/pii/S0169743907001980",
+      "publisher_url": "https://doi.org/10.1016/j.chemolab.2007.10.001",
+      "verified_scope": "Indexed publisher title/abstract and bibliographic metadata; direct full publisher open returned403; full text not reviewed",
+      "relevant_existing_idea": "Random calibration subsets and stability of PLS coefficients for modified UVE.",
+      "implication_for_stage2": "MC-UVE is an established coefficient-stability method; adding another resampling layer needs a matched-count baseline and a reason beyond the name.",
+      "not_claimed": "Full source-level correspondence to every MC-UVE variant."
+    },
+    {
+      "id": "emcuve_han_2008",
+      "title": "An ensemble of Monte Carlo uninformative variable elimination for wavelength selection",
+      "authors": [
+        "Qing-Juan Han",
+        "Hai-Long Wu",
+        "Chen-Bo Cai",
+        "Lu Xu",
+        "Ru-Qin Yu"
+      ],
+      "year": 2008,
+      "journal": "Analytica Chimica Acta 612(2):121–125",
+      "doi": "10.1016/j.aca.2008.02.032",
+      "primary_url": "https://pubmed.ncbi.nlm.nih.gov/18358856/",
+      "publisher_url": "https://www.sciencedirect.com/science/article/pii/S0003267008003784",
+      "verified_scope": "PubMed indexed bibliographic record and abstract; publisher indexed abstract",
+      "relevant_existing_idea": "An ensemble combines MC-UVE and a vote rule for wavelength selection.",
+      "implication_for_stage2": "This is especially close prior art for repeated MC-UVE plus selection-frequency voting. The proposed wrapper must not be described as a new voting/stability principle.",
+      "not_claimed": "The current wrapper reproduces the original ensemble algorithm or its tuning details."
+    },
+    {
+      "id": "stability_selection_meinshausen_2010",
+      "title": "Stability Selection",
+      "authors": [
+        "Nicolai Meinshausen",
+        "Peter Bühlmann"
+      ],
+      "year": 2010,
+      "journal": "Journal of the Royal Statistical Society Series B 72(4):417–473",
+      "doi": "10.1111/j.1467-9868.2010.00740.x",
+      "primary_url": "https://doi.org/10.1111/j.1467-9868.2010.00740.x",
+      "author_preprint_url": "https://arxiv.org/abs/0809.2932",
+      "verified_scope": "Publisher bibliographic metadata and author preprint abstract",
+      "relevant_existing_idea": "Subsampling combined with selection algorithms; finite-sample error-control results under specified assumptions/settings.",
+      "implication_for_stage2": "A generic frequency-of-selection score or top-k rule is not automatically a p-value, FDR bound or theorem-backed stability-selection procedure.",
+      "not_claimed": "Theoretical false-discovery control for the stage2 selector."
+    },
+    {
+      "id": "safs_zhang_2022",
+      "title": "Algorithm of Stability-Analysis-Based Feature Selection for NIR Calibration Transfer",
+      "authors": [
+        "Zheyu Zhang",
+        "Yaoxiang Li",
+        "Chunxu Li",
+        "Zichun Wang",
+        "Ya Chen"
+      ],
+      "year": 2022,
+      "journal": "Sensors22(4):1659",
+      "doi": "10.3390/s22041659",
+      "primary_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8880237/",
+      "publisher_url": "https://www.mdpi.com/1424-8220/22/4/1659",
+      "verified_scope": "Open full text, especially §§2.1–2.2 and data-availability statement",
+      "relevant_existing_idea": "Master/slave PLS coefficient stability is estimated through Monte Carlo sampling; a GA selects a threshold using validation performance; selected variables are combined with established transfer methods.",
+      "implication_for_stage2": "Stable variable selection plus transfer is already a research direction. Our single-source resample-frequency wrapper differs from SAFS but does not by itself establish novelty. A proper future comparison should state whether target paired standards are available.",
+      "data_availability": "Corn is a public referenced dataset; authors state their presented data are available on request and not all publicly available. Larch data must not be counted as downloaded.",
+      "not_claimed": "The current wrapper implements SAFS or has its reported transfer performance."
+    },
+    {
+      "id": "transfer_review_workman_2018",
+      "title": "A Review of Calibration Transfer Practices and Instrument Differences in Spectroscopy",
+      "authors": [
+        "Jerome J. Workman Jr."
+      ],
+      "year": 2018,
+      "journal": "Applied Spectroscopy72(3):340–365",
+      "doi": "10.1177/0003702817736064",
+      "primary_url": "https://pubmed.ncbi.nlm.nih.gov/28929781/",
+      "publisher_url": "https://journals.sagepub.com/doi/10.1177/0003702817736064",
+      "verified_scope": "PubMed bibliographic record/abstract and indexed publisher text",
+      "relevant_existing_idea": "Robust calibration, bias/slope adjustment and spectral standardization are established approaches; instrument uncertainty and repeatability matter.",
+      "implication_for_stage2": "Few-shot affine correction should be a clear established baseline. Matching instruments, reference chemistry and specimen presentation must be reported.",
+      "not_claimed": "Successful instrument transfer proves across-year or across-herb generalization."
+    },
+    {
+      "id": "transfer_review_fearn_2001",
+      "title": "Standardisation and Calibration Transfer for near Infrared Instruments: A Review",
+      "authors": [
+        "Tom Fearn"
+      ],
+      "year": 2001,
+      "journal": "Journal of Near Infrared Spectroscopy9(4):229–244",
+      "doi": "10.1255/jnirs.309",
+      "primary_url": "https://journals.sagepub.com/doi/10.1255/jnirs.309",
+      "publisher_url": "https://opg.optica.org/jnirs/abstract.cfm?URI=jnirs-9-4-229",
+      "verified_scope": "Publisher abstract and bibliographic metadata; restricted full text not claimed read",
+      "relevant_existing_idea": "Pooling instruments for robustness, modest labeled transfer sets for slope/bias adjustment, and paired measured spectra for spectral standardization.",
+      "implication_for_stage2": "Bias-only/affine correction is not a novel calibration concept; DS/PDS needs paired standards from support, not query.",
+      "not_claimed": "Regularized affine engineering is a new discovery merely because the support set is small."
+    },
+    {
+      "id": "ridge_hoerl_kennard_1970",
+      "title": "Ridge Regression: Biased Estimation for Nonorthogonal Problems",
+      "authors": [
+        "Arthur E. Hoerl",
+        "Robert W. Kennard"
+      ],
+      "year": 1970,
+      "journal": "Technometrics12(1):55–67",
+      "doi": "10.1080/00401706.1970.10488634",
+      "primary_url": "https://www.tandfonline.com/doi/abs/10.1080/00401706.1970.10488634",
+      "publisher_url": "https://doi.org/10.1080/00401706.1970.10488634",
+      "verified_scope": "Publisher indexed metadata/abstract; direct open403; no full-text review claimed",
+      "relevant_existing_idea": "Quadratic regularization for collinear regression.",
+      "implication_for_stage2": "Penalizing departure from an identity coefficient/score mapping is an engineering use of ridge/prior anchoring. This reference supports the regularization family, not an assertion that our exact calibrator appeared in this paper.",
+      "not_claimed": "Specific near-infrared identity-anchored calibration algorithm is attributed to this paper."
+    }
+  ],
+  "module_characterization": {
+    "StableVariableSelector": "Independent engineering wrapper around established CARS-style/MC-UVE selectors, repeated training-unit subsampling and fixed-count frequency ranking. Close voting ensemble prior art exists.",
+    "ShrinkageAffineCalibrator": "Regularized slope/bias correction toward identity, evaluated only using labeled target support. Established affine/regularization ideas; performance to be tested.",
+    "AnchorScoreCalibrator": "Regularized identity-anchored mapping of source class scores; explicit source class vocabulary. An engineering candidate, not asserted new or probability-calibrated."
+  },
+  "protocol_decisions": [
+    {
+      "id": "ultrair_reanalysis",
+      "decision": "Keep original five outer folds for ablation but label results reanalysis of an already-inspected benchmark. No new untouched confirmation set is created by re-running it.",
+      "reason": "Earlier test results were used to select the research direction."
+    },
+    {
+      "id": "frozen_query",
+      "decision": "For each repetition create a fixed query set and a separate support candidate pool; use nested support prefixes for n=1,3,5,10,... and the same query/IDs for all methods.",
+      "reason": "Changing query composition with shot count confounds learning curves."
+    },
+    {
+      "id": "query_blind_hyperparameters",
+      "decision": "Fix regularization/feature count/iterations before target query evaluation, or select only on source-domain nested validation/pseudo-domain episodes.",
+      "reason": "Selecting by final target labels leaks test information."
+    },
+    {
+      "id": "identity_first",
+      "decision": "Keep physical specimen groups out of source/support/query intersections. Recovered metadata row keys are an auditable proxy, not proof of physical or batch identity.",
+      "reason": "The same specimen measured on different instruments cannot be called unseen-plant generalization."
+    },
+    {
+      "id": "matched_features",
+      "decision": "Compare stable and nonstable selectors at matched retained feature counts, with identical downstream grid, while reporting extra resampling/fits/runtime separately.",
+      "reason": "Dimension and compute-budget changes otherwise confound a stability effect."
+    }
+  ]
+}

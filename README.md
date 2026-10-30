@@ -4,6 +4,8 @@
 
 ## 科研起步与算法审读
 
+- [后续科研阶段二](docs/RESEARCH_STAGE2_REPORT.md)：稳定筛选与少样本校准实现，200个新药材分类场景、7200组迁移评价与正负结果。
+- [科研数据目录](docs/RESEARCH_DATASET_CATALOG.md)：34条来源/数据表示记录，区分已下载、仅元数据、受限访问、同队列与样品层级。
 - [外部中药光谱基准报告](docs/EXTERNAL_BENCHMARK_REPORT.md)：金银花/山银花产地与LC-MS相对丰度，330个真实运行场景，全部五折指标、原归档核心对照和复现命令。
 - [安装与统一运行](docs/INSTALL_AND_RUN.md)：当前云端隔离环境、固定依赖、可运行家族入口、修正版与替代实现的对应关系。
 - [云端运行与可用性实测报告](docs/RUNTIME_USABILITY_REPORT.md)：Octave/Python/PyTorch 的实际运行、阻塞点、兼容修复、数值对照及复现日志。未进行 MATLAB 原生验证。

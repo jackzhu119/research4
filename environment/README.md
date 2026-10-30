@@ -25,6 +25,8 @@ python scripts/setup_research_environment.py --runtime-dir outputs/bootstrap-reb
 
 固定版本在 `runtime-spec.json`、`requirements-core.lock.txt`、`requirements-torch.lock.txt` 中。安装后的实际路径、模式、规格校验值和解包文件校验值记录在 `.runtime/manifest.json`。这是针对已测试平台的组件版本约束，不是完整操作系统镜像或未来包仓库可用性的保证；固定版本不可取得时不会静默改装新版本。
 
+阶段二的小麦RDA源文件解析另使用可选的 `requirements-rda.lock.txt`（rdata1.1.0、xarray2026.9.0），实际验证安装在outputs私有前缀，模型运行不依赖它。复现命令见 [阶段二报告](../docs/RESEARCH_STAGE2_REPORT.md)。
+
 ## 稳定入口与检查
 
 ```bash
