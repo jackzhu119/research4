@@ -1,0 +1,32 @@
+load regressionData.mat;
+output = output';
+
+%划分数据集
+[value,index] = sort(rand(1,2000));
+x_train = input(index(1:1800),:);
+x_test = input(index(1801:2000),:);
+y_train = output(index(1:1800),:);
+y_test = output(index(1801:2000),:);
+
+%设置参数
+gamma = 10;
+sig2 = 0.2;
+type = 'function estimation';
+
+%训练模型
+[alpha,b] = trainlssvm({x_train,y_train,type,gamma,sig2,'RBF_kernel'});
+
+%模型预测
+predict_train = simlssvm({x_train,y_train,type,gamma,sig2,'RBF_kernel'},{alpha,b},x_train);
+train_RMSE = sqrt(sum((predict_train-y_train).^2)/size(y_train,1));
+predict_test = simlssvm({x_train,y_train,type,gamma,sig2,'RBF_kernel'},{alpha,b},x_test);
+test_RMSE = sqrt(sum((predict_test-y_test).^2)/size(y_test,1));
+disp(['train RMSE = ',num2str(train_RMSE),' test RMSE = ',num2str(test_RMSE)]);
+
+%结果可视化
+plotlssvm({x_train,y_train,type,gamma,sig2,'RBF_kernel'},{alpha,b});
+
+figure(1)
+plot(y_test,'-r')
+hold on
+plot(predict_test,'--k')

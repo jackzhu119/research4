@@ -1,0 +1,84 @@
+%% 输入参数列表
+% X 校正集光谱矩阵，n×k的矩阵，n个样本，k个波长
+% Y 校正集浓度矩阵，n×m的矩阵，n个样本，m个组分
+% x 验证集光谱矩阵
+% y 验证集浓度矩阵
+% p X的主成分的个数，最佳取值需由其它方法确定
+% q Y的主成分的个数，最佳取值需由其它方法确定
+%% 输出参数列表
+% y5 x对应的预测值（y为真实值）
+% e1 预测绝对误差，定义为e1=y5-y
+% e2 预测相对误差，定义为e2=|(y5-y)/y|
+clc;clear all;
+%% 第一步：对X,x,Y,y进行归一化处理
+data=xlsread('C:\Users\Administrator\Desktop\pls2.xlsx');
+X=data(1:126,2:end);
+x=data(127:157,2:end);
+Y=data(1:126,1);
+y=data(127:157,1);
+[n,k]=size(X);
+m=size(Y,2);
+Xx=[X;x];
+Yy=[Y;y];
+xmin=zeros(1,k);
+xmax=zeros(1,k);
+for j=1:k
+    xmin(j)=min(Xx(:,j));
+    xmax(j)=max(Xx(:,j));
+    Xx(:,j)=(Xx(:,j)-xmin(j))/(xmax(j)-xmin(j));
+end
+ymin=zeros(1,m);
+ymax=zeros(1,m);
+for j=1:m
+    ymin(j)=min(Yy(:,j));
+    ymax(j)=max(Yy(:,j));
+    Yy(:,j)=(Yy(:,j)-ymin(j))/(ymax(j)-ymin(j));
+end
+X1=Xx(1:n,:);
+x1=Xx((n+1):end,:);
+Y1=Yy(1:n,:);
+y1=Yy((n+1):end,:);
+%% 第二步：分别提取X1和Y1的p和q个主成分，并将X1,x1,Y1,y1映射到主成分空间
+p=n-1;
+q=1
+[CX,SX,LX]=pca(X1);
+[CY,SY,LY]=pca(Y1);
+CX=CX(:,1:p);
+CY=CY(:,q);
+X2=X1*CX;
+Y2=Y1*CY;
+x2=x1*CX;
+y2=y1*CY;
+%%第三步：对X2和Y2进行线性回归
+B=regress(Y2,X2,0.05);%第三个输入参数是显著水平，可以调整
+%% 第四步：将x2带入模型得到预测值y3
+y3=x2*B;
+Y3=X2*B;
+
+
+%% 第五步：将y3进行“反主成分变换”得到y4
+y4=y3*pinv(CY);
+Y4=Y3*pinv(CY);
+%% 第六步：将y4反归一化得到y5
+for j=1:m
+y5(:,j)=(ymax(j)-ymin(j))*y4(:,j)+ymin(j);
+end
+for j=1:m
+Y5(:,j)=(ymax(j)-ymin(j))*Y4(:,j)+ymin(j);
+end
+%% 计算 预测均方根误差
+ec = y5 - y ;
+PRESS = ec' * ec ;
+N = length(ec);
+RMSEP = sqrt(PRESS/N);
+y_as = (y - mean(y))/std(y); % Autoscaling
+y5_as = (y5- mean(y5))/std(y5); % Autoscaling
+Rp = ((y_as')*(y5_as))/(N-1);
+%% 计算校正均方根误差
+er = Y5 - Y ;
+PRESS = er' * er ;
+N = length(er);
+RMSEC = sqrt(PRESS/N);
+Y_as = (Y - mean(Y))/std(Y); % Autoscaling
+Y5_as = (Y5- mean(Y5))/std(Y5); % Autoscaling
+Rc = ((Y_as')*(Y5_as))/(N-1);

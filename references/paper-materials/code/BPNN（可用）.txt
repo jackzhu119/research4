@@ -1,0 +1,196 @@
+clear all;
+clc;
+close all;
+% 定义类别列表
+class_list = {'A', 'B', 'C', 'D', 'E', 'F'};
+% 调用函数提取光谱矩阵,样本名称和组列表
+[dataMatrix, sample_group, wavelength, sample_names] = data_extract(class_list);
+% 获取类别的数目
+uq = unique(sample_group);
+nLabels = length(uq);       % 类别数目
+n = length(sample_group);  % 总样本数目
+
+% 调用函数来对数据进行分割, 按K = 5倍交叉验证进行分割，可以改
+K =2;
+[KfoldIndex] = dataset_split(sample_group, K);
+% 对数据进行归一化
+dataMatrix2 = max_min_scale(dataMatrix);
+% 调用函数进行交叉验证
+[pred_Result, real_label, PosteriorMatrix, test_names, Kindex] = cross_validation(KfoldIndex, dataMatrix2, sample_group, sample_names);
+% 保存整个的预测结果和分类的概率矩阵
+save_prediction_details(pred_Result, real_label, PosteriorMatrix, test_names, Kindex, uq);  % 调用函数保存预测细节
+
+num = 0;
+for i = 1:length(pred_Result)
+    if strcmpi(pred_Result{i}, real_label{i})
+        num = num + 1;
+    end
+end
+ypred = num/(length(real_label)) * 100;
+fprintf('%d 倍交叉验转却率%f\n', K, ypred);
+% 绘制分类混淆矩阵
+pred_Mat = zeros(n,nLabels);
+test_Mat = zeros(n,nLabels);
+for i = 1:length(pred_Result)
+    I1 = find(strcmpi(uq, pred_Result{i}));
+    I2 = find(strcmpi(uq, real_label{i}));
+    pred_Mat(i,I1) = 1;
+    test_Mat(i,I2) = 1;
+end
+% 绘制混淆矩阵
+figure;
+
+plotconfusion(test_Mat', pred_Mat');
+h = gca;
+h.XTickLabel = [uq; {''}];
+h.YTickLabel = [uq; {''}];
+h.XTickLabelRotation = 0;%调整角度
+set (gcf,'Position',[0,0,1200,800]);%去边框
+print(gcf, '-dpng', 'BPNN_Confusion.png', '-r300');
+
+axis normal;%去边框
+%close(gcf);
+
+% 获取混淆的矩阵
+ConfMat = confusionmat(real_label, pred_Result);
+% 调用函数保存结果
+save_confMat_tofile(ConfMat, uq);
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 定义函数来保存混淆矩阵结果
+function save_confMat_tofile(ConfMat, uq)
+    fide0 = fopen('BPNN_confusionMatrix.txt', 'w');
+    fprintf(fide0, '%s\t%s\n', '', strjoin(uq', '\t'));
+    for i = 1:size(ConfMat,1)
+        splitstr = [uq(i), num2cell(ConfMat(i,:))];
+        for j = 1:length(splitstr)
+            splitstr{j} = num2str(splitstr{j});
+        end
+       fprintf(fide0, '%s\n', strjoin(splitstr, '\t'));
+    end
+    fclose(fide0);
+end
+
+
+% 定义函数来保存交叉验证的预测细节结果
+function save_prediction_details(pred_Result, real_label, PosteriorMatrix, test_names, Kindex, uq)
+    fide0 = fopen('BPNN_Kfold_CrossValidation.txt', 'w');
+    fprintf(fide0, '%s\t%s\t%s\t%s\t%s\n', 'KfoldIndex', '样本名称', '类别标签', '预测类别', strjoin(uq','\t'));
+    for i = 1:length(pred_Result)
+        splitstr = [{Kindex(i)}, test_names(i), real_label(i), pred_Result(i), num2cell(PosteriorMatrix(i,:))];
+        for j = 1:length(splitstr)
+            splitstr{j} = num2str(splitstr{j});
+        end
+        fprintf(fide0, '%s\n', strjoin(splitstr, '\t'));
+    end
+    fclose(fide0);
+end
+
+% 定义一个函数用来进行BP神经网络的训练和预测
+function [pred_Result, pred_mat] = create_train_sim_bp(x_train, y_train, x_test)
+    uqL = unique(y_train);
+    L = length(uqL);
+    n = size(x_train,1);
+    y_mat = zeros(n,L);
+    for i = 1:n
+        I1 = strcmpi(uqL, y_train{i});
+        y_mat(i,I1) = 1;
+    end
+    % 创建BP神经网络
+    net = newff(x_train', y_mat', [10], { 'logsig' 'purelin'} , 'traingdx' ,'learngdm'); % 中间隐层神经元数目为10, 设置太大无法训练
+    net = train(net, x_train', y_mat'); % 进行训练
+    pred_mat = sim(net, x_test');
+    pred_mat = pred_mat';
+    pred_Result = {};
+    for i = 1:size(pred_mat,1)
+        [~, I2] = max(pred_mat(i,:));
+        pred_Result{i,1} = uqL{I2};
+    end
+end
+
+
+
+% 定义函数进行交叉验证
+function [pred_Result, real_label, PosteriorMatrix, test_names, Kindex] =  cross_validation(KfoldIndex, dataMatrix2, sample_group, sample_names)
+    pred_Result = {};
+    real_label  = {};
+    PosteriorMatrix = [];
+    test_names  = {};
+    Kindex = [];
+    for i = 1:max(KfoldIndex)
+        I1 = find(KfoldIndex == i);
+        I2 = find(KfoldIndex ~= i);
+        x_train = dataMatrix2(I2,:);
+        y_train = sample_group(I2);
+        x_test  = dataMatrix2(I1,:);
+        y_test  = sample_group(I1);
+        % 调用函数来创建,训练和预测BP神经网络
+        [Ytest, Posterior] = create_train_sim_bp(x_train, y_train, x_test);
+        pred_Result = [pred_Result; Ytest];
+        real_label  = [real_label;  y_test];
+        PosteriorMatrix = [PosteriorMatrix; Posterior];
+        test_names = [test_names; sample_names(I1)];
+        Kindex = [Kindex; KfoldIndex(I1)];
+    end
+end
+
+
+% 定义函数对数据进行标准化, 采用的是max-min最大最小标准化, 将每个样本的吸收系数归一化到
+% 0 ~ 1 之间
+function dataMatrix = max_min_scale(dataMatrix)
+    [m, n] = size(dataMatrix);
+    for i = 1:m
+        tmpD = dataMatrix(i,:);
+        minD = min(tmpD);
+        maxD = max(tmpD);
+        tmpD = (tmpD - minD)/(maxD - minD);
+        dataMatrix(i,:) = tmpD;
+    end
+end
+
+% 定义函数来分割数据
+function [KfoldIndex] = dataset_split(sample_group, K)
+    uq1 = unique(sample_group);
+    KfoldIndex = zeros(length(sample_group),1);
+    for i = 1:length(uq1)
+        I1 = find(strcmpi(sample_group, uq1(i)));
+         % rand('seed',1)%设定随机种子为1。可以更改1或者删除这句语句。
+        Indices = crossvalind('Kfold', length(I1), K);
+        KfoldIndex(I1) = Indices;
+    end
+end
+
+% 定义函数提取数据
+function [dataMatrix,sample_group, wavelength, sample_names] = data_extract(class_list)
+    dataMatrix   = [];
+    sample_group = {};
+    wavelength   = [];
+    sample_names = {};
+    for i = 1:length(class_list)
+        [X1, Y1, Z1] = xlsread(['吸收系数光谱/', class_list{i}, '吸收系数.xlsx']);
+        % 获取行数
+        rowNum = size(Z1,1);
+        for j = 1:size(Z1,1)
+            if ~ischar(Z1{j,1})
+                if isnan(Z1{j,1})
+                    rowNum = j - 1;
+                    break;
+                end
+            end
+        end
+        % 获取列数
+        colNum = size(Z1,2);
+        for j = 1:size(Z1,2)
+            if ~ischar(Z1{1,j})
+                if isnan(Z1{1,j})
+                    colNum = j - 1;
+                    break;
+                end
+            end
+        end
+        wavelength = cell2mat(Z1(1,2:colNum-1));
+        sample_names = [sample_names; Z1(2:rowNum,1)];
+        sample_group = [sample_group; repmat(class_list(i), rowNum - 1, 1)];
+        dataMatrix   = [dataMatrix; cell2mat(Z1(2:rowNum, 2:colNum - 1))];
+    end
+end

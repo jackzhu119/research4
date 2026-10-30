@@ -1,0 +1,6 @@
+d=xlsread('E:\平滑数据\3平滑.xlsx')
+[m,n]=size(d)
+for i=1:n
+    p(:,i)= smooth(d(:,i),15,'sgolay');  
+end
+xlswrite('E:\平滑数据频域.xlsx',p)

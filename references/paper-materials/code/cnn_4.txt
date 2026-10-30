@@ -1,0 +1,144 @@
+clc
+clear
+close all
+%% 加载main保存的数据  
+load data
+
+xtrain=[xtrain,zeros(size(xtrain,1),17)]; % 将变量转换为961个变量，为了后面的reshape，转换为31*31，也可以25*40=1000个
+xtest=[xtest,zeros(size(xtest,1),17)];
+for i=1:size(xtrain,1)
+    XTrain(:,:,:,i)=reshape(xtrain(i,:),32,32,1);  % 将2维矩阵转换为4维矩阵，方便卷积滤波处理
+end
+for i=1:size(xtest,1)
+    XTest(:,:,:,i)=reshape(xtest(i,:),32,32,1);    % 将2维矩阵转换为4维矩阵，方便卷积滤波处理
+end
+
+YTrain=categorical(ytrain);     %将double类型转换为categorical，因为MATLAB自带的工具箱分类不支持doulbe类型
+YTest=categorical(ytest);       %将double类型转换为categorical，因为MATLAB自带的工具箱分类不支持doulbe类型
+% YTrain=ytrain;
+% YTest=ytest;
+
+layers = [
+    imageInputLayer([32 32 1])    % 输入层，也就是变量的维数，为31*31*1，上面进行了转换
+    % 'Padding' 名称-值对组对输入特征图进行填充。对于默认步幅为 1 的卷积层，'same' 填充可确保空间输出大小与输入大小相同。
+    % 卷积层c1
+    convolution2dLayer(5,6,'Padding','same') %数字3表示滤波器大小为 5×5，6是滤波器数量 numFilters
+    batchNormalizationLayer                   %创建批量归一化层
+    reluLayer                                 %激活函数是修正线性单元 
+    %最大池化层卷积层（带激活函数），以减小特征图的空间大小并删除冗余空间信息。
+    %增加更深卷积层中的滤波器数量，而不会增加每层所需的计算量。
+    % 池化层s2
+    maxPooling2dLayer(2,'Stride',2) 
+    
+    % 卷积层c3
+    convolution2dLayer(5,16,'Padding','same')
+    batchNormalizationLayer
+    reluLayer   
+    % 池化层s4
+    maxPooling2dLayer(2,'Stride',2)  % 池化层s4
+    
+    % 卷积层c5
+    convolution2dLayer(5,120,'Padding','same')
+    batchNormalizationLayer
+    reluLayer  %激活函数是修正线性单元 
+    
+    % 全链接层3
+%     fullyConnectedLayer(12)   % 全连接层，12为需要分的种类,可以改写种类数量
+    fullyConnectedLayer(6) 
+    %softmax 激活函数对全连接层的输出进行归一化。softmax 层的输出由总和为 1 的多个正数组成，
+    %这些数字随后可被分类层用作分类概率。使用 softmaxLayer 函数在最后一个全连接层后创建一个 softmax 层
+    softmaxLayer
+    % classificationLayer分类层 softmax 激活函数针对每个输入返回的概率，将输入分配到其中一个互斥类并计算损失
+    classificationLayer];
+
+
+% options = trainingOptions('sgdm', ...  %具有动量的随机梯度下降 (SGDM) 训练网络
+%     'InitialLearnRate',0.01, ...       %初始学习率为 0.01
+%     'MaxEpochs',100, ...               %最大训练轮数设置为 100
+%     'Shuffle','every-epoch', ...       %一轮训练是对整个训练数据集的一个完整训练周期
+%     'Verbose',true, ...               %验证数据不用于更新网络权重
+%     'Plots','training-progress');      %打开训练进度图
+miniBatchSize = 128;
+validationFrequency = floor(numel(YTrain)/miniBatchSize);
+options = trainingOptions('sgdm', ...
+    'InitialLearnRate',0.01, ...
+    'MaxEpochs',100, ...
+    'MiniBatchSize',miniBatchSize, ...
+    'VerboseFrequency',validationFrequency, ...
+    'ValidationData',{XTest,YTest}, ...
+    'ValidationFrequency',validationFrequency, ...
+    'Plots','training-progress');
+
+net = trainNetwork(XTrain,YTrain,layers,options); %使用训练数据训练网络
+%% 对训练数据进行分类并计算准确度
+YPred_train = classify(net,XTrain);
+acc_train = sum(YPred_train == YTrain)./numel(YPred_train)
+figure
+plot(1:length(YPred_train),YPred_train,'ro')
+hold on
+plot(1:length(YTrain),YTrain,'bo')
+legend('Prediction classification','Actual classification','Location','NW')
+ylabel('Category label')
+xlabel('Sample number of calibration set')
+title 'Prediction results'
+%% 绘制训练集分类混淆矩阵
+% uq=1:12;
+uq=1:6;
+uq=uq';
+% pred_Mat1 = zeros(length(YPred_train),12);
+% test_Mat1 = zeros(length(YPred_train),12);
+pred_Mat1 = zeros(length(YPred_train),6);
+test_Mat1 = zeros(length(YPred_train),6);
+for i = 1:length(YPred_train)
+    II1 = find(uq==double(YPred_train(i)));
+    II2 = find(uq==double(YTrain(i)));
+   % I2 = find(strcmpi(uq, real_label{i}));
+    pred_Mat1(i,II1) = 1;
+    test_Mat1(i,II2) = 1;
+end
+% 绘制混淆矩阵
+figure;
+plotconfusion(test_Mat1', pred_Mat1');
+h = gca;
+h.XTickLabel = [uq; {''}];
+h.YTickLabel = [uq; {''}];
+h.XTickLabelRotation = 0;%调整角度
+set(gcf, 'Position', get(0, 'ScreenSize'));
+title('Confusion Matrix(Calibration set)')
+
+%% 对测试数据进行分类并计算准确度
+YPred = classify(net,XTest);
+acc_test = sum(YPred == YTest)./numel(YTest)
+%% 绘制测试集分类混淆矩阵
+% pred_Mat = zeros(length(YPred),12);
+% test_Mat = zeros(length(YPred),12);
+pred_Mat = zeros(length(YPred),6);
+test_Mat = zeros(length(YPred),6);
+for i = 1:length(YPred)
+    I1 = find(uq==double(YPred(i)));
+    I2 = find(uq==double(YTest(i)));
+   % I2 = find(strcmpi(uq, real_label{i}));
+    pred_Mat(i,I1) = 1;
+    test_Mat(i,I2) = 1;
+end
+% 绘制混淆矩阵
+figure;
+plotconfusion(test_Mat', pred_Mat');
+h = gca;
+h.XTickLabel = [uq; {''}];
+h.YTickLabel = [uq; {''}];
+h.XTickLabelRotation = 0;%调整角度
+set(gcf, 'Position', get(0, 'ScreenSize'));
+title('Confusion Matrix(Prediction set)')
+
+%% 绘制预测结果
+figure
+plot(1:length(YTest),YPred,'ro')
+hold on
+plot(1:length(YTest),YTest,'bo')
+legend('Prediction classification','Actual classification','Location','NW')
+ylabel('Category label')
+xlabel('Sample number of prediction set')
+title 'Prediction results'
+
+% (InputSize -((Filter Size -1)*DilationFactor + 1) + 2*Padding)/Stride + 1

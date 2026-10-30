@@ -1,0 +1,156 @@
+clc
+clear
+close all
+%% 加载数据
+d1=xlsread('吸收系数光谱\A吸收系数');
+d1=d1(2:end,2:end);
+
+% d2=xlsread('吸收系数光谱\B吸收系数');
+% d2=d2(2:end,2:end);
+
+d3=xlsread('吸收系数光谱\C吸收系数');
+d3=d3(2:end,2:end);
+
+% d4=xlsread('吸收系数光谱\D吸收系数');
+% d4=d4(2:end,2:end);
+
+d5=xlsread('吸收系数光谱\E吸收系数');
+d5=d5(2:end,2:end);
+
+d6=xlsread('吸收系数光谱\F吸收系数');
+d6=d6(2:end,2:end);
+
+% d7=xlsread('吸收系数光谱\G吸收系数');
+% d7=d7(2:end,2:end);
+% 
+d8=xlsread('吸收系数光谱\H吸收系数');
+d8=d8(2:end,2:end);
+
+d9=xlsread('吸收系数光谱\I吸收系数');
+d9=d9(2:end,2:end);
+% 
+% d10=xlsread('吸收系数光谱\J吸收系数');
+% d10=d10(2:end,2:end);
+% 
+% d11=xlsread('吸收系数光谱\K吸收系数');
+% d11=d11(2:end,2:end);
+% 
+% d12=xlsread('吸收系数光谱\L吸收系数');
+% d12=d12(2:end,2:end);
+
+% data=[d1;d2;d3;d4;d5;d6;d7;d8;d9;d10;d11;d12];
+data=[d1;d3;d5;d6;d8;d9];
+save data data
+%% 加载数据
+
+% test_index=4:3:48;
+test_index=7:2:48;
+index=1:48;
+train_index=setdiff(index,test_index);
+% xtrain=[d1(train_index,:);d2(train_index,:);d3(train_index,:);d4(train_index,:)...
+%     ;d5(train_index,:);d6(train_index,:);d7(train_index,:);d8(train_index,:)...
+%     ;d9(train_index,:);d10(train_index,:);d11(train_index,:);d12(train_index,:)];
+xtrain=[d1(train_index,:);d3(train_index,:);d5(train_index,:);d6(train_index,:)...
+    ;d8(train_index,:);d9(train_index,:)];
+ytrain=xtrain(:,end);
+xtrain=xtrain(:,1:end-1);
+
+
+% xtest=[d1(test_index,:);d2(test_index,:);d3(test_index,:);d4(test_index,:)...
+%     ;d5(test_index,:);d6(test_index,:);d7(test_index,:);d8(test_index,:)...
+%     ;d9(test_index,:);d10(test_index,:);d11(test_index,:);d12(test_index,:)];
+xtest=[d1(test_index,:);d3(test_index,:);d5(test_index,:);d6(test_index,:)...
+    ;d8(test_index,:);d9(test_index,:)];
+ytest=xtest(:,end);
+xtest=xtest(:,1:end-1);
+
+save data xtrain xtest ytrain ytest
+load data
+X=xtrain;
+[pn_train,inputps] = mapminmax(X',0,1);
+X = pn_train';
+
+
+[PCALoadings,PCAScores,PCAVar] = pca(X,'Economy',false);
+% figure
+% plot3(PCAScores(:,1),PCAScores(:,2),PCAScores(:,3),'r^');
+% legend('PCR');
+% grid on; view(-30,30);
+X=PCAScores(:,1:19); % 降维后的训练数据
+[idx,C] = kmeans(X,12);
+
+y=[9*ones(21,1);12*ones(21,1);6*ones(21,1);1*ones(21,1);7*ones(21,1);3*ones(21,1)...
+;8*ones(21,1);4*ones(21,1);11*ones(21,1);10*ones(21,1);5*ones(21,1);2*ones(21,1)];
+
+% ytest_real=[9*ones(9,1);12*ones(9,1);6*ones(9,1);1*ones(9,1);7*ones(9,1);3*ones(9,1)...
+% ;8*ones(9,1);4*ones(9,1);11*ones(9,1);10*ones(9,1);5*ones(9,1);2*ones(9,1)];
+figure
+plot(1:length(idx),idx,'ro')
+hold on
+plot(1:length(idx),ytrain,'bo')
+legend('预测值','真实值','Location','NW')
+title 'pca-kmeans 训练集预测结果'
+figure
+plot3(X(idx==1,1),X(idx==1,2),X(idx==1,3),'r.','MarkerSize',12)
+hold on
+plot3(X(idx==2,1),X(idx==2,2),X(idx==2,3),'g.','MarkerSize',12)
+plot3(X(idx==3,1),X(idx==3,2),X(idx==3,3),'b.','MarkerSize',12)
+plot3(X(idx==4,1),X(idx==4,2),X(idx==4,3),'c.','MarkerSize',12)
+plot3(X(idx==5,1),X(idx==5,2),X(idx==5,3),'m.','MarkerSize',12)
+plot3(X(idx==6,1),X(idx==6,2),X(idx==6,3),'k.','MarkerSize',12)
+
+size=5;
+plot3(X(idx==7,1),X(idx==7,2),X(idx==7,3),'ro','MarkerSize',size)
+plot3(X(idx==8,1),X(idx==8,2),X(idx==8,3),'go','MarkerSize',size)
+plot3(X(idx==9,1),X(idx==9,2),X(idx==9,3),'bo','MarkerSize',size)
+plot3(X(idx==10,1),X(idx==10,2),X(idx==10,3),'co','MarkerSize',size)
+plot3(X(idx==11,1),X(idx==11,2),X(idx==11,3),'mo','MarkerSize',size)
+plot3(X(idx==12,1),X(idx==12,2),X(idx==12,3),'ko','MarkerSize',size)
+legend('标签 1','标签 2','标签 3','标签 4','标签 5','标签 6',...
+    '标签 7','标签 8','标签 9','标签 10','标签 11','标签 12','Location','NW')
+title 'Cluster Assignments and Centroids'
+xlabel('PCA1')
+ylabel('PCA2')
+zlabel('PCA3')
+grid on
+%view(-30,30);
+hold off
+
+%% 预测集效果
+pn_test=mapminmax('apply',xtest',inputps);
+pn_test=pn_test';
+pca_testx=pn_test*PCALoadings;
+pca_testx=pca_testx(:,1:19); % 降维后的训练数据
+[aaa,idx_test] = pdist2(C,pca_testx,'euclidean','Smallest',1);
+% plot3(pca_testx(:,1),pca_testx(:,2),pca_testx(:,3),idx_test,'MarkerSize',12)
+
+
+X=[];
+idx=[];
+X=pca_testx;
+idx=idx_test;
+figure
+plot3(X(idx==1,1),X(idx==1,2),X(idx==1,3),'r.','MarkerSize',12)
+hold on
+plot3(X(idx==2,1),X(idx==2,2),X(idx==2,3),'g.','MarkerSize',12)
+plot3(X(idx==3,1),X(idx==3,2),X(idx==3,3),'b.','MarkerSize',12)
+plot3(X(idx==4,1),X(idx==4,2),X(idx==4,3),'c.','MarkerSize',12)
+plot3(X(idx==5,1),X(idx==5,2),X(idx==5,3),'m.','MarkerSize',12)
+plot3(X(idx==6,1),X(idx==6,2),X(idx==6,3),'k.','MarkerSize',12)
+
+size=5;
+plot3(X(idx==7,1),X(idx==7,2),X(idx==7,3),'ro','MarkerSize',size)
+plot3(X(idx==8,1),X(idx==8,2),X(idx==8,3),'go','MarkerSize',size)
+plot3(X(idx==9,1),X(idx==9,2),X(idx==9,3),'bo','MarkerSize',size)
+plot3(X(idx==10,1),X(idx==10,2),X(idx==10,3),'co','MarkerSize',size)
+plot3(X(idx==11,1),X(idx==11,2),X(idx==11,3),'mo','MarkerSize',size)
+plot3(X(idx==12,1),X(idx==12,2),X(idx==12,3),'ko','MarkerSize',size)
+legend('标签 1','标签 2','标签 3','标签 4','标签 5','标签 6',...
+    '标签 7','标签 8','标签 9','标签 10','标签 11','标签 12','Location','NW')
+title 'Cluster Assignments and Centroids'
+xlabel('PCA1')
+ylabel('PCA2')
+zlabel('PCA3')
+grid on
+view(-30,30);
+hold off
