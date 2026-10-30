@@ -1,7 +1,7 @@
 {
   "checked_on": "2026-10-30",
   "scope": "用户已转向与自己Excel时域、频域、折射率、吸收系数相似的中药/植物THz数据；NIR与代谢峰表退出本表主候选",
-  "finding": "核验到两个有明确数值结构与CC BY4.0的数据仓储DOI，均为同团队人参物种分类的THz光学常数，可能重叠。尚未在本环境下载解压，不能称已运行。未找到且核验可直接取得的酸枣仁多产地原始THz矩阵。其余四条是候补附件或论文/专利证据，与开放训练集明确分开。",
+  "finding": "两个有明确数值结构与CC BY4.0的数据仓储DOI，均为人参物种分类的THz光学常数，存在队列重叠可能。随后已实际解压用户上传的2025候选包并解析18个CSV：20个亚洲人参标签、22个西洋参标签。未运行模型，未取得产地标签。其余候补论文或专利与开放训练集分开记录。",
   "records": [
     {
       "id": "ginseng_hvbp5mdtxx_v2",
@@ -24,8 +24,8 @@
         "n": "R.I.U.，无量纲",
         "alpha": "cm^-1"
       },
-      "frequency_range": "V1说明65点0.2–1.6 THz；V2说明各CSV自带频率，须以实际文件核验，不把旧版频轴强制套新版本",
-      "file_list_status": "仓储主来源描述的文件清单；未下载解压，非本地实测清单",
+      "frequency_range": "用户上传包实际CSV共同频率为0.2–1.6 THz、65点；与原V2说明结构一致，但未与仓储端校验和比对。",
+      "file_list_status": "用户上传包实际解压并解析18个CSV；原件与派生标注版保存在data/external/ginseng_hvbp5mdtxx_v2。",
       "outer_file": {
         "name": "Dataset.rar",
         "size_display": "23.6 KB",
@@ -52,9 +52,9 @@
         "label_6.csv"
       ],
       "schema": "12个光学常数CSV：首列frequency，其余第2–8列为7片样本；6个标签CSV。18个文件不是18份独立额外数据集。",
-      "access": "仓储公开、列Download All与CC BY4.0；主来源索引显示外层RAR。当前web渲染未提供可点击文件URL，公共API未由工具成功获取，云端网络允许列表不含Mendeley。未尝试绕过网络策略，未下载包。",
-      "download_to_local_verified": false,
-      "numeric_content_parsed": false,
+      "access": "最初仅核验仓储说明；后续用户上传24,212字节Dataset.rar，已通过附件工具取得并实际解压解析。未从Mendeley直接下载，未与仓储端哈希独立比对。",
+      "download_to_local_verified": true,
+      "numeric_content_parsed": true,
       "license": "CC BY 4.0（数据仓储明确）",
       "url": "https://data.mendeley.com/datasets/hvbp5mdtxx/2",
       "evidence_urls": [
@@ -62,7 +62,24 @@
         "https://data.mendeley.com/datasets/hvbp5mdtxx",
         "https://data.mendeley.com/datasets/compare/hvbp5mdtxx"
       ],
-      "mainline_fit": "物理量与用户Excel中的n/alpha相似，可检验老师SVM、PLS-DA、PCA、CARS/UVE等流程与小样本稳定性；只能验证人参物种分类，不能证明酸枣仁产地识别。"
+      "mainline_fit": "物理量与用户Excel中的n/alpha相似，可检验老师SVM、PLS-DA、PCA、CARS/UVE等流程与小样本稳定性；只能验证人参物种分类，不能证明酸枣仁产地识别。",
+      "local_inspection": {
+        "acquisition": "user-uploaded attachment",
+        "archive_sha256": "3b1bbcff42c0825361c372cab329abee2c21c29d3b4b30ac7c1366865e7c3fcc",
+        "csv_count": 18,
+        "n_spectral_files": 6,
+        "alpha_spectral_files": 6,
+        "label_files": 6,
+        "label_counts": {
+          "1_Asian_ginseng": 20,
+          "0_American_ginseng": 22
+        },
+        "pairing_rule": "same group suffix and within-group order; original sample IDs not provided",
+        "growing_origin_provided": false,
+        "independent_plants_verified": false,
+        "model_runs": 0,
+        "report": "data/external/ginseng_hvbp5mdtxx_v2/README.md"
+      }
     },
     {
       "id": "ginseng_k4pjjjmgnr_v1",
@@ -355,7 +372,7 @@
     "computed_optical_constants": "由时域/频域推得n、kappa、alpha，单位和频率轴必须保留",
     "data_leakage": "同一样本的不同频段、不同fold、不同预处理或重复扫描不是新独立样本；跨DOI需样本ID/哈希去重"
   },
-  "download_limits": "只进行公共网站元数据与链接核验；web工具未取得Mendeley实际下载ID，云端强制网络策略的HTTP允许列表不含Mendeley/PMC，未绕过策略。PMC 2021补充ZIP点击验证码。未联系作者。",
+  "download_limits": "原来源检索仅核验公共网站元数据与链接；云端HTTP允许列表不含Mendeley，未绕过策略。后续人参2025包由用户上传取得并实际解析，与Mendeley直接下载区分。其余来源下载状态不变；未联系作者。",
   "extra_on_request_leads": [
     {
       "name": "Detection of Adulteration of Panax Notoginseng Powder by Terahertz Technology",
