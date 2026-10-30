@@ -1,0 +1,230 @@
+{
+  "checked_date": "2026-10-30",
+  "scope": "Methods for cross-domain spectral modelling and few-shot calibration. These references are method analogues; all six main papers are non-THz. Direct THz/herb papers are delegated separately.",
+  "wos_access": "No authenticated Web of Science/Clarivate Master Journal List session used; no current SCIE status, JCR quartiles or impact factors asserted.",
+  "records": [
+    {
+      "id": "safs_2022",
+      "priority": 1,
+      "title": "Algorithm of Stability-Analysis-Based Feature Selection for NIR Calibration Transfer",
+      "authors": [
+        "Zheyu Zhang",
+        "Yaoxiang Li",
+        "Chunxu Li",
+        "Zichun Wang",
+        "Ya Chen"
+      ],
+      "year": 2022,
+      "journal": "Sensors",
+      "volume": "22",
+      "article": "1659",
+      "doi": "10.3390/s22041659",
+      "primary_urls": [
+        "https://doi.org/10.3390/s22041659",
+        "https://pmc.ncbi.nlm.nih.gov/articles/PMC8880237/"
+      ],
+      "modality": "NIR, not THz-TDS",
+      "objects_and_task": "Paired master/slave instrument spectra of corn (oil content) and larch wood; quantitative calibration transfer.",
+      "method": "SAFS selects instrument-stable wavelengths using master/slave coefficient stability; Monte Carlo analysis, GA/validation selection and calibration transfer are existing prior art.",
+      "data_protocol_verified": "Publisher indexed full-text confirms corn 80 samples, mp5 master/mp6 slave, 1100–2498 nm/700 channels, oil response. Wood from Heilongjiang Fangzheng Xinghuo Forest Farm. Exact split counts not re-read in this turn.",
+      "leakage_and_use_conditions": "Use source/slave training and permitted transfer standards only. Feature thresholds, GA tuning and PDS must not use final query labels. Corn measurements across devices must be grouped by the same physical sample. Do not claim original paper ruled out every leakage mode; that has not been audited.",
+      "why_read": "Closest existing method to stability selection plus transfer; essential prior-art comparison before claiming novelty from repeated CARS/UVE and calibration.",
+      "limits": "Not THz or acid-jujube origin classification. Paired source/slave samples are a different information condition from unmatched new target-batch samples.",
+      "read_scope": "Existing local full-method audit plus current publisher metadata/indexed method and data sections; current direct PMC fetch CAPTCHA, MDPI direct fetch429.",
+      "code_data": "Public corn source cited; wood raw files not obtained in this task.",
+      "wos_scie_verified": false
+    },
+    {
+      "id": "fewshot_benchmark_2026",
+      "priority": 1,
+      "title": "A task-oriented few-shot spectroscopy benchmark: Empirical evaluation of meta-learning approaches",
+      "authors": [
+        "Iván Garzón",
+        "Guillermo Gomez-Trenado",
+        "Sergio Damas"
+      ],
+      "year": 2026,
+      "publication_date": "2026-03-01",
+      "journal": "Engineering Applications of Artificial Intelligence",
+      "volume": "167, Part 3",
+      "article": "113593",
+      "doi": "10.1016/j.engappai.2025.113593",
+      "primary_urls": [
+        "https://www.sciencedirect.com/science/article/pii/S0952197625036255",
+        "https://digibug.ugr.es/handle/10481/111450?locale-attribute=en",
+        "https://github.com/ivgase/spectroscopy-fewshot-benchmark"
+      ],
+      "modality": "NIR/MIR, not THz; extension to THz is future work in the paper.",
+      "objects_and_task": "Few-shot regression tasks across fruit, soil, food and pharmaceuticals; Mango partitioned by harvest year or year-region. This is not a medicinal-origin classifier.",
+      "method": "Compares fine-tuning, MAML, prototypical networks, SNAIL, SimCLR+MLP/PR and a support-only model.",
+      "data_protocol_verified": "Explicit task-level train/test distinction and labeled support vs unseen query. Main evaluation adapts test tasks on25 support examples for10 epochs, with5/10-shot analyses. Table1 says marked datasets use random50% support/query while others retain original splits; Mango uses year and year-region tasks.",
+      "leakage_and_use_conditions": "Support/query separation and task-level held-out domains are directly useful. Original random splits do not automatically prove physical specimen/batch separation. Independently group repeated spectra and prevent any shared specimen from crossing partitions. Do not tune on query labels. A paper-provided public benchmark is not an untouched confirmation set after repeatedly selecting methods on it.",
+      "why_read": "Most direct recent example for designing few-shot learning curves and comparing adaptation approaches with simple baselines.",
+      "limits": "DOI contains2025 but formal journal issue is2026. Large heterogeneous meta-training tasks are not available merely from42 human ginseng pellets. Transferring meta-learned NIR/MIR weights to THz is not established by this paper.",
+      "read_scope": "Publisher indexed full article sections3.1/4.1/4.3 and institutional publication record read; supplement and actual code execution not audited.",
+      "code_data": "Public acquisition/preparation and experiment scripts; third-party source data are not mirrored, original source licenses remain applicable.",
+      "wos_scie_verified": false
+    },
+    {
+      "id": "dipls_2018",
+      "priority": 1,
+      "title": "Domain-Invariant Partial-Least-Squares Regression",
+      "authors": [
+        "Ramin Nikzad-Langerodi",
+        "Werner Zellinger",
+        "Edwin Lughofer",
+        "Susanne Saminger-Platz"
+      ],
+      "year": 2018,
+      "journal": "Analytical Chemistry",
+      "volume": "90(11)",
+      "pages": "6693–6701",
+      "doi": "10.1021/acs.analchem.8b00498",
+      "primary_urls": [
+        "https://pubmed.ncbi.nlm.nih.gov/29722978/",
+        "https://pubs.acs.org/doi/10.1021/acs.analchem.8b00498"
+      ],
+      "modality": "Simulated data plus two real NIR datasets; not THz.",
+      "objects_and_task": "Quantitative regression with instrument/environment/matrix distribution changes; unlabeled, partly labeled or labeled target adaptation.",
+      "method": "Adds a source/target domain regularizer to ordinary PLS to align latent distributions, with a closed-form domain-invariant weight vector.",
+      "data_protocol_verified": "Abstract explicitly states simulation with unknown target interfering agent, plus real NIR unsupervised/semi-supervised/supervised settings. Sample counts, support size and exact held-out design not verified from full methods in this turn.",
+      "leakage_and_use_conditions": "Report whether adaptation uses only a separate target pool or all query covariates (transductive). Unlabeled target access is still an information advantage over source-only; do not label it pure external validation without stating access. Source-target must share meaningful response semantics.",
+      "why_read": "A classical domain-adaptive PLS baseline if constituent regression becomes the main task; more principled than merely changing SVM hyperparameters.",
+      "limits": "Directly a regression method; applying it to origin labels through PLS-DA needs explicit extension and comparison. Alignment may remove chemically relevant differences if domain and origin are confounded.",
+      "read_scope": "Full PubMed primary record/abstract; publisher access restricted, no numeric protocol reproduced.",
+      "code_data": "Not obtained/run in this task.",
+      "wos_scie_verified": false
+    },
+    {
+      "id": "deep_ct_2021",
+      "priority": 2,
+      "title": "Deep calibration transfer: Transferring deep learning models between infrared spectroscopy instruments",
+      "authors": [
+        "Puneet Mishra",
+        "Dário Passos"
+      ],
+      "year": 2021,
+      "journal": "Infrared Physics & Technology",
+      "volume": "117",
+      "article": "103863",
+      "doi": "10.1016/j.infrared.2021.103863",
+      "primary_urls": [
+        "https://doi.org/10.1016/j.infrared.2021.103863",
+        "https://research.wur.nl/en/publications/deep-calibration-transfer-transferring-deep-learning-models-betwe/",
+        "https://edepot.wur.nl/553186"
+      ],
+      "modality": "FT-NIR benchtop and handheld NIR; not THz.",
+      "objects_and_task": "Transfer deep quantitative spectral models to a new instrument.",
+      "method": "Transfer learning/model updating rather than fitting a paired spectrum-to-spectrum conversion matrix.",
+      "data_protocol_verified": "Institutional abstract confirms two cases: benchtop FT-NIR→other benchtop and handheld NIR→other handheld. No common paired calibration standards used. Full sample/split counts and fine-tuned layer details not read; do not infer them.",
+      "leakage_and_use_conditions": "Standard-free means no common measured standards, not necessarily no target labels. Fine-tuning requires separate target labeled support; query remains independent. Freeze/tune choices must use source or support validation only.",
+      "why_read": "Explains a possible future extension of teacher CNNs into model adaptation rather than standalone small-sample CNN training.",
+      "limits": "42-pellet ginseng dataset with no instrument/batch IDs cannot establish this transfer scenario. Deep source pretraining and small target adaptation are different from training a large CNN from scratch.",
+      "read_scope": "Institutional bibliographic record and abstract; institutional fulltext fetch403; no code execution.",
+      "code_data": "Paper institutional open-access route exists; data/code acquisition not verified in this task.",
+      "wos_scie_verified": false
+    },
+    {
+      "id": "ds_pds_1991",
+      "priority": 2,
+      "title": "Multivariate instrument standardization",
+      "authors": [
+        "Yongdong Wang",
+        "David J. Veltkamp",
+        "Bruce R. Kowalski"
+      ],
+      "year": 1991,
+      "journal": "Analytical Chemistry",
+      "volume": "63(23)",
+      "pages": "2750–2756",
+      "doi": "10.1021/ac00023a016",
+      "primary_urls": [
+        "https://pubs.acs.org/doi/10.1021/ac00023a016"
+      ],
+      "modality": "Foundational multivariate instrument standardization; not a THz herb study.",
+      "objects_and_task": "Transfer a multivariate calibration between instruments with common standard samples.",
+      "method": "Foundational direct standardization/piecewise direct standardization (DS/PDS) family, a standard baseline rather than a new proposed contribution.",
+      "data_protocol_verified": "Publisher title/metadata verified; exact original sample counts and experimental split not read in this turn.",
+      "leakage_and_use_conditions": "Needs same standards measured on both instruments. Paired standards must belong to support/transfer set, never final test specimens. If user has only unmatched plant samples from different origins, the information required for a conventional DS/PDS baseline is absent.",
+      "why_read": "Clarifies why paired-standard transfer and small labeled target calibration are different settings; mandatory simple comparator when paired standards exist.",
+      "limits": "Not directly usable without paired standards; does not solve previously unseen origin classes.",
+      "read_scope": "Publisher bibliographic metadata; modern method context cross-checked in prior local method audit. Full paper access403.",
+      "code_data": "Not obtained/run.",
+      "wos_scie_verified": false
+    },
+    {
+      "id": "ct_vpdtw_2019",
+      "priority": 2,
+      "title": "Scalable calibration transfer without standards via dynamic time warping for near-infrared spectroscopy",
+      "authors": [
+        "Congming Zou",
+        "Huimin Zhu",
+        "Junru Shen",
+        "Yue He",
+        "Jiaen Su",
+        "Xiaqiong Fan",
+        "Hongmei Lu",
+        "Zhimin Zhang",
+        "Yi Chen"
+      ],
+      "year": 2019,
+      "journal": "Analytical Methods",
+      "doi": "10.1039/C9AY01139K",
+      "primary_urls": [
+        "https://pubs.rsc.org/en/content/articlehtml/2019/ay/c9ay01139k",
+        "https://github.com/HMzhu/CTVPdtw"
+      ],
+      "modality": "NIR; not THz.",
+      "objects_and_task": "Standard-free calibration transfer, evaluated on Cargill corn and IDRC2016 wheat.",
+      "method": "Variable-penalty dynamic time warping (CT-VPdtw).",
+      "data_protocol_verified": "Publisher indexed abstract confirms corn-with-standards and standard-free wheat comparison. Existing repository audit reads author wheat documentation: source248 calibration specimens, target150 new specimens measured on two new instruments. That dataset mapping is prior local evidence, not fresh numeric parsing here.",
+      "leakage_and_use_conditions": "Target A/B use same150 new specimens; do not count them as two independent cohorts. Transfer-set/query separation must be retained. Spectral warping assumptions must be assessed rather than imposed on unknown THz band shifts.",
+      "why_read": "Connects directly to the publicly available wheat transfer data already used in stage2 and provides a named standard-free method baseline.",
+      "limits": "No raw THz data, no herbal origin labels. New specimens plus new instruments jointly change target domain, so interpretation should not isolate instrument effects without evidence.",
+      "read_scope": "Publisher indexed abstract/metadata plus existing repository method/data audit; current direct RSC fetch403.",
+      "code_data": "Author GitHub contains package/source and wheat data used previously; no new run.",
+      "wos_scie_verified": false,
+      "volume": "11",
+      "pages": "4481–4493"
+    }
+  ],
+  "background_references": [
+    {
+      "id": "tca_2011",
+      "title": "Domain adaptation via transfer component analysis",
+      "authors": [
+        "Sinno Jialin Pan",
+        "Ivor W. Tsang",
+        "James T. Kwok",
+        "Qiang Yang"
+      ],
+      "year": 2011,
+      "journal": "IEEE Transactions on Neural Networks",
+      "volume": "22(2)",
+      "pages": "199–210",
+      "doi": "10.1109/TNN.2010.2091281",
+      "primary_url": "https://pubmed.ncbi.nlm.nih.gov/21095864/",
+      "use": "Generic latent distribution alignment baseline; classification-relevant, not a THz/herb validation. Original target data access must be disclosed."
+    },
+    {
+      "id": "coral_2016",
+      "title": "Return of Frustratingly Easy Domain Adaptation",
+      "authors": [
+        "Baochen Sun",
+        "Jiashi Feng",
+        "Kate Saenko"
+      ],
+      "year": 2016,
+      "venue": "Proceedings of the AAAI Conference on Artificial Intelligence,30(1)",
+      "doi": "10.1609/aaai.v30i1.10306",
+      "primary_url": "https://ojs.aaai.org/index.php/AAAI/article/view/10306",
+      "use": "Correlation Alignment (CORAL), covariance-alignment baseline. This is a conference paper, not an SCI journal article; not plant-specific."
+    }
+  ],
+  "recommended_reading_order": [
+    "safs_2022",
+    "fewshot_benchmark_2026",
+    "dipls_2018"
+  ],
+  "current_project_caution": "Existing stage2 repeated aggregation showed no uniform accuracy gain; shrinkage calibration is not universally beneficial. Novelty of wrapping CARS/UVE and slope/bias correction is not established. Few-shot support size is not independent physical sample count unless specimen mappings are known."
+}
