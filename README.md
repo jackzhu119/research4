@@ -4,6 +4,7 @@
 
 ## 科研起步与算法审读
 
+- [Gaussian／GaussView安装记录](docs/GAUSSIAN_INSTALLATION.md)：上传GaussView6.0.16已通过Wine64启动并显示水分子；保留启动入口和截图，Gaussian计算引擎仍缺失。
 - [老师源码性质与主线文献对照](docs/ALGORITHM_ORIGINALITY_AND_LITERATURE.md)：区分现成算法、任务适配和未确认的改进，列出中药THz、酸枣仁产地及小样本迁移参考，说明SCI／SCIE核验范围。
 - [太赫兹数据来源核验](docs/THZ_DATA_SOURCES.md)：优先中国机构，锁定人参 n／α CSV、小麦粉含量 MAT 与代码、原始时域信号等；逐项区分文件说明、目录预览、受限访问和未下载状态。
 - [后续科研阶段二](docs/RESEARCH_STAGE2_REPORT.md)：稳定筛选与少样本校准实现，200个新药材分类场景、7200组迁移评价与正负结果。

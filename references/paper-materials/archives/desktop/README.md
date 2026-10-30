@@ -26,4 +26,6 @@
 
 `GaussView 6.0.16 Win64安装包.rar` 保留在四卷中，可按上述方法解压取得。本次只读取压缩档案并核验成员完整性，未运行代码或安装程序，也未进一步解压两个内层 RAR 包。
 
+后续按用户安装要求，已从上述原分卷恢复GaussView内层RAR并核对SHA-256；其应用载荷通过私有Wine64启动并显示水分子。该后续操作与最初归档检查分开记录，详见[安装实测](../../../../docs/GAUSSIAN_INSTALLATION.md)。Gaussian计算引擎仍未安装。
+
 全库文件清单见 [manifest.csv](../../manifest.csv)。
