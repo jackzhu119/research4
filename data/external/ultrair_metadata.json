@@ -1,0 +1,189 @@
+{
+  "retrieved_at_utc": "2026-10-30T09:28:34.004920+00:00",
+  "selected_source": {
+    "name": "UltraIR in-house medicinal-herb FTIR datasets",
+    "repository": "https://github.com/AIMS-Lab-HKUSTGZ/UltraIR",
+    "commit": "f9e52429f325ee408045359bf8d5ac67e25bdc53",
+    "paper": "https://arxiv.org/abs/2608.13341",
+    "paper_methods_url": "https://arxiv.org/html/2608.13341v2",
+    "paper_title": "Simulation-to-real transfer learning for infrared spectroscopic chemical sensing and analysis from molecules to complex samples",
+    "authors": [
+      "Yusen Tan",
+      "Yixuan Chen",
+      "Zheng Fang",
+      "Pan Liu",
+      "Yifan Li",
+      "Qinyu Guo",
+      "Zhedong Lin",
+      "Yuqiang Li",
+      "Xiangxiang Zeng",
+      "Tong Wang",
+      "Jun Xia"
+    ],
+    "code_license": "MIT; LICENSE downloaded from pinned source",
+    "data_license_status": "No separate data-specific license identified in GitHub files; model Hub declares MIT and external data retain respective terms. Local evaluation; recommend source downloader + hashes instead of mirroring raw arrays.",
+    "hub_model_card": "https://huggingface.co/yusentan/UltraIR",
+    "download_manifest": "ultrair/download_manifest.json",
+    "array_audit": "ultrair/array_audit.json"
+  },
+  "datasets": [
+    {
+      "id": "jyh",
+      "name": "金银花 / Jinyinhua / Lonicerae Japonicae Flos",
+      "task": "geographic origin classification",
+      "n_spectra": 120,
+      "n_features": 1868,
+      "label_names": [
+        "Shandong",
+        "Henan",
+        "Hebei",
+        "Sichuan"
+      ],
+      "class_counts": [
+        30,
+        30,
+        30,
+        30
+      ],
+      "fold_split_rows": {
+        "train": 72,
+        "valid": 24,
+        "test": 24
+      },
+      "folder": "data/medicinal_herb_geographic_origin_traceability",
+      "x_filename": "jyh_ir.npy",
+      "y_filename": "jyh_labels.npy",
+      "inconsistent_labels_across_folds": 0
+    },
+    {
+      "id": "syh",
+      "name": "山银花 / Shanyinhua / Lonicerae Flos",
+      "task": "geographic origin classification",
+      "n_spectra": 150,
+      "n_features": 1868,
+      "label_names": [
+        "Hunan",
+        "Hubei",
+        "Sichuan",
+        "Henan",
+        "Guangdong"
+      ],
+      "class_counts": [
+        30,
+        30,
+        30,
+        30,
+        30
+      ],
+      "fold_split_rows": {
+        "train": 90,
+        "valid": 30,
+        "test": 30
+      },
+      "folder": "data/medicinal_herb_geographic_origin_traceability",
+      "x_filename": "syh_ir.npy",
+      "y_filename": "syh_labels.npy",
+      "inconsistent_labels_across_folds": 0
+    },
+    {
+      "id": "jyh_lc",
+      "name": "金银花LC-MS相对丰度",
+      "task": "multi-target regression",
+      "n_spectra": 60,
+      "n_features": 1868,
+      "label_names": [
+        "4-Methylcoumarin",
+        "Milrinone",
+        "Geniposide",
+        "Phenylacetaldehyde",
+        "cis-Cinnamic acid",
+        "Lumazine"
+      ],
+      "y_unit": "LC-MS relative abundance, arbitrary units (a.u.); not mg/g or validated absolute concentration",
+      "fold_split_rows": {
+        "train": 36,
+        "valid": 12,
+        "test": 12
+      },
+      "folder": "data/medicinal_herb_constituent_quantification",
+      "x_filename": "jyh_lc_ir.npy",
+      "y_filename": "jyh_lc_labels.npy",
+      "inconsistent_labels_across_folds": 0
+    },
+    {
+      "id": "syh_lc",
+      "name": "山银花LC-MS相对丰度",
+      "task": "multi-target regression",
+      "n_spectra": 75,
+      "n_features": 1868,
+      "label_names": [
+        "Coniferyl aldehyde",
+        "quercetin",
+        "kaempferol",
+        "Luteolin"
+      ],
+      "y_unit": "LC-MS relative abundance, arbitrary units (a.u.); not mg/g or validated absolute concentration",
+      "fold_split_rows": {
+        "train": 45,
+        "valid": 15,
+        "test": 15
+      },
+      "folder": "data/medicinal_herb_constituent_quantification",
+      "x_filename": "syh_lc_ir.npy",
+      "y_filename": "syh_lc_labels.npy",
+      "inconsistent_labels_across_folds": 0
+    }
+  ],
+  "preprocessing": {
+    "downloaded_array": "Original percent-transmission representation per data README; finite float32 (not LFS), 1868 ordered points. No wavenumber vector published with these arrays.",
+    "declared_runtime": "percent transmission to absorbance; independent per-spectrum minmax; point-wise standardization using training fold only; UltraIR then resizes 1868 to1792. Traditional models need not resize.",
+    "target_scaling": "Y files retain original LC-MS a.u.; normalize targets from training partition only when needed and invert for reported metrics.",
+    "augmentation": "All four supplied task YAMLs set augment.enabled=false.",
+    "verification_limit": "No attempt to prove upstream acquisition/preparation lacked all statistical dependence; current downstream transforms can be fitted on training only."
+  },
+  "quality_findings": {
+    "all_120_arrays_downloaded_and_parseable": true,
+    "all_finite": true,
+    "no_within_fold_exact_spectrum_overlap": true,
+    "same_unique_dataset_across_all_folds": true,
+    "each_unique_spectrum_tested_once": true,
+    "physical_sample_ids_available": false,
+    "batch_ids_available": false,
+    "replicate_group_mapping_available": false,
+    "origin_quantification_common_identical_spectra": {
+      "jyh": 60,
+      "syh": 75
+    },
+    "high_correlation_caveat": "No pairs above0.99999 row correlation observed, but spectra naturally highly correlated; absence of exact duplicates does not establish independent physical samples."
+  },
+  "scope_limits": [
+    "FTIR benchmark, not THz, not Huangqi.",
+    "Row-stratified five-fold benchmark only; cannot claim unseen-batch or physical-group independence without IDs.",
+    "Regression target is relative abundance, not pharmacopoeial quantitative concentration.",
+    "Do not combine class and regression subsets as independent populations.",
+    "Selected feature indices cannot be translated into exact physical wavenumbers without original axis metadata."
+  ],
+  "other_sources_checked": [
+    {
+      "url": "https://data.mendeley.com/datasets/f8r7cpgyjn/1",
+      "doi": "10.17632/f8r7cpgyjn.1",
+      "name": "Medicine-Food Homologous Herbs",
+      "description": "48 kinds of herbs NIR; CC BY4.0, Hao Zhang, 2025-09-15",
+      "status": "Metadata verified through web; files not downloaded because direct executor Mendeley domain not on network allowlist."
+    },
+    {
+      "url": "https://github.com/yang1rq/ginseng",
+      "status": "Paper source link now404; not used."
+    },
+    {
+      "url": "https://zenodo.org/records/16892975",
+      "name": "Latvian Herbal Medicines Under the Infrared Lens",
+      "status": "Repository page marks restricted; not used."
+    },
+    {
+      "url": "https://github.com/xzhan96-stf/Herbal-medicine-origin-e-nose",
+      "description": "160 rows each for Baizhi, Danggui, Gegen; four origins; electronic nose temporal/Fourier features, not optical spectra.",
+      "status": "README downloaded; de-prioritized once matching FTIR datasets found. No separate license in repository page."
+    }
+  ]
+}
