@@ -1,0 +1,55 @@
+{
+  "cli_version": "0.7.5",
+  "cli_dependency_check": "passed",
+  "isolated_environment": ".runtime/colab-cli",
+  "launcher": ".runtime/bin/colab",
+  "network_policy": "restricted_enforced",
+  "network_probes": [
+    {
+      "url": "https://colab.research.google.com/",
+      "error_type": "URLError",
+      "error": "<urlopen error Tunnel connection failed: 403 Forbidden>",
+      "reachable": false
+    },
+    {
+      "url": "https://colab.pa.googleapis.com/",
+      "error_type": "URLError",
+      "error": "<urlopen error Tunnel connection failed: 403 Forbidden>",
+      "reachable": false
+    },
+    {
+      "url": "https://oauth2.googleapis.com/token",
+      "error_type": "URLError",
+      "error": "<urlopen error Tunnel connection failed: 403 Forbidden>",
+      "reachable": false
+    }
+  ],
+  "authentication_attempt": {
+    "command": ".runtime/bin/colab --auth oauth2 sessions",
+    "exit_code": 1,
+    "authorization_prompt_reached": true,
+    "no_authorization_code_provided": true,
+    "eof_without_authorization": false,
+    "raw_auth_url_and_output_not_saved": true
+  },
+  "connected_to_colab_runtime": false,
+  "runtime_created": false,
+  "remote_code_executed": false,
+  "outcome": "blocked_by_cloud_proxy_policy_and_pending_google_authorization",
+  "checked_at_shanghai": "2026-10-31T10:00:03.191784+08:00",
+  "installation_source": "PyPI google-colab-cli==0.7.5",
+  "official_repository": "https://github.com/googlecolab/google-colab-cli",
+  "reviewed_development_snapshot": "5a119adc8e6be6f8b7aa04db57185aa6655a9171",
+  "installed_release_auth_default": "oauth2",
+  "installed_release_remote_oauth_flow": true,
+  "installed_release_keyring_feature": false,
+  "private_creation_umask": "077",
+  "canonical_data_version": "2026-10-31-zaoren-numbered-v1",
+  "canonical_zaoren_workbooks": 7,
+  "canonical_zaoren_records": 855,
+  "remaining_prerequisites": [
+    "Allow colab.research.google.com, colab.pa.googleapis.com and oauth2.googleapis.com through supported cloud network configuration.",
+    "Complete Google OAuth in an authorized browser/interactive terminal.",
+    "Create a CPU runtime, execute the minimal test, verify Google runtime evidence and stop the test runtime."
+  ]
+}

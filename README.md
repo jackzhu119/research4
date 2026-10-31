@@ -16,6 +16,7 @@
 
 ## 科研起步与算法审读
 
+- [Google Colab连接实测](docs/COLAB_CONNECTION.md)：官方CLI 0.7.5已隔离安装且依赖检查通过；Colab及OAuth服务目前被云端代理403拒绝，尚未授权、创建远程环境或执行远程代码。
 - [酸枣仁工作簿统一编号（2026-10-31）](data/processed/zaoren_20261031/README.md)：样本1的3个RAR分卷已成功恢复，样本1—7全部完成，共855个跨文件唯一谱记录编号；四表同步、保留厚度后缀及全部数值，提供修改版和Excel对照表。
 - [少样本光谱论文精读与酸枣仁适配](docs/FEWSHOT_PAPER_READING_AND_ADAPTATION.md)：13页全文、真实正负结果、作者代码快照及回归到产地分类的改造；新增任务与support/query协议，未运行新模型。
 - [Gaussian／GaussView安装记录](docs/GAUSSIAN_INSTALLATION.md)：上传GaussView6.0.16已通过Wine64启动并显示水分子；保留启动入口和截图，Gaussian计算引擎仍缺失。
