@@ -1,0 +1,73 @@
+{
+  "status": "pass",
+  "auditor": "independent subagent /root/threeway_protocol_audit",
+  "scope": "Recomputed all classification metrics, CMs, gains and paired corrections directly from sample_predictions.csv with independent stdlib formulas; no project metric helper used. Verified saved source artifacts and provenance records.",
+  "prediction_rows": 7182,
+  "cases": 42,
+  "classes": [
+    "ZY01",
+    "ZY02",
+    "ZY03",
+    "ZY04",
+    "ZY05",
+    "ZY06",
+    "ZY07"
+  ],
+  "fixed_query_samples": 171,
+  "roles": {
+    "training": 513,
+    "calibration": 171,
+    "prediction": 171
+  },
+  "all_checks_pass": true,
+  "checks_evaluated": 1264,
+  "failed_checks": [],
+  "maximum_numeric_difference": 3.3306690738754696e-16,
+  "models": [
+    {
+      "selector": "full",
+      "baseline_accuracy_percent": 88.88888888888889,
+      "calibrated_accuracy_mean_percent": 74.94152046783626,
+      "accuracy_gain_mean_percentage_points": -13.947368421052628,
+      "accuracy_gain_population_sd_percentage_points": 11.602367183044874,
+      "positive_gain_draws": 0,
+      "zero_gain_draws": 0,
+      "negative_gain_draws": 20,
+      "source_best_params": {
+        "model__C": 10.0,
+        "preprocess__mode": "snv"
+      },
+      "frozen_model_fingerprint_verified": "1b95b4b3b7a3a0253f50f237b5b3f709d83b00f9",
+      "primary_repeat0_accuracy_percent": 78.3625730994152
+    },
+    {
+      "selector": "mcuve20",
+      "baseline_accuracy_percent": 87.71929824561403,
+      "calibrated_accuracy_mean_percent": 72.89473684210526,
+      "accuracy_gain_mean_percentage_points": -14.824561403508769,
+      "accuracy_gain_population_sd_percentage_points": 11.009499987574504,
+      "positive_gain_draws": 2,
+      "zero_gain_draws": 0,
+      "negative_gain_draws": 18,
+      "source_best_params": {
+        "model__C": 10.0,
+        "preprocess__mode": "snv"
+      },
+      "frozen_model_fingerprint_verified": "6be1dea7769f17e4f9e30cbefcc5b51f8a11775e",
+      "primary_repeat0_accuracy_percent": 69.00584795321637
+    }
+  ],
+  "source_sha256_checks": {
+    "/workspace/research4/scripts/run_within_batch_holdout.py": true,
+    "/workspace/research4/src/herb_spectra/within_batch_holdout.py": true,
+    "/workspace/research4/src/herb_spectra/classification.py": true,
+    "/workspace/research4/src/herb_spectra/classification_transfer.py": true,
+    "/workspace/research4/src/herb_spectra/calibration.py": true
+  },
+  "interpretation": "Fixed predeclared anchor score correction reduced mean held-out accuracy for both models. This does not establish that every calibration method fails; it provides no improvement evidence for this one-shot fixed-lambda method on these same-batch samples. No new unseen batch or confirmatory external evidence. The ZY02 query contains one specimen; support-draw SD is not an independent-batch confidence interval.",
+  "audit_limits": [
+    "Does not re-audit XLSX cell export identity; separate export audit covers it.",
+    "Saved before/after equality plus reloaded current artifact fingerprint checks support freeze integrity; no claim of an external execution attestation.",
+    "Read-only numerical and source-path inspection; not rerunning model fitting or choosing an alternative split/method."
+  ]
+}

@@ -38,3 +38,13 @@ The user's current data decision, effective 2026-10-31, is recorded in
 - The current paper direction is origin classification, evaluated model
   improvements, and few-shot calibration on new batches of known origins.
   Gaussian is excluded from the current mainline by the user's decision.
+- The user subsequently requested a separate retrospective within-batch
+  train/calibration/prediction split. Follow
+  `docs/ZAOREN_THREEWAY_PROTOCOL.md` and its JSON for this workflow: fixed
+  seed 20261101, 513 training / 171 calibration-pool / 171 prediction samples,
+  source-only 3-fold tuning, and frozen-source 1-shot-per-class score
+  adjustment with fixed regularization 1. Seven-class 3/5/10-shot is
+  unavailable because ZY02 has one calibration specimen. These derived
+  workbooks must not enter the active registry as additional observations.
+  All 855 records were used in prior CV, so this is retrospective internal
+  validation, not a pristine confirmatory set or a real cross-batch result.

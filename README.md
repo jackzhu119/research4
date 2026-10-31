@@ -16,6 +16,8 @@
 
 ## 科研起步与算法审读
 
+- [训练／校准／预测拆分及实测](docs/ZAOREN_THREEWAY_REPORT.md)：21份Excel已按513／171／171份拆好，两个冻结模型已保存，114项测试通过。每类1份、20次分数校正均值未改善；SVM为88.89%→74.94%，MC20＋SVM为87.72%→72.89%，全部正负结果保留。
+- [三组文件下载与归属](data/processed/zaoren_threeway_20261031_v1/README.md)及[先行协议](docs/ZAOREN_THREEWAY_PROTOCOL.md)：原件不变、四表同步、每份仅属一组；当前只能评价同批次回顾性校准，不能解释为新批次泛化。
 - [已批准方案的首轮执行报告](docs/ZAOREN_APPROVED_EXECUTION_REPORT.md)：7表质量审查、13路径／65外折、11,115条真实预测、100项测试；候选区MC20＋SVM为90.41%准确率／0.8092宏F1，稳定筛选和拼接未胜出。全导出PLS-DA的100%仅列内部敏感性，真实跨批次校准未运行。
 - [批准的实验方案与启动条件](docs/APPROVED_ZAOREN_EXPERIMENT_PLAN.md)：固定5外折／2内折／CARS内部2折；用户已确认每ZY编号独立、每产地仅一批，不含Gaussian。
 - [Google Colab连接实测](docs/COLAB_CONNECTION.md)：官方CLI 0.7.5已隔离安装且依赖检查通过；Colab及OAuth服务目前被云端代理403拒绝，尚未授权、创建远程环境或执行远程代码。

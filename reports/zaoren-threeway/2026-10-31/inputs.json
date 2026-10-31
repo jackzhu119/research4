@@ -1,0 +1,39 @@
+{
+  "input": {
+    "path": "outputs/approved-zaoren-20261031/data-preparation/dataset.npz",
+    "sha256": "acd0bc051667d200fa87ed05f4bb2116c9eea5b971a5a8081cedea2e3fcc66e2"
+  },
+  "split_plan": {
+    "path": "data/processed/zaoren_threeway_20261031_v1/split_plan.json",
+    "sha256": "17055eef5a4c544344f735032b55ef12f52bde341ffdff9378b25a835baa9594"
+  },
+  "protocol": {
+    "path": "data/research/zaoren_threeway_protocol_20261031.json",
+    "sha256": "c11a15384f6b5a7bf1339a8df3e3be73343da7f8d3e256d1dce3889b79699832"
+  },
+  "python": "3.12.14",
+  "dependencies": {
+    "numpy": "2.3.5",
+    "scipy": "1.17.0",
+    "scikit-learn": "1.8.0",
+    "joblib": "1.5.3"
+  },
+  "argv": [
+    "scripts/run_within_batch_holdout.py",
+    "--input",
+    "outputs/approved-zaoren-20261031/data-preparation/dataset.npz",
+    "--split-plan",
+    "data/processed/zaoren_threeway_20261031_v1/split_plan.json",
+    "--protocol",
+    "data/research/zaoren_threeway_protocol_20261031.json",
+    "--output",
+    "outputs/zaoren-threeway-20261031/experiment"
+  ],
+  "source_files_sha256": {
+    "/workspace/research4/scripts/run_within_batch_holdout.py": "295873b283b40c624c46be3d6eb66ee41e46c6ae171cf308e08d0fe6a5c72a9a",
+    "/workspace/research4/src/herb_spectra/within_batch_holdout.py": "49421953e563e0511a23ff2252043626693e9387b85a672c3c790088555b3e53",
+    "/workspace/research4/src/herb_spectra/classification.py": "793a550f46522bc2e69acf922b39e104a0e94b5eb058905f987a91d0f16a08b2",
+    "/workspace/research4/src/herb_spectra/classification_transfer.py": "ac8b0e3dfefe7b5131f21fe32d603555bc1f4f03b5158dedfa55dc66446cbd02",
+    "/workspace/research4/src/herb_spectra/calibration.py": "b05ea9ddbcf6d79909b5795f596fe8d940c7c597d1af9b46481dd7e75aa36ace"
+  }
+}
