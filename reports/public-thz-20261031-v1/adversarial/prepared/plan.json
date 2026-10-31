@@ -1,0 +1,92 @@
+{
+  "protocol_id": "public-thz-ginseng-G1-adversarial-20261031-v1",
+  "outer_query_export_group": "G1",
+  "model_seed": 42,
+  "source_observations": 35,
+  "query_observations": 7,
+  "inner": "leave each of the five source export groups out, fixed members",
+  "representation": "alpha",
+  "preprocessing": "snv",
+  "mc": {
+    "runs": 10,
+    "components": 1,
+    "ratio": 0.2
+  },
+  "expected_retained_features": 13,
+  "candidates": [
+    {
+      "id": "ADV_C01",
+      "representation": "alpha",
+      "preprocessing": "snv",
+      "kind": "svm",
+      "mc": {
+        "runs": 10,
+        "components": 1,
+        "ratio": 0.2
+      },
+      "C": 1.0,
+      "gamma": "scale",
+      "class_weight": "balanced"
+    },
+    {
+      "id": "ADV_C10",
+      "representation": "alpha",
+      "preprocessing": "snv",
+      "kind": "svm",
+      "mc": {
+        "runs": 10,
+        "components": 1,
+        "ratio": 0.2
+      },
+      "C": 10.0,
+      "gamma": "scale",
+      "class_weight": "balanced"
+    }
+  ],
+  "selection": [
+    "mean inner Macro-F1 descending",
+    "mean inner Balanced Accuracy descending",
+    "mean inner Accuracy descending",
+    "candidate ID ascending"
+  ],
+  "null_permutations": 10,
+  "null_permutation_seeds": [
+    1000,
+    1001,
+    1002,
+    1003,
+    1004,
+    1005,
+    1006,
+    1007,
+    1008,
+    1009
+  ],
+  "null_permutation_unit": "labels shuffled within each fixed source export group; membership and class counts fixed",
+  "label_invariance": "repeat real source selection and final fit while external query truth CSV is permuted",
+  "single_query": "modify only alpha[0,0] by an explicitly fixed offset; model stays fitted; other six scores/predictions must stay unchanged",
+  "query_perturbation": {
+    "row": 0,
+    "feature": 0,
+    "offset": 0.01
+  },
+  "classifier_fit_budget": {
+    "per_run": 11,
+    "original_plus_truth_permuted": 22,
+    "ten_null_runs": 110,
+    "total": 132
+  },
+  "MC_PLS_fit_budget": {
+    "per_run": 60,
+    "total": 720
+  },
+  "majority_baseline": "class chosen using the 35 source labels only; evaluate actual G1 class prevalence",
+  "null_pvalue": "(1 + count(null_metric >= observed_metric)) / 11; resolution 1/11; exploratory diagnostic only",
+  "outer_diagnostics_cannot_select_main_model": true,
+  "no_main_source_budget_change": true,
+  "unknown_biological_ancestry": true,
+  "export_groups_are_not_biological_batches": true,
+  "fresh_independent_confirmation": false,
+  "fit_release_required": true,
+  "truth_hooks": "named builtins.open/io.open/os.open reads/writes; no claim of OS isolation or arbitrary native-code interception"
+}

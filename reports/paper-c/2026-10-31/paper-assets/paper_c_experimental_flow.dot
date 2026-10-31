@@ -1,0 +1,38 @@
+digraph PaperC {
+      graph [rankdir=TB,bgcolor="white",fontname="DejaVu Sans",nodesep=.36,ranksep=.48,pad=.15];
+      node [shape=box,style="rounded,filled",fillcolor="#EFF5F8",color="#668497",fontname="DejaVu Sans",fontsize=11,margin=".16,.11"];
+      edge [color="#627784",arrowsize=.7,fontname="DejaVu Sans",fontsize=10];
+      data [label="Acid jujube kernel main task
+855 declared-independent specimens, 7 anonymous groups
+One source batch per origin; no pristine confirmation set"];
+      source [label="Fixed data + original 5 outer / 2 inner folds
+Source-only preprocessing, selection and tuning"];
+      core [label="CORE: about 70% of planned effort
+MC-UVE + SVM optimization / ablations
+Fair SVM, shrinkage LDA and MLP comparison",fillcolor="#DDEFE8",color="#147D64",penwidth=2];
+      lock [label="Freeze each outer fold's inner choices
+Then score outer predictions; preserve negative results"];
+      evidence [label="855 OOF accuracy, Macro-F1, balanced accuracy
+Class errors, frequency stability and measured cost"];
+      ext [label="AUXILIARY: about 20%
+Separate Huangqi / ginseng / plant THz tasks
+No mixing of plant labels into jujube origin labels"];
+      gate [shape=diamond,label="Sample identity, labels, license
+and physical-axis compatibility verified?",fillcolor="#FFF1D6"];
+      blocked [label="Currently blocked where evidence is missing
+No invented samples or transfer results",fillcolor="#FBE8E7",color="#A64842"];
+      trans [label="AUXILIARY: about 10% transfer + calibration
+A: jujube only; B: other-plant pretraining
+C: multi-plant pretraining; same jujube evaluation"];
+      calibration [label="Separate 513 / 171 / 171 protocol
+1-shot conservative calibration + zero-label controls
+Retrospective within-batch only"];
+      future [label="Future independent new batches
+External confirmation + real cross-batch calibration",style="rounded,dashed",fillcolor="white"];
+      data -> source -> core -> lock -> evidence;
+      evidence -> ext -> gate;
+      gate -> blocked [label="No"];
+      gate -> trans [label="Yes; not yet established",style=dashed];
+      evidence -> calibration;
+      trans -> future [style=dashed]; calibration -> future [style=dashed];
+    }

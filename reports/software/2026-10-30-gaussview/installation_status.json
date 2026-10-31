@@ -1,0 +1,68 @@
+{
+  "checked_date": "2026-10-30",
+  "platform": {
+    "os": "Debian13",
+    "machine": "x86_64",
+    "deployment": "user-owned private directories; Wine64 andXvfb"
+  },
+  "latest_verifiable_versions": {
+    "Gaussian": "16 Rev.C.02",
+    "GaussView": "6.1.1",
+    "official_installer_acquired": false
+  },
+  "user_authorization_status": "User confirmed no institutional Gaussian/GaussView authorization/download channel; proceed with uploaded package inspection",
+  "uploaded_archive": {
+    "source": "Desktop.part1.rar through part4.rar, original user upload",
+    "inner_archive_bytes": 53383453,
+    "inner_archive_sha256": "ebd1eeb421795b6051e17b17d638f77315a14b1a4311d2155a8a3f6119b0f382",
+    "installer_sha256": "aca26014d666fbb659c5ab35d1b1ffc0639540b91d41883097238c184dead7e5",
+    "setup_architecture": "PE32 NSIS self-extractor",
+    "application_architecture": "PE32+ x86-64",
+    "payload_files": 1262,
+    "payload_bytes": 96343800,
+    "deployment_method": "Extract application payload and configure privateWine64; original32bitNSIS installer not executed"
+  },
+  "installed_viewer": {
+    "name": "GaussView",
+    "file_version": "6.0.16.0",
+    "directory": "/workspace/research4/.runtime/gaussian-app/GaussView6",
+    "wine_version": "10.0",
+    "prefix": "/workspace/research4/.runtime/gaussview-wine",
+    "launcher": "/workspace/research4/.runtime/bin/gaussview",
+    "desktop_entry": "/home/agent/Desktop/GaussView.desktop"
+  },
+  "runtime_repairs": [
+    "Private wineserver wrapper replaced by symlink to wineserver64",
+    "Private usr/share/wine/wine symlink to its parent for relocated data paths",
+    "WinePE search path includes x86_64-windows",
+    "64bitzlib1.dll copied into privateprefix system32; nativezlib override",
+    "Set WINELOADER and privateUnix library paths"
+  ],
+  "checks": {
+    "private_wineboot_exit_code": 0,
+    "virtual_display": "Xvfb:99,1280x800x24",
+    "opengl": "Mesa llvmpipe CPU software rendering",
+    "main_window_title": "GaussView6.0.16",
+    "molecule_window": "water.gjf",
+    "displayed_atom_count": 3,
+    "displayed_electron_count": 10,
+    "displayed_charge": "neutral",
+    "displayed_multiplicity": "singlet",
+    "water_geometry_source": "manually specified display-only example, not an optimised result",
+    "input_sha256": "886378bbdc1ef38bd8c059aa71000ce7292c8cef02a9e59e88e77dbdae8ab55a",
+    "screenshot_sha256": "13613cad9f37e6937957834529d24461b6689773a54fb82c987bd700cd4e7170"
+  },
+  "gaussian_engine": {
+    "installed": false,
+    "quantum_calculation_count": 0,
+    "observed_warning": "Gaussian is not installed; cannot locate g16w.exe/g09w.exe etc.",
+    "full_dft_or_frequency_validation": false
+  },
+  "limits": [
+    "BasicGUI startup and water-file visualization verified; not full software validation",
+    "NoGaussian16/Utilities installer present in inspected package",
+    "Current display is virtual; a user graphical session is needed for direct desktop interaction",
+    "No remote-desktop service or external network endpoint provisioned",
+    "No commercial software payload newly mirrored in this commit"
+  ]
+}

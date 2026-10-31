@@ -1,0 +1,470 @@
+[
+  {
+    "id": "compat_pls_original",
+    "archive": "0308 CARS+UVE.rar",
+    "member": "pls.m",
+    "stage": "compatibility",
+    "edits": [
+      "Add sumsqr compatibility helper; preserve PLS implementation"
+    ],
+    "timeout": 45,
+    "recipe": "sumsqr",
+    "source_member": "0308 CARS+UVE/pls.m",
+    "source_sha256": "92ba9347d1e94ee477b3c36ba17350ba9830377680ef12c77b5b055c65b5a899",
+    "dataset": "supplied example or synthetic engineering fixture; not medicinal-plant validation",
+    "command": [
+      "/workspace/research4/.runtime/bin/octave",
+      "/workspace/research4/outputs/all-algorithms-final-validation/octave_ready/compat_pls_original/check.m"
+    ],
+    "started_at_shanghai": "2026-10-30T17:14:12.298173+08:00",
+    "duration_seconds": 0.5244,
+    "status": "pass",
+    "returncode": 0,
+    "log": "compat_pls_original/run.log",
+    "error": null,
+    "metrics": {
+      "example_rmsep": 0.5168655017596693
+    },
+    "saved_log": "compat_pls_original/run.log"
+  },
+  {
+    "id": "compat_cars_uve_main",
+    "archive": "0308 CARS+UVE.rar",
+    "member": "main.m",
+    "stage": "compatibility",
+    "edits": [
+      "Add sumsqr compatibility helper; original default main settings"
+    ],
+    "timeout": 120,
+    "recipe": "sumsqr",
+    "source_member": "0308 CARS+UVE/main.m",
+    "source_sha256": "e15000e58d9e576068d432622471227840ee23469d266ee33ee0180f10d26250",
+    "dataset": "supplied example or synthetic engineering fixture; not medicinal-plant validation",
+    "command": [
+      "/workspace/research4/.runtime/bin/octave",
+      "/workspace/research4/outputs/all-algorithms-final-validation/octave_ready/compat_cars_uve_main/check.m"
+    ],
+    "started_at_shanghai": "2026-10-30T17:14:12.828085+08:00",
+    "duration_seconds": 7.1916,
+    "status": "pass",
+    "returncode": 0,
+    "log": "compat_cars_uve_main/run.log",
+    "error": null,
+    "metrics": {},
+    "saved_log": "compat_cars_uve_main/run.log"
+  },
+  {
+    "id": "compat_uve_noise",
+    "archive": "0308 CARS+UVE.rar",
+    "member": "uvepls.m",
+    "stage": "compatibility",
+    "edits": [
+      "Add sumsqr helper; six jackknife groups for smoke test"
+    ],
+    "timeout": 45,
+    "recipe": "sumsqr",
+    "source_member": "0308 CARS+UVE/uvepls.m",
+    "source_sha256": "61099215d489828a961ac39608fb9fc4523cd0a57c319381fb4dfd6815a74ce7",
+    "dataset": "supplied example or synthetic engineering fixture; not medicinal-plant validation",
+    "command": [
+      "/workspace/research4/.runtime/bin/octave",
+      "/workspace/research4/outputs/all-algorithms-final-validation/octave_ready/compat_uve_noise/check.m"
+    ],
+    "started_at_shanghai": "2026-10-30T17:14:20.024375+08:00",
+    "duration_seconds": 0.7441,
+    "status": "pass",
+    "returncode": 0,
+    "log": "compat_uve_noise/run.log",
+    "error": null,
+    "metrics": {
+      "variables": 231,
+      "jackknife_groups": 6
+    },
+    "saved_log": "compat_uve_noise/run.log"
+  },
+  {
+    "id": "compat_mcuve_0308",
+    "archive": "0308 CARS+UVE.rar",
+    "member": "mcuvepls.m",
+    "stage": "compatibility",
+    "edits": [
+      "Add sumsqr helper; 30 Monte Carlo runs for smoke test"
+    ],
+    "timeout": 45,
+    "recipe": "sumsqr",
+    "source_member": "0308 CARS+UVE/mcuvepls.m",
+    "source_sha256": "c5c550bef46ada9b164ac4b55a0cb685dd20eefda9b3d1ab72c69ff30e850ea1",
+    "dataset": "supplied example or synthetic engineering fixture; not medicinal-plant validation",
+    "command": [
+      "/workspace/research4/.runtime/bin/octave",
+      "/workspace/research4/outputs/all-algorithms-final-validation/octave_ready/compat_mcuve_0308/check.m"
+    ],
+    "started_at_shanghai": "2026-10-30T17:14:20.773661+08:00",
+    "duration_seconds": 1.0173,
+    "status": "pass",
+    "returncode": 0,
+    "log": "compat_mcuve_0308/run.log",
+    "error": null,
+    "metrics": {
+      "features": 700,
+      "runs": 30
+    },
+    "saved_log": "compat_mcuve_0308/run.log"
+  },
+  {
+    "id": "patched_cars_error_scaling",
+    "archive": "CARS（sy）.rar",
+    "member": "carspls.m",
+    "stage": "logic_patch",
+    "edits": [
+      "Add sumsqr helper; remove /2.8 in two reported error fields"
+    ],
+    "timeout": 45,
+    "recipe": "sumsqr,cars_scaling",
+    "source_member": "CARS/carspls.m",
+    "source_sha256": "7a9bb4a1e9f80ab945fe54d7da725cae42e01f8d3f4c2da79f7d36466d776a6d",
+    "dataset": "supplied example or synthetic engineering fixture; not medicinal-plant validation",
+    "command": [
+      "/workspace/research4/.runtime/bin/octave",
+      "/workspace/research4/outputs/all-algorithms-final-validation/octave_ready/patched_cars_error_scaling/check.m"
+    ],
+    "started_at_shanghai": "2026-10-30T17:14:21.796455+08:00",
+    "duration_seconds": 0.5129,
+    "status": "pass",
+    "returncode": 0,
+    "log": "patched_cars_error_scaling/run.log",
+    "error": null,
+    "metrics": {
+      "raw_subset_cv": 0.004069452717818983,
+      "reported_cv": 0.004069452717818983,
+      "raw_to_reported_ratio": 1,
+      "variables": [
+        402,
+        403,
+        404,
+        405,
+        406,
+        407,
+        408,
+        502,
+        503,
+        504,
+        506,
+        507,
+        508,
+        509
+      ]
+    },
+    "saved_log": "patched_cars_error_scaling/run.log"
+  },
+  {
+    "id": "patched_iriv_small_dimension",
+    "archive": "UVE.zip",
+    "member": "iriv.m",
+    "stage": "logic_patch",
+    "edits": [
+      "Stop random-screening loop at <=4 variables, hand off to existing backward elimination; Nx() -> Nx"
+    ],
+    "timeout": 60,
+    "recipe": "iriv_guard",
+    "source_member": "uve/iriv.m",
+    "source_sha256": "c6ac4bde81937ad23bea023d8842fe07f260391ffb844bd2a8c32ba66d444570",
+    "dataset": "supplied example or synthetic engineering fixture; not medicinal-plant validation",
+    "command": [
+      "/workspace/research4/.runtime/bin/octave",
+      "/workspace/research4/outputs/all-algorithms-final-validation/octave_ready/patched_iriv_small_dimension/check.m"
+    ],
+    "started_at_shanghai": "2026-10-30T17:14:22.317059+08:00",
+    "duration_seconds": 1.4543,
+    "status": "pass",
+    "returncode": 0,
+    "log": "patched_iriv_small_dimension/run.log",
+    "error": null,
+    "metrics": {
+      "selected": [
+        1,
+        4
+      ]
+    },
+    "saved_log": "patched_iriv_small_dimension/run.log"
+  },
+  {
+    "id": "compat_libsvm_three_outputs",
+    "archive": "0627卷积神经网络+PCA_Kmeans（可用2）.rar",
+    "member": "main0627.m",
+    "stage": "compatibility",
+    "edits": [
+      "Request all three outputs required by this Octave LIBSVM interface"
+    ],
+    "timeout": 45,
+    "recipe": "",
+    "source_member": "0627卷积神经网络+PCA_Kmeans（可用）/0627卷积神经网络+PCA_Kmeans/main0627.m",
+    "source_sha256": "81f4830fe73fbd9797741326eecd33187026525d907f861ae7b0c18830772f9d",
+    "dataset": "supplied example or synthetic engineering fixture; not medicinal-plant validation",
+    "command": [
+      "/workspace/research4/.runtime/bin/octave",
+      "/workspace/research4/outputs/all-algorithms-final-validation/octave_ready/compat_libsvm_three_outputs/check.m"
+    ],
+    "started_at_shanghai": "2026-10-30T17:14:23.774058+08:00",
+    "duration_seconds": 0.4322,
+    "status": "pass",
+    "returncode": 0,
+    "log": "compat_libsvm_three_outputs/run.log",
+    "error": null,
+    "metrics": {
+      "example_accuracy_percent": 100,
+      "train_rows": 252,
+      "test_rows": 108
+    },
+    "saved_log": "compat_libsvm_three_outputs/run.log"
+  },
+  {
+    "id": "compat_edge_fixture",
+    "archive": "docx_code",
+    "member": "edge_detection.m",
+    "stage": "compatibility",
+    "edits": [
+      "Replace absolute input bitmap path with synthetic 32x32 RGB fixture"
+    ],
+    "timeout": 45,
+    "recipe": "edge_fixture",
+    "source_member": "edge_detection.m",
+    "source_sha256": "01b1a385ee2653575cc37517e1284fd9137b345ff7c7703120491ebfcaf15ee0",
+    "dataset": "supplied example or synthetic engineering fixture; not medicinal-plant validation",
+    "command": [
+      "/workspace/research4/.runtime/bin/octave",
+      "/workspace/research4/outputs/all-algorithms-final-validation/octave_ready/compat_edge_fixture/check.m"
+    ],
+    "started_at_shanghai": "2026-10-30T17:14:24.207669+08:00",
+    "duration_seconds": 0.6149,
+    "status": "pass",
+    "returncode": 0,
+    "log": "compat_edge_fixture/run.log",
+    "error": null,
+    "metrics": {
+      "output_rows": 34,
+      "max_difference": 0
+    },
+    "saved_log": "compat_edge_fixture/run.log"
+  },
+  {
+    "id": "compat_sg_filter",
+    "archive": "standalone_texts",
+    "member": "平滑曲线.m",
+    "stage": "compatibility",
+    "edits": [
+      "Use Octave signal sgolayfilt API for 15-point SG filtering; not a full MATLAB smooth equivalence test"
+    ],
+    "timeout": 45,
+    "recipe": "",
+    "source_member": "平滑曲线.m",
+    "source_sha256": "c3199e35240f5013ef2e3092ed395111a1300c906d3fbc3b4b7f2676e4319363",
+    "dataset": "supplied example or synthetic engineering fixture; not medicinal-plant validation",
+    "command": [
+      "/workspace/research4/.runtime/bin/octave",
+      "/workspace/research4/outputs/all-algorithms-final-validation/octave_ready/compat_sg_filter/check.m"
+    ],
+    "started_at_shanghai": "2026-10-30T17:14:24.824218+08:00",
+    "duration_seconds": 0.335,
+    "status": "pass",
+    "returncode": 0,
+    "log": "compat_sg_filter/run.log",
+    "error": null,
+    "metrics": {
+      "points": 101,
+      "window": 15,
+      "degree": 2
+    },
+    "saved_log": "compat_sg_filter/run.log"
+  },
+  {
+    "id": "core_pls_cv",
+    "archive": "UVE.zip",
+    "member": "plscv.m",
+    "stage": "core_function",
+    "edits": [],
+    "timeout": 45,
+    "recipe": "",
+    "source_member": "uve/plscv.m",
+    "source_sha256": "29feefbd0581db45262614bbccfdbce05e3db2102b17d7246b6c892e76a97121",
+    "dataset": "supplied example or synthetic engineering fixture; not medicinal-plant validation",
+    "command": [
+      "/workspace/research4/.runtime/bin/octave",
+      "/workspace/research4/outputs/all-algorithms-final-validation/octave_ready/core_pls_cv/check.m"
+    ],
+    "started_at_shanghai": "2026-10-30T17:14:25.162309+08:00",
+    "duration_seconds": 0.3598,
+    "status": "pass",
+    "returncode": 0,
+    "log": "core_pls_cv/run.log",
+    "error": null,
+    "metrics": {
+      "example_cv": 0.026401560279983728,
+      "selected_lv": 4
+    },
+    "saved_log": "core_pls_cv/run.log"
+  },
+  {
+    "id": "core_plslda",
+    "archive": "UVE.zip",
+    "member": "plslda.m",
+    "stage": "core_function",
+    "edits": [],
+    "timeout": 45,
+    "recipe": "",
+    "source_member": "uve/plslda.m",
+    "source_sha256": "4c7904d35d31e1738db47bc94e4a6ddaf2158d46f038987e8c41e2c3434a5db1",
+    "dataset": "supplied example or synthetic engineering fixture; not medicinal-plant validation",
+    "command": [
+      "/workspace/research4/.runtime/bin/octave",
+      "/workspace/research4/outputs/all-algorithms-final-validation/octave_ready/core_plslda/check.m"
+    ],
+    "started_at_shanghai": "2026-10-30T17:14:25.525529+08:00",
+    "duration_seconds": 0.3737,
+    "status": "pass",
+    "returncode": 0,
+    "log": "core_plslda/run.log",
+    "error": null,
+    "metrics": {
+      "rows": 96,
+      "features": 40,
+      "training_error_only": 0.02083333333333337
+    },
+    "saved_log": "core_plslda/run.log"
+  },
+  {
+    "id": "core_random_frog",
+    "archive": "UVE.zip",
+    "member": "randomfrog_pls.m",
+    "stage": "core_function",
+    "edits": [],
+    "timeout": 90,
+    "recipe": "",
+    "source_member": "uve/randomfrog_pls.m",
+    "source_sha256": "3004ab4d1032eec55d52f691cde1e1831d597575843da8675c55dc8dd7a8dcbd",
+    "dataset": "supplied example or synthetic engineering fixture; not medicinal-plant validation",
+    "command": [
+      "/workspace/research4/.runtime/bin/octave",
+      "/workspace/research4/outputs/all-algorithms-final-validation/octave_ready/core_random_frog/check.m"
+    ],
+    "started_at_shanghai": "2026-10-30T17:14:25.903224+08:00",
+    "duration_seconds": 0.8638,
+    "status": "pass",
+    "returncode": 0,
+    "log": "core_random_frog/run.log",
+    "error": null,
+    "metrics": {
+      "runs": 100,
+      "features": 200
+    },
+    "saved_log": "core_random_frog/run.log"
+  },
+  {
+    "id": "core_pca_kmeans",
+    "archive": "0627卷积神经网络+PCA_Kmeans（可用2）.rar",
+    "member": "main0627.m",
+    "stage": "core_function",
+    "edits": [],
+    "timeout": 45,
+    "recipe": "",
+    "source_member": "0627卷积神经网络+PCA_Kmeans（可用）/0627卷积神经网络+PCA_Kmeans/main0627.m",
+    "source_sha256": "81f4830fe73fbd9797741326eecd33187026525d907f861ae7b0c18830772f9d",
+    "dataset": "supplied example or synthetic engineering fixture; not medicinal-plant validation",
+    "command": [
+      "/workspace/research4/.runtime/bin/octave",
+      "/workspace/research4/outputs/all-algorithms-final-validation/octave_ready/core_pca_kmeans/check.m"
+    ],
+    "started_at_shanghai": "2026-10-30T17:14:26.770221+08:00",
+    "duration_seconds": 0.6468,
+    "status": "pass",
+    "returncode": 0,
+    "log": "core_pca_kmeans/run.log",
+    "error": null,
+    "metrics": {
+      "train_rows": 252,
+      "test_rows": 108,
+      "features": 1007,
+      "pca_components": 10,
+      "clusters": 12
+    },
+    "saved_log": "core_pca_kmeans/run.log"
+  },
+  {
+    "id": "ready_ssa_smoke",
+    "archive": "麻雀算法优化SVM-沈-2021-0802.zip",
+    "member": "SSA_SVM_main.m",
+    "stage": "compatibility",
+    "edits": [
+      "Local function/API compatibility; six agents and three iterations; example execution only"
+    ],
+    "timeout": 120,
+    "recipe": "split_locals,crossvalind,ssa_smoke,plot_apis",
+    "source_member": "SSA_SVM_main.m",
+    "source_sha256": "ebe81ddaddfe9134bf4d5fc247abef1f87cb1a6395cf168adcfd6c07ad2a9293",
+    "dataset": "supplied example or synthetic engineering fixture; not medicinal-plant validation",
+    "command": [
+      "/workspace/research4/.runtime/bin/octave",
+      "/workspace/research4/outputs/all-algorithms-final-validation/octave_ready/ready_ssa_smoke/check.m"
+    ],
+    "started_at_shanghai": "2026-10-30T17:14:27.424506+08:00",
+    "duration_seconds": 29.28,
+    "status": "pass",
+    "returncode": 0,
+    "log": "ready_ssa_smoke/run.log",
+    "error": null,
+    "metrics": {},
+    "saved_log": "ready_ssa_smoke/run.log"
+  },
+  {
+    "id": "ready_vectorized_bp",
+    "archive": "BPNN.zip",
+    "member": "BP.m",
+    "stage": "performance_patch",
+    "edits": [
+      "Declared headless/math API compatibility; equivalent vectorized sample gradient; original ten epochs"
+    ],
+    "timeout": 90,
+    "recipe": "mapminmax,rands,remove_web,vectorize_bp",
+    "source_member": "案例1/BP.m",
+    "source_sha256": "ee83ad6fdf512b186df075ecdbb23a57602340093397486fed63be5e3d842de4",
+    "dataset": "supplied example or synthetic engineering fixture; not medicinal-plant validation",
+    "command": [
+      "/workspace/research4/.runtime/bin/octave",
+      "/workspace/research4/outputs/all-algorithms-final-validation/octave_ready/ready_vectorized_bp/check.m"
+    ],
+    "started_at_shanghai": "2026-10-30T17:14:56.706927+08:00",
+    "duration_seconds": 1.1089,
+    "status": "pass",
+    "returncode": 0,
+    "log": "ready_vectorized_bp/run.log",
+    "error": null,
+    "metrics": {},
+    "saved_log": "ready_vectorized_bp/run.log"
+  },
+  {
+    "id": "ready_uve_regression_demo",
+    "archive": "UVE.zip",
+    "member": "demo_PLS_Regression.m",
+    "stage": "compatibility",
+    "edits": [
+      "Add missing plotting helper; retain original regression demo settings"
+    ],
+    "timeout": 120,
+    "recipe": "plotmcuve",
+    "source_member": "uve/demo_PLS_Regression.m",
+    "source_sha256": "818c2cb6df72b3154c4c149b8556817d208606c9efbc2079316d99039d5b1800",
+    "dataset": "supplied example or synthetic engineering fixture; not medicinal-plant validation",
+    "command": [
+      "/workspace/research4/.runtime/bin/octave",
+      "/workspace/research4/outputs/all-algorithms-final-validation/octave_ready/ready_uve_regression_demo/check.m"
+    ],
+    "started_at_shanghai": "2026-10-30T17:14:57.823988+08:00",
+    "duration_seconds": 42.5812,
+    "status": "pass",
+    "returncode": 0,
+    "log": "ready_uve_regression_demo/run.log",
+    "error": null,
+    "metrics": {},
+    "saved_log": "ready_uve_regression_demo/run.log.gz"
+  }
+]

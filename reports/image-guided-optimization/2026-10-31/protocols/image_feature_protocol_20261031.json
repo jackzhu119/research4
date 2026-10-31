@@ -1,0 +1,89 @@
+{
+  "protocol_id": "zaoren-image-guided-feature-methods-20261031-v1",
+  "recorded_date_client": "2026-10-31",
+  "dataset_version": "2026-10-31-zaoren-numbered-v1",
+  "scope": "Retrospective same-batch anonymous seven-class source-feature search on real uploaded spectra",
+  "frequency": {
+    "lower_inclusive": 0.1,
+    "upper_inclusive": 1.5,
+    "expected_points": 612
+  },
+  "roles": {
+    "training": 513,
+    "calibration_pool": 171,
+    "prediction": 171
+  },
+  "target_support_labels_used": 0,
+  "seeds": [
+    42,
+    43,
+    44
+  ],
+  "candidate_configurations": 40,
+  "candidate_grid_sha256": "2bd3726c42b2eec513568d6ca5f24e071b03c4e59f745ce8e3ee566cb184bb01",
+  "development": {
+    "episodes": 6,
+    "selection_episodes": 4,
+    "gate_episodes": 2,
+    "split_seed": 20261103,
+    "source_samples": 307,
+    "support_pool_samples_unused": 103,
+    "query_samples": 103
+  },
+  "selection": {
+    "reference_candidate_id": "f001_snv_full_svm",
+    "minimum_macro_f1_gain": 0.002,
+    "maximum_accuracy_or_balanced_loss": 0.005,
+    "macro_f1_tie_tolerance": 0.002,
+    "ranking": "eligible selection macroF1; within .002 ties prefer accuracy, fewer selected features, fewer PCA components, smaller C, candidate ID",
+    "gate": "same criteria relative to reference; failure reverts reference",
+    "family_diagnostics": "best selection-stage candidate for each of seven families; locked before final",
+    "no_final_query_selection": true
+  },
+  "preprocessing": {
+    "SNV": "per-row sample SD ddof1",
+    "MSC": "source mean reference only; per-row intercept/slope correction; fail if abs slope<1e-10, record source slope min/max/negative count",
+    "StandardScaler": "fit source only after scatter transform"
+  },
+  "selectors": {
+    "CARS": "16 MC runs; standardized onehot OVR PLS1 coefficient norms; .8 class-stratified subsampling; exponential elimination to10min; weighted resampling; best source internal onehot PLS MSE; not exact MATLAB",
+    "CARS_internalCV": "3fold anchored: classes with fewer3source samples stay every train, never validation; source-query seven-class outer evaluation unchanged; inner MSE subset diagnostic only",
+    "MCUVE": "30 runs,3PLScomponents,.8 fraction; absolute onehot coefficient stability; top20/50/100",
+    "noise_UVE": "30runs; unit-SD independent Gaussian source noise same dimension as real; absolute onehot coefficient stability, noise .95/.99 quantiles; if empty choose largest stability real1 and record fallback",
+    "SPA": "one deterministic successive orthogonal projection chain, largest source pre-scaling variance initial variable; centered source standardized projections, max50 or n-1, rank floor1e-12 relative squared norm; not full multistart SPA",
+    "LDA": "lsqr auto shrinkage with uniform/empirical priors; classification, no low-dimensional transform claim",
+    "PCA_LDA": "source randomized PCA10/20/40 then same LDA; random seed recorded"
+  },
+  "fit_policy": {
+    "source_fit_only": true,
+    "cache_scoped_to_source_data_and_seed": true,
+    "candidate_failure_policy": "fail fast, preserve actual exception in execution log; do not silently delete/relabel a failed candidate",
+    "source_objects_immutable_during_prediction": true,
+    "score_is_probability": false
+  },
+  "final": {
+    "evaluate_roles": [
+      "reference",
+      "selected",
+      "family_full_svm",
+      "family_cars_svm",
+      "family_mcuve_svm",
+      "family_noise_uve_svm",
+      "family_spa_svm",
+      "family_lda",
+      "family_pca_lda"
+    ],
+    "candidate_fits_deduplicated": true,
+    "all_three_seeds": true,
+    "global_release": "outputs/image-guided-20261031/all_development_locks.json required and feature lock/protocol/manifest SHA checked",
+    "prediction_payload_has_no_y": true
+  },
+  "reporting": {
+    "feature_selection_is_not_target_support_calibration": true,
+    "same_batch_historical_query_exposure": true,
+    "single_rare_final_query": true,
+    "no_real_new_batch_or_instrument_claim": true,
+    "no_matlab_exact_reproduction": true,
+    "negative_results_preserved": true
+  }
+}

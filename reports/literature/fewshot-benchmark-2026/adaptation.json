@@ -1,0 +1,189 @@
+{
+  "checked_date": "2026-10-30",
+  "basis": "Uploaded13pagePDF, sections3-4 and current repository protocol/calibration implementation; no model training or controlled-file edits",
+  "paper_identity": {
+    "title": "A task-oriented few-shot spectroscopy benchmark: Empirical evaluation of meta-learning approaches",
+    "doi": "10.1016/j.engappai.2025.113593",
+    "year": 2026
+  },
+  "main_judgement": "The most useful transfer is task-oriented evaluation under domain shifts, not automatically replacing teacherSVM withMAML. The paper isNIR/MIR continuous-property regression; the plannedTHz growing-origin problem is classification.",
+  "paper_evidence": [
+    {
+      "page": 3,
+      "section": "3/3.1.1",
+      "observation": "Benchmark tasks are continuous-property regression; tasks distinguish industrial settings/year/region/property. Each task has support and query."
+    },
+    {
+      "page": 4,
+      "section": "3.2/3.3",
+      "observation": "SG first derivative and response standardization;MMD and Pearson-feature-importance cosine similarity quantify heterogeneity."
+    },
+    {
+      "page": 5,
+      "section": "3.4",
+      "observation": "SharedResNet-based backbone, fine-tuning, episodicMAML, SNAIL, prototype-weighted regression, SimCLR encoder baselines."
+    },
+    {
+      "page": 7,
+      "section": "4.3/Table4",
+      "observation": "Actual extreme settings are5/10/25 support instances per regression task, not per-class1/3-shot classification;5-shot can yield negativeR2."
+    },
+    {
+      "page": 8,
+      "section": "4.6",
+      "observation": "Synthetic spectral-noise/drift robustness is distinct from a new independentTHz acquisition batch."
+    }
+  ],
+  "recommended_primary_task": {
+    "name": "Known growing-origin classes, previously unseen acquisition/preparation/harvest batches of the same medicinal species",
+    "label": "categorical verified growing origin",
+    "task_unit": "an acquisition/preparation/harvest domain containing the same origin vocabulary, with independent physical samples",
+    "not_task_definition": [
+      "Do not call each origin a domain while also holding it out as an unseen class and claim ordinary same-class domain adaptation.",
+      "Do not treat5Excel workbooks or405scan columns as independent meta-training tasks.",
+      "Do not treat n/alpha/time/frequency sheets as4new sample cohorts."
+    ]
+  },
+  "metadata_gate": {
+    "required": [
+      "physical_sample_id",
+      "origin_id",
+      "pellet_id",
+      "repeat_id",
+      "harvest_or_collection_batch",
+      "preparation_batch",
+      "instrument_id",
+      "acquisition_date",
+      "file",
+      "sheet",
+      "column",
+      "measurement_units"
+    ],
+    "current_known": "User confirms filename places mean growing origins; several exact file/column-to-origin mappings and physical sample/batch relationships remain unresolved.",
+    "group_rule": "All repeat scans and pellets from the same original powder/physical sample stay together; group at the highest shared preparation/material unit that would otherwise leak.",
+    "confounding_rule": "Each origin should be represented across independent batches; one batch per origin cannot distinguish origin from batch."
+  },
+  "phased_plan": [
+    {
+      "phase": "A-now",
+      "work": "Read/align frequency units and effective band; complete metadata; prepare a domain-aware partition manifest. Run no origin model with invented labels.",
+      "reason": "Available405scans and42ginseng pellets do not establish independent domains."
+    },
+    {
+      "phase": "B-baselines",
+      "work": "Once groups exist, train source-onlySVM/PLS-DA and a modest shared1Dencoder if sample size justifies it; compare target-only, fullsource+support refit, frozen-source head refit and source-anchored score correction.",
+      "reason": "Meta-training may not be supportable with few independent acquisition tasks; strong classical/fine-tuning baselines are required."
+    },
+    {
+      "phase": "C-metric-adaptation",
+      "work": "Compare source-only prototypes, support-only prototypes on a frozen source embedding, and a source-anchored prototype blend; call this prototype adaptation unless the encoder is actually episodically meta-trained.",
+      "reason": "A simple testable mechanism fits same-class target-batch calibration better than assuming largeMAML benefits."
+    },
+    {
+      "phase": "D-meta-learning-conditional",
+      "work": "Only after enough independent source tasks and held-out validation tasks are available, compare episodically trained categoricalProtoNet andMAML with cross-entropy, same encoder and matched tuning budgets.",
+      "reason": "The paper regression-weighted targets/head/loss cannot be copied directly into origin classification."
+    },
+    {
+      "phase": "E-confirmatory",
+      "work": "Freeze preprocessing, candidatebands/DFTpriors, adaptationstrength and source model; test on newly acquired independent target batches.",
+      "reason": "Existing external benchmark tests have already informed research direction and are exploratory."
+    }
+  ],
+  "candidate_prototype_baseline": {
+    "status": "proposal only; existing idea, not implemented or novel here",
+    "embedding": "z=f_source(x), trained only on source data; may use fixedPCA/sourceencoder and physical n/alpha features",
+    "source_centroid": "c_source,k = mean source embedding of classk",
+    "target_centroid": "c_support,k = mean target-support embedding of classk",
+    "blend": "c_adapt,k = (kappa*c_source,k + n_support,k*c_support,k)/(kappa+n_support,k)",
+    "prediction": "argmin class-distance or temperature-softmax over negative squared distances; posterior calibration not implied",
+    "tuning": "kappa,temperature,normalization andmetric fixed using source-held-out-domain episodes; no finalquery labels",
+    "ablation": [
+      "source-only (kappa dominates)",
+      "target-support prototype (kappa=0)",
+      "anchoredblend (finitekappa)",
+      "same feature/encoder/numberofsupport acrossmethods"
+    ],
+    "limit": "Known source classcentroid needed; previously unseenorigins need a separate classincremental/open-set protocol."
+  },
+  "support_query_protocol": {
+    "candidate_K_per_class": [
+      0,
+      1,
+      3,
+      5,
+      10
+    ],
+    "K_note": "Proposed classification settings, not settings shown by uploaded paper and not a sample-size guarantee. Kmeans independent physical samples per known class, not repeats.",
+    "query_rule": "Within each held-out targetbatch, preassign a calibrationpool sufficientforlargestK and a disjoint fixedquery; use nested support sizes and identicalquery acrossK/methods. AtK0 calibrationpool remains excluded fromquery.",
+    "feasibility": "Require at leastKmax+q independent physical samples per class in thetargetdomain; if impossible reduceK or declare unavailable. Never duplicate or synthesize support IDs to meetK.",
+    "repetitions": "Repeat support selection in a predeclared design (e.g.20draws); paired same draw across methods. DescriptiveSD reflects support sensitivity, not20independent cohorts.",
+    "meta_train_query": "Querylabels in source/meta-training episodes may drive outer-loop training. This is different from final targetquery, whose labels are for scoring only.",
+    "validation": "Use source-held-out-batch/meta-validationepisodes for hyperparameters, featurecounts, augmentation/noise amplitude, fusion weights and calibrationstrength.1shot/class does not support ordinary classpreserving supportCV.",
+    "transduction": "Do not use finalquery spectraldistribution in an inductive claim; if used for alignment, label it separately as transductive."
+  },
+  "what_to_adapt_not_copy": [
+    {
+      "paper": "SGfirst derivative",
+      "proposal": "Compare predetermined raw/SG/SNV representations within training partitions; derivatives not mandatory forTHz and may amplify weak/highfrequency noise. Useactualtime/frequency spacing and exclude coordinate columns."
+    },
+    {
+      "paper": "Standardize continuous regression targets",
+      "proposal": "Do notzscore arbitrary categorical originIDs. Useonehot targets/categorical loss for classification."
+    },
+    {
+      "paper": "Regression prototype interpolation",
+      "proposal": "Useclass prototypes and categorical distances for origin classification; numeric originIDs have no interpolation meaning."
+    },
+    {
+      "paper": "MMDtaskheterogeneity",
+      "proposal": "Optional descriptive source-vs-targetsupport MMD with prespecified features/kernel, classbalance controls, and smallsupport uncertainty; not a guaranteed selector of winningalgorithms."
+    },
+    {
+      "paper": "PearsonresponsefeatureFIS",
+      "proposal": "CannotPearson-correlate spectra with arbitrary originintegercodes. Considerper-classonehot effects/ANOVA/classifierimportance estimated on sourcevalidation folds; reportchoice explicitly."
+    },
+    {
+      "paper": "ResNet1Dsharedbackbone",
+      "proposal": "Useful controlledencoder for FT/metric/MAML comparisons if enough independentsamples; n/alpha can be2alignedchannels or calibrated featureconcat, not4independentmodalcohorts."
+    },
+    {
+      "paper": "Syntheticnoise/instrumentdrift",
+      "proposal": "Runphysicallyplausible perturbation tests as supplements to realbatch/instrumentholdout, with amplitudes estimated on sourcerepeats and actualunits."
+    },
+    {
+      "paper": "SHAP/XGradCAM",
+      "proposal": "Usebandimportance to motivate chemical/standard/DFT checks; attribution alone is not molecular peakassignment or causality."
+    }
+  ],
+  "existing_repository_mapping": {
+    "src/herb_spectra/calibration.py::AnchorScoreCalibrator": "Available engineering baseline: fixedsourceclassorder, ridge residualcorrection fromsupportscores toonehot; allsourceclasses requiredinsupport bydefault. No probability calibration guaranteed. Hasunit tests but no verified realherbbatch classification adaptation result.",
+    "src/herb_spectra/calibration.py::ShrinkageAffineCalibrator": "Regression-only candidate; not directly forcategorical originintegers.",
+    "StableVariableSelector": "Reusable source-training-only selector; current repeatedaggregation lacked uniform superiority in priorbenchmarks, so retainplainMCUVE/full-spectrum baselines.",
+    "stage2_joint_head_baseline": "Existingjoint/support-only regressionbaselines freeze source representation andrefitPLShead; do not rename asfulljoint/target-only pipeline refit.",
+    "MAML_ProtoNet_status": "Not implemented or trained in this reading; no attribution of those methods to teacheroriginals."
+  },
+  "metrics": {
+    "classification_primary": [
+      "macroF1",
+      "balancedaccuracy",
+      "per-originrecall",
+      "confusionmatrix",
+      "pairedgainover0shot"
+    ],
+    "efficiency": [
+      "supportsamplecount",
+      "adaptationtime",
+      "modelsize"
+    ],
+    "uncertainty": "Aggregatebysample/batch, report pairedrepeatdistributions and independentdomain counts; repeatedoverlappingqueryevaluations do not establish independentCI.",
+    "not_applicable": "PaperMSE/MAE/R2 cannot be advertised as classificationaccuracy; useRMSEP/MAE/R2only when realchemicalconcentrationlabels exist."
+  },
+  "gaussian_role": {
+    "scope": "Optionalindependentlyjustified physicsprior/interpretation ofbands, not an extra metatraining task or substitute originlabels.",
+    "evidence": "Choosecandidatecompounds throughstandards/chemicalmeasurement; freezepriorwindows beforefinalquery. IRcalculatedintensity isnotdirect experimentaln/alpha.",
+    "current_runtime": "OnlyGaussViewviewer operational; Gaussianengine absent andquantumcalculationcount0."
+  },
+  "new_model_runs": 0,
+  "controlled_files_modified": false
+}

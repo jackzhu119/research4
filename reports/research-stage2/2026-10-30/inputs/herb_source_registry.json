@@ -1,0 +1,252 @@
+{
+  "package": "qsi-tk",
+  "version": "1.4.1",
+  "metadata_url": "https://pypi.org/pypi/qsi-tk/1.4.1/json",
+  "source_url": "https://pypi.org/project/qsi-tk/1.4.1/",
+  "wheel": {
+    "filename": "qsi_tk-1.4.1-py3-none-any.whl",
+    "url": "https://files.pythonhosted.org/packages/72/04/8b68279b34c7d90b44597b151b470208a9c05e4f71ebecef2def364cca34/qsi_tk-1.4.1-py3-none-any.whl",
+    "sha256": "c710fdb6f1a75158eed89743b13cd37ba6a66d482d8e1c58b709c0c2195067e8",
+    "bytes": 91457663
+  },
+  "wheel_read_policy": "Read ZIP CSV/text members only; package code/bytecode never imported, installed, deserialized, or executed.",
+  "license": {
+    "member": "qsi_tk-1.4.1.dist-info/LICENCE",
+    "sha256": "46888991c73d78e861fb295b9e514d7cade1e52932810457666f93129551ee9b",
+    "statement": "The code is licensed under LGPL 3.0.\r\n\r\nThis package is assembled by Dr. Yinsheng Zhang (oo@zju.edu.cn).  \r\nThe referenced 3rd-party libraries belong to the original contributors and obey their respective licences.",
+    "scope": "Statement explicitly licenses code LGPL3.0; a separate data-specific license is not established.",
+    "delivery": "Use source links/downloader and hashes; keep raw arrays and wheel under ignored outputs/."
+  },
+  "cohort_counting": "Four modalities/tasks represent at most three described cohorts; the two Huangqi modalities share a160-sample source cohort, and independently verified physical specimen count remains unknown.",
+  "datasets": [
+    {
+      "id": "qsi_huangqi_raman",
+      "filename": "7044X_RAMAN.csv",
+      "description_file": "7044X_RAMAN desc.txt",
+      "expected_rows": 160,
+      "expected_features": 2090,
+      "source_name": "Radix astragali / Huang-qi / 黄芪",
+      "spectral_type": "Raman",
+      "feature_axis_unit": "cm^-1",
+      "axis_unit_status": "Explicit Raman-shift unit in packaged description",
+      "class_names": [
+        "Inner Mongolia",
+        "Sichuan",
+        "Shanxi",
+        "Gansu"
+      ],
+      "class_mapping_status": "Description explicitly maps integer labels0..3 to these names",
+      "cohort_id": "qsi_huangqi_2022_multimodal",
+      "paper_doi": "10.1016/j.saa.2022.121348",
+      "caveats": [
+        "Raman and UV files describe the same160-sample Huangqi cohort; do not count them as two independent cohorts.",
+        "No physical specimen, batch, or replicate identifiers in CSV; cross-modal row pairing is not independently verified."
+      ],
+      "csv_member": "qsi/data/7044X_RAMAN.csv",
+      "csv_sha256": "ec0fc2ec76d7efa5cc1ab556556bb3d0dd0939dd11a039acd0696f52b3971676",
+      "description_member": "qsi/data/7044X_RAMAN desc.txt",
+      "description_sha256": "ec751e16f6e6127e325e55fbeaa9e4336e8144fb619c69e6c67b74aa12216f6c",
+      "original_rows": 160,
+      "deduplicated_rows": 160,
+      "removed_exact_duplicate_rows": 0,
+      "features": 2090,
+      "original_class_counts": {
+        "0": 40,
+        "1": 40,
+        "2": 40,
+        "3": 40
+      },
+      "deduplicated_class_counts": {
+        "0": 40,
+        "1": 40,
+        "2": 40,
+        "3": 40
+      },
+      "axis_first": 100.0,
+      "axis_last": 4278.0,
+      "axis_spacing_median": 2.0,
+      "all_values_finite": true,
+      "conflicting_duplicate_labels": 0,
+      "constant_features": 489,
+      "constant_spectra": 0,
+      "source_feature_range": [
+        -138.69450376293304,
+        22710.83902411605
+      ]
+    },
+    {
+      "id": "qsi_huangqi_uv",
+      "filename": "7143X_UV.csv",
+      "description_file": "7143X_UV desc.txt",
+      "expected_rows": 160,
+      "expected_features": 601,
+      "source_name": "Radix astragali / Huang-qi / 黄芪",
+      "spectral_type": "UV-visible",
+      "feature_axis_unit": "nm",
+      "axis_unit_status": "Explicit wavelength unit in packaged description",
+      "class_names": [
+        "Inner Mongolia",
+        "Sichuan",
+        "Shanxi",
+        "Gansu"
+      ],
+      "class_mapping_status": "Description explicitly maps integer labels0..3 to these names",
+      "cohort_id": "qsi_huangqi_2022_multimodal",
+      "paper_doi": "10.1016/j.saa.2022.121348",
+      "caveats": [
+        "Packaged description says602 dimensions; CSV has601 spectral columns (200..800nm inclusive) plus one label column. Values and axis are preserved; no invented channel is added.",
+        "Raman and UV files describe the same160-sample Huangqi cohort; do not count them as two independent cohorts.",
+        "No physical specimen, batch, or replicate identifiers in CSV; cross-modal row pairing is not independently verified."
+      ],
+      "csv_member": "qsi/data/7143X_UV.csv",
+      "csv_sha256": "c141e0fe8be052340a2592bd222382780e91920d435cbf915ef537cc55054b4d",
+      "description_member": "qsi/data/7143X_UV desc.txt",
+      "description_sha256": "da658ac0b5f2dbc0bd08122a2dab0bc711944ee3d4110544c114b182b2228ffa",
+      "original_rows": 160,
+      "deduplicated_rows": 160,
+      "removed_exact_duplicate_rows": 0,
+      "features": 601,
+      "original_class_counts": {
+        "0": 40,
+        "1": 40,
+        "2": 40,
+        "3": 40
+      },
+      "deduplicated_class_counts": {
+        "0": 40,
+        "1": 40,
+        "2": 40,
+        "3": 40
+      },
+      "axis_first": 200.0,
+      "axis_last": 800.0,
+      "axis_spacing_median": 1.0,
+      "all_values_finite": true,
+      "conflicting_duplicate_labels": 0,
+      "constant_features": 0,
+      "constant_spectra": 0,
+      "source_feature_range": [
+        -0.0014584791683562956,
+        2.858
+      ]
+    },
+    {
+      "id": "qsi_raspberry_raman",
+      "filename": "raspberry.csv",
+      "description_file": "raspberry desc.txt",
+      "expected_rows": 250,
+      "expected_features": 1682,
+      "source_name": "raspberry / Rubus idaeus L. (as labelled by the package)",
+      "spectral_type": "Raman",
+      "feature_axis_unit": "not explicitly stated in CSV; Raman-shift context",
+      "axis_unit_status": "Numeric source axis retained; cm^-1 would require independent confirmation",
+      "class_names": [
+        "Anhui",
+        "Anji",
+        "Chun'an",
+        "Pan'an",
+        "Wuyi"
+      ],
+      "class_mapping_status": "Description explicitly maps integer labels0..4 to these place names",
+      "cohort_id": "qsi_raspberry_unverified_species",
+      "paper_doi": null,
+      "caveats": [
+        "The packaged description names Rubus idaeus L. while also referring to Chinese medicinal Fu-pen-zi; do not assume identity with pharmacopoeial Rubus chingii material.",
+        "The labels mix a province and localities; use the supplied categorical origin labels without inventing geographical hierarchy.",
+        "No independently confirmed taxonomy, physical specimen, batch, or replicate identifiers."
+      ],
+      "csv_member": "qsi/data/raspberry.csv",
+      "csv_sha256": "cb5b2bf6c6048df09370b896efeceeea03b576cd5eac36aa014c2bfd1f3ba70f",
+      "description_member": "qsi/data/raspberry desc.txt",
+      "description_sha256": "1fc07e9533ea46c6f12cc5a963d1eb24b342e2d7795c67b4146f4e72f0fdd654",
+      "original_rows": 250,
+      "deduplicated_rows": 249,
+      "removed_exact_duplicate_rows": 1,
+      "features": 1682,
+      "original_class_counts": {
+        "0": 50,
+        "1": 50,
+        "2": 50,
+        "3": 50,
+        "4": 50
+      },
+      "deduplicated_class_counts": {
+        "0": 50,
+        "1": 50,
+        "2": 50,
+        "3": 49,
+        "4": 50
+      },
+      "axis_first": 50.31198,
+      "axis_last": 3292.065,
+      "axis_spacing_median": 1.9284999999999854,
+      "all_values_finite": true,
+      "conflicting_duplicate_labels": 0,
+      "constant_features": 0,
+      "constant_spectra": 0,
+      "source_feature_range": [
+        -934.8899,
+        11301.73
+      ]
+    },
+    {
+      "id": "qsi_shihu3_raman",
+      "filename": "shihu3.CSV",
+      "description_file": "shihu3 desc.txt",
+      "expected_rows": 200,
+      "expected_features": 1681,
+      "source_name": "Dendrobium officinale dried stems (as labelled by the package)",
+      "spectral_type": "Raman",
+      "feature_axis_unit": "not explicitly stated in CSV; Raman-shift context",
+      "axis_unit_status": "Description specifies instrument resolution in cm^-1 but not an explicit CSV-axis unit; numeric values retained",
+      "class_names": [
+        "label_0",
+        "label_1",
+        "label_2"
+      ],
+      "class_mapping_status": "Three places listed in description but no explicit mapping of all integer labels to locations; retain numeric label names",
+      "candidate_places_unmapped": [
+        "Pan'an",
+        "Wenzhou",
+        "Yunan (source spelling)"
+      ],
+      "cohort_id": "qsi_shihu3_2023",
+      "paper_doi": null,
+      "paper_title": "Origin identification of dendrobium officinale based on NNRW-stacking ensembles",
+      "caveats": [
+        "Description reports100/50/50 samples from three places but does not explicitly establish label1/2 location mapping; no mapping is guessed.",
+        "Collected June2023 per description; this is not a sample-level date or multiple-year domain label.",
+        "The instrument averages1000 scans per acquisition; CSV does not provide a replicate-to-physical-sample mapping."
+      ],
+      "csv_member": "qsi/data/shihu3.CSV",
+      "csv_sha256": "0b1129eaf30408b00d57e5ce8149ac6b29f6fbb73428063c035d3e7601d0cfd3",
+      "description_member": "qsi/data/shihu3 desc.txt",
+      "description_sha256": "9ac6a655cbe11d8b85dabd1c1e2cfbe2e971b08378d96b1b66700c1757b9f129",
+      "original_rows": 200,
+      "deduplicated_rows": 195,
+      "removed_exact_duplicate_rows": 5,
+      "features": 1681,
+      "original_class_counts": {
+        "0": 100,
+        "1": 50,
+        "2": 50
+      },
+      "deduplicated_class_counts": {
+        "0": 98,
+        "1": 50,
+        "2": 47
+      },
+      "axis_first": 50.53621,
+      "axis_last": 3290.36,
+      "axis_spacing_median": 1.9284999999999854,
+      "all_values_finite": true,
+      "conflicting_duplicate_labels": 0,
+      "constant_features": 0,
+      "constant_spectra": 0,
+      "source_feature_range": [
+        -1943.913,
+        3816.373
+      ]
+    }
+  ]
+}

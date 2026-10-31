@@ -1,0 +1,65 @@
+{
+  "scope": "Retrospective within-batch source models; no real cross-batch validation",
+  "dataset_version": "2026-10-31-zaoren-numbered-v1",
+  "protocol": "data/research/zaoren_threeway_protocol_20261031.json",
+  "prediction_rule": "argmax aligned source class scores",
+  "frequency_interval": [
+    0.1,
+    1.5
+  ],
+  "frequency_points": 612,
+  "models": [
+    {
+      "selector": "full",
+      "path": "models/zaoren_threeway_20261031/full_source_model.joblib",
+      "sha256": "5a719c7d782335cce0097fdf117784eff80fd18a66043b163d66f070e757fd62",
+      "bytes": 1602454,
+      "fitted_model_fingerprint": "1b95b4b3b7a3a0253f50f237b5b3f709d83b00f9",
+      "fingerprint_algorithm": "joblib.hash sha1",
+      "training_sample_count": 513,
+      "selected_feature_count": 612,
+      "class_order": [
+        "ZY01",
+        "ZY02",
+        "ZY03",
+        "ZY04",
+        "ZY05",
+        "ZY06",
+        "ZY07"
+      ],
+      "best_params": {
+        "model__C": 10.0,
+        "preprocess__mode": "snv"
+      }
+    },
+    {
+      "selector": "mcuve20",
+      "path": "models/zaoren_threeway_20261031/mcuve20_source_model.joblib",
+      "sha256": "5f3452c5e7fd40e45bbc1d3fd666f07e770b0ccc06d454cf11fc6e80e4167fa8",
+      "bytes": 849256,
+      "fitted_model_fingerprint": "6be1dea7769f17e4f9e30cbefcc5b51f8a11775e",
+      "fingerprint_algorithm": "joblib.hash sha1",
+      "training_sample_count": 513,
+      "selected_feature_count": 62,
+      "class_order": [
+        "ZY01",
+        "ZY02",
+        "ZY03",
+        "ZY04",
+        "ZY05",
+        "ZY06",
+        "ZY07"
+      ],
+      "best_params": {
+        "model__C": 10.0,
+        "preprocess__mode": "snv"
+      }
+    }
+  ],
+  "runtime": {
+    "numpy": "2.3.5",
+    "scipy": "1.17.0",
+    "scikit-learn": "1.8.0",
+    "joblib": "1.5.3"
+  }
+}

@@ -1,0 +1,97 @@
+{
+  "status": "pass_after_root_wording_corrections",
+  "reviewed_at_utc": "2026-10-31T08:43:28.231407+00:00",
+  "read_only": true,
+  "new_model_fits": 0,
+  "new_calibrator_solutions": 0,
+  "new_scoring": false,
+  "document_snapshot_sha256": {
+    "docs/RESEARCH4_PAPER_C_MASTER_PLAN.md": "ffc28231259844848322af236f0920e89061e144f5ab9f38b38a82c3e087fe85",
+    "docs/RESEARCH4_EXPERIMENT_AUDIT.md": "08a3eaeb85b9a0627d441d2ae361d7f86fcc8468eb8149c646bd5b917f5d7cbb",
+    "docs/RESEARCH4_PAPER_OUTLINE.md": "ba82c3f56e805374b398d8367de3e76f5ea528217d41e401aaefb2ecf873d75b",
+    "reports/paper-c/2026-10-31/README.md": "9679136905c85d1862977af57fa110b0b1397c733252a39bb87c23351c4f4aa3"
+  },
+  "checks": [
+    {
+      "topic": "Same855 pooled OOF versus old171query",
+      "status": "pass",
+      "evidence": "Five stage773/791/821/816/812, 5outer/2inner, same seed20261031/42, old513/171/171 kept separate."
+    },
+    {
+      "topic": "Current strongest model",
+      "status": "pass",
+      "evidence": "R2 821/855, Accuracy96.0234%, MacroF1 .9197, BalancedAccuracy89.9184%; fivefold fixed model references are not full855deployment."
+    },
+    {
+      "topic": "Unified comparisons and all strongMLP seeds",
+      "status": "pass",
+      "evidence": "SVM753, LDA786, sklearnMLP759, strongMLPseed42base768/continued777; seed43 775/772, seed44 774/775; primary42 vs three-seed mean clearly separated."
+    },
+    {
+      "topic": "StrongMLP mean and sampleSD",
+      "status": "pass",
+      "evidence": "Base90.3314% SD0.4428pp, continued90.6043% SD0.2943pp; MacroF1 .8123/.8226 match saved sensitivity."
+    },
+    {
+      "topic": "Epochs and source updates",
+      "status": "pass",
+      "evidence": "200baseepochs plus100sourceupdates explicitly not300epochs, old fixed architecture exposure and no fresh unbiased architecture selection clearly documented."
+    },
+    {
+      "topic": "Conditional ablations and stage declines",
+      "status": "pass",
+      "evidence": "R2 ablation net losses64/51/25/4/35 and R2toR3+5/-10, R3toR4+9/-13 match frozen audit."
+    },
+    {
+      "topic": "Measured cost and full612SNV requirement",
+      "status": "pass",
+      "evidence": "R2 2.020s is refit cost; inherited historical search not free. Full612 needed for SNV; no83.92%measurement acquisition claim. Search/CPU representation budgets disclosed."
+    },
+    {
+      "topic": "Calibration negative result",
+      "status": "pass",
+      "evidence": "Separate171table keeps original sources88.8889%/87.7193%; traditional74.0526%/74.0175%; identity not success, zero/no-label controls and fixedZY02support disclosed."
+    },
+    {
+      "topic": "External-data and E2/E3 limits",
+      "status": "pass",
+      "evidence": "Readable403huangqi records and42ginseng pellets not independent plant counts. CrossplantB/C blocked, not failed transfer; same-batch retrospective E2 not external E3; no algorithm-originality or guaranteed SCI claim."
+    },
+    {
+      "topic": "Paper assets",
+      "status": "pass",
+      "evidence": "Workbook really has14sheets and sixPNG/PDFfigures; strongseed and calibration worksheets separated."
+    }
+  ],
+  "issues": [
+    {
+      "id": "wording_task_overlap",
+      "severity": "minor_precision",
+      "file": "docs/RESEARCH4_PAPER_C_MASTER_PLAN.md",
+      "recommendation": "构建30个重叠开发任务，每个任务内部source／support／query互斥。任务间重用同513样品。",
+      "reason": "Only roles within a task are disjoint; thirty tasks are not mutually independent/disjoint.",
+      "reported_text": "在源513内部构建30个互斥source／support／query任务",
+      "status": "resolved_by_root_and_read_back_verified",
+      "resolved_text": "在源513内部构建30个重叠开发任务，每个任务内部的source／support／query互斥，前24任务选择、后6任务门禁；比较12组固定限幅／低间隔门控／支持错误证据阈值。开发不能同时改善Accuracy与Macro-F1时回退identity。最终预设100次重叠支持抽样，比较无校准、传统λ1、保守选择、同结构零支持与无标签控制，保留改对、改错、拒绝率和波动。"
+    },
+    {
+      "id": "wording_raw_value_recheck",
+      "severity": "minor_precision",
+      "file": "docs/RESEARCH4_EXPERIMENT_AUDIT.md",
+      "recommendation": "七份编号表的SHA与表头标签，以及冻结NPZ与模型实际源输入已核对。",
+      "reason": "This round newly read original workbook headers and SHA; actual model source numeric/label fingerprints matched frozenNPZ. It did not newly parse every numeric workbook cell.",
+      "reported_text": "七份原始编号表的SHA、表头标签、谱值与模型实际输入已核对",
+      "status": "resolved_by_root_and_read_back_verified",
+      "resolved_text": "R2比R0纠正62份、伤害14份，净增48；Macro-F1提高0.1105，Balanced Accuracy增加6.2449个百分点。七份原始编号表的SHA和α表头标签，以及冻结NPZ与模型实际源输入的数值／标签指纹均已核对；本次未重新逐单元解析七表谱值。855谱无精确相同数值行。物理独立性仍依据用户声明，数值不重复不能代替采样日志。"
+    }
+  ],
+  "issue_action": "Root corrected both precision issues; reviewer read back current paragraphs, verified corrections and saved the new four-document SHA snapshot. Historical model audits, locks and ML sources unchanged.",
+  "initial_document_snapshot_sha256": {
+    "docs/RESEARCH4_PAPER_C_MASTER_PLAN.md": "ffc28231259844848322af236f0920e89061e144f5ab9f38b38a82c3e087fe85",
+    "docs/RESEARCH4_EXPERIMENT_AUDIT.md": "08a3eaeb85b9a0627d441d2ae361d7f86fcc8468eb8149c646bd5b917f5d7cbb",
+    "docs/RESEARCH4_PAPER_OUTLINE.md": "ba82c3f56e805374b398d8367de3e76f5ea528217d41e401aaefb2ecf873d75b",
+    "reports/paper-c/2026-10-31/README.md": "9679136905c85d1862977af57fa110b0b1397c733252a39bb87c23351c4f4aa3"
+  },
+  "resolution_verified_at_utc": "2026-10-31T08:44:10.450834+00:00",
+  "remaining_issues": []
+}

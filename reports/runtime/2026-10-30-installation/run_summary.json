@@ -1,0 +1,1070 @@
+{
+  "started_at_shanghai": "2026-10-30T17:13:49.656505+08:00",
+  "profile": "full",
+  "output": "/workspace/research4/outputs/all-algorithms-final-validation",
+  "selected_paths_passed": true,
+  "original_files_all_unmodified_runnable": false,
+  "matlab_native_execution_verified": false,
+  "research_performance_verified": false,
+  "original_blockers": [
+    {
+      "original": "MATLAB及专有工具箱",
+      "reason": "当前未安装或执行原生MATLAB；需要有效许可证和工具箱",
+      "usable_path": "Octave/Python环境，单独标注兼容及替代实现"
+    },
+    {
+      "original": "newff/fitcecoc/templateSVM旧入口",
+      "reason": "MathWorks接口及完整依赖缺失",
+      "usable_path": "sklearn MLP/SVC 或 Linux LIBSVM；不是原newff复现"
+    },
+    {
+      "original": "LSSVM.txt / trainlssvm",
+      "reason": "完整原工具箱缺失",
+      "usable_path": "独立实现的核LS-SVM回归"
+    },
+    {
+      "original": "PCA.txt / my_pca",
+      "reason": "图像PCA依赖缺失",
+      "usable_path": "保存训练均值与载荷的图像PCA实现"
+    },
+    {
+      "original": "UVE分类demo / carsplslda",
+      "reason": "分类筛选函数缺失",
+      "usable_path": "显式one-hot目标的Python选择器；不是原二分类PLS-LDA接口"
+    },
+    {
+      "original": "纹理DOCX、syqpcx、部分PLS/CARS/PCA脚本",
+      "reason": "存在已核实的逻辑或形状问题，安装软件不会改变原逻辑",
+      "usable_path": "保留原件；运行注明来源和修改内容的修正版/替代工具"
+    },
+    {
+      "original": "个人绝对路径、外部原始数据及中药真实标签",
+      "reason": "原文件未提供或样品对应关系未确认",
+      "usable_path": "随包示例/合成工程夹具；真实中药只验证读取"
+    }
+  ],
+  "steps": [
+    {
+      "name": "setup",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "/workspace/research4/scripts/setup_research_environment.py",
+        "--runtime-dir",
+        "/workspace/research4/.runtime",
+        "--offline"
+      ],
+      "returncode": 0,
+      "duration_seconds": 3.1738,
+      "log": "setup.log"
+    },
+    {
+      "name": "environment",
+      "command": [
+        "/workspace/research4/.runtime/bin/python",
+        "/workspace/research4/scripts/environment_doctor.py",
+        "--runtime-dir",
+        "/workspace/research4/.runtime",
+        "--output",
+        "/workspace/research4/outputs/all-algorithms-final-validation/environment.json"
+      ],
+      "returncode": 0,
+      "duration_seconds": 2.8719,
+      "log": "environment.log"
+    },
+    {
+      "name": "prepare_sources",
+      "command": [
+        "/workspace/research4/.runtime/bin/python",
+        "/workspace/research4/scripts/runtime/prepare_sources.py",
+        "--output",
+        "/workspace/research4/outputs/all-algorithms-final-validation/sources"
+      ],
+      "returncode": 0,
+      "duration_seconds": 0.3149,
+      "log": "prepare_sources.log"
+    },
+    {
+      "name": "python",
+      "command": [
+        "/workspace/research4/.runtime/bin/python",
+        "/workspace/research4/scripts/runtime/run_python_checks.py",
+        "--inventory",
+        "/workspace/research4/outputs/all-algorithms-final-validation/sources/source_inventory.json",
+        "--output",
+        "/workspace/research4/outputs/all-algorithms-final-validation/python"
+      ],
+      "returncode": 0,
+      "duration_seconds": 13.5027,
+      "log": "python.log"
+    },
+    {
+      "name": "replacements",
+      "command": [
+        "/workspace/research4/.runtime/bin/python",
+        "/workspace/research4/scripts/runtime/run_replacement_checks.py",
+        "--inventory",
+        "/workspace/research4/outputs/all-algorithms-final-validation/sources/source_inventory.json",
+        "--output",
+        "/workspace/research4/outputs/all-algorithms-final-validation/replacements"
+      ],
+      "returncode": 0,
+      "duration_seconds": 1.4179,
+      "log": "replacements.log"
+    },
+    {
+      "name": "selection",
+      "command": [
+        "/workspace/research4/.runtime/bin/python",
+        "/workspace/research4/scripts/runtime/run_selection_checks.py",
+        "--inventory",
+        "/workspace/research4/outputs/all-algorithms-final-validation/sources/source_inventory.json",
+        "--output",
+        "/workspace/research4/outputs/all-algorithms-final-validation/selection"
+      ],
+      "returncode": 0,
+      "duration_seconds": 1.3171,
+      "log": "selection.log"
+    },
+    {
+      "name": "octave_ready",
+      "command": [
+        "/workspace/research4/.runtime/bin/python",
+        "/workspace/research4/scripts/runtime/run_octave_checks.py",
+        "--phase",
+        "ready",
+        "--case",
+        "compat_pls_original",
+        "compat_cars_uve_main",
+        "compat_uve_noise",
+        "compat_mcuve_0308",
+        "patched_cars_error_scaling",
+        "patched_iriv_small_dimension",
+        "compat_libsvm_three_outputs",
+        "compat_edge_fixture",
+        "compat_sg_filter",
+        "core_pls_cv",
+        "core_plslda",
+        "core_random_frog",
+        "core_pca_kmeans",
+        "ready_ssa_smoke",
+        "ready_vectorized_bp",
+        "ready_uve_regression_demo",
+        "--octave",
+        "/workspace/research4/.runtime/bin/octave",
+        "--inventory",
+        "/workspace/research4/outputs/all-algorithms-final-validation/sources/source_inventory.json",
+        "--output",
+        "/workspace/research4/outputs/all-algorithms-final-validation/octave_ready"
+      ],
+      "returncode": 0,
+      "duration_seconds": 88.2036,
+      "log": "octave_ready.log"
+    }
+  ],
+  "cached_cases": [
+    {
+      "id": "compat_ssa_full_budget_long",
+      "status": "cached_verified",
+      "original_started_at": "2026-10-30T16:25:54.322350+08:00",
+      "original_duration_seconds": 512.9482,
+      "source_archive": "references/paper-materials/code/麻雀算法优化SVM-沈-2021-0802.zip",
+      "source_sha256": "ebe81ddaddfe9134bf4d5fc247abef1f87cb1a6395cf168adcfd6c07ad2a9293",
+      "octave_version": "9.4.0",
+      "package_versions": {
+        "statistics": "1.7.3",
+        "signal": "1.4.6",
+        "io": "2.6.4",
+        "image": "2.16.0",
+        "optim": "1.6.2"
+      },
+      "evidence": "reports/runtime/2026-10-30",
+      "scope": "previous full run, not reexecuted in this invocation"
+    }
+  ],
+  "case_groups": {
+    "python": [
+      {
+        "id": "python_existing_unit_suite",
+        "status": "pass",
+        "scope": "synthetic engineering fixtures, not medicinal-plant performance",
+        "started_at_shanghai": "2026-10-30T17:13:57.029004+08:00",
+        "duration_seconds": 2.4386,
+        "metrics": {
+          "tests": 47,
+          "returncode": 0
+        },
+        "error": null
+      },
+      {
+        "id": "python_example_pls",
+        "status": "pass",
+        "scope": "supplied corn/starch fixed split; example execution only",
+        "started_at_shanghai": "2026-10-30T17:13:59.470864+08:00",
+        "duration_seconds": 0.003,
+        "metrics": {
+          "train_rows": 60,
+          "test_rows": 20,
+          "features": 700,
+          "example_rmsep": 0.5168655017596676
+        },
+        "error": null
+      },
+      {
+        "id": "python_example_svr",
+        "status": "pass",
+        "scope": "supplied corn/starch fixed split; example execution only",
+        "started_at_shanghai": "2026-10-30T17:13:59.474113+08:00",
+        "duration_seconds": 0.0033,
+        "metrics": {
+          "train_rows": 60,
+          "test_rows": 20,
+          "features": 700,
+          "example_rmsep": 0.7721437310813252
+        },
+        "error": null
+      },
+      {
+        "id": "python_example_svc",
+        "status": "pass",
+        "scope": "supplied non-herb multiclass example; not independent research validation",
+        "started_at_shanghai": "2026-10-30T17:13:59.493386+08:00",
+        "duration_seconds": 0.014,
+        "metrics": {
+          "train_rows": 252,
+          "test_rows": 108,
+          "features": 1007,
+          "example_accuracy": 1.0
+        },
+        "error": null
+      },
+      {
+        "id": "python_real_herb_reading",
+        "status": "pass",
+        "scope": "real unlabelled herb inputs; no classifier/regressor trained",
+        "started_at_shanghai": "2026-10-30T17:13:59.507716+08:00",
+        "duration_seconds": 7.3386,
+        "metrics": {
+          "workbooks": 9,
+          "unlabelled_scans": 808,
+          "details": [
+            {
+              "file": "data/raw/huangqi/黄芪内蒙古固阳202605310518.xlsx",
+              "scans": 100,
+              "frequency_points": 612
+            },
+            {
+              "file": "data/raw/huangqi/黄芪山西大同202605310205.xlsx",
+              "scans": 103,
+              "frequency_points": 612
+            },
+            {
+              "file": "data/raw/huangqi/黄芪曲靖202605310559.xlsx",
+              "scans": 100,
+              "frequency_points": 612
+            },
+            {
+              "file": "data/raw/huangqi/黄芪甘肃202605310347.xlsx",
+              "scans": 100,
+              "frequency_points": 612
+            },
+            {
+              "file": "data/raw/zaoren/同仁堂安徽毫州202606070657.xlsx",
+              "scans": 100,
+              "frequency_points": 612
+            },
+            {
+              "file": "data/raw/zaoren/散装50g202606070729.xlsx",
+              "scans": 100,
+              "frequency_points": 612
+            },
+            {
+              "file": "data/raw/zaoren/枣仁202605210443.xlsx",
+              "scans": 5,
+              "frequency_points": 612
+            },
+            {
+              "file": "data/raw/zaoren/盒养河北酸枣仁202606070619.xlsx",
+              "scans": 100,
+              "frequency_points": 612
+            },
+            {
+              "file": "data/raw/zaoren/酸枣仁信盛常河北石家庄安徽毫州202606070550.xlsx",
+              "scans": 100,
+              "frequency_points": 612
+            }
+          ]
+        },
+        "error": null
+      },
+      {
+        "id": "python_cnn_structure_migration",
+        "status": "pass",
+        "scope": "equivalent 2D layer structure; 3-epoch CPU smoke test on supplied example",
+        "started_at_shanghai": "2026-10-30T17:14:06.846957+08:00",
+        "duration_seconds": 1.9368,
+        "metrics": {
+          "torch_version": "2.9.0+cpu",
+          "device": "cpu",
+          "epochs": 3,
+          "train_rows": 252,
+          "test_rows": 108,
+          "parameters": 143148,
+          "losses": [
+            0.9496032931206245,
+            0.011095815138625247,
+            0.0035502060966950562
+          ],
+          "example_accuracy": 0.9629629850387573,
+          "reshape_order": "MATLAB column-major",
+          "scope_note": "PyTorch architecture migration; not original MATLAB weights/100-epoch reproduction"
+        },
+        "error": null
+      }
+    ],
+    "replacements": [
+      {
+        "id": "replacement_lssvm_regression",
+        "status": "pass",
+        "error": null,
+        "metrics": {
+          "dataset": "supplied corn_m5_starch.mat fixed example split; y units unverified",
+          "train_rows": 60,
+          "test_rows": 20,
+          "features": 700,
+          "example_rmsep": 0.7774502827394685,
+          "block_system_residual_max": 9.592326932761353e-14,
+          "intercept": 65.27744613692415
+        },
+        "implementation": "independent RBF LS-SVM block-system solver with unpenalized intercept",
+        "source_relation": "fills missing trainlssvm capability; not the original LS-SVM toolbox or SVR renamed",
+        "scope": "engineering/example execution, not validated medicinal-plant performance",
+        "warning_count": 0,
+        "started_at_shanghai": "2026-10-30T17:14:10.531180+08:00",
+        "duration_seconds": 0.006238
+      },
+      {
+        "id": "replacement_image_pca",
+        "status": "pass",
+        "error": null,
+        "metrics": {
+          "dataset": "synthetic image cubes",
+          "training_shape": [
+            24,
+            20,
+            6
+          ],
+          "score_shape": [
+            24,
+            20,
+            3
+          ],
+          "query_score_shape": [
+            12,
+            10,
+            3
+          ],
+          "training_mean_unchanged": true,
+          "explained_variance_ratio": [
+            0.19987980185615595,
+            0.1859938727838834,
+            0.16690342173480818
+          ]
+        },
+        "implementation": "independent pixel/band PCA helper with stored training centering",
+        "source_relation": "fills missing my_pca functionality through a documented Python API, not a MATLAB interface clone",
+        "scope": "engineering/example execution, not validated medicinal-plant performance",
+        "warning_count": 0,
+        "started_at_shanghai": "2026-10-30T17:14:10.537648+08:00",
+        "duration_seconds": 0.001003
+      },
+      {
+        "id": "replacement_glcm_texture",
+        "status": "pass",
+        "error": null,
+        "metrics": {
+          "dataset": "synthetic constant and random grayscale images",
+          "max_feature_difference": 41.80378511966701,
+          "constant_features": [
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          "random_features": [
+            0.004525377868116291,
+            2.7576339473878578e-05,
+            5.463271482198611,
+            0.004782374255247762,
+            41.80378511966701,
+            1.2016824999071989,
+            -0.01974899985043771,
+            0.029600185992627648
+          ],
+          "feature_names": [
+            "energy_mean",
+            "energy_std",
+            "entropy_mean",
+            "entropy_std",
+            "contrast_mean",
+            "contrast_std",
+            "correlation_mean",
+            "correlation_std"
+          ],
+          "maximum_absolute_directional_correlation": 0.05082290090797674
+        },
+        "implementation": "independent normalized symmetric GLCM with actual pixel-neighbour comparisons",
+        "source_relation": "corrected replacement for incomplete conditions and correlation denominator in the stored Texture document",
+        "scope": "engineering/example execution, not validated medicinal-plant performance",
+        "warning_count": 0,
+        "started_at_shanghai": "2026-10-30T17:14:10.538872+08:00",
+        "duration_seconds": 0.000972
+      },
+      {
+        "id": "replacement_sobel_edges",
+        "status": "pass",
+        "error": null,
+        "metrics": {
+          "dataset": "synthetic step image",
+          "input_shape": [
+            32,
+            32
+          ],
+          "output_shape": [
+            34,
+            34
+          ],
+          "maximum_magnitude": 1081.8733752154178
+        },
+        "implementation": "SciPy full-convolution Sobel magnitude with zero boundary padding",
+        "source_relation": "same standard Sobel operation family as the supplied edge-detection document; real images required for research",
+        "scope": "engineering/example execution, not validated medicinal-plant performance",
+        "warning_count": 0,
+        "started_at_shanghai": "2026-10-30T17:14:10.540062+08:00",
+        "duration_seconds": 0.000183
+      },
+      {
+        "id": "replacement_sg_filter",
+        "status": "pass",
+        "error": null,
+        "metrics": {
+          "dataset": "synthetic quadratic signal",
+          "points": 101,
+          "window": 15,
+          "degree": 2,
+          "polynomial_preservation_max_error": 9.458744898438454e-11,
+          "axis_note": "scans x frequency; coordinate columns excluded by caller"
+        },
+        "implementation": "SciPy Savitzky-Golay filtering with interp endpoints",
+        "source_relation": "replaces legacy smooth dependency; does not assert all MATLAB smooth endpoints are numerically identical",
+        "scope": "engineering/example execution, not validated medicinal-plant performance",
+        "warning_count": 0,
+        "started_at_shanghai": "2026-10-30T17:14:10.540434+08:00",
+        "duration_seconds": 0.000621
+      },
+      {
+        "id": "replacement_bp_classifier",
+        "status": "pass",
+        "error": null,
+        "metrics": {
+          "dataset": "supplied four-class voice teaching example; independent NumPy random split",
+          "train_rows": 1500,
+          "test_rows": 500,
+          "features": 24,
+          "example_accuracy": 0.888,
+          "classes": [
+            "class-1",
+            "class-2",
+            "class-3",
+            "class-4"
+          ],
+          "max_iterations": 200,
+          "objective": "cross-entropy; sigmoid hidden layer; L-BFGS solver",
+          "reproducibility_note": "not original manual MSE update, newff behavior or archived weights"
+        },
+        "implementation": "independent scikit-learn sigmoid MLP classifier with training-only scaling",
+        "source_relation": "runnable BP family replacement; not original newff or numerical reproduction of manual BP",
+        "scope": "engineering/example execution, not validated medicinal-plant performance",
+        "warning_count": 1,
+        "started_at_shanghai": "2026-10-30T17:14:10.541313+08:00",
+        "duration_seconds": 0.179457
+      },
+      {
+        "id": "replacement_scan_row_adapter",
+        "status": "pass",
+        "error": null,
+        "metrics": {
+          "dataset": "91 synthetic 300x92 matrices",
+          "stacked_shape": [
+            91,
+            91
+          ],
+          "row_index_zero_based": 299,
+          "column_slice_zero_based": "1:92",
+          "mismatched_90_91_lengths_rejected": true,
+          "scope_note": "data adapter only; caller must verify matching physical coordinates"
+        },
+        "implementation": "parameterized equal-length row extraction and stacking",
+        "source_relation": "replaces hard-coded syqpcx file paths and inconsistent column slices; not a classifier",
+        "scope": "engineering/example execution, not validated medicinal-plant performance",
+        "warning_count": 0,
+        "started_at_shanghai": "2026-10-30T17:14:10.721060+08:00",
+        "duration_seconds": 0.006629
+      }
+    ],
+    "selection": [
+      {
+        "id": "mcuve_absolute_negative_effect",
+        "status": "pass",
+        "error": null,
+        "metrics": {
+          "selected": [
+            0,
+            4
+          ],
+          "negative_effect_feature": 0,
+          "retained_negative_effect": true,
+          "training_sample_units": 80
+        },
+        "implementation": "MCUVESelector",
+        "source_relation": "Independent MC-UVE implementation: absolute coefficient stability, fixed seed, standardized OVR-PLS1; not the archived signed ranking",
+        "started_at_shanghai": "2026-10-30T17:14:11.875191+08:00",
+        "duration_seconds": 0.03143
+      },
+      {
+        "id": "bounded_iriv_three_features",
+        "status": "pass",
+        "error": null,
+        "metrics": {
+          "input_features": 3,
+          "selected": [
+            0
+          ],
+          "candidate_evaluations": 6,
+          "random_rejection_loop": false
+        },
+        "implementation": "BoundedIRIVInspiredSelector",
+        "source_relation": "Independent IRIV-inspired replacement: bounded paired inclusion/exclusion and backward elimination; not an exact IRIV recreation",
+        "started_at_shanghai": "2026-10-30T17:14:11.906874+08:00",
+        "duration_seconds": 0.01889
+      },
+      {
+        "id": "selector_sample_group_aggregation",
+        "status": "pass",
+        "error": null,
+        "metrics": {
+          "input_scans": 89,
+          "fitted_physical_sample_units": 80,
+          "sample_unit": "physical_sample_means",
+          "query_transform_shape": [
+            3,
+            3
+          ],
+          "fit_state_unchanged": true
+        },
+        "implementation": "MCUVESelector(groups=...)",
+        "source_relation": "Repeat scans are averaged within the training physical sample before resampling; this is an explicit new implementation choice",
+        "started_at_shanghai": "2026-10-30T17:14:11.926041+08:00",
+        "duration_seconds": 0.02606
+      },
+      {
+        "id": "cars_multiclass_not_ordinal",
+        "status": "pass",
+        "error": null,
+        "metrics": {
+          "classes": 3,
+          "selected": [
+            0,
+            2
+          ],
+          "class_id_permutation_invariant": true,
+          "target_encoding": "one-hot OVR coefficient norms"
+        },
+        "implementation": "CARSStyleSelector(task='classification')",
+        "source_relation": "Independent multiclass adaptation uses one-hot OVR PLS coefficient norms; arbitrary class IDs are not treated as concentrations",
+        "started_at_shanghai": "2026-10-30T17:14:11.952400+08:00",
+        "duration_seconds": 0.05907
+      },
+      {
+        "id": "cars_style_training_only_example",
+        "status": "pass",
+        "error": null,
+        "metrics": {
+          "input_kind": "supplied example calibration data",
+          "training_rows": 60,
+          "input_features": 700,
+          "selected_features": 43,
+          "query_shape": [
+            20,
+            43
+          ],
+          "query_used_in_fitting": false,
+          "internal_mse_is_not_external_validation": true
+        },
+        "implementation": "CARSStyleSelector",
+        "source_relation": "Independent CARS-style exponential pruning/weighted sampling with fixed PLS components; no exact numerical equivalence or novelty claim",
+        "started_at_shanghai": "2026-10-30T17:14:12.011796+08:00",
+        "duration_seconds": 0.04738
+      }
+    ],
+    "octave_ready": [
+      {
+        "id": "compat_pls_original",
+        "archive": "0308 CARS+UVE.rar",
+        "member": "pls.m",
+        "stage": "compatibility",
+        "edits": [
+          "Add sumsqr compatibility helper; preserve PLS implementation"
+        ],
+        "timeout": 45,
+        "recipe": "sumsqr",
+        "source_member": "0308 CARS+UVE/pls.m",
+        "source_sha256": "92ba9347d1e94ee477b3c36ba17350ba9830377680ef12c77b5b055c65b5a899",
+        "dataset": "supplied example or synthetic engineering fixture; not medicinal-plant validation",
+        "command": [
+          "/workspace/research4/.runtime/bin/octave",
+          "/workspace/research4/outputs/all-algorithms-final-validation/octave_ready/compat_pls_original/check.m"
+        ],
+        "started_at_shanghai": "2026-10-30T17:14:12.298173+08:00",
+        "duration_seconds": 0.5244,
+        "status": "pass",
+        "returncode": 0,
+        "log": "compat_pls_original/run.log",
+        "error": null,
+        "metrics": {
+          "example_rmsep": 0.5168655017596693
+        }
+      },
+      {
+        "id": "compat_cars_uve_main",
+        "archive": "0308 CARS+UVE.rar",
+        "member": "main.m",
+        "stage": "compatibility",
+        "edits": [
+          "Add sumsqr compatibility helper; original default main settings"
+        ],
+        "timeout": 120,
+        "recipe": "sumsqr",
+        "source_member": "0308 CARS+UVE/main.m",
+        "source_sha256": "e15000e58d9e576068d432622471227840ee23469d266ee33ee0180f10d26250",
+        "dataset": "supplied example or synthetic engineering fixture; not medicinal-plant validation",
+        "command": [
+          "/workspace/research4/.runtime/bin/octave",
+          "/workspace/research4/outputs/all-algorithms-final-validation/octave_ready/compat_cars_uve_main/check.m"
+        ],
+        "started_at_shanghai": "2026-10-30T17:14:12.828085+08:00",
+        "duration_seconds": 7.1916,
+        "status": "pass",
+        "returncode": 0,
+        "log": "compat_cars_uve_main/run.log",
+        "error": null,
+        "metrics": {}
+      },
+      {
+        "id": "compat_uve_noise",
+        "archive": "0308 CARS+UVE.rar",
+        "member": "uvepls.m",
+        "stage": "compatibility",
+        "edits": [
+          "Add sumsqr helper; six jackknife groups for smoke test"
+        ],
+        "timeout": 45,
+        "recipe": "sumsqr",
+        "source_member": "0308 CARS+UVE/uvepls.m",
+        "source_sha256": "61099215d489828a961ac39608fb9fc4523cd0a57c319381fb4dfd6815a74ce7",
+        "dataset": "supplied example or synthetic engineering fixture; not medicinal-plant validation",
+        "command": [
+          "/workspace/research4/.runtime/bin/octave",
+          "/workspace/research4/outputs/all-algorithms-final-validation/octave_ready/compat_uve_noise/check.m"
+        ],
+        "started_at_shanghai": "2026-10-30T17:14:20.024375+08:00",
+        "duration_seconds": 0.7441,
+        "status": "pass",
+        "returncode": 0,
+        "log": "compat_uve_noise/run.log",
+        "error": null,
+        "metrics": {
+          "variables": 231,
+          "jackknife_groups": 6
+        }
+      },
+      {
+        "id": "compat_mcuve_0308",
+        "archive": "0308 CARS+UVE.rar",
+        "member": "mcuvepls.m",
+        "stage": "compatibility",
+        "edits": [
+          "Add sumsqr helper; 30 Monte Carlo runs for smoke test"
+        ],
+        "timeout": 45,
+        "recipe": "sumsqr",
+        "source_member": "0308 CARS+UVE/mcuvepls.m",
+        "source_sha256": "c5c550bef46ada9b164ac4b55a0cb685dd20eefda9b3d1ab72c69ff30e850ea1",
+        "dataset": "supplied example or synthetic engineering fixture; not medicinal-plant validation",
+        "command": [
+          "/workspace/research4/.runtime/bin/octave",
+          "/workspace/research4/outputs/all-algorithms-final-validation/octave_ready/compat_mcuve_0308/check.m"
+        ],
+        "started_at_shanghai": "2026-10-30T17:14:20.773661+08:00",
+        "duration_seconds": 1.0173,
+        "status": "pass",
+        "returncode": 0,
+        "log": "compat_mcuve_0308/run.log",
+        "error": null,
+        "metrics": {
+          "features": 700,
+          "runs": 30
+        }
+      },
+      {
+        "id": "patched_cars_error_scaling",
+        "archive": "CARS（sy）.rar",
+        "member": "carspls.m",
+        "stage": "logic_patch",
+        "edits": [
+          "Add sumsqr helper; remove /2.8 in two reported error fields"
+        ],
+        "timeout": 45,
+        "recipe": "sumsqr,cars_scaling",
+        "source_member": "CARS/carspls.m",
+        "source_sha256": "7a9bb4a1e9f80ab945fe54d7da725cae42e01f8d3f4c2da79f7d36466d776a6d",
+        "dataset": "supplied example or synthetic engineering fixture; not medicinal-plant validation",
+        "command": [
+          "/workspace/research4/.runtime/bin/octave",
+          "/workspace/research4/outputs/all-algorithms-final-validation/octave_ready/patched_cars_error_scaling/check.m"
+        ],
+        "started_at_shanghai": "2026-10-30T17:14:21.796455+08:00",
+        "duration_seconds": 0.5129,
+        "status": "pass",
+        "returncode": 0,
+        "log": "patched_cars_error_scaling/run.log",
+        "error": null,
+        "metrics": {
+          "raw_subset_cv": 0.004069452717818983,
+          "reported_cv": 0.004069452717818983,
+          "raw_to_reported_ratio": 1,
+          "variables": [
+            402,
+            403,
+            404,
+            405,
+            406,
+            407,
+            408,
+            502,
+            503,
+            504,
+            506,
+            507,
+            508,
+            509
+          ]
+        }
+      },
+      {
+        "id": "patched_iriv_small_dimension",
+        "archive": "UVE.zip",
+        "member": "iriv.m",
+        "stage": "logic_patch",
+        "edits": [
+          "Stop random-screening loop at <=4 variables, hand off to existing backward elimination; Nx() -> Nx"
+        ],
+        "timeout": 60,
+        "recipe": "iriv_guard",
+        "source_member": "uve/iriv.m",
+        "source_sha256": "c6ac4bde81937ad23bea023d8842fe07f260391ffb844bd2a8c32ba66d444570",
+        "dataset": "supplied example or synthetic engineering fixture; not medicinal-plant validation",
+        "command": [
+          "/workspace/research4/.runtime/bin/octave",
+          "/workspace/research4/outputs/all-algorithms-final-validation/octave_ready/patched_iriv_small_dimension/check.m"
+        ],
+        "started_at_shanghai": "2026-10-30T17:14:22.317059+08:00",
+        "duration_seconds": 1.4543,
+        "status": "pass",
+        "returncode": 0,
+        "log": "patched_iriv_small_dimension/run.log",
+        "error": null,
+        "metrics": {
+          "selected": [
+            1,
+            4
+          ]
+        }
+      },
+      {
+        "id": "compat_libsvm_three_outputs",
+        "archive": "0627卷积神经网络+PCA_Kmeans（可用2）.rar",
+        "member": "main0627.m",
+        "stage": "compatibility",
+        "edits": [
+          "Request all three outputs required by this Octave LIBSVM interface"
+        ],
+        "timeout": 45,
+        "recipe": "",
+        "source_member": "0627卷积神经网络+PCA_Kmeans（可用）/0627卷积神经网络+PCA_Kmeans/main0627.m",
+        "source_sha256": "81f4830fe73fbd9797741326eecd33187026525d907f861ae7b0c18830772f9d",
+        "dataset": "supplied example or synthetic engineering fixture; not medicinal-plant validation",
+        "command": [
+          "/workspace/research4/.runtime/bin/octave",
+          "/workspace/research4/outputs/all-algorithms-final-validation/octave_ready/compat_libsvm_three_outputs/check.m"
+        ],
+        "started_at_shanghai": "2026-10-30T17:14:23.774058+08:00",
+        "duration_seconds": 0.4322,
+        "status": "pass",
+        "returncode": 0,
+        "log": "compat_libsvm_three_outputs/run.log",
+        "error": null,
+        "metrics": {
+          "example_accuracy_percent": 100,
+          "train_rows": 252,
+          "test_rows": 108
+        }
+      },
+      {
+        "id": "compat_edge_fixture",
+        "archive": "docx_code",
+        "member": "edge_detection.m",
+        "stage": "compatibility",
+        "edits": [
+          "Replace absolute input bitmap path with synthetic 32x32 RGB fixture"
+        ],
+        "timeout": 45,
+        "recipe": "edge_fixture",
+        "source_member": "edge_detection.m",
+        "source_sha256": "01b1a385ee2653575cc37517e1284fd9137b345ff7c7703120491ebfcaf15ee0",
+        "dataset": "supplied example or synthetic engineering fixture; not medicinal-plant validation",
+        "command": [
+          "/workspace/research4/.runtime/bin/octave",
+          "/workspace/research4/outputs/all-algorithms-final-validation/octave_ready/compat_edge_fixture/check.m"
+        ],
+        "started_at_shanghai": "2026-10-30T17:14:24.207669+08:00",
+        "duration_seconds": 0.6149,
+        "status": "pass",
+        "returncode": 0,
+        "log": "compat_edge_fixture/run.log",
+        "error": null,
+        "metrics": {
+          "output_rows": 34,
+          "max_difference": 0
+        }
+      },
+      {
+        "id": "compat_sg_filter",
+        "archive": "standalone_texts",
+        "member": "平滑曲线.m",
+        "stage": "compatibility",
+        "edits": [
+          "Use Octave signal sgolayfilt API for 15-point SG filtering; not a full MATLAB smooth equivalence test"
+        ],
+        "timeout": 45,
+        "recipe": "",
+        "source_member": "平滑曲线.m",
+        "source_sha256": "c3199e35240f5013ef2e3092ed395111a1300c906d3fbc3b4b7f2676e4319363",
+        "dataset": "supplied example or synthetic engineering fixture; not medicinal-plant validation",
+        "command": [
+          "/workspace/research4/.runtime/bin/octave",
+          "/workspace/research4/outputs/all-algorithms-final-validation/octave_ready/compat_sg_filter/check.m"
+        ],
+        "started_at_shanghai": "2026-10-30T17:14:24.824218+08:00",
+        "duration_seconds": 0.335,
+        "status": "pass",
+        "returncode": 0,
+        "log": "compat_sg_filter/run.log",
+        "error": null,
+        "metrics": {
+          "points": 101,
+          "window": 15,
+          "degree": 2
+        }
+      },
+      {
+        "id": "core_pls_cv",
+        "archive": "UVE.zip",
+        "member": "plscv.m",
+        "stage": "core_function",
+        "edits": [],
+        "timeout": 45,
+        "recipe": "",
+        "source_member": "uve/plscv.m",
+        "source_sha256": "29feefbd0581db45262614bbccfdbce05e3db2102b17d7246b6c892e76a97121",
+        "dataset": "supplied example or synthetic engineering fixture; not medicinal-plant validation",
+        "command": [
+          "/workspace/research4/.runtime/bin/octave",
+          "/workspace/research4/outputs/all-algorithms-final-validation/octave_ready/core_pls_cv/check.m"
+        ],
+        "started_at_shanghai": "2026-10-30T17:14:25.162309+08:00",
+        "duration_seconds": 0.3598,
+        "status": "pass",
+        "returncode": 0,
+        "log": "core_pls_cv/run.log",
+        "error": null,
+        "metrics": {
+          "example_cv": 0.026401560279983728,
+          "selected_lv": 4
+        }
+      },
+      {
+        "id": "core_plslda",
+        "archive": "UVE.zip",
+        "member": "plslda.m",
+        "stage": "core_function",
+        "edits": [],
+        "timeout": 45,
+        "recipe": "",
+        "source_member": "uve/plslda.m",
+        "source_sha256": "4c7904d35d31e1738db47bc94e4a6ddaf2158d46f038987e8c41e2c3434a5db1",
+        "dataset": "supplied example or synthetic engineering fixture; not medicinal-plant validation",
+        "command": [
+          "/workspace/research4/.runtime/bin/octave",
+          "/workspace/research4/outputs/all-algorithms-final-validation/octave_ready/core_plslda/check.m"
+        ],
+        "started_at_shanghai": "2026-10-30T17:14:25.525529+08:00",
+        "duration_seconds": 0.3737,
+        "status": "pass",
+        "returncode": 0,
+        "log": "core_plslda/run.log",
+        "error": null,
+        "metrics": {
+          "rows": 96,
+          "features": 40,
+          "training_error_only": 0.02083333333333337
+        }
+      },
+      {
+        "id": "core_random_frog",
+        "archive": "UVE.zip",
+        "member": "randomfrog_pls.m",
+        "stage": "core_function",
+        "edits": [],
+        "timeout": 90,
+        "recipe": "",
+        "source_member": "uve/randomfrog_pls.m",
+        "source_sha256": "3004ab4d1032eec55d52f691cde1e1831d597575843da8675c55dc8dd7a8dcbd",
+        "dataset": "supplied example or synthetic engineering fixture; not medicinal-plant validation",
+        "command": [
+          "/workspace/research4/.runtime/bin/octave",
+          "/workspace/research4/outputs/all-algorithms-final-validation/octave_ready/core_random_frog/check.m"
+        ],
+        "started_at_shanghai": "2026-10-30T17:14:25.903224+08:00",
+        "duration_seconds": 0.8638,
+        "status": "pass",
+        "returncode": 0,
+        "log": "core_random_frog/run.log",
+        "error": null,
+        "metrics": {
+          "runs": 100,
+          "features": 200
+        }
+      },
+      {
+        "id": "core_pca_kmeans",
+        "archive": "0627卷积神经网络+PCA_Kmeans（可用2）.rar",
+        "member": "main0627.m",
+        "stage": "core_function",
+        "edits": [],
+        "timeout": 45,
+        "recipe": "",
+        "source_member": "0627卷积神经网络+PCA_Kmeans（可用）/0627卷积神经网络+PCA_Kmeans/main0627.m",
+        "source_sha256": "81f4830fe73fbd9797741326eecd33187026525d907f861ae7b0c18830772f9d",
+        "dataset": "supplied example or synthetic engineering fixture; not medicinal-plant validation",
+        "command": [
+          "/workspace/research4/.runtime/bin/octave",
+          "/workspace/research4/outputs/all-algorithms-final-validation/octave_ready/core_pca_kmeans/check.m"
+        ],
+        "started_at_shanghai": "2026-10-30T17:14:26.770221+08:00",
+        "duration_seconds": 0.6468,
+        "status": "pass",
+        "returncode": 0,
+        "log": "core_pca_kmeans/run.log",
+        "error": null,
+        "metrics": {
+          "train_rows": 252,
+          "test_rows": 108,
+          "features": 1007,
+          "pca_components": 10,
+          "clusters": 12
+        }
+      },
+      {
+        "id": "ready_ssa_smoke",
+        "archive": "麻雀算法优化SVM-沈-2021-0802.zip",
+        "member": "SSA_SVM_main.m",
+        "stage": "compatibility",
+        "edits": [
+          "Local function/API compatibility; six agents and three iterations; example execution only"
+        ],
+        "timeout": 120,
+        "recipe": "split_locals,crossvalind,ssa_smoke,plot_apis",
+        "source_member": "SSA_SVM_main.m",
+        "source_sha256": "ebe81ddaddfe9134bf4d5fc247abef1f87cb1a6395cf168adcfd6c07ad2a9293",
+        "dataset": "supplied example or synthetic engineering fixture; not medicinal-plant validation",
+        "command": [
+          "/workspace/research4/.runtime/bin/octave",
+          "/workspace/research4/outputs/all-algorithms-final-validation/octave_ready/ready_ssa_smoke/check.m"
+        ],
+        "started_at_shanghai": "2026-10-30T17:14:27.424506+08:00",
+        "duration_seconds": 29.28,
+        "status": "pass",
+        "returncode": 0,
+        "log": "ready_ssa_smoke/run.log",
+        "error": null,
+        "metrics": {}
+      },
+      {
+        "id": "ready_vectorized_bp",
+        "archive": "BPNN.zip",
+        "member": "BP.m",
+        "stage": "performance_patch",
+        "edits": [
+          "Declared headless/math API compatibility; equivalent vectorized sample gradient; original ten epochs"
+        ],
+        "timeout": 90,
+        "recipe": "mapminmax,rands,remove_web,vectorize_bp",
+        "source_member": "案例1/BP.m",
+        "source_sha256": "ee83ad6fdf512b186df075ecdbb23a57602340093397486fed63be5e3d842de4",
+        "dataset": "supplied example or synthetic engineering fixture; not medicinal-plant validation",
+        "command": [
+          "/workspace/research4/.runtime/bin/octave",
+          "/workspace/research4/outputs/all-algorithms-final-validation/octave_ready/ready_vectorized_bp/check.m"
+        ],
+        "started_at_shanghai": "2026-10-30T17:14:56.706927+08:00",
+        "duration_seconds": 1.1089,
+        "status": "pass",
+        "returncode": 0,
+        "log": "ready_vectorized_bp/run.log",
+        "error": null,
+        "metrics": {}
+      },
+      {
+        "id": "ready_uve_regression_demo",
+        "archive": "UVE.zip",
+        "member": "demo_PLS_Regression.m",
+        "stage": "compatibility",
+        "edits": [
+          "Add missing plotting helper; retain original regression demo settings"
+        ],
+        "timeout": 120,
+        "recipe": "plotmcuve",
+        "source_member": "uve/demo_PLS_Regression.m",
+        "source_sha256": "818c2cb6df72b3154c4c149b8556817d208606c9efbc2079316d99039d5b1800",
+        "dataset": "supplied example or synthetic engineering fixture; not medicinal-plant validation",
+        "command": [
+          "/workspace/research4/.runtime/bin/octave",
+          "/workspace/research4/outputs/all-algorithms-final-validation/octave_ready/ready_uve_regression_demo/check.m"
+        ],
+        "started_at_shanghai": "2026-10-30T17:14:57.823988+08:00",
+        "duration_seconds": 42.5812,
+        "status": "pass",
+        "returncode": 0,
+        "log": "ready_uve_regression_demo/run.log",
+        "error": null,
+        "metrics": {}
+      }
+    ]
+  },
+  "exit_code": 0,
+  "finished_at_shanghai": "2026-10-30T17:15:40.568790+08:00"
+}

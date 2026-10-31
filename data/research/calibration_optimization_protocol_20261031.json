@@ -1,0 +1,202 @@
+{
+  "protocol_id": "zaoren-calibration-exploration-20261031-v1",
+  "recorded_date": "2026-10-31",
+  "authorization": "User authorizes repeated algorithm exploration, few-shot calibration optimization, label consistency checks, and prediction-to-label accuracy verification.",
+  "dataset_version": "2026-10-31-zaoren-numbered-v1",
+  "scope": "Retrospective within-batch exploratory study; current 171 prediction specimens already have historical research exposure.",
+  "fixed_split": "data/processed/zaoren_threeway_20261031_v1/split_plan.json",
+  "fixed_role_counts": {
+    "training": 513,
+    "calibration": 171,
+    "prediction": 171
+  },
+  "source_input_npz": "outputs/approved-zaoren-20261031/data-preparation/dataset.npz",
+  "labels": {
+    "classes": "anonymous origin group ZY01..ZY07",
+    "basis": "user-declared workbook-origin and independent sample mapping",
+    "numeric_identity_checked": true,
+    "named_geographic_origins_verified": false,
+    "no_model_based_relabeling": true
+  },
+  "frequency": {
+    "representation": "alpha",
+    "lower_inclusive": 0.1,
+    "upper_inclusive": 1.5,
+    "expected_points": 612
+  },
+  "selectors": [
+    "full",
+    "mcuve20"
+  ],
+  "model_seed": 42,
+  "source_model": {
+    "preprocessing": "snv",
+    "C": 10,
+    "kernel": "rbf",
+    "gamma": "scale",
+    "class_weight": "balanced",
+    "score_rule": "aligned OVR argmax; first source class breaks exact ties",
+    "episode_hyperparameters": "fixed engineering parameters from the existing source models; no inner CV with one rare-class source specimen",
+    "fit_scope": "episode source only for simulated development; fixed original training role for final source",
+    "existing_seven_class_models": "models/zaoren_threeway_20261031/manifest.json"
+  },
+  "scopes": [
+    {
+      "id": "seven_class_all",
+      "exclude_groups": [],
+      "shots": [
+        1
+      ],
+      "role_counts": {
+        "training": 513,
+        "calibration": 171,
+        "prediction": 171
+      },
+      "interpretation": "primary seven-class known-origin-group task; all five ZY02 specimens retained in their fixed roles",
+      "unavailable_shots": [
+        3,
+        5,
+        10
+      ]
+    },
+    {
+      "id": "six_class_abundant",
+      "exclude_groups": [
+        "ZY02"
+      ],
+      "shots": [
+        1,
+        3,
+        5,
+        10
+      ],
+      "role_counts": {
+        "training": 510,
+        "calibration": 170,
+        "prediction": 170
+      },
+      "interpretation": "separately labelled six-class auxiliary sample-size study; cannot substitute for or claim seven-class accuracy"
+    }
+  ],
+  "development": {
+    "episodes": 30,
+    "selection_episodes": 24,
+    "gate_episodes": 6,
+    "support_draws": 20,
+    "split_seed": 20261103,
+    "support_seed": 20261104,
+    "ratio": {
+      "source": 0.6,
+      "support_pool": 0.2,
+      "query": 0.2
+    },
+    "class_assignment": "per sorted class; source=max(1,floor(.6*n)), pool=max(1,floor(.2*n)), query=remainder",
+    "seven_class_counts": {
+      "source": 307,
+      "support_pool": 103,
+      "query": 103
+    },
+    "six_class_counts": {
+      "source": 306,
+      "support_pool": 102,
+      "query": 102
+    },
+    "zy02_roles": "one training-role specimen per episode role; cycle six permutations across each group of six episodes; repeat five times",
+    "nested_supports": true,
+    "statistics_scope": "Overlapping source-only development episodes and support draws are not independent specimens or batches"
+  },
+  "selection": {
+    "primary_metric": "paired accuracy gain",
+    "minimum_accuracy_gain": 0.001,
+    "max_macro_f1_loss": 0.005,
+    "max_balanced_accuracy_loss": 0.005,
+    "tie_tolerance": 0.001,
+    "family_rank": {
+      "identity": 0,
+      "mistake_bias": 1,
+      "mistake_kernel": 2,
+      "mistake_ridge": 3,
+      "prototype_shrinkage": 4,
+      "damped_anchor": 5,
+      "legacy_anchor": 6
+    },
+    "tie_policy": "Within .001 of highest eligible accuracy, prefer lower family rank, weaker blend/strength, larger regularization/pseudocount, then stable candidate ID",
+    "selection_scope": "first 24 source-only development episodes",
+    "gate_scope": "last 6 source-only development episodes; accuracy gain must exceed .001 and macro-F1/balanced accuracy losses must be <=.005",
+    "fallback": "identity if no candidate meets eligibility or the gate fails",
+    "family_diagnostics": "Choose a separate best configuration per family on first24 episodes and report its gate; final diagnostics cannot replace the global development-selected winner using prediction scores",
+    "freeze": "Persist all selections and hashes before any final-query scoring",
+    "require_gain_vs_matched_zero_support": true,
+    "matched_control_guard": "Apply the same accuracy >.001 and macro-F1/balanced accuracy >=-.005 comparisons to each candidate own zero-support control, in both selection and gate stages."
+  },
+  "candidates": {
+    "count": 116,
+    "families": [
+      "identity",
+      "legacy_anchor",
+      "damped_anchor",
+      "mistake_bias",
+      "mistake_ridge",
+      "mistake_kernel",
+      "prototype_shrinkage"
+    ],
+    "grid_source": "src/herb_spectra/conservative_calibration.py:candidate_grid",
+    "PCA_max_components": 20,
+    "distance_scale": "median nonzero squared source PCA pairwise distance from deterministic up-to-256 source subset",
+    "mistake_target_margin": 0.1,
+    "query_statistics_fitted": false,
+    "probability_calibration_claimed": false,
+    "zero_support_matched_control": true,
+    "grid_sha256": "60999c69702841d00b1a47d7d7b34ebcb4d4794acd64ad84e71e1b2412406e45"
+  },
+  "final": {
+    "support_draws": 100,
+    "support_seed": 20261105,
+    "random_query_seed": 20261102,
+    "random_query_examples": 20,
+    "nested_supports": true,
+    "query_fixed": true,
+    "query_truth_usage": "label join and scoring only after predictions generated",
+    "comparators": [
+      "source_identity",
+      "legacy_lambda1",
+      "development_selected",
+      "validation-selected per-family diagnostics",
+      "matched zero-support controls"
+    ],
+    "prohibited": "No prediction-label choice of method, lambda, mixing, seed, class subset, K, or selected support draws",
+    "paired_metrics": [
+      "accuracy",
+      "balanced_accuracy",
+      "macro_f1",
+      "per_class_recall",
+      "confusion_matrix",
+      "corrected_errors",
+      "new_errors"
+    ],
+    "random_examples_policy": "Uniform IDs chosen before fits independent of truth/predictions; display mistakes too"
+  },
+  "checkpoint": {
+    "resume": true,
+    "validation": "Input, protocol, candidate grid and source code hashes must match; completed episode checkpoints are reused only with matching provenance"
+  },
+  "reporting": {
+    "all_positive_and_negative_results": true,
+    "all_random_examples": true,
+    "all_per_id_predictions": true,
+    "source_model_frozen_fingerprints": true,
+    "comparators_vs_matched_control": true,
+    "no_guaranteed_improvement": true,
+    "no_new_batch_evidence": true,
+    "scope_of_small_shot_curves": "Six-class K3/5/10 only; seven-class K1 only"
+  },
+  "exclusions": [
+    "Gaussian",
+    "fabricated labels or batch IDs",
+    "test-guided repeated optimization",
+    "moving records between fixed roles",
+    "claiming repeats as new independent samples",
+    "silently excluding ZY02 from primary task",
+    "synthetic conditions labelled as real observations"
+  ]
+}

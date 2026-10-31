@@ -1,0 +1,293 @@
+{
+  "checked_date": "2026-10-30",
+  "scope": "Read-only teacher-supplied original code/provenance inspection; not patent/legal novelty determination",
+  "conclusion": "多数为既有算法来源代码、教学例与光谱任务封装；有可见版本差异及稿件改进主张，但当前材料不能建立老师原创算法的归属或完整实现证据。",
+  "attribution_limit": "资料提供者身份与代码头署名、论文作者身份不能自动画等号；未对所有互联网版本进行逐字去重。",
+  "originals_vs_our_work": "compatibility shims、/2.8修复、MC-UVE绝对稳定性修正、IRIV guard、PCA中心化修复、独立Python与1D-CNN及stage2稳定筛选/校准包装是本项目后续工作，均不得归入老师原始创新证据。",
+  "records": [
+    {
+      "id": "cars",
+      "name": "CARS两版本",
+      "classification": "已有方法实现；含已有简化分支和本地差异",
+      "evidence": [
+        {
+          "original_source": "references/paper-materials/code/0308 CARS+UVE.rar → 0308 CARS+UVE/carspls.m",
+          "lines": "11–33,37–39,63–85",
+          "observation": "头注释署Hongdong Li，引用2009 CARS；originalVersion=0默认跳过随机样本抽取和加权重采样，改为全数据和非零权重保留。"
+        },
+        {
+          "original_source": "references/paper-materials/code/CARS（sy）.rar → CARS/carspls.m",
+          "lines": "9–14,42–59,88–93",
+          "observation": "保留原作者和原论文说明；保留随机重采样；输出误差除2.8和Ft.ratio拼写差异。"
+        }
+      ],
+      "assessment": "CARS是现成方法；0308包确有简化版本，但其注释将该变体直接写在既有来源代码内，不能据此归为老师原创。/2.8是未经说明的误差报告缩放，不构成预测改进。",
+      "not_proven": "没有逐版本历史或原作者公开代码逐字diff，无法确认简化分支及/2.8由谁修改。",
+      "primary_references": [
+        "https://pubmed.ncbi.nlm.nih.gov/19616692/",
+        "https://doi.org/10.1016/j.aca.2009.06.046"
+      ]
+    },
+    {
+      "id": "uve_mcuve",
+      "name": "UVE／MC-UVE",
+      "classification": "已有变量筛选方法的工具箱实现及版本差异",
+      "evidence": [
+        {
+          "original_source": "references/paper-materials/code/0308 CARS+UVE.rar → 0308 CARS+UVE/uvepls.m",
+          "lines": "21–38",
+          "observation": "噪声参照变量＋jackknife PLS系数稳定性阈值。"
+        },
+        {
+          "original_source": "references/paper-materials/code/0308 CARS+UVE.rar → 0308 CARS+UVE/mcuvepls.m",
+          "lines": "23–37",
+          "observation": "随机子样本拟合PLS，以abs(mean/std)排序。"
+        },
+        {
+          "original_source": "references/paper-materials/code/UVE.zip → uve/mcuvepls.m",
+          "lines": "23–39",
+          "observation": "同类随机子样本PLS，但RI=mean/std有符号；PLS输出字段亦不同。"
+        }
+      ],
+      "assessment": "UVE与MC-UVE不是老师提供后才产生的新算法。两包的绝对值和字段差异真实存在，需固定版本。",
+      "not_proven": "有符号排序、参数覆盖、随机种子等实现差异不自动构成经验证的新方法；归属作者未知。",
+      "primary_references": [
+        "https://doi.org/10.1016/j.chemolab.2007.10.001"
+      ]
+    },
+    {
+      "id": "iriv_randomfrog",
+      "name": "IRIV／Random Frog等扩展筛选",
+      "classification": "已发表研究算法的来源代码",
+      "evidence": [
+        {
+          "original_source": "references/paper-materials/code/UVE.zip → uve/iriv.m",
+          "lines": "2,9–17",
+          "observation": "明确署Yonghuan Yun，给IRIV 2014 DOI和既有参考。"
+        },
+        {
+          "original_source": "references/paper-materials/code/UVE.zip → uve/randomfrog_pls.m",
+          "lines": "2,12–13,33–38",
+          "observation": "注明Random Frog，Edited by H.D.Li，2011。"
+        }
+      ],
+      "assessment": "UVE.zip是多算法合集，不是只含UVE；IRIV和Random Frog有明确既有方法来源，原算法本身有研究创新，但不能自动归属资料提供者。",
+      "not_proven": "无法仅凭合集确定老师是否曾在另外版本中修改；当前源头注释不能证明老师为论文作者。",
+      "primary_references": [
+        "https://pubmed.ncbi.nlm.nih.gov/24356218/",
+        "https://doi.org/10.1016/j.aca.2013.11.032",
+        "https://pubmed.ncbi.nlm.nih.gov/22840646/",
+        "https://doi.org/10.1016/j.aca.2012.06.031"
+      ]
+    },
+    {
+      "id": "svm",
+      "name": "普通SVM／ECOC",
+      "classification": "常用库调用＋光谱任务封装",
+      "evidence": [
+        {
+          "original_source": "references/paper-materials/code/SVM（可用）.txt",
+          "lines": "5–19,85–110,113–128",
+          "observation": "读类别表、划折、逐谱minmax、templateSVM高斯核、fitcecoc与posterior输出。"
+        }
+      ],
+      "assessment": "SVM核心直接调用MATLAB库；主要可见工作是数据接口、类别组织、交叉验证、结果和混淆矩阵输出。",
+      "not_proven": "这些工程工作有用，但未见新核函数、新损失或新的优化求解原理。",
+      "primary_references": []
+    },
+    {
+      "id": "ssa_svm",
+      "name": "SSA-SVM",
+      "classification": "现有群智能算法优化SVM参数；稿件改进主张与代码未对应",
+      "evidence": [
+        {
+          "original_source": "references/paper-materials/code/麻雀算法优化SVM-沈-2021-0802.zip → SSA_SVM_main.m",
+          "lines": "23–30,117–188,271–298",
+          "observation": "种群10、迭代100、dim=2；以CV误差寻优2^log2C与2^log2G；循环有生产者/跟随者/警戒更新，未识别显式按均值适应度调整变异概率和幅度。"
+        },
+        {
+          "original_source": "references/paper-materials/manuscripts/基于太赫兹光谱技术的小麦筋度鉴别I（中文）.docx",
+          "lines": "Word段落87、148（全体w:p顺序，含空段）",
+          "observation": "第87段声称自适应变异；第148段明确同套10/100/[-5,5]/2参数设置。"
+        },
+        {
+          "original_source": "references/paper-materials/code/麻雀算法优化SVM-沈-2021-0802.zip → SSA_SVM_main.m",
+          "lines": "49–62,271–278",
+          "observation": "寻优和报告重复使用同一KfoldIndex，最终百分比是选择后同折分数。"
+        }
+      ],
+      "assessment": "SSA已有2020基础论文。当前版本可确认的是用SSA搜索SVM超参数，属于混合应用。稿件有更具体的改进声称，不能据当前版本核验其实现。",
+      "not_proven": "未建立正式发表版—稿件—该源码的一一对应；也没有原SSA源程序逐行diff，不能断言完全没有改动，不能说已验证自适应SSA创新。",
+      "primary_references": [
+        "https://doi.org/10.1080/21642583.2019.1708830"
+      ]
+    },
+    {
+      "id": "bpnn",
+      "name": "BPNN",
+      "classification": "教学模板与任务封装两类",
+      "evidence": [
+        {
+          "original_source": "references/paper-materials/code/BPNN.zip → 案例1/BP.m",
+          "lines": "1,8–25,51–54,72–102",
+          "observation": "网页教学出处提示；四类语音信号、24输入、25隐层、4输出、手工BP更新。读取时未执行web browser语句。"
+        },
+        {
+          "original_source": "references/paper-materials/code/BPNN（可用）.txt",
+          "lines": "89–108",
+          "observation": "newff，隐层10，logsig/purelin、traingdx/learngdm，再train/sim及argmax。"
+        }
+      ],
+      "assessment": "BPNN.zip明确是语音教学例；可用TXT是现成网络API＋光谱分类适配。隐层数、学习率、类别数更改属于参数/结构选择。",
+      "not_proven": "没有证据表明其提出新的反向传播规则或可归属老师的新理论。",
+      "primary_references": []
+    },
+    {
+      "id": "cnn",
+      "name": "二维CNN",
+      "classification": "常见LeNet式层级＋一维光谱转二维及参数适配",
+      "evidence": [
+        {
+          "original_source": "references/paper-materials/code/cnn_4.txt",
+          "lines": "7–13,20–50,60–74",
+          "observation": "补17个零、reshape32×32；5×5卷积通道6/16/120、BN/ReLU/池化与6分类头；采用sgdm。"
+        }
+      ],
+      "assessment": "可以看到明确的任务适配及网络配置；给谱折成二维图像、加BN或改通道/类别数都是实现层面改变。仅凭这些层不能证明有新的CNN机制。",
+      "not_proven": "稿件称改良CNN，但没有足够版本/消融证据把此架构认定为老师原创；不能将后续本项目1D-CNN重建算进老师原件。",
+      "primary_references": []
+    },
+    {
+      "id": "pls",
+      "name": "PLS及名为PLS的文本",
+      "classification": "标准工具箱实现＋一份算法语义不同的自定义流程",
+      "evidence": [
+        {
+          "original_source": "references/paper-materials/code/0308 CARS+UVE.rar → 0308 CARS+UVE/pls.m",
+          "lines": "3–8,17–29",
+          "observation": "注明基于Massart组new chemo_AC之pls_nipals，Hongdong Li包装。"
+        },
+        {
+          "original_source": "references/paper-materials/code/PLS1.txt",
+          "lines": "4–20,27–28",
+          "observation": "直接调用MATLAB plsregress，10个潜变量，显示拟合残差。"
+        },
+        {
+          "original_source": "references/paper-materials/code/PLS.txt",
+          "lines": "21–35,41–60",
+          "observation": "训练/测试X与Y合并归一化；X和Y各自PCA后regress，不是标准联合潜变量PLS。"
+        }
+      ],
+      "assessment": "压缩包PLS与PLS1是标准来源或API；PLS.txt确实与标准PLS不同，但方法不符名称且有测试目标参与归一化问题，应按实际流程重新评估。",
+      "not_proven": "不同于标准不等于有效创新；没有论文公式及独立验证支持，不能把PLS.txt的差异包装成改进PLS。",
+      "primary_references": []
+    },
+    {
+      "id": "pca_kmeans",
+      "name": "PCA＋K-means",
+      "classification": "已有降维/聚类方法的串联应用",
+      "evidence": [
+        {
+          "original_source": "references/paper-materials/code/main.txt",
+          "lines": "69–83,119–124",
+          "observation": "MATLAB pca后取19维、kmeans12类；测试直接乘loadings未减训练均值。"
+        }
+      ],
+      "assessment": "是常见降维再聚类流程；PCA数目、簇数、投影和结果输出是应用参数。测试中心化问题应修正，不构成方法创新。",
+      "not_proven": "没有新的PCA目标函数或聚类距离；聚类编号不能天然等同类别。",
+      "primary_references": []
+    },
+    {
+      "id": "lssvm",
+      "name": "LS-SVM",
+      "classification": "现成工具箱的固定参数回归示例",
+      "evidence": [
+        {
+          "original_source": "references/paper-materials/code/LSSVM.txt",
+          "lines": "1–23",
+          "observation": "固定1800/200样本、gamma=10、sig2=0.2，trainlssvm/simlssvm使用RBF_kernel。"
+        }
+      ],
+      "assessment": "属于LS-SVM工具箱调用例；核心求解器未在该文本内重写，也未见新增的核或优化目标。",
+      "not_proven": "单独文本依赖完整LS-SVM工具箱；SVR、SVM与LS-SVM不可混称。",
+      "primary_references": []
+    }
+  ],
+  "immutable_source_members_hash_checked": [
+    {
+      "archive": "references/paper-materials/code/0308 CARS+UVE.rar",
+      "member": "0308 CARS+UVE/carspls.m",
+      "sha256": "6b416851f4c4a3fcfbbb0117172fe98ae98b190ceb2150659bcc39dc30cf4106"
+    },
+    {
+      "archive": "references/paper-materials/code/0308 CARS+UVE.rar",
+      "member": "0308 CARS+UVE/mcuvepls.m",
+      "sha256": "c5c550bef46ada9b164ac4b55a0cb685dd20eefda9b3d1ab72c69ff30e850ea1"
+    },
+    {
+      "archive": "references/paper-materials/code/0308 CARS+UVE.rar",
+      "member": "0308 CARS+UVE/pls.m",
+      "sha256": "92ba9347d1e94ee477b3c36ba17350ba9830377680ef12c77b5b055c65b5a899"
+    },
+    {
+      "archive": "references/paper-materials/code/0308 CARS+UVE.rar",
+      "member": "0308 CARS+UVE/uvepls.m",
+      "sha256": "61099215d489828a961ac39608fb9fc4523cd0a57c319381fb4dfd6815a74ce7"
+    },
+    {
+      "archive": "references/paper-materials/code/CARS（sy）.rar",
+      "member": "CARS/carspls.m",
+      "sha256": "7a9bb4a1e9f80ab945fe54d7da725cae42e01f8d3f4c2da79f7d36466d776a6d"
+    },
+    {
+      "archive": "references/paper-materials/code/CARS（sy）.rar",
+      "member": "CARS/mcuvepls.m",
+      "sha256": "c5c550bef46ada9b164ac4b55a0cb685dd20eefda9b3d1ab72c69ff30e850ea1"
+    },
+    {
+      "archive": "references/paper-materials/code/CARS（sy）.rar",
+      "member": "CARS/pls.m",
+      "sha256": "92ba9347d1e94ee477b3c36ba17350ba9830377680ef12c77b5b055c65b5a899"
+    },
+    {
+      "archive": "references/paper-materials/code/BPNN.zip",
+      "member": "案例1/BP.m",
+      "sha256": "ee83ad6fdf512b186df075ecdbb23a57602340093397486fed63be5e3d842de4"
+    },
+    {
+      "archive": "references/paper-materials/code/BPNN.zip",
+      "member": "案例1/BPDLX.m",
+      "sha256": "216b051909004e3b288392bc2b3a13425859a2829e5315e65c837403bf38a7a4"
+    },
+    {
+      "archive": "references/paper-materials/code/UVE.zip",
+      "member": "uve/iriv.m",
+      "sha256": "c6ac4bde81937ad23bea023d8842fe07f260391ffb844bd2a8c32ba66d444570"
+    },
+    {
+      "archive": "references/paper-materials/code/UVE.zip",
+      "member": "uve/mcuvepls.m",
+      "sha256": "e03007ba17ca97eb6f8465014d0266a10ef3ffc4469e5888770c5fc509d5e8c9"
+    },
+    {
+      "archive": "references/paper-materials/code/UVE.zip",
+      "member": "uve/pls.m",
+      "sha256": "c167625a8d45bf50549b828adb5a28997f6439cf6f0da04b8db3fe0a14fffbf8"
+    },
+    {
+      "archive": "references/paper-materials/code/UVE.zip",
+      "member": "uve/randomfrog_pls.m",
+      "sha256": "3004ab4d1032eec55d52f691cde1e1831d597575843da8675c55dc8dd7a8dcbd"
+    },
+    {
+      "archive": "references/paper-materials/code/麻雀算法优化SVM-沈-2021-0802.zip",
+      "member": "SSA_SVM_main.m",
+      "sha256": "ebe81ddaddfe9134bf4d5fc247abef1f87cb1a6395cf168adcfd6c07ad2a9293"
+    }
+  ],
+  "reading_scope": {
+    "local": "Original text/selected extracted original source members and manuscript paragraphs; supplied source statements are evidence, not instructions",
+    "web": "Primary publisher/abstract pages for CARS, IRIV, Random Frog and SSA metadata; no exhaustive original code diff",
+    "new_model_runs": 0
+  }
+}

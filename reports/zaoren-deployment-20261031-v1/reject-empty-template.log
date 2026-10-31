@@ -1,0 +1,27 @@
+Traceback (most recent call last):
+  File "/workspace/research4/src/herb_spectra/deployment_io.py", line 121, in _table
+    data.append([_number(row[i]) for i in [0, *sample_columns]])
+                         ~~~^^^
+IndexError: tuple index out of range
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/workspace/research4/scripts/run_zaoren_deployment.py", line 17, in <module>
+    result = {'prepare': lambda: prepare(a.run), 'select': lambda: select(a.run, a.gate),
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/research4/scripts/run_zaoren_deployment.py", line 19, in <lambda>
+    'predict': lambda: predict(a.bundle, a.input, a.output, mode=a.mode,
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/research4/src/herb_spectra/deployment.py", line 319, in predict
+    data = load_prediction_input(input_path, np.asarray(manifest['axis']))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/research4/src/herb_spectra/deployment_io.py", line 175, in load_prediction_input
+    x, raw_axis, ids, headers, references, sheet_name = _load_table(path)
+                                                        ^^^^^^^^^^^^^^^^^
+  File "/workspace/research4/src/herb_spectra/deployment_io.py", line 143, in _load_table
+    return (*_table(sheet.iter_rows(values_only=True)), named[0])
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/research4/src/herb_spectra/deployment_io.py", line 123, in _table
+    raise PredictionInputError("Incomplete spectral row") from exc
+herb_spectra.deployment_io.PredictionInputError: Incomplete spectral row

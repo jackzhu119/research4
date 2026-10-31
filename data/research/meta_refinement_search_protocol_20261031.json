@@ -1,0 +1,150 @@
+{
+  "protocol_id": "zaoren-strong-mlp-anchored-fomaml-20261031-v1",
+  "recorded_date": "2026-10-31",
+  "dataset_version": "2026-10-31-zaoren-numbered-v1",
+  "scope": "Real uploaded THz spectra, anonymous7groups, retrospective within-batch; not exact regression paper reproduction",
+  "seeds": [
+    42,
+    43,
+    44
+  ],
+  "frequency": {
+    "lower_inclusive": 0.1,
+    "upper_inclusive": 1.5,
+    "expected_points": 612
+  },
+  "base_source": {
+    "run": "outputs/multiround-20261031/neural-base",
+    "selection": "source-only development lock; never chosen from final scores",
+    "selection_lock_sha256": "1c92c16a27db8952a258ccd120da0043deaad92435998f9d40936a381e87022f",
+    "final_roles": [
+      513,
+      171,
+      171
+    ],
+    "preprocessing": "reuse locked SNV/source StandardScaler/optional PCA; no target refit"
+  },
+  "development": {
+    "episodes": 6,
+    "selection_episodes": 4,
+    "gate_episodes": 2,
+    "support_draws": 5,
+    "support_seed": 20261104,
+    "roles": {
+      "source": 307,
+      "support_pool": 103,
+      "query": 103
+    },
+    "physical_roles_disjoint": true,
+    "class_vocabulary_shared": true
+  },
+  "meta_training": {
+    "sources": [
+      {
+        "id": "m000",
+        "updates": 100,
+        "inner_learning_rate": 0.001,
+        "outer_learning_rate": 0.0001,
+        "source_anchor_weight": 1.0
+      },
+      {
+        "id": "m001",
+        "updates": 100,
+        "inner_learning_rate": 0.01,
+        "outer_learning_rate": 0.0001,
+        "source_anchor_weight": 1.0
+      },
+      {
+        "id": "m002",
+        "updates": 500,
+        "inner_learning_rate": 0.001,
+        "outer_learning_rate": 0.0001,
+        "source_anchor_weight": 1.0
+      },
+      {
+        "id": "m003",
+        "updates": 500,
+        "inner_learning_rate": 0.01,
+        "outer_learning_rate": 0.0001,
+        "source_anchor_weight": 1.0
+      }
+    ],
+    "way": 3,
+    "support_per_class": 1,
+    "source_query_per_class": 1,
+    "meta_seed_development": "seed+1000+100*episode",
+    "meta_seed_final": "seed+1600 (episode is None)",
+    "inner_loss": "unweighted CE on disjoint source support",
+    "fomaml_outer_loss": "source-episode query first-order gradient plus full-source CE gradient with anchor weight1",
+    "supervised_control": "same source tasks/query CE plus full-source CE gradient; no fast inner weights",
+    "full_source_class_weight": "reuse locked base source candidate none/balanced",
+    "tasks_shared_across_strategies": true,
+    "task_prefix_shared_across_budgets": true,
+    "equal_outer_updates": true,
+    "equal_FLOPs": false,
+    "class_eligibility": "at least2 source physical specimens; dev excludesZY02 from meta only, all7 retained in full-source supervision; final source includesall7",
+    "first_order": true,
+    "second_order": false,
+    "fresh_copy_of_locked_base_each_source": true
+  },
+  "target_adaptation": {
+    "optimizer": "SGD, no momentum",
+    "learning_rates": [
+      0.001,
+      0.01
+    ],
+    "steps": [
+      5,
+      20
+    ],
+    "objective": "target support CE + full source CE(weight1, source class weighting) + .1*sum(parameter-source_parameter)^2",
+    "support_per_class": 1,
+    "support_total": 7,
+    "matched_zero": "identical optimizer/source replay/proximal steps with targetCE omitted",
+    "source_immutable": true,
+    "copy_adapted": true,
+    "query_labels_fit": false,
+    "query_statistics_fit": false
+  },
+  "selection": {
+    "minimum_accuracy_gain": 0.001,
+    "max_macro_f1_loss": 0.005,
+    "max_balanced_accuracy_loss": 0.005,
+    "gain_compared_to": [
+      "sameFOsourcezero",
+      "sameFOmatchedsource-onlyreplayzero"
+    ],
+    "rank": "highest absolute mean adaptedaccuracy among eligible; lower meta updates, lower innerLR, lower targetLR, fewer targetsteps, candidateID",
+    "selection_episodes": 4,
+    "gate_episodes": 2,
+    "reference_meta_id": "m000",
+    "fallback": "reference m000 (100updates,innerLR.001) FO source zero; no target adaptation",
+    "diagnostic": "best development absoluteaccuracy FO candidate, even if ineligible; best supervised continuation target candidate separately",
+    "final_scores_used": false
+  },
+  "final": {
+    "support_draws": 100,
+    "support_seed": 20261105,
+    "query_samples": 171,
+    "training_samples": 513,
+    "pool_samples": 171,
+    "random_query_seed": 20261102,
+    "random_query_examples": 20,
+    "all7classes": true,
+    "stage_gate": "All four round development choices must lock before root invokes any final stage; this command defaults development"
+  },
+  "candidate_grid_sha256": "30666c40d494bbb0d0990265f299d7e5da96d6e7007fe5403503409167f79431",
+  "candidate_configurations": 16,
+  "reporting": {
+    "all_seeds": true,
+    "negative_results": true,
+    "separate_source_gain_and_support_gain": true,
+    "supervised_computation_control": true,
+    "same_query_reused_across_draws": true,
+    "new_independent_batches": 0,
+    "named_origins_verified": false,
+    "historically_exposed_query": true,
+    "no_best_seed_selection": true,
+    "no_Gaussian": true
+  }
+}

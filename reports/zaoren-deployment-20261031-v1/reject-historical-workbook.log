@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "/workspace/research4/scripts/run_zaoren_deployment.py", line 17, in <module>
+    result = {'prepare': lambda: prepare(a.run), 'select': lambda: select(a.run, a.gate),
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/research4/scripts/run_zaoren_deployment.py", line 19, in <lambda>
+    'predict': lambda: predict(a.bundle, a.input, a.output, mode=a.mode,
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/research4/src/herb_spectra/deployment.py", line 326, in predict
+    raise LeakageError('Historical spectra/IDs cannot be presented as new samples')
+herb_spectra.leakage_guard.LeakageError: Historical spectra/IDs cannot be presented as new samples

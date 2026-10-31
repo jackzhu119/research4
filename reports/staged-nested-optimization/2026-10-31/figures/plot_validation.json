@@ -1,0 +1,134 @@
+{
+  "status": "pass",
+  "new_model_fits": 0,
+  "sample_count_per_method": 855,
+  "metric_scope": "pooled5outer OOF; 2inner selection; historical within-batch data",
+  "sources": {
+    "/workspace/research4/outputs/staged-nested-20261031/core/summary.json": "e0c009236430ef46527f6d8e01e8dcce7d3ad3e6ab9120c00fbacb25bbd57a0f",
+    "/workspace/research4/outputs/staged-nested-20261031/combinations/summary.json": "1c2e84c1b112cb834724df5ac627cb3e8c8bcbf68633df659221e06d87d5ea5e",
+    "/workspace/research4/outputs/staged-nested-20261031/core/protocol_snapshot.json": "bd133d81492d7e3c942cbeafcf709a5636f40bd7c4e1985bb4add0d83d841293",
+    "/workspace/research4/outputs/staged-nested-20261031/combinations/protocol_snapshot.json": "98ed297de021aa8fa78a26a35a8d5e7553ded190d8a57fb395b48a1be6b3fc29"
+  },
+  "script_sha256": "6101920bec3fc8e008e51cb47c0cbb89e0ab808b1aaaae95b58a705fc191d708",
+  "plots": {
+    "stage_comparison": [
+      {
+        "method": "R0",
+        "accuracy": 0.904093567251462,
+        "macro_f1": 0.8091848477608959
+      },
+      {
+        "method": "fixed_snv_C10_MC20",
+        "accuracy": 0.8818713450292398,
+        "macro_f1": 0.7712607854514617
+      },
+      {
+        "method": "R1",
+        "accuracy": 0.9251461988304094,
+        "macro_f1": 0.827691270343439
+      },
+      {
+        "method": "R2",
+        "accuracy": 0.960233918128655,
+        "macro_f1": 0.9196845913264596
+      },
+      {
+        "method": "R3",
+        "accuracy": 0.9543859649122807,
+        "macro_f1": 0.8877203789388449
+      },
+      {
+        "method": "R4",
+        "accuracy": 0.9497076023391813,
+        "macro_f1": 0.8820415614689561
+      }
+    ],
+    "preprocessing_comparison": [
+      {
+        "method": "R3_diagnostic_raw",
+        "accuracy": 0.7883040935672515,
+        "macro_f1": 0.6358947017702067
+      },
+      {
+        "method": "R3_diagnostic_snv",
+        "accuracy": 0.960233918128655,
+        "macro_f1": 0.9196845913264596
+      },
+      {
+        "method": "R3_diagnostic_sg0_snv",
+        "accuracy": 0.9251461988304094,
+        "macro_f1": 0.8330925199371458
+      },
+      {
+        "method": "R3_diagnostic_sg1_snv",
+        "accuracy": 0.9239766081871345,
+        "macro_f1": 0.8743363320057457
+      },
+      {
+        "method": "R3_diagnostic_sg2_snv",
+        "accuracy": 0.9228070175438596,
+        "macro_f1": 0.8491186498047762
+      },
+      {
+        "method": "R3_diagnostic_msc",
+        "accuracy": 0.952046783625731,
+        "macro_f1": 0.8693147160430241
+      },
+      {
+        "method": "R3_diagnostic_linear_detrend_snv",
+        "accuracy": 0.9461988304093567,
+        "macro_f1": 0.8864560879308548
+      }
+    ],
+    "combination_comparison": [
+      {
+        "method": "R4_diagnostic_ordinary_mcuve",
+        "accuracy": 0.9543859649122807,
+        "macro_f1": 0.8877203789388449
+      },
+      {
+        "method": "R4_diagnostic_budget_mcuve",
+        "accuracy": 0.9485380116959065,
+        "macro_f1": 0.8806445535299291
+      },
+      {
+        "method": "R4_diagnostic_stable_mcuve",
+        "accuracy": 0.952046783625731,
+        "macro_f1": 0.884990096985977
+      },
+      {
+        "method": "R4_diagnostic_stable_cars",
+        "accuracy": 0.8970760233918129,
+        "macro_f1": 0.8322129877977783
+      },
+      {
+        "method": "R4_diagnostic_stable_joint",
+        "accuracy": 0.9497076023391813,
+        "macro_f1": 0.882281394654376
+      },
+      {
+        "method": "R4_diagnostic_cnn_softmax",
+        "accuracy": 0.8701754385964913,
+        "macro_f1": 0.7521056606792166
+      },
+      {
+        "method": "R4_diagnostic_cnn_embedding_svm",
+        "accuracy": 0.8608187134502924,
+        "macro_f1": 0.764364048856709
+      },
+      {
+        "method": "R4",
+        "accuracy": 0.9497076023391813,
+        "macro_f1": 0.8820415614689561
+      }
+    ]
+  },
+  "limits": [
+    "No CIs; folds are not independent batches.",
+    "R1 MC effect uses the fixedSNV/C10/MC20 anchor, not R0.",
+    "R2 is a prespecified route, not an outer-score-selected replacement.",
+    "Traditional selector K is matched per outer; CNN612input/32embedding is a distinct control.",
+    "No ranking against the earlier171-specimen holdout results.",
+    "No verified algorithm novelty or cross-batch claim."
+  ]
+}

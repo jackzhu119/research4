@@ -1,0 +1,1014 @@
+{
+  "status": "pass",
+  "cases_reviewed": 50,
+  "datasets": 10,
+  "checks": [
+    "prepared_npz_sha256",
+    "prediction_ids_and_true_labels",
+    "all_7_classification_metrics",
+    "confusion_matrices",
+    "train_only_inner_folds",
+    "inner_validation_once_coverage",
+    "outer_each_spectrum_once_per_method"
+  ],
+  "limitation": "Identity is source raw-spectrum hash, not independently established physical sample/batch identity; OOF folds are not independent replicate experiments",
+  "aggregate": [
+    {
+      "dataset": "ultrair_jyh",
+      "model": "cars_svc",
+      "oof_rows": 120,
+      "every_spectrum_tested_once": true,
+      "pooled_oof_metrics": {
+        "accuracy": 0.7166666666666667,
+        "balanced_accuracy": 0.7166666666666667,
+        "macro_f1": 0.7156127292608977,
+        "macro_precision": 0.7193800709939149,
+        "macro_recall": 0.7166666666666667,
+        "cohen_kappa": 0.6222222222222222,
+        "mcc": 0.6235515731510471
+      },
+      "fold_mean": {
+        "accuracy": 0.7166666666666668,
+        "balanced_accuracy": 0.7166666666666668,
+        "macro_f1": 0.7098801198801199,
+        "macro_precision": 0.749702380952381,
+        "macro_recall": 0.7166666666666668,
+        "cohen_kappa": 0.6222222222222222,
+        "mcc": 0.6328905861176822
+      },
+      "fold_sd_ddof1": {
+        "accuracy": 0.074535599249993,
+        "balanced_accuracy": 0.074535599249993,
+        "macro_f1": 0.08246238556759733,
+        "macro_precision": 0.07454094679726778,
+        "macro_recall": 0.074535599249993,
+        "cohen_kappa": 0.09938079899999065,
+        "mcc": 0.09856970576324935
+      },
+      "pooled_confusion_matrix": [
+        [
+          24,
+          2,
+          0,
+          4
+        ],
+        [
+          2,
+          21,
+          6,
+          1
+        ],
+        [
+          1,
+          6,
+          22,
+          1
+        ],
+        [
+          7,
+          0,
+          4,
+          19
+        ]
+      ]
+    },
+    {
+      "dataset": "ultrair_jyh",
+      "model": "dummy",
+      "oof_rows": 120,
+      "every_spectrum_tested_once": true,
+      "pooled_oof_metrics": {
+        "accuracy": 0.25,
+        "balanced_accuracy": 0.25,
+        "macro_f1": 0.1,
+        "macro_precision": 0.0625,
+        "macro_recall": 0.25,
+        "cohen_kappa": 0.0,
+        "mcc": 0.0
+      },
+      "fold_mean": {
+        "accuracy": 0.25,
+        "balanced_accuracy": 0.25,
+        "macro_f1": 0.1,
+        "macro_precision": 0.0625,
+        "macro_recall": 0.25,
+        "cohen_kappa": 0.0,
+        "mcc": 0.0
+      },
+      "fold_sd_ddof1": {
+        "accuracy": 0.0,
+        "balanced_accuracy": 0.0,
+        "macro_f1": 0.0,
+        "macro_precision": 0.0,
+        "macro_recall": 0.0,
+        "cohen_kappa": 0.0,
+        "mcc": 0.0
+      },
+      "pooled_confusion_matrix": [
+        [
+          30,
+          0,
+          0,
+          0
+        ],
+        [
+          30,
+          0,
+          0,
+          0
+        ],
+        [
+          30,
+          0,
+          0,
+          0
+        ],
+        [
+          30,
+          0,
+          0,
+          0
+        ]
+      ]
+    },
+    {
+      "dataset": "ultrair_jyh",
+      "model": "mcuve_svc",
+      "oof_rows": 120,
+      "every_spectrum_tested_once": true,
+      "pooled_oof_metrics": {
+        "accuracy": 0.7416666666666667,
+        "balanced_accuracy": 0.7416666666666666,
+        "macro_f1": 0.7396178348903599,
+        "macro_precision": 0.7435714285714285,
+        "macro_recall": 0.7416666666666666,
+        "cohen_kappa": 0.6555555555555556,
+        "mcc": 0.6573229655505382
+      },
+      "fold_mean": {
+        "accuracy": 0.7416666666666667,
+        "balanced_accuracy": 0.7416666666666667,
+        "macro_f1": 0.7338664113664113,
+        "macro_precision": 0.7724801587301589,
+        "macro_recall": 0.7416666666666667,
+        "cohen_kappa": 0.6555555555555556,
+        "mcc": 0.66833382159937
+      },
+      "fold_sd_ddof1": {
+        "accuracy": 0.09033118078616166,
+        "balanced_accuracy": 0.09033118078616166,
+        "macro_f1": 0.09646273378368306,
+        "macro_precision": 0.08364935589936384,
+        "macro_recall": 0.09033118078616166,
+        "cohen_kappa": 0.12044157438154887,
+        "mcc": 0.11567498537919389
+      },
+      "pooled_confusion_matrix": [
+        [
+          25,
+          2,
+          0,
+          3
+        ],
+        [
+          2,
+          24,
+          2,
+          2
+        ],
+        [
+          4,
+          4,
+          21,
+          1
+        ],
+        [
+          4,
+          2,
+          5,
+          19
+        ]
+      ]
+    },
+    {
+      "dataset": "ultrair_jyh",
+      "model": "plsda",
+      "oof_rows": 120,
+      "every_spectrum_tested_once": true,
+      "pooled_oof_metrics": {
+        "accuracy": 0.7666666666666667,
+        "balanced_accuracy": 0.7666666666666667,
+        "macro_f1": 0.7588152799059633,
+        "macro_precision": 0.8099342805572268,
+        "macro_recall": 0.7666666666666667,
+        "cohen_kappa": 0.6888888888888889,
+        "mcc": 0.70180934535656
+      },
+      "fold_mean": {
+        "accuracy": 0.7666666666666667,
+        "balanced_accuracy": 0.7666666666666668,
+        "macro_f1": 0.7480364080364079,
+        "macro_precision": 0.8359920634920635,
+        "macro_recall": 0.7666666666666668,
+        "cohen_kappa": 0.6888888888888889,
+        "mcc": 0.7152217808671358
+      },
+      "fold_sd_ddof1": {
+        "accuracy": 0.1125771340508858,
+        "balanced_accuracy": 0.11257713405088582,
+        "macro_f1": 0.13676214315698246,
+        "macro_precision": 0.08291723403293468,
+        "macro_recall": 0.11257713405088582,
+        "cohen_kappa": 0.15010284540118105,
+        "mcc": 0.13484370893618597
+      },
+      "pooled_confusion_matrix": [
+        [
+          28,
+          1,
+          1,
+          0
+        ],
+        [
+          0,
+          25,
+          5,
+          0
+        ],
+        [
+          1,
+          4,
+          25,
+          0
+        ],
+        [
+          5,
+          1,
+          10,
+          14
+        ]
+      ]
+    },
+    {
+      "dataset": "ultrair_jyh",
+      "model": "svc",
+      "oof_rows": 120,
+      "every_spectrum_tested_once": true,
+      "pooled_oof_metrics": {
+        "accuracy": 0.725,
+        "balanced_accuracy": 0.725,
+        "macro_f1": 0.7231476129281944,
+        "macro_precision": 0.7248520226093347,
+        "macro_recall": 0.725,
+        "cohen_kappa": 0.6333333333333333,
+        "mcc": 0.6343326069295249
+      },
+      "fold_mean": {
+        "accuracy": 0.7250000000000001,
+        "balanced_accuracy": 0.725,
+        "macro_f1": 0.7121312021312021,
+        "macro_precision": 0.7606150793650793,
+        "macro_recall": 0.725,
+        "cohen_kappa": 0.6333333333333334,
+        "mcc": 0.6477349901924615
+      },
+      "fold_sd_ddof1": {
+        "accuracy": 0.12706625568314087,
+        "balanced_accuracy": 0.12706625568314092,
+        "macro_f1": 0.13753859564423088,
+        "macro_precision": 0.11750810944552861,
+        "macro_recall": 0.12706625568314092,
+        "cohen_kappa": 0.16942167424418786,
+        "mcc": 0.16427945395755356
+      },
+      "pooled_confusion_matrix": [
+        [
+          25,
+          1,
+          0,
+          4
+        ],
+        [
+          1,
+          24,
+          3,
+          2
+        ],
+        [
+          1,
+          4,
+          20,
+          5
+        ],
+        [
+          7,
+          2,
+          3,
+          18
+        ]
+      ]
+    },
+    {
+      "dataset": "ultrair_syh",
+      "model": "cars_svc",
+      "oof_rows": 150,
+      "every_spectrum_tested_once": true,
+      "pooled_oof_metrics": {
+        "accuracy": 0.84,
+        "balanced_accuracy": 0.8400000000000001,
+        "macro_f1": 0.840179740213577,
+        "macro_precision": 0.8433613640510191,
+        "macro_recall": 0.8400000000000001,
+        "cohen_kappa": 0.8,
+        "mcc": 0.8007120606661117
+      },
+      "fold_mean": {
+        "accuracy": 0.8400000000000001,
+        "balanced_accuracy": 0.8400000000000001,
+        "macro_f1": 0.838167166167166,
+        "macro_precision": 0.8782698412698412,
+        "macro_recall": 0.8400000000000001,
+        "cohen_kappa": 0.8,
+        "mcc": 0.8102898277849008
+      },
+      "fold_sd_ddof1": {
+        "accuracy": 0.07958224257542217,
+        "balanced_accuracy": 0.0795822425754221,
+        "macro_f1": 0.07967661319797896,
+        "macro_precision": 0.050217604086028385,
+        "macro_recall": 0.0795822425754221,
+        "cohen_kappa": 0.09947780321927764,
+        "mcc": 0.09111658063185256
+      },
+      "pooled_confusion_matrix": [
+        [
+          26,
+          0,
+          0,
+          4,
+          0
+        ],
+        [
+          0,
+          26,
+          1,
+          0,
+          3
+        ],
+        [
+          1,
+          0,
+          27,
+          2,
+          0
+        ],
+        [
+          4,
+          1,
+          2,
+          22,
+          1
+        ],
+        [
+          2,
+          0,
+          3,
+          0,
+          25
+        ]
+      ]
+    },
+    {
+      "dataset": "ultrair_syh",
+      "model": "dummy",
+      "oof_rows": 150,
+      "every_spectrum_tested_once": true,
+      "pooled_oof_metrics": {
+        "accuracy": 0.2,
+        "balanced_accuracy": 0.2,
+        "macro_f1": 0.06666666666666667,
+        "macro_precision": 0.04,
+        "macro_recall": 0.2,
+        "cohen_kappa": 0.0,
+        "mcc": 0.0
+      },
+      "fold_mean": {
+        "accuracy": 0.2,
+        "balanced_accuracy": 0.2,
+        "macro_f1": 0.06666666666666667,
+        "macro_precision": 0.04,
+        "macro_recall": 0.2,
+        "cohen_kappa": 0.0,
+        "mcc": 0.0
+      },
+      "fold_sd_ddof1": {
+        "accuracy": 0.0,
+        "balanced_accuracy": 0.0,
+        "macro_f1": 0.0,
+        "macro_precision": 0.0,
+        "macro_recall": 0.0,
+        "cohen_kappa": 0.0,
+        "mcc": 0.0
+      },
+      "pooled_confusion_matrix": [
+        [
+          30,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          30,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          30,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          30,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          30,
+          0,
+          0,
+          0,
+          0
+        ]
+      ]
+    },
+    {
+      "dataset": "ultrair_syh",
+      "model": "mcuve_svc",
+      "oof_rows": 150,
+      "every_spectrum_tested_once": true,
+      "pooled_oof_metrics": {
+        "accuracy": 0.7733333333333333,
+        "balanced_accuracy": 0.7733333333333334,
+        "macro_f1": 0.7754411990266036,
+        "macro_precision": 0.784377929418252,
+        "macro_recall": 0.7733333333333334,
+        "cohen_kappa": 0.7166666666666667,
+        "mcc": 0.718304672724229
+      },
+      "fold_mean": {
+        "accuracy": 0.7733333333333332,
+        "balanced_accuracy": 0.7733333333333332,
+        "macro_f1": 0.774905898023545,
+        "macro_precision": 0.8247619047619047,
+        "macro_recall": 0.7733333333333332,
+        "cohen_kappa": 0.7166666666666667,
+        "mcc": 0.7296823683130166
+      },
+      "fold_sd_ddof1": {
+        "accuracy": 0.10110500592068737,
+        "balanced_accuracy": 0.1011050059206874,
+        "macro_f1": 0.10170734850460912,
+        "macro_precision": 0.08994811090982995,
+        "macro_recall": 0.1011050059206874,
+        "cohen_kappa": 0.12638125740085918,
+        "mcc": 0.12300637555759053
+      },
+      "pooled_confusion_matrix": [
+        [
+          25,
+          0,
+          0,
+          5,
+          0
+        ],
+        [
+          1,
+          20,
+          2,
+          6,
+          1
+        ],
+        [
+          1,
+          2,
+          25,
+          2,
+          0
+        ],
+        [
+          4,
+          2,
+          1,
+          22,
+          1
+        ],
+        [
+          1,
+          1,
+          3,
+          1,
+          24
+        ]
+      ]
+    },
+    {
+      "dataset": "ultrair_syh",
+      "model": "plsda",
+      "oof_rows": 150,
+      "every_spectrum_tested_once": true,
+      "pooled_oof_metrics": {
+        "accuracy": 0.8466666666666667,
+        "balanced_accuracy": 0.8466666666666667,
+        "macro_f1": 0.8469080354980493,
+        "macro_precision": 0.8555455682297101,
+        "macro_recall": 0.8466666666666667,
+        "cohen_kappa": 0.8083333333333333,
+        "mcc": 0.8101356395470364
+      },
+      "fold_mean": {
+        "accuracy": 0.8466666666666667,
+        "balanced_accuracy": 0.8466666666666667,
+        "macro_f1": 0.8436008958361901,
+        "macro_precision": 0.8711341991341991,
+        "macro_recall": 0.8466666666666667,
+        "cohen_kappa": 0.8083333333333333,
+        "mcc": 0.8161375761324742
+      },
+      "fold_sd_ddof1": {
+        "accuracy": 0.08366600265340758,
+        "balanced_accuracy": 0.08366600265340754,
+        "macro_f1": 0.08168353310759635,
+        "macro_precision": 0.06947858016740334,
+        "macro_recall": 0.08366600265340754,
+        "cohen_kappa": 0.10458250331675946,
+        "mcc": 0.09987629248027458
+      },
+      "pooled_confusion_matrix": [
+        [
+          27,
+          1,
+          0,
+          2,
+          0
+        ],
+        [
+          1,
+          26,
+          0,
+          1,
+          2
+        ],
+        [
+          1,
+          1,
+          22,
+          5,
+          1
+        ],
+        [
+          5,
+          0,
+          1,
+          24,
+          0
+        ],
+        [
+          1,
+          1,
+          0,
+          0,
+          28
+        ]
+      ]
+    },
+    {
+      "dataset": "ultrair_syh",
+      "model": "svc",
+      "oof_rows": 150,
+      "every_spectrum_tested_once": true,
+      "pooled_oof_metrics": {
+        "accuracy": 0.82,
+        "balanced_accuracy": 0.82,
+        "macro_f1": 0.8208623253047873,
+        "macro_precision": 0.8247910965152345,
+        "macro_recall": 0.82,
+        "cohen_kappa": 0.775,
+        "mcc": 0.7757761644408967
+      },
+      "fold_mean": {
+        "accuracy": 0.82,
+        "balanced_accuracy": 0.82,
+        "macro_f1": 0.817986901986902,
+        "macro_precision": 0.8416666666666668,
+        "macro_recall": 0.82,
+        "cohen_kappa": 0.775,
+        "mcc": 0.7824565399579236
+      },
+      "fold_sd_ddof1": {
+        "accuracy": 0.12605113600792694,
+        "balanced_accuracy": 0.12605113600792692,
+        "macro_f1": 0.12697374534616893,
+        "macro_precision": 0.117901146186578,
+        "macro_recall": 0.12605113600792692,
+        "cohen_kappa": 0.15756392000990863,
+        "mcc": 0.1536548777775578
+      },
+      "pooled_confusion_matrix": [
+        [
+          26,
+          0,
+          0,
+          4,
+          0
+        ],
+        [
+          1,
+          25,
+          3,
+          0,
+          1
+        ],
+        [
+          2,
+          1,
+          24,
+          1,
+          2
+        ],
+        [
+          5,
+          1,
+          0,
+          23,
+          1
+        ],
+        [
+          1,
+          0,
+          3,
+          1,
+          25
+        ]
+      ]
+    }
+  ],
+  "case_checks": [
+    {
+      "id": "ultrair_jyh_fold1",
+      "model": "dummy",
+      "metrics_recomputed": true,
+      "prediction_ids_and_labels_match_npz": true,
+      "confusion_matrix_recomputed": true
+    },
+    {
+      "id": "ultrair_jyh_fold1",
+      "model": "svc",
+      "metrics_recomputed": true,
+      "prediction_ids_and_labels_match_npz": true,
+      "confusion_matrix_recomputed": true
+    },
+    {
+      "id": "ultrair_jyh_fold1",
+      "model": "plsda",
+      "metrics_recomputed": true,
+      "prediction_ids_and_labels_match_npz": true,
+      "confusion_matrix_recomputed": true
+    },
+    {
+      "id": "ultrair_jyh_fold1",
+      "model": "cars_svc",
+      "metrics_recomputed": true,
+      "prediction_ids_and_labels_match_npz": true,
+      "confusion_matrix_recomputed": true
+    },
+    {
+      "id": "ultrair_jyh_fold1",
+      "model": "mcuve_svc",
+      "metrics_recomputed": true,
+      "prediction_ids_and_labels_match_npz": true,
+      "confusion_matrix_recomputed": true
+    },
+    {
+      "id": "ultrair_jyh_fold2",
+      "model": "dummy",
+      "metrics_recomputed": true,
+      "prediction_ids_and_labels_match_npz": true,
+      "confusion_matrix_recomputed": true
+    },
+    {
+      "id": "ultrair_jyh_fold2",
+      "model": "svc",
+      "metrics_recomputed": true,
+      "prediction_ids_and_labels_match_npz": true,
+      "confusion_matrix_recomputed": true
+    },
+    {
+      "id": "ultrair_jyh_fold2",
+      "model": "plsda",
+      "metrics_recomputed": true,
+      "prediction_ids_and_labels_match_npz": true,
+      "confusion_matrix_recomputed": true
+    },
+    {
+      "id": "ultrair_jyh_fold2",
+      "model": "cars_svc",
+      "metrics_recomputed": true,
+      "prediction_ids_and_labels_match_npz": true,
+      "confusion_matrix_recomputed": true
+    },
+    {
+      "id": "ultrair_jyh_fold2",
+      "model": "mcuve_svc",
+      "metrics_recomputed": true,
+      "prediction_ids_and_labels_match_npz": true,
+      "confusion_matrix_recomputed": true
+    },
+    {
+      "id": "ultrair_jyh_fold3",
+      "model": "dummy",
+      "metrics_recomputed": true,
+      "prediction_ids_and_labels_match_npz": true,
+      "confusion_matrix_recomputed": true
+    },
+    {
+      "id": "ultrair_jyh_fold3",
+      "model": "svc",
+      "metrics_recomputed": true,
+      "prediction_ids_and_labels_match_npz": true,
+      "confusion_matrix_recomputed": true
+    },
+    {
+      "id": "ultrair_jyh_fold3",
+      "model": "plsda",
+      "metrics_recomputed": true,
+      "prediction_ids_and_labels_match_npz": true,
+      "confusion_matrix_recomputed": true
+    },
+    {
+      "id": "ultrair_jyh_fold3",
+      "model": "cars_svc",
+      "metrics_recomputed": true,
+      "prediction_ids_and_labels_match_npz": true,
+      "confusion_matrix_recomputed": true
+    },
+    {
+      "id": "ultrair_jyh_fold3",
+      "model": "mcuve_svc",
+      "metrics_recomputed": true,
+      "prediction_ids_and_labels_match_npz": true,
+      "confusion_matrix_recomputed": true
+    },
+    {
+      "id": "ultrair_jyh_fold4",
+      "model": "dummy",
+      "metrics_recomputed": true,
+      "prediction_ids_and_labels_match_npz": true,
+      "confusion_matrix_recomputed": true
+    },
+    {
+      "id": "ultrair_jyh_fold4",
+      "model": "svc",
+      "metrics_recomputed": true,
+      "prediction_ids_and_labels_match_npz": true,
+      "confusion_matrix_recomputed": true
+    },
+    {
+      "id": "ultrair_jyh_fold4",
+      "model": "plsda",
+      "metrics_recomputed": true,
+      "prediction_ids_and_labels_match_npz": true,
+      "confusion_matrix_recomputed": true
+    },
+    {
+      "id": "ultrair_jyh_fold4",
+      "model": "cars_svc",
+      "metrics_recomputed": true,
+      "prediction_ids_and_labels_match_npz": true,
+      "confusion_matrix_recomputed": true
+    },
+    {
+      "id": "ultrair_jyh_fold4",
+      "model": "mcuve_svc",
+      "metrics_recomputed": true,
+      "prediction_ids_and_labels_match_npz": true,
+      "confusion_matrix_recomputed": true
+    },
+    {
+      "id": "ultrair_jyh_fold5",
+      "model": "dummy",
+      "metrics_recomputed": true,
+      "prediction_ids_and_labels_match_npz": true,
+      "confusion_matrix_recomputed": true
+    },
+    {
+      "id": "ultrair_jyh_fold5",
+      "model": "svc",
+      "metrics_recomputed": true,
+      "prediction_ids_and_labels_match_npz": true,
+      "confusion_matrix_recomputed": true
+    },
+    {
+      "id": "ultrair_jyh_fold5",
+      "model": "plsda",
+      "metrics_recomputed": true,
+      "prediction_ids_and_labels_match_npz": true,
+      "confusion_matrix_recomputed": true
+    },
+    {
+      "id": "ultrair_jyh_fold5",
+      "model": "cars_svc",
+      "metrics_recomputed": true,
+      "prediction_ids_and_labels_match_npz": true,
+      "confusion_matrix_recomputed": true
+    },
+    {
+      "id": "ultrair_jyh_fold5",
+      "model": "mcuve_svc",
+      "metrics_recomputed": true,
+      "prediction_ids_and_labels_match_npz": true,
+      "confusion_matrix_recomputed": true
+    },
+    {
+      "id": "ultrair_syh_fold1",
+      "model": "dummy",
+      "metrics_recomputed": true,
+      "prediction_ids_and_labels_match_npz": true,
+      "confusion_matrix_recomputed": true
+    },
+    {
+      "id": "ultrair_syh_fold1",
+      "model": "svc",
+      "metrics_recomputed": true,
+      "prediction_ids_and_labels_match_npz": true,
+      "confusion_matrix_recomputed": true
+    },
+    {
+      "id": "ultrair_syh_fold1",
+      "model": "plsda",
+      "metrics_recomputed": true,
+      "prediction_ids_and_labels_match_npz": true,
+      "confusion_matrix_recomputed": true
+    },
+    {
+      "id": "ultrair_syh_fold1",
+      "model": "cars_svc",
+      "metrics_recomputed": true,
+      "prediction_ids_and_labels_match_npz": true,
+      "confusion_matrix_recomputed": true
+    },
+    {
+      "id": "ultrair_syh_fold1",
+      "model": "mcuve_svc",
+      "metrics_recomputed": true,
+      "prediction_ids_and_labels_match_npz": true,
+      "confusion_matrix_recomputed": true
+    },
+    {
+      "id": "ultrair_syh_fold2",
+      "model": "dummy",
+      "metrics_recomputed": true,
+      "prediction_ids_and_labels_match_npz": true,
+      "confusion_matrix_recomputed": true
+    },
+    {
+      "id": "ultrair_syh_fold2",
+      "model": "svc",
+      "metrics_recomputed": true,
+      "prediction_ids_and_labels_match_npz": true,
+      "confusion_matrix_recomputed": true
+    },
+    {
+      "id": "ultrair_syh_fold2",
+      "model": "plsda",
+      "metrics_recomputed": true,
+      "prediction_ids_and_labels_match_npz": true,
+      "confusion_matrix_recomputed": true
+    },
+    {
+      "id": "ultrair_syh_fold2",
+      "model": "cars_svc",
+      "metrics_recomputed": true,
+      "prediction_ids_and_labels_match_npz": true,
+      "confusion_matrix_recomputed": true
+    },
+    {
+      "id": "ultrair_syh_fold2",
+      "model": "mcuve_svc",
+      "metrics_recomputed": true,
+      "prediction_ids_and_labels_match_npz": true,
+      "confusion_matrix_recomputed": true
+    },
+    {
+      "id": "ultrair_syh_fold3",
+      "model": "dummy",
+      "metrics_recomputed": true,
+      "prediction_ids_and_labels_match_npz": true,
+      "confusion_matrix_recomputed": true
+    },
+    {
+      "id": "ultrair_syh_fold3",
+      "model": "svc",
+      "metrics_recomputed": true,
+      "prediction_ids_and_labels_match_npz": true,
+      "confusion_matrix_recomputed": true
+    },
+    {
+      "id": "ultrair_syh_fold3",
+      "model": "plsda",
+      "metrics_recomputed": true,
+      "prediction_ids_and_labels_match_npz": true,
+      "confusion_matrix_recomputed": true
+    },
+    {
+      "id": "ultrair_syh_fold3",
+      "model": "cars_svc",
+      "metrics_recomputed": true,
+      "prediction_ids_and_labels_match_npz": true,
+      "confusion_matrix_recomputed": true
+    },
+    {
+      "id": "ultrair_syh_fold3",
+      "model": "mcuve_svc",
+      "metrics_recomputed": true,
+      "prediction_ids_and_labels_match_npz": true,
+      "confusion_matrix_recomputed": true
+    },
+    {
+      "id": "ultrair_syh_fold4",
+      "model": "dummy",
+      "metrics_recomputed": true,
+      "prediction_ids_and_labels_match_npz": true,
+      "confusion_matrix_recomputed": true
+    },
+    {
+      "id": "ultrair_syh_fold4",
+      "model": "svc",
+      "metrics_recomputed": true,
+      "prediction_ids_and_labels_match_npz": true,
+      "confusion_matrix_recomputed": true
+    },
+    {
+      "id": "ultrair_syh_fold4",
+      "model": "plsda",
+      "metrics_recomputed": true,
+      "prediction_ids_and_labels_match_npz": true,
+      "confusion_matrix_recomputed": true
+    },
+    {
+      "id": "ultrair_syh_fold4",
+      "model": "cars_svc",
+      "metrics_recomputed": true,
+      "prediction_ids_and_labels_match_npz": true,
+      "confusion_matrix_recomputed": true
+    },
+    {
+      "id": "ultrair_syh_fold4",
+      "model": "mcuve_svc",
+      "metrics_recomputed": true,
+      "prediction_ids_and_labels_match_npz": true,
+      "confusion_matrix_recomputed": true
+    },
+    {
+      "id": "ultrair_syh_fold5",
+      "model": "dummy",
+      "metrics_recomputed": true,
+      "prediction_ids_and_labels_match_npz": true,
+      "confusion_matrix_recomputed": true
+    },
+    {
+      "id": "ultrair_syh_fold5",
+      "model": "svc",
+      "metrics_recomputed": true,
+      "prediction_ids_and_labels_match_npz": true,
+      "confusion_matrix_recomputed": true
+    },
+    {
+      "id": "ultrair_syh_fold5",
+      "model": "plsda",
+      "metrics_recomputed": true,
+      "prediction_ids_and_labels_match_npz": true,
+      "confusion_matrix_recomputed": true
+    },
+    {
+      "id": "ultrair_syh_fold5",
+      "model": "cars_svc",
+      "metrics_recomputed": true,
+      "prediction_ids_and_labels_match_npz": true,
+      "confusion_matrix_recomputed": true
+    },
+    {
+      "id": "ultrair_syh_fold5",
+      "model": "mcuve_svc",
+      "metrics_recomputed": true,
+      "prediction_ids_and_labels_match_npz": true,
+      "confusion_matrix_recomputed": true
+    }
+  ]
+}

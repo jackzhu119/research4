@@ -1,0 +1,176 @@
+{
+  "protocol_id": "paper-c-conservative-score-cap-20261031-v1",
+  "scope": "Auxiliary retrospective within-batch calibration; separate 513/171/171 experiment, not R2 855 OOF or real cross-batch",
+  "dataset_version": "2026-10-31-zaoren-numbered-v1",
+  "input": "outputs/approved-zaoren-20261031/data-preparation/dataset.npz",
+  "split_plan": "data/processed/zaoren_threeway_20261031_v1/split_plan.json",
+  "frozen_source_manifest": "models/zaoren_threeway_20261031/manifest.json",
+  "selectors": [
+    "full",
+    "mcuve20"
+  ],
+  "source": {
+    "fit": "SNV + source standardization + optional MC20 + balanced RBF SVM C10 gamma scale",
+    "model_seed": 42,
+    "score_rule": "aligned OVR argmax, matching original fixed171 source protocol; not R0/R2 standard vote",
+    "final_source_samples": 513,
+    "development_source_samples": 307,
+    "current_frequency_interval": [
+      0.1,
+      1.5
+    ],
+    "features": 612,
+    "final_source_reused_unchanged": true
+  },
+  "candidates": [
+    {
+      "id": "cap0.05_q0.5_m1",
+      "cap_fraction": 0.05,
+      "source_gate_quantile": 0.5,
+      "minimum_support_errors": 1,
+      "blend": 0.25
+    },
+    {
+      "id": "cap0.05_q0.5_m2",
+      "cap_fraction": 0.05,
+      "source_gate_quantile": 0.5,
+      "minimum_support_errors": 2,
+      "blend": 0.25
+    },
+    {
+      "id": "cap0.05_q0.75_m1",
+      "cap_fraction": 0.05,
+      "source_gate_quantile": 0.75,
+      "minimum_support_errors": 1,
+      "blend": 0.25
+    },
+    {
+      "id": "cap0.05_q0.75_m2",
+      "cap_fraction": 0.05,
+      "source_gate_quantile": 0.75,
+      "minimum_support_errors": 2,
+      "blend": 0.25
+    },
+    {
+      "id": "cap0.1_q0.5_m1",
+      "cap_fraction": 0.1,
+      "source_gate_quantile": 0.5,
+      "minimum_support_errors": 1,
+      "blend": 0.25
+    },
+    {
+      "id": "cap0.1_q0.5_m2",
+      "cap_fraction": 0.1,
+      "source_gate_quantile": 0.5,
+      "minimum_support_errors": 2,
+      "blend": 0.25
+    },
+    {
+      "id": "cap0.1_q0.75_m1",
+      "cap_fraction": 0.1,
+      "source_gate_quantile": 0.75,
+      "minimum_support_errors": 1,
+      "blend": 0.25
+    },
+    {
+      "id": "cap0.1_q0.75_m2",
+      "cap_fraction": 0.1,
+      "source_gate_quantile": 0.75,
+      "minimum_support_errors": 2,
+      "blend": 0.25
+    },
+    {
+      "id": "cap0.25_q0.5_m1",
+      "cap_fraction": 0.25,
+      "source_gate_quantile": 0.5,
+      "minimum_support_errors": 1,
+      "blend": 0.25
+    },
+    {
+      "id": "cap0.25_q0.5_m2",
+      "cap_fraction": 0.25,
+      "source_gate_quantile": 0.5,
+      "minimum_support_errors": 2,
+      "blend": 0.25
+    },
+    {
+      "id": "cap0.25_q0.75_m1",
+      "cap_fraction": 0.25,
+      "source_gate_quantile": 0.75,
+      "minimum_support_errors": 1,
+      "blend": 0.25
+    },
+    {
+      "id": "cap0.25_q0.75_m2",
+      "cap_fraction": 0.25,
+      "source_gate_quantile": 0.75,
+      "minimum_support_errors": 2,
+      "blend": 0.25
+    }
+  ],
+  "mechanism": {
+    "traditional": "existing AnchorScoreCalibrator lambda1",
+    "conservative": "same anchored ridge, correction componentwise clipped to cap_fraction * median source top-two margin, then fixed blend .25; only query rows with source score gap <= source gap quantile may change; fewer support errors than threshold returns exact identity",
+    "calibrated_probabilities": false,
+    "query_statistics_fitted": false,
+    "claimed_algorithm_novelty": false
+  },
+  "development": {
+    "episodes": 30,
+    "selection_episodes": 24,
+    "gate_episodes": 6,
+    "support_draws": 20,
+    "split_seed": 20261103,
+    "support_seed": "20261104 + episode",
+    "role_counts": [
+      307,
+      103,
+      103
+    ],
+    "source_repeated_tasks_are_not_independent_batches": true
+  },
+  "selection": {
+    "primary": "largest mean paired Macro-F1 gain among candidates with mean accuracy gain >.001 and Macro-F1 gain >.001 and balanced accuracy gain >=-.005",
+    "gate": "same threshold on last6 development tasks; otherwise identity",
+    "tie_order": [
+      "smaller cap",
+      "larger minimum support errors",
+      "smaller gate quantile",
+      "id"
+    ],
+    "zero_support_and_no_labels": "exact identity; both must match original source so gate gains also exceed matched controls",
+    "diagnostic": "best selection Macro-F1 candidate reported regardless of gate; cannot replace main selected method using final scores"
+  },
+  "final": {
+    "support_draws": 100,
+    "support_seed": 20261104,
+    "shots_per_class": 1,
+    "support_samples": 7,
+    "fixed_query_samples": 171,
+    "methods": [
+      "no_calibration",
+      "traditional_lambda1",
+      "conservative_selected",
+      "same_structure_zero_support",
+      "same_structure_no_labels",
+      "prespecified_development_diagnostic"
+    ],
+    "all_support_lists_retained": true,
+    "unavailable_shots": [
+      3,
+      5,
+      10
+    ],
+    "ZY02_pool_count": 1,
+    "ZY02_same_sample_repeated": true,
+    "evaluation_requires_external_release_with_lock_sha256": true,
+    "query_used_for_selection": false
+  },
+  "limitations": [
+    "All855 samples and historical query results previously exposed: exploratory retrospective only",
+    "Each origin has only one batch; do not claim real domain shift or cross-batch calibration",
+    "100 overlapping support draws are not 100 independent samples or batches",
+    "Full-SNV and MC20 sources are historical fixed171 source controls, not the R2 96.02% OOF candidate",
+    "No sample labels modified or wrong records removed"
+  ]
+}

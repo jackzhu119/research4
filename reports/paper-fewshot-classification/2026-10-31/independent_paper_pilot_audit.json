@@ -1,0 +1,116 @@
+{
+  "status": "pass",
+  "auditor": "Independent /root/fewshot_paper_recheck_round2; no project metrics or selection helpers used",
+  "checks_evaluated": 3806593,
+  "failed_checks": [],
+  "prediction_files": 3,
+  "prediction_rows": 615600,
+  "final_cases": 3600,
+  "summary_rows": 12,
+  "development_rows": 2790,
+  "maximum_numeric_difference": 3.3306690738754696e-16,
+  "independently_recomputed_choices": {
+    "head_ft": {
+      "selected": null,
+      "diagnostic": "n000_head_ft",
+      "eligible_selection_candidates": 0
+    },
+    "full_ft": {
+      "selected": null,
+      "diagnostic": "n014_full_ft",
+      "eligible_selection_candidates": 0
+    },
+    "prototype": {
+      "selected": null,
+      "diagnostic": "n030_prototype",
+      "eligible_selection_candidates": 0
+    },
+    "fomaml_ft": {
+      "selected": "n023_fomaml_ft",
+      "diagnostic": "n023_fomaml_ft",
+      "eligible_selection_candidates": 7
+    }
+  },
+  "training_metadata_files_checked": 21,
+  "source_meta_episode_manifests_checked": 6300,
+  "random_example_rows": 720,
+  "random_incorrect_rows_preserved": 311,
+  "fomaml_per_seed_results": [
+    {
+      "seed": 42,
+      "method": "zero",
+      "accuracy_percent": 68.42105263157895,
+      "gain_percentage_points": 0.0
+    },
+    {
+      "seed": 43,
+      "method": "zero",
+      "accuracy_percent": 64.91228070175438,
+      "gain_percentage_points": 0.0
+    },
+    {
+      "seed": 44,
+      "method": "zero",
+      "accuracy_percent": 60.81871345029239,
+      "gain_percentage_points": 0.0
+    },
+    {
+      "seed": 42,
+      "method": "selected",
+      "accuracy_percent": 69.7251461988304,
+      "gain_percentage_points": 1.3040935672514595
+    },
+    {
+      "seed": 43,
+      "method": "selected",
+      "accuracy_percent": 67.40350877192982,
+      "gain_percentage_points": 2.4912280701754357
+    },
+    {
+      "seed": 44,
+      "method": "selected",
+      "accuracy_percent": 65.50877192982456,
+      "gain_percentage_points": 4.6900584795321665
+    },
+    {
+      "seed": 42,
+      "method": "diagnostic",
+      "accuracy_percent": 69.7251461988304,
+      "gain_percentage_points": 1.3040935672514595
+    },
+    {
+      "seed": 43,
+      "method": "diagnostic",
+      "accuracy_percent": 67.40350877192982,
+      "gain_percentage_points": 2.4912280701754357
+    },
+    {
+      "seed": 44,
+      "method": "diagnostic",
+      "accuracy_percent": 65.50877192982456,
+      "gain_percentage_points": 4.6900584795321665
+    }
+  ],
+  "source_review": "outputs/paper-fewshot-pilot-review-20261031.json",
+  "provenance": {
+    "protocol_sha256": "ac144a436278f78b24a2962eaab5f89fe93bc5e25f9e5d04b67b5f66e05dcd29",
+    "selection_lock_sha256": "0251d842b5d323f3e584b7ae02fd19c889cf10b5920923b1578f8a4fb7b2e70a",
+    "audit_script_sha256": "6a165ce094abc7565df98574a19e68f22a80527b6075e873986117d74d19193b",
+    "source_sha256": {
+      "src/herb_spectra/paper_fewshot_classification.py": "bf01eb4c47259751cb4d8c096f8ff96391affe1e0424c1805e9ccb99a74b2aec",
+      "scripts/run_paper_fewshot_pilot.py": "30d87df13f76d471335f4f5b1a8c1de6ca6174e55fbe9de54afccbb398e1db28",
+      "src/herb_spectra/calibration_exploration.py": "1b9eac8bab5c29efa90c790ea03f75a8889af3511189d670bc2fbd3f8836f37e",
+      "src/herb_spectra/within_batch_holdout.py": "49421953e563e0511a23ff2252043626693e9387b85a672c3c790088555b3e53"
+    }
+  },
+  "limits": [
+    "No model fitting, no parameter/seed selection, no labels changed.",
+    "Real uploaded spectra with anonymous groups; not independently verified geographic origins.",
+    "Compact GroupNorm ResNet and first-order MAML are explicit classification adaptations, not exact author regression reproduction.",
+    "Development meta episodes use six eligible source classes, final source uses all seven; rare class remains in supervised initialization.",
+    "Same source task IDs and 100 continuation/meta outer updates, not equal FLOPs or identical objectives.",
+    "Repeated target supports share fixed 171 query specimens; seeds/draws are not independent new batches.",
+    "FO-MAML gains compare its own zero-support predictor; compare separately with the stronger teacher SVM baseline.",
+    "Chronology uses recorded execution events and source/state hashes, not external execution attestation."
+  ]
+}

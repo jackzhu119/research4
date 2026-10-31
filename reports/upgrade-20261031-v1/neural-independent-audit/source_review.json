@@ -1,0 +1,124 @@
+{
+  "status": "TECHNICAL_SOURCE_REVIEW_PASS_EXPLORATORY_DATA",
+  "allow_source_training": true,
+  "completed_at_utc": "2026-10-31T10:23:00.532333+00:00",
+  "checks": 14045,
+  "numeric_cells_compared": 22141080,
+  "new_estimator_fits": 0,
+  "outer_predictions_scored": false,
+  "protocol_sha256": "2645226849f5ba8050dcf721d0b7ec13901e3530d04babef640c7473443a0731",
+  "candidate_manifest_sha256": "15376eb70a93264794cf95dfcfb3a6d6d1c48d7a62af0750859deb2fc5be2b5f",
+  "preparation_sha256": "b2dee437461c1af8f74af9cd158756a7765780a6897c4162be554564c62772e8",
+  "boundary_tests": 10,
+  "guard_source_sha256": "9b5555be27fc634aae46f31e50a06f1950d238c83ff654df91a37c0cdd74748e",
+  "review_script_sha256": "47933333a1ce7b31e9842cbc19f7e6b0b1a9955626eb0744c88f767d150cd74f",
+  "contexts": [
+    {
+      "split_id": "outer00.inner00",
+      "source": 342,
+      "inference": 342,
+      "lineage": "EXPLORATORY"
+    },
+    {
+      "split_id": "outer00.inner01",
+      "source": 342,
+      "inference": 342,
+      "lineage": "EXPLORATORY"
+    },
+    {
+      "split_id": "outer00.final",
+      "source": 684,
+      "inference": 171,
+      "lineage": "EXPLORATORY"
+    },
+    {
+      "split_id": "outer01.inner00",
+      "source": 342,
+      "inference": 342,
+      "lineage": "EXPLORATORY"
+    },
+    {
+      "split_id": "outer01.inner01",
+      "source": 342,
+      "inference": 342,
+      "lineage": "EXPLORATORY"
+    },
+    {
+      "split_id": "outer01.final",
+      "source": 684,
+      "inference": 171,
+      "lineage": "EXPLORATORY"
+    },
+    {
+      "split_id": "outer02.inner00",
+      "source": 342,
+      "inference": 342,
+      "lineage": "EXPLORATORY"
+    },
+    {
+      "split_id": "outer02.inner01",
+      "source": 342,
+      "inference": 342,
+      "lineage": "EXPLORATORY"
+    },
+    {
+      "split_id": "outer02.final",
+      "source": 684,
+      "inference": 171,
+      "lineage": "EXPLORATORY"
+    },
+    {
+      "split_id": "outer03.inner00",
+      "source": 342,
+      "inference": 342,
+      "lineage": "EXPLORATORY"
+    },
+    {
+      "split_id": "outer03.inner01",
+      "source": 342,
+      "inference": 342,
+      "lineage": "EXPLORATORY"
+    },
+    {
+      "split_id": "outer03.final",
+      "source": 684,
+      "inference": 171,
+      "lineage": "EXPLORATORY"
+    },
+    {
+      "split_id": "outer04.inner00",
+      "source": 342,
+      "inference": 342,
+      "lineage": "EXPLORATORY"
+    },
+    {
+      "split_id": "outer04.inner01",
+      "source": 342,
+      "inference": 342,
+      "lineage": "EXPLORATORY"
+    },
+    {
+      "split_id": "outer04.final",
+      "source": 684,
+      "inference": 171,
+      "lineage": "EXPLORATORY"
+    }
+  ],
+  "manual_code_review": [
+    "Each scaler, MC selector and every internal PLS fit is current-source scoped",
+    "Numeric feature matrices exclude IDs, paths and labels",
+    "Coupled profiles are selected by per-outer, two-inner-fold and three-seed means",
+    "All fresh neural models and optimizers are constructed inside each fit",
+    "Discontinuous MC inputs use an MLP branch, not a physical convolution",
+    "Inference uses eval/no_grad and state checks; outer pointwise audit covers all171",
+    "Prediction files contain no truth; a separate scoring process joins labels after prediction lock"
+  ],
+  "limitations": [
+    "Historical855 data and prior scores exposed; no new independent confirmation",
+    "Biological independence remains user declared and single-batch",
+    "API/file boundaries are not an OS security sandbox",
+    "Wrappers guard declared entry points, not arbitrary Python code",
+    "Standalone learned-cache loading must retain the complete run-manifest dependency checks",
+    "Coupled profiles and family comparison use different compute, not strict factor isolation"
+  ]
+}

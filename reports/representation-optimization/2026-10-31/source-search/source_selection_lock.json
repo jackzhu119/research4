@@ -1,0 +1,130 @@
+{
+  "reference": {
+    "id": "s010_snv_svc",
+    "preprocessing": "snv",
+    "model": "svc",
+    "C": 10.0
+  },
+  "proposed": {
+    "id": "s024_sg0_snv_shrinkage_lda",
+    "preprocessing": "sg0_snv",
+    "model": "shrinkage_lda",
+    "priors": "uniform"
+  },
+  "selected": {
+    "id": "s024_sg0_snv_shrinkage_lda",
+    "preprocessing": "sg0_snv",
+    "model": "shrinkage_lda",
+    "priors": "uniform"
+  },
+  "fallback_to_reference": false,
+  "eligible_selection_candidates": 6,
+  "family_best": {
+    "plsda": {
+      "candidate": {
+        "id": "s014_snv_plsda",
+        "preprocessing": "snv",
+        "model": "plsda",
+        "n_components": 10
+      },
+      "fallback_to_reference": false,
+      "selection": {
+        "accuracy": 0.7544498381877022,
+        "balanced_accuracy": 0.5707908163265306,
+        "macro_f1": 0.5644325772934442,
+        "evaluations": 24,
+        "failures": 0
+      },
+      "gate": {
+        "accuracy": 0.7524271844660194,
+        "balanced_accuracy": 0.5711451247165533,
+        "macro_f1": 0.5677360722738111,
+        "evaluations": 6,
+        "failures": 0
+      },
+      "passes_source_gate": false
+    },
+    "linear": {
+      "candidate": {
+        "id": "s024_sg0_snv_shrinkage_lda",
+        "preprocessing": "sg0_snv",
+        "model": "shrinkage_lda",
+        "priors": "uniform"
+      },
+      "fallback_to_reference": false,
+      "selection": {
+        "accuracy": 0.858009708737864,
+        "balanced_accuracy": 0.7434807256235828,
+        "macro_f1": 0.7264182509625957,
+        "evaluations": 24,
+        "failures": 0
+      },
+      "gate": {
+        "accuracy": 0.8786407766990291,
+        "balanced_accuracy": 0.7576530612244898,
+        "macro_f1": 0.7471400102012388,
+        "evaluations": 6,
+        "failures": 0
+      },
+      "passes_source_gate": true
+    }
+  },
+  "candidates_for_adaptation": [
+    {
+      "id": "s010_snv_svc",
+      "preprocessing": "snv",
+      "model": "svc",
+      "C": 10.0
+    },
+    {
+      "id": "s024_sg0_snv_shrinkage_lda",
+      "preprocessing": "sg0_snv",
+      "model": "shrinkage_lda",
+      "priors": "uniform"
+    },
+    {
+      "id": "s014_snv_plsda",
+      "preprocessing": "snv",
+      "model": "plsda",
+      "n_components": 10
+    }
+  ],
+  "reference_selection": {
+    "accuracy": 0.8353559870550162,
+    "balanced_accuracy": 0.6692885487528345,
+    "macro_f1": 0.6656478902810756,
+    "evaluations": 24,
+    "failures": 0
+  },
+  "reference_gate": {
+    "accuracy": 0.8398058252427184,
+    "balanced_accuracy": 0.6754535147392291,
+    "macro_f1": 0.6720763149092249,
+    "evaluations": 6,
+    "failures": 0
+  },
+  "selected_selection": {
+    "accuracy": 0.858009708737864,
+    "balanced_accuracy": 0.7434807256235828,
+    "macro_f1": 0.7264182509625957,
+    "evaluations": 24,
+    "failures": 0
+  },
+  "selected_gate": {
+    "accuracy": 0.8786407766990291,
+    "balanced_accuracy": 0.7576530612244898,
+    "macro_f1": 0.7471400102012388,
+    "evaluations": 6,
+    "failures": 0
+  },
+  "selection_scope": "original training role only; outer query labels never scored",
+  "source_run_manifest_sha256": "4e70c56bfa730fd7a63d95d4b76bc6f6bd75fa9100e9148881d0864abd0d5ca0",
+  "source_grid_sha256": "72221c66465319bb74c38a9ac680631b24604ce2d2fe1959eaab8caa4af68e0d",
+  "partitions_sha256": "5ddb88d466276b42ef25a10c238131a87c49942c765281116e879ba19a82815c",
+  "development_aggregate_sha256": "031de21a476ae6fbe2cf1ad1a5cc58ee995dfe9c09490ddfadc549e49e886625",
+  "source_fits_recorded": 1620,
+  "source_successes": 1620,
+  "source_failures": 0,
+  "created_before_final_query_scoring": true,
+  "final_query_scored": false
+}

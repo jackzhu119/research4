@@ -1,0 +1,97 @@
+{
+  "protocol_id": "zaoren-multiround-source-replay-proximal-classification-20261031",
+  "recorded_date": "2026-10-31",
+  "dataset_version": "2026-10-31-zaoren-numbered-v1",
+  "scope": "Retrospective same-batch anonymous seven-group classification using real uploaded spectra",
+  "source_dependency": {
+    "run": "outputs/multiround-20261031/neural-base",
+    "selection": "only the independently locked source-only neural-base champion; no final score choice",
+    "preprocessing": "source-fitted SNV/StandardScaler/PCA as selected by the neural-base protocol; reused unchanged"
+  },
+  "roles": {
+    "outer": {
+      "source": 513,
+      "support_pool": 171,
+      "prediction": 171
+    },
+    "development": {
+      "source": 307,
+      "support_pool": 103,
+      "prediction": 103
+    },
+    "source_only_frequency_points": 612,
+    "frequency_lower_inclusive": 0.1,
+    "frequency_upper_inclusive": 1.5
+  },
+  "seeds": [
+    42,
+    43,
+    44
+  ],
+  "adaptation": {
+    "optimizer": "SGD full-network on a copy; no momentum or weight decay",
+    "learning_rates": [
+      0.0001,
+      0.001
+    ],
+    "steps": [
+      5,
+      20
+    ],
+    "source_replay_weights": [
+      0.0,
+      1.0,
+      4.0
+    ],
+    "proximal_lambdas": [
+      0.0,
+      0.1
+    ],
+    "objective": "target_mean_CE + replay_weight*global_source_weighted_CE + proximal_lambda*sum_parameter_squared_distance",
+    "source_CE": "source-selected none/balanced weights; sum(weight_i*CE_i)/sum(weight_i); no resampling",
+    "target_CE": "unweighted mean on 1 independent specimen/class (7total)",
+    "matched_zero": "identical SGD/replay/proximal/steps with no target support loss; replay0 no-target is exact identity",
+    "source_objects_unchanged": true,
+    "query_labels_or_batch_statistics_used_to_fit": false
+  },
+  "development": {
+    "episodes": 6,
+    "selection_episodes": 4,
+    "support_draws": 5,
+    "support_seed": 20261104
+  },
+  "selection": {
+    "minimum_accuracy_gain": 0.001,
+    "max_macro_f1_loss": 0.005,
+    "max_balanced_accuracy_loss": 0.005,
+    "comparators": [
+      "untouched source",
+      "same adaptation path without target supervision"
+    ],
+    "rank": "descending target accuracy then smaller learning_rate,steps,replay_weight,proximal_lambda,id",
+    "gate": "proposed configuration passes both comparators on last2 tasks; otherwise untouched source",
+    "seed_handling": "all3 seeds averaged, no best-seed choice"
+  },
+  "final": {
+    "support_draws": 100,
+    "support_seed": 20261105,
+    "random_query_seed": 20261102,
+    "random_query_examples": 20
+  },
+  "execution_gate": "development stage stops after lock; all current multiround development locks must exist before root starts any final evaluation",
+  "reporting": {
+    "source_zero_separate": true,
+    "matched_zero_separate": true,
+    "diagnostic_failures_preserved": true,
+    "all_seeds_preserved": true,
+    "all_final_per_ID_predictions": true,
+    "development_target_and_control_per_ID_predictions": true,
+    "all_repeated_query_cases_nonindependent": true,
+    "named_geographic_origins_not_verified": true,
+    "not_cross_batch_validation": true,
+    "rare_ZY02_support_available": 1,
+    "final_query_previously_exposed": true
+  },
+  "candidate_configurations": 24,
+  "candidate_grid_sha256": "98820dfc764a7828602a115aff1b07fbc7cc69868a9bbf287cac000a0451be74"
+}

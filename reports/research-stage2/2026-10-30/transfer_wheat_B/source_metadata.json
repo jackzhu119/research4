@@ -1,0 +1,45 @@
+{
+  "id": "idrc2016_wheat_new_instrument_new_samples",
+  "repository": "https://github.com/HMzhu/CTVPdtw",
+  "commit": "dad77175e6148ce587d49f2f1979a7d6de3271c7",
+  "source_url": "https://raw.githubusercontent.com/HMzhu/CTVPdtw/dad77175e6148ce587d49f2f1979a7d6de3271c7/data/wheat.rda",
+  "source_document": "https://github.com/HMzhu/CTVPdtw/blob/dad77175e6148ce587d49f2f1979a7d6de3271c7/man/wheat.Rd",
+  "associated_paper_doi": "10.1039/C9AY01139K",
+  "task": "regression",
+  "target_name": "reference protein (source documentation)",
+  "target_unit": "source-units-unspecified",
+  "source_domain": "A1.CAL, instrument A1, 248 original samples",
+  "target_domains": {
+    "transfer_input.npz": "vliadA, new instrument A, 150 new samples",
+    "transfer_B_input.npz": "vliadB, new instrument B, SAME 150 new samples as vliadA"
+  },
+  "source_identity_basis": "Author documentation says248 original samples and another150 new samples; encoded IDs are deterministic row positions inside documented sample populations, not publisher specimen identifiers",
+  "new_target_AB_are_same_physical_population": true,
+  "n_source": 248,
+  "n_target": 150,
+  "n_features_common": 397,
+  "license": "Repository DESCRIPTION says LGPL version2 or newer for software; independent dataset license not established; original arrays remain ignored local outputs",
+  "parser": "rdata safe R serialization decoder; did not execute R code; original .rda retained read-only",
+  "raw_sha256": "fdd0580cbd90ad55026e32c434fe9cdbe00853ba2f9907f9ccfb9536324c28a1",
+  "parsed_npz_sha256": "696286d767531064fe1d4163020a23a608f139ecf01cfc627d5e3b6791a2ff3d",
+  "preprocessing": "None; numerical matrices copied as given; no fitting or query statistics used",
+  "caveats": [
+    "No physical sample ID, instrument serial number or wavelength vector in parsed object",
+    "Grid alignment A/B supported by common397-column layout but exact wavelengths not independently reconstructed",
+    "This tests joint new-instrument/new-sample population shift, not pure instrument effect",
+    "B target has same150 samples as A; do not count as independent external cohort",
+    "Cannot transfer this protein result directly to medicinal-herb origins"
+  ],
+  "files": [
+    {
+      "path": "outputs/research-stage2/wheat/transfer_input.npz",
+      "bytes": 969845,
+      "sha256": "98b281c02db94b0e82e610fdc1b3caec44c2cfe80eb580c726067d12a17d8cbb"
+    },
+    {
+      "path": "outputs/research-stage2/wheat/transfer_B_input.npz",
+      "bytes": 1002051,
+      "sha256": "1362d5c4bbe4c3b732d15067ef85f29b48e757dc742b98aa9a90d0a17a173eaf"
+    }
+  ]
+}

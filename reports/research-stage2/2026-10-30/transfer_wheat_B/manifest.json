@@ -1,0 +1,65 @@
+{
+  "started_at_utc": "2026-10-30T10:10:09.881574+00:00",
+  "input": "/workspace/research4/outputs/research-stage2/wheat/transfer_B_input.npz",
+  "input_sha256": "1362d5c4bbe4c3b732d15067ef85f29b48e757dc742b98aa9a90d0a17a173eaf",
+  "metadata_sha256": "8e3ccad89d9027a6a762d8c0d2e67201e684c75e0f5b85659961ad42815e3fdb",
+  "seed": 42,
+  "repeats": 20,
+  "shots": [
+    1,
+    3,
+    5,
+    10,
+    20
+  ],
+  "versions": {
+    "numpy": "2.3.5",
+    "scipy": "1.17.0",
+    "scikit-learn": "1.8.0"
+  },
+  "scope": "Source-target regression transfer engineering benchmark; domain meaning follows source metadata, not filename initials; not medicinal-herb validation or method novelty",
+  "records_are_independent_physical_samples_verified": false,
+  "source_plus_support_head_components": "Source chosen count, capped by total source+support rows and selected features",
+  "target_only_head_components": "Source chosen count capped at shots-1; one-shot is support mean",
+  "head_baseline_scope": "target_support_only and source_plus_support freeze the source-selected preprocessing, source scaler and selector, and refit only the PLS head; they are not whole-pipeline target/joint retraining",
+  "all_selected_passed": true,
+  "code_sha256": [
+    {
+      "path": "scripts/run_transfer_research.py",
+      "sha256": "2db5ef323c6e688fef0f51052255c138dbe584c6e54cc4beda234e95850c6655"
+    },
+    {
+      "path": "src/herb_spectra/calibration.py",
+      "sha256": "b05ea9ddbcf6d79909b5795f596fe8d940c7c597d1af9b46481dd7e75aa36ace"
+    },
+    {
+      "path": "src/herb_spectra/stability.py",
+      "sha256": "ab1a193eba58beec09b3615f8e39a78eb98b12bec8d09e32c1b3edf4453481be"
+    },
+    {
+      "path": "src/herb_spectra/selection.py",
+      "sha256": "477d1f0404d8d170fb2bba91bbb5e24d311fb94cf7a20cfd8a7781b93064206f"
+    },
+    {
+      "path": "src/herb_spectra/validation.py",
+      "sha256": "bb4e4761be2b020ece6352ff8a2e3e442247ca50dc748d25690401434b4c5bf8"
+    }
+  ],
+  "source_domain_from_metadata": "A1.CAL, instrument A1, 248 original samples",
+  "target_domain_from_metadata": "vliadB, new instrument B, SAME 150 new samples as vliadA",
+  "source_rows": 248,
+  "target_pool_rows": 150,
+  "query_rows_per_repeat": 130,
+  "features": 397,
+  "source_target_id_overlap": 0,
+  "source_target_exact_spectrum_overlap": 0,
+  "source_instrument": "unspecified",
+  "target_instrument": "unspecified",
+  "target_unit": "source-units-unspecified",
+  "shots_unit": "total labelled target records, not per-class shots",
+  "support_pool_rule": "One permutation per repeat; prefixes of max-shot pool; all other records form common query",
+  "expected_cases": 2400,
+  "actual_cases": 2400,
+  "prediction_file_sha256": "538020f090ac5d4d01158ed9a26c52ab66b4186824feb65c75635142d34a2bbe",
+  "finished_at_utc": "2026-10-30T10:10:15.476937+00:00"
+}

@@ -1,0 +1,58 @@
+{
+  "dataset_id": "idrc_shootout_2002_tablets",
+  "description": "Pharmaceutical tablet NIR calibration-transfer engineering benchmark; not Chinese medicinal-herb data",
+  "mirror_repository": "https://github.com/caseykneale/ChemometricsTools.jl",
+  "mirror_commit": "0403cd4014af9b9d1dcac20c42ca3543ca56a9d5",
+  "files": [
+    {
+      "filename": "Pharma_Instrument1.csv",
+      "url": "https://raw.githubusercontent.com/caseykneale/ChemometricsTools.jl/0403cd4014af9b9d1dcac20c42ca3543ca56a9d5/data/Pharma_Instrument1.csv",
+      "bytes": 3823773,
+      "sha256": "a760cf1a72a2268b59ee43a651430d0e30cdadfc9a9923dde5e72bef946aaaea"
+    },
+    {
+      "filename": "Pharma_Instrument2.csv",
+      "url": "https://raw.githubusercontent.com/caseykneale/ChemometricsTools.jl/0403cd4014af9b9d1dcac20c42ca3543ca56a9d5/data/Pharma_Instrument2.csv",
+      "bytes": 3823407,
+      "sha256": "36e46b5ff67e46e53c885df83da54c962c56206f3df7c6647a6a41b207dc86f2"
+    },
+    {
+      "filename": "Readme.md",
+      "url": "https://raw.githubusercontent.com/caseykneale/ChemometricsTools.jl/0403cd4014af9b9d1dcac20c42ca3543ca56a9d5/data/Readme.md",
+      "bytes": 3158,
+      "sha256": "54a6619f108107c16f98e2c1357b0c95c12be3e06a50006236e7bbb86974a723"
+    }
+  ],
+  "metadata_sources": [
+    {
+      "url": "https://eigenvector.com/data/tablets/index.html",
+      "role": "Original dataset provider; URL currently not retrievable through the web tool."
+    },
+    {
+      "url": "https://www.spectroscopyeurope.com/td-column/back-basics-final-calibration",
+      "role": "Davies and Fearn, 2007; assay is mg/tablet; NIR 600–1898 nm; the 40 validation tablets represent two production batches."
+    },
+    {
+      "url": "https://raw.githubusercontent.com/cran/ChemometricsWithRData/master/man/shootout.Rd",
+      "role": "Package dataset documentation: corresponding tablets on two instruments, nominal active ingredient 200 mg/tablet, signal log(1/T). This separate documentation says 654 tablets; it is not used to change the actual mirror rows."
+    },
+    {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC9823907/",
+      "doi": "10.3390/molecules28010406",
+      "role": "Primary research methods confirm 655 tablets, 1310 paired spectra, 600–1898 nm at 2 nm; active pharmaceutical ingredient prediction."
+    }
+  ],
+  "target": {
+    "name": "assay",
+    "description": "Proprietary active ingredient amount per tablet",
+    "unit": "mg/tablet",
+    "unit_evidence": "https://www.spectroscopyeurope.com/td-column/back-basics-final-calibration",
+    "limitation": "Molecule identity is not supplied; chemical reference values are taken from the public mirror, not independently remeasured."
+  },
+  "license": {
+    "mirror_statement": "Package Readme says author obtained permission to redistribute via LinkedIn.",
+    "direct_permission_independently_inspected": false,
+    "data_specific_license_text_found": false,
+    "delivery_policy": "Local research evaluation; commit downloader/provenance/hash only, not mirrored raw spectral arrays."
+  }
+}

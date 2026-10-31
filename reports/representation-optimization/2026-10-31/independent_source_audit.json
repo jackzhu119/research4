@@ -1,0 +1,64 @@
+{
+  "status": "pass",
+  "auditor": "independent Stage-A audit; no project aggregation/selection function imported",
+  "checks_evaluated": 542660,
+  "failed_checks": [],
+  "source_candidates": 54,
+  "source_episodes": 30,
+  "source_fits": 1620,
+  "prediction_rows": 166860,
+  "fixed_training_records": 513,
+  "outer_calibration_or_prediction_records_entering_development": 0,
+  "source_development_role_counts": {
+    "source": 307,
+    "support_pool": 103,
+    "query": 103
+  },
+  "maximum_metric_or_mean_difference": 2.220446049250313e-16,
+  "selected_source": {
+    "id": "s024_sg0_snv_shrinkage_lda",
+    "preprocessing": "sg0_snv",
+    "model": "shrinkage_lda",
+    "priors": "uniform"
+  },
+  "reference": {
+    "id": "s010_snv_svc",
+    "preprocessing": "snv",
+    "model": "svc",
+    "C": 10.0
+  },
+  "adaptation_sources": [
+    {
+      "id": "s010_snv_svc",
+      "preprocessing": "snv",
+      "model": "svc",
+      "C": 10.0
+    },
+    {
+      "id": "s024_sg0_snv_shrinkage_lda",
+      "preprocessing": "sg0_snv",
+      "model": "shrinkage_lda",
+      "priors": "uniform"
+    },
+    {
+      "id": "s014_snv_plsda",
+      "preprocessing": "snv",
+      "model": "plsda",
+      "n_components": 10
+    }
+  ],
+  "selection_eligible_candidate_count": 6,
+  "source_selection_lock_sha256": "86ebd3e827ec98285669a31f9c82e16f6112873b07808808ca6517a15ad63956",
+  "artifact_hashes_checked": 1620,
+  "representative_model_replays": 6,
+  "warnings_by_message": {
+    "Only one sample available. You may want to reshape your data array": 180
+  },
+  "new_model_fits_in_audit": 0,
+  "seconds": 2.8212740439994377,
+  "limits": [
+    "All model file hashes checked; fitted-state fingerprints and prediction replays independently checked for six representative selected/reference/PLS caches, not all 1620 unpickled objects.",
+    "Other per-episode freeze and fit-scope assertions are checked against saved metadata and source code hashes; this is not external execution attestation.",
+    "Origin labels are user-declared anonymous workbook groups, not independently verified geographic origins; the dataset remains retrospective and within-batch."
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "protocol_id": "upgrade-20261031-v1-onefold-adversarial",
+  "dataset_version": "2026-10-31-zaoren-numbered-v1",
+  "scope": "EXPLORATORY one old outer fold0; no full855 OOF or independent confirmation",
+  "mc_runs": 10,
+  "PLS_components": 1,
+  "selected_features": 62,
+  "C_candidates": [
+    1.0,
+    10.0
+  ],
+  "preprocessing": "per-row SNV followed by source-only StandardScaler",
+  "gamma": "scale",
+  "class_weight": "balanced",
+  "model_seed": 42,
+  "outer_fold": 0,
+  "inner_folds": 2,
+  "selection_metric_order": [
+    "macro_f1",
+    "balanced_accuracy",
+    "accuracy",
+    "lower_C"
+  ],
+  "permutation_seeds": [
+    20261111,
+    20261112,
+    20261113,
+    20261114,
+    20261115,
+    20261116,
+    20261117,
+    20261118,
+    20261119,
+    20261120
+  ],
+  "permutation_rule": "group labels shuffled within the two fixed inner membership blocks, retaining block class counts; conditional null",
+  "pointwise_tolerance": 1e-10,
+  "input_sha256": "a3fac9b2f0ee6b8e51c835c7c74354f80e2fac2bc66923e76647e35d3c6bec9d",
+  "legacy_splits_sha256": "fcf14231b4dc1a1e15af8c46310ee6f39e71520b76a7b62fe0e176485f6f5cfe",
+  "script_sha256": "b77cc23bc2907d4205296dd45e35b5861e95f63c07d0c6a3c3c646bc53480da6",
+  "requires_root_release_after_minimum_guards": true,
+  "limitations": [
+    "Historical855 already exposed; user-declared physical independence; one lot per origin",
+    "10 permutations have coarse empirical resolution and are not10independent studies",
+    "Python audit hook is a logical read restriction, notOS sandbox/security certification",
+    "Checks cover this bounded workflow, notall possible models or absolute zero leakage"
+  ]
+}

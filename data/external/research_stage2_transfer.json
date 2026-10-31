@@ -1,0 +1,559 @@
+{
+  "created_at_utc": "2026-10-30T10:04:53.859183+00:00",
+  "scope": "10 source-level transfer candidates;records are not10new independent downloaded medicinal-herb cohorts",
+  "n_records": 10,
+  "actual_new_downloaded_and_parsed_families": [
+    "mango",
+    "melamine",
+    "idrc2016_wheat"
+  ],
+  "already_available_or_related_families": [
+    "idrc2002_tablets",
+    "cargill_corn"
+  ],
+  "metadata_only_families": [
+    "milk_temporal",
+    "butter",
+    "agroscope",
+    "neospectra",
+    "ossl"
+  ],
+  "network_policy": "Restricted HTTP;Zenodo,GCS,Unipd direct executor requests returned403;no bypass attempted",
+  "records": [
+    {
+      "id": "mango_anderson_seasons",
+      "title": "Anderson mango dry matter across harvest seasons",
+      "source_url": "https://data.mendeley.com/datasets/46htwnp833/6",
+      "doi": "10.17632/46htwnp833.1",
+      "spectral_type": "Vis/NIR; downloaded axis285–1200 nm; not MIR",
+      "task": "dry matter regression; auxiliary season/region robustness",
+      "shape": {
+        "downloaded_v1_spectra": 11691,
+        "columns": 315,
+        "spectral_features": 306,
+        "metadata_columns": [
+          "Set",
+          "Season",
+          "Region",
+          "Date",
+          "Type",
+          "Cultivar",
+          "Pop",
+          "Temp",
+          "DM"
+        ],
+        "declared_training_cal": 7413,
+        "tuning": 2830,
+        "external_validation": 1448
+      },
+      "domain_labels": [
+        "Season 1/2/3/4",
+        "Region NT/QLD",
+        "10 cultivars",
+        "4 temperature categories"
+      ],
+      "physical_identity": {
+        "fruit_id_explicit": false,
+        "publisher_family_warning": "Each fruit scanned twice;744 fruits additionally measured at three temperatures",
+        "recommended_split": "Preserve original Cal/Tuning/Val Ext temporal split; do not random-split rows or call K rows K independent fruits"
+      },
+      "availability": "downloaded_and_parsed",
+      "license": "CC-BY4.0 per original Mendeley record and mirror README",
+      "download_urls": [
+        "https://github.com/spectral-datasets/mango-dmc/releases/download/raw-v1/46htwnp833-1.zip",
+        "https://github.com/spectral-datasets/mango-dmc/releases/download/v2021.9.14-v1/csv.zip"
+      ],
+      "evidence_urls": [
+        "https://github.com/spectral-datasets/mango-dmc",
+        "https://data.mendeley.com/datasets/46htwnp833/6",
+        "https://doi.org/10.1016/j.postharvbio.2020.111202"
+      ],
+      "fit_to_mainline": "high for season-shift engineering; do not claim herb origins",
+      "caveat": [
+        "Actual downloaded source is v1;v6 is newer family metadata, not downloaded v6",
+        "25 observed constant/padded channels;identify using training only",
+        "No unique fruit IDs in v1,so few-shot fruit calibration remains blocked without conservative grouping/metadata",
+        "Not medicinal-herb data"
+      ],
+      "models_executed_by_this_agent": false,
+      "local_files": [
+        {
+          "path": "outputs/research-stage2/transfer_downloads/mango_raw_v1.zip",
+          "bytes": 13072430,
+          "sha256": "eb534aa569bff848f6276988de66c184bfe7b0f8e9954a3a0332d085289c187d"
+        },
+        {
+          "path": "outputs/research-stage2/transfer_downloads/mango_raw/NAnderson2020MendeleyMangoNIRData.csv",
+          "bytes": 34375368,
+          "sha256": "86159e2df9244fa52f821856ea003f562ef7f6a031dd08794e3cd4458f0f153f"
+        }
+      ]
+    },
+    {
+      "id": "melamine_four_recipes",
+      "title": "Melamine formaldehyde FT-NIR transfer benchmark",
+      "source_url": "https://github.com/RNL1/Melamine-Dataset",
+      "doi": "10.1021/acs.analchem.8b00498",
+      "spectral_type": "NIR/MIR optical spectra",
+      "task": "turbidity-point regression across industrial recipes",
+      "shape": {
+        "observed_spectra": 8127,
+        "spectral_features": 346,
+        "recipe_counts_observed": {
+          "R562": 3032,
+          "R568": 733,
+          "R861": 3890,
+          "R862": 472
+        }
+      },
+      "domain_labels": [
+        "four recipes R562/R568/R861/R862",
+        "several batches stated by author"
+      ],
+      "physical_identity": {
+        "recipe_ids": true,
+        "batch_ids_in_mat": false,
+        "sample_ids_in_mat": false,
+        "same_batch_sequence_dependence": "possible;do not treat every process time point as independent batch"
+      },
+      "availability": "downloaded_and_safe_mat_parsed",
+      "license": "MIT in author dataset repository;README says owner consent",
+      "download_urls": [
+        "https://raw.githubusercontent.com/RNL1/Melamine-Dataset/33eb802101df69045aa613611c1c98e1645212eb/Melamine_Dataset.mat"
+      ],
+      "evidence_urls": [
+        "https://github.com/RNL1/Melamine-Dataset",
+        "https://doi.org/10.1021/acs.analchem.8b00498",
+        "https://doi.org/10.1016/j.knosys.2020.106447"
+      ],
+      "fit_to_mainline": "high for real domain shift; medium for independent small-sample protocol",
+      "caveat": [
+        "README saysR862462 but .mat actually472;source total8117 and observed8127 differ",
+        "No batch IDs inside parsed object;recipe domain does not establish batch-independent query",
+        "Not a medicinal compound assay"
+      ],
+      "models_executed_by_this_agent": false,
+      "local_files": [
+        {
+          "path": "outputs/research-stage2/transfer_downloads/melamine_Melamine_Dataset.mat",
+          "bytes": 19541607,
+          "sha256": "001f5228f442805e99a5c9fa61388a5cb28076c6efe5232fe4c1c54181d16182"
+        },
+        {
+          "path": "outputs/research-stage2/transfer_downloads/melamine_LICENSE",
+          "bytes": 1061,
+          "sha256": "712599899c1184ed0489d2a09c9591649c97e612cbf2af53d4679e0b38bb91d0"
+        }
+      ]
+    },
+    {
+      "id": "idrc2016_wheat_instruments",
+      "title": "IDRC2016 wheat:248 originals plus150 new samples/new instruments",
+      "source_url": "https://github.com/HMzhu/CTVPdtw",
+      "doi": "10.1039/C9AY01139K",
+      "spectral_type": "NIR/MIR optical spectra",
+      "task": "reference-protein regression under instrument and sample-population shift",
+      "shape": {
+        "source_samples": 248,
+        "new_target_samples": 150,
+        "original_device_layout": "8 arrays248x397 plus C.Test248x100",
+        "new_device_layout": "vliadA/vliadB150x397,vliadC150x100",
+        "common_features_A_B": 397
+      },
+      "domain_labels": [
+        "9 original instruments declared",
+        "3 new instruments declared",
+        "A/B/C manufacturer families"
+      ],
+      "physical_identity": {
+        "author_declares_248_and_another150": true,
+        "specimen_ids_explicit": false,
+        "encoded_ids": "source:000..247,new:000..149 row positions within documented disjoint populations",
+        "target_A_and_B_same150_samples": true
+      },
+      "availability": "downloaded_safely_rda_parsed_and_transfer_npz_ready",
+      "license": "Repository software LGPL2+; independent data-specific license not identified",
+      "download_urls": [
+        "https://raw.githubusercontent.com/HMzhu/CTVPdtw/dad77175e6148ce587d49f2f1979a7d6de3271c7/data/wheat.rda"
+      ],
+      "evidence_urls": [
+        "https://github.com/HMzhu/CTVPdtw/blob/dad77175e6148ce587d49f2f1979a7d6de3271c7/man/wheat.Rd",
+        "https://pubs.rsc.org/en/content/articlehtml/2019/ay/c9ay01139k"
+      ],
+      "fit_to_mainline": "highest immediately usable new-sample transfer prototype",
+      "caveat": [
+        "Units not independently confirmed:source-units-unspecified",
+        "Same397-column layout,exact wavelength vector absent",
+        "Use248 originals versus150 new;do not label248 same-sample cross-instrument rows independent query",
+        "Do not count target A and B as two independent external cohorts"
+      ],
+      "models_executed_by_this_agent": false,
+      "local_files": [
+        {
+          "path": "outputs/research-stage2/wheat/transfer_input.npz",
+          "bytes": 969845,
+          "sha256": "98b281c02db94b0e82e610fdc1b3caec44c2cfe80eb580c726067d12a17d8cbb"
+        },
+        {
+          "path": "outputs/research-stage2/wheat/transfer_B_input.npz",
+          "bytes": 1002051,
+          "sha256": "1362d5c4bbe4c3b732d15067ef85f29b48e757dc742b98aa9a90d0a17a173eaf"
+        },
+        {
+          "path": "outputs/research-stage2/wheat/source_registry.json",
+          "bytes": 2605,
+          "sha256": "8e3ccad89d9027a6a762d8c0d2e67201e684c75e0f5b85659961ad42815e3fdb"
+        },
+        {
+          "path": "outputs/research-stage2/wheat/audit.json",
+          "bytes": 1435,
+          "sha256": "8b4174cc16a47b35190c21eaf19cda19491a917b341a06299b60c9d7c2fdc4cf"
+        }
+      ]
+    },
+    {
+      "id": "idrc2002_tablets_pair",
+      "title": "IDRC2002 pharmaceutical tablets two instruments",
+      "source_url": "https://eigenvector.com/resources/data-sets/",
+      "doi": "10.1002/cem.3204",
+      "spectral_type": "NIR/MIR optical spectra",
+      "task": "assay/weight/hardness regression;cross-instrument transfer",
+      "shape": {
+        "observed_rows_each": 655,
+        "spectral_features": 650,
+        "observed_column_range": "600:2:1898",
+        "observed_splits": {
+          "Train": 155,
+          "Validate": 40,
+          "Test": 460
+        }
+      },
+      "domain_labels": [
+        "two FOSS/NIRSystems Multitab spectrometers"
+      ],
+      "physical_identity": {
+        "matched_row_metadata_across_instruments": true,
+        "explicit_specimen_id_column": false,
+        "same_tablets_two_devices": true
+      },
+      "availability": "already_downloaded_previous_turn_structure_audited",
+      "license": "Publisher dataset-specific license unresolved; mirror README records redistribution permission not independently inspected",
+      "download_urls": [
+        "https://raw.githubusercontent.com/caseykneale/ChemometricsTools.jl/0403cd4014af9b9d1dcac20c42ca3543ca56a9d5/data/Pharma_Instrument1.csv",
+        "https://raw.githubusercontent.com/caseykneale/ChemometricsTools.jl/0403cd4014af9b9d1dcac20c42ca3543ca56a9d5/data/Pharma_Instrument2.csv"
+      ],
+      "evidence_urls": [
+        "https://analyticalsciencejournals.onlinelibrary.wiley.com/doi/10.1002/cem.3204",
+        "https://github.com/caseykneale/ChemometricsTools.jl/blob/0403cd4014af9b9d1dcac20c42ca3543ca56a9d5/data/Readme.md"
+      ],
+      "fit_to_mainline": "high engineering support;not independent raw cohort from earlier downloaded material",
+      "caveat": [
+        "Current CSV655 conflicts mirror README653 and some benchmark subsets615;use audited version-specific counts",
+        "Split physical tablet indices before selecting instruments;never train on query tablet via other instrument",
+        "Units/range discrepancies require explicit metadata caveat"
+      ],
+      "models_executed_by_this_agent": false,
+      "local_files": [
+        {
+          "path": "outputs/external-discovery/public/Pharma_Instrument1.csv",
+          "bytes": 3823773,
+          "sha256": "a760cf1a72a2268b59ee43a651430d0e30cdadfc9a9923dde5e72bef946aaaea"
+        },
+        {
+          "path": "outputs/external-discovery/public/Pharma_Instrument2.csv",
+          "bytes": 3823407,
+          "sha256": "36e46b5ff67e46e53c885df83da54c962c56206f3df7c6647a6a41b207dc86f2"
+        }
+      ]
+    },
+    {
+      "id": "cargill_corn_three_instruments",
+      "title": "Cargill corn three instruments",
+      "source_url": "https://eigenvector.com/resources/data-sets/",
+      "doi": null,
+      "spectral_type": "NIR/MIR optical spectra",
+      "task": "constituent regression;paired calibration standards",
+      "shape": {
+        "documented_independent_samples": 80,
+        "features": 700,
+        "devices": 3,
+        "ctv_mirror_target_columns": 1
+      },
+      "domain_labels": [
+        "M5",
+        "MP5",
+        "MP6"
+      ],
+      "physical_identity": {
+        "same80_physical_samples_all_instruments": true,
+        "pairing": "documented aligned row positions"
+      },
+      "availability": "already_present_in_user_archive_and_author_RDA_mirror_downloaded",
+      "license": "No independent data-specific open reuse license verified;source archive notices retained",
+      "download_urls": [
+        "https://raw.githubusercontent.com/HMzhu/CTVPdtw/dad77175e6148ce587d49f2f1979a7d6de3271c7/data/corn.rda"
+      ],
+      "evidence_urls": [
+        "https://github.com/HMzhu/CTVPdtw/blob/dad77175e6148ce587d49f2f1979a7d6de3271c7/man/corn.Rd",
+        "https://pmc.ncbi.nlm.nih.gov/articles/PMC6480669/"
+      ],
+      "fit_to_mainline": "medium paired-standard sanity check,low new-evidence priority",
+      "caveat": [
+        "Not new external cohort:related corn data already in teachers archives",
+        "CTVP mirror includes one Y column without target identity inRd;do not guessstarch",
+        "New sample splits must precede assigning source/target device;paired support standards only"
+      ],
+      "models_executed_by_this_agent": false,
+      "local_files": [
+        {
+          "path": "outputs/research-stage2/transfer_downloads/CTVPdtw/data/corn.rda",
+          "bytes": 1029154,
+          "sha256": "0e4fb546085eba71d497356c4a87f6d99a5eec71a4eec8aa3b7249a32fdd3fcc"
+        },
+        {
+          "path": "outputs/research-stage2/transfer_downloads/corn_parsed.npz",
+          "bytes": 1026883,
+          "sha256": "e1864ee348ada84bf79aa83d0fa94407ab17f8115c53980c058cd35ad43eb66a"
+        }
+      ]
+    },
+    {
+      "id": "milk_temporal_1224",
+      "title": "KU Leuven raw-milk NIR eight-week temporal dataset",
+      "source_url": "https://zenodo.org/records/8263430",
+      "doi": "10.5281/zenodo.8263430",
+      "spectral_type": "NIR/MIR optical spectra",
+      "task": "fat/protein/lactose/urea/SCC regression over time",
+      "shape": {
+        "samples": 1224,
+        "cows": 41,
+        "weeks": 8,
+        "nir_features": 256,
+        "wavelength_nm": [
+          960,
+          1690
+        ]
+      },
+      "domain_labels": [
+        "SET week1..8",
+        "Time_Sample/Time_Milk",
+        "Cow_ID"
+      ],
+      "physical_identity": {
+        "Cow_ID_available": true,
+        "row_is_individual_milking_sample": true,
+        "same_cow_repeated_over_weeks": true
+      },
+      "availability": "primary_metadata_verified_download_blocked_by_cloud_domain_policy",
+      "license": "Article CC-BY4.0;dataset license field not extracted separately;verify source terms before redistribution",
+      "download_urls": [
+        "https://zenodo.org/records/8263430/files/data_table.csv?download=1"
+      ],
+      "evidence_urls": [
+        "https://pmc.ncbi.nlm.nih.gov/articles/PMC10700509/",
+        "https://zenodo.org/records/8263430"
+      ],
+      "fit_to_mainline": "high temporal/identity-rich calibration candidate once network access permits",
+      "caveat": [
+        "Fat/protein/lactose %w/w,urea mg/dL,SCC cells/uL per data paper",
+        "Choose future-week versus unseen-cow protocols separately",
+        "41 cows means1224rows are not1224independent animals"
+      ],
+      "models_executed_by_this_agent": false
+    },
+    {
+      "id": "butter_four_instruments_99",
+      "title": "Butter quality/origin four-instrument NIR dataset",
+      "source_url": "https://researchdata.cab.unipd.it/1890/",
+      "doi": "10.25430/researchdata.cab.unipd.it.00001890",
+      "spectral_type": "NIR/MIR optical spectra",
+      "task": "quality regression and production-system/origin classification",
+      "shape": {
+        "butter_samples": 99,
+        "devices": 4,
+        "common_grid_nm": [
+          1102,
+          1600,
+          2
+        ],
+        "groups": {
+          "Lowland": 35,
+          "Mountain": 47,
+          "Alpine": 10,
+          "Commercial": 7
+        }
+      },
+      "domain_labels": [
+        "DS2500",
+        "Aurora",
+        "JDSU",
+        "ISC",
+        "monthly collection Oct2023-Sep2024",
+        "production systems"
+      ],
+      "physical_identity": {
+        "explicit_sample_identifier_alignment": true,
+        "same99_samples_across_devices": true,
+        "monthly_repeated_measures_protocol": true
+      },
+      "availability": "primary_metadata_and_file_license_verified_download_blocked_by_cloud_domain_policy",
+      "license": "CC-BY4.0 explicitly on source XLSX file",
+      "download_urls": [
+        "https://researchdata.cab.unipd.it/1890/1/Butter%20database.xlsx"
+      ],
+      "evidence_urls": [
+        "https://researchdata.cab.unipd.it/1890/"
+      ],
+      "fit_to_mainline": "high multi-device and source-system auxiliary benchmark",
+      "caveat": [
+        "Seven commercial samples haveunknown origin/season;not ordinary fourthgeographic-origin class",
+        "Source frames sample IDs across devices but file not parsed here",
+        "Separate physical sample/dairy/month groups before source/support/query"
+      ],
+      "models_executed_by_this_agent": false
+    },
+    {
+      "id": "agroscope_ssl_134",
+      "title": "Agroscope SSL 2024 two instruments and scanning setups",
+      "source_url": "https://zenodo.org/records/11204174",
+      "doi": "10.5281/zenodo.11204174",
+      "spectral_type": "NIR/MIR optical spectra",
+      "task": "soil laboratory-property regression;instrument/preparation transfer",
+      "shape": {
+        "physical_soil_samples": 134,
+        "devices": 2,
+        "psr_nm": [
+          350,
+          2500,
+          1
+        ],
+        "neo_nm": [
+          1350,
+          2550,
+          2
+        ]
+      },
+      "domain_labels": [
+        "PSR+3500",
+        "NeoSpectra",
+        "scantype a/b/c/d/e/f/l",
+        "field",
+        "culture",
+        "exp_id",
+        "2021/2022 campaigns"
+      ],
+      "physical_identity": {
+        "km_id": "unique sampling point",
+        "plot_id": "km_id concatenated with scantype",
+        "replicates": "each published spectrum average5 positional scans"
+      },
+      "availability": "primary_record_and_full_metadata_txt_verified_download_blocked_by_cloud_domain_policy",
+      "license": "Dataset license field not extracted from record;do not infer from paper license",
+      "download_urls": [
+        "https://zenodo.org/records/11204174/files/01_laboratory_analyses.csv?download=1",
+        "https://zenodo.org/records/11204174/files/02_spectraA_psr.csv?download=1",
+        "https://zenodo.org/records/11204174/files/03_spectraA_neo.csv?download=1"
+      ],
+      "evidence_urls": [
+        "https://zenodo.org/records/11204174",
+        "https://zenodo.org/records/11204174/files/00_metadata_Agroscope_SSL.txt?download=1"
+      ],
+      "fit_to_mainline": "highest metadata quality for grouping/preparation-shift methods;notherb",
+      "caveat": [
+        "Differentinstrumentgrids need overlap-axis alignment",
+        "km_idmustgroupallscantypes/repeats",
+        "SomeNeoinsituscansremovedforinstrumenterror;notfullrectangularpanel"
+      ],
+      "models_executed_by_this_agent": false
+    },
+    {
+      "id": "neospectra_nine_devices",
+      "title": "NeoSpectra handheld soil library",
+      "source_url": "https://docs.soilspectroscopy.org/neospectra.html",
+      "doi": "10.5281/zenodo.7600137",
+      "spectral_type": "NIR/MIR optical spectra",
+      "task": "soil-property regression;device variation",
+      "shape": {
+        "documented_physical_samples": 2106,
+        "us_samples": 2016,
+        "african_samples": 90,
+        "devices": 9,
+        "repeat_scans_per_sample": 6,
+        "nir_nm": [
+          1350,
+          2550
+        ]
+      },
+      "domain_labels": [
+        "nine device serial numbers",
+        "US versusGhana/Kenya/Nigeria origins"
+      ],
+      "physical_identity": {
+        "physical_sample_ids_and_device_serials": "documented;filesnotparsed",
+        "replicate_scans": 6
+      },
+      "availability": "official_metadata_verified_not_downloaded_cloud_domains_restricted",
+      "license": "CheckZenodo/source-specificlicense;notinferredfromdocumentationlicense",
+      "download_urls": [
+        "https://zenodo.org/records/7600137"
+      ],
+      "evidence_urls": [
+        "https://docs.soilspectroscopy.org/neospectra.html",
+        "https://docs.soilspectroscopy.org/datasets/Neospectra.html",
+        "https://zenodo.org/records/7600137"
+      ],
+      "fit_to_mainline": "highest device/replicate-aware candidate once downloaded",
+      "caveat": [
+        "NeospectraUSsamplesdrawnfromKSSLarchive;do not count as independent fromKSSLifcombining",
+        "Not necessarily every sample scanned by everydevice;inspect incidence matrix",
+        "2106samples and6replicatesnot12636independent samples"
+      ],
+      "models_executed_by_this_agent": false
+    },
+    {
+      "id": "ossl_cross_laboratory",
+      "title": "OSSL cross-laboratory MIR/VisNIR library collection",
+      "source_url": "https://docs.soilspectroscopy.org/libraries.html",
+      "doi": null,
+      "spectral_type": "NIR/MIR optical spectra",
+      "task": "soil-property regression;laboratory/geographical domain shift",
+      "shape": {
+        "KSSL_laboratory_samples": 64667,
+        "ICRAF_ISRIC_laboratory_samples": 4073,
+        "other_libraries": "AFSIS1/AFSIS2/CAF/LUCAS etc;do not sum due incomplete labels/overlap"
+      },
+      "domain_labels": [
+        "library/laboratory source codes",
+        "instrument types",
+        "country/geography",
+        "sample collection dates where provided"
+      ],
+      "physical_identity": {
+        "sample_layer_uuid": "id.layer_uuid_txt",
+        "site_pedon_and_depth": "available with variable completeness",
+        "source_identity_audit_required": true
+      },
+      "availability": "official_catalog_schema_verified_not_downloaded_cloud_storage_domain_restricted",
+      "license": "Source-specificscanlicenses;ICRAFCC-BY,KSSLOtherCustom;compilationcannoterasecontributorconditions",
+      "download_urls": [
+        "https://storage.googleapis.com/soilspec4gg-public/datasets/KSSL/ossl_mir_v1.3.csv.gz",
+        "https://storage.googleapis.com/soilspec4gg-public/datasets/KSSL/ossl_soillab_v1.3.csv.gz",
+        "https://storage.googleapis.com/soilspec4gg-public/datasets/KSSL/ossl_soilsite_v1.3.csv.gz",
+        "https://storage.googleapis.com/soilspec4gg-public/datasets/ICRAF_ISRIC/ossl_mir_v1.3.csv.gz"
+      ],
+      "evidence_urls": [
+        "https://docs.soilspectroscopy.org/datasets/KSSL.html",
+        "https://docs.soilspectroscopy.org/datasets/ICRAF_ISRIC.html",
+        "https://docs.soilspectroscopy.org/db-desc.html"
+      ],
+      "fit_to_mainline": "high large-scale stress test after harmonization;notherb-origin evidence",
+      "caveat": [
+        "Libraryshiftconflatesgeography,instrument,samplepreparation,andchemicalassaymethods",
+        "JoinusinglayerUUIDandpreserveassayunits/methods;notroworder",
+        "NeoSpectra subset overlapsKSSLphysicalarchives",
+        "Currentv1.3notinterchangeablewitholderv1.2storedindices"
+      ],
+      "models_executed_by_this_agent": false
+    }
+  ]
+}

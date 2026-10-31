@@ -33,3 +33,5 @@ ZY01—ZY07仍作为匿名产地组标识；真实地名、批次和物种确认
 当前科研主线为“酸枣仁产地识别 → 经对照验证的模型改进 → 已知产地新批次小样本校准”，暂不加入Gaussian。
 
 用户随后进一步确认“每个产地目前只有一批”，已存入同一声明记录。当前批次编号仍未提供，不从文件序号伪造；当前数据无法分离产地与这一批来源样品的效应。第一轮样品级内部验证及对照结果见[执行报告](https://github.com/jackzhu119/research4/blob/research/algorithm-review-and-baselines-20261030/docs/ZAOREN_APPROVED_EXECUTION_REPORT.md)，真实跨批次校准需补独立新批次。
+
+用户进一步要求从现有样品拆出训练、校准、预测专用文件，采用[三组留出协议](../docs/ZAOREN_THREEWAY_PROTOCOL.md)：513份训练、171份校准池、171份固定预测。派生副本位于`processed/zaoren_threeway_20261031_v1/`，仅为上述7份原件的用途划分，不是新增样品，不修改有效清单。这个流程允许同批次回顾性校准评价，仍不代表真实跨批次验证。

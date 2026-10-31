@@ -1,0 +1,31 @@
+{
+  "protocol_id": "upgrade-20261031-v1",
+  "recorded_at_utc": "2026-10-31T10:10:40.068887+00:00",
+  "command": "OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 PYTHONPATH=tests .runtime/bin/python -m unittest test_data_leakage -v",
+  "result": "TECHNICAL_CHECK_PASS",
+  "unit_tests_passed": 15,
+  "test_seconds": 0.982,
+  "covered_core_categories": [
+    "A",
+    "B",
+    "E",
+    "F",
+    "G"
+  ],
+  "independent_experiment_categories_pending_elsewhere": [
+    "C",
+    "D",
+    "H",
+    "I"
+  ],
+  "scientific_independence_proven": false,
+  "absolute_zero_leakage_proven": false,
+  "scope": "New instrumented entry points and explicit fixtures, not arbitrary uninstrumented code",
+  "development_issue": "One new test initially referenced nonexistent historical MCUVESelector.stability_; corrected to signed_stability_ and coefficients_. No production MC mathematics was changed.",
+  "source_sha256": {
+    "src/herb_spectra/leakage_guard.py": "9b5555be27fc634aae46f31e50a06f1950d238c83ff654df91a37c0cdd74748e",
+    "tests/test_data_leakage.py": "e34db9b7782cc0676987986cc99ba7e36560e664487513ff303cee18ef4c0a14",
+    "docs/DATA_LEAKAGE_PREVENTION_PROTOCOL.md": "67c159cb064ac0a8bfa5486fcfa46ea039d44e8752407575f4cb5e69f3f4eeef"
+  },
+  "log_sha256": "bd1c7a5d44edf2b6918b3412db21fb5adb7a6dfefcb2c21c4bb84d5678105bb6"
+}

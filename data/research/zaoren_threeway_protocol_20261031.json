@@ -1,0 +1,174 @@
+{
+  "protocol_id": "zaoren-within-batch-threeway-20261031-v1",
+  "recorded_date": "2026-10-31",
+  "authorization": "User requested redesign: training then freeze, predict reserved samples, few-shot calibration and paired accuracy comparison; export three dedicated file roles.",
+  "dataset_version": "2026-10-31-zaoren-numbered-v1",
+  "split_seed": 20261101,
+  "model_seed": 42,
+  "support_seed": 42,
+  "scope": "retrospective within-batch anonymous-origin holdout and score adaptation",
+  "prior_exposure": "All 855 records were previously used in internal CV. This split is retrospective and cannot create a first-use confirmatory test set.",
+  "named_origins_verified": false,
+  "source_batches_per_origin_user_declared": 1,
+  "source_workbooks": "data/active_workbooks.json: current seven numbered zaoren workbooks only",
+  "split_algorithm": "Sort classes and physical IDs lexically; numpy Generator(PCG64(split_seed)); sequential class-wise permutation; first 60% training, next 20% calibration, remainder prediction; stable sorted IDs on export.",
+  "counts_by_origin": {
+    "ZY01": {
+      "training": 210,
+      "calibration": 70,
+      "prediction": 70
+    },
+    "ZY02": {
+      "training": 3,
+      "calibration": 1,
+      "prediction": 1
+    },
+    "ZY03": {
+      "training": 60,
+      "calibration": 20,
+      "prediction": 20
+    },
+    "ZY04": {
+      "training": 60,
+      "calibration": 20,
+      "prediction": 20
+    },
+    "ZY05": {
+      "training": 60,
+      "calibration": 20,
+      "prediction": 20
+    },
+    "ZY06": {
+      "training": 60,
+      "calibration": 20,
+      "prediction": 20
+    },
+    "ZY07": {
+      "training": 60,
+      "calibration": 20,
+      "prediction": 20
+    }
+  },
+  "counts": {
+    "training": 513,
+    "calibration": 171,
+    "prediction": 171,
+    "total": 855
+  },
+  "derivative_path": "data/processed/zaoren_threeway_20261031_v1",
+  "roles": {
+    "training": "Source-only model tuning and full source fit; transforms/feature selector and classifier frozen after fit.",
+    "calibration": "Exclusive labelled support pool; labels may train the attached score adjustment; unused support never enters prediction.",
+    "prediction": "Exactly the same 171 samples before and after calibration; labels only for scoring, never fit, tune or select."
+  },
+  "export": {
+    "workbooks": 21,
+    "sheets_per_workbook": 4,
+    "canonical_ids_preserved": true,
+    "thickness_suffix_preserved": true,
+    "reference_and_coordinates_preserved": true,
+    "prediction_truth_separate": true,
+    "blind": false,
+    "id_warning": "ZY prefix and grouping of exported files disclose anonymous origin; models use numerical spectra only.",
+    "canonical_inputs_replaced": false,
+    "active_registry_unchanged": true
+  },
+  "frequency": {
+    "representation": "alpha",
+    "lower_inclusive": 0.1,
+    "upper_inclusive": 1.5,
+    "expected_points": 612,
+    "scope": "fixed engineering candidate range, not instrument-validated optimal interval"
+  },
+  "models": [
+    {
+      "id": "alpha_svm",
+      "model": "svc",
+      "selector": "full"
+    },
+    {
+      "id": "alpha_mcuve20_svm",
+      "model": "svc",
+      "selector": "mcuve20"
+    }
+  ],
+  "training": {
+    "cross_validation_folds": 3,
+    "scoring": "macro_f1",
+    "preprocessing_candidates": [
+      "raw",
+      "snv"
+    ],
+    "svc_kernel": "rbf",
+    "svc_class_weight": "balanced",
+    "svc_gamma": "scale",
+    "svc_C": [
+      0.1,
+      1,
+      10,
+      100
+    ],
+    "score_rule": "argmax of aligned class scores; exact ties resolve to first source class",
+    "feature_selection_scope": "inside each source training CV fold, then source full refit",
+    "test_or_calibration_hyperparameter_selection": false
+  },
+  "calibration": {
+    "method": "AnchorScoreCalibrator",
+    "regularization": 1,
+    "regularization_selection": "fixed before this experiment's predictions, not optimized on reserved prediction labels",
+    "shots_per_class": [
+      1
+    ],
+    "labels_per_draw": 7,
+    "repeats": 20,
+    "primary_example_repeat": 0,
+    "unavailable_uniform_shots": [
+      3,
+      5,
+      10
+    ],
+    "unavailable_reason": "ZY02 calibration pool contains one independent sample",
+    "source_pipeline_refit": false,
+    "scope": "score adjustment, not probability calibration or cross-batch adaptation"
+  },
+  "evaluation": {
+    "metrics": [
+      "accuracy",
+      "balanced_accuracy",
+      "macro_f1",
+      "per_class_recall",
+      "confusion_matrix"
+    ],
+    "paired_gains": "Same fixed query, report percentage-point changes and corrected/harmed sample counts",
+    "draw_summary": [
+      "mean",
+      "population_sd",
+      "minimum",
+      "maximum",
+      "all_draws"
+    ],
+    "uncertainty": "Support-draw variation on one fixed query; not independent trials, batches, or confidence intervals",
+    "minority_limitation": "One ZY02 prediction specimen; recall is only 0 or 100 percent",
+    "selection_policy": "No accuracy-based choice of seed, split, model, repeat, lambda or frequency range; no guaranteed improvement"
+  },
+  "excluded": [
+    "Gaussian",
+    "fabricated batch IDs",
+    "query-guided tuning",
+    "merging calibration and prediction sets",
+    "counting repeated draws as independent experiments",
+    "silently excluding ZY02",
+    "SMOTE used to claim additional independent samples"
+  ],
+  "outputs_required": [
+    "split_plan.json",
+    "split_manifest.csv",
+    "21 role-specific four-sheet XLSX",
+    "role label files plus separate prediction truth",
+    "numerical identity and source hash verification",
+    "all paired sample predictions",
+    "model source CV configuration and support draws",
+    "source frozen artifact fingerprints",
+    "all positive and negative results"
+  ]
+}

@@ -1,0 +1,197 @@
+{
+  "date": "2026-10-31",
+  "archived_at_shanghai": "2026-10-31T10:31:43.580811+08:00",
+  "scope": "Single-source-batch anonymous origin-group internal recognition on user-declared independent acid jujube samples; origin and source batch are confounded.",
+  "gaussian_included": false,
+  "real_data": {
+    "dataset_version": "2026-10-31-zaoren-numbered-v1",
+    "origin_groups": 7,
+    "samples_user_declared_independent": 855,
+    "group_counts": {
+      "ZY01": 350,
+      "ZY02": 5,
+      "ZY03": 100,
+      "ZY04": 100,
+      "ZY05": 100,
+      "ZY06": 100,
+      "ZY07": 100
+    },
+    "geographic_names_known": false,
+    "source_batches_per_group": 1,
+    "cross_batch_experiment_performed": false
+  },
+  "real_classification_counts": {
+    "model_paths": 13,
+    "outer_fold_models": 65,
+    "oof_predictions": 11115,
+    "outer_folds": 5,
+    "inner_folds": 2,
+    "cars_internal_cv": 2
+  },
+  "engineering_checks": {
+    "scope": "unit and integration engineering checks; not 100 real-data model experiments",
+    "tests": 100,
+    "reported_status": "OK",
+    "reported_seconds": 8.382,
+    "log": "all-tests.log",
+    "log_sha256": "ea937376771a6a43a11320b49afd07370be5141d94d02307b53f1890fe5d2c04"
+  },
+  "synthetic_transfer": {
+    "scope": "synthetic_engineering_fixture",
+    "real_herb_samples": 0,
+    "evaluations": 21,
+    "sample_predictions": 630,
+    "report_directory": "synthetic-transfer-results",
+    "note": "Tests exercise calibration protocol/code; synthetic results do not establish real-herb calibration gains."
+  },
+  "post_run_batch_declaration": {
+    "reported_by": "User in the research chat",
+    "statement": "每个产地目前只有一批",
+    "known_after_main_matrix_execution": true,
+    "source_batches_per_origin_group": 1,
+    "applies_to_groups": [
+      "ZY01",
+      "ZY02",
+      "ZY03",
+      "ZY04",
+      "ZY05",
+      "ZY06",
+      "ZY07"
+    ],
+    "measurement_batch_dates_or_instrument_mapping": "not supplied",
+    "interpretation": "Each origin group currently has only one source batch. Origin-group and source-batch effects cannot be separated. These OOF results describe internal recognition among this collection, not cross-batch geographic-origin performance.",
+    "evidence_preservation": "Original frozen protocol, QA readiness and audit wording are retained as recorded at execution; this post-run declaration updates interpretation without changing predictions."
+  },
+  "data_and_code_hashes": {
+    "input_workbooks": [
+      {
+        "path": "data/processed/zaoren_20261031/样本1_编号版.xlsx",
+        "sha256": "e9dd6398868979036ec98e7c722b17afa9319ac0289280233452f604407fe292",
+        "records": 350,
+        "origin_group_id": "ZY01"
+      },
+      {
+        "path": "data/processed/zaoren_20261031/样本2_编号版.xlsx",
+        "sha256": "549a43b57079480ae4324a474f4709101ea13ba17133f9d7941850bf86666c5a",
+        "records": 5,
+        "origin_group_id": "ZY02"
+      },
+      {
+        "path": "data/processed/zaoren_20261031/样本3_编号版.xlsx",
+        "sha256": "3045e608e629ebbc7b22948284817e9961cdaf02187a676a90159d8ba4a333f3",
+        "records": 100,
+        "origin_group_id": "ZY03"
+      },
+      {
+        "path": "data/processed/zaoren_20261031/样本4_编号版.xlsx",
+        "sha256": "0a378d201b1bc40281cdd61293dcbd4831b0a0d8c8b463df30c74a95b41eb7b4",
+        "records": 100,
+        "origin_group_id": "ZY04"
+      },
+      {
+        "path": "data/processed/zaoren_20261031/样本5_编号版.xlsx",
+        "sha256": "6915c6f1b935b3bdc30f9c56c053f5b0422ec73c8ada69018ed50b78c04538d5",
+        "records": 100,
+        "origin_group_id": "ZY05"
+      },
+      {
+        "path": "data/processed/zaoren_20261031/样本6_编号版.xlsx",
+        "sha256": "62e286ab34ac353bc99fe409a70a23460459c8e0fe2dfc5d9840f29a07ee7448",
+        "records": 100,
+        "origin_group_id": "ZY06"
+      },
+      {
+        "path": "data/processed/zaoren_20261031/样本7_编号版.xlsx",
+        "sha256": "4f42250208390eb257c027cb035c56ef8515d85785e2df4107d7a2dcb20537db",
+        "records": 100,
+        "origin_group_id": "ZY07"
+      }
+    ],
+    "metadata_at_preparation_sha256": "6f90724bd9228f5b35d5aec1dd9959dc6d2e6b55cf7daceea039df793771e96d",
+    "full_prepared_npz_sha256": "acd0bc051667d200fa87ed05f4bb2116c9eea5b971a5a8081cedea2e3fcc66e2",
+    "candidate_npz_sha256": "a3fac9b2f0ee6b8e51c835c7c74354f80e2fac2bc66923e76647e35d3c6bec9d",
+    "frozen_execution_code_sha256": {
+      "scripts/run_zaoren_classification.py": "b13b42c8cdfe8565f20ee7dec92d83d634a6baec4d16b158cf8c6b600be394ca",
+      "src/herb_spectra/classification.py": "793a550f46522bc2e69acf922b39e104a0e94b5eb058905f987a91d0f16a08b2",
+      "src/herb_spectra/benchmark.py": "e9d860268a022baf5a9ed726fc3ef0293b82daefdef7fbe5eba5d02654630994",
+      "src/herb_spectra/selection.py": "477d1f0404d8d170fb2bba91bbb5e24d311fb94cf7a20cfd8a7781b93064206f",
+      "src/herb_spectra/stability.py": "ab1a193eba58beec09b3615f8e39a78eb98b12bec8d09e32c1b3edf4453481be",
+      "src/herb_spectra/validation.py": "bb4e4761be2b020ece6352ff8a2e3e442247ca50dc748d25690401434b4c5bf8",
+      "src/herb_spectra/io.py": "8b9cfe61a70ab64f56f131325e068a6452f0a26d04369f4a94a561fd6192fb3c",
+      "src/herb_spectra/__init__.py": "7ab151451e9996b82715b65cbe0fe6a58e68a471c0e50bc6e2a348d477afdb94"
+    },
+    "shared_split_sha256": "fcf14231b4dc1a1e15af8c46310ee6f39e71520b76a7b62fe0e176485f6f5cfe"
+  },
+  "quality": {
+    "numeric_nonfinite_cells": 0,
+    "full_alpha_negative_cells": 439027,
+    "candidate_alpha_negative_cells": 0,
+    "negative_values_modified": false,
+    "records_removed": 0,
+    "seven_numbered_workbooks_bytes_preserved": true
+  },
+  "validation": {
+    "independent_metric_max_absolute_difference": 0.0,
+    "all_cases_share_splits": true,
+    "each_sample_tested_once_per_path": true,
+    "physical_train_test_overlap": 0,
+    "ZY02_test_samples_per_fold": 1,
+    "SVC_predict_vs_argmax_disagreements": 31
+  },
+  "metric_table": "independent-audit/pooled_metrics.csv",
+  "class_recalls": "independent-audit/class_recalls.csv",
+  "all_positive_and_negative_comparisons": "independent-audit/comparison_deltas.csv",
+  "descriptive_findings": {
+    "candidate_MC20_vs_full_SVM": {
+      "comparison": "MC20_vs_full_SVM",
+      "method": "alpha_primary/alpha_mcuve20_svc",
+      "reference": "alpha_primary/alpha_svc",
+      "direction": "positive means higher metric; descriptive paired OOF difference, not independent-batch evidence",
+      "accuracy_difference": "0.01871345029239757",
+      "balanced_accuracy_difference": "0.055102040816326414",
+      "macro_f1_difference": "0.0213975848408543",
+      "test_correct_reference_wrong": "58",
+      "test_wrong_reference_correct": "42"
+    },
+    "candidate_stable_vs_MC20": {
+      "comparison": "stable_vs_MC20",
+      "method": "stability_controls/alpha_stable_svc",
+      "reference": "alpha_primary/alpha_mcuve20_svc",
+      "direction": "positive means higher metric; descriptive paired OOF difference, not independent-batch evidence",
+      "accuracy_difference": "-0.0011695906432748204",
+      "balanced_accuracy_difference": "-0.02857142857142847",
+      "macro_f1_difference": "-0.01685508006917069",
+      "test_correct_reference_wrong": "31",
+      "test_wrong_reference_correct": "32"
+    },
+    "candidate_concat_vs_alpha_SVM": {
+      "comparison": "concat_vs_alpha_SVM",
+      "method": "modality_controls/concat_svc",
+      "reference": "alpha_primary/alpha_svc",
+      "direction": "positive means higher metric; descriptive paired OOF difference, not independent-batch evidence",
+      "accuracy_difference": "-0.04678362573099415",
+      "balanced_accuracy_difference": "-0.05306122448979589",
+      "macro_f1_difference": "-0.0741477156433169",
+      "test_correct_reference_wrong": "33",
+      "test_wrong_reference_correct": "73"
+    },
+    "full_range_alpha_PLSDA_accuracy": 1.0,
+    "full_range_interpretation": "Sensitivity result only; negative high-frequency absorption values and single-batch confounding prevent treating 100% as proof of physical validity, chemical causality or cross-batch origin identification."
+  },
+  "plot_files": [
+    "figures/metric_comparison.png",
+    "figures/metric_comparison.pdf",
+    "figures/confusion_alpha_svm.png",
+    "figures/confusion_alpha_svm.pdf",
+    "figures/confusion_concat_svm.png",
+    "figures/confusion_concat_svm.pdf"
+  ],
+  "inferential_significance_or_confidence_intervals_computed": false,
+  "archive_policy": {
+    "caches_included": false,
+    "joblib_or_pickles_included": false,
+    "derived_npz_inputs_included": false,
+    "original_execution_text_rewritten": false,
+    "absolute_paths_in_execution_helpers": "Retained as original execution evidence; use repository entrypoints for portable reruns."
+  }
+}
