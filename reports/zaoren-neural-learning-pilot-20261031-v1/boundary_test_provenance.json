@@ -1,0 +1,32 @@
+{
+  "status": "9_BOUNDARY_TESTS_PASS_BEFORE_REAL_PILOT_TRAINING",
+  "actual_recorded_command_events_sha256": "c48aade6dc23c3ecd51f9603b0fcb848c916dab0dbfc26ee8d308e0d626aaa91",
+  "actual_final_log_sha256": "6716e634ac620245e11ea4865fc8028d5b5680463e1c932fea1885e4fd30312b",
+  "started_at_utc": "2026-10-31T12:27:34.565309+00:00",
+  "completed_at_utc": "2026-10-31T12:27:40.878707+00:00",
+  "tests_passed": 9,
+  "source_sha256": {
+    "scripts/run_source_learning_pilot.py": "6f38ce8983995b742d48f4df491a9714c6a22c41cf3436b373e45f7c556c55a5",
+    "tests/test_source_learning_pilot.py": "3bb16efb34621a391f146f7dacf6d579caddd48a8d06b6288a400ea7499b7c35",
+    "src/herb_spectra/upgrade_neural.py": "4ec65e407c197d9f666c72e9f4a5d79eee0045f823787df9e5b22f57dc43e773",
+    "src/herb_spectra/leakage_guard.py": "9b5555be27fc634aae46f31e50a06f1950d238c83ff654df91a37c0cdd74748e",
+    "src/herb_spectra/classification.py": "793a550f46522bc2e69acf922b39e104a0e94b5eb058905f987a91d0f16a08b2",
+    "src/herb_spectra/selection.py": "477d1f0404d8d170fb2bba91bbb5e24d311fb94cf7a20cfd8a7781b93064206f",
+    "src/herb_spectra/multiplant_database.py": "fbfde791331c7bd4f27f48816c63003c696bc9894a9fbaa44accf703baee50eb"
+  },
+  "math_equivalence_check": "Two synthetic14-record/2epoch fixture fits (frozen vs pilot), identical training losses and final states despite inserted eval; not real plant runs",
+  "actual_new_real_data_pilot_fits": 0,
+  "declared_checks": [
+    "Disjoint source/validation",
+    "Strict numeric feature schema",
+    "Forbidden-ID scaler rejection before fit",
+    "Actual Python audit hook rejects outer truth before bytes",
+    "Eval preserves params/BN/optimizer/grad/RNG; intentional mutator rejected",
+    "Missing root source gate rejected",
+    "Changed inner truth bytes rejected before semantic parse",
+    "Fixed anonymous classes/families/epochs/seeds",
+    "Frozen training loop math equality"
+  ],
+  "old_core_files_modified": false,
+  "OS_sandbox": false
+}

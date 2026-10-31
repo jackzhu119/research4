@@ -1,5 +1,20 @@
 # Research data conventions
 
+## Anonymous deployment continuation (2026-10-31)
+
+The user explicitly authorized continuing with ZY01–ZY07 as anonymous classes;
+do not block deployment on real place names. Preserve all labels and original
+results. A new deployment protocol treats all855 as exposed development data,
+reuses the saved five-fold memberships only for deployment configuration
+selection, evaluates five historically source-selected R2 configurations with
+all42/43/44 seeds (75candidate fits), then fresh-fits3 full-source models.
+Do not label its development CV or full-source diagnostic as new confirmation
+or assign the old96.02% to the final deployed model. Keep fit/selection gates,
+exact axis/quantity checks, anonymous labels, decision scores (not probability),
+and explicit historical-sample diagnostics. Default future inference rejects
+known IDs and reidentified historical spectra. The prior research CV and
+`upgrade-20261031-v1` evidence stay immutable.
+
 ## Current upgrade directive (2026-10-31)
 
 The user's latest multi-representation/deep-learning/DFT request and its strict

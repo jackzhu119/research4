@@ -2,6 +2,12 @@
 
 本仓库保存中药光谱研究资料及可复核实验。当前已对用户声明独立的855份酸枣仁样品完成基线、MC-UVE与SVM优化、同折模型对照及校准探索；已审计的主候选为96.02%准确率、0.9197宏F1。每产地目前仅一批，真实地名及独立新批次确认仍待补充，不能将内部识别分数当作跨批次产地鉴别结论。
 
+## 最新：ZY01—ZY07匿名部署与Excel预测
+
+按用户新要求固定七个编号，不等待真实地名。[预测工具与使用说明](docs/ZAOREN_ANONYMOUS_DEPLOYMENT.md)：75次开发配置比较＋3次全855重拟合已完成，部署配置为SNV＋MC50/LV1/123点＋RBF-SVM（C1000、gamma0.1×scale、balanced），主seed42固定。支持CSV／Excel／NPZ、空白模板、历史留出重放与独立标签评分；模型新样品准确率尚未测，不能把旧96.02%赋给它。
+
+[空白Excel模板](reports/zaoren-deployment-20261031-v1/deployment/templates/new_spectrum.xlsx)、[真实历史重放与全部34错误](reports/zaoren-deployment-historical-demo-20261031-v1/README.md)、[新的内验证学习曲线](reports/zaoren-neural-learning-pilot-20261031-v1/README.md)。399项测试通过；旧数据／模型不改。四表示96轮在单一内验证划分提高总体准确率，但Balanced Accuracy由48轮74.93%降至96轮69.44%，不预设加轮数一定更好。
+
 ## 最新执行：多表示、深度学习与严格防泄漏
 
 [完整升级报告](docs/MULTIREPRESENTATION_UPGRADE_REPORT.md)和[要求逐项对应](docs/UPGRADE_REQUIREMENTS_TRACEABILITY.md)：保留96.0234%／宏F1 0.9197强MC-UVE＋SVM。新增八家族、三种子、600个实际神经管线；内层选择的四表示策略为85.0292%，未超过基线，负结果完整保存。359项项目测试通过，120个外层神经模型逐点推理／BN状态及独立预测重放通过；这些有限检查不证明绝对零泄漏。
