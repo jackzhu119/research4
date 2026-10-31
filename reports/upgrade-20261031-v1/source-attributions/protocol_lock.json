@@ -1,0 +1,56 @@
+{
+  "protocol_id": "upgrade-source-alpha-attribution-20261031-v1",
+  "recorded_at_utc": "2026-10-31T10:49:18.049684+00:00",
+  "timing": "post-scoring source-only description; never fed back to this model version",
+  "families": [
+    "cnn_alpha",
+    "se_alpha",
+    "fusion_all_four"
+  ],
+  "family_basis": "prespecified CNN/SE plus inner-selected fusion_all_four, not outer-score ranking",
+  "seed": 42,
+  "outer_fold": 0,
+  "source_population": 684,
+  "source_selected": 21,
+  "sampling_rule": "three lexicographically first source record IDs per source label; no correctness/score filtering",
+  "target": "each model's own predicted class logit",
+  "attribution": "absolute standardized-alpha times input gradient",
+  "normalization": "optional per-row L1 for locations only, not between-model scale or modality importance",
+  "source_pack": "outputs/upgrade-20261031-v1/neural/inputs/outer00.final/source.npz",
+  "source_pack_sha256": "ca526b7b1206097821742dec3f8e4e85268f4d05250885c093807cf163612487",
+  "selection_lock_sha256": "cf3562f028bb386f7d4f98c49609dd8ebfa636569741bfba43cbc91871dcd5c7",
+  "preparation_sha256": "b2dee437461c1af8f74af9cd158756a7765780a6897c4162be554564c62772e8",
+  "source_sha256": {
+    "scripts/analyze_upgrade_source_attributions.py": "b12f8df83f58e3e6f174a612773e5fdff73cb48eb92dfe7a34121752bb9d57e2",
+    "src/herb_spectra/upgrade_neural.py": "4ec65e407c197d9f666c72e9f4a5d79eee0045f823787df9e5b22f57dc43e773",
+    "src/herb_spectra/leakage_guard.py": "9b5555be27fc634aae46f31e50a06f1950d238c83ff654df91a37c0cdd74748e"
+  },
+  "models": [
+    {
+      "family": "cnn_alpha",
+      "profile": "regularized24",
+      "directory": "/workspace/research4/outputs/upgrade-20261031-v1/neural/evaluation/outer00.final/cnn_alpha/regularized24/seed42",
+      "pipeline_sha256": "2864922bb5eaba6839553d8debbb8814ffa2c56cea0205dfe8ca14c285a93237",
+      "training_sha256": "4bdf47588ffaa23048b66f1ff408fa58d15f1de45b4795bacc8f8f33b35fa51b"
+    },
+    {
+      "family": "se_alpha",
+      "profile": "regularized24",
+      "directory": "/workspace/research4/outputs/upgrade-20261031-v1/neural/evaluation/outer00.final/se_alpha/regularized24/seed42",
+      "pipeline_sha256": "601bc0297fc512f0ba302ee6da32d47109408b23e6056fe7b2283cc8b12d6ddd",
+      "training_sha256": "93db8fc39c2c13e6e64604283af7db8443c444748f1560c77acfaffb885a30c9"
+    },
+    {
+      "family": "fusion_all_four",
+      "profile": "regularized24",
+      "directory": "/workspace/research4/outputs/upgrade-20261031-v1/neural/evaluation/outer00.final/fusion_all_four/regularized24/seed42",
+      "pipeline_sha256": "ca53c78b40ae7fce0cd7cd99e5323a93863f64650defbbe891b8009f4d674228",
+      "training_sha256": "6facfa8eda0c4af0d91e43e5c143b701a8989259ce5186d10b0a5ee8216fc6dd"
+    }
+  ],
+  "true_labels_used_only_for_balanced_source_sampling": true,
+  "query_values_or_labels_read": false,
+  "new_model_fits": 0,
+  "model_parameters_updated": false,
+  "DFT_candidates": "NOT_RUN; no chemical assignment"
+}

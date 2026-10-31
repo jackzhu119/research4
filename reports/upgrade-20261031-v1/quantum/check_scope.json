@@ -1,0 +1,55 @@
+{
+  "observed_at_utc": "2026-10-31T10:16:11.405828+00:00",
+  "checks": [
+    {
+      "name": "package_download",
+      "status": "COMPLETED",
+      "command": ".runtime/bin/python -m pip download --no-deps --only-binary=:all: --dest outputs/upgrade-20261031-v1/quantum/packages pyscf==2.14.0 h5py==3.16.0",
+      "actual_start_utc_recorded": false,
+      "evidence": "package-download.log;downloaded_packages.json"
+    },
+    {
+      "name": "isolated_install",
+      "status": "COMPLETED",
+      "command": ".runtime/bin/python -m pip install --no-index --no-deps --target .runtime/quantum-upgrade-site <two recorded wheel paths>",
+      "actual_start_utc_recorded": false,
+      "evidence": "package-install.log;environment_audit.json",
+      "scope": "Versioned open-source wheels only; no main-runtime dependency replacement"
+    },
+    {
+      "name": "quantum_input_guards",
+      "status": "COMPLETED",
+      "command": ".runtime/bin/python -m unittest discover -s tests -p test_quantum_upgrade.py -v",
+      "cases": 7,
+      "evidence": "unit-tests-v2.log",
+      "scope": "Input/parsing/theory-prior guard tests; synthetic parser fixtures are not Gaussian calculations"
+    },
+    {
+      "name": "water_singlepoint_derivatives",
+      "status": "COMPLETED_TECHNICAL_ONLY",
+      "command": ".runtime/bin/python scripts/prepare_quantum_upgrade.py water-smoke --output outputs/upgrade-20261031-v1/quantum/water-smoke-v2",
+      "actual_start_utc_recorded": true,
+      "evidence": "command_invocations.jsonl;water-smoke-v2/result.json"
+    },
+    {
+      "name": "Gaussian_or_herbal_candidate_optfreq",
+      "status": "NOT_RUN",
+      "reason": "No verified Gaussian engine/license medium and no reviewed3D structure/conformer; no candidate modes,IR or assignment claimed"
+    },
+    {
+      "name": "solid_state_THz_assignment",
+      "status": "NOT_RUN",
+      "reason": "No pure standard/solid structure/current-sample HPLC reference; isolated-water smoke cannot establish herbal solid-state modes"
+    },
+    {
+      "name": "theory_prior_classifier",
+      "status": "NOT_RUN",
+      "reason": "No completed qualified candidate simulation; no theorem or spectral feature inserted into classifiers"
+    }
+  ],
+  "limits": [
+    "Package installation timestamps were not externally instrumented; observed readiness and command logs retained, not backdated",
+    "Code/metadata hashes establish traceability, not external execution certification",
+    "Finite guard tests do not prove absolute zero leakage"
+  ]
+}

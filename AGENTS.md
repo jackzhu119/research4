@@ -1,5 +1,25 @@
 # Research data conventions
 
+## Current upgrade directive (2026-10-31)
+
+The user's latest multi-representation/deep-learning/DFT request and its strict
+leakage supplement govern new work. They supersede earlier prospective advice
+to exclude Gaussian, while all old reports/results retain their original scope.
+Keep the audited MC-UVE+SVM96.02% as an unchanged retrospective strong baseline.
+New run ID is `upgrade-20261031-v1`. Read
+`docs/DATA_LEAKAGE_PREVENTION_PROTOCOL.md` and
+`docs/DATA_EXPOSURE_REGISTER.md` before new training. First execute meaningful
+leakage tests and the minimal empirical audit; do not search until gates pass.
+Every new learned operation records allowed/actual fit IDs. Use saved original
+five/two folds, source-only selection, all42/43/44 seeds, no test-side model
+selection, and separate prediction/truth scoring interfaces. Theory priors must
+be fixed or current-source-only; no test-guided peak matching. New QC smoke tests
+are not medicinal-plant simulations. Gaussian execution needs a legal engine;
+unperformed calculations are NOT_RUN. Unknown ancestry/batches or units mean
+BLOCKED or explicitly EXPLORATORY, never scientific PASS. No qualified unseen
+confirmation cohort currently exists. Do not modify historical raw data,
+weights/results or merge main.
+
 The user's current data decision, effective 2026-10-31, is recorded in
 `data/CURRENT_DATASET.md` and `data/active_workbooks.json`.
 
