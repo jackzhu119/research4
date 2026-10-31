@@ -91,3 +91,12 @@ The user's current data decision, effective 2026-10-31, is recorded in
   fold training; every fold refits its transformations. This round uses
   zero target-support labels. Positive temperature preserves argmax;
   decision bias, probability reliability and fusion gains are separate.
+- The latest user-directed four-stage search follows
+  `docs/STAGED_NESTED_OPTIMIZATION_PROTOCOL.md` and
+  `data/research/staged_nested_plan_20261031.json`: restore the original
+  855-sample5outer/2inner folds and standard SVC.predict voting. Reproduce
+  the historical90.41% reference separately. R1 MC36, R2 SVM96,
+  R3 preprocessing7 and R4 combination7 are selected separately within
+  every outer fold; never pool outer-fold inner results into one winner.
+  All core/combinations selection locks precede outer evaluation release.
+  The old513/171/171 workbooks remain a separate unchanged experiment.

@@ -1,0 +1,338 @@
+{
+  "outer_folds": [
+    {
+      "outer_fold": 0,
+      "inherited_config": {
+        "preprocessing": "snv",
+        "mc": {
+          "runs": 10,
+          "components": 3,
+          "ratio": 0.15
+        },
+        "svm": {
+          "C": 100.0,
+          "gamma": "scale_x0.1",
+          "class_weight": "power_0.5"
+        }
+      },
+      "choice": {
+        "selected": {
+          "id": "budget_mcuve",
+          "family": "budget_mcuve"
+        },
+        "all_candidate_means": {
+          "ordinary_mcuve": {
+            "macro_f1": 0.8291821888511834,
+            "balanced_accuracy": 0.8431122448979591,
+            "accuracy": 0.8961988304093567
+          },
+          "budget_mcuve": {
+            "macro_f1": 0.863725819517612,
+            "balanced_accuracy": 0.8645408163265307,
+            "accuracy": 0.9137426900584795
+          },
+          "stable_mcuve": {
+            "macro_f1": 0.8375166039413865,
+            "balanced_accuracy": 0.8270408163265306,
+            "accuracy": 0.9108187134502923
+          },
+          "stable_cars": {
+            "macro_f1": 0.7201971790996256,
+            "balanced_accuracy": 0.7096938775510204,
+            "accuracy": 0.8157894736842106
+          },
+          "stable_joint": {
+            "macro_f1": 0.8555541523474088,
+            "balanced_accuracy": 0.8573979591836735,
+            "accuracy": 0.9078947368421053
+          },
+          "cnn_softmax": {
+            "macro_f1": 0.6637748255702016,
+            "balanced_accuracy": 0.6653061224489796,
+            "accuracy": 0.8318713450292398
+          },
+          "cnn_embedding_svm": {
+            "macro_f1": 0.664728558731699,
+            "balanced_accuracy": 0.6668367346938776,
+            "accuracy": 0.8362573099415205
+          }
+        },
+        "mean_inner_metrics": {
+          "macro_f1": 0.863725819517612,
+          "balanced_accuracy": 0.8645408163265307,
+          "accuracy": 0.9137426900584795
+        },
+        "selected_using_outer_test": false,
+        "tie_rule": "macroF1 within1e-12, balanced_accuracy, accuracy, predeclared simpler family order"
+      }
+    },
+    {
+      "outer_fold": 1,
+      "inherited_config": {
+        "preprocessing": "snv",
+        "mc": {
+          "runs": 20,
+          "components": 1,
+          "ratio": 0.1
+        },
+        "svm": {
+          "C": 1000.0,
+          "gamma": "scale_x0.1",
+          "class_weight": "power_0.5"
+        }
+      },
+      "choice": {
+        "selected": {
+          "id": "ordinary_mcuve",
+          "family": "ordinary_mcuve"
+        },
+        "all_candidate_means": {
+          "ordinary_mcuve": {
+            "macro_f1": 0.8647102385109364,
+            "balanced_accuracy": 0.8653061224489795,
+            "accuracy": 0.9400584795321637
+          },
+          "budget_mcuve": {
+            "macro_f1": 0.8557284490654957,
+            "balanced_accuracy": 0.8553571428571429,
+            "accuracy": 0.9298245614035088
+          },
+          "stable_mcuve": {
+            "macro_f1": 0.8311087675717108,
+            "balanced_accuracy": 0.8196428571428571,
+            "accuracy": 0.9283625730994152
+          },
+          "stable_cars": {
+            "macro_f1": 0.6715946686790664,
+            "balanced_accuracy": 0.6678571428571429,
+            "accuracy": 0.8245614035087719
+          },
+          "stable_joint": {
+            "macro_f1": 0.8363833131784146,
+            "balanced_accuracy": 0.8250000000000001,
+            "accuracy": 0.9327485380116959
+          },
+          "cnn_softmax": {
+            "macro_f1": 0.7004285709778082,
+            "balanced_accuracy": 0.7107142857142856,
+            "accuracy": 0.8391812865497076
+          },
+          "cnn_embedding_svm": {
+            "macro_f1": 0.6599743944279246,
+            "balanced_accuracy": 0.6635204081632653,
+            "accuracy": 0.8304093567251462
+          }
+        },
+        "mean_inner_metrics": {
+          "macro_f1": 0.8647102385109364,
+          "balanced_accuracy": 0.8653061224489795,
+          "accuracy": 0.9400584795321637
+        },
+        "selected_using_outer_test": false,
+        "tie_rule": "macroF1 within1e-12, balanced_accuracy, accuracy, predeclared simpler family order"
+      }
+    },
+    {
+      "outer_fold": 2,
+      "inherited_config": {
+        "preprocessing": "sg1_snv",
+        "mc": {
+          "runs": 50,
+          "components": 1,
+          "ratio": 0.2
+        },
+        "svm": {
+          "C": 1000.0,
+          "gamma": "scale",
+          "class_weight": "none"
+        }
+      },
+      "choice": {
+        "selected": {
+          "id": "stable_mcuve",
+          "family": "stable_mcuve"
+        },
+        "all_candidate_means": {
+          "ordinary_mcuve": {
+            "macro_f1": 0.8868150224713934,
+            "balanced_accuracy": 0.875,
+            "accuracy": 0.9254385964912281
+          },
+          "budget_mcuve": {
+            "macro_f1": 0.8818364861484027,
+            "balanced_accuracy": 0.869642857142857,
+            "accuracy": 0.9210526315789473
+          },
+          "stable_mcuve": {
+            "macro_f1": 0.8942190381943051,
+            "balanced_accuracy": 0.8821428571428571,
+            "accuracy": 0.9312865497076024
+          },
+          "stable_cars": {
+            "macro_f1": 0.8274682835490711,
+            "balanced_accuracy": 0.8035714285714286,
+            "accuracy": 0.8947368421052632
+          },
+          "stable_joint": {
+            "macro_f1": 0.8919372337300105,
+            "balanced_accuracy": 0.8803571428571428,
+            "accuracy": 0.9298245614035088
+          },
+          "cnn_softmax": {
+            "macro_f1": 0.7277348818922909,
+            "balanced_accuracy": 0.7362244897959184,
+            "accuracy": 0.8333333333333333
+          },
+          "cnn_embedding_svm": {
+            "macro_f1": 0.7319289433913791,
+            "balanced_accuracy": 0.7216836734693879,
+            "accuracy": 0.8245614035087719
+          }
+        },
+        "mean_inner_metrics": {
+          "macro_f1": 0.8942190381943051,
+          "balanced_accuracy": 0.8821428571428571,
+          "accuracy": 0.9312865497076024
+        },
+        "selected_using_outer_test": false,
+        "tie_rule": "macroF1 within1e-12, balanced_accuracy, accuracy, predeclared simpler family order"
+      }
+    },
+    {
+      "outer_fold": 3,
+      "inherited_config": {
+        "preprocessing": "msc",
+        "mc": {
+          "runs": 50,
+          "components": 1,
+          "ratio": 0.2
+        },
+        "svm": {
+          "C": 1000.0,
+          "gamma": "scale_x0.1",
+          "class_weight": "balanced"
+        }
+      },
+      "choice": {
+        "selected": {
+          "id": "budget_mcuve",
+          "family": "budget_mcuve"
+        },
+        "all_candidate_means": {
+          "ordinary_mcuve": {
+            "macro_f1": 0.864595116941913,
+            "balanced_accuracy": 0.914795918367347,
+            "accuracy": 0.9239766081871345
+          },
+          "budget_mcuve": {
+            "macro_f1": 0.870851126838024,
+            "balanced_accuracy": 0.9153061224489796,
+            "accuracy": 0.9254385964912281
+          },
+          "stable_mcuve": {
+            "macro_f1": 0.8557488221674872,
+            "balanced_accuracy": 0.9089285714285715,
+            "accuracy": 0.9181286549707602
+          },
+          "stable_cars": {
+            "macro_f1": 0.7273584973617094,
+            "balanced_accuracy": 0.7168367346938775,
+            "accuracy": 0.8216374269005848
+          },
+          "stable_joint": {
+            "macro_f1": 0.855965246139997,
+            "balanced_accuracy": 0.9089285714285714,
+            "accuracy": 0.9181286549707602
+          },
+          "cnn_softmax": {
+            "macro_f1": 0.7249589889331784,
+            "balanced_accuracy": 0.750765306122449,
+            "accuracy": 0.8421052631578947
+          },
+          "cnn_embedding_svm": {
+            "macro_f1": 0.7423534538762971,
+            "balanced_accuracy": 0.7298469387755102,
+            "accuracy": 0.8333333333333333
+          }
+        },
+        "mean_inner_metrics": {
+          "macro_f1": 0.870851126838024,
+          "balanced_accuracy": 0.9153061224489796,
+          "accuracy": 0.9254385964912281
+        },
+        "selected_using_outer_test": false,
+        "tie_rule": "macroF1 within1e-12, balanced_accuracy, accuracy, predeclared simpler family order"
+      }
+    },
+    {
+      "outer_fold": 4,
+      "inherited_config": {
+        "preprocessing": "snv",
+        "mc": {
+          "runs": 50,
+          "components": 1,
+          "ratio": 0.15
+        },
+        "svm": {
+          "C": 100.0,
+          "gamma": "scale",
+          "class_weight": "power_0.5"
+        }
+      },
+      "choice": {
+        "selected": {
+          "id": "ordinary_mcuve",
+          "family": "ordinary_mcuve"
+        },
+        "all_candidate_means": {
+          "ordinary_mcuve": {
+            "macro_f1": 0.8789701798054927,
+            "balanced_accuracy": 0.8566326530612245,
+            "accuracy": 0.9371345029239766
+          },
+          "budget_mcuve": {
+            "macro_f1": 0.8374437357909598,
+            "balanced_accuracy": 0.8275510204081633,
+            "accuracy": 0.9400584795321637
+          },
+          "stable_mcuve": {
+            "macro_f1": 0.8087189249700535,
+            "balanced_accuracy": 0.8096938775510203,
+            "accuracy": 0.9254385964912281
+          },
+          "stable_cars": {
+            "macro_f1": 0.6989094193629046,
+            "balanced_accuracy": 0.6987244897959184,
+            "accuracy": 0.8581871345029239
+          },
+          "stable_joint": {
+            "macro_f1": 0.8244237153110121,
+            "balanced_accuracy": 0.8137755102040816,
+            "accuracy": 0.9298245614035088
+          },
+          "cnn_softmax": {
+            "macro_f1": 0.6995730406984799,
+            "balanced_accuracy": 0.7002551020408163,
+            "accuracy": 0.8625730994152048
+          },
+          "cnn_embedding_svm": {
+            "macro_f1": 0.6719736124695435,
+            "balanced_accuracy": 0.6714285714285715,
+            "accuracy": 0.8421052631578947
+          }
+        },
+        "mean_inner_metrics": {
+          "macro_f1": 0.8789701798054927,
+          "balanced_accuracy": 0.8566326530612245,
+          "accuracy": 0.9371345029239766
+        },
+        "selected_using_outer_test": false,
+        "tie_rule": "macroF1 within1e-12, balanced_accuracy, accuracy, predeclared simpler family order"
+      }
+    }
+  ],
+  "core_selection_lock_sha256": "4642762838c588828f5bacc8ebed036a44d6ae60b9a3001070e8e8b4ca5c2cf5",
+  "inner_evaluations": 70,
+  "outer_scores_used_to_select": false,
+  "run_manifest_sha256": "3f7ae5f2c21a2672c2344235dcd393863440e23df63a3730ef70bea9c08d0b33"
+}
