@@ -58,3 +58,17 @@ The user's current data decision, effective 2026-10-31, is recorded in
   remains 1-shot. A separately labelled six-class auxiliary analysis excludes
   ZY02 and tests 1/3/5/10-shot; it must not replace seven-class results. The
   user explicitly permits anonymous labels and will supply place names later.
+- Later optimization separates source representation gains from calibration.
+  `data/research/representation_calibration_protocol_20261031.json` fixes
+  54 source pipelines and 60 latent adapters, with source-only 24/6 task
+  selection/gating before the unchanged 171-record query is scored. Full
+  exported-range results are sensitivity diagnostics, not calibration gains
+  or proof of a physically valid range.
+- The explicitly requested paper-inspired neural trial follows
+  `data/research/paper_neural_classification_protocol_20261031.json` and
+  `docs/PAPER_NEURAL_CLASSIFICATION_PROTOCOL.md`: compact shared ResNet1D,
+  classification fine-tuning, episodic ProtoNet and first-order MAML, all
+  seeds42/43/44. The cited paper is regression and this is not exact
+  reproduction. Source-meta support/query records must be disjoint;
+  eligibility excludes a class with only one source record from meta tasks,
+  while retaining all seven classes in supervision and final evaluation.

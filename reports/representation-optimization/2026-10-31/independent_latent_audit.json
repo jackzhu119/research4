@@ -1,0 +1,186 @@
+{
+  "status": "pass",
+  "auditor": "independent Stage-B aggregation/selection and complete per-specimen metric audit; no project aggregation/selection helper imported",
+  "checks_evaluated": 3615106,
+  "failed_checks": [],
+  "maximum_numeric_difference": 3.9968028886505635e-15,
+  "development_files": 90,
+  "development_rows": 108000,
+  "final_prediction_rows": 410400,
+  "final_cases": 2400,
+  "summary_rows": 24,
+  "source_count": 3,
+  "independently_recomputed_choices": {
+    "s010_snv_svc": {
+      "selected": {
+        "id": "l000_identity",
+        "family": "identity"
+      },
+      "proposed": {
+        "id": "l000_identity",
+        "family": "identity"
+      },
+      "families": {
+        "identity": {
+          "id": "l000_identity",
+          "family": "identity"
+        },
+        "mahalanobis_centroid": {
+          "id": "l059_mahalanobis_centroid",
+          "family": "mahalanobis_centroid",
+          "source_pseudocount": 100.0
+        },
+        "local_memory": {
+          "id": "l046_local_memory",
+          "family": "local_memory",
+          "neighbors": 15,
+          "support_boost": 1.0,
+          "blend": 0.1
+        },
+        "anchored_ridge": {
+          "id": "l025_anchored_ridge",
+          "family": "anchored_ridge",
+          "source_anchor": 10.0,
+          "ridge": 10.0,
+          "support_weight": 1.0
+        }
+      }
+    },
+    "s024_sg0_snv_shrinkage_lda": {
+      "selected": {
+        "id": "l000_identity",
+        "family": "identity"
+      },
+      "proposed": {
+        "id": "l000_identity",
+        "family": "identity"
+      },
+      "families": {
+        "identity": {
+          "id": "l000_identity",
+          "family": "identity"
+        },
+        "mahalanobis_centroid": {
+          "id": "l059_mahalanobis_centroid",
+          "family": "mahalanobis_centroid",
+          "source_pseudocount": 100.0
+        },
+        "local_memory": {
+          "id": "l046_local_memory",
+          "family": "local_memory",
+          "neighbors": 15,
+          "support_boost": 1.0,
+          "blend": 0.1
+        },
+        "anchored_ridge": {
+          "id": "l025_anchored_ridge",
+          "family": "anchored_ridge",
+          "source_anchor": 10.0,
+          "ridge": 10.0,
+          "support_weight": 1.0
+        }
+      }
+    },
+    "s014_snv_plsda": {
+      "selected": {
+        "id": "l000_identity",
+        "family": "identity"
+      },
+      "proposed": {
+        "id": "l038_local_memory",
+        "family": "local_memory",
+        "neighbors": 7,
+        "support_boost": 1.0,
+        "blend": 0.25
+      },
+      "families": {
+        "identity": {
+          "id": "l000_identity",
+          "family": "identity"
+        },
+        "mahalanobis_centroid": {
+          "id": "l059_mahalanobis_centroid",
+          "family": "mahalanobis_centroid",
+          "source_pseudocount": 100.0
+        },
+        "local_memory": {
+          "id": "l034_local_memory",
+          "family": "local_memory",
+          "neighbors": 3,
+          "support_boost": 20.0,
+          "blend": 0.1
+        },
+        "anchored_ridge": {
+          "id": "l016_anchored_ridge",
+          "family": "anchored_ridge",
+          "source_anchor": 1.0,
+          "ridge": 10.0,
+          "support_weight": 1.0
+        }
+      }
+    }
+  },
+  "latent_selection_lock_sha256": "0c0375a7a0e4ba5a13110b552a7f0d8b8eba1042d76dddc5716cc9ae138d25ec",
+  "random_example_rows": 120,
+  "random_incorrect_rows_preserved": 18,
+  "final_source_replays": 3,
+  "new_fits_in_audit": 0,
+  "sensitivity_predictions_checked": 1026,
+  "sensitivity_results": [
+    {
+      "candidate_id": "s001_raw_svc",
+      "correct": 171,
+      "accuracy": 1.0,
+      "macro_f1": 1.0,
+      "balanced_accuracy": 1.0,
+      "ZY02_recall": 1.0
+    },
+    {
+      "candidate_id": "s004_raw_plsda",
+      "correct": 170,
+      "accuracy": 0.9941520467836257,
+      "macro_f1": 0.85612968591692,
+      "balanced_accuracy": 0.8571428571428571,
+      "ZY02_recall": 0.0
+    },
+    {
+      "candidate_id": "s005_raw_plsda",
+      "correct": 171,
+      "accuracy": 1.0,
+      "macro_f1": 1.0,
+      "balanced_accuracy": 1.0,
+      "ZY02_recall": 1.0
+    },
+    {
+      "candidate_id": "s010_snv_svc",
+      "correct": 171,
+      "accuracy": 1.0,
+      "macro_f1": 1.0,
+      "balanced_accuracy": 1.0,
+      "ZY02_recall": 1.0
+    },
+    {
+      "candidate_id": "s013_snv_plsda",
+      "correct": 170,
+      "accuracy": 0.9941520467836257,
+      "macro_f1": 0.85612968591692,
+      "balanced_accuracy": 0.8571428571428571,
+      "ZY02_recall": 0.0
+    },
+    {
+      "candidate_id": "s014_snv_plsda",
+      "correct": 171,
+      "accuracy": 1.0,
+      "macro_f1": 1.0,
+      "balanced_accuracy": 1.0,
+      "ZY02_recall": 1.0
+    }
+  ],
+  "seconds": 4.274141990001226,
+  "limits": [
+    "Development per-case adapter predictions are not stored; audited their metric aggregation and choices, while identity metrics were independently linked to Stage-A raw predictions.",
+    "Source/context freeze assertions checked in all development/final metadata; three final source models independently reloaded and source predictions replayed without fitting. No saved adapter contexts exist to independently replay all calibration fits.",
+    "Full-export sensitivity high scores do not establish physical band validity, geographic origins or calibration benefit; rare class has one final query specimen.",
+    "Current same-batch query data have prior research exposure; no claim of fresh external confirmation or independent batches."
+  ]
+}

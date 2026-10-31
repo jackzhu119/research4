@@ -1,0 +1,64 @@
+{
+  "status": "pass",
+  "auditor": "independent read-only paper/source review /root/fewshot_paper_recheck_round2",
+  "code_and_protocol_checks": 25918,
+  "metadata_meta_episode_manifests_checked": 6300,
+  "development_initializers_checked": 18,
+  "final_initializers_checked": 3,
+  "shared_extra_source_updates_per_strategy": 100,
+  "independent_development_selection": {
+    "head_ft": {
+      "selected": null,
+      "diagnostic": "n000_head_ft",
+      "eligible_selection_candidates": 0
+    },
+    "full_ft": {
+      "selected": null,
+      "diagnostic": "n014_full_ft",
+      "eligible_selection_candidates": 0
+    },
+    "prototype": {
+      "selected": null,
+      "diagnostic": "n030_prototype",
+      "eligible_selection_candidates": 0
+    },
+    "fomaml_ft": {
+      "selected": "n023_fomaml_ft",
+      "diagnostic": "n023_fomaml_ft",
+      "eligible_selection_candidates": 7
+    }
+  },
+  "source_modules_reviewed": [
+    "src/herb_spectra/paper_fewshot_classification.py",
+    "scripts/run_paper_fewshot_pilot.py"
+  ],
+  "paper_evidence": {
+    "p4_section3_2": "SGfirstderivative; standardized continuous regression targets",
+    "p5_sections3_4_3_5_4_1": "SharedResNet1D scalarregression,FT fulladaptation,Proto distances,MAML initialization,exactconfigAppendixB;25total supports and10adaptationepochs",
+    "p7_table4": "5/10/25total regression instances, not K/class; 5shotMangoFT .575 vsProto .424,TRIPallnegative",
+    "p8_section4_6": "ArtificialAWGN,gain/axisdrift,baseline stress,not actualnewinstrument validation",
+    "p10_discussion": "MAMLsecondorder computation overhead",
+    "public_snapshot": "13771327980ba904641dcdec3037822d4baec34f;train_maml first/fullorder switch; imported models/cnn.py absent from reviewed directory"
+  },
+  "source_review_findings": {
+    "classification_prototype_training": "Actual source-episode query cross-entropy against class-centroid distances, encoder gradients flow through support and query embeddings; local3way objective",
+    "first_order_maml": "Support gradients create detached adaptedweights; source-query gradients are copied to originalmodel beforeAdam update, so genuine first-order outergradient approximation",
+    "eligible_classes": "Development meta episodes use6abundant sourceclasses becauseZY02source n1; final source n3 permitsall7. All7 remain in supervised initialization and final predictors.",
+    "physical_sample_isolation": "Eachsourceepisode has3support+3querydistinct IDs; source/supportpool/developmentquery roles partitiononlyoriginal513train. Finalsupport comesfrom171calpool, final171queryneverfit.",
+    "normalization": "Per-spectrumSNV andGroupNorm; noBatchNorm/dropoutorquery-batchfit statistics. Pointwiseinvariancealso covered by projectsynthetic test.",
+    "matched_baselines": "Head/fullFT zero = supervisedcontinuationclassifier;Proto zero =sameepisodicencoder sourcecentroids;FOMAML zero=sameMAMLinitialization. Sourcebaselineimprovement mustbe separated fromsupport gain.",
+    "fairness": "Sharedsupervisedinitializer per seed, same sourceepisode IDs and100outerupdates eachstrategy; not equalforward/backward/FLOPs, Proto local3way versus supervised/MAML7output objective differs bymethod."
+  },
+  "checks_not_performed": [
+    "No training or adaptation rerun",
+    "No full second-order MAML equivalence proof",
+    "No exactauthor-backbone reproduction, appendix/cnnmissing",
+    "No finalCSV metric recomputation in this review; separate numericalaudit expected",
+    "Before/after states rely on saved assertions/hashes plus source inspection, not external execution attestation",
+    "No independently verified realworldnewbatch/geographicorigin validation"
+  ],
+  "source_sha256": {
+    "/workspace/research4/src/herb_spectra/paper_fewshot_classification.py": "bf01eb4c47259751cb4d8c096f8ff96391affe1e0424c1805e9ccb99a74b2aec"
+  },
+  "protocol_sha256": "ac144a436278f78b24a2962eaab5f89fe93bc5e25f9e5d04b67b5f66e05dcd29"
+}

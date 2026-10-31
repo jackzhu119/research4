@@ -16,6 +16,8 @@
 
 ## 科研起步与算法审读
 
+- [论文方法借鉴与真实分类试验](docs/PAPER_FEWSHOT_CLASSIFICATION_REPORT.md)：紧凑共享ResNet1D、分类ProtoNet、一阶MAML与微调实测。MAML校准64.72%→67.55%，三个种子平均均提高，仍低于SVM的88.89%；提供逐样品标签对照Excel、全部负结果、源权重与独立审计，172项测试通过。
+- [表征与潜空间校准的后续优化](docs/REPRESENTATION_AND_LATENT_REPORT.md)：54条源管线、60种潜空间适配；开发阶段LDA胜出，但固定预测准确率88.30%仍低于SVM88.89%，三个源模型的正式校准选择均保留原方法。
 - [小样本校准探索与标签复核](docs/CALIBRATION_OPTIMIZATION_REPORT.md)：116配置、69.6万次开发评价、9000组最终评价及153万余条预测。七类主选择保留原模型；强正则弱校准家族对照平均提高0.21个百分点，但获益仅涉及1份边界样品，尚不是确认提升。标签一致性与全部正负结果均归档。
 - [训练／校准／预测拆分及实测](docs/ZAOREN_THREEWAY_REPORT.md)：21份Excel已按513／171／171份拆好，两个冻结模型已保存，114项测试通过。每类1份、20次分数校正均值未改善；SVM为88.89%→74.94%，MC20＋SVM为87.72%→72.89%，全部正负结果保留。
 - [三组文件下载与归属](data/processed/zaoren_threeway_20261031_v1/README.md)及[先行协议](docs/ZAOREN_THREEWAY_PROTOCOL.md)：原件不变、四表同步、每份仅属一组；当前只能评价同批次回顾性校准，不能解释为新批次泛化。
@@ -23,7 +25,7 @@
 - [批准的实验方案与启动条件](docs/APPROVED_ZAOREN_EXPERIMENT_PLAN.md)：固定5外折／2内折／CARS内部2折；用户已确认每ZY编号独立、每产地仅一批，不含Gaussian。
 - [Google Colab连接实测](docs/COLAB_CONNECTION.md)：官方CLI 0.7.5已隔离安装且依赖检查通过；Colab及OAuth服务目前被云端代理403拒绝，尚未授权、创建远程环境或执行远程代码。
 - [酸枣仁工作簿统一编号（2026-10-31）](data/processed/zaoren_20261031/README.md)：样本1的3个RAR分卷已成功恢复，样本1—7全部完成，共855个跨文件唯一谱记录编号；四表同步、保留厚度后缀及全部数值，提供修改版和Excel对照表。
-- [少样本光谱论文精读与酸枣仁适配](docs/FEWSHOT_PAPER_READING_AND_ADAPTATION.md)：13页全文、真实正负结果、作者代码快照及回归到产地分类的改造；新增任务与support/query协议，未运行新模型。
+- [少样本光谱论文精读与酸枣仁适配](docs/FEWSHOT_PAPER_READING_AND_ADAPTATION.md)：首次全文审读与任务方案，保留当时未运行新模型的范围；后续实际分类试验见上方新报告。
 - [Gaussian／GaussView安装记录](docs/GAUSSIAN_INSTALLATION.md)：上传GaussView6.0.16已通过Wine64启动并显示水分子；保留启动入口和截图，Gaussian计算引擎仍缺失。
 - [老师源码性质与主线文献对照](docs/ALGORITHM_ORIGINALITY_AND_LITERATURE.md)：区分现成算法、任务适配和未确认的改进，列出中药THz、酸枣仁产地及小样本迁移参考，说明SCI／SCIE核验范围。
 - [太赫兹数据来源核验](docs/THZ_DATA_SOURCES.md)：优先中国机构，锁定人参 n／α CSV、小麦粉含量 MAT 与代码、原始时域信号等；逐项区分文件说明、目录预览、受限访问和未下载状态。

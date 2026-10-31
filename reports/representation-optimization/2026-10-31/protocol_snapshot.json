@@ -1,0 +1,119 @@
+{
+  "protocol_id": "zaoren-representation-latent-calibration-20261031-v2",
+  "recorded_date": "2026-10-31",
+  "dataset_version": "2026-10-31-zaoren-numbered-v1",
+  "scope": "Seven anonymous origin groups; retrospective within-batch exploration on unchanged 513/171/171 roles.",
+  "fixed_split": "data/processed/zaoren_threeway_20261031_v1/split_plan.json",
+  "frequency": {
+    "representation": "alpha",
+    "lower_inclusive": 0.1,
+    "upper_inclusive": 1.5,
+    "expected_points": 612
+  },
+  "candidates": {
+    "source_count": 54,
+    "source_grid_sha256": "72221c66465319bb74c38a9ac680631b24604ce2d2fe1959eaab8caa4af68e0d",
+    "latent_count": 60,
+    "latent_grid_sha256": "65ce8e6011f4abbcc86be096347932f4ff0f7fe7f6b2b998f39b083ee0ca2018"
+  },
+  "source_search": {
+    "episodes": 30,
+    "selection_episodes": 24,
+    "gate_episodes": 6,
+    "split_seed": 20261103,
+    "model_seed": 42,
+    "minimum_accuracy_gain": 0.001,
+    "max_macro_f1_loss": 0.005,
+    "max_balanced_accuracy_loss": 0.005,
+    "tie_tolerance": 0.001,
+    "reference_id": "s010_snv_svc",
+    "source_candidate_order": "reference first; ridge, plsda, svc, pca_svc, shrinkage_lda; preprocessing raw,snv,sg0_snv,linear_detrend_snv,sg1_snv,sg2_snv; fewer components, stronger ridge, smaller C, stable ID",
+    "adaptation_sources": "Unique reference, gated source champion, first24 best PLS-DA, first24 best linear (shrinkage LDA/ridge); at most four",
+    "fit_scope": "307-source portion of each original-training-only development episode; no inner CV with rare class n1"
+  },
+  "calibration_search": {
+    "episodes": 30,
+    "selection_episodes": 24,
+    "gate_episodes": 6,
+    "support_draws": 20,
+    "support_seed": 20261104,
+    "model_seed": 42,
+    "minimum_accuracy_gain": 0.001,
+    "max_macro_f1_loss": 0.005,
+    "max_balanced_accuracy_loss": 0.005,
+    "tie_tolerance": 0.001,
+    "shots_per_class": 1,
+    "requires_gain_vs_original_source": true,
+    "requires_gain_vs_matched_zero_support": true,
+    "complexity_order": [
+      "identity",
+      "mahalanobis_centroid",
+      "local_memory",
+      "anchored_ridge"
+    ],
+    "tie_policy": "Weaker target influence; stronger source anchor/ridge/pseudocount; stable ID",
+    "matched_controls": "Same encoder and auxiliary head/cache/metric, without target labels",
+    "locked_before_final": true
+  },
+  "source_preprocessing": {
+    "types": [
+      "raw",
+      "snv",
+      "sg0_snv",
+      "sg1_snv",
+      "sg2_snv",
+      "linear_detrend_snv"
+    ],
+    "savgol_window": 15,
+    "savgol_polynomial": 3,
+    "derivative_delta": "actual source frequency spacing",
+    "scaling": "train-only StandardScaler; per-row SNV ddof1"
+  },
+  "latent_methods": {
+    "identity": 1,
+    "anchored_ridge": 27,
+    "local_memory": 27,
+    "mahalanobis_centroid": 5,
+    "source_latent_PCA_max": 20,
+    "source_head_mean_loss_ridge": 0.01,
+    "loss_normalization": "Source class-balanced weights sum1; support mean loss; all head coefficients including bias regularized",
+    "normalization_and_covariance_fit_scope": "source only",
+    "source_classifier_and_encoder_frozen": true,
+    "calibration_does_not_claim_probability_validation": true
+  },
+  "final": {
+    "support_draws": 100,
+    "support_seed": 20261105,
+    "random_query_seed": 20261102,
+    "random_query_examples": 20,
+    "query_samples": 171,
+    "training_samples": 513,
+    "calibration_pool_samples": 171,
+    "shots_per_class": 1,
+    "model_seed": 42,
+    "all_source_and_adapter_choices_locked_before_query_scores": true,
+    "source_baseline_gain_separate_from_calibration_gain": true
+  },
+  "full_export_sensitivity": {
+    "eligible_for_primary_selection": false,
+    "configurations": 6,
+    "range": "all exported 2578 points",
+    "methods": "raw/SNV crossed with SVM C10 or PLS-DA 5/10",
+    "training_samples": 513,
+    "prediction_samples": 171,
+    "calibration": false,
+    "limitations": "High scores historically known; high-frequency negative absorption and missing SNR do not establish physically valid effective range"
+  },
+  "reporting": {
+    "all_results": true,
+    "all_per_sample_truth_comparisons": true,
+    "all_negative_gains": true,
+    "model_freeze_hashes": true,
+    "checkpoint_resume": true,
+    "anonymous_labels": true,
+    "named_origins_verified": false,
+    "no_cross_batch_claim": true,
+    "prior_query_exposure": true,
+    "no_promised_improvement": true
+  }
+}
