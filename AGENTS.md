@@ -112,3 +112,13 @@ The user's current data decision, effective 2026-10-31, is recorded in
   THz units/axes, labels, identity, provenance and license must be qualified
   before external validation or transfer. Do not replace the jujube task,
   rename standard methods as new algorithms, or merge this work into main.
+- Additional teacher workbooks received2026-10-31 are separately archived at
+  `data/incoming/teacher_20261031_v1/`; read its receipts/manifest/README first.
+  This intake does not change the active registry or existing model inputs.
+  Three Huangqi uploads are exact existing-file references. The reuploaded
+  Gansu Huangqi is the old corrupt version and must not replace the valid
+  repaired active file. Guizhou/Anhui Gastrodia have corrupt time-domain
+  sheets but readable frequency/refractive-index/absorption sheets. Wheat
+  columns are averages with unknown physical quantity/labels; Gastrodia's
+  405 absorption records are not verified independent plants. Preserve all
+  originals and quality flags; do not invent labels or silently clean them.
