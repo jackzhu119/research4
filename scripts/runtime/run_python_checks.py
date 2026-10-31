@@ -19,6 +19,7 @@ from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC, SVR
 from herb_spectra.io import read_spectra
+from herb_spectra.dataset_registry import select_workbooks
 
 
 def main():
@@ -71,11 +72,14 @@ def main():
     def real_io():
         warnings.filterwarnings('ignore',message='Workbook contains no default style')
         detail=[]
-        for p in sorted(Path('data/raw').rglob('*.xlsx')):
-            table=read_spectra(p,bounds=(0.1,1.5))
+        sources=select_workbooks()
+        for source in sources:
+            table=read_spectra(source.path,bounds=(0.1,1.5))
             assert table.values.shape[1]==612 and np.isfinite(table.values).all()
-            detail.append({'file':p.as_posix(),'scans':table.values.shape[0],'frequency_points':612})
-        return {'workbooks':len(detail),'unlabelled_scans':sum(x['scans'] for x in detail),'details':detail}
+            assert table.values.shape[0]==source.record_count
+            detail.append({'file':source.relative_path,'scans':table.values.shape[0],'frequency_points':612})
+        return {'workbooks':len(detail),'unlabelled_scans':sum(x['scans'] for x in detail),
+                'dataset_version':sources[0].dataset_version,'selection_mode':'active_registry','details':detail}
     run('python_real_herb_reading',real_io,'real unlabelled herb inputs; no classifier/regressor trained')
     def torch_cnn():
         import torch

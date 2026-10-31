@@ -53,3 +53,9 @@
 用户随后上传样本1.part1／part2／part3.rar，三卷均小于32 MiB。系统libarchive按卷读取成功恢复`样本1.xlsx`，大小54,540,804字节，SHA-256为`5c569b7c6be91157ca2a0f738ac7a10d2fdd7b5644b7abbffd6ecdb74354ce90`；原文件保存在`data/raw/zaoren_20261031/样本1.xlsx`并加入manifest，分卷及恢复记录见`data/processed/zaoren_20261031/分卷恢复记录.json`。
 
 样本1的四表各350个谱记录已同步编号为ZY01-001至ZY01-350；样本2—7的编号版文件保持不变。现共7份完整编号版、855个跨文件唯一谱记录编号、3420处表头改名，汇总Excel和核验记录已同步更新。以上首次读取失败记录保留为历史，不再表示当前有文件待补。
+
+## 2026-10-31：有效版本切换，以7份编号版为准
+
+用户明确要求取消旧错版入口并以新文件开展后续工作。当前有效酸枣仁输入固定为`data/processed/zaoren_20261031/样本1_编号版.xlsx`至`样本7_编号版.xlsx`，版本`2026-10-31-zaoren-numbered-v1`，共855个唯一谱记录编号。7份未编号原件从raw目录移至`data/archive/zaoren_superseded_20261031/`，原始字节和hash不变，仅用于追溯；旧808行元数据模板也已归档停用。
+
+`data/active_workbooks.json`和`data/manifest.csv`仅列当前4份黄芪＋7份酸枣仁，模板更新为1258行。旧报告的历史结果保留，但不当作新版数据上的模型实测。以后以[data/CURRENT_DATASET.md](CURRENT_DATASET.md)及有效清单为准。

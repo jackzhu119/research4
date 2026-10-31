@@ -1,5 +1,7 @@
 # 少样本光谱基准论文精读与酸枣仁课题适配
 
+> **数据版本更新（2026-10-31）：后续酸枣仁研究以[7份编号版](../data/processed/zaoren_20261031/README.md)及[有效工作簿清单](../data/active_workbooks.json)为准，共855条谱记录。** 旧未编号输入仅在`data/archive/zaoren_superseded_20261031/`留作溯源；旧405条记录的检查不能当作新版实测。ZY01—ZY07是用户声明的文件产地组，真实地名、独立样品／重复关系与批次仍须补足。用户已决定本轮主线暂不加入Gaussian。
+
 核验日期：2026-10-30。基于用户上传的13页PDF全文，并只读核查作者公开代码的固定快照。下文页码为PDF页码。本轮没有运行新模型、Gaussian计算或作者的下载／训练脚本。
 
 论文：Garzón, I., Gomez-Trenado, G., Damas, S. **A task-oriented few-shot spectroscopy benchmark: Empirical evaluation of meta-learning approaches**. *Engineering Applications of Artificial Intelligence*, 167（2026）, 113593. [DOI](https://doi.org/10.1016/j.engappai.2025.113593)，[本次上传原文](../references/research-literature/fewshot-benchmark-2026/1-s2.0-S0952197625036255-main.pdf)。PDF首页注明2026-01-29在线发表及CC BY许可。
@@ -110,9 +112,9 @@ flowchart LR
 
 主指标为宏平均F1、平衡准确率、各产地召回率和混淆矩阵，另报相对源模型的增益／负增益、训练与适配耗时。将来取得HPLC连续含量后可另开回归任务，此时本文回归模型与指标更直接对应。
 
-## 衔接Gaussian及化学解释
+## 此前讨论的化学解释分支（当前暂缓）
 
-本文没有Gaussian量子化学计算；Gaussian核／噪声是数学术语。§4.7（p.8）及Discussion明确SHAP／XGrad-CAM是模型归因线索，不作确定化学峰归属。
+本节保留此前讨论供参考，按用户后续决定不纳入当前识别—改进—小样本校准主线。本文没有Gaussian量子化学计算；Gaussian核／噪声是数学术语。§4.7（p.8）及Discussion明确SHAP／XGrad-CAM是模型归因线索，不作确定化学峰归属。
 
 结合路径：**训练中稳定重要的THz频段 → 标准品／化学检测筛选候选解释 → 合适的分子或固态计算检验 → 冻结频段／解释方案 → 独立批次少样本评价。** 当前只有GaussView界面，没有Gaussian引擎或频率结果；模拟不能增加真实产地标签、独立样品或任务。
 
@@ -131,8 +133,8 @@ SVM的置换重要性／适用SHAP方法与卷积网络XGrad-CAM需分别选择�
 
 ## 当前最先推进的事项
 
-用户已确认相关地名为生长地；仍需每条谱的唯一产地、物理样品／压片、重复扫描、制样／测量批次和仪器映射。五个Excel不等于五个元训练任务，405条扫描不等于405个独立样品。
+用户已确认相关地名为生长地，并说明当前每份工作簿对应一个产地。后续只用7份编号版：ZY01有350条、ZY02有5条、ZY03—ZY07各100条，共855条谱记录。仍需每条谱的真实地名、物理样品／压片、重复扫描、制样／测量批次和仪器映射；七个Excel不等于七个元训练任务，855条记录不等于855个独立样品。
 
-先完成映射与样品级基线，再做固定query的小样本曲线，有真实多批次任务后再比较分类ProtoNet／MAML。理论频段先验及适配机制仍待验证，不能凭组合宣称首次或新算法。
+先完成映射与样品级基线，再做固定query的小样本曲线，有真实多批次任务后再比较分类ProtoNet／MAML。当前候选筛选及适配机制仍待验证，不能凭组合宣称首次或新算法；分子计算与理论频段先验不列入本轮实验。
 
 审读记录：[原文与来源](../references/research-literature/fewshot-benchmark-2026/README.md)、[方法及页码](../reports/literature/fewshot-benchmark-2026/methods.json)、[结果表](../reports/literature/fewshot-benchmark-2026/results.json)、[适配方案](../reports/literature/fewshot-benchmark-2026/adaptation.json)、[范围及零新增运行记录](../reports/literature/fewshot-benchmark-2026/source_metadata.json)。上传13页不含独立Appendix A–D，出版社直接访问受限，本轮未取得／阅读补充材料。

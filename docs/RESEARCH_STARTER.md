@@ -1,5 +1,7 @@
 # 基础代码使用说明
 
+> **2026-10-31起，以[有效工作簿清单](../data/active_workbooks.json)及[7份酸枣仁编号版](../data/processed/zaoren_20261031/README.md)为准。** 酸枣仁855条谱记录；旧未编号输入位于`data/archive/zaoren_superseded_20261031/`，不参与默认数据准备。当前研究主线暂不加入Gaussian。
+
 算法问题及优先路线分别见 [算法审读](ALGORITHM_REVIEW.md)、[实验协议](RESEARCH_PROTOCOL.md)。原始资料仍位于 `references/`，本目录的新实现没有复制原压缩包源码。
 
 后续已开展 [Octave/Python 云端可用性实测](RUNTIME_USABILITY_REPORT.md)，其中包含原算法入口运行、明确标注的兼容/逻辑补丁和 CNN 结构迁移。实验场景脚本位于 `scripts/runtime/`，与下面的正式基础接口分开记录。
@@ -21,18 +23,18 @@ python -m unittest discover -s tests -v
 from herb_spectra.io import read_spectra
 
 table = read_spectra(
-    "data/raw/huangqi/黄芪甘肃202605310347.xlsx",
+    "data/processed/zaoren_20261031/样本1_编号版.xlsx",
     sheet="吸收系数",
     bounds=(0.1, 1.5),
 )
-print(table.values.shape)  # (100, 612)，扫描条数 × 频率点
+print(table.values.shape)  # 谱记录条数 × 所选频率点数
 ```
 
 该例只是读取已声明区间。坐标单位和区间适用性须按仪器记录及信噪比确认，不能用最终测试结果来反复选区间。读取器重新扫描工作表尺寸、排除参考列，并拒绝不完整/非有限的所选数据；甘肃空折射率表会明确报错。
 
 ## 元数据与评价
 
-仓库中的 [metadata_template.csv](../data/metadata_template.csv) 有 808 行谱列记录，科学标签及物理样品 ID 留空。同一物理样品所有扫描必须填相同 `physical_sample_id`，而不是把每个扫描编号当成独立样品。`origin_verified`、物种确认和化学值必须来自采样/检测记录。
+仓库中的[metadata_template.csv](../data/metadata_template.csv)按当前有效清单包含1258条谱列记录：黄芪403条，酸枣仁855条。酸枣仁对应ZY01为350条、ZY02为5条、ZY03—ZY07各100条，使用编号版工作簿的表头定位。用户声明每个文件对应一个产地，但ZY文件组编号不替代真实地名和采样记录；真实物理样品ID、重复扫描关系、批次、物种确认及化学值仍待补。同一物理样品所有扫描必须填相同`physical_sample_id`，不能直接把每个ZY谱记录编号当作独立物理样品。旧808行模板仅供历史追溯。
 
 若需重新生成空模板，使用不同输出路径以免覆盖已填记录：
 
@@ -40,6 +42,8 @@ print(table.values.shape)  # (100, 612)，扫描条数 × 频率点
 python scripts/build_metadata_template.py --output outputs/new_metadata_template.csv
 python scripts/audit_workbooks.py --output outputs/workbook_profiles.json
 ```
+
+这两个入口默认按`data/active_workbooks.json`选取工作簿，避免递归混入旧版或重复计数。检查历史文件时须显式指定范围，并将其结果与当前清单结果分开保存；不能把旧版与编号版拼接建模。
 
 经人工核验并完成单位、同一频率网格与标签对齐后，可保存 NPZ：`X` 为扫描×特征的有限浮点矩阵，`y` 为每扫描一个真实产地标签或化学实测值，`groups` 为每扫描对应的物理样品 ID，`labels_verified` 为显式布尔真值。字符串数组使用常规 Unicode dtype，读取时禁止 pickle。
 
@@ -57,4 +61,4 @@ python scripts/evaluate_baseline.py data/processed/reviewed.npz --model svr --ou
 
 ## 还需要实现/确认
 
-修正版 CARS/MC-UVE、分组稳定频段筛选、PLS-DA、SG/MSC、SSA、1D-CNN、批次外测、真实小样本校准、置信区间及文献新颖性检索均属于后续工作。本次只验证基础代码能正确读表和隔离分组，没有训练或宣称一个已验证的中药模型。
+CARS-style／MC-UVE、PLS-DA、重复筛选及分类分数校准已有独立工程实现，后续外部实测及其边界见[阶段二报告](RESEARCH_STAGE2_REPORT.md)。这些工程候选及旧数据运行不等于当前855条酸枣仁数据已经完成科学建模。当前仍需补足物理样品与批次映射，完成样品级基线、候选改进消融、真实新批次小样本分类校准及不确定性评价；Gaussian暂不纳入本轮主线。
