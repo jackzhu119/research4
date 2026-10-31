@@ -1,0 +1,116 @@
+{
+  "protocol_id": "zaoren-image-guided-probability-fusion-20261031",
+  "recorded_date": "2026-10-31",
+  "dataset_version": "2026-10-31-zaoren-numbered-v1",
+  "scope": "retrospective same-batch seven-class anonymous-origin source probability fusion",
+  "roles": {
+    "source": 513,
+    "calibration_pool_unused": 171,
+    "fixed_prediction": 171
+  },
+  "frequency": {
+    "lower_inclusive": 0.1,
+    "upper_inclusive": 1.5,
+    "expected_points": 612
+  },
+  "providers": [
+    "svm",
+    "mlp",
+    "mlp_sup100"
+  ],
+  "source_models": {
+    "svm": "previous SNV/source-StandardScaler SVM C10 with balanced classweight",
+    "mlp": "previous locked b006 SNV/source-StandardScaler 64-32 MLP 200 epochs",
+    "mlp_sup100": "same MLP plus prespecified100 supervised continuation updates with full-source anchor"
+  },
+  "probability_normalizations": [
+    "rawsoftmax T1 uncalibrated normalized reference; SVM margins are not probabilities",
+    "temperature fitted on source-only held-out OOF records"
+  ],
+  "formula": "p=w*p_svm+(1-w)*p_mlp; probabilities have fixed class order; not averaging raw scores",
+  "mlp_variants": [
+    "mlp",
+    "mlp_sup100"
+  ],
+  "svm_weights": [
+    0,
+    0.25,
+    0.5,
+    0.75,
+    1
+  ],
+  "development": {
+    "tasks": 6,
+    "selection_tasks": 4,
+    "gate_tasks": 2,
+    "seeds": [
+      42,
+      43,
+      44
+    ],
+    "split_seed": 20261103,
+    "source_samples_per_task": 307,
+    "query_samples_per_task": 103
+  },
+  "source_oof": {
+    "folds": 3,
+    "source_only": true,
+    "dev_singleton_class": "always in foldfit, excluded from its OOF calibration rows",
+    "dev_calibration_rows": 306,
+    "final_calibration_rows": 513,
+    "all_fold_preprocessing_fit_on_foldtrain_only": true,
+    "ownership": "upstream probability track caches; fusion fits no source model or temperature"
+  },
+  "selection": {
+    "minimum_macro_f1_gain": 0.002,
+    "max_accuracy_loss": 0.005,
+    "max_balanced_accuracy_loss": 0.005,
+    "tie_tolerance": 0.002
+  },
+  "acceptance": "interior weight must improve macroF1 over both matching-probability single endpoints and satisfy accuracy/balanced-accuracy guards in selection and gate",
+  "ranking": "macroF1 tolerance.002; highest accuracy; closest weight to.5; provider/probability/id lexical",
+  "fallback": "f015_fusion, prespecified mlp_sup100 source-OOF temperature alone (weight0), never chosen from final scores",
+  "final": {
+    "seeds": [
+      42,
+      43,
+      44
+    ],
+    "prediction_samples": 171,
+    "target_support_labels_used": 0,
+    "support_resampling_draws": 0,
+    "all20grid_candidates_saved_diagnostics": true,
+    "formal_selected_and_development_diagnostic_saved": true,
+    "six_single_model_probability_controls_saved": true,
+    "expected_metric_cases": 84,
+    "expected_prediction_rows": 14364,
+    "random_query_examples": 20,
+    "random_query_seed": 20261102
+  },
+  "probability_metrics": {
+    "nll": "negative mean log p_true with1e-15 clip",
+    "brier": "mean of sum over7classes squared errors; no division by7",
+    "ece": "10 equally spaced maxconfidence bins including confidence1 in finalbin"
+  },
+  "complementarity": [
+    "both correct",
+    "SVM-only correct",
+    "MLP-only correct",
+    "both wrong",
+    "different predictions",
+    "both wrong same prediction",
+    "truth-based oracle accuracy upper bound, never an operational predictor"
+  ],
+  "stage_barrier": "development choice locked before final; final requires outputs/image-guided-20261031/all_development_locks.json covering own and upstream probability lock hashes",
+  "reporting": [
+    "All source preprocessing/models and OOF temperatures are frozen input caches.",
+    "No target-support calibration and no query statistics fitted.",
+    "All seeds, endpoints, failed fusion candidates and formal fallback retained.",
+    "Repeated historical query specimens are not independent new batches.",
+    "Raw-softmax normalization is not a calibrated posterior.",
+    "Singleton source class lacks held-out OOF labels during development; final source rareclass n3 supports ordinary3fold.",
+    "No final-score weight/model/seed reselection."
+  ],
+  "candidate_configurations": 20,
+  "candidate_grid_sha256": "6f9798610e9c274c4345428e6ae7f103c6ec3501b44e712e66416c8b62586e4e"
+}

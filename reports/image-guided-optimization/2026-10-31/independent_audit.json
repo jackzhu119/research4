@@ -1,0 +1,93 @@
+{
+  "status": "pass",
+  "phase": "final",
+  "new_fits": 0,
+  "features": {
+    "status": "pass",
+    "development_prediction_rows": 74160,
+    "development_metric_cases": 720,
+    "source_models_checked": 720,
+    "source_inference_replays": 54,
+    "fit_warning_records": 576,
+    "selected": "f012_snv_lda",
+    "eligible_selection_candidates": 2,
+    "v1_v2_predictor_comparisons": 720,
+    "final_prediction_rows": 3591,
+    "final_metric_cases": 27
+  },
+  "probability": {
+    "status": "pass",
+    "development_prediction_rows": 38934,
+    "final_prediction_rows": 10773,
+    "oof_contexts": 21,
+    "oof_neural_states_replayed": 168,
+    "development_metric_cases": 378,
+    "final_metric_cases": 63,
+    "choices": {
+      "svm": {
+        "selected": "p000_svm_raw",
+        "probability_selected": "p001_svm_temperature",
+        "diagnostic": "p005_svm_coordinate_bias"
+      },
+      "mlp": {
+        "selected": "p007_mlp_raw",
+        "probability_selected": "p008_mlp_temperature",
+        "diagnostic": "p007_mlp_raw"
+      },
+      "mlp_sup100": {
+        "selected": "p014_mlp_sup100_raw",
+        "probability_selected": "p015_mlp_sup100_temperature",
+        "diagnostic": "p017_mlp_sup100_prior_bias"
+      }
+    }
+  },
+  "fusion": {
+    "status": "pass",
+    "development_prediction_rows": 37080,
+    "final_prediction_rows": 14364,
+    "complementarity_records": 42,
+    "development_metric_cases": 360,
+    "final_metric_cases": 84,
+    "selected": "f015_fusion",
+    "diagnostic": "f001_fusion",
+    "eligible_candidates": 2
+  },
+  "checks_evaluated": 4938056,
+  "maximum_numeric_difference": 1.6653345369377348e-16,
+  "seconds": 22.342672603997926,
+  "created_at_utc": "2026-10-31T06:45:38.339178+00:00",
+  "audit_script_sha256": "a3c3c0793931f0f704e3bd2a0b264eecaaafb0b07a703f810dc142a810519698",
+  "barrier": {
+    "release_sha256": "666e96e5bc174d42d0af587e1a765f5f016a3207638fea440c9424ff887b38f7",
+    "released_at_utc": "2026-10-31T06:40:57.824857+00:00",
+    "tracks": [
+      {
+        "name": "features",
+        "actual_final_start_utc": "2026-10-31T06:41:33.591568+00:00",
+        "lock_sha256": "8c202b8225cc6de8f48f0129873e0d324ece1f8777117a34a0ead7b01577c442"
+      },
+      {
+        "name": "probability",
+        "actual_final_start_utc": "2026-10-31T06:41:24.554535+00:00",
+        "lock_sha256": "48f797b96844af6f835019a12d95d63953713dfb46dd44078794ca771b6e1b2a"
+      },
+      {
+        "name": "fusion",
+        "actual_final_start_utc": "2026-10-31T06:41:59.175878+00:00",
+        "lock_sha256": "e239b2f73b789c717fcb7eb2cea3a25a6d0ffe14a95ef538a99345083556453c"
+      }
+    ]
+  },
+  "total_development_prediction_rows": 150174,
+  "total_final_prediction_rows": 28728,
+  "total_development_metric_cases": 1458,
+  "total_final_metric_cases": 174,
+  "limits": [
+    "No research model fitting or new hyperparameter/seed/sample selection in this audit.",
+    "Source OOF singleton classes are retained as fit anchors and excluded from development calibration rows.",
+    "Proper probability metrics use original un-biased probabilities; decision biases are separate from probability argmax.",
+    "Score temperatures were checked by arithmetic and local objective comparisons, not re-optimized.",
+    "Current data have historical exposure and one lot per anonymous origin; no real cross-batch or named-origin validation.",
+    "Selection locks, run events and state hashes are recorded evidence, not external execution attestation."
+  ]
+}

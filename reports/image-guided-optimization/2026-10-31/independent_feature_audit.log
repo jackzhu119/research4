@@ -1,0 +1,13 @@
+Traceback (most recent call last):
+  File "/workspace/research4/outputs/image-guided-20261031/independent_audit.py", line 310, in <module>
+    main()
+  File "/workspace/research4/outputs/image-guided-20261031/independent_audit.py", line 302, in main
+    features = audit_feature(audit, truth, roles, parts, axis, final=args.phase == "final")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/research4/outputs/image-guided-20261031/independent_audit.py", line 202, in audit_feature
+    audit.compare(joblib.hash(model), metadata["model_fingerprint"], "feature state fingerprint")
+  File "/workspace/research4/outputs/image-guided-20261031/independent_audit.py", line 57, in compare
+    self.require(actual == expected, (description, actual, expected))
+  File "/workspace/research4/outputs/image-guided-20261031/independent_audit.py", line 41, in require
+    raise AssertionError(description)
+AssertionError: ('feature state fingerprint', '9f86ac99ca7b94dbc7e4d333c87e3754', 'abb2b4999e9b040ac52a4497318eea08')

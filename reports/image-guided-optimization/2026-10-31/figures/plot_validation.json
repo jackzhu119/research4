@@ -1,0 +1,186 @@
+{
+  "status": "pass",
+  "new_model_fits": 0,
+  "feature": {
+    "feature_summary": "/workspace/research4/outputs/image-guided-20261031/features-v2/summary.json",
+    "feature_summary_sha256": "c7b6ae31f3816c5d0fcdb073fe2a670d4e9ef8479fdb6e45dcdf5ad96a15c4da",
+    "source_reference_summary_sha256": "c4baeb8396950834cdd398a6967d78807087462fd2507ac605a79387c47d5cef",
+    "rows": [
+      {
+        "label": "SNV + full SVM\nreference | 612 original frequencies",
+        "accuracy": 0.8888888888888888,
+        "macro_f1": 0.8616237563605985
+      },
+      {
+        "label": "SNV + shrinkage LDA\nselected | 612 original frequencies",
+        "accuracy": 0.9239766081871345,
+        "macro_f1": 0.835218297845454
+      },
+      {
+        "label": "SNV + CARS-style + SVM\npreselected diagnostic | 78.7 mean original frequencies",
+        "accuracy": 0.8304093567251462,
+        "macro_f1": 0.7476118532690627
+      },
+      {
+        "label": "SNV + MC-UVE + SVM\npreselected diagnostic | 100 original frequencies",
+        "accuracy": 0.7426900584795321,
+        "macro_f1": 0.6562058207004705
+      },
+      {
+        "label": "SNV + noise-UVE + SVM\npreselected diagnostic | 82 original frequencies",
+        "accuracy": 0.7914230019493177,
+        "macro_f1": 0.7139339881737982
+      },
+      {
+        "label": "SNV + single-chain SPA-style + SVM\npreselected diagnostic | 50 original frequencies",
+        "accuracy": 0.7309941520467836,
+        "macro_f1": 0.5282265948559342
+      },
+      {
+        "label": "MSC + PCA + shrinkage LDA\npreselected diagnostic | 612 original frequencies -> 40 PCs",
+        "accuracy": 0.7173489278752436,
+        "macro_f1": 0.6250610702392273
+      },
+      {
+        "label": "Previous MLP + 100 supervised updates\nfixed source-model reference",
+        "accuracy": 0.9025341130604289,
+        "macro_f1": 0.8786570454519397
+      }
+    ]
+  },
+  "probability": {
+    "probability_summary": "/workspace/research4/outputs/image-guided-20261031/probability/summary.json",
+    "probability_summary_sha256": "743b4f3b5209c458f84b7a5a9f376753161cd9cc4a81b23f75c64941d76aa176",
+    "rows": [
+      {
+        "provider": "svm",
+        "raw": {
+          "id": "p000_svm_raw",
+          "provider": "svm",
+          "kind": "raw",
+          "evaluations": 3,
+          "seeds": [
+            42,
+            43,
+            44
+          ],
+          "accuracy_mean": 0.8888888888888888,
+          "balanced_accuracy_mean": 0.8642857142857144,
+          "macro_f1_mean": 0.8616237563605985,
+          "nll_mean": 0.541354813091759,
+          "brier_mean": 0.2643733015426927,
+          "ece10_mean": 0.2293481485336131,
+          "classification_selected": true,
+          "probability_selected": false,
+          "target_support_labels_used": 0
+        },
+        "temperature": {
+          "id": "p001_svm_temperature",
+          "provider": "svm",
+          "kind": "temperature",
+          "evaluations": 3,
+          "seeds": [
+            42,
+            43,
+            44
+          ],
+          "accuracy_mean": 0.8888888888888888,
+          "balanced_accuracy_mean": 0.8642857142857144,
+          "macro_f1_mean": 0.8616237563605985,
+          "nll_mean": 0.40975048002401976,
+          "brier_mean": 0.19934405987779583,
+          "ece10_mean": 0.09366889067243628,
+          "classification_selected": false,
+          "probability_selected": true,
+          "target_support_labels_used": 0
+        }
+      },
+      {
+        "provider": "mlp",
+        "raw": {
+          "id": "p007_mlp_raw",
+          "provider": "mlp",
+          "kind": "raw",
+          "evaluations": 3,
+          "seeds": [
+            42,
+            43,
+            44
+          ],
+          "accuracy_mean": 0.8908382066276803,
+          "balanced_accuracy_mean": 0.7761904761904762,
+          "macro_f1_mean": 0.7729318942959179,
+          "nll_mean": 0.32321974066000964,
+          "brier_mean": 0.16205028843231226,
+          "ece10_mean": 0.06527309470708802,
+          "classification_selected": true,
+          "probability_selected": false,
+          "target_support_labels_used": 0
+        },
+        "temperature": {
+          "id": "p008_mlp_temperature",
+          "provider": "mlp",
+          "kind": "temperature",
+          "evaluations": 3,
+          "seeds": [
+            42,
+            43,
+            44
+          ],
+          "accuracy_mean": 0.8908382066276803,
+          "balanced_accuracy_mean": 0.7761904761904762,
+          "macro_f1_mean": 0.7729318942959179,
+          "nll_mean": 0.2868829208536044,
+          "brier_mean": 0.15003830868404824,
+          "ece10_mean": 0.04186710726807691,
+          "classification_selected": false,
+          "probability_selected": true,
+          "target_support_labels_used": 0
+        }
+      },
+      {
+        "provider": "mlp_sup100",
+        "raw": {
+          "id": "p014_mlp_sup100_raw",
+          "provider": "mlp_sup100",
+          "kind": "raw",
+          "evaluations": 3,
+          "seeds": [
+            42,
+            43,
+            44
+          ],
+          "accuracy_mean": 0.9025341130604289,
+          "balanced_accuracy_mean": 0.8809523809523809,
+          "macro_f1_mean": 0.8786570454519397,
+          "nll_mean": 0.3231775947591785,
+          "brier_mean": 0.1579440622206732,
+          "ece10_mean": 0.05415312459478277,
+          "classification_selected": true,
+          "probability_selected": false,
+          "target_support_labels_used": 0
+        },
+        "temperature": {
+          "id": "p015_mlp_sup100_temperature",
+          "provider": "mlp_sup100",
+          "kind": "temperature",
+          "evaluations": 3,
+          "seeds": [
+            42,
+            43,
+            44
+          ],
+          "accuracy_mean": 0.9025341130604289,
+          "balanced_accuracy_mean": 0.8809523809523809,
+          "macro_f1_mean": 0.8786570454519397,
+          "nll_mean": 0.30043915694784373,
+          "brier_mean": 0.15443947475166117,
+          "ece10_mean": 0.053259842792641184,
+          "classification_selected": false,
+          "probability_selected": true,
+          "target_support_labels_used": 0
+        }
+      }
+    ]
+  }
+}

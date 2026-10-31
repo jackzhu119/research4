@@ -16,6 +16,7 @@
 
 ## 科研起步与算法审读
 
+- [按图片开展的特征、概率与融合优化](docs/IMAGE_GUIDED_OPTIMIZATION_REPORT.md)：81主要设置，241项测试通过。SNV-LDA为92.40%准确率／0.8352宏F1；SVM温度概率NLL 0.541→0.410且分类不变；融合未通过开发检验。完整报告解释稀少类精确率、检查点修复及全部负结果，提供14张表的Excel。
 - [最新四轮优化与完整台账](docs/MULTIROUND_OPTIMIZATION_REPORT.md)：85个主要设置及控制，208项测试通过。追加源训练后的正式零支持方案90.25%／宏F1 0.8787；同预算监督继续训练与FO-MAML分类结果相同，不能归因MAML；三个校准路径均回退不校准。提供每轮参数、负结果、逐样品Excel、模型和独立审计。
 - [论文方法借鉴与真实分类试验](docs/PAPER_FEWSHOT_CLASSIFICATION_REPORT.md)：紧凑共享ResNet1D、分类ProtoNet、一阶MAML与微调实测。MAML校准64.72%→67.55%，三个种子平均均提高，仍低于SVM的88.89%；提供逐样品标签对照Excel、全部负结果、源权重与独立审计，172项测试通过。
 - [表征与潜空间校准的后续优化](docs/REPRESENTATION_AND_LATENT_REPORT.md)：54条源管线、60种潜空间适配；开发阶段LDA胜出，但固定预测准确率88.30%仍低于SVM88.89%，三个源模型的正式校准选择均保留原方法。

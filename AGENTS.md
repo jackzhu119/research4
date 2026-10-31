@@ -81,3 +81,13 @@ The user's current data decision, effective 2026-10-31, is recorded in
   fine-tuning and round4 first-order MAML refinement are separate paths.
   Preserve matched no-target-label controls, every seed and negative result;
   never use final-query scores to design or choose a later round.
+- The user's three-image follow-up follows
+  `docs/IMAGE_GUIDED_OPTIMIZATION_PROTOCOL.md` and
+  `data/research/image_guided_plan_20261031.json`: 40 feature/classifier,
+  21 probability/decision and 20 probability-fusion configurations.
+  All three track locks precede a new shared final-evaluation release.
+  Macro-F1 is primary with accuracy/balanced-accuracy guards. Source OOF
+  calibration excludes singleton validation rows while keeping them in
+  fold training; every fold refits its transformations. This round uses
+  zero target-support labels. Positive temperature preserves argmax;
+  decision bias, probability reliability and fusion gains are separate.

@@ -1,0 +1,152 @@
+{
+  "protocol_id": "zaoren-image-guided-source-oof-probability-20261031-v1",
+  "recorded_date_client": "2026-10-31",
+  "client_timezone": "Asia/Shanghai",
+  "dataset_version": "2026-10-31-zaoren-numbered-v1",
+  "scope": "Retrospective same-batch anonymous-origin seven-class probability and decision study; real uploaded spectra",
+  "roles": {
+    "source": 513,
+    "calibration_pool_unused": 171,
+    "fixed_prediction": 171
+  },
+  "frequency": {
+    "lower_inclusive": 0.1,
+    "upper_inclusive": 1.5,
+    "expected_points": 612
+  },
+  "seeds": [
+    42,
+    43,
+    44
+  ],
+  "providers": [
+    "svm",
+    "mlp",
+    "mlp_sup100"
+  ],
+  "source_runs": {
+    "svm": "outputs/representation-optimization-20261031/source",
+    "svm_final": "outputs/representation-optimization-20261031/adaptation/final/s010_snv_svc/source_model.joblib",
+    "svm_final_metadata": "outputs/representation-optimization-20261031/adaptation/final/s010_snv_svc/metadata.json",
+    "mlp": "outputs/multiround-20261031/neural-base",
+    "supervised_continuation": "outputs/multiround-20261031/meta-refinement"
+  },
+  "source_models": {
+    "svm": "predeclared SNV source scaler, RBF SVC C10, balanced source weights, OVR scores",
+    "mlp": "locked b006, SNV/source scaler/noPCA/64-32/ReLU/200epochs/Adam lr.001 wd.001/CE none",
+    "mlp_sup100": "same b006 initializer plus matched supervised continuation100, Adam.0001, full-source CE anchor1 and source-episode query CE, no FO used"
+  },
+  "development": {
+    "tasks": 6,
+    "selection_tasks": 4,
+    "gate_tasks": 2,
+    "split_seed": 20261103,
+    "roles_per_task": {
+      "source": 307,
+      "support_unused": 103,
+      "development_query": 103
+    },
+    "all_seeds_reported": true
+  },
+  "oof": {
+    "folds": 3,
+    "split_seed": 20261111,
+    "episode_seed_increment": 100,
+    "final_episode_number": 6,
+    "policy": "classes with n<3 are source anchors included in every training fold and excluded from heldout OOF labels; all other records validated exactly once",
+    "development_excluded_oof_class": "ZY02 source n1; OOF306 common-class rows only, retains7 score columns",
+    "final_all_classes": "source ZY02n3 permits ordinary threefold OOF513, source train342 eachfold",
+    "refit_every_training_fold": [
+      "SNV/source StandardScaler",
+      "SVM",
+      "neural preprocessor",
+      "MLP200",
+      "supervised100"
+    ],
+    "mlp_fold_fit_seed": "same as outer neural seed42/43/44",
+    "supervised_task_seed": "seed+1000+100*episode_number+17*fold",
+    "new_classifier_optimizations_per_context": 9
+  },
+  "temperature": {
+    "bounded_log_temperature": [
+      -3.0,
+      3.0
+    ],
+    "regularization": 0.01,
+    "objective": "sourceOOF NLL+.01*logT^2",
+    "argmax_must_be_preserved": true
+  },
+  "decision": {
+    "rule": "argmax(log(source-temperature probability)+classbias)",
+    "prior_bias_beta": [
+      0.25,
+      0.5,
+      1.0
+    ],
+    "coordinate_penalty": [
+      0.001,
+      0.01
+    ],
+    "coordinate_sweeps": 2,
+    "coordinate_values": [
+      -1.0,
+      -0.5,
+      -0.25,
+      0.0,
+      0.25,
+      0.5,
+      1.0
+    ],
+    "fixed_zero_bias_classes": "reference ZY01 plus classes source count<3",
+    "objective": "sourceOOF 7-class MacroF1-penalty*mean(bias^2)",
+    "decision_bias_is_not_posterior_calibration": true
+  },
+  "selection": {
+    "minimum_macro_f1_gain": 0.002,
+    "maximum_accuracy_loss": 0.005,
+    "maximum_balanced_accuracy_loss": 0.005,
+    "minimum_nll_gain": 0.001,
+    "maximum_brier_loss": 0.002,
+    "classification_ranking": "MacroF1 descending, accuracy descending, raw before others on ties, candidateID",
+    "classification_fallback": "each provider own raw-softmax argmax",
+    "probability_branch": "temperature must improve NLL and satisfy Brier guard in both selection and gate, otherwise raw",
+    "final_scores_do_not_select_any_candidate": true
+  },
+  "probability_metrics": {
+    "NLL": "mean negative log p_true with floor1e-15",
+    "Brier": "mean(sum over7 squared error), no divide7",
+    "ECE": "10 equal-width max-confidence bins, probability argmax correctness, not decision-bias prediction correctness",
+    "raw_SVM_softmax_is_not_calibrated_probability": true,
+    "NLL_Brier_ECE_exclude_class_decision_bias": true
+  },
+  "final": {
+    "all21_candidates_reported": true,
+    "contexts": 3,
+    "query_records": 171,
+    "requires_global_release": "outputs/image-guided-20261031/all_development_locks.json",
+    "source_only_calibration_no_target_support": true
+  },
+  "candidate_configurations": 21,
+  "candidate_grid_sha256": "b5cceeb30e7239f4783b3238ae1d30b86966ba903d8fb60e83d142d3648cce8e",
+  "required_controls": [
+    "raw normalized scores",
+    "sourceOOF temperature",
+    "class-prior decision adjustment",
+    "coordinate decision adjustment"
+  ],
+  "interpretation": [
+    "temperature alone cannot improve hard classification",
+    "no 0.5 binary threshold for seven classes",
+    "OOF singleton exclusion limits probability fit for rare group",
+    "original171 target calibration pool completely unused",
+    "same-batch historical query exposure; no fresh confirmatory or newbatch claim",
+    "three seeds are not independent batches",
+    "no Gaussian/MATLAB-native/Colab claim"
+  ],
+  "guards": {
+    "target_support_labels_used": 0,
+    "original_source_states_unchanged": true,
+    "final_query_truth_separate": true,
+    "pointwise_query_operations_only": true
+  }
+}
