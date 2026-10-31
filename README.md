@@ -10,6 +10,8 @@
 - [机器可读有效清单](data/active_workbooks.json)与[当前校验清单](data/manifest.csv)
 - [停用旧版及逐文件替代关系](data/archive/zaoren_superseded_20261031/README.md)
 
+- [当前1258行元数据模板](data/metadata_template.csv)：黄芪403＋酸枣仁855。
+
 当前主线为产地识别、经对照验证的模型改进及已知产地新批次小样本校准，暂不加入Gaussian。
 
 ## 科研起步与算法审读
@@ -79,3 +81,7 @@
 首批 47 项写作参考资料现已全部归档，其中此前超限的 `0308 CARS+UVE.rar` 已从本次补充的 4 个 Desktop RAR 分卷中恢复并单独保存；四个分卷也全部按原名保留。当前清单共 **51 个文件**，均为 `archived`。
 
 参考文献、算法程序、论文稿件、流程图、教程、投稿材料和补充分卷按类别保存至 [论文资料库](references/paper-materials/README.md)，提供逐文件 SHA-256 清单。分卷内含文件、校验记录及解压方法见 [Desktop 分卷说明](references/paper-materials/archives/desktop/README.md)。
+
+## 科研代码与实验说明
+
+算法审读、当前有效清单的默认读取入口及实验协议同步维护在[研究分支](https://github.com/jackzhu119/research4/tree/research/algorithm-review-and-baselines-20261030)。7份酸枣仁工作簿及有效清单在main与研究分支保持一致。
