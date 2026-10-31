@@ -48,3 +48,13 @@ The user's current data decision, effective 2026-10-31, is recorded in
   workbooks must not enter the active registry as additional observations.
   All 855 records were used in prior CV, so this is retrospective internal
   validation, not a pristine confirmatory set or a real cross-batch result.
+- The user further authorized repeated calibration algorithm exploration.
+  Use `docs/CALIBRATION_OPTIMIZATION_PROTOCOL.md` and
+  `data/research/calibration_optimization_protocol_20261031.json`: 116 locked
+  candidates, 30 source-only development tasks (24 selection / 6 gate), then
+  locked-method evaluation on the original prediction specimens. Require
+  gains over both the source model and matched zero-support control; never
+  choose a method or sample from final-query scores. Seven-class analysis
+  remains 1-shot. A separately labelled six-class auxiliary analysis excludes
+  ZY02 and tests 1/3/5/10-shot; it must not replace seven-class results. The
+  user explicitly permits anonymous labels and will supply place names later.

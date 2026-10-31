@@ -1,0 +1,6090 @@
+{
+  "schema_version": 1,
+  "split_id": "zaoren-same-batch-threeway-v1",
+  "dataset_version": "2026-10-31-zaoren-numbered-v1",
+  "split_seed": 20261101,
+  "rng": "NumPy default_rng PCG64; sorted class then sorted record ID; first60% training, next20% calibration, last20% prediction",
+  "ratio": {
+    "training": 0.6,
+    "calibration": 0.2,
+    "prediction": 0.2
+  },
+  "scope": "retrospective within-batch sample holdout; not independent cross-batch validation",
+  "prior_exposure": "All current855 samples have previously been included in internal CV; this is not a pristine external confirmation set",
+  "prediction_is_blinded": false,
+  "prediction_id_caveat": "ZY header prefixes reveal anonymous origin groups; model features must contain only numerical spectra",
+  "counts_by_origin": {
+    "ZY01": {
+      "training": 210,
+      "calibration": 70,
+      "prediction": 70
+    },
+    "ZY02": {
+      "training": 3,
+      "calibration": 1,
+      "prediction": 1
+    },
+    "ZY03": {
+      "training": 60,
+      "calibration": 20,
+      "prediction": 20
+    },
+    "ZY04": {
+      "training": 60,
+      "calibration": 20,
+      "prediction": 20
+    },
+    "ZY05": {
+      "training": 60,
+      "calibration": 20,
+      "prediction": 20
+    },
+    "ZY06": {
+      "training": 60,
+      "calibration": 20,
+      "prediction": 20
+    },
+    "ZY07": {
+      "training": 60,
+      "calibration": 20,
+      "prediction": 20
+    }
+  },
+  "role_counts": {
+    "training": 513,
+    "calibration": 171,
+    "prediction": 171
+  },
+  "metadata_sha256": "6f90724bd9228f5b35d5aec1dd9959dc6d2e6b55cf7daceea039df793771e96d",
+  "sources": [
+    {
+      "path": "data/processed/zaoren_20261031/样本1_编号版.xlsx",
+      "sha256": "e9dd6398868979036ec98e7c722b17afa9319ac0289280233452f604407fe292",
+      "origin_group_id": "ZY01",
+      "record_count": 350
+    },
+    {
+      "path": "data/processed/zaoren_20261031/样本2_编号版.xlsx",
+      "sha256": "549a43b57079480ae4324a474f4709101ea13ba17133f9d7941850bf86666c5a",
+      "origin_group_id": "ZY02",
+      "record_count": 5
+    },
+    {
+      "path": "data/processed/zaoren_20261031/样本3_编号版.xlsx",
+      "sha256": "3045e608e629ebbc7b22948284817e9961cdaf02187a676a90159d8ba4a333f3",
+      "origin_group_id": "ZY03",
+      "record_count": 100
+    },
+    {
+      "path": "data/processed/zaoren_20261031/样本4_编号版.xlsx",
+      "sha256": "0a378d201b1bc40281cdd61293dcbd4831b0a0d8c8b463df30c74a95b41eb7b4",
+      "origin_group_id": "ZY04",
+      "record_count": 100
+    },
+    {
+      "path": "data/processed/zaoren_20261031/样本5_编号版.xlsx",
+      "sha256": "6915c6f1b935b3bdc30f9c56c053f5b0422ec73c8ada69018ed50b78c04538d5",
+      "origin_group_id": "ZY05",
+      "record_count": 100
+    },
+    {
+      "path": "data/processed/zaoren_20261031/样本6_编号版.xlsx",
+      "sha256": "62e286ab34ac353bc99fe409a70a23460459c8e0fe2dfc5d9840f29a07ee7448",
+      "origin_group_id": "ZY06",
+      "record_count": 100
+    },
+    {
+      "path": "data/processed/zaoren_20261031/样本7_编号版.xlsx",
+      "sha256": "4f42250208390eb257c027cb035c56ef8515d85785e2df4107d7a2dcb20537db",
+      "origin_group_id": "ZY07",
+      "record_count": 100
+    }
+  ],
+  "records": [
+    {
+      "record_id": "ZY01-001",
+      "physical_sample_id": "ZY01-001",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-002",
+      "physical_sample_id": "ZY01-002",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-003",
+      "physical_sample_id": "ZY01-003",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-004",
+      "physical_sample_id": "ZY01-004",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-006",
+      "physical_sample_id": "ZY01-006",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-007",
+      "physical_sample_id": "ZY01-007",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-009",
+      "physical_sample_id": "ZY01-009",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-010",
+      "physical_sample_id": "ZY01-010",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-011",
+      "physical_sample_id": "ZY01-011",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-012",
+      "physical_sample_id": "ZY01-012",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-013",
+      "physical_sample_id": "ZY01-013",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-014",
+      "physical_sample_id": "ZY01-014",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-019",
+      "physical_sample_id": "ZY01-019",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-020",
+      "physical_sample_id": "ZY01-020",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-022",
+      "physical_sample_id": "ZY01-022",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-024",
+      "physical_sample_id": "ZY01-024",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-028",
+      "physical_sample_id": "ZY01-028",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-029",
+      "physical_sample_id": "ZY01-029",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-032",
+      "physical_sample_id": "ZY01-032",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-035",
+      "physical_sample_id": "ZY01-035",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-036",
+      "physical_sample_id": "ZY01-036",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-037",
+      "physical_sample_id": "ZY01-037",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-039",
+      "physical_sample_id": "ZY01-039",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-040",
+      "physical_sample_id": "ZY01-040",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-041",
+      "physical_sample_id": "ZY01-041",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-042",
+      "physical_sample_id": "ZY01-042",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-044",
+      "physical_sample_id": "ZY01-044",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-046",
+      "physical_sample_id": "ZY01-046",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-047",
+      "physical_sample_id": "ZY01-047",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-048",
+      "physical_sample_id": "ZY01-048",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-050",
+      "physical_sample_id": "ZY01-050",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-051",
+      "physical_sample_id": "ZY01-051",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-052",
+      "physical_sample_id": "ZY01-052",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-054",
+      "physical_sample_id": "ZY01-054",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-055",
+      "physical_sample_id": "ZY01-055",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-056",
+      "physical_sample_id": "ZY01-056",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-060",
+      "physical_sample_id": "ZY01-060",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-062",
+      "physical_sample_id": "ZY01-062",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-063",
+      "physical_sample_id": "ZY01-063",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-065",
+      "physical_sample_id": "ZY01-065",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-066",
+      "physical_sample_id": "ZY01-066",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-067",
+      "physical_sample_id": "ZY01-067",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-068",
+      "physical_sample_id": "ZY01-068",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-070",
+      "physical_sample_id": "ZY01-070",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-071",
+      "physical_sample_id": "ZY01-071",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-072",
+      "physical_sample_id": "ZY01-072",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-073",
+      "physical_sample_id": "ZY01-073",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-075",
+      "physical_sample_id": "ZY01-075",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-076",
+      "physical_sample_id": "ZY01-076",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-077",
+      "physical_sample_id": "ZY01-077",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-078",
+      "physical_sample_id": "ZY01-078",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-082",
+      "physical_sample_id": "ZY01-082",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-084",
+      "physical_sample_id": "ZY01-084",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-085",
+      "physical_sample_id": "ZY01-085",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-086",
+      "physical_sample_id": "ZY01-086",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-087",
+      "physical_sample_id": "ZY01-087",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-089",
+      "physical_sample_id": "ZY01-089",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-090",
+      "physical_sample_id": "ZY01-090",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-091",
+      "physical_sample_id": "ZY01-091",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-092",
+      "physical_sample_id": "ZY01-092",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-093",
+      "physical_sample_id": "ZY01-093",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-096",
+      "physical_sample_id": "ZY01-096",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-097",
+      "physical_sample_id": "ZY01-097",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-099",
+      "physical_sample_id": "ZY01-099",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-100",
+      "physical_sample_id": "ZY01-100",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-102",
+      "physical_sample_id": "ZY01-102",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-105",
+      "physical_sample_id": "ZY01-105",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-106",
+      "physical_sample_id": "ZY01-106",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-108",
+      "physical_sample_id": "ZY01-108",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-109",
+      "physical_sample_id": "ZY01-109",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-110",
+      "physical_sample_id": "ZY01-110",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-111",
+      "physical_sample_id": "ZY01-111",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-112",
+      "physical_sample_id": "ZY01-112",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-113",
+      "physical_sample_id": "ZY01-113",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-114",
+      "physical_sample_id": "ZY01-114",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-116",
+      "physical_sample_id": "ZY01-116",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-117",
+      "physical_sample_id": "ZY01-117",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-118",
+      "physical_sample_id": "ZY01-118",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-120",
+      "physical_sample_id": "ZY01-120",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-121",
+      "physical_sample_id": "ZY01-121",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-124",
+      "physical_sample_id": "ZY01-124",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-125",
+      "physical_sample_id": "ZY01-125",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-126",
+      "physical_sample_id": "ZY01-126",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-127",
+      "physical_sample_id": "ZY01-127",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-128",
+      "physical_sample_id": "ZY01-128",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-130",
+      "physical_sample_id": "ZY01-130",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-133",
+      "physical_sample_id": "ZY01-133",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-134",
+      "physical_sample_id": "ZY01-134",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-136",
+      "physical_sample_id": "ZY01-136",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-138",
+      "physical_sample_id": "ZY01-138",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-139",
+      "physical_sample_id": "ZY01-139",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-141",
+      "physical_sample_id": "ZY01-141",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-142",
+      "physical_sample_id": "ZY01-142",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-143",
+      "physical_sample_id": "ZY01-143",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-145",
+      "physical_sample_id": "ZY01-145",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-147",
+      "physical_sample_id": "ZY01-147",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-150",
+      "physical_sample_id": "ZY01-150",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-151",
+      "physical_sample_id": "ZY01-151",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-152",
+      "physical_sample_id": "ZY01-152",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-154",
+      "physical_sample_id": "ZY01-154",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-156",
+      "physical_sample_id": "ZY01-156",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-158",
+      "physical_sample_id": "ZY01-158",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-159",
+      "physical_sample_id": "ZY01-159",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-160",
+      "physical_sample_id": "ZY01-160",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-163",
+      "physical_sample_id": "ZY01-163",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-164",
+      "physical_sample_id": "ZY01-164",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-166",
+      "physical_sample_id": "ZY01-166",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-167",
+      "physical_sample_id": "ZY01-167",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-168",
+      "physical_sample_id": "ZY01-168",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-169",
+      "physical_sample_id": "ZY01-169",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-170",
+      "physical_sample_id": "ZY01-170",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-171",
+      "physical_sample_id": "ZY01-171",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-173",
+      "physical_sample_id": "ZY01-173",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-179",
+      "physical_sample_id": "ZY01-179",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-180",
+      "physical_sample_id": "ZY01-180",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-181",
+      "physical_sample_id": "ZY01-181",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-183",
+      "physical_sample_id": "ZY01-183",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-184",
+      "physical_sample_id": "ZY01-184",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-186",
+      "physical_sample_id": "ZY01-186",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-187",
+      "physical_sample_id": "ZY01-187",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-189",
+      "physical_sample_id": "ZY01-189",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-193",
+      "physical_sample_id": "ZY01-193",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-194",
+      "physical_sample_id": "ZY01-194",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-198",
+      "physical_sample_id": "ZY01-198",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-199",
+      "physical_sample_id": "ZY01-199",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-200",
+      "physical_sample_id": "ZY01-200",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-202",
+      "physical_sample_id": "ZY01-202",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-203",
+      "physical_sample_id": "ZY01-203",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-204",
+      "physical_sample_id": "ZY01-204",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-205",
+      "physical_sample_id": "ZY01-205",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-207",
+      "physical_sample_id": "ZY01-207",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-208",
+      "physical_sample_id": "ZY01-208",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-209",
+      "physical_sample_id": "ZY01-209",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-211",
+      "physical_sample_id": "ZY01-211",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-214",
+      "physical_sample_id": "ZY01-214",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-215",
+      "physical_sample_id": "ZY01-215",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-217",
+      "physical_sample_id": "ZY01-217",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-218",
+      "physical_sample_id": "ZY01-218",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-220",
+      "physical_sample_id": "ZY01-220",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-222",
+      "physical_sample_id": "ZY01-222",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-224",
+      "physical_sample_id": "ZY01-224",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-225",
+      "physical_sample_id": "ZY01-225",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-226",
+      "physical_sample_id": "ZY01-226",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-227",
+      "physical_sample_id": "ZY01-227",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-228",
+      "physical_sample_id": "ZY01-228",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-229",
+      "physical_sample_id": "ZY01-229",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-230",
+      "physical_sample_id": "ZY01-230",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-233",
+      "physical_sample_id": "ZY01-233",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-234",
+      "physical_sample_id": "ZY01-234",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-235",
+      "physical_sample_id": "ZY01-235",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-238",
+      "physical_sample_id": "ZY01-238",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-239",
+      "physical_sample_id": "ZY01-239",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-243",
+      "physical_sample_id": "ZY01-243",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-251",
+      "physical_sample_id": "ZY01-251",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-253",
+      "physical_sample_id": "ZY01-253",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-254",
+      "physical_sample_id": "ZY01-254",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-255",
+      "physical_sample_id": "ZY01-255",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-256",
+      "physical_sample_id": "ZY01-256",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-258",
+      "physical_sample_id": "ZY01-258",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-259",
+      "physical_sample_id": "ZY01-259",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-261",
+      "physical_sample_id": "ZY01-261",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-265",
+      "physical_sample_id": "ZY01-265",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-267",
+      "physical_sample_id": "ZY01-267",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-271",
+      "physical_sample_id": "ZY01-271",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-272",
+      "physical_sample_id": "ZY01-272",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-275",
+      "physical_sample_id": "ZY01-275",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-277",
+      "physical_sample_id": "ZY01-277",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-279",
+      "physical_sample_id": "ZY01-279",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-280",
+      "physical_sample_id": "ZY01-280",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-281",
+      "physical_sample_id": "ZY01-281",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-282",
+      "physical_sample_id": "ZY01-282",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-284",
+      "physical_sample_id": "ZY01-284",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-286",
+      "physical_sample_id": "ZY01-286",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-287",
+      "physical_sample_id": "ZY01-287",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-288",
+      "physical_sample_id": "ZY01-288",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-291",
+      "physical_sample_id": "ZY01-291",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-293",
+      "physical_sample_id": "ZY01-293",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-295",
+      "physical_sample_id": "ZY01-295",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-296",
+      "physical_sample_id": "ZY01-296",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-297",
+      "physical_sample_id": "ZY01-297",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-298",
+      "physical_sample_id": "ZY01-298",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-299",
+      "physical_sample_id": "ZY01-299",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-300",
+      "physical_sample_id": "ZY01-300",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-304",
+      "physical_sample_id": "ZY01-304",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-307",
+      "physical_sample_id": "ZY01-307",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-310",
+      "physical_sample_id": "ZY01-310",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-311",
+      "physical_sample_id": "ZY01-311",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-312",
+      "physical_sample_id": "ZY01-312",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-313",
+      "physical_sample_id": "ZY01-313",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-314",
+      "physical_sample_id": "ZY01-314",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-315",
+      "physical_sample_id": "ZY01-315",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-316",
+      "physical_sample_id": "ZY01-316",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-317",
+      "physical_sample_id": "ZY01-317",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-319",
+      "physical_sample_id": "ZY01-319",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-322",
+      "physical_sample_id": "ZY01-322",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-323",
+      "physical_sample_id": "ZY01-323",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-326",
+      "physical_sample_id": "ZY01-326",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-327",
+      "physical_sample_id": "ZY01-327",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-328",
+      "physical_sample_id": "ZY01-328",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-329",
+      "physical_sample_id": "ZY01-329",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-330",
+      "physical_sample_id": "ZY01-330",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-332",
+      "physical_sample_id": "ZY01-332",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-333",
+      "physical_sample_id": "ZY01-333",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-335",
+      "physical_sample_id": "ZY01-335",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-337",
+      "physical_sample_id": "ZY01-337",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-339",
+      "physical_sample_id": "ZY01-339",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-341",
+      "physical_sample_id": "ZY01-341",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-343",
+      "physical_sample_id": "ZY01-343",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-344",
+      "physical_sample_id": "ZY01-344",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-347",
+      "physical_sample_id": "ZY01-347",
+      "origin_group_id": "ZY01",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-005",
+      "physical_sample_id": "ZY01-005",
+      "origin_group_id": "ZY01",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-015",
+      "physical_sample_id": "ZY01-015",
+      "origin_group_id": "ZY01",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-021",
+      "physical_sample_id": "ZY01-021",
+      "origin_group_id": "ZY01",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-030",
+      "physical_sample_id": "ZY01-030",
+      "origin_group_id": "ZY01",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-033",
+      "physical_sample_id": "ZY01-033",
+      "origin_group_id": "ZY01",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-034",
+      "physical_sample_id": "ZY01-034",
+      "origin_group_id": "ZY01",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-038",
+      "physical_sample_id": "ZY01-038",
+      "origin_group_id": "ZY01",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-043",
+      "physical_sample_id": "ZY01-043",
+      "origin_group_id": "ZY01",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-061",
+      "physical_sample_id": "ZY01-061",
+      "origin_group_id": "ZY01",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-080",
+      "physical_sample_id": "ZY01-080",
+      "origin_group_id": "ZY01",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-081",
+      "physical_sample_id": "ZY01-081",
+      "origin_group_id": "ZY01",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-083",
+      "physical_sample_id": "ZY01-083",
+      "origin_group_id": "ZY01",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-094",
+      "physical_sample_id": "ZY01-094",
+      "origin_group_id": "ZY01",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-095",
+      "physical_sample_id": "ZY01-095",
+      "origin_group_id": "ZY01",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-098",
+      "physical_sample_id": "ZY01-098",
+      "origin_group_id": "ZY01",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-103",
+      "physical_sample_id": "ZY01-103",
+      "origin_group_id": "ZY01",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-104",
+      "physical_sample_id": "ZY01-104",
+      "origin_group_id": "ZY01",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-131",
+      "physical_sample_id": "ZY01-131",
+      "origin_group_id": "ZY01",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-137",
+      "physical_sample_id": "ZY01-137",
+      "origin_group_id": "ZY01",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-140",
+      "physical_sample_id": "ZY01-140",
+      "origin_group_id": "ZY01",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-144",
+      "physical_sample_id": "ZY01-144",
+      "origin_group_id": "ZY01",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-153",
+      "physical_sample_id": "ZY01-153",
+      "origin_group_id": "ZY01",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-165",
+      "physical_sample_id": "ZY01-165",
+      "origin_group_id": "ZY01",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-174",
+      "physical_sample_id": "ZY01-174",
+      "origin_group_id": "ZY01",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-175",
+      "physical_sample_id": "ZY01-175",
+      "origin_group_id": "ZY01",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-176",
+      "physical_sample_id": "ZY01-176",
+      "origin_group_id": "ZY01",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-185",
+      "physical_sample_id": "ZY01-185",
+      "origin_group_id": "ZY01",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-191",
+      "physical_sample_id": "ZY01-191",
+      "origin_group_id": "ZY01",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-192",
+      "physical_sample_id": "ZY01-192",
+      "origin_group_id": "ZY01",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-197",
+      "physical_sample_id": "ZY01-197",
+      "origin_group_id": "ZY01",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-206",
+      "physical_sample_id": "ZY01-206",
+      "origin_group_id": "ZY01",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-210",
+      "physical_sample_id": "ZY01-210",
+      "origin_group_id": "ZY01",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-212",
+      "physical_sample_id": "ZY01-212",
+      "origin_group_id": "ZY01",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-213",
+      "physical_sample_id": "ZY01-213",
+      "origin_group_id": "ZY01",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-216",
+      "physical_sample_id": "ZY01-216",
+      "origin_group_id": "ZY01",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-219",
+      "physical_sample_id": "ZY01-219",
+      "origin_group_id": "ZY01",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-231",
+      "physical_sample_id": "ZY01-231",
+      "origin_group_id": "ZY01",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-236",
+      "physical_sample_id": "ZY01-236",
+      "origin_group_id": "ZY01",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-240",
+      "physical_sample_id": "ZY01-240",
+      "origin_group_id": "ZY01",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-241",
+      "physical_sample_id": "ZY01-241",
+      "origin_group_id": "ZY01",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-242",
+      "physical_sample_id": "ZY01-242",
+      "origin_group_id": "ZY01",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-245",
+      "physical_sample_id": "ZY01-245",
+      "origin_group_id": "ZY01",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-246",
+      "physical_sample_id": "ZY01-246",
+      "origin_group_id": "ZY01",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-248",
+      "physical_sample_id": "ZY01-248",
+      "origin_group_id": "ZY01",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-249",
+      "physical_sample_id": "ZY01-249",
+      "origin_group_id": "ZY01",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-250",
+      "physical_sample_id": "ZY01-250",
+      "origin_group_id": "ZY01",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-252",
+      "physical_sample_id": "ZY01-252",
+      "origin_group_id": "ZY01",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-257",
+      "physical_sample_id": "ZY01-257",
+      "origin_group_id": "ZY01",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-260",
+      "physical_sample_id": "ZY01-260",
+      "origin_group_id": "ZY01",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-263",
+      "physical_sample_id": "ZY01-263",
+      "origin_group_id": "ZY01",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-266",
+      "physical_sample_id": "ZY01-266",
+      "origin_group_id": "ZY01",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-268",
+      "physical_sample_id": "ZY01-268",
+      "origin_group_id": "ZY01",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-269",
+      "physical_sample_id": "ZY01-269",
+      "origin_group_id": "ZY01",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-270",
+      "physical_sample_id": "ZY01-270",
+      "origin_group_id": "ZY01",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-273",
+      "physical_sample_id": "ZY01-273",
+      "origin_group_id": "ZY01",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-278",
+      "physical_sample_id": "ZY01-278",
+      "origin_group_id": "ZY01",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-285",
+      "physical_sample_id": "ZY01-285",
+      "origin_group_id": "ZY01",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-294",
+      "physical_sample_id": "ZY01-294",
+      "origin_group_id": "ZY01",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-301",
+      "physical_sample_id": "ZY01-301",
+      "origin_group_id": "ZY01",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-303",
+      "physical_sample_id": "ZY01-303",
+      "origin_group_id": "ZY01",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-305",
+      "physical_sample_id": "ZY01-305",
+      "origin_group_id": "ZY01",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-306",
+      "physical_sample_id": "ZY01-306",
+      "origin_group_id": "ZY01",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-308",
+      "physical_sample_id": "ZY01-308",
+      "origin_group_id": "ZY01",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-320",
+      "physical_sample_id": "ZY01-320",
+      "origin_group_id": "ZY01",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-321",
+      "physical_sample_id": "ZY01-321",
+      "origin_group_id": "ZY01",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-325",
+      "physical_sample_id": "ZY01-325",
+      "origin_group_id": "ZY01",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-331",
+      "physical_sample_id": "ZY01-331",
+      "origin_group_id": "ZY01",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-334",
+      "physical_sample_id": "ZY01-334",
+      "origin_group_id": "ZY01",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-342",
+      "physical_sample_id": "ZY01-342",
+      "origin_group_id": "ZY01",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-348",
+      "physical_sample_id": "ZY01-348",
+      "origin_group_id": "ZY01",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-008",
+      "physical_sample_id": "ZY01-008",
+      "origin_group_id": "ZY01",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-016",
+      "physical_sample_id": "ZY01-016",
+      "origin_group_id": "ZY01",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-017",
+      "physical_sample_id": "ZY01-017",
+      "origin_group_id": "ZY01",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-018",
+      "physical_sample_id": "ZY01-018",
+      "origin_group_id": "ZY01",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-023",
+      "physical_sample_id": "ZY01-023",
+      "origin_group_id": "ZY01",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-025",
+      "physical_sample_id": "ZY01-025",
+      "origin_group_id": "ZY01",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-026",
+      "physical_sample_id": "ZY01-026",
+      "origin_group_id": "ZY01",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-027",
+      "physical_sample_id": "ZY01-027",
+      "origin_group_id": "ZY01",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-031",
+      "physical_sample_id": "ZY01-031",
+      "origin_group_id": "ZY01",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-045",
+      "physical_sample_id": "ZY01-045",
+      "origin_group_id": "ZY01",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-049",
+      "physical_sample_id": "ZY01-049",
+      "origin_group_id": "ZY01",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-053",
+      "physical_sample_id": "ZY01-053",
+      "origin_group_id": "ZY01",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-057",
+      "physical_sample_id": "ZY01-057",
+      "origin_group_id": "ZY01",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-058",
+      "physical_sample_id": "ZY01-058",
+      "origin_group_id": "ZY01",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-059",
+      "physical_sample_id": "ZY01-059",
+      "origin_group_id": "ZY01",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-064",
+      "physical_sample_id": "ZY01-064",
+      "origin_group_id": "ZY01",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-069",
+      "physical_sample_id": "ZY01-069",
+      "origin_group_id": "ZY01",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-074",
+      "physical_sample_id": "ZY01-074",
+      "origin_group_id": "ZY01",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-079",
+      "physical_sample_id": "ZY01-079",
+      "origin_group_id": "ZY01",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-088",
+      "physical_sample_id": "ZY01-088",
+      "origin_group_id": "ZY01",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-101",
+      "physical_sample_id": "ZY01-101",
+      "origin_group_id": "ZY01",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-107",
+      "physical_sample_id": "ZY01-107",
+      "origin_group_id": "ZY01",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-115",
+      "physical_sample_id": "ZY01-115",
+      "origin_group_id": "ZY01",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-119",
+      "physical_sample_id": "ZY01-119",
+      "origin_group_id": "ZY01",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-122",
+      "physical_sample_id": "ZY01-122",
+      "origin_group_id": "ZY01",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-123",
+      "physical_sample_id": "ZY01-123",
+      "origin_group_id": "ZY01",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-129",
+      "physical_sample_id": "ZY01-129",
+      "origin_group_id": "ZY01",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-132",
+      "physical_sample_id": "ZY01-132",
+      "origin_group_id": "ZY01",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-135",
+      "physical_sample_id": "ZY01-135",
+      "origin_group_id": "ZY01",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-146",
+      "physical_sample_id": "ZY01-146",
+      "origin_group_id": "ZY01",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-148",
+      "physical_sample_id": "ZY01-148",
+      "origin_group_id": "ZY01",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-149",
+      "physical_sample_id": "ZY01-149",
+      "origin_group_id": "ZY01",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-155",
+      "physical_sample_id": "ZY01-155",
+      "origin_group_id": "ZY01",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-157",
+      "physical_sample_id": "ZY01-157",
+      "origin_group_id": "ZY01",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-161",
+      "physical_sample_id": "ZY01-161",
+      "origin_group_id": "ZY01",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-162",
+      "physical_sample_id": "ZY01-162",
+      "origin_group_id": "ZY01",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-172",
+      "physical_sample_id": "ZY01-172",
+      "origin_group_id": "ZY01",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-177",
+      "physical_sample_id": "ZY01-177",
+      "origin_group_id": "ZY01",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-178",
+      "physical_sample_id": "ZY01-178",
+      "origin_group_id": "ZY01",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-182",
+      "physical_sample_id": "ZY01-182",
+      "origin_group_id": "ZY01",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-188",
+      "physical_sample_id": "ZY01-188",
+      "origin_group_id": "ZY01",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-190",
+      "physical_sample_id": "ZY01-190",
+      "origin_group_id": "ZY01",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-195",
+      "physical_sample_id": "ZY01-195",
+      "origin_group_id": "ZY01",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-196",
+      "physical_sample_id": "ZY01-196",
+      "origin_group_id": "ZY01",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-201",
+      "physical_sample_id": "ZY01-201",
+      "origin_group_id": "ZY01",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-221",
+      "physical_sample_id": "ZY01-221",
+      "origin_group_id": "ZY01",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-223",
+      "physical_sample_id": "ZY01-223",
+      "origin_group_id": "ZY01",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-232",
+      "physical_sample_id": "ZY01-232",
+      "origin_group_id": "ZY01",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-237",
+      "physical_sample_id": "ZY01-237",
+      "origin_group_id": "ZY01",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-244",
+      "physical_sample_id": "ZY01-244",
+      "origin_group_id": "ZY01",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-247",
+      "physical_sample_id": "ZY01-247",
+      "origin_group_id": "ZY01",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-262",
+      "physical_sample_id": "ZY01-262",
+      "origin_group_id": "ZY01",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-264",
+      "physical_sample_id": "ZY01-264",
+      "origin_group_id": "ZY01",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-274",
+      "physical_sample_id": "ZY01-274",
+      "origin_group_id": "ZY01",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-276",
+      "physical_sample_id": "ZY01-276",
+      "origin_group_id": "ZY01",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-283",
+      "physical_sample_id": "ZY01-283",
+      "origin_group_id": "ZY01",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-289",
+      "physical_sample_id": "ZY01-289",
+      "origin_group_id": "ZY01",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-290",
+      "physical_sample_id": "ZY01-290",
+      "origin_group_id": "ZY01",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-292",
+      "physical_sample_id": "ZY01-292",
+      "origin_group_id": "ZY01",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-302",
+      "physical_sample_id": "ZY01-302",
+      "origin_group_id": "ZY01",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-309",
+      "physical_sample_id": "ZY01-309",
+      "origin_group_id": "ZY01",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-318",
+      "physical_sample_id": "ZY01-318",
+      "origin_group_id": "ZY01",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-324",
+      "physical_sample_id": "ZY01-324",
+      "origin_group_id": "ZY01",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-336",
+      "physical_sample_id": "ZY01-336",
+      "origin_group_id": "ZY01",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-338",
+      "physical_sample_id": "ZY01-338",
+      "origin_group_id": "ZY01",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-340",
+      "physical_sample_id": "ZY01-340",
+      "origin_group_id": "ZY01",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-345",
+      "physical_sample_id": "ZY01-345",
+      "origin_group_id": "ZY01",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-346",
+      "physical_sample_id": "ZY01-346",
+      "origin_group_id": "ZY01",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-349",
+      "physical_sample_id": "ZY01-349",
+      "origin_group_id": "ZY01",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY01-350",
+      "physical_sample_id": "ZY01-350",
+      "origin_group_id": "ZY01",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本1_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY02-001",
+      "physical_sample_id": "ZY02-001",
+      "origin_group_id": "ZY02",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本2_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY02-004",
+      "physical_sample_id": "ZY02-004",
+      "origin_group_id": "ZY02",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本2_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY02-005",
+      "physical_sample_id": "ZY02-005",
+      "origin_group_id": "ZY02",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本2_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY02-002",
+      "physical_sample_id": "ZY02-002",
+      "origin_group_id": "ZY02",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本2_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY02-003",
+      "physical_sample_id": "ZY02-003",
+      "origin_group_id": "ZY02",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本2_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY03-002",
+      "physical_sample_id": "ZY03-002",
+      "origin_group_id": "ZY03",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本3_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY03-004",
+      "physical_sample_id": "ZY03-004",
+      "origin_group_id": "ZY03",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本3_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY03-007",
+      "physical_sample_id": "ZY03-007",
+      "origin_group_id": "ZY03",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本3_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY03-008",
+      "physical_sample_id": "ZY03-008",
+      "origin_group_id": "ZY03",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本3_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY03-009",
+      "physical_sample_id": "ZY03-009",
+      "origin_group_id": "ZY03",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本3_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY03-010",
+      "physical_sample_id": "ZY03-010",
+      "origin_group_id": "ZY03",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本3_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY03-011",
+      "physical_sample_id": "ZY03-011",
+      "origin_group_id": "ZY03",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本3_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY03-012",
+      "physical_sample_id": "ZY03-012",
+      "origin_group_id": "ZY03",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本3_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY03-013",
+      "physical_sample_id": "ZY03-013",
+      "origin_group_id": "ZY03",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本3_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY03-014",
+      "physical_sample_id": "ZY03-014",
+      "origin_group_id": "ZY03",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本3_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY03-015",
+      "physical_sample_id": "ZY03-015",
+      "origin_group_id": "ZY03",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本3_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY03-016",
+      "physical_sample_id": "ZY03-016",
+      "origin_group_id": "ZY03",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本3_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY03-018",
+      "physical_sample_id": "ZY03-018",
+      "origin_group_id": "ZY03",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本3_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY03-021",
+      "physical_sample_id": "ZY03-021",
+      "origin_group_id": "ZY03",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本3_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY03-022",
+      "physical_sample_id": "ZY03-022",
+      "origin_group_id": "ZY03",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本3_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY03-025",
+      "physical_sample_id": "ZY03-025",
+      "origin_group_id": "ZY03",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本3_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY03-026",
+      "physical_sample_id": "ZY03-026",
+      "origin_group_id": "ZY03",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本3_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY03-027",
+      "physical_sample_id": "ZY03-027",
+      "origin_group_id": "ZY03",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本3_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY03-028",
+      "physical_sample_id": "ZY03-028",
+      "origin_group_id": "ZY03",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本3_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY03-033",
+      "physical_sample_id": "ZY03-033",
+      "origin_group_id": "ZY03",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本3_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY03-035",
+      "physical_sample_id": "ZY03-035",
+      "origin_group_id": "ZY03",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本3_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY03-039",
+      "physical_sample_id": "ZY03-039",
+      "origin_group_id": "ZY03",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本3_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY03-041",
+      "physical_sample_id": "ZY03-041",
+      "origin_group_id": "ZY03",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本3_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY03-042",
+      "physical_sample_id": "ZY03-042",
+      "origin_group_id": "ZY03",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本3_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY03-044",
+      "physical_sample_id": "ZY03-044",
+      "origin_group_id": "ZY03",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本3_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY03-045",
+      "physical_sample_id": "ZY03-045",
+      "origin_group_id": "ZY03",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本3_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY03-047",
+      "physical_sample_id": "ZY03-047",
+      "origin_group_id": "ZY03",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本3_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY03-048",
+      "physical_sample_id": "ZY03-048",
+      "origin_group_id": "ZY03",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本3_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY03-049",
+      "physical_sample_id": "ZY03-049",
+      "origin_group_id": "ZY03",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本3_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY03-050",
+      "physical_sample_id": "ZY03-050",
+      "origin_group_id": "ZY03",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本3_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY03-051",
+      "physical_sample_id": "ZY03-051",
+      "origin_group_id": "ZY03",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本3_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY03-052",
+      "physical_sample_id": "ZY03-052",
+      "origin_group_id": "ZY03",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本3_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY03-053",
+      "physical_sample_id": "ZY03-053",
+      "origin_group_id": "ZY03",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本3_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY03-054",
+      "physical_sample_id": "ZY03-054",
+      "origin_group_id": "ZY03",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本3_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY03-055",
+      "physical_sample_id": "ZY03-055",
+      "origin_group_id": "ZY03",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本3_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY03-062",
+      "physical_sample_id": "ZY03-062",
+      "origin_group_id": "ZY03",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本3_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY03-066",
+      "physical_sample_id": "ZY03-066",
+      "origin_group_id": "ZY03",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本3_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY03-068",
+      "physical_sample_id": "ZY03-068",
+      "origin_group_id": "ZY03",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本3_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY03-069",
+      "physical_sample_id": "ZY03-069",
+      "origin_group_id": "ZY03",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本3_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY03-070",
+      "physical_sample_id": "ZY03-070",
+      "origin_group_id": "ZY03",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本3_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY03-071",
+      "physical_sample_id": "ZY03-071",
+      "origin_group_id": "ZY03",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本3_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY03-073",
+      "physical_sample_id": "ZY03-073",
+      "origin_group_id": "ZY03",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本3_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY03-074",
+      "physical_sample_id": "ZY03-074",
+      "origin_group_id": "ZY03",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本3_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY03-075",
+      "physical_sample_id": "ZY03-075",
+      "origin_group_id": "ZY03",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本3_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY03-076",
+      "physical_sample_id": "ZY03-076",
+      "origin_group_id": "ZY03",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本3_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY03-077",
+      "physical_sample_id": "ZY03-077",
+      "origin_group_id": "ZY03",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本3_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY03-078",
+      "physical_sample_id": "ZY03-078",
+      "origin_group_id": "ZY03",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本3_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY03-079",
+      "physical_sample_id": "ZY03-079",
+      "origin_group_id": "ZY03",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本3_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY03-081",
+      "physical_sample_id": "ZY03-081",
+      "origin_group_id": "ZY03",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本3_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY03-082",
+      "physical_sample_id": "ZY03-082",
+      "origin_group_id": "ZY03",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本3_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY03-084",
+      "physical_sample_id": "ZY03-084",
+      "origin_group_id": "ZY03",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本3_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY03-085",
+      "physical_sample_id": "ZY03-085",
+      "origin_group_id": "ZY03",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本3_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY03-086",
+      "physical_sample_id": "ZY03-086",
+      "origin_group_id": "ZY03",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本3_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY03-088",
+      "physical_sample_id": "ZY03-088",
+      "origin_group_id": "ZY03",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本3_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY03-089",
+      "physical_sample_id": "ZY03-089",
+      "origin_group_id": "ZY03",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本3_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY03-090",
+      "physical_sample_id": "ZY03-090",
+      "origin_group_id": "ZY03",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本3_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY03-092",
+      "physical_sample_id": "ZY03-092",
+      "origin_group_id": "ZY03",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本3_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY03-094",
+      "physical_sample_id": "ZY03-094",
+      "origin_group_id": "ZY03",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本3_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY03-095",
+      "physical_sample_id": "ZY03-095",
+      "origin_group_id": "ZY03",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本3_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY03-100",
+      "physical_sample_id": "ZY03-100",
+      "origin_group_id": "ZY03",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本3_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY03-001",
+      "physical_sample_id": "ZY03-001",
+      "origin_group_id": "ZY03",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本3_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY03-017",
+      "physical_sample_id": "ZY03-017",
+      "origin_group_id": "ZY03",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本3_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY03-019",
+      "physical_sample_id": "ZY03-019",
+      "origin_group_id": "ZY03",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本3_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY03-029",
+      "physical_sample_id": "ZY03-029",
+      "origin_group_id": "ZY03",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本3_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY03-032",
+      "physical_sample_id": "ZY03-032",
+      "origin_group_id": "ZY03",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本3_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY03-034",
+      "physical_sample_id": "ZY03-034",
+      "origin_group_id": "ZY03",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本3_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY03-036",
+      "physical_sample_id": "ZY03-036",
+      "origin_group_id": "ZY03",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本3_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY03-043",
+      "physical_sample_id": "ZY03-043",
+      "origin_group_id": "ZY03",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本3_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY03-046",
+      "physical_sample_id": "ZY03-046",
+      "origin_group_id": "ZY03",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本3_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY03-057",
+      "physical_sample_id": "ZY03-057",
+      "origin_group_id": "ZY03",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本3_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY03-058",
+      "physical_sample_id": "ZY03-058",
+      "origin_group_id": "ZY03",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本3_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY03-060",
+      "physical_sample_id": "ZY03-060",
+      "origin_group_id": "ZY03",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本3_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY03-061",
+      "physical_sample_id": "ZY03-061",
+      "origin_group_id": "ZY03",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本3_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY03-067",
+      "physical_sample_id": "ZY03-067",
+      "origin_group_id": "ZY03",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本3_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY03-072",
+      "physical_sample_id": "ZY03-072",
+      "origin_group_id": "ZY03",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本3_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY03-080",
+      "physical_sample_id": "ZY03-080",
+      "origin_group_id": "ZY03",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本3_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY03-083",
+      "physical_sample_id": "ZY03-083",
+      "origin_group_id": "ZY03",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本3_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY03-096",
+      "physical_sample_id": "ZY03-096",
+      "origin_group_id": "ZY03",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本3_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY03-098",
+      "physical_sample_id": "ZY03-098",
+      "origin_group_id": "ZY03",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本3_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY03-099",
+      "physical_sample_id": "ZY03-099",
+      "origin_group_id": "ZY03",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本3_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY03-003",
+      "physical_sample_id": "ZY03-003",
+      "origin_group_id": "ZY03",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本3_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY03-005",
+      "physical_sample_id": "ZY03-005",
+      "origin_group_id": "ZY03",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本3_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY03-006",
+      "physical_sample_id": "ZY03-006",
+      "origin_group_id": "ZY03",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本3_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY03-020",
+      "physical_sample_id": "ZY03-020",
+      "origin_group_id": "ZY03",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本3_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY03-023",
+      "physical_sample_id": "ZY03-023",
+      "origin_group_id": "ZY03",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本3_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY03-024",
+      "physical_sample_id": "ZY03-024",
+      "origin_group_id": "ZY03",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本3_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY03-030",
+      "physical_sample_id": "ZY03-030",
+      "origin_group_id": "ZY03",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本3_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY03-031",
+      "physical_sample_id": "ZY03-031",
+      "origin_group_id": "ZY03",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本3_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY03-037",
+      "physical_sample_id": "ZY03-037",
+      "origin_group_id": "ZY03",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本3_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY03-038",
+      "physical_sample_id": "ZY03-038",
+      "origin_group_id": "ZY03",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本3_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY03-040",
+      "physical_sample_id": "ZY03-040",
+      "origin_group_id": "ZY03",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本3_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY03-056",
+      "physical_sample_id": "ZY03-056",
+      "origin_group_id": "ZY03",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本3_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY03-059",
+      "physical_sample_id": "ZY03-059",
+      "origin_group_id": "ZY03",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本3_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY03-063",
+      "physical_sample_id": "ZY03-063",
+      "origin_group_id": "ZY03",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本3_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY03-064",
+      "physical_sample_id": "ZY03-064",
+      "origin_group_id": "ZY03",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本3_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY03-065",
+      "physical_sample_id": "ZY03-065",
+      "origin_group_id": "ZY03",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本3_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY03-087",
+      "physical_sample_id": "ZY03-087",
+      "origin_group_id": "ZY03",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本3_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY03-091",
+      "physical_sample_id": "ZY03-091",
+      "origin_group_id": "ZY03",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本3_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY03-093",
+      "physical_sample_id": "ZY03-093",
+      "origin_group_id": "ZY03",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本3_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY03-097",
+      "physical_sample_id": "ZY03-097",
+      "origin_group_id": "ZY03",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本3_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY04-004",
+      "physical_sample_id": "ZY04-004",
+      "origin_group_id": "ZY04",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本4_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY04-007",
+      "physical_sample_id": "ZY04-007",
+      "origin_group_id": "ZY04",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本4_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY04-010",
+      "physical_sample_id": "ZY04-010",
+      "origin_group_id": "ZY04",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本4_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY04-012",
+      "physical_sample_id": "ZY04-012",
+      "origin_group_id": "ZY04",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本4_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY04-013",
+      "physical_sample_id": "ZY04-013",
+      "origin_group_id": "ZY04",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本4_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY04-014",
+      "physical_sample_id": "ZY04-014",
+      "origin_group_id": "ZY04",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本4_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY04-015",
+      "physical_sample_id": "ZY04-015",
+      "origin_group_id": "ZY04",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本4_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY04-016",
+      "physical_sample_id": "ZY04-016",
+      "origin_group_id": "ZY04",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本4_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY04-019",
+      "physical_sample_id": "ZY04-019",
+      "origin_group_id": "ZY04",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本4_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY04-020",
+      "physical_sample_id": "ZY04-020",
+      "origin_group_id": "ZY04",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本4_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY04-021",
+      "physical_sample_id": "ZY04-021",
+      "origin_group_id": "ZY04",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本4_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY04-023",
+      "physical_sample_id": "ZY04-023",
+      "origin_group_id": "ZY04",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本4_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY04-024",
+      "physical_sample_id": "ZY04-024",
+      "origin_group_id": "ZY04",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本4_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY04-026",
+      "physical_sample_id": "ZY04-026",
+      "origin_group_id": "ZY04",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本4_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY04-028",
+      "physical_sample_id": "ZY04-028",
+      "origin_group_id": "ZY04",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本4_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY04-030",
+      "physical_sample_id": "ZY04-030",
+      "origin_group_id": "ZY04",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本4_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY04-031",
+      "physical_sample_id": "ZY04-031",
+      "origin_group_id": "ZY04",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本4_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY04-032",
+      "physical_sample_id": "ZY04-032",
+      "origin_group_id": "ZY04",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本4_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY04-033",
+      "physical_sample_id": "ZY04-033",
+      "origin_group_id": "ZY04",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本4_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY04-035",
+      "physical_sample_id": "ZY04-035",
+      "origin_group_id": "ZY04",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本4_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY04-036",
+      "physical_sample_id": "ZY04-036",
+      "origin_group_id": "ZY04",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本4_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY04-037",
+      "physical_sample_id": "ZY04-037",
+      "origin_group_id": "ZY04",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本4_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY04-038",
+      "physical_sample_id": "ZY04-038",
+      "origin_group_id": "ZY04",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本4_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY04-040",
+      "physical_sample_id": "ZY04-040",
+      "origin_group_id": "ZY04",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本4_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY04-042",
+      "physical_sample_id": "ZY04-042",
+      "origin_group_id": "ZY04",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本4_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY04-043",
+      "physical_sample_id": "ZY04-043",
+      "origin_group_id": "ZY04",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本4_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY04-045",
+      "physical_sample_id": "ZY04-045",
+      "origin_group_id": "ZY04",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本4_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY04-047",
+      "physical_sample_id": "ZY04-047",
+      "origin_group_id": "ZY04",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本4_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY04-048",
+      "physical_sample_id": "ZY04-048",
+      "origin_group_id": "ZY04",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本4_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY04-049",
+      "physical_sample_id": "ZY04-049",
+      "origin_group_id": "ZY04",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本4_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY04-050",
+      "physical_sample_id": "ZY04-050",
+      "origin_group_id": "ZY04",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本4_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY04-054",
+      "physical_sample_id": "ZY04-054",
+      "origin_group_id": "ZY04",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本4_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY04-056",
+      "physical_sample_id": "ZY04-056",
+      "origin_group_id": "ZY04",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本4_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY04-057",
+      "physical_sample_id": "ZY04-057",
+      "origin_group_id": "ZY04",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本4_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY04-058",
+      "physical_sample_id": "ZY04-058",
+      "origin_group_id": "ZY04",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本4_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY04-060",
+      "physical_sample_id": "ZY04-060",
+      "origin_group_id": "ZY04",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本4_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY04-061",
+      "physical_sample_id": "ZY04-061",
+      "origin_group_id": "ZY04",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本4_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY04-065",
+      "physical_sample_id": "ZY04-065",
+      "origin_group_id": "ZY04",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本4_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY04-066",
+      "physical_sample_id": "ZY04-066",
+      "origin_group_id": "ZY04",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本4_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY04-067",
+      "physical_sample_id": "ZY04-067",
+      "origin_group_id": "ZY04",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本4_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY04-068",
+      "physical_sample_id": "ZY04-068",
+      "origin_group_id": "ZY04",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本4_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY04-070",
+      "physical_sample_id": "ZY04-070",
+      "origin_group_id": "ZY04",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本4_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY04-072",
+      "physical_sample_id": "ZY04-072",
+      "origin_group_id": "ZY04",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本4_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY04-073",
+      "physical_sample_id": "ZY04-073",
+      "origin_group_id": "ZY04",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本4_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY04-076",
+      "physical_sample_id": "ZY04-076",
+      "origin_group_id": "ZY04",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本4_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY04-078",
+      "physical_sample_id": "ZY04-078",
+      "origin_group_id": "ZY04",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本4_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY04-082",
+      "physical_sample_id": "ZY04-082",
+      "origin_group_id": "ZY04",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本4_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY04-083",
+      "physical_sample_id": "ZY04-083",
+      "origin_group_id": "ZY04",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本4_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY04-084",
+      "physical_sample_id": "ZY04-084",
+      "origin_group_id": "ZY04",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本4_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY04-086",
+      "physical_sample_id": "ZY04-086",
+      "origin_group_id": "ZY04",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本4_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY04-087",
+      "physical_sample_id": "ZY04-087",
+      "origin_group_id": "ZY04",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本4_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY04-088",
+      "physical_sample_id": "ZY04-088",
+      "origin_group_id": "ZY04",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本4_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY04-089",
+      "physical_sample_id": "ZY04-089",
+      "origin_group_id": "ZY04",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本4_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY04-090",
+      "physical_sample_id": "ZY04-090",
+      "origin_group_id": "ZY04",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本4_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY04-091",
+      "physical_sample_id": "ZY04-091",
+      "origin_group_id": "ZY04",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本4_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY04-092",
+      "physical_sample_id": "ZY04-092",
+      "origin_group_id": "ZY04",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本4_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY04-093",
+      "physical_sample_id": "ZY04-093",
+      "origin_group_id": "ZY04",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本4_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY04-094",
+      "physical_sample_id": "ZY04-094",
+      "origin_group_id": "ZY04",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本4_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY04-095",
+      "physical_sample_id": "ZY04-095",
+      "origin_group_id": "ZY04",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本4_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY04-097",
+      "physical_sample_id": "ZY04-097",
+      "origin_group_id": "ZY04",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本4_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY04-002",
+      "physical_sample_id": "ZY04-002",
+      "origin_group_id": "ZY04",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本4_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY04-006",
+      "physical_sample_id": "ZY04-006",
+      "origin_group_id": "ZY04",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本4_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY04-008",
+      "physical_sample_id": "ZY04-008",
+      "origin_group_id": "ZY04",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本4_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY04-027",
+      "physical_sample_id": "ZY04-027",
+      "origin_group_id": "ZY04",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本4_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY04-029",
+      "physical_sample_id": "ZY04-029",
+      "origin_group_id": "ZY04",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本4_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY04-039",
+      "physical_sample_id": "ZY04-039",
+      "origin_group_id": "ZY04",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本4_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY04-041",
+      "physical_sample_id": "ZY04-041",
+      "origin_group_id": "ZY04",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本4_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY04-044",
+      "physical_sample_id": "ZY04-044",
+      "origin_group_id": "ZY04",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本4_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY04-046",
+      "physical_sample_id": "ZY04-046",
+      "origin_group_id": "ZY04",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本4_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY04-051",
+      "physical_sample_id": "ZY04-051",
+      "origin_group_id": "ZY04",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本4_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY04-062",
+      "physical_sample_id": "ZY04-062",
+      "origin_group_id": "ZY04",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本4_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY04-064",
+      "physical_sample_id": "ZY04-064",
+      "origin_group_id": "ZY04",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本4_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY04-074",
+      "physical_sample_id": "ZY04-074",
+      "origin_group_id": "ZY04",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本4_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY04-077",
+      "physical_sample_id": "ZY04-077",
+      "origin_group_id": "ZY04",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本4_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY04-079",
+      "physical_sample_id": "ZY04-079",
+      "origin_group_id": "ZY04",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本4_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY04-080",
+      "physical_sample_id": "ZY04-080",
+      "origin_group_id": "ZY04",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本4_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY04-081",
+      "physical_sample_id": "ZY04-081",
+      "origin_group_id": "ZY04",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本4_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY04-096",
+      "physical_sample_id": "ZY04-096",
+      "origin_group_id": "ZY04",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本4_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY04-099",
+      "physical_sample_id": "ZY04-099",
+      "origin_group_id": "ZY04",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本4_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY04-100",
+      "physical_sample_id": "ZY04-100",
+      "origin_group_id": "ZY04",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本4_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY04-001",
+      "physical_sample_id": "ZY04-001",
+      "origin_group_id": "ZY04",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本4_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY04-003",
+      "physical_sample_id": "ZY04-003",
+      "origin_group_id": "ZY04",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本4_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY04-005",
+      "physical_sample_id": "ZY04-005",
+      "origin_group_id": "ZY04",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本4_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY04-009",
+      "physical_sample_id": "ZY04-009",
+      "origin_group_id": "ZY04",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本4_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY04-011",
+      "physical_sample_id": "ZY04-011",
+      "origin_group_id": "ZY04",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本4_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY04-017",
+      "physical_sample_id": "ZY04-017",
+      "origin_group_id": "ZY04",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本4_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY04-018",
+      "physical_sample_id": "ZY04-018",
+      "origin_group_id": "ZY04",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本4_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY04-022",
+      "physical_sample_id": "ZY04-022",
+      "origin_group_id": "ZY04",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本4_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY04-025",
+      "physical_sample_id": "ZY04-025",
+      "origin_group_id": "ZY04",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本4_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY04-034",
+      "physical_sample_id": "ZY04-034",
+      "origin_group_id": "ZY04",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本4_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY04-052",
+      "physical_sample_id": "ZY04-052",
+      "origin_group_id": "ZY04",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本4_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY04-053",
+      "physical_sample_id": "ZY04-053",
+      "origin_group_id": "ZY04",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本4_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY04-055",
+      "physical_sample_id": "ZY04-055",
+      "origin_group_id": "ZY04",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本4_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY04-059",
+      "physical_sample_id": "ZY04-059",
+      "origin_group_id": "ZY04",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本4_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY04-063",
+      "physical_sample_id": "ZY04-063",
+      "origin_group_id": "ZY04",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本4_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY04-069",
+      "physical_sample_id": "ZY04-069",
+      "origin_group_id": "ZY04",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本4_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY04-071",
+      "physical_sample_id": "ZY04-071",
+      "origin_group_id": "ZY04",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本4_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY04-075",
+      "physical_sample_id": "ZY04-075",
+      "origin_group_id": "ZY04",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本4_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY04-085",
+      "physical_sample_id": "ZY04-085",
+      "origin_group_id": "ZY04",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本4_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY04-098",
+      "physical_sample_id": "ZY04-098",
+      "origin_group_id": "ZY04",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本4_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY05-001",
+      "physical_sample_id": "ZY05-001",
+      "origin_group_id": "ZY05",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本5_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY05-002",
+      "physical_sample_id": "ZY05-002",
+      "origin_group_id": "ZY05",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本5_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY05-003",
+      "physical_sample_id": "ZY05-003",
+      "origin_group_id": "ZY05",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本5_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY05-005",
+      "physical_sample_id": "ZY05-005",
+      "origin_group_id": "ZY05",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本5_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY05-006",
+      "physical_sample_id": "ZY05-006",
+      "origin_group_id": "ZY05",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本5_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY05-007",
+      "physical_sample_id": "ZY05-007",
+      "origin_group_id": "ZY05",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本5_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY05-008",
+      "physical_sample_id": "ZY05-008",
+      "origin_group_id": "ZY05",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本5_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY05-009",
+      "physical_sample_id": "ZY05-009",
+      "origin_group_id": "ZY05",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本5_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY05-010",
+      "physical_sample_id": "ZY05-010",
+      "origin_group_id": "ZY05",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本5_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY05-011",
+      "physical_sample_id": "ZY05-011",
+      "origin_group_id": "ZY05",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本5_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY05-014",
+      "physical_sample_id": "ZY05-014",
+      "origin_group_id": "ZY05",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本5_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY05-015",
+      "physical_sample_id": "ZY05-015",
+      "origin_group_id": "ZY05",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本5_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY05-017",
+      "physical_sample_id": "ZY05-017",
+      "origin_group_id": "ZY05",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本5_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY05-018",
+      "physical_sample_id": "ZY05-018",
+      "origin_group_id": "ZY05",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本5_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY05-019",
+      "physical_sample_id": "ZY05-019",
+      "origin_group_id": "ZY05",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本5_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY05-021",
+      "physical_sample_id": "ZY05-021",
+      "origin_group_id": "ZY05",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本5_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY05-023",
+      "physical_sample_id": "ZY05-023",
+      "origin_group_id": "ZY05",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本5_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY05-024",
+      "physical_sample_id": "ZY05-024",
+      "origin_group_id": "ZY05",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本5_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY05-027",
+      "physical_sample_id": "ZY05-027",
+      "origin_group_id": "ZY05",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本5_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY05-028",
+      "physical_sample_id": "ZY05-028",
+      "origin_group_id": "ZY05",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本5_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY05-030",
+      "physical_sample_id": "ZY05-030",
+      "origin_group_id": "ZY05",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本5_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY05-033",
+      "physical_sample_id": "ZY05-033",
+      "origin_group_id": "ZY05",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本5_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY05-037",
+      "physical_sample_id": "ZY05-037",
+      "origin_group_id": "ZY05",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本5_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY05-040",
+      "physical_sample_id": "ZY05-040",
+      "origin_group_id": "ZY05",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本5_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY05-042",
+      "physical_sample_id": "ZY05-042",
+      "origin_group_id": "ZY05",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本5_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY05-043",
+      "physical_sample_id": "ZY05-043",
+      "origin_group_id": "ZY05",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本5_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY05-045",
+      "physical_sample_id": "ZY05-045",
+      "origin_group_id": "ZY05",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本5_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY05-046",
+      "physical_sample_id": "ZY05-046",
+      "origin_group_id": "ZY05",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本5_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY05-047",
+      "physical_sample_id": "ZY05-047",
+      "origin_group_id": "ZY05",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本5_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY05-048",
+      "physical_sample_id": "ZY05-048",
+      "origin_group_id": "ZY05",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本5_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY05-052",
+      "physical_sample_id": "ZY05-052",
+      "origin_group_id": "ZY05",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本5_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY05-054",
+      "physical_sample_id": "ZY05-054",
+      "origin_group_id": "ZY05",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本5_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY05-056",
+      "physical_sample_id": "ZY05-056",
+      "origin_group_id": "ZY05",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本5_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY05-057",
+      "physical_sample_id": "ZY05-057",
+      "origin_group_id": "ZY05",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本5_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY05-058",
+      "physical_sample_id": "ZY05-058",
+      "origin_group_id": "ZY05",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本5_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY05-059",
+      "physical_sample_id": "ZY05-059",
+      "origin_group_id": "ZY05",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本5_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY05-060",
+      "physical_sample_id": "ZY05-060",
+      "origin_group_id": "ZY05",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本5_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY05-061",
+      "physical_sample_id": "ZY05-061",
+      "origin_group_id": "ZY05",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本5_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY05-062",
+      "physical_sample_id": "ZY05-062",
+      "origin_group_id": "ZY05",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本5_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY05-063",
+      "physical_sample_id": "ZY05-063",
+      "origin_group_id": "ZY05",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本5_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY05-064",
+      "physical_sample_id": "ZY05-064",
+      "origin_group_id": "ZY05",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本5_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY05-065",
+      "physical_sample_id": "ZY05-065",
+      "origin_group_id": "ZY05",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本5_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY05-066",
+      "physical_sample_id": "ZY05-066",
+      "origin_group_id": "ZY05",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本5_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY05-067",
+      "physical_sample_id": "ZY05-067",
+      "origin_group_id": "ZY05",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本5_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY05-068",
+      "physical_sample_id": "ZY05-068",
+      "origin_group_id": "ZY05",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本5_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY05-070",
+      "physical_sample_id": "ZY05-070",
+      "origin_group_id": "ZY05",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本5_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY05-076",
+      "physical_sample_id": "ZY05-076",
+      "origin_group_id": "ZY05",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本5_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY05-077",
+      "physical_sample_id": "ZY05-077",
+      "origin_group_id": "ZY05",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本5_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY05-079",
+      "physical_sample_id": "ZY05-079",
+      "origin_group_id": "ZY05",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本5_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY05-080",
+      "physical_sample_id": "ZY05-080",
+      "origin_group_id": "ZY05",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本5_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY05-084",
+      "physical_sample_id": "ZY05-084",
+      "origin_group_id": "ZY05",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本5_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY05-086",
+      "physical_sample_id": "ZY05-086",
+      "origin_group_id": "ZY05",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本5_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY05-088",
+      "physical_sample_id": "ZY05-088",
+      "origin_group_id": "ZY05",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本5_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY05-090",
+      "physical_sample_id": "ZY05-090",
+      "origin_group_id": "ZY05",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本5_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY05-093",
+      "physical_sample_id": "ZY05-093",
+      "origin_group_id": "ZY05",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本5_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY05-095",
+      "physical_sample_id": "ZY05-095",
+      "origin_group_id": "ZY05",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本5_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY05-096",
+      "physical_sample_id": "ZY05-096",
+      "origin_group_id": "ZY05",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本5_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY05-097",
+      "physical_sample_id": "ZY05-097",
+      "origin_group_id": "ZY05",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本5_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY05-098",
+      "physical_sample_id": "ZY05-098",
+      "origin_group_id": "ZY05",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本5_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY05-099",
+      "physical_sample_id": "ZY05-099",
+      "origin_group_id": "ZY05",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本5_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY05-004",
+      "physical_sample_id": "ZY05-004",
+      "origin_group_id": "ZY05",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本5_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY05-012",
+      "physical_sample_id": "ZY05-012",
+      "origin_group_id": "ZY05",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本5_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY05-016",
+      "physical_sample_id": "ZY05-016",
+      "origin_group_id": "ZY05",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本5_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY05-022",
+      "physical_sample_id": "ZY05-022",
+      "origin_group_id": "ZY05",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本5_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY05-026",
+      "physical_sample_id": "ZY05-026",
+      "origin_group_id": "ZY05",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本5_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY05-034",
+      "physical_sample_id": "ZY05-034",
+      "origin_group_id": "ZY05",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本5_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY05-035",
+      "physical_sample_id": "ZY05-035",
+      "origin_group_id": "ZY05",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本5_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY05-038",
+      "physical_sample_id": "ZY05-038",
+      "origin_group_id": "ZY05",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本5_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY05-039",
+      "physical_sample_id": "ZY05-039",
+      "origin_group_id": "ZY05",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本5_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY05-044",
+      "physical_sample_id": "ZY05-044",
+      "origin_group_id": "ZY05",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本5_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY05-049",
+      "physical_sample_id": "ZY05-049",
+      "origin_group_id": "ZY05",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本5_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY05-069",
+      "physical_sample_id": "ZY05-069",
+      "origin_group_id": "ZY05",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本5_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY05-072",
+      "physical_sample_id": "ZY05-072",
+      "origin_group_id": "ZY05",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本5_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY05-081",
+      "physical_sample_id": "ZY05-081",
+      "origin_group_id": "ZY05",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本5_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY05-082",
+      "physical_sample_id": "ZY05-082",
+      "origin_group_id": "ZY05",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本5_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY05-083",
+      "physical_sample_id": "ZY05-083",
+      "origin_group_id": "ZY05",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本5_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY05-087",
+      "physical_sample_id": "ZY05-087",
+      "origin_group_id": "ZY05",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本5_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY05-089",
+      "physical_sample_id": "ZY05-089",
+      "origin_group_id": "ZY05",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本5_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY05-092",
+      "physical_sample_id": "ZY05-092",
+      "origin_group_id": "ZY05",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本5_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY05-100",
+      "physical_sample_id": "ZY05-100",
+      "origin_group_id": "ZY05",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本5_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY05-013",
+      "physical_sample_id": "ZY05-013",
+      "origin_group_id": "ZY05",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本5_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY05-020",
+      "physical_sample_id": "ZY05-020",
+      "origin_group_id": "ZY05",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本5_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY05-025",
+      "physical_sample_id": "ZY05-025",
+      "origin_group_id": "ZY05",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本5_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY05-029",
+      "physical_sample_id": "ZY05-029",
+      "origin_group_id": "ZY05",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本5_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY05-031",
+      "physical_sample_id": "ZY05-031",
+      "origin_group_id": "ZY05",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本5_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY05-032",
+      "physical_sample_id": "ZY05-032",
+      "origin_group_id": "ZY05",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本5_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY05-036",
+      "physical_sample_id": "ZY05-036",
+      "origin_group_id": "ZY05",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本5_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY05-041",
+      "physical_sample_id": "ZY05-041",
+      "origin_group_id": "ZY05",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本5_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY05-050",
+      "physical_sample_id": "ZY05-050",
+      "origin_group_id": "ZY05",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本5_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY05-051",
+      "physical_sample_id": "ZY05-051",
+      "origin_group_id": "ZY05",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本5_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY05-053",
+      "physical_sample_id": "ZY05-053",
+      "origin_group_id": "ZY05",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本5_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY05-055",
+      "physical_sample_id": "ZY05-055",
+      "origin_group_id": "ZY05",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本5_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY05-071",
+      "physical_sample_id": "ZY05-071",
+      "origin_group_id": "ZY05",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本5_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY05-073",
+      "physical_sample_id": "ZY05-073",
+      "origin_group_id": "ZY05",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本5_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY05-074",
+      "physical_sample_id": "ZY05-074",
+      "origin_group_id": "ZY05",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本5_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY05-075",
+      "physical_sample_id": "ZY05-075",
+      "origin_group_id": "ZY05",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本5_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY05-078",
+      "physical_sample_id": "ZY05-078",
+      "origin_group_id": "ZY05",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本5_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY05-085",
+      "physical_sample_id": "ZY05-085",
+      "origin_group_id": "ZY05",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本5_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY05-091",
+      "physical_sample_id": "ZY05-091",
+      "origin_group_id": "ZY05",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本5_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY05-094",
+      "physical_sample_id": "ZY05-094",
+      "origin_group_id": "ZY05",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本5_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY06-001",
+      "physical_sample_id": "ZY06-001",
+      "origin_group_id": "ZY06",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本6_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY06-003",
+      "physical_sample_id": "ZY06-003",
+      "origin_group_id": "ZY06",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本6_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY06-004",
+      "physical_sample_id": "ZY06-004",
+      "origin_group_id": "ZY06",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本6_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY06-006",
+      "physical_sample_id": "ZY06-006",
+      "origin_group_id": "ZY06",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本6_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY06-009",
+      "physical_sample_id": "ZY06-009",
+      "origin_group_id": "ZY06",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本6_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY06-010",
+      "physical_sample_id": "ZY06-010",
+      "origin_group_id": "ZY06",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本6_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY06-011",
+      "physical_sample_id": "ZY06-011",
+      "origin_group_id": "ZY06",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本6_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY06-012",
+      "physical_sample_id": "ZY06-012",
+      "origin_group_id": "ZY06",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本6_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY06-014",
+      "physical_sample_id": "ZY06-014",
+      "origin_group_id": "ZY06",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本6_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY06-015",
+      "physical_sample_id": "ZY06-015",
+      "origin_group_id": "ZY06",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本6_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY06-016",
+      "physical_sample_id": "ZY06-016",
+      "origin_group_id": "ZY06",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本6_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY06-017",
+      "physical_sample_id": "ZY06-017",
+      "origin_group_id": "ZY06",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本6_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY06-020",
+      "physical_sample_id": "ZY06-020",
+      "origin_group_id": "ZY06",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本6_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY06-021",
+      "physical_sample_id": "ZY06-021",
+      "origin_group_id": "ZY06",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本6_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY06-022",
+      "physical_sample_id": "ZY06-022",
+      "origin_group_id": "ZY06",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本6_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY06-023",
+      "physical_sample_id": "ZY06-023",
+      "origin_group_id": "ZY06",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本6_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY06-024",
+      "physical_sample_id": "ZY06-024",
+      "origin_group_id": "ZY06",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本6_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY06-025",
+      "physical_sample_id": "ZY06-025",
+      "origin_group_id": "ZY06",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本6_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY06-026",
+      "physical_sample_id": "ZY06-026",
+      "origin_group_id": "ZY06",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本6_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY06-027",
+      "physical_sample_id": "ZY06-027",
+      "origin_group_id": "ZY06",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本6_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY06-030",
+      "physical_sample_id": "ZY06-030",
+      "origin_group_id": "ZY06",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本6_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY06-031",
+      "physical_sample_id": "ZY06-031",
+      "origin_group_id": "ZY06",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本6_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY06-032",
+      "physical_sample_id": "ZY06-032",
+      "origin_group_id": "ZY06",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本6_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY06-035",
+      "physical_sample_id": "ZY06-035",
+      "origin_group_id": "ZY06",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本6_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY06-036",
+      "physical_sample_id": "ZY06-036",
+      "origin_group_id": "ZY06",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本6_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY06-037",
+      "physical_sample_id": "ZY06-037",
+      "origin_group_id": "ZY06",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本6_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY06-038",
+      "physical_sample_id": "ZY06-038",
+      "origin_group_id": "ZY06",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本6_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY06-042",
+      "physical_sample_id": "ZY06-042",
+      "origin_group_id": "ZY06",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本6_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY06-044",
+      "physical_sample_id": "ZY06-044",
+      "origin_group_id": "ZY06",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本6_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY06-046",
+      "physical_sample_id": "ZY06-046",
+      "origin_group_id": "ZY06",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本6_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY06-047",
+      "physical_sample_id": "ZY06-047",
+      "origin_group_id": "ZY06",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本6_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY06-048",
+      "physical_sample_id": "ZY06-048",
+      "origin_group_id": "ZY06",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本6_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY06-049",
+      "physical_sample_id": "ZY06-049",
+      "origin_group_id": "ZY06",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本6_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY06-050",
+      "physical_sample_id": "ZY06-050",
+      "origin_group_id": "ZY06",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本6_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY06-051",
+      "physical_sample_id": "ZY06-051",
+      "origin_group_id": "ZY06",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本6_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY06-053",
+      "physical_sample_id": "ZY06-053",
+      "origin_group_id": "ZY06",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本6_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY06-054",
+      "physical_sample_id": "ZY06-054",
+      "origin_group_id": "ZY06",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本6_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY06-057",
+      "physical_sample_id": "ZY06-057",
+      "origin_group_id": "ZY06",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本6_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY06-059",
+      "physical_sample_id": "ZY06-059",
+      "origin_group_id": "ZY06",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本6_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY06-060",
+      "physical_sample_id": "ZY06-060",
+      "origin_group_id": "ZY06",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本6_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY06-061",
+      "physical_sample_id": "ZY06-061",
+      "origin_group_id": "ZY06",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本6_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY06-062",
+      "physical_sample_id": "ZY06-062",
+      "origin_group_id": "ZY06",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本6_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY06-064",
+      "physical_sample_id": "ZY06-064",
+      "origin_group_id": "ZY06",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本6_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY06-066",
+      "physical_sample_id": "ZY06-066",
+      "origin_group_id": "ZY06",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本6_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY06-068",
+      "physical_sample_id": "ZY06-068",
+      "origin_group_id": "ZY06",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本6_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY06-069",
+      "physical_sample_id": "ZY06-069",
+      "origin_group_id": "ZY06",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本6_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY06-072",
+      "physical_sample_id": "ZY06-072",
+      "origin_group_id": "ZY06",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本6_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY06-074",
+      "physical_sample_id": "ZY06-074",
+      "origin_group_id": "ZY06",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本6_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY06-075",
+      "physical_sample_id": "ZY06-075",
+      "origin_group_id": "ZY06",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本6_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY06-076",
+      "physical_sample_id": "ZY06-076",
+      "origin_group_id": "ZY06",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本6_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY06-077",
+      "physical_sample_id": "ZY06-077",
+      "origin_group_id": "ZY06",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本6_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY06-079",
+      "physical_sample_id": "ZY06-079",
+      "origin_group_id": "ZY06",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本6_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY06-084",
+      "physical_sample_id": "ZY06-084",
+      "origin_group_id": "ZY06",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本6_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY06-090",
+      "physical_sample_id": "ZY06-090",
+      "origin_group_id": "ZY06",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本6_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY06-093",
+      "physical_sample_id": "ZY06-093",
+      "origin_group_id": "ZY06",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本6_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY06-094",
+      "physical_sample_id": "ZY06-094",
+      "origin_group_id": "ZY06",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本6_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY06-095",
+      "physical_sample_id": "ZY06-095",
+      "origin_group_id": "ZY06",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本6_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY06-098",
+      "physical_sample_id": "ZY06-098",
+      "origin_group_id": "ZY06",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本6_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY06-099",
+      "physical_sample_id": "ZY06-099",
+      "origin_group_id": "ZY06",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本6_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY06-100",
+      "physical_sample_id": "ZY06-100",
+      "origin_group_id": "ZY06",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本6_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY06-002",
+      "physical_sample_id": "ZY06-002",
+      "origin_group_id": "ZY06",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本6_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY06-008",
+      "physical_sample_id": "ZY06-008",
+      "origin_group_id": "ZY06",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本6_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY06-018",
+      "physical_sample_id": "ZY06-018",
+      "origin_group_id": "ZY06",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本6_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY06-019",
+      "physical_sample_id": "ZY06-019",
+      "origin_group_id": "ZY06",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本6_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY06-028",
+      "physical_sample_id": "ZY06-028",
+      "origin_group_id": "ZY06",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本6_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY06-029",
+      "physical_sample_id": "ZY06-029",
+      "origin_group_id": "ZY06",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本6_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY06-033",
+      "physical_sample_id": "ZY06-033",
+      "origin_group_id": "ZY06",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本6_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY06-055",
+      "physical_sample_id": "ZY06-055",
+      "origin_group_id": "ZY06",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本6_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY06-056",
+      "physical_sample_id": "ZY06-056",
+      "origin_group_id": "ZY06",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本6_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY06-065",
+      "physical_sample_id": "ZY06-065",
+      "origin_group_id": "ZY06",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本6_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY06-067",
+      "physical_sample_id": "ZY06-067",
+      "origin_group_id": "ZY06",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本6_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY06-070",
+      "physical_sample_id": "ZY06-070",
+      "origin_group_id": "ZY06",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本6_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY06-078",
+      "physical_sample_id": "ZY06-078",
+      "origin_group_id": "ZY06",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本6_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY06-080",
+      "physical_sample_id": "ZY06-080",
+      "origin_group_id": "ZY06",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本6_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY06-083",
+      "physical_sample_id": "ZY06-083",
+      "origin_group_id": "ZY06",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本6_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY06-085",
+      "physical_sample_id": "ZY06-085",
+      "origin_group_id": "ZY06",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本6_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY06-087",
+      "physical_sample_id": "ZY06-087",
+      "origin_group_id": "ZY06",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本6_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY06-089",
+      "physical_sample_id": "ZY06-089",
+      "origin_group_id": "ZY06",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本6_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY06-091",
+      "physical_sample_id": "ZY06-091",
+      "origin_group_id": "ZY06",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本6_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY06-096",
+      "physical_sample_id": "ZY06-096",
+      "origin_group_id": "ZY06",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本6_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY06-005",
+      "physical_sample_id": "ZY06-005",
+      "origin_group_id": "ZY06",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本6_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY06-007",
+      "physical_sample_id": "ZY06-007",
+      "origin_group_id": "ZY06",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本6_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY06-013",
+      "physical_sample_id": "ZY06-013",
+      "origin_group_id": "ZY06",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本6_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY06-034",
+      "physical_sample_id": "ZY06-034",
+      "origin_group_id": "ZY06",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本6_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY06-039",
+      "physical_sample_id": "ZY06-039",
+      "origin_group_id": "ZY06",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本6_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY06-040",
+      "physical_sample_id": "ZY06-040",
+      "origin_group_id": "ZY06",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本6_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY06-041",
+      "physical_sample_id": "ZY06-041",
+      "origin_group_id": "ZY06",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本6_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY06-043",
+      "physical_sample_id": "ZY06-043",
+      "origin_group_id": "ZY06",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本6_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY06-045",
+      "physical_sample_id": "ZY06-045",
+      "origin_group_id": "ZY06",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本6_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY06-052",
+      "physical_sample_id": "ZY06-052",
+      "origin_group_id": "ZY06",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本6_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY06-058",
+      "physical_sample_id": "ZY06-058",
+      "origin_group_id": "ZY06",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本6_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY06-063",
+      "physical_sample_id": "ZY06-063",
+      "origin_group_id": "ZY06",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本6_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY06-071",
+      "physical_sample_id": "ZY06-071",
+      "origin_group_id": "ZY06",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本6_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY06-073",
+      "physical_sample_id": "ZY06-073",
+      "origin_group_id": "ZY06",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本6_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY06-081",
+      "physical_sample_id": "ZY06-081",
+      "origin_group_id": "ZY06",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本6_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY06-082",
+      "physical_sample_id": "ZY06-082",
+      "origin_group_id": "ZY06",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本6_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY06-086",
+      "physical_sample_id": "ZY06-086",
+      "origin_group_id": "ZY06",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本6_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY06-088",
+      "physical_sample_id": "ZY06-088",
+      "origin_group_id": "ZY06",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本6_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY06-092",
+      "physical_sample_id": "ZY06-092",
+      "origin_group_id": "ZY06",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本6_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY06-097",
+      "physical_sample_id": "ZY06-097",
+      "origin_group_id": "ZY06",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本6_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY07-002",
+      "physical_sample_id": "ZY07-002",
+      "origin_group_id": "ZY07",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本7_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY07-004",
+      "physical_sample_id": "ZY07-004",
+      "origin_group_id": "ZY07",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本7_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY07-005",
+      "physical_sample_id": "ZY07-005",
+      "origin_group_id": "ZY07",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本7_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY07-006",
+      "physical_sample_id": "ZY07-006",
+      "origin_group_id": "ZY07",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本7_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY07-008",
+      "physical_sample_id": "ZY07-008",
+      "origin_group_id": "ZY07",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本7_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY07-009",
+      "physical_sample_id": "ZY07-009",
+      "origin_group_id": "ZY07",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本7_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY07-010",
+      "physical_sample_id": "ZY07-010",
+      "origin_group_id": "ZY07",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本7_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY07-012",
+      "physical_sample_id": "ZY07-012",
+      "origin_group_id": "ZY07",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本7_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY07-013",
+      "physical_sample_id": "ZY07-013",
+      "origin_group_id": "ZY07",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本7_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY07-014",
+      "physical_sample_id": "ZY07-014",
+      "origin_group_id": "ZY07",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本7_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY07-016",
+      "physical_sample_id": "ZY07-016",
+      "origin_group_id": "ZY07",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本7_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY07-018",
+      "physical_sample_id": "ZY07-018",
+      "origin_group_id": "ZY07",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本7_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY07-019",
+      "physical_sample_id": "ZY07-019",
+      "origin_group_id": "ZY07",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本7_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY07-020",
+      "physical_sample_id": "ZY07-020",
+      "origin_group_id": "ZY07",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本7_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY07-021",
+      "physical_sample_id": "ZY07-021",
+      "origin_group_id": "ZY07",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本7_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY07-024",
+      "physical_sample_id": "ZY07-024",
+      "origin_group_id": "ZY07",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本7_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY07-025",
+      "physical_sample_id": "ZY07-025",
+      "origin_group_id": "ZY07",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本7_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY07-026",
+      "physical_sample_id": "ZY07-026",
+      "origin_group_id": "ZY07",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本7_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY07-028",
+      "physical_sample_id": "ZY07-028",
+      "origin_group_id": "ZY07",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本7_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY07-030",
+      "physical_sample_id": "ZY07-030",
+      "origin_group_id": "ZY07",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本7_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY07-032",
+      "physical_sample_id": "ZY07-032",
+      "origin_group_id": "ZY07",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本7_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY07-033",
+      "physical_sample_id": "ZY07-033",
+      "origin_group_id": "ZY07",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本7_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY07-034",
+      "physical_sample_id": "ZY07-034",
+      "origin_group_id": "ZY07",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本7_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY07-035",
+      "physical_sample_id": "ZY07-035",
+      "origin_group_id": "ZY07",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本7_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY07-036",
+      "physical_sample_id": "ZY07-036",
+      "origin_group_id": "ZY07",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本7_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY07-037",
+      "physical_sample_id": "ZY07-037",
+      "origin_group_id": "ZY07",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本7_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY07-040",
+      "physical_sample_id": "ZY07-040",
+      "origin_group_id": "ZY07",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本7_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY07-043",
+      "physical_sample_id": "ZY07-043",
+      "origin_group_id": "ZY07",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本7_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY07-044",
+      "physical_sample_id": "ZY07-044",
+      "origin_group_id": "ZY07",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本7_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY07-046",
+      "physical_sample_id": "ZY07-046",
+      "origin_group_id": "ZY07",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本7_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY07-050",
+      "physical_sample_id": "ZY07-050",
+      "origin_group_id": "ZY07",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本7_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY07-052",
+      "physical_sample_id": "ZY07-052",
+      "origin_group_id": "ZY07",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本7_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY07-053",
+      "physical_sample_id": "ZY07-053",
+      "origin_group_id": "ZY07",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本7_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY07-054",
+      "physical_sample_id": "ZY07-054",
+      "origin_group_id": "ZY07",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本7_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY07-055",
+      "physical_sample_id": "ZY07-055",
+      "origin_group_id": "ZY07",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本7_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY07-056",
+      "physical_sample_id": "ZY07-056",
+      "origin_group_id": "ZY07",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本7_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY07-058",
+      "physical_sample_id": "ZY07-058",
+      "origin_group_id": "ZY07",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本7_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY07-059",
+      "physical_sample_id": "ZY07-059",
+      "origin_group_id": "ZY07",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本7_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY07-062",
+      "physical_sample_id": "ZY07-062",
+      "origin_group_id": "ZY07",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本7_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY07-065",
+      "physical_sample_id": "ZY07-065",
+      "origin_group_id": "ZY07",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本7_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY07-066",
+      "physical_sample_id": "ZY07-066",
+      "origin_group_id": "ZY07",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本7_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY07-068",
+      "physical_sample_id": "ZY07-068",
+      "origin_group_id": "ZY07",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本7_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY07-069",
+      "physical_sample_id": "ZY07-069",
+      "origin_group_id": "ZY07",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本7_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY07-072",
+      "physical_sample_id": "ZY07-072",
+      "origin_group_id": "ZY07",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本7_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY07-073",
+      "physical_sample_id": "ZY07-073",
+      "origin_group_id": "ZY07",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本7_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY07-074",
+      "physical_sample_id": "ZY07-074",
+      "origin_group_id": "ZY07",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本7_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY07-076",
+      "physical_sample_id": "ZY07-076",
+      "origin_group_id": "ZY07",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本7_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY07-077",
+      "physical_sample_id": "ZY07-077",
+      "origin_group_id": "ZY07",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本7_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY07-079",
+      "physical_sample_id": "ZY07-079",
+      "origin_group_id": "ZY07",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本7_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY07-080",
+      "physical_sample_id": "ZY07-080",
+      "origin_group_id": "ZY07",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本7_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY07-084",
+      "physical_sample_id": "ZY07-084",
+      "origin_group_id": "ZY07",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本7_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY07-086",
+      "physical_sample_id": "ZY07-086",
+      "origin_group_id": "ZY07",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本7_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY07-091",
+      "physical_sample_id": "ZY07-091",
+      "origin_group_id": "ZY07",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本7_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY07-093",
+      "physical_sample_id": "ZY07-093",
+      "origin_group_id": "ZY07",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本7_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY07-094",
+      "physical_sample_id": "ZY07-094",
+      "origin_group_id": "ZY07",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本7_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY07-095",
+      "physical_sample_id": "ZY07-095",
+      "origin_group_id": "ZY07",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本7_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY07-096",
+      "physical_sample_id": "ZY07-096",
+      "origin_group_id": "ZY07",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本7_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY07-098",
+      "physical_sample_id": "ZY07-098",
+      "origin_group_id": "ZY07",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本7_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY07-099",
+      "physical_sample_id": "ZY07-099",
+      "origin_group_id": "ZY07",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本7_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY07-100",
+      "physical_sample_id": "ZY07-100",
+      "origin_group_id": "ZY07",
+      "role": "training",
+      "source_workbook": "data/processed/zaoren_20261031/样本7_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY07-001",
+      "physical_sample_id": "ZY07-001",
+      "origin_group_id": "ZY07",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本7_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY07-003",
+      "physical_sample_id": "ZY07-003",
+      "origin_group_id": "ZY07",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本7_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY07-007",
+      "physical_sample_id": "ZY07-007",
+      "origin_group_id": "ZY07",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本7_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY07-023",
+      "physical_sample_id": "ZY07-023",
+      "origin_group_id": "ZY07",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本7_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY07-027",
+      "physical_sample_id": "ZY07-027",
+      "origin_group_id": "ZY07",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本7_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY07-039",
+      "physical_sample_id": "ZY07-039",
+      "origin_group_id": "ZY07",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本7_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY07-041",
+      "physical_sample_id": "ZY07-041",
+      "origin_group_id": "ZY07",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本7_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY07-045",
+      "physical_sample_id": "ZY07-045",
+      "origin_group_id": "ZY07",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本7_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY07-047",
+      "physical_sample_id": "ZY07-047",
+      "origin_group_id": "ZY07",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本7_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY07-048",
+      "physical_sample_id": "ZY07-048",
+      "origin_group_id": "ZY07",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本7_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY07-049",
+      "physical_sample_id": "ZY07-049",
+      "origin_group_id": "ZY07",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本7_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY07-061",
+      "physical_sample_id": "ZY07-061",
+      "origin_group_id": "ZY07",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本7_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY07-063",
+      "physical_sample_id": "ZY07-063",
+      "origin_group_id": "ZY07",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本7_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY07-067",
+      "physical_sample_id": "ZY07-067",
+      "origin_group_id": "ZY07",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本7_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY07-081",
+      "physical_sample_id": "ZY07-081",
+      "origin_group_id": "ZY07",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本7_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY07-087",
+      "physical_sample_id": "ZY07-087",
+      "origin_group_id": "ZY07",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本7_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY07-088",
+      "physical_sample_id": "ZY07-088",
+      "origin_group_id": "ZY07",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本7_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY07-089",
+      "physical_sample_id": "ZY07-089",
+      "origin_group_id": "ZY07",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本7_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY07-090",
+      "physical_sample_id": "ZY07-090",
+      "origin_group_id": "ZY07",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本7_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY07-092",
+      "physical_sample_id": "ZY07-092",
+      "origin_group_id": "ZY07",
+      "role": "calibration",
+      "source_workbook": "data/processed/zaoren_20261031/样本7_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY07-011",
+      "physical_sample_id": "ZY07-011",
+      "origin_group_id": "ZY07",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本7_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY07-015",
+      "physical_sample_id": "ZY07-015",
+      "origin_group_id": "ZY07",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本7_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY07-017",
+      "physical_sample_id": "ZY07-017",
+      "origin_group_id": "ZY07",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本7_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY07-022",
+      "physical_sample_id": "ZY07-022",
+      "origin_group_id": "ZY07",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本7_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY07-029",
+      "physical_sample_id": "ZY07-029",
+      "origin_group_id": "ZY07",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本7_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY07-031",
+      "physical_sample_id": "ZY07-031",
+      "origin_group_id": "ZY07",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本7_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY07-038",
+      "physical_sample_id": "ZY07-038",
+      "origin_group_id": "ZY07",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本7_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY07-042",
+      "physical_sample_id": "ZY07-042",
+      "origin_group_id": "ZY07",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本7_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY07-051",
+      "physical_sample_id": "ZY07-051",
+      "origin_group_id": "ZY07",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本7_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY07-057",
+      "physical_sample_id": "ZY07-057",
+      "origin_group_id": "ZY07",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本7_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY07-060",
+      "physical_sample_id": "ZY07-060",
+      "origin_group_id": "ZY07",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本7_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY07-064",
+      "physical_sample_id": "ZY07-064",
+      "origin_group_id": "ZY07",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本7_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY07-070",
+      "physical_sample_id": "ZY07-070",
+      "origin_group_id": "ZY07",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本7_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY07-071",
+      "physical_sample_id": "ZY07-071",
+      "origin_group_id": "ZY07",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本7_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY07-075",
+      "physical_sample_id": "ZY07-075",
+      "origin_group_id": "ZY07",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本7_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY07-078",
+      "physical_sample_id": "ZY07-078",
+      "origin_group_id": "ZY07",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本7_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY07-082",
+      "physical_sample_id": "ZY07-082",
+      "origin_group_id": "ZY07",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本7_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY07-083",
+      "physical_sample_id": "ZY07-083",
+      "origin_group_id": "ZY07",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本7_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY07-085",
+      "physical_sample_id": "ZY07-085",
+      "origin_group_id": "ZY07",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本7_编号版.xlsx"
+    },
+    {
+      "record_id": "ZY07-097",
+      "physical_sample_id": "ZY07-097",
+      "origin_group_id": "ZY07",
+      "role": "prediction",
+      "source_workbook": "data/processed/zaoren_20261031/样本7_编号版.xlsx"
+    }
+  ]
+}
