@@ -106,10 +106,28 @@ A/B的SVC保留标准`predict`投票规则；部分输出OVR分数的argmax与�
 在完整NPZ上按预定坐标范围同时裁剪`axis`、`X_alpha`及`X_n`，其余字段原样保留，得到612点候选区间NPZ；本轮实际生成规则、hash及冻结脚本见[原始执行证据](../reports/approved-zaoren/2026-10-31/README.md)。不依据y或模型分数确定该掩码。
 
 ```bash
-.runtime/bin/python scripts/run_zaoren_classification.py --input CANDIDATE.npz --output outputs/zaoren-reproduction/primary --outer-splits 5 --inner-splits 2 --cars-cv 2 --split-seed 20261031 --seed 42 --representations alpha --methods dummy svc plsda mcuve20_svc cars_svc
-.runtime/bin/python scripts/run_zaoren_classification.py --input CANDIDATE.npz --output outputs/zaoren-reproduction/modalities --outer-splits 5 --inner-splits 2 --cars-cv 2 --split-seed 20261031 --seed 42 --representations n concat --methods svc plsda
-.runtime/bin/python scripts/run_zaoren_classification.py --input CANDIDATE.npz --output outputs/zaoren-reproduction/stability --outer-splits 5 --inner-splits 2 --cars-cv 2 --split-seed 20261031 --seed 42 --representations alpha --methods mcuve100_svc stable_svc
-.runtime/bin/python scripts/run_zaoren_classification.py --input FULL.npz --output outputs/zaoren-reproduction/full-export --outer-splits 5 --inner-splits 2 --cars-cv 2 --split-seed 20261031 --seed 42 --representations alpha --methods svc plsda
+.runtime/bin/python - <<'PYTHON'
+from pathlib import Path
+import numpy as np
+source = Path("outputs/zaoren-reproduction/data/dataset.npz")
+target = Path("outputs/zaoren-reproduction/candidate_0p1_1p5.npz")
+if target.exists():
+    raise FileExistsError(target)
+with np.load(source, allow_pickle=False) as saved:
+    arrays = {key: saved[key] for key in saved.files}
+mask = (arrays["axis"] >= 0.1) & (arrays["axis"] <= 1.5)
+arrays["axis"] = arrays["axis"][mask]
+for key in ("X_alpha", "X_n"):
+    arrays[key] = arrays[key][:, mask]
+np.savez_compressed(target, **arrays)
+PYTHON
 ```
 
-`CANDIDATE.npz`和`FULL.npz`需替换为实际派生文件路径。未来批次数据完整后，使用`scripts/run_classification_transfer.py --help`配置独立的source／development／target输入；不能把同一当前数据随机分三份后称作跨批次。
+```bash
+.runtime/bin/python scripts/run_zaoren_classification.py --input outputs/zaoren-reproduction/candidate_0p1_1p5.npz --output outputs/zaoren-reproduction/primary --outer-splits 5 --inner-splits 2 --cars-cv 2 --split-seed 20261031 --seed 42 --representations alpha --methods dummy svc plsda mcuve20_svc cars_svc
+.runtime/bin/python scripts/run_zaoren_classification.py --input outputs/zaoren-reproduction/candidate_0p1_1p5.npz --output outputs/zaoren-reproduction/modalities --outer-splits 5 --inner-splits 2 --cars-cv 2 --split-seed 20261031 --seed 42 --representations n concat --methods svc plsda
+.runtime/bin/python scripts/run_zaoren_classification.py --input outputs/zaoren-reproduction/candidate_0p1_1p5.npz --output outputs/zaoren-reproduction/stability --outer-splits 5 --inner-splits 2 --cars-cv 2 --split-seed 20261031 --seed 42 --representations alpha --methods mcuve100_svc stable_svc
+.runtime/bin/python scripts/run_zaoren_classification.py --input outputs/zaoren-reproduction/data/dataset.npz --output outputs/zaoren-reproduction/full-export --outer-splits 5 --inner-splits 2 --cars-cv 2 --split-seed 20261031 --seed 42 --representations alpha --methods svc plsda
+```
+
+若上述输出目录已存在，先统一更换复现目录前缀，不覆盖旧结果。未来批次数据完整后，使用`scripts/run_classification_transfer.py --help`配置独立的source／development／target输入；不能把同一当前数据随机分三份后称作跨批次。
