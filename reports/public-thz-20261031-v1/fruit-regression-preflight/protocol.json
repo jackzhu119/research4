@@ -1,0 +1,478 @@
+{
+  "protocol_id": "public-fruit-grouped-regression-20261031-v1",
+  "dataset_id": "princeton-fruit-fixed-Tag-time-index-20261031-v1",
+  "scientific_status": "EXPLORATORY_FRUIT_GROUPED_ENGINEERING_REGRESSION",
+  "input_npz_sha256": "b3c5d8b6272038377cfdfe272a6d084895b9817325fdd9ec34bab6c9db1ec27b",
+  "tasks": {
+    "MA_Brix": [
+      "MA",
+      "y_Brix"
+    ],
+    "PM_Brix": [
+      "PM",
+      "y_Brix"
+    ],
+    "PR_Brix": [
+      "PR",
+      "y_Brix"
+    ],
+    "MA_DM": [
+      "MA",
+      "y_DM"
+    ]
+  },
+  "seeds": [
+    42,
+    43,
+    44
+  ],
+  "outer": "GroupKFold5 by persistent fruit ID; 8fruit source/2fruit query",
+  "inner": "GroupKFold3 among current outer source8fruits; validation3/3/2 fruits",
+  "features": "Fixed 128 consecutive blocks np.array_split(arange(7000),128), each waveform mean per block",
+  "feature_axis": "engineering block index only; no verified time or THz frequency unit",
+  "preprocessing_order": "fixed block means; optional pointwise SNV; current-source X StandardScaler",
+  "targets": "Current-source y StandardScaler for every estimator and MC-UVE; inverse-transform predictions",
+  "target_units": "Excel-reported Brix or DM numeric reading units; assay method/unit not confirmed",
+  "R1": [
+    {
+      "id": "R1_00",
+      "mc": null,
+      "family": "PLSR",
+      "preprocessing": "raw",
+      "components": 1
+    },
+    {
+      "id": "R1_01",
+      "mc": null,
+      "family": "PLSR",
+      "preprocessing": "raw",
+      "components": 2
+    },
+    {
+      "id": "R1_02",
+      "mc": null,
+      "family": "PLSR",
+      "preprocessing": "raw",
+      "components": 3
+    },
+    {
+      "id": "R1_03",
+      "mc": null,
+      "family": "full_SVR",
+      "preprocessing": "raw",
+      "C": 1.0,
+      "gamma": "scale",
+      "epsilon": 0.05
+    },
+    {
+      "id": "R1_04",
+      "mc": null,
+      "family": "full_SVR",
+      "preprocessing": "raw",
+      "C": 1.0,
+      "gamma": "scale",
+      "epsilon": 0.1
+    },
+    {
+      "id": "R1_05",
+      "mc": null,
+      "family": "full_SVR",
+      "preprocessing": "raw",
+      "C": 1.0,
+      "gamma": "scale_x0.1",
+      "epsilon": 0.05
+    },
+    {
+      "id": "R1_06",
+      "mc": null,
+      "family": "full_SVR",
+      "preprocessing": "raw",
+      "C": 1.0,
+      "gamma": "scale_x0.1",
+      "epsilon": 0.1
+    },
+    {
+      "id": "R1_07",
+      "mc": null,
+      "family": "full_SVR",
+      "preprocessing": "raw",
+      "C": 10.0,
+      "gamma": "scale",
+      "epsilon": 0.05
+    },
+    {
+      "id": "R1_08",
+      "mc": null,
+      "family": "full_SVR",
+      "preprocessing": "raw",
+      "C": 10.0,
+      "gamma": "scale",
+      "epsilon": 0.1
+    },
+    {
+      "id": "R1_09",
+      "mc": null,
+      "family": "full_SVR",
+      "preprocessing": "raw",
+      "C": 10.0,
+      "gamma": "scale_x0.1",
+      "epsilon": 0.05
+    },
+    {
+      "id": "R1_10",
+      "mc": null,
+      "family": "full_SVR",
+      "preprocessing": "raw",
+      "C": 10.0,
+      "gamma": "scale_x0.1",
+      "epsilon": 0.1
+    },
+    {
+      "id": "R1_11",
+      "mc": null,
+      "family": "full_SVR",
+      "preprocessing": "raw",
+      "C": 100.0,
+      "gamma": "scale",
+      "epsilon": 0.05
+    },
+    {
+      "id": "R1_12",
+      "mc": null,
+      "family": "full_SVR",
+      "preprocessing": "raw",
+      "C": 100.0,
+      "gamma": "scale",
+      "epsilon": 0.1
+    },
+    {
+      "id": "R1_13",
+      "mc": null,
+      "family": "full_SVR",
+      "preprocessing": "raw",
+      "C": 100.0,
+      "gamma": "scale_x0.1",
+      "epsilon": 0.05
+    },
+    {
+      "id": "R1_14",
+      "mc": null,
+      "family": "full_SVR",
+      "preprocessing": "raw",
+      "C": 100.0,
+      "gamma": "scale_x0.1",
+      "epsilon": 0.1
+    },
+    {
+      "id": "R1_15",
+      "mc": null,
+      "family": "MLP",
+      "preprocessing": "raw",
+      "hidden": [
+        16
+      ],
+      "alpha": 1.0,
+      "epochs": 300
+    },
+    {
+      "id": "R1_16",
+      "mc": null,
+      "family": "MLP",
+      "preprocessing": "raw",
+      "hidden": [
+        16
+      ],
+      "alpha": 10.0,
+      "epochs": 300
+    },
+    {
+      "id": "R1_17",
+      "mc": null,
+      "family": "PLSR",
+      "preprocessing": "snv",
+      "components": 1
+    },
+    {
+      "id": "R1_18",
+      "mc": null,
+      "family": "PLSR",
+      "preprocessing": "snv",
+      "components": 2
+    },
+    {
+      "id": "R1_19",
+      "mc": null,
+      "family": "PLSR",
+      "preprocessing": "snv",
+      "components": 3
+    },
+    {
+      "id": "R1_20",
+      "mc": null,
+      "family": "full_SVR",
+      "preprocessing": "snv",
+      "C": 1.0,
+      "gamma": "scale",
+      "epsilon": 0.05
+    },
+    {
+      "id": "R1_21",
+      "mc": null,
+      "family": "full_SVR",
+      "preprocessing": "snv",
+      "C": 1.0,
+      "gamma": "scale",
+      "epsilon": 0.1
+    },
+    {
+      "id": "R1_22",
+      "mc": null,
+      "family": "full_SVR",
+      "preprocessing": "snv",
+      "C": 1.0,
+      "gamma": "scale_x0.1",
+      "epsilon": 0.05
+    },
+    {
+      "id": "R1_23",
+      "mc": null,
+      "family": "full_SVR",
+      "preprocessing": "snv",
+      "C": 1.0,
+      "gamma": "scale_x0.1",
+      "epsilon": 0.1
+    },
+    {
+      "id": "R1_24",
+      "mc": null,
+      "family": "full_SVR",
+      "preprocessing": "snv",
+      "C": 10.0,
+      "gamma": "scale",
+      "epsilon": 0.05
+    },
+    {
+      "id": "R1_25",
+      "mc": null,
+      "family": "full_SVR",
+      "preprocessing": "snv",
+      "C": 10.0,
+      "gamma": "scale",
+      "epsilon": 0.1
+    },
+    {
+      "id": "R1_26",
+      "mc": null,
+      "family": "full_SVR",
+      "preprocessing": "snv",
+      "C": 10.0,
+      "gamma": "scale_x0.1",
+      "epsilon": 0.05
+    },
+    {
+      "id": "R1_27",
+      "mc": null,
+      "family": "full_SVR",
+      "preprocessing": "snv",
+      "C": 10.0,
+      "gamma": "scale_x0.1",
+      "epsilon": 0.1
+    },
+    {
+      "id": "R1_28",
+      "mc": null,
+      "family": "full_SVR",
+      "preprocessing": "snv",
+      "C": 100.0,
+      "gamma": "scale",
+      "epsilon": 0.05
+    },
+    {
+      "id": "R1_29",
+      "mc": null,
+      "family": "full_SVR",
+      "preprocessing": "snv",
+      "C": 100.0,
+      "gamma": "scale",
+      "epsilon": 0.1
+    },
+    {
+      "id": "R1_30",
+      "mc": null,
+      "family": "full_SVR",
+      "preprocessing": "snv",
+      "C": 100.0,
+      "gamma": "scale_x0.1",
+      "epsilon": 0.05
+    },
+    {
+      "id": "R1_31",
+      "mc": null,
+      "family": "full_SVR",
+      "preprocessing": "snv",
+      "C": 100.0,
+      "gamma": "scale_x0.1",
+      "epsilon": 0.1
+    },
+    {
+      "id": "R1_32",
+      "mc": null,
+      "family": "MLP",
+      "preprocessing": "snv",
+      "hidden": [
+        16
+      ],
+      "alpha": 1.0,
+      "epochs": 300
+    },
+    {
+      "id": "R1_33",
+      "mc": null,
+      "family": "MLP",
+      "preprocessing": "snv",
+      "hidden": [
+        16
+      ],
+      "alpha": 10.0,
+      "epochs": 300
+    }
+  ],
+  "R2_template": [
+    {
+      "id": "R2_00",
+      "mc": {
+        "runs": 10,
+        "components": 1,
+        "ratio": 0.25
+      },
+      "family": "MC_SVR",
+      "preprocessing": "raw",
+      "C": 1.0,
+      "gamma": "scale",
+      "epsilon": 0.05
+    },
+    {
+      "id": "R2_01",
+      "mc": {
+        "runs": 10,
+        "components": 1,
+        "ratio": 0.5
+      },
+      "family": "MC_SVR",
+      "preprocessing": "raw",
+      "C": 1.0,
+      "gamma": "scale",
+      "epsilon": 0.05
+    },
+    {
+      "id": "R2_02",
+      "mc": {
+        "runs": 10,
+        "components": 2,
+        "ratio": 0.25
+      },
+      "family": "MC_SVR",
+      "preprocessing": "raw",
+      "C": 1.0,
+      "gamma": "scale",
+      "epsilon": 0.05
+    },
+    {
+      "id": "R2_03",
+      "mc": {
+        "runs": 10,
+        "components": 2,
+        "ratio": 0.5
+      },
+      "family": "MC_SVR",
+      "preprocessing": "raw",
+      "C": 1.0,
+      "gamma": "scale",
+      "epsilon": 0.05
+    },
+    {
+      "id": "R2_04",
+      "mc": {
+        "runs": 20,
+        "components": 1,
+        "ratio": 0.25
+      },
+      "family": "MC_SVR",
+      "preprocessing": "raw",
+      "C": 1.0,
+      "gamma": "scale",
+      "epsilon": 0.05
+    },
+    {
+      "id": "R2_05",
+      "mc": {
+        "runs": 20,
+        "components": 1,
+        "ratio": 0.5
+      },
+      "family": "MC_SVR",
+      "preprocessing": "raw",
+      "C": 1.0,
+      "gamma": "scale",
+      "epsilon": 0.05
+    },
+    {
+      "id": "R2_06",
+      "mc": {
+        "runs": 20,
+        "components": 2,
+        "ratio": 0.25
+      },
+      "family": "MC_SVR",
+      "preprocessing": "raw",
+      "C": 1.0,
+      "gamma": "scale",
+      "epsilon": 0.05
+    },
+    {
+      "id": "R2_07",
+      "mc": {
+        "runs": 20,
+        "components": 2,
+        "ratio": 0.5
+      },
+      "family": "MC_SVR",
+      "preprocessing": "raw",
+      "C": 1.0,
+      "gamma": "scale",
+      "epsilon": 0.05
+    }
+  ],
+  "R2_rule": "Replace only SVR preprocessor/C/gamma/epsilon with this outer-source selected R1 full SVR",
+  "selection": "Per candidate pool32 current-source OOF observations separately per seed; mean3seed RMSE then MAE then candidate ID",
+  "R2_policy": "Compare source-selected PLSR/full_SVR/MLP/MC_SVR only on same inner pooled predictions",
+  "MC_sampling": "Source observation rows only; four dates are dependent. No claim MC rows are independent fruits.",
+  "source_candidates_per_outer": 42,
+  "source_estimator_fit_budget": 7560,
+  "source_formula": "4tasks*5outer*3inner*3seeds*(34R1+8R2)",
+  "MC_PLScall_budget_with_transform_cache": 10800,
+  "outer_roles": [
+    "dummy_mean",
+    "PLSR",
+    "full_SVR",
+    "MLP",
+    "MC_SVR",
+    "source_policy"
+  ],
+  "outer_role_seed_cases": 360,
+  "outer_actual_estimator_fit_upper_bound": 300,
+  "policy_is_alias_not_outer_selected": true,
+  "all20outer_choices_locked_before_outer_inference": true,
+  "all_outer_truth_bytes_hashed_before_any_truth_parse": true,
+  "source_cache": "Exact data/targets/order/split/code/seed/preprocessing and MC LV/runs; ratios share source ranking only",
+  "source_failures": "Save failures; exclude incomplete candidate; never remove a fruit or select seed by query scores",
+  "MLP": "Adam lr.001,300iterations,tol0,n_iter_no_change300,early_stoppingFalse; all seeds",
+  "prediction_boundary": "Separate source fitting, truth-free query inference, immutable prediction lock then scoring",
+  "OS_truth_file_sandbox": false,
+  "redistribution": "Raw/derived,models,per-record predictions,traces LOCAL_ONLY license unresolved",
+  "fresh_confirmation": false,
+  "cross_time_or_new_batch_claim": false,
+  "medicinal_THZ_TDS_transfer_claim": false,
+  "reference_normalization": "NOT_USED: Background/Metal identical",
+  "cost_estimate": "7560 small128-feature estimator fits including720 MLP300epoch fits; 10800 cached MC PLS fits; wall time NOT_MEASURED before gate"
+}

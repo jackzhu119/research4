@@ -1,5 +1,25 @@
 # Research data conventions
 
+## Public plant validation continuation (2026-10-31)
+
+The latest user requests public plant THz acquisition and repeated algorithm
+validation, while acid jujube remains the main task. Read
+`docs/PUBLIC_PLANT_THZ_VALIDATION_20261031.md` and its report index. Existing
+ginseng42 is reused public data, not42 newly downloaded plants; upstream root
+ancestry is unknown and six export groups are not verified biological batches.
+Freeze all six-fold source selections (seeds42/43/44) before main outer
+prediction. Keep prior G1 diagnostic exposure and its negative result visible.
+The frozen run binds all axis bytes, but the standalone transform cache lacks
+a separate axis key; a changed axis requires a separately frozen/hardened run.
+Princeton fruit has30 persistent IDs, repeated across dates; separate four
+engineering regression tasks, group every date from a fruit together, and do
+not invent THz frequency units, target assay methods or chemical quantities.
+Unknown-license fruit/leaf originals and derived per-record/model artifacts
+remain ignored locally; publish only our code, source/protocol hashes and
+aggregate summaries. No verified cross-plant pretraining or new jujube
+confirmation cohort was created. Preserve all historical weights/results and
+do not merge main.
+
 ## Anonymous deployment continuation (2026-10-31)
 
 The user explicitly authorized continuing with ZY01–ZY07 as anonymous classes;

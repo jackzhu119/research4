@@ -1,0 +1,64 @@
+{
+  "protocol": "princeton-fruit-fixed-Tag-time-index-20261031-v1",
+  "created_utc": "2026-10-31T13:51:49.893902+00:00",
+  "archive_sha256": "902cca56a744187dd3eb3bbed41aa1ce28eb5e75e5b003946d29007a7fed603f",
+  "npz_path": "data/external/public_thz_20261031_v1/acquired/princeton_metasticker_fruit/prepared/fruit_fixed_Tag_time_index_v1.npz",
+  "npz_sha256": "b3c5d8b6272038377cfdfe272a6d084895b9817325fdd9ec34bab6c9db1ec27b",
+  "npz_bytes": 6335940,
+  "records": 120,
+  "waveform_features": 7000,
+  "physical_fruit_ids": 30,
+  "per_fruit_type": {
+    "MA": {
+      "records": 40,
+      "fruit_ids": 10
+    },
+    "PR": {
+      "records": 40,
+      "fruit_ids": 10
+    },
+    "PM": {
+      "records": 40,
+      "fruit_ids": 10
+    }
+  },
+  "condition": "Tag",
+  "timepoint_indices_zero_based": [
+    0,
+    10,
+    20,
+    30
+  ],
+  "timestamps": [
+    "2023-05-13T21:00:00",
+    "2023-05-18T21:00:00",
+    "2023-05-23T21:00:00",
+    "2023-05-28T21:00:00"
+  ],
+  "input_quantity": "reported time-domain reflection waveform amplitude, arbitrary instrument units",
+  "feature_axis": "integer sample index 0..6999; time unit and frequency axis unverified",
+  "preparation": "verbatim finite float64 waveform, canonical exact-duplicate alias chosen, no scaling/FFT/selection",
+  "targets": {
+    "Brix": {
+      "source": "Excel Brix column/value",
+      "availability": "all fruit types",
+      "unit": "reported Brix reading; degree-Brix convention not explicitly documented in archive"
+    },
+    "DM": {
+      "source": "first value in Mango DM, Brix cells",
+      "availability": "MA only; NaN for PR/PM",
+      "unit": "reported DM reading; percentage/method not explicitly documented in archive"
+    }
+  },
+  "measurement_method": "not specified in this archive; later Nature Food article uses NIR F-750 but same-cohort association remains unverified",
+  "features_exclude": [
+    "labels",
+    "fruit ID",
+    "time/date",
+    "fruit type",
+    "source filename"
+  ],
+  "evaluation": "separate per-fruit-type regression; grouped outer and inner CV by persistent fruit_id; mean-baseline and train-only PCA/SVR/ridge comparisons; no row-wise split",
+  "redistribution": "LOCAL_ONLY_NO_LICENSE_DETECTED_IN_UPSTREAM_REPOSITORY",
+  "models_trained": 0
+}
