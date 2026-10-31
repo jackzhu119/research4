@@ -1,0 +1,201 @@
+{
+  "protocol_id": "zaoren-support-weighted-svm-parameter-adaptation-20261031",
+  "recorded_date": "2026-10-31",
+  "dataset_version": "2026-10-31-zaoren-numbered-v1",
+  "scope": "Real uploaded spectra, anonymous seven-origin groups, retrospective same-batch internal split; not fresh external confirmation",
+  "role_counts": {
+    "training": 513,
+    "calibration": 171,
+    "prediction": 171
+  },
+  "frequency": {
+    "lower_inclusive": 0.1,
+    "upper_inclusive": 1.5,
+    "expected_points": 612
+  },
+  "source_candidate_id": "s010_snv_svc",
+  "source_protocol": "data/research/representation_calibration_protocol_20261031.json",
+  "reuse_source_cache": "outputs/representation-optimization-20261031/source",
+  "reuse_final_source": "outputs/representation-optimization-20261031/adaptation/final/s010_snv_svc/source_model.joblib",
+  "source_policy": {
+    "original_source_objects_unchanged": true,
+    "preprocessing_fitted_on_source_only": true,
+    "gamma": "fixed numeric original source estimator._gamma; no target rescaling",
+    "class_weights": "fixed balanced dict computed from original source counts; no target recount",
+    "C": 10,
+    "kernel": "rbf",
+    "source_sample_weight": 1,
+    "new_support_model_parameter_refit": true,
+    "score_blending": "convex raw class-aligned source/refit decision scores",
+    "zero_support_control": "same fixed hyperparameters and source labels, no support; max score difference<=1e-9 and identical argmax required",
+    "new_source_preprocessing_fits": 0
+  },
+  "candidate_count": 21,
+  "grid_sha256": "d7f0478fafe7f34fbcda4e9cb6189198b57929e14b5998cbefd7c5adb357fd58",
+  "candidates": [
+    {
+      "id": "w000_identity",
+      "family": "identity",
+      "support_weight": 0.0,
+      "blend": 0.0
+    },
+    {
+      "id": "w001_support_svm",
+      "family": "support_svm",
+      "support_weight": 0.25,
+      "blend": 0.1
+    },
+    {
+      "id": "w002_support_svm",
+      "family": "support_svm",
+      "support_weight": 0.25,
+      "blend": 0.25
+    },
+    {
+      "id": "w003_support_svm",
+      "family": "support_svm",
+      "support_weight": 0.25,
+      "blend": 0.5
+    },
+    {
+      "id": "w004_support_svm",
+      "family": "support_svm",
+      "support_weight": 0.25,
+      "blend": 1.0
+    },
+    {
+      "id": "w005_support_svm",
+      "family": "support_svm",
+      "support_weight": 1.0,
+      "blend": 0.1
+    },
+    {
+      "id": "w006_support_svm",
+      "family": "support_svm",
+      "support_weight": 1.0,
+      "blend": 0.25
+    },
+    {
+      "id": "w007_support_svm",
+      "family": "support_svm",
+      "support_weight": 1.0,
+      "blend": 0.5
+    },
+    {
+      "id": "w008_support_svm",
+      "family": "support_svm",
+      "support_weight": 1.0,
+      "blend": 1.0
+    },
+    {
+      "id": "w009_support_svm",
+      "family": "support_svm",
+      "support_weight": 4.0,
+      "blend": 0.1
+    },
+    {
+      "id": "w010_support_svm",
+      "family": "support_svm",
+      "support_weight": 4.0,
+      "blend": 0.25
+    },
+    {
+      "id": "w011_support_svm",
+      "family": "support_svm",
+      "support_weight": 4.0,
+      "blend": 0.5
+    },
+    {
+      "id": "w012_support_svm",
+      "family": "support_svm",
+      "support_weight": 4.0,
+      "blend": 1.0
+    },
+    {
+      "id": "w013_support_svm",
+      "family": "support_svm",
+      "support_weight": 16.0,
+      "blend": 0.1
+    },
+    {
+      "id": "w014_support_svm",
+      "family": "support_svm",
+      "support_weight": 16.0,
+      "blend": 0.25
+    },
+    {
+      "id": "w015_support_svm",
+      "family": "support_svm",
+      "support_weight": 16.0,
+      "blend": 0.5
+    },
+    {
+      "id": "w016_support_svm",
+      "family": "support_svm",
+      "support_weight": 16.0,
+      "blend": 1.0
+    },
+    {
+      "id": "w017_support_svm",
+      "family": "support_svm",
+      "support_weight": 64.0,
+      "blend": 0.1
+    },
+    {
+      "id": "w018_support_svm",
+      "family": "support_svm",
+      "support_weight": 64.0,
+      "blend": 0.25
+    },
+    {
+      "id": "w019_support_svm",
+      "family": "support_svm",
+      "support_weight": 64.0,
+      "blend": 0.5
+    },
+    {
+      "id": "w020_support_svm",
+      "family": "support_svm",
+      "support_weight": 64.0,
+      "blend": 1.0
+    }
+  ],
+  "development": {
+    "episodes": 30,
+    "selection_episodes": 24,
+    "gate_episodes": 6,
+    "split_seed": 20261103,
+    "support_draws": 20,
+    "support_seed": 20261104,
+    "shots_per_class": 1,
+    "source_records": 307,
+    "support_pool_records": 103,
+    "query_records": 103
+  },
+  "selection": {
+    "minimum_accuracy_gain": 0.001,
+    "max_macro_f1_loss": 0.005,
+    "max_balanced_accuracy_loss": 0.005,
+    "tie_tolerance": 0.001
+  },
+  "selection_policy": "Mean accuracy gain over both original source and matched zero required in first24 tasks and final6 gate; ties smaller blend then smaller support weight; fallback identity; diagnostic chosen using only first24 development tasks",
+  "execution_gate": "Run --stage development then await parent authorization after all round locks; final query scoring never influences subsequent round grids or choices",
+  "final": {
+    "support_draws": 100,
+    "support_seed": 20261105,
+    "shots_per_class": 1,
+    "support_labels_per_draw": 7,
+    "random_query_seed": 20261102,
+    "random_query_examples": 20,
+    "prediction_records": 171
+  },
+  "saved_models": "Original513 source; only first draw refit states required by selected/diagnostic weights. Other refits reconstruct from source/fixed hyperparameters/support IDs/weight.",
+  "limits": [
+    "Each origin currently one batch",
+    "ZY02 only5 total and calibration/query n1",
+    "Repeat supports are overlapping and not independent new samples or batches",
+    "No query labels/statistics for fitting, grid choice or model selection",
+    "No Gaussian",
+    "Do not attribute improved base architecture to target labels"
+  ]
+}

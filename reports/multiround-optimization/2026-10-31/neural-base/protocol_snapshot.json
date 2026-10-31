@@ -1,0 +1,92 @@
+{
+  "protocol_id": "zaoren-neural-base-search-20261031-v1",
+  "recorded_date": "2026-10-31",
+  "dataset_version": "2026-10-31-zaoren-numbered-v1",
+  "scope": "Retrospective same-batch anonymous seven-origin source representation search; actual uploaded spectra; no Gaussian",
+  "frequency": {
+    "lower_inclusive": 0.1,
+    "upper_inclusive": 1.5,
+    "expected_points": 612
+  },
+  "seeds": [
+    42,
+    43,
+    44
+  ],
+  "grid": {
+    "pca_components": [
+      null,
+      20,
+      40
+    ],
+    "hidden_sizes": [
+      [
+        64
+      ],
+      [
+        64,
+        32
+      ]
+    ],
+    "epochs": [
+      80,
+      200
+    ],
+    "class_weight": [
+      "none",
+      "balanced"
+    ],
+    "source_preprocessing": "SNV ddof1; source-only StandardScaler; optional unwhitened full-SVD PCA",
+    "optimizer": "Adam",
+    "learning_rate": 0.001,
+    "weight_decay": 0.001,
+    "batch_size": 64,
+    "activation": "ReLU",
+    "output": "7-class linear head"
+  },
+  "development": {
+    "episodes": 6,
+    "selection_episodes": 4,
+    "gate_episodes": 2,
+    "split_seed": 20261103,
+    "source_samples": 307,
+    "support_pool_samples": 103,
+    "query_samples": 103,
+    "support_labels_used_in_source_search": false
+  },
+  "selection": {
+    "reference_candidate_id": "b015_mlp",
+    "minimum_accuracy_gain": 0.001,
+    "max_macro_f1_loss": 0.005,
+    "max_balanced_accuracy_loss": 0.005,
+    "accuracy_tolerance": 0.001,
+    "ranking": "Eligible selection candidates only, accuracy tolerance .001 from best, then higher macroF1, higher balanced accuracy, fewer PCA dimensions, fewer hidden layers, fewer epochs, no class weight, stable ID",
+    "gate": "proposed candidate vs predeclared reference must pass same requirements in last2devtasks; otherwise reference",
+    "diagnostic_families": [
+      "none",
+      "balanced"
+    ],
+    "final_query_used_to_choose": false
+  },
+  "final": {
+    "training_samples": 513,
+    "calibration_pool_samples": 171,
+    "query_samples": 171,
+    "calibration_labels_used": 0,
+    "execution_gate": "Development must complete and lock; final requires explicit --stage final --resume after allroundsdevelopment gates",
+    "all_seeds_reported": true,
+    "no_best_seed_selection": true
+  },
+  "reporting": {
+    "source_gain_separate_from_calibration": true,
+    "loss_every_epoch": true,
+    "source_metrics_epochs": "1, every20, final",
+    "initial_and_final_fingerprints": true,
+    "same_batch_not_real_newbatch": true,
+    "prior_prediction_exposure": true,
+    "independent_geographic_label_verification": false,
+    "not_exact_teacher_matlab_newff": true
+  },
+  "candidate_configurations": 24,
+  "candidate_grid_sha256": "818302af29f5b2b717e03875153628e6b4a5a5ecc6a04e828001e91ca5447312"
+}

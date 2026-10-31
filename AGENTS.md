@@ -72,3 +72,12 @@ The user's current data decision, effective 2026-10-31, is recorded in
   reproduction. Source-meta support/query records must be disjoint;
   eligibility excludes a class with only one source record from meta tasks,
   while retaining all seven classes in supervision and final evaluation.
+- The user authorized a four-round follow-up search. Follow
+  `docs/MULTIROUND_OPTIMIZATION_PROTOCOL.md` and
+  `data/research/multiround_optimization_plan_20261031.json`. All four
+  source-only development selections must be locked and hashed before any
+  round scores the fixed final query. Round1 MLP source improvements,
+  round2 weighted SVM parameter adaptation, round3 anchored replay
+  fine-tuning and round4 first-order MAML refinement are separate paths.
+  Preserve matched no-target-label controls, every seed and negative result;
+  never use final-query scores to design or choose a later round.
