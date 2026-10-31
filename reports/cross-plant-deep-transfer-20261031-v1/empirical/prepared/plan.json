@@ -1,0 +1,69 @@
+{
+  "protocol_id": "cross-plant-transfer-outer0-empirical-20261031-v1",
+  "outer_fold": 0,
+  "seed": 42,
+  "arms": [
+    "A",
+    "Aextra",
+    "B",
+    "C"
+  ],
+  "target_classes": [
+    "ZY01",
+    "ZY02",
+    "ZY03",
+    "ZY04",
+    "ZY05",
+    "ZY06",
+    "ZY07"
+  ],
+  "target_profiles": [
+    {
+      "id": "diagnostic2",
+      "epochs": 2
+    },
+    {
+      "id": "diagnostic4",
+      "epochs": 4
+    }
+  ],
+  "pretrain_steps": 4,
+  "pretrain_batch_size": 32,
+  "source_observations": 684,
+  "query_observations": 171,
+  "inner_blocks": 2,
+  "inner_source_observations": 342,
+  "inner_query_observations": 342,
+  "common_profile_rule": "A-only pooled684 source OOF Macro-F1, then Balanced Accuracy, Accuracy, fixed profile ID",
+  "source_policy_rule": "At common A profile, switch only if Macro-F1 >= A+.005 and BA/Accuracy >= A (tolerance1e-12); otherwise A",
+  "null_permutation_seeds": [
+    1000,
+    1001,
+    1002,
+    1003,
+    1004,
+    1005,
+    1006,
+    1007,
+    1008,
+    1009
+  ],
+  "null_unit": "target labels independently shuffled within the two fixed original inner-query blocks; auxiliary labels unchanged",
+  "full_C": "all inner fits, common-profile/policy selection and four final fits rerun; external query truth variant changes only protected file bytes",
+  "D": "after fitting, alpha[0,0]+=.01 only; model state and other170 predictions/scores unchanged; no claim of full D retraining",
+  "pipeline_budget": {
+    "inner_per_repeat": 16,
+    "outer_per_repeat": 4,
+    "per_repeat": 20,
+    "repeats": 12,
+    "total": 240
+  },
+  "pretrained_trajectories": 180,
+  "pretrain_optimizer_steps": 720,
+  "null_pvalue": "(1 + count(null >= observed)) / 11, resolution1/11",
+  "all_12_prediction_locks_before_scoring": true,
+  "main_candidates_and_budget_unchanged_by_diagnostic": true,
+  "fresh_confirmation": false,
+  "scientific_status": "EXPLORATORY_ENGINEERING_TRANSFER_UNKNOWN_PHYSICAL_EQUIVALENCE",
+  "truth_guard": "named builtins.open/io.open/Path.open/os.open interception; not an OS sandbox"
+}

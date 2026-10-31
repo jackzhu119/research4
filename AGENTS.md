@@ -1,5 +1,22 @@
 # Research data conventions
 
+## External pretraining experiment (2026-10-31)
+
+The user now explicitly asks whether adding the external plant data to deep
+learning improves acid jujube classification. Follow the additive
+`docs/CROSS_PLANT_DEEP_TRANSFER_PROTOCOL_20261031.md` and run
+`cross-plant-deep-transfer-20261031-v1`. Old physical-compatibility BLOCKED
+snapshots remain unchanged; this is explicitly authorized exploratory
+spectral-shape engineering, not verified physical/cross-batch transfer.
+Use fixed128point0.21–1.49THz alpha interpolation, separate plant heads, same
+target855 samples/five-twofolds/seeds42/43/44 and paired fine-tune budgets.
+Include scratch, target-source-only extra-compute, ginseng and multipool
+pretraining controls. The common epoch is chosen using only scratch source
+OOF metrics; all source locks precede outer predictions and separate scoring.
+Fruit/leaf/wheat/undownloaded raw sources are excluded from frequency transfer.
+Never use any target validation/query modality for external pretraining.
+Preserve all historical raw data, models, reports and main branch.
+
 ## Public plant validation continuation (2026-10-31)
 
 The latest user requests public plant THz acquisition and repeated algorithm

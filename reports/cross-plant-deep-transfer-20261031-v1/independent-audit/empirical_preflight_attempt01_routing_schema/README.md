@@ -1,0 +1,1 @@
+First auditor failure was an overly strict metadata-schema assertion. Diagnostic intentionally omits original per-context hash/truth keys; frozen manifest and exact copied bytes still verify them. The initial auditor script here is reconstructed exactly from the single corrective patch; runtime failure log is the original. No research artifact, model, or source data was changed.

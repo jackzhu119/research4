@@ -1,0 +1,21 @@
+Traceback (most recent call last):
+  File "/workspace/research4/reports/cross-plant-deep-transfer-20261031-v1/independent-audit/main_selection_review.py", line 311, in <module>
+    main(parser.parse_args().watch)
+  File "/workspace/research4/reports/cross-plant-deep-transfer-20261031-v1/independent-audit/main_selection_review.py", line 167, in main
+    fitted, metadata, signature, (predicted, logits) = review.pipeline(directory, source, auxiliary, query, rows)
+                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/research4/reports/cross-plant-deep-transfer-20261031-v1/independent-audit/replay_helpers.py", line 228, in pipeline
+    prediction = self.native(fitted, query, rows)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/research4/reports/cross-plant-deep-transfer-20261031-v1/independent-audit/replay_helpers.py", line 85, in native
+    self.close(logits, [[r["score_" + c] for c in CLASSES] for r in rows], "native logits", atol=1e-6)
+  File "/workspace/research4/reports/cross-plant-deep-transfer-20261031-v1/independent-audit/replay_helpers.py", line 72, in close
+    self.check(np.allclose(a, b, atol=atol, rtol=1e-10), message)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/numpy/_core/numeric.py", line 2365, in allclose
+    res = all(isclose(a, b, rtol=rtol, atol=atol, equal_nan=equal_nan))
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/numpy/_core/numeric.py", line 2477, in isclose
+    dt = multiarray.result_type(y, 1.)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+numpy.exceptions.DTypePromotionError: The DType <class 'numpy.dtypes.StrDType'> could not be promoted by <class 'numpy.dtypes._PyFloatDType'>. This means that no common DType exists for the given inputs. For example they cannot be stored in a single array unless the dtype is `object`. The full list of DTypes is: (<class 'numpy.dtypes.StrDType'>, <class 'numpy.dtypes._PyFloatDType'>)
