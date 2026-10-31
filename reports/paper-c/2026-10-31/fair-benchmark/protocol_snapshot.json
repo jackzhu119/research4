@@ -1,0 +1,853 @@
+{
+  "protocol_id": "paper-c-same-fold-classifier-ablation-20261031-v1",
+  "recorded_date_client": "2026-10-31",
+  "client_timezone": "Asia/Shanghai",
+  "input": "outputs/approved-zaoren-20261031/datasets/candidate_0p1_1p5.npz",
+  "input_sha256": "a3fac9b2f0ee6b8e51c835c7c74354f80e2fac2bc66923e76647e35d3c6bec9d",
+  "dataset_version": "2026-10-31-zaoren-numbered-v1",
+  "samples": 855,
+  "features": 612,
+  "historical_protocol": "data/research/staged_nested_protocol_20261031.json",
+  "historical_protocol_sha256": "bd133d81492d7e3c942cbeafcf709a5636f40bd7c4e1985bb4add0d83d841293",
+  "historical_selection_lock": "reports/staged-nested-optimization/2026-10-31/core/selection_lock.json",
+  "historical_selection_lock_sha256": "4642762838c588828f5bacc8ebed036a44d6ae60b9a3001070e8e8b4ca5c2cf5",
+  "outer_folds": 5,
+  "inner_folds": 2,
+  "split_seed": 20261031,
+  "model_seed": 42,
+  "preprocessing": "SNV then StandardScaler fitted on each current training partition",
+  "candidate_grids": {
+    "full_svm": [
+      {
+        "id": "sv000",
+        "family": "full_svm",
+        "C": 0.01,
+        "gamma": "scale",
+        "class_weight": "none"
+      },
+      {
+        "id": "sv001",
+        "family": "full_svm",
+        "C": 0.01,
+        "gamma": "scale",
+        "class_weight": "balanced"
+      },
+      {
+        "id": "sv002",
+        "family": "full_svm",
+        "C": 0.01,
+        "gamma": "scale",
+        "class_weight": "power_0.5"
+      },
+      {
+        "id": "sv003",
+        "family": "full_svm",
+        "C": 0.01,
+        "gamma": "scale",
+        "class_weight": "power_1.5"
+      },
+      {
+        "id": "sv004",
+        "family": "full_svm",
+        "C": 0.01,
+        "gamma": "auto",
+        "class_weight": "none"
+      },
+      {
+        "id": "sv005",
+        "family": "full_svm",
+        "C": 0.01,
+        "gamma": "auto",
+        "class_weight": "balanced"
+      },
+      {
+        "id": "sv006",
+        "family": "full_svm",
+        "C": 0.01,
+        "gamma": "auto",
+        "class_weight": "power_0.5"
+      },
+      {
+        "id": "sv007",
+        "family": "full_svm",
+        "C": 0.01,
+        "gamma": "auto",
+        "class_weight": "power_1.5"
+      },
+      {
+        "id": "sv008",
+        "family": "full_svm",
+        "C": 0.01,
+        "gamma": "scale_x0.1",
+        "class_weight": "none"
+      },
+      {
+        "id": "sv009",
+        "family": "full_svm",
+        "C": 0.01,
+        "gamma": "scale_x0.1",
+        "class_weight": "balanced"
+      },
+      {
+        "id": "sv010",
+        "family": "full_svm",
+        "C": 0.01,
+        "gamma": "scale_x0.1",
+        "class_weight": "power_0.5"
+      },
+      {
+        "id": "sv011",
+        "family": "full_svm",
+        "C": 0.01,
+        "gamma": "scale_x0.1",
+        "class_weight": "power_1.5"
+      },
+      {
+        "id": "sv012",
+        "family": "full_svm",
+        "C": 0.01,
+        "gamma": "scale_x10",
+        "class_weight": "none"
+      },
+      {
+        "id": "sv013",
+        "family": "full_svm",
+        "C": 0.01,
+        "gamma": "scale_x10",
+        "class_weight": "balanced"
+      },
+      {
+        "id": "sv014",
+        "family": "full_svm",
+        "C": 0.01,
+        "gamma": "scale_x10",
+        "class_weight": "power_0.5"
+      },
+      {
+        "id": "sv015",
+        "family": "full_svm",
+        "C": 0.01,
+        "gamma": "scale_x10",
+        "class_weight": "power_1.5"
+      },
+      {
+        "id": "sv016",
+        "family": "full_svm",
+        "C": 0.1,
+        "gamma": "scale",
+        "class_weight": "none"
+      },
+      {
+        "id": "sv017",
+        "family": "full_svm",
+        "C": 0.1,
+        "gamma": "scale",
+        "class_weight": "balanced"
+      },
+      {
+        "id": "sv018",
+        "family": "full_svm",
+        "C": 0.1,
+        "gamma": "scale",
+        "class_weight": "power_0.5"
+      },
+      {
+        "id": "sv019",
+        "family": "full_svm",
+        "C": 0.1,
+        "gamma": "scale",
+        "class_weight": "power_1.5"
+      },
+      {
+        "id": "sv020",
+        "family": "full_svm",
+        "C": 0.1,
+        "gamma": "auto",
+        "class_weight": "none"
+      },
+      {
+        "id": "sv021",
+        "family": "full_svm",
+        "C": 0.1,
+        "gamma": "auto",
+        "class_weight": "balanced"
+      },
+      {
+        "id": "sv022",
+        "family": "full_svm",
+        "C": 0.1,
+        "gamma": "auto",
+        "class_weight": "power_0.5"
+      },
+      {
+        "id": "sv023",
+        "family": "full_svm",
+        "C": 0.1,
+        "gamma": "auto",
+        "class_weight": "power_1.5"
+      },
+      {
+        "id": "sv024",
+        "family": "full_svm",
+        "C": 0.1,
+        "gamma": "scale_x0.1",
+        "class_weight": "none"
+      },
+      {
+        "id": "sv025",
+        "family": "full_svm",
+        "C": 0.1,
+        "gamma": "scale_x0.1",
+        "class_weight": "balanced"
+      },
+      {
+        "id": "sv026",
+        "family": "full_svm",
+        "C": 0.1,
+        "gamma": "scale_x0.1",
+        "class_weight": "power_0.5"
+      },
+      {
+        "id": "sv027",
+        "family": "full_svm",
+        "C": 0.1,
+        "gamma": "scale_x0.1",
+        "class_weight": "power_1.5"
+      },
+      {
+        "id": "sv028",
+        "family": "full_svm",
+        "C": 0.1,
+        "gamma": "scale_x10",
+        "class_weight": "none"
+      },
+      {
+        "id": "sv029",
+        "family": "full_svm",
+        "C": 0.1,
+        "gamma": "scale_x10",
+        "class_weight": "balanced"
+      },
+      {
+        "id": "sv030",
+        "family": "full_svm",
+        "C": 0.1,
+        "gamma": "scale_x10",
+        "class_weight": "power_0.5"
+      },
+      {
+        "id": "sv031",
+        "family": "full_svm",
+        "C": 0.1,
+        "gamma": "scale_x10",
+        "class_weight": "power_1.5"
+      },
+      {
+        "id": "sv032",
+        "family": "full_svm",
+        "C": 1.0,
+        "gamma": "scale",
+        "class_weight": "none"
+      },
+      {
+        "id": "sv033",
+        "family": "full_svm",
+        "C": 1.0,
+        "gamma": "scale",
+        "class_weight": "balanced"
+      },
+      {
+        "id": "sv034",
+        "family": "full_svm",
+        "C": 1.0,
+        "gamma": "scale",
+        "class_weight": "power_0.5"
+      },
+      {
+        "id": "sv035",
+        "family": "full_svm",
+        "C": 1.0,
+        "gamma": "scale",
+        "class_weight": "power_1.5"
+      },
+      {
+        "id": "sv036",
+        "family": "full_svm",
+        "C": 1.0,
+        "gamma": "auto",
+        "class_weight": "none"
+      },
+      {
+        "id": "sv037",
+        "family": "full_svm",
+        "C": 1.0,
+        "gamma": "auto",
+        "class_weight": "balanced"
+      },
+      {
+        "id": "sv038",
+        "family": "full_svm",
+        "C": 1.0,
+        "gamma": "auto",
+        "class_weight": "power_0.5"
+      },
+      {
+        "id": "sv039",
+        "family": "full_svm",
+        "C": 1.0,
+        "gamma": "auto",
+        "class_weight": "power_1.5"
+      },
+      {
+        "id": "sv040",
+        "family": "full_svm",
+        "C": 1.0,
+        "gamma": "scale_x0.1",
+        "class_weight": "none"
+      },
+      {
+        "id": "sv041",
+        "family": "full_svm",
+        "C": 1.0,
+        "gamma": "scale_x0.1",
+        "class_weight": "balanced"
+      },
+      {
+        "id": "sv042",
+        "family": "full_svm",
+        "C": 1.0,
+        "gamma": "scale_x0.1",
+        "class_weight": "power_0.5"
+      },
+      {
+        "id": "sv043",
+        "family": "full_svm",
+        "C": 1.0,
+        "gamma": "scale_x0.1",
+        "class_weight": "power_1.5"
+      },
+      {
+        "id": "sv044",
+        "family": "full_svm",
+        "C": 1.0,
+        "gamma": "scale_x10",
+        "class_weight": "none"
+      },
+      {
+        "id": "sv045",
+        "family": "full_svm",
+        "C": 1.0,
+        "gamma": "scale_x10",
+        "class_weight": "balanced"
+      },
+      {
+        "id": "sv046",
+        "family": "full_svm",
+        "C": 1.0,
+        "gamma": "scale_x10",
+        "class_weight": "power_0.5"
+      },
+      {
+        "id": "sv047",
+        "family": "full_svm",
+        "C": 1.0,
+        "gamma": "scale_x10",
+        "class_weight": "power_1.5"
+      },
+      {
+        "id": "sv048",
+        "family": "full_svm",
+        "C": 10.0,
+        "gamma": "scale",
+        "class_weight": "none"
+      },
+      {
+        "id": "sv049",
+        "family": "full_svm",
+        "C": 10.0,
+        "gamma": "scale",
+        "class_weight": "balanced"
+      },
+      {
+        "id": "sv050",
+        "family": "full_svm",
+        "C": 10.0,
+        "gamma": "scale",
+        "class_weight": "power_0.5"
+      },
+      {
+        "id": "sv051",
+        "family": "full_svm",
+        "C": 10.0,
+        "gamma": "scale",
+        "class_weight": "power_1.5"
+      },
+      {
+        "id": "sv052",
+        "family": "full_svm",
+        "C": 10.0,
+        "gamma": "auto",
+        "class_weight": "none"
+      },
+      {
+        "id": "sv053",
+        "family": "full_svm",
+        "C": 10.0,
+        "gamma": "auto",
+        "class_weight": "balanced"
+      },
+      {
+        "id": "sv054",
+        "family": "full_svm",
+        "C": 10.0,
+        "gamma": "auto",
+        "class_weight": "power_0.5"
+      },
+      {
+        "id": "sv055",
+        "family": "full_svm",
+        "C": 10.0,
+        "gamma": "auto",
+        "class_weight": "power_1.5"
+      },
+      {
+        "id": "sv056",
+        "family": "full_svm",
+        "C": 10.0,
+        "gamma": "scale_x0.1",
+        "class_weight": "none"
+      },
+      {
+        "id": "sv057",
+        "family": "full_svm",
+        "C": 10.0,
+        "gamma": "scale_x0.1",
+        "class_weight": "balanced"
+      },
+      {
+        "id": "sv058",
+        "family": "full_svm",
+        "C": 10.0,
+        "gamma": "scale_x0.1",
+        "class_weight": "power_0.5"
+      },
+      {
+        "id": "sv059",
+        "family": "full_svm",
+        "C": 10.0,
+        "gamma": "scale_x0.1",
+        "class_weight": "power_1.5"
+      },
+      {
+        "id": "sv060",
+        "family": "full_svm",
+        "C": 10.0,
+        "gamma": "scale_x10",
+        "class_weight": "none"
+      },
+      {
+        "id": "sv061",
+        "family": "full_svm",
+        "C": 10.0,
+        "gamma": "scale_x10",
+        "class_weight": "balanced"
+      },
+      {
+        "id": "sv062",
+        "family": "full_svm",
+        "C": 10.0,
+        "gamma": "scale_x10",
+        "class_weight": "power_0.5"
+      },
+      {
+        "id": "sv063",
+        "family": "full_svm",
+        "C": 10.0,
+        "gamma": "scale_x10",
+        "class_weight": "power_1.5"
+      },
+      {
+        "id": "sv064",
+        "family": "full_svm",
+        "C": 100.0,
+        "gamma": "scale",
+        "class_weight": "none"
+      },
+      {
+        "id": "sv065",
+        "family": "full_svm",
+        "C": 100.0,
+        "gamma": "scale",
+        "class_weight": "balanced"
+      },
+      {
+        "id": "sv066",
+        "family": "full_svm",
+        "C": 100.0,
+        "gamma": "scale",
+        "class_weight": "power_0.5"
+      },
+      {
+        "id": "sv067",
+        "family": "full_svm",
+        "C": 100.0,
+        "gamma": "scale",
+        "class_weight": "power_1.5"
+      },
+      {
+        "id": "sv068",
+        "family": "full_svm",
+        "C": 100.0,
+        "gamma": "auto",
+        "class_weight": "none"
+      },
+      {
+        "id": "sv069",
+        "family": "full_svm",
+        "C": 100.0,
+        "gamma": "auto",
+        "class_weight": "balanced"
+      },
+      {
+        "id": "sv070",
+        "family": "full_svm",
+        "C": 100.0,
+        "gamma": "auto",
+        "class_weight": "power_0.5"
+      },
+      {
+        "id": "sv071",
+        "family": "full_svm",
+        "C": 100.0,
+        "gamma": "auto",
+        "class_weight": "power_1.5"
+      },
+      {
+        "id": "sv072",
+        "family": "full_svm",
+        "C": 100.0,
+        "gamma": "scale_x0.1",
+        "class_weight": "none"
+      },
+      {
+        "id": "sv073",
+        "family": "full_svm",
+        "C": 100.0,
+        "gamma": "scale_x0.1",
+        "class_weight": "balanced"
+      },
+      {
+        "id": "sv074",
+        "family": "full_svm",
+        "C": 100.0,
+        "gamma": "scale_x0.1",
+        "class_weight": "power_0.5"
+      },
+      {
+        "id": "sv075",
+        "family": "full_svm",
+        "C": 100.0,
+        "gamma": "scale_x0.1",
+        "class_weight": "power_1.5"
+      },
+      {
+        "id": "sv076",
+        "family": "full_svm",
+        "C": 100.0,
+        "gamma": "scale_x10",
+        "class_weight": "none"
+      },
+      {
+        "id": "sv077",
+        "family": "full_svm",
+        "C": 100.0,
+        "gamma": "scale_x10",
+        "class_weight": "balanced"
+      },
+      {
+        "id": "sv078",
+        "family": "full_svm",
+        "C": 100.0,
+        "gamma": "scale_x10",
+        "class_weight": "power_0.5"
+      },
+      {
+        "id": "sv079",
+        "family": "full_svm",
+        "C": 100.0,
+        "gamma": "scale_x10",
+        "class_weight": "power_1.5"
+      },
+      {
+        "id": "sv080",
+        "family": "full_svm",
+        "C": 1000.0,
+        "gamma": "scale",
+        "class_weight": "none"
+      },
+      {
+        "id": "sv081",
+        "family": "full_svm",
+        "C": 1000.0,
+        "gamma": "scale",
+        "class_weight": "balanced"
+      },
+      {
+        "id": "sv082",
+        "family": "full_svm",
+        "C": 1000.0,
+        "gamma": "scale",
+        "class_weight": "power_0.5"
+      },
+      {
+        "id": "sv083",
+        "family": "full_svm",
+        "C": 1000.0,
+        "gamma": "scale",
+        "class_weight": "power_1.5"
+      },
+      {
+        "id": "sv084",
+        "family": "full_svm",
+        "C": 1000.0,
+        "gamma": "auto",
+        "class_weight": "none"
+      },
+      {
+        "id": "sv085",
+        "family": "full_svm",
+        "C": 1000.0,
+        "gamma": "auto",
+        "class_weight": "balanced"
+      },
+      {
+        "id": "sv086",
+        "family": "full_svm",
+        "C": 1000.0,
+        "gamma": "auto",
+        "class_weight": "power_0.5"
+      },
+      {
+        "id": "sv087",
+        "family": "full_svm",
+        "C": 1000.0,
+        "gamma": "auto",
+        "class_weight": "power_1.5"
+      },
+      {
+        "id": "sv088",
+        "family": "full_svm",
+        "C": 1000.0,
+        "gamma": "scale_x0.1",
+        "class_weight": "none"
+      },
+      {
+        "id": "sv089",
+        "family": "full_svm",
+        "C": 1000.0,
+        "gamma": "scale_x0.1",
+        "class_weight": "balanced"
+      },
+      {
+        "id": "sv090",
+        "family": "full_svm",
+        "C": 1000.0,
+        "gamma": "scale_x0.1",
+        "class_weight": "power_0.5"
+      },
+      {
+        "id": "sv091",
+        "family": "full_svm",
+        "C": 1000.0,
+        "gamma": "scale_x0.1",
+        "class_weight": "power_1.5"
+      },
+      {
+        "id": "sv092",
+        "family": "full_svm",
+        "C": 1000.0,
+        "gamma": "scale_x10",
+        "class_weight": "none"
+      },
+      {
+        "id": "sv093",
+        "family": "full_svm",
+        "C": 1000.0,
+        "gamma": "scale_x10",
+        "class_weight": "balanced"
+      },
+      {
+        "id": "sv094",
+        "family": "full_svm",
+        "C": 1000.0,
+        "gamma": "scale_x10",
+        "class_weight": "power_0.5"
+      },
+      {
+        "id": "sv095",
+        "family": "full_svm",
+        "C": 1000.0,
+        "gamma": "scale_x10",
+        "class_weight": "power_1.5"
+      }
+    ],
+    "shrinkage_lda": [
+      {
+        "id": "lda00",
+        "family": "shrinkage_lda",
+        "shrinkage": "auto",
+        "priors": "empirical"
+      },
+      {
+        "id": "lda01",
+        "family": "shrinkage_lda",
+        "shrinkage": "auto",
+        "priors": "uniform"
+      },
+      {
+        "id": "lda02",
+        "family": "shrinkage_lda",
+        "shrinkage": 0.01,
+        "priors": "empirical"
+      },
+      {
+        "id": "lda03",
+        "family": "shrinkage_lda",
+        "shrinkage": 0.01,
+        "priors": "uniform"
+      },
+      {
+        "id": "lda04",
+        "family": "shrinkage_lda",
+        "shrinkage": 0.1,
+        "priors": "empirical"
+      },
+      {
+        "id": "lda05",
+        "family": "shrinkage_lda",
+        "shrinkage": 0.1,
+        "priors": "uniform"
+      },
+      {
+        "id": "lda06",
+        "family": "shrinkage_lda",
+        "shrinkage": 0.5,
+        "priors": "empirical"
+      },
+      {
+        "id": "lda07",
+        "family": "shrinkage_lda",
+        "shrinkage": 0.5,
+        "priors": "uniform"
+      },
+      {
+        "id": "lda08",
+        "family": "shrinkage_lda",
+        "shrinkage": 1.0,
+        "priors": "empirical"
+      },
+      {
+        "id": "lda09",
+        "family": "shrinkage_lda",
+        "shrinkage": 1.0,
+        "priors": "uniform"
+      }
+    ],
+    "mlp": [
+      {
+        "id": "mlp00",
+        "family": "mlp",
+        "hidden": 64,
+        "alpha": 0.001,
+        "class_weight": "none"
+      },
+      {
+        "id": "mlp01",
+        "family": "mlp",
+        "hidden": 64,
+        "alpha": 0.001,
+        "class_weight": "balanced"
+      },
+      {
+        "id": "mlp02",
+        "family": "mlp",
+        "hidden": 64,
+        "alpha": 0.1,
+        "class_weight": "none"
+      },
+      {
+        "id": "mlp03",
+        "family": "mlp",
+        "hidden": 64,
+        "alpha": 0.1,
+        "class_weight": "balanced"
+      },
+      {
+        "id": "mlp04",
+        "family": "mlp",
+        "hidden": 128,
+        "alpha": 0.001,
+        "class_weight": "none"
+      },
+      {
+        "id": "mlp05",
+        "family": "mlp",
+        "hidden": 128,
+        "alpha": 0.001,
+        "class_weight": "balanced"
+      },
+      {
+        "id": "mlp06",
+        "family": "mlp",
+        "hidden": 128,
+        "alpha": 0.1,
+        "class_weight": "none"
+      },
+      {
+        "id": "mlp07",
+        "family": "mlp",
+        "hidden": 128,
+        "alpha": 0.1,
+        "class_weight": "balanced"
+      }
+    ]
+  },
+  "inner_evaluations": 1140,
+  "selection_order": [
+    "mean macro_f1",
+    "mean balanced_accuracy",
+    "mean accuracy",
+    "predeclared candidate ID"
+  ],
+  "all_outer_selections_separate": true,
+  "selection_all_locked_before_outer": true,
+  "MLP": {
+    "architecture": "single hidden relu layer64/128, Adam",
+    "epochs": 200,
+    "batch_size": 64,
+    "learning_rate": 0.001,
+    "early_stopping": false,
+    "source_weight_grid": [
+      "none",
+      "balanced"
+    ],
+    "sample_weight_support": "sklearn1.8",
+    "seed": 42
+  },
+  "controls": [
+    "R2_reproduction",
+    "R2_full_features",
+    "R2_random_K",
+    "R2_no_C_gamma_search",
+    "R2_no_class_weight",
+    "R2_fixed_MC20_LV2_K62"
+  ],
+  "conditional_ablation_scope": "Per-outer historical R1/R2 inner-selected parameters remain fixed; remove one stated block, but no claim of independent causal main effects under interactions. Random K seed42 is labels-blind and never selected. Same scale rule recalculates gamma on changed source representation.",
+  "prediction_rule": "SVC.predict standard voting with break_ties=False; MLP.predict probability argmax; LDA.predict discriminant argmax",
+  "search_budget_disclosure": "Classifier tasks share sample/folds/preprocessing/metrics, not equal search budgets or equal dimensions versus MC-UVE. Full SVM96, LDA10, MLP8 candidates, historical staged MC-R2 has additional MC36 source search.",
+  "cost": "Actual wall time per source transform, estimator fit, outer prediction and serialized model bytes; inner source transforms may be cached for identical ordered training arrays only. Outer method timers use fresh full pipeline fit. Concurrent shared CPU workloads can affect timings; not a hardware-independent benchmark.",
+  "scope": "All855 previously exposed; retrospective single-batch internal CV, not independent confirmation or cross-batch transfer. ZY02 five real specimens retained, no artificial shots.",
+  "no_seed_selection": true,
+  "target_support_labels_used": 0,
+  "gaussian_included": false
+}

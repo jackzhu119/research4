@@ -1,0 +1,78 @@
+{
+  "protocol_id": "paper-c-original-strong-mlp-same-fold-20261031-v1",
+  "recorded_date_client": "2026-10-31",
+  "client_timezone": "Asia/Shanghai",
+  "dataset_version": "2026-10-31-zaoren-numbered-v1",
+  "input": "outputs/approved-zaoren-20261031/datasets/candidate_0p1_1p5.npz",
+  "input_sha256": "a3fac9b2f0ee6b8e51c835c7c74354f80e2fac2bc66923e76647e35d3c6bec9d",
+  "historical_protocol": "data/research/staged_nested_protocol_20261031.json",
+  "historical_protocol_sha256": "bd133d81492d7e3c942cbeafcf709a5636f40bd7c4e1985bb4add0d83d841293",
+  "old_architecture_selection_lock": "reports/multiround-optimization/2026-10-31/neural-base/selection_lock.json",
+  "old_architecture_selection_lock_sha256": "1c92c16a27db8952a258ccd120da0043deaad92435998f9d40936a381e87022f",
+  "candidate": {
+    "id": "b006_mlp",
+    "pca_components": null,
+    "hidden_sizes": [
+      64,
+      32
+    ],
+    "epochs": 200,
+    "class_weight": "none",
+    "learning_rate": 0.001,
+    "weight_decay": 0.001,
+    "batch_size": 64
+  },
+  "seeds": [
+    42,
+    43,
+    44
+  ],
+  "primary_seed": 42,
+  "split_seed": 20261031,
+  "outer_folds": 5,
+  "inner_folds": 2,
+  "frequency_points": 612,
+  "methods": [
+    "strong_mlp_200",
+    "strong_mlp_200_plus100_source_updates"
+  ],
+  "selection": "Fixed previously source-selected b006; no new architecture, checkpoint or seed choice. Thirty inner source contexts, two paired roles each. Inner validation is a development diagnostic only.",
+  "continuation": {
+    "helper": "image_probability.supervised_continuation",
+    "updates_not_epochs": 100,
+    "seed": "base_seed+1600; original final-source offset applied to every new source partition",
+    "optimizer": "fresh Adam lr0.0001 default weight_decay0",
+    "source_episode_way": 3,
+    "source_support_per_class": 1,
+    "source_query_per_class": 1,
+    "objective": "unweighted source-episode query CE + unweighted full-source CE",
+    "initial_model_unchanged": true,
+    "target_support_labels_used": 0
+  },
+  "training": {
+    "base_epochs": 200,
+    "optimizer": "Adam",
+    "learning_rate": 0.001,
+    "weight_decay": 0.001,
+    "minibatch_size": 64,
+    "class_weight": "none",
+    "hidden_sizes": [
+      64,
+      32
+    ],
+    "activation": "ReLU",
+    "pca": null,
+    "early_stopping": false,
+    "input_preprocessing": "original SNV ddof1 then current-source-only StandardScaler",
+    "parameter_count_612_inputs": 41543
+  },
+  "scope": [
+    "Same original855 old5outer/2inner partitions as R2; distinct from171 fixed-query experiment.",
+    "200 base epochs plus100 continuation updates is not300 epochs.",
+    "All7 classes retained in full-source CE; only classes with>=2source specimens eligible for disjoint episode support/query. In this protocol ZY02 has2inner/4outer so is eligible; any singleton test is excluded only from source episodes.",
+    "Report fixedseed42 for main comparison; seeds43/44 and mean/sampleSD are sensitivity analyses, no best seed choice.",
+    "No external data or target calibration labels; retrospective same-batch, historical data previously exposed.",
+    "Both paired methods are prespecified controls; do not choose the better outer result and call it inner-selected."
+  ],
+  "outer_evaluation_gate": "All30source contexts and60inner method cases frozen, source/protocol/selection hashes locked, root/auditor release required before15outer source fits."
+}

@@ -1,0 +1,86 @@
+{
+  "protocol_sha256": "ad747301d72c3ab4ada47cdc909fec156e171a366c7bc094be28b7029022c083",
+  "input_sha256": "acd0bc051667d200fa87ed05f4bb2116c9eea5b971a5a8081cedea2e3fcc66e2",
+  "split_sha256": "17055eef5a4c544344f735032b55ef12f52bde341ffdff9378b25a835baa9594",
+  "source_code_sha256": {
+    "src/herb_spectra/paper_c_calibration.py": "44947f8e23f61e2e71ef00c7147b88a7392d4b0fb2c47d0281c115850294c2f4",
+    "scripts/run_paper_c_calibration.py": "3a66b8efbcef89782a5b9f350239d703a43f9319408520eff65f4a87d0798d58",
+    "src/herb_spectra/calibration.py": "b05ea9ddbcf6d79909b5795f596fe8d940c7c597d1af9b46481dd7e75aa36ace",
+    "src/herb_spectra/calibration_exploration.py": "1b9eac8bab5c29efa90c790ea03f75a8889af3511189d670bc2fbd3f8836f37e",
+    "src/herb_spectra/classification.py": "793a550f46522bc2e69acf922b39e104a0e94b5eb058905f987a91d0f16a08b2",
+    "src/herb_spectra/selection.py": "477d1f0404d8d170fb2bba91bbb5e24d311fb94cf7a20cfd8a7781b93064206f",
+    "src/herb_spectra/within_batch_holdout.py": "49421953e563e0511a23ff2252043626693e9387b85a672c3c790088555b3e53"
+  },
+  "frozen_sources": {
+    "scope": "Retrospective within-batch source models; no real cross-batch validation",
+    "dataset_version": "2026-10-31-zaoren-numbered-v1",
+    "protocol": "data/research/zaoren_threeway_protocol_20261031.json",
+    "prediction_rule": "argmax aligned source class scores",
+    "frequency_interval": [
+      0.1,
+      1.5
+    ],
+    "frequency_points": 612,
+    "models": [
+      {
+        "selector": "full",
+        "path": "models/zaoren_threeway_20261031/full_source_model.joblib",
+        "sha256": "5a719c7d782335cce0097fdf117784eff80fd18a66043b163d66f070e757fd62",
+        "bytes": 1602454,
+        "fitted_model_fingerprint": "1b95b4b3b7a3a0253f50f237b5b3f709d83b00f9",
+        "fingerprint_algorithm": "joblib.hash sha1",
+        "training_sample_count": 513,
+        "selected_feature_count": 612,
+        "class_order": [
+          "ZY01",
+          "ZY02",
+          "ZY03",
+          "ZY04",
+          "ZY05",
+          "ZY06",
+          "ZY07"
+        ],
+        "best_params": {
+          "model__C": 10.0,
+          "preprocess__mode": "snv"
+        }
+      },
+      {
+        "selector": "mcuve20",
+        "path": "models/zaoren_threeway_20261031/mcuve20_source_model.joblib",
+        "sha256": "5f3452c5e7fd40e45bbc1d3fd666f07e770b0ccc06d454cf11fc6e80e4167fa8",
+        "bytes": 849256,
+        "fitted_model_fingerprint": "6be1dea7769f17e4f9e30cbefcc5b51f8a11775e",
+        "fingerprint_algorithm": "joblib.hash sha1",
+        "training_sample_count": 513,
+        "selected_feature_count": 62,
+        "class_order": [
+          "ZY01",
+          "ZY02",
+          "ZY03",
+          "ZY04",
+          "ZY05",
+          "ZY06",
+          "ZY07"
+        ],
+        "best_params": {
+          "model__C": 10.0,
+          "preprocess__mode": "snv"
+        }
+      }
+    ],
+    "runtime": {
+      "numpy": "2.3.5",
+      "scipy": "1.17.0",
+      "scikit-learn": "1.8.0",
+      "joblib": "1.5.3"
+    }
+  },
+  "python": "3.12.14",
+  "dependencies": {
+    "numpy": "2.3.5",
+    "scipy": "1.17.0",
+    "scikit-learn": "1.8.0",
+    "joblib": "1.5.3"
+  }
+}

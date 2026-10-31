@@ -1,0 +1,258 @@
+{
+  "status": "pass_for_prespecified_evaluation_with_limitations",
+  "started_at_utc": "2026-10-31T08:23:44.930361+00:00",
+  "completed_at_utc": "2026-10-31T08:23:53.281900+00:00",
+  "checks": 3883868,
+  "maximum_numeric_difference": 0.0,
+  "new_estimator_fits": 0,
+  "new_calibrator_fits": 0,
+  "outer_or_final_query_scored": false,
+  "benchmark": {
+    "status": "pass",
+    "allow_outer_evaluation": true,
+    "new_model_fits": 0,
+    "inner_cases": 1140,
+    "inner_predictions": 389880,
+    "selection_lock_sha256": "6f18a3d52565edca109a738b40ed3e44fdfe0d9bb6bb30614675652e78da1ba4",
+    "run_manifest_sha256": "a2875aacc0b2ba5a1bccfa629e4d892047f6c2e636959ddf774ed0bfbf7729fe",
+    "protocol_sha256": "c55cd077cc5bd276af5564e2a7a68caeb82a4348acc5a4fc79c589e0369327a4",
+    "selected": [
+      {
+        "outer_fold": 0,
+        "family": "full_svm",
+        "selected": {
+          "id": "sv073",
+          "family": "full_svm",
+          "C": 100.0,
+          "gamma": "scale_x0.1",
+          "class_weight": "balanced"
+        }
+      },
+      {
+        "outer_fold": 0,
+        "family": "shrinkage_lda",
+        "selected": {
+          "id": "lda01",
+          "family": "shrinkage_lda",
+          "shrinkage": "auto",
+          "priors": "uniform"
+        }
+      },
+      {
+        "outer_fold": 0,
+        "family": "mlp",
+        "selected": {
+          "id": "mlp03",
+          "family": "mlp",
+          "hidden": 64,
+          "alpha": 0.1,
+          "class_weight": "balanced"
+        }
+      },
+      {
+        "outer_fold": 1,
+        "family": "full_svm",
+        "selected": {
+          "id": "sv049",
+          "family": "full_svm",
+          "C": 10.0,
+          "gamma": "scale",
+          "class_weight": "balanced"
+        }
+      },
+      {
+        "outer_fold": 1,
+        "family": "shrinkage_lda",
+        "selected": {
+          "id": "lda01",
+          "family": "shrinkage_lda",
+          "shrinkage": "auto",
+          "priors": "uniform"
+        }
+      },
+      {
+        "outer_fold": 1,
+        "family": "mlp",
+        "selected": {
+          "id": "mlp03",
+          "family": "mlp",
+          "hidden": 64,
+          "alpha": 0.1,
+          "class_weight": "balanced"
+        }
+      },
+      {
+        "outer_fold": 2,
+        "family": "full_svm",
+        "selected": {
+          "id": "sv067",
+          "family": "full_svm",
+          "C": 100.0,
+          "gamma": "scale",
+          "class_weight": "power_1.5"
+        }
+      },
+      {
+        "outer_fold": 2,
+        "family": "shrinkage_lda",
+        "selected": {
+          "id": "lda05",
+          "family": "shrinkage_lda",
+          "shrinkage": 0.1,
+          "priors": "uniform"
+        }
+      },
+      {
+        "outer_fold": 2,
+        "family": "mlp",
+        "selected": {
+          "id": "mlp00",
+          "family": "mlp",
+          "hidden": 64,
+          "alpha": 0.001,
+          "class_weight": "none"
+        }
+      },
+      {
+        "outer_fold": 3,
+        "family": "full_svm",
+        "selected": {
+          "id": "sv049",
+          "family": "full_svm",
+          "C": 10.0,
+          "gamma": "scale",
+          "class_weight": "balanced"
+        }
+      },
+      {
+        "outer_fold": 3,
+        "family": "shrinkage_lda",
+        "selected": {
+          "id": "lda01",
+          "family": "shrinkage_lda",
+          "shrinkage": "auto",
+          "priors": "uniform"
+        }
+      },
+      {
+        "outer_fold": 3,
+        "family": "mlp",
+        "selected": {
+          "id": "mlp01",
+          "family": "mlp",
+          "hidden": 64,
+          "alpha": 0.001,
+          "class_weight": "balanced"
+        }
+      },
+      {
+        "outer_fold": 4,
+        "family": "full_svm",
+        "selected": {
+          "id": "sv073",
+          "family": "full_svm",
+          "C": 100.0,
+          "gamma": "scale_x0.1",
+          "class_weight": "balanced"
+        }
+      },
+      {
+        "outer_fold": 4,
+        "family": "shrinkage_lda",
+        "selected": {
+          "id": "lda04",
+          "family": "shrinkage_lda",
+          "shrinkage": 0.1,
+          "priors": "empirical"
+        }
+      },
+      {
+        "outer_fold": 4,
+        "family": "mlp",
+        "selected": {
+          "id": "mlp03",
+          "family": "mlp",
+          "hidden": 64,
+          "alpha": 0.1,
+          "class_weight": "balanced"
+        }
+      }
+    ],
+    "limitations": [
+      "Different family search budgets96/10/8 and MC additional36 disclosed.",
+      "Conditional ablations inherit train-internal historical R2 parameters; not factorial causal main effects.",
+      "R2 and SVM controls must preserve SVC.predict voting; score argmax is a different rule.",
+      "Historical protocol actual hash verified by review although runtime does not independently enforce the declared historical_protocol_sha256 field.",
+      "All855 already exposed; no independent-confirmation claim."
+    ]
+  },
+  "calibration": {
+    "status": "pass_with_inert_method_limitation",
+    "allow_final_evaluation": true,
+    "new_model_fits": 0,
+    "new_calibrator_fits": 0,
+    "final_query_scored": false,
+    "source_fits_in_original_selection": 60,
+    "development_cases": 14400,
+    "development_prediction_rows": 1483200,
+    "selection_lock_sha256": "6298a118306bcaab5cb85951643982625ace100cae751f9c0e0cd98bd2119b7a",
+    "run_manifest_sha256": "4cdde0bdb9c0c3a02d8b990b628d1dc126afd124e4d69de206dafd0c24d7ec1b",
+    "protocol_sha256": "ad747301d72c3ab4ada47cdc909fec156e171a366c7bc094be28b7029022c083",
+    "frozen_source_prediction_flags": [
+      {
+        "selector": "full",
+        "break_ties": true,
+        "decision_function_shape": "ovr",
+        "source_samples": 513
+      },
+      {
+        "selector": "mcuve20",
+        "break_ties": true,
+        "decision_function_shape": "ovr",
+        "source_samples": 513
+      }
+    ],
+    "candidate_behavior": [
+      {
+        "selector": "full",
+        "candidate_evaluations": 7200,
+        "support_rejected": 846,
+        "corrected": 0,
+        "harmed": 0,
+        "selected": null,
+        "fallback_to_identity": true
+      },
+      {
+        "selector": "mcuve20",
+        "candidate_evaluations": 7200,
+        "support_rejected": 1134,
+        "corrected": 0,
+        "harmed": 0,
+        "selected": null,
+        "fallback_to_identity": true
+      }
+    ],
+    "margin_summary": [
+      {
+        "selector": "full",
+        "unique_development_query_occurrences": 3090,
+        "potentially_changeable_by_maximum_bound": 23
+      },
+      {
+        "selector": "mcuve20",
+        "unique_development_query_occurrences": 3090,
+        "potentially_changeable_by_maximum_bound": 33
+      }
+    ],
+    "interpretation": [
+      "Both source tasks must remain identity after development; no claim of successful calibration or accuracy improvement.",
+      "Small cap does not mathematically prohibit every possible flip: some development score gaps lie within the2*blend*cap bound.",
+      "Componentwise clipping of raw anchored OVR-to-onehot residuals can saturate top two components at the same negative bound, producing an equal translation that cannot alter ranking. This is a mechanistic hypothesis here, not independently refitted/calculated.",
+      "No new adapter fits performed under read-only review. Any quantitative saturation proof requires a separately authorized replay from saved source/support scores.",
+      "Zero-support/no-label branches return an exact copy because ridge=None; they are identity controls, not positive calibration evidence.",
+      "100 support draws overlap and share the same soleZY02 calibration specimen; no3/5/10shots or cross-batch claim.",
+      "Calibration uses old fixed171 argmax/OVR rule with both savedSVC break_ties=True, distinct from R0/R2 standard vote.",
+      "Runtime evaluation checks frozen manifest/current sources and release lock SHA, but external reviewer must additionally bind actual manifest hash and explicit dated allow flag; this audit verifies the actual current lock-manifest link."
+    ]
+  }
+}

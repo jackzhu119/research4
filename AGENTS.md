@@ -100,3 +100,15 @@ The user's current data decision, effective 2026-10-31, is recorded in
   every outer fold; never pool outer-fold inner results into one winner.
   All core/combinations selection locks precede outer evaluation release.
   The old513/171/171 workbooks remain a separate unchanged experiment.
+- The user's paper-C direction keeps acid jujube THz identification and model
+  optimization as the primary study (about70% work); other plants (about20%)
+  and transfer/calibration (about10%) are auxiliary. Follow
+  `docs/RESEARCH4_PAPER_C_MASTER_PLAN.md`. Preserve the audited R2 candidate
+  and all historical results. New comparisons reuse the original855-sample
+  five-outer/two-inner folds; all transformations and candidate selection
+  stay within source partitions. Fixed171 calibration remains separate.
+  Exact former strong64-32 MLP and new sklearn MLP are distinct controls.
+  External record counts must not become invented independent sample counts;
+  THz units/axes, labels, identity, provenance and license must be qualified
+  before external validation or transfer. Do not replace the jujube task,
+  rename standard methods as new algorithms, or merge this work into main.
