@@ -1,5 +1,7 @@
 # 方案C：以酸枣仁THz识别优化为核心的科研主计划
 
+> 2026-10-31升级增补：本轮升级继续以酸枣仁为核心，保留96.02%传统主候选；多表示神经600管线实测未胜出，黄芪／天麻各自四来源组探索另立协议。Gaussian按导师新要求恢复为机制准备，但三候选DFT未运行。历史章节保留其当时状态，后续以[升级执行报告](MULTIREPRESENTATION_UPGRADE_REPORT.md)、[严格防泄漏协议](DATA_LEAKAGE_PREVENTION_PROTOCOL.md)及[数据曝光登记](DATA_EXPOSURE_REGISTER.md)为本轮增量依据。
+
 2026-10-31，北京时间。对应仓库 `jackzhu119/research4` 的研究分支。
 
 ## 摘要

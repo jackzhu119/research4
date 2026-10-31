@@ -1,0 +1,51 @@
+{
+  "utc_start": "2026-10-31T11:03:24.371402+00:00",
+  "utc_complete": "2026-10-31T11:03:28.449050+00:00",
+  "command": [
+    ".runtime/bin/python",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "tests",
+    "-p",
+    "test_auxiliary_multiplant.py",
+    "-v"
+  ],
+  "cwd": "/workspace/research4",
+  "returncode": 0,
+  "tests_run": 12,
+  "production_data_fits": 0,
+  "unit_fixture_fits_only": true,
+  "log": "outputs/upgrade-20261031-v1/auxiliary/v2/boundary_tests_recorded.log",
+  "log_sha256": "1c7fa3aa549ecfe3ec782c3d2507ec37b5a55b38f01ad115d54de6a3cc989655",
+  "source_sha256": {
+    "src/herb_spectra/auxiliary_multiplant.py": "c568d59dae1ff1b065add64face886edd72cccd2e19db7b4b7c045883f40fa16",
+    "scripts/run_auxiliary_multiplant.py": "0a8c0becef1fae3e1e51fbb87fa1d8ccda2bf4f553ef07a5af2eec191b49aafe",
+    "src/herb_spectra/upgrade_neural.py": "4ec65e407c197d9f666c72e9f4a5d79eee0045f823787df9e5b22f57dc43e773",
+    "src/herb_spectra/leakage_guard.py": "9b5555be27fc634aae46f31e50a06f1950d238c83ff654df91a37c0cdd74748e",
+    "src/herb_spectra/selection.py": "477d1f0404d8d170fb2bba91bbb5e24d311fb94cf7a20cfd8a7781b93064206f",
+    "src/herb_spectra/classification.py": "793a550f46522bc2e69acf922b39e104a0e94b5eb058905f987a91d0f16a08b2"
+  },
+  "test_file_sha256": "aaa6273ceb54051b13920243a6933f73583a2a782cd0998bb46d0177f0c72899",
+  "protocol_sha256": "51a2873666483717c9aaf7b13b3c4b0f3b57bbea3294553ccbb6594c6a61617a",
+  "preparation_sha256": "98e720d72a2b8f544cae1837cecc28a7a5284d0e2da1980a3c99088631e9d0f8",
+  "candidate_manifest_sha256": "8f029093fa38fb5d57f5769be0745e009ea10f9271d927805bd83dbf18f26470",
+  "negative_cases": [
+    "source ID mismatch",
+    "two plants sharing class space",
+    "inference truth/string metadata",
+    "cross-source and cross-fold cache",
+    "repeated scoring denominator",
+    "tampered predictions before read_truth",
+    "last truth tampered before even first read_truth",
+    "protocol tampered before read_truth"
+  ],
+  "positive_cases": [
+    "MC-UVE actual4response x10 PLS source-scoped",
+    "4class SE BatchNorm inference fixed state and pointwise",
+    "fusion routes preserve all four classes",
+    "intact prediction lock fixture scores correctly"
+  ],
+  "no_frozen_source_changed": true
+}

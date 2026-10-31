@@ -1,0 +1,321 @@
+{
+  "protocol_id": "auxiliary-userdeclared-multiplant-20261031-v1",
+  "recorded_date_client": "2026-10-31",
+  "overlay_manifest": "data/multiplant_database/metadata/user_declaration_overlays/20261031_huangqi_tianma_v1/overlay_manifest.json",
+  "overlay_manifest_sha256": "74db20fc4d7b07ae8883705e6502613568a955b772c18f3873dea4e8ce348b95",
+  "overlay_lineage": "data/multiplant_database/metadata/user_declaration_overlays/20261031_huangqi_tianma_v1/sample_lineage_overlay.csv",
+  "overlay_lineage_sha256": "a657e5f2c5255ab43df625d0d4e1f18255cfede888f96a495a28ea5cd39bb025",
+  "annotation": "data/annotations/huangqi_tianma_user_declaration_20261031.json",
+  "annotation_sha256": "aa0ffad7ba2802d5a2a45fdc46939d1cb1b6247664f940ffd2638ccde920b53f",
+  "inputs": {
+    "huangqi": {
+      "alpha": {
+        "path": "data/multiplant_database/huangqi/alpha.npz",
+        "sha256": "70a1afe2404c0a78cd4b262bc1e54857ca6bdf9c9ce02d8aee418b280f479040"
+      },
+      "time": {
+        "path": "data/multiplant_database/huangqi/time.npz",
+        "sha256": "48047966c629d14a7b7cc70251c366fb7b101179863afe6ade3b60342333f131"
+      },
+      "frequency": {
+        "path": "data/multiplant_database/huangqi/frequency.npz",
+        "sha256": "341cdfaa40bcbf31f9cab9043e6ba3f264dcb069aae0fb9fdb22cea62219af9d"
+      }
+    },
+    "tianma": {
+      "alpha": {
+        "path": "data/multiplant_database/tianma/alpha.npz",
+        "sha256": "44906eba924bab5bd9b06609a9e97863bafe6cb051af26fa5489c801f6b1a63a"
+      },
+      "n": {
+        "path": "data/multiplant_database/tianma/n.npz",
+        "sha256": "09c6ea943b7164c2e6ebd01cb761f16c10df00ba90bdfd1969f3b6fe89458408"
+      }
+    }
+  },
+  "datasets": [
+    "huangqi",
+    "tianma"
+  ],
+  "class_orders": {
+    "huangqi": [
+      "HQ01",
+      "HQ02",
+      "HQ03",
+      "HQ04"
+    ],
+    "tianma": [
+      "TM01",
+      "TM02",
+      "TM03",
+      "TM04"
+    ]
+  },
+  "sample_counts": {
+    "huangqi": 403,
+    "tianma": 405
+  },
+  "outer_folds": 5,
+  "inner_folds": 2,
+  "split_seed": 20261031,
+  "seeds": [
+    42,
+    43,
+    44
+  ],
+  "primary_seed": 42,
+  "candidates": {
+    "full_svm": [
+      {
+        "id": "full00",
+        "kind": "full_svm",
+        "C": 1.0,
+        "gamma_rule": "scale"
+      },
+      {
+        "id": "full01",
+        "kind": "full_svm",
+        "C": 1.0,
+        "gamma_rule": "scale_x0.1"
+      },
+      {
+        "id": "full02",
+        "kind": "full_svm",
+        "C": 10.0,
+        "gamma_rule": "scale"
+      },
+      {
+        "id": "full03",
+        "kind": "full_svm",
+        "C": 10.0,
+        "gamma_rule": "scale_x0.1"
+      }
+    ],
+    "mcuve_svm": [
+      {
+        "id": "mc00",
+        "kind": "mcuve_svm",
+        "C": 1.0,
+        "gamma_rule": "scale",
+        "mc_runs": 10,
+        "mc_components": 1,
+        "mc_ratio": 0.1
+      },
+      {
+        "id": "mc01",
+        "kind": "mcuve_svm",
+        "C": 1.0,
+        "gamma_rule": "scale_x0.1",
+        "mc_runs": 10,
+        "mc_components": 1,
+        "mc_ratio": 0.1
+      },
+      {
+        "id": "mc02",
+        "kind": "mcuve_svm",
+        "C": 10.0,
+        "gamma_rule": "scale",
+        "mc_runs": 10,
+        "mc_components": 1,
+        "mc_ratio": 0.1
+      },
+      {
+        "id": "mc03",
+        "kind": "mcuve_svm",
+        "C": 10.0,
+        "gamma_rule": "scale_x0.1",
+        "mc_runs": 10,
+        "mc_components": 1,
+        "mc_ratio": 0.1
+      },
+      {
+        "id": "mc04",
+        "kind": "mcuve_svm",
+        "C": 1.0,
+        "gamma_rule": "scale",
+        "mc_runs": 20,
+        "mc_components": 2,
+        "mc_ratio": 0.2
+      },
+      {
+        "id": "mc05",
+        "kind": "mcuve_svm",
+        "C": 1.0,
+        "gamma_rule": "scale_x0.1",
+        "mc_runs": 20,
+        "mc_components": 2,
+        "mc_ratio": 0.2
+      },
+      {
+        "id": "mc06",
+        "kind": "mcuve_svm",
+        "C": 10.0,
+        "gamma_rule": "scale",
+        "mc_runs": 20,
+        "mc_components": 2,
+        "mc_ratio": 0.2
+      },
+      {
+        "id": "mc07",
+        "kind": "mcuve_svm",
+        "C": 10.0,
+        "gamma_rule": "scale_x0.1",
+        "mc_runs": 20,
+        "mc_components": 2,
+        "mc_ratio": 0.2
+      }
+    ],
+    "cnn": [
+      {
+        "id": "small12",
+        "width": 8,
+        "blocks": 1,
+        "epochs": 12,
+        "dropout": 0.15,
+        "learning_rate": 0.001,
+        "class_weight": "none",
+        "mc_runs": 10,
+        "mc_components": 1,
+        "mc_ratio": 0.1,
+        "kind": "cnn"
+      },
+      {
+        "id": "regularized24",
+        "width": 12,
+        "blocks": 2,
+        "epochs": 24,
+        "dropout": 0.35,
+        "learning_rate": 0.0005,
+        "class_weight": "balanced",
+        "mc_runs": 20,
+        "mc_components": 2,
+        "mc_ratio": 0.2,
+        "kind": "cnn"
+      }
+    ],
+    "resnet": [
+      {
+        "id": "small12",
+        "width": 8,
+        "blocks": 1,
+        "epochs": 12,
+        "dropout": 0.15,
+        "learning_rate": 0.001,
+        "class_weight": "none",
+        "mc_runs": 10,
+        "mc_components": 1,
+        "mc_ratio": 0.1,
+        "kind": "resnet"
+      },
+      {
+        "id": "regularized24",
+        "width": 12,
+        "blocks": 2,
+        "epochs": 24,
+        "dropout": 0.35,
+        "learning_rate": 0.0005,
+        "class_weight": "balanced",
+        "mc_runs": 20,
+        "mc_components": 2,
+        "mc_ratio": 0.2,
+        "kind": "resnet"
+      }
+    ],
+    "se": [
+      {
+        "id": "small12",
+        "width": 8,
+        "blocks": 1,
+        "epochs": 12,
+        "dropout": 0.15,
+        "learning_rate": 0.001,
+        "class_weight": "none",
+        "mc_runs": 10,
+        "mc_components": 1,
+        "mc_ratio": 0.1,
+        "kind": "se"
+      },
+      {
+        "id": "regularized24",
+        "width": 12,
+        "blocks": 2,
+        "epochs": 24,
+        "dropout": 0.35,
+        "learning_rate": 0.0005,
+        "class_weight": "balanced",
+        "mc_runs": 20,
+        "mc_components": 2,
+        "mc_ratio": 0.2,
+        "kind": "se"
+      }
+    ],
+    "fusion": [
+      {
+        "id": "small12",
+        "width": 8,
+        "blocks": 1,
+        "epochs": 12,
+        "dropout": 0.15,
+        "learning_rate": 0.001,
+        "class_weight": "none",
+        "mc_runs": 10,
+        "mc_components": 1,
+        "mc_ratio": 0.1,
+        "kind": "fusion"
+      },
+      {
+        "id": "regularized24",
+        "width": 12,
+        "blocks": 2,
+        "epochs": 24,
+        "dropout": 0.35,
+        "learning_rate": 0.0005,
+        "class_weight": "balanced",
+        "mc_runs": 20,
+        "mc_components": 2,
+        "mc_ratio": 0.2,
+        "kind": "fusion"
+      }
+    ]
+  },
+  "fixed_alpha_n_band": [
+    0.1,
+    1.5
+  ],
+  "preprocessing": {
+    "alpha": "same prior contiguous candidate window612, single-spectrum SNV then current-source StandardScaler",
+    "n": "same prior candidate window612 then source StandardScaler",
+    "time": "fixed per-spectrum consecutive means to512 then source StandardScaler",
+    "frequency": "fixed per-spectrum consecutive means to256 then source StandardScaler"
+  },
+  "fusions": {
+    "huangqi": [
+      "time",
+      "frequency"
+    ],
+    "tianma": [
+      "alpha",
+      "n"
+    ]
+  },
+  "svm_class_weight": "balanced from current source only",
+  "neural_selection": "Per dataset, outer fold and family separately: average2inner x3seed MacroF1, BalancedAccuracy, Accuracy, candidateID tie",
+  "neural_architecture_alias": "inner_selected_neural chooses among the4neural families using inner means only; no extra fits",
+  "full_svm_seeds": "all3 actually fitted but probability=False means seeds normally identical; not3independent studies",
+  "mc_svm_seeds": "all3 stochastic seeds actually fitted and retained",
+  "score_protocol": "save IDs/classes/predictions/scores without truth first; independent score command joins fixed truth",
+  "pointwise_inference_tolerance": {
+    "atol": 1e-05,
+    "rtol": 1e-05
+  },
+  "blocked_paths": {
+    "huangqi_alpha_n_fourclass": "Gansu n empty; cannot silently remove class",
+    "tianma_allfour_fourclass": "time missing Guizhou/Anhui; cannot silently remove2classes",
+    "cross_plant_transfer": "units/instrument/batch/common upstream material still unknown"
+  },
+  "scientific_status": "EXPLORATORY_USER_DECLARED_INDEPENDENCE_SOURCE_GROUPS",
+  "named_geography_externally_verified": false,
+  "batch_ids_known": false,
+  "independent_confirmation": false,
+  "do_not_change_frozen_zaoren_or_database": true
+}

@@ -1,0 +1,23 @@
+Traceback (most recent call last):
+  File "/workspace/research4/scripts/run_auxiliary_multiplant.py", line 18, in <module>
+    result={'prepare':lambda:prepare(a.protocol,a.output),'selection':lambda:selection(a.protocol,a.output,a.release),
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/research4/scripts/run_auxiliary_multiplant.py", line 18, in <lambda>
+    result={'prepare':lambda:prepare(a.protocol,a.output),'selection':lambda:selection(a.protocol,a.output,a.release),
+                                                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/research4/src/herb_spectra/auxiliary_multiplant.py", line 366, in selection
+    record,rows=trial(context,family,candidate,seed,out,code)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/research4/src/herb_spectra/auxiliary_multiplant.py", line 335, in trial
+    if not all(np.allclose(z,a[:n],atol=1e-12,rtol=1e-12) for z in [single,chunk]) or not np.allclose(a,b,atol=1e-12,rtol=1e-12) or joblib.hash(fitted.estimator)!=before:
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/research4/src/herb_spectra/auxiliary_multiplant.py", line 335, in <genexpr>
+    if not all(np.allclose(z,a[:n],atol=1e-12,rtol=1e-12) for z in [single,chunk]) or not np.allclose(a,b,atol=1e-12,rtol=1e-12) or joblib.hash(fitted.estimator)!=before:
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/numpy/_core/numeric.py", line 2365, in allclose
+    res = all(isclose(a, b, rtol=rtol, atol=atol, equal_nan=equal_nan))
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/numpy/_core/numeric.py", line 2496, in isclose
+    result = (less_equal(abs(x - y), atol + rtol * abs(y))
+                             ~~^~~
+ValueError: operands could not be broadcast together with shapes (9,4) (7,4) 
