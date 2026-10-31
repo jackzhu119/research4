@@ -59,3 +59,9 @@
 用户明确要求取消旧错版入口并以新文件开展后续工作。当前有效酸枣仁输入固定为`data/processed/zaoren_20261031/样本1_编号版.xlsx`至`样本7_编号版.xlsx`，版本`2026-10-31-zaoren-numbered-v1`，共855个唯一谱记录编号。7份未编号原件从raw目录移至`data/archive/zaoren_superseded_20261031/`，原始字节和hash不变，仅用于追溯；旧808行元数据模板也已归档停用。
 
 `data/active_workbooks.json`和`data/manifest.csv`仅列当前4份黄芪＋7份酸枣仁，模板更新为1258行。旧报告的历史结果保留，但不当作新版数据上的模型实测。以后以[data/CURRENT_DATASET.md](CURRENT_DATASET.md)及有效清单为准。
+
+## 2026-10-31：样品声明、批准计划与首轮模型实验
+
+用户批准不含Gaussian的实验计划，并明确确认“每个编号均是独立样品”“每个产地目前只有一批”。证据保存至`data/annotations/zaoren_user_declaration_20261031.json`。据此为855条酸枣仁记录显式设置physical_sample_id=record_id及origin_group_verified=true，增加声明依据字段；真实地名、实际批次编号及物种鉴定记录未自动补齐，黄芪注释不变。
+
+随后在当前7份编号版上完成13条匿名产地组内部验证路径、65外折、11,115条预测。原始7份工作簿字节未改；当前数据每产地仅一批，内部结果不能解释为已验证的跨批次鉴别。批准协议及完整执行结果位于研究分支的`docs/APPROVED_ZAOREN_EXPERIMENT_PLAN.md`和`docs/ZAOREN_APPROVED_EXECUTION_REPORT.md`，100项工程测试及全部正负结果另行归档。
