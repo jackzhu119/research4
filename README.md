@@ -24,6 +24,7 @@
 - [Gaussian／GaussView安装记录](docs/GAUSSIAN_INSTALLATION.md)：上传GaussView6.0.16已通过Wine64启动并显示水分子；保留启动入口和截图，Gaussian计算引擎仍缺失。
 - [老师源码性质与主线文献对照](docs/ALGORITHM_ORIGINALITY_AND_LITERATURE.md)：区分现成算法、任务适配和未确认的改进，列出中药THz、酸枣仁产地及小样本迁移参考，说明SCI／SCIE核验范围。
 - [太赫兹数据来源核验](docs/THZ_DATA_SOURCES.md)：优先中国机构，锁定人参 n／α CSV、小麦粉含量 MAT 与代码、原始时域信号等；逐项区分文件说明、目录预览、受限访问和未下载状态。
+- [枣类THz公开数据专项检索（2026-10-31）](docs/JUJUBE_THZ_DATA_SEARCH.md)：未核实到可下载且带产地标签的枣／酸枣仁THz数据；核实了枣果近红外高光谱入口及非枣种子THz记录，逐项说明用途与限制。
 - [后续科研阶段二](docs/RESEARCH_STAGE2_REPORT.md)：稳定筛选与少样本校准实现，200个新药材分类场景、7200组迁移评价与正负结果。
 - [科研数据目录](docs/RESEARCH_DATASET_CATALOG.md)：34条来源/数据表示记录，区分已下载、仅元数据、受限访问、同队列与样品层级。
 - [外部中药光谱基准报告](docs/EXTERNAL_BENCHMARK_REPORT.md)：金银花/山银花产地与LC-MS相对丰度，330个真实运行场景，全部五折指标、原归档核心对照和复现命令。
