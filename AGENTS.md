@@ -14,9 +14,25 @@ The user's current data decision, effective 2026-10-31, is recorded in
   superseded and retained under `data/archive` for provenance only. Do not mix
   them with the numbered workbooks or count both versions as observations.
 - The current metadata template has 1258 spectrum records: 855 acid jujube
-  kernel records and the unchanged 403 Huangqi records. Record IDs do not
-  establish independent physical specimens, repeats, collection batches, or
-  named geographical origins. Leave unconfirmed scientific fields unfilled.
+  kernel records and the unchanged 403 Huangqi records. The user subsequently
+  confirmed that each numbered jujube record is an independent sample; the
+  evidence is `data/annotations/zaoren_user_declaration_20261031.json`.
+  Jujube physical_sample_id is explicitly mapped to record_id with basis
+  user_declared_independent_20261031, and origin_group_verified is true.
+  This is a user declaration, not an inference from numbering or a laboratory
+  audit. Named origins, batches and species confirmation remain unfilled.
+  Huangqi annotations are unchanged.
+- The user also confirmed that each origin currently has only one batch.
+  This is recorded in the same declaration JSON; no actual batch identifiers
+  were supplied or invented. Origin and the particular source lot cannot be
+  separated using the current collection. Sample-level CV is not a real
+  cross-batch experiment, regardless of its accuracy.
+- The approved current protocol is `docs/APPROVED_ZAOREN_EXPERIMENT_PLAN.md`
+  and its JSON under `data/research/`. Use outer 5 / inner 2 / CARS-internal 2
+  folds, split seed 20261031 and model seed 42; the ZY02 class has only five
+  samples. Current results are internal CV on anonymous origin groups, not
+  verified named-origin or cross-batch performance. Real batch calibration
+  remains gated on new batch annotations and adequate support/query pools.
 - Historical reports retain the data counts and hashes from their actual runs.
   Do not relabel earlier results as experiments on the new 855-record dataset.
 - The current paper direction is origin classification, evaluated model

@@ -34,7 +34,9 @@ print(table.values.shape)  # 谱记录条数 × 所选频率点数
 
 ## 元数据与评价
 
-仓库中的[metadata_template.csv](../data/metadata_template.csv)按当前有效清单包含1258条谱列记录：黄芪403条，酸枣仁855条。酸枣仁对应ZY01为350条、ZY02为5条、ZY03—ZY07各100条，使用编号版工作簿的表头定位。用户声明每个文件对应一个产地，但ZY文件组编号不替代真实地名和采样记录；真实物理样品ID、重复扫描关系、批次、物种确认及化学值仍待补。同一物理样品所有扫描必须填相同`physical_sample_id`，不能直接把每个ZY谱记录编号当作独立物理样品。旧808行模板仅供历史追溯。
+仓库中的[metadata_template.csv](../data/metadata_template.csv)按当前有效清单包含1258条谱列记录：黄芪403条，酸枣仁855条。酸枣仁对应ZY01为350条、ZY02为5条、ZY03—ZY07各100条，使用编号版工作簿的表头定位。用户已明确确认每个ZY编号均为独立样品，证据见[独立样品声明](../data/annotations/zaoren_user_declaration_20261031.json)；855条酸枣仁据此设置`physical_sample_id=record_id`、`physical_sample_id_basis=user_declared_independent_20261031`及`origin_group_verified=true`。这不是仅由编号推断的独立性，真实地名、批次、物种确认及化学值等仍留空，黄芪注释不变。如果后续记录发现重复扫描，应更正分组并重新划分，不让同一样品跨集合。旧808行模板仅供历史追溯。
+
+当前实验以[已批准方案](APPROVED_ZAOREN_EXPERIMENT_PLAN.md)为准：外层5折、内层2折、CARS内部2折，分区seed 20261031、模型seed 42，内层主评分macro-F1。使用`prepare_zaoren_dataset.py`及`run_zaoren_classification.py`的当前酸枣仁入口；下文通用基础API示例不替代该固定方案，也不应照搬其默认折数。当前结果称为“用户声明独立样品上的匿名产地组内部验证”，不是留批次外测。
 
 若需重新生成空模板，使用不同输出路径以免覆盖已填记录：
 
@@ -47,7 +49,7 @@ python scripts/audit_workbooks.py --output outputs/workbook_profiles.json
 
 经人工核验并完成单位、同一频率网格与标签对齐后，可保存 NPZ：`X` 为扫描×特征的有限浮点矩阵，`y` 为每扫描一个真实产地标签或化学实测值，`groups` 为每扫描对应的物理样品 ID，`labels_verified` 为显式布尔真值。字符串数组使用常规 Unicode dtype，读取时禁止 pickle。
 
-当前不自动从空模板生成训练数据，也不自动从文件名构造标签。使用已核验数据时：
+程序不把空科学字段自动补成真实地名或批次，也不从旧商品文件名构造标签；当前匿名组与独立性使用已有用户声明和显式注释。以下为通用基础API示例，当前酸枣仁正式执行仍以批准方案为准：
 
 ```bash
 python scripts/evaluate_baseline.py data/processed/reviewed.npz --model svc --output outputs/svc.json
@@ -61,4 +63,4 @@ python scripts/evaluate_baseline.py data/processed/reviewed.npz --model svr --ou
 
 ## 还需要实现/确认
 
-CARS-style／MC-UVE、PLS-DA、重复筛选及分类分数校准已有独立工程实现，后续外部实测及其边界见[阶段二报告](RESEARCH_STAGE2_REPORT.md)。这些工程候选及旧数据运行不等于当前855条酸枣仁数据已经完成科学建模。当前仍需补足物理样品与批次映射，完成样品级基线、候选改进消融、真实新批次小样本分类校准及不确定性评价；Gaussian暂不纳入本轮主线。
+CARS-style／MC-UVE、PLS-DA、重复筛选及分类分数校准已有独立工程实现，后续外部实测及其边界见[阶段二报告](RESEARCH_STAGE2_REPORT.md)。这些工程候选及旧数据运行不等于当前855条酸枣仁数据已取得模型成绩；实际结果另行记录。当前物理ID已由用户声明补齐，可先做匿名组样品级基线与候选改进消融；真实新批次校准仍需批次记录和足够独立目标support/query，不把7个类别文件当作7个域。Gaussian不纳入本轮主线。
