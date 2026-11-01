@@ -1,0 +1,85 @@
+{
+  "status": "DONE_ORDINARY_NATIVE_CPU_GUARD_TEST_NOT_QUANTUM",
+  "created_at_utc": "2026-11-01T16:39:45.182428+00:00",
+  "supervisor_source_sha256": "354ff51b5c2af2810033656d9972948262cfebb4dabb3978fca2d021f97e2b8f",
+  "test_method": "Actual frozen actual_cpu_observation and signal_bound_group helpers with real native4 child/proc ticks",
+  "test_only_limits": {
+    "sample_seconds": 0.02,
+    "phase_CPU_seconds": 5,
+    "cleanup_reserve_CPU_seconds": 4,
+    "software_stop_CPU_seconds": 1,
+    "TERM_to_KILL_seconds": 0.2,
+    "independent_child_self_stop_CPU_seconds": 3,
+    "external_wall_backstop_seconds": 5,
+    "supplementary_kernel_CPU_soft_hard_seconds": [
+      60,
+      120
+    ]
+  },
+  "production_root_authorization_or_proof_claimed": false,
+  "production_reserve_stays_120_seconds": true,
+  "new_quantum_evaluations": 0,
+  "real_scientific_ledgers_initialized": 0,
+  "checkpoints_used": 0,
+  "identity": {
+    "pid": 17752,
+    "start_ticks": 3882308,
+    "uid": 1000,
+    "pgrp": 17752,
+    "session": 17752
+  },
+  "events": [
+    {
+      "elapsed": 0.26145011199696455,
+      "action": "TERM",
+      "result": {
+        "sent": true,
+        "reason": "IDENTITY_RECHECKED_GROUP_SIGNAL_SENT"
+      },
+      "actual_observation": {
+        "clock_ticks_per_second": 100,
+        "cumulative_phase_cpu_seconds_sampled": 1.02,
+        "closed_batch_actual_cpu_seconds": 0,
+        "batch_cpu_seconds_sampled": 1.02,
+        "stop_threshold_phase_cpu_seconds": 1,
+        "cleanup_reserve_seconds": 4,
+        "phase_boundary_near": true,
+        "batch_boundary_near": true,
+        "should_stop": true,
+        "clock_source": "PROC_STAT_CUMULATIVE_FROM_PROCESS_BIRTH",
+        "no_initial_sample_subtracted": true,
+        "scope": "Single TGID self plus waited-child CPU; native threads not enumerated; unexpected live group members rejected"
+      }
+    },
+    {
+      "elapsed": 0.47815769699809607,
+      "action": "KILL",
+      "result": {
+        "sent": true,
+        "reason": "IDENTITY_RECHECKED_GROUP_SIGNAL_SENT"
+      },
+      "actual_observation": {
+        "clock_ticks_per_second": 100,
+        "cumulative_phase_cpu_seconds_sampled": 1.88,
+        "closed_batch_actual_cpu_seconds": 0,
+        "batch_cpu_seconds_sampled": 1.88,
+        "stop_threshold_phase_cpu_seconds": 1,
+        "cleanup_reserve_seconds": 4,
+        "phase_boundary_near": true,
+        "batch_boundary_near": true,
+        "should_stop": true,
+        "clock_source": "PROC_STAT_CUMULATIVE_FROM_PROCESS_BIRTH",
+        "no_initial_sample_subtracted": true,
+        "scope": "Single TGID self plus waited-child CPU; native threads not enumerated; unexpected live group members rejected"
+      }
+    }
+  ],
+  "child_exit_code": -9,
+  "actual_child_wait4_CPU_seconds": 1.893537,
+  "elapsed_wall_seconds": 0.4987312750017736,
+  "total_compile_and_child_CPU_seconds": 1.9415689999999997,
+  "child_log_sha256": "6cb25eecc5aa197a49431d94520d4a05504a37f7c9dfe923b5dcad4ecba034eb",
+  "ignored_binary_path": "/workspace/research4/outputs/pyscf-pure-j-20261101-v4-ordinary-cpu-probe/ordinary_cpu_spin",
+  "binary_sha256": "4b4b27e2c77a0f49b0d9550e389ea09b79e9ca82c36cd261b64dffe14612cb66",
+  "CPU_sampling_and_signal_delivery_are_best_effort_not_mathematically_exact_bounds": true
+}
