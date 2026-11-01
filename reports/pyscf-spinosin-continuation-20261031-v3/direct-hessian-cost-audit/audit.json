@@ -1,0 +1,260 @@
+{
+  "status": "SOURCE_ANALYSIS_NOT_NEW_QUANTUM_RESULTS",
+  "created_utc": "2026-11-01T11:37:50.023416+00:00",
+  "pyscf_version_from_text_metadata": "2.14.0",
+  "scope": "Installed static PySCF source and repository V8 source only; no active calculation output or process read.",
+  "sources": {
+    "rhf_hessian": {
+      "path": ".runtime/quantum-upgrade-site/pyscf/hessian/rhf.py",
+      "sha256": "2d986bfc01aac98447034a207df639b3d6897f67ce1ab2a013fe2d0853c85de5",
+      "bytes": 22881,
+      "line_count": 589
+    },
+    "rks_hessian": {
+      "path": ".runtime/quantum-upgrade-site/pyscf/hessian/rks.py",
+      "sha256": "d61dbd1727b286845737853b92e1812a3e6a966dca29a9a8a79ff5e9a7725c03",
+      "bytes": 96532,
+      "line_count": 2124
+    },
+    "response_functions": {
+      "path": ".runtime/quantum-upgrade-site/pyscf/scf/_response_functions.py",
+      "sha256": "806b3bbf00f1127bfbb15c74f5c7b022bb8f58ca01945f502d6082dd0b35f411",
+      "bytes": 14694,
+      "line_count": 350
+    },
+    "hf_scf": {
+      "path": ".runtime/quantum-upgrade-site/pyscf/scf/hf.py",
+      "sha256": "34ea1a9057da3a2d5aa37fe51d4e7305580bcb8e0118a5f17ba95ba5bb36c22f",
+      "bytes": 94652,
+      "line_count": 2584
+    },
+    "vhf": {
+      "path": ".runtime/quantum-upgrade-site/pyscf/scf/_vhf.py",
+      "sha256": "ef0a04f43338780a7f57d9268f9634c1079ae989ba3030d6154c8612798f82ba",
+      "bytes": 28821,
+      "line_count": 812
+    },
+    "cphf": {
+      "path": ".runtime/quantum-upgrade-site/pyscf/scf/cphf.py",
+      "sha256": "e39e3a06fc33e23307a8558d2410bc1137e08ef9c27d48b4ce95fd20a22a63e3",
+      "bytes": 4900,
+      "line_count": 148
+    },
+    "v8_worker": {
+      "path": "scripts/pyscf_spinosin_parallel_hessian_worker_20261031.py",
+      "sha256": "acfe7708748ac237c9912aa9b1d98e047d842794fd0c6f08b1a67b993f5b277d",
+      "bytes": 70233,
+      "line_count": 1200
+    },
+    "package_metadata": {
+      "path": ".runtime/quantum-upgrade-site/pyscf-2.14.0.dist-info/METADATA",
+      "sha256": "6aede69454a6d7e8504e135c223a221c67d8219bae01f819c325f1cd0da6d491",
+      "bytes": 6580,
+      "line_count": 148
+    }
+  },
+  "AST_checks": {
+    "partial_with_k_load_lines": [],
+    "with_k_argument_is_unused_in_installed_partial_function": true,
+    "partial_get_jk_callsites": [
+      {
+        "line": 121,
+        "intor": "int2e_ipip1",
+        "components": 9,
+        "aosym": "s2kl",
+        "explicit_shls_slice": false,
+        "explicit_vhfopt": true
+      },
+      {
+        "line": 141,
+        "intor": "int2e_ip1ip2",
+        "components": 9,
+        "aosym": "s1",
+        "explicit_shls_slice": true,
+        "explicit_vhfopt": true
+      },
+      {
+        "line": 148,
+        "intor": "int2e_ipvip1",
+        "components": 9,
+        "aosym": "s2kl",
+        "explicit_shls_slice": true,
+        "explicit_vhfopt": true
+      }
+    ],
+    "V8_direct_SCF_delegation_present": true,
+    "V8_partial_kernel_tiling_disabled_in_source": true
+  },
+  "call_map": [
+    {
+      "stage": "partial",
+      "kernel": "int2e_ipip1",
+      "components": 9,
+      "scope": "One global call; all four shell ranges global",
+      "scripts": "lk->s1ij (J); jk->s1il (K-shaped)",
+      "explicit_VHFOpt": "_make_vhfopt(ipip1, int2e_ipip1ipip2), conditional native symbol availability",
+      "calls_for_75_atoms": "1",
+      "pure_PBE_K_skipped": "NO: with_k parameter is unused in this installed function",
+      "source": "hessian/rhf.py:120–125"
+    },
+    {
+      "stage": "partial",
+      "kernel": "int2e_ip1ip2",
+      "components": 9,
+      "scope": "One call per atom; shell leg1 restricted to that atom, other3 global",
+      "scripts": "ji->s1kl (J); li->s1kj and lj->s1ki (K-shaped)",
+      "explicit_VHFOpt": "ip1ip2_opt built once; derivative/int2e q-conditions reused and density conditions updated",
+      "calls_for_75_atoms": "75",
+      "pure_PBE_K_skipped": "NO",
+      "source": "hessian/rhf.py:129,138–147"
+    },
+    {
+      "stage": "partial",
+      "kernel": "int2e_ipvip1",
+      "components": 9,
+      "scope": "One call per atom; shell leg1 restricted to that atom, other3 global",
+      "scripts": "lk->s1ij (J); li->s1kj (K-shaped)",
+      "explicit_VHFOpt": "ipvip1_opt built once; derivative/int2e q-conditions reused and density conditions updated",
+      "calls_for_75_atoms": "75",
+      "pure_PBE_K_skipped": "NO",
+      "source": "hessian/rhf.py:130,148–156"
+    },
+    {
+      "stage": "H1AO",
+      "kernel": "int2e_ip1",
+      "components": 3,
+      "scope": "One call per atom; shell leg1 restricted to that atom, other3 global",
+      "scripts": "ji->s2kl and lk->s1ij (J only in nonhybrid RKS branch)",
+      "explicit_VHFOpt": "NOT passed by rks.make_h1; _get_jk defaultsNone; integral optimizer may still be created internally",
+      "calls_for_75_atoms": "75",
+      "pure_PBE_K_skipped": "YES: nonhybrid branch does not request K scripts",
+      "source": "hessian/rks.py:141–172; hessian/rhf.py:261–268; scf/_vhf.py:482–500"
+    },
+    {
+      "stage": "CPHF response",
+      "kernel": "int2e (sph/cart suffix)",
+      "components": 1,
+      "scope": "Global AO response density; no nuclear-derivative integral or atom shell truncation",
+      "scripts": "J only for each global perturbed density in nonhybrid ground-state response",
+      "explicit_VHFOpt": "mf.get_j -> frozenV8 hf.SCF.get_jk -> directSCF cached VHFOpt/J-only prescreen",
+      "calls_for_75_atoms": "NOT_DETERMINED_STATICALLY: iterative Krylov response calls plus final response",
+      "pure_PBE_K_skipped": "YES: hybrid/range-separated exchange branches bypassed",
+      "source": "hessian/rhf.py:343–359; scf/_response_functions.py:67–101; hf.py:2124–2164; _vhf.py:370–410"
+    }
+  ],
+  "static_count_for_one_full_partial_atmlst75": {
+    "python_get_jk_contraction_calls": 151,
+    "J_script_bindings": 151,
+    "K_shaped_script_bindings_still_requested": 226,
+    "total_script_bindings": 377,
+    "screening_setup_note": "Three _make_vhfopt invocations; their helper integrals run only when required native symbols exist. Count does not measure integral quartets or timing."
+  },
+  "screening_notes": {
+    "partial": "Explicit derivative VHFOpt is supplied; each construction can fall backNone if required native symbol absent. _get_jk forwards it to direct_bindm.",
+    "derivative_optimizer_tolerance": "_make_vhfopt constructs a new _VHFOpt without passing mf.direct_scf_tol; installed _VHFOpt default is1e-14. Do not equate this automatically to V8 mf.direct_scf_tol1e-13.",
+    "H1": "No explicit derivative VHFOpt passed in nonhybrid rks.make_h1. This is not proof that all libcint internal pruning is disabled.",
+    "CPHF": "SCF get_jk constructs/reuses ordinary int2e VHFOpt from mf.direct_scf_tol and uses J-only prescreen; density conditions update for each call."
+  },
+  "dimension_examples": {
+    "input_basis": "75 atoms and762 AO functions are task-supplied dimensions; electron320/singlet nocc160. No active calculation array was opened. These are exact shape-arithmetic examples, not measured RSS.",
+    "final_cartesian_Hessian": {
+      "shape": [
+        75,
+        3,
+        75,
+        3
+      ],
+      "float64_elements": 50625,
+      "nominal_bytes": 405000,
+      "nominal_GiB": 0.0003771856427192688
+    },
+    "RKS_XC_deriv2_vmat_global": {
+      "shape": [
+        75,
+        3,
+        3,
+        762,
+        762
+      ],
+      "float64_elements": 391934700,
+      "nominal_bytes": 3135477600,
+      "nominal_GiB": 2.9201410710811615
+    },
+    "H1AO_all_atoms": {
+      "shape": [
+        75,
+        3,
+        762,
+        762
+      ],
+      "float64_elements": 130644900,
+      "nominal_bytes": 1045159200,
+      "nominal_GiB": 0.9733803570270538
+    },
+    "single_nine_component_AO_matrix": {
+      "shape": [
+        3,
+        3,
+        762,
+        762
+      ],
+      "float64_elements": 5225796,
+      "nominal_bytes": 41806368,
+      "nominal_GiB": 0.03893521428108215
+    },
+    "response_density_batch_for8_atoms": {
+      "shape": [
+        24,
+        762,
+        762
+      ],
+      "float64_elements": 13935456,
+      "nominal_bytes": 111483648,
+      "nominal_GiB": 0.10382723808288574
+    },
+    "MO1_batch_for8_atoms_full_rank_NMO_assumption": {
+      "shape": [
+        24,
+        762,
+        160
+      ],
+      "float64_elements": 2926080,
+      "nominal_bytes": 23408640,
+      "nominal_GiB": 0.021800994873046875
+    },
+    "hypothetical_dense_uncontracted_four_center_ERI_NOT_ALLOCATED_BY_V8": {
+      "shape": [
+        762,
+        762,
+        762,
+        762
+      ],
+      "float64_elements": 337147454736,
+      "nominal_bytes": 2697179637888,
+      "nominal_GiB": 2511.944284558296
+    },
+    "limitations": "These arrays need not all coexist, and allocator/scratch/grid/SCF/Krylov overhead is omitted. No peak-RSS or runtime estimate follows. mf.max_memory3000 controls numerical block policy, not a hard cap on all global arrays."
+  },
+  "V8_scope": {
+    "full_partial_hessian_original_called_once_before_capture": true,
+    "full_H1_original_called_before_per_atom_save": true,
+    "response_only_perturbation_batching": true,
+    "global_AO_MO_response_space_retained": true,
+    "partial_kernel_tiling": false,
+    "basis_grid_functional_screening_arguments_not_changed_by_thread_guard": true,
+    "save_only_not_restore": true
+  },
+  "forbidden_inferences": [
+    "No current executing kernel or atom index can be inferred from this static source audit.",
+    "An old density-count/components signature is not a current kernel stack trace or completion percentage.",
+    "No completion time, ETA, remaining integral fraction, or speedup is estimated.",
+    "Pure PBE with_kFalse does not remove the installed partial_hessian K-shaped contraction scripts.",
+    "This audit does not recommend modifying or interrupting the running frozen worker.",
+    "These static dimensional costs are not measured runtime or peak resident memory."
+  ],
+  "new_quantum_computations": 0,
+  "PySCF_imported": false,
+  "source_files_modified": 0,
+  "active_arrays_or_HDF_or_checkpoints_read": 0,
+  "processes_observed_or_signalled": 0
+}
