@@ -1,0 +1,838 @@
+#INFO: **** input file is /workspace/research4/scripts/pyscf_spinosin_direct_worker_20261031.py ****
+"""Screened direct RKS V4: explicit no-density-fitting control and vibrations.
+
+The parent process supplies CPU/wall limits. Each worker writes restart evidence
+while computing. Merely returning a geometry is never optimization success.
+"""
+from __future__ import annotations
+
+import argparse
+from collections import Counter
+from datetime import datetime, timezone
+import csv
+import gc
+import hashlib
+import importlib.metadata
+import json
+import os
+from pathlib import Path
+import resource
+import shutil
+import signal
+import sys
+import time
+
+import numpy as np
+
+ROOT = Path(__file__).resolve().parents[1]
+CM1_TO_THZ = 0.0299792458
+FORMULAS = {"water": {"H": 2, "O": 1}, "spinosin": {"C": 28, "H": 32, "O": 15}}
+THRESHOLDS = {"convergence_energy": 1e-6, "convergence_grms": 3e-4,
+              "convergence_gmax": 4.5e-4, "convergence_drms": 1.2e-3,
+              "convergence_dmax": 1.8e-3}
+
+
+class BudgetStop(RuntimeError):
+    pass
+
+
+def utc():
+    return datetime.now(timezone.utc).isoformat()
+
+
+def sha(path):
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+
+def write(path, value):
+    path = Path(path)
+    temporary = path.with_name(path.name + ".writing")
+    temporary.write_text(json.dumps(value, indent=2, allow_nan=False) + "\n")
+    os.replace(temporary, path)
+
+
+def xyz_text(symbols, coordinates, title):
+    coordinates = np.asarray(coordinates, float)
+    if coordinates.shape != (len(symbols), 3) or not np.isfinite(coordinates).all():
+        raise ValueError("Invalid XYZ coordinates")
+    return str(len(symbols)) + "\n" + title.replace("\n", " ") + "\n" + "\n".join(
+        f"{s} {x:.12f} {y:.12f} {z:.12f}" for s, (x, y, z) in zip(symbols, coordinates)) + "\n"
+
+
+def read_xyz(path, expected):
+    lines = Path(path).read_text().splitlines()
+    if len(lines) < 3:
+        raise ValueError("Complete XYZ required")
+    declared = int(lines[0])
+    rows = [line.split() for line in lines[2:] if line.strip()]
+    if len(rows) != declared or any(len(row) != 4 for row in rows):
+        raise ValueError("XYZ count/column mismatch")
+    symbols = [row[0] for row in rows]
+    coordinates = np.asarray([[float(v) for v in row[1:]] for row in rows])
+    if Counter(symbols) != Counter(expected) or not np.isfinite(coordinates).all():
+        raise ValueError("XYZ composition or finite-coordinate check failed")
+    if np.any(np.linalg.norm(coordinates[:, None] - coordinates[None, :], axis=2)[np.triu_indices(declared, 1)] < .25):
+        raise ValueError("Coincident or implausibly overlapping atoms")
+    return symbols, coordinates
+
+
+def gradient_summary(gradient):
+    values = np.asarray(gradient, float)
+    if values.ndim != 2 or values.shape[1] != 3 or not np.isfinite(values).all():
+        raise ValueError("Finite atom-by-three nuclear gradient required")
+    atom_norms = np.linalg.norm(values, axis=1)
+    return {"component_rms_hartree_per_bohr": float(np.sqrt(np.mean(values ** 2))),
+            "component_max_hartree_per_bohr": float(np.max(np.abs(values))),
+            "atom_rms_hartree_per_bohr": float(np.sqrt(np.mean(atom_norms ** 2))),
+            "atom_max_hartree_per_bohr": float(np.max(atom_norms)),
+            "gradient_norm_hartree_per_bohr": float(np.linalg.norm(values))}
+
+
+def stationary_checks(gradient):
+    info = gradient_summary(gradient)
+    # geomeTRIC uses atom displacement-vector gradient norms, not 3N scalar RMS.
+    passed = (info["atom_rms_hartree_per_bohr"] <= THRESHOLDS["convergence_grms"]
+              and info["atom_max_hartree_per_bohr"] <= THRESHOLDS["convergence_gmax"])
+    return {**info, "final_gradient_thresholds_passed": bool(passed)}
+
+
+def require_optimized_result(result, geometry_path, settings, coordinates_path=None):
+    if result.get("status") != "DONE" or not result.get("geometry_optimized"):
+        raise ValueError("Frequency stage blocked: optimization not DONE")
+    if result.get("optimizer_converged") is not True or result.get("scf_converged") is not True:
+        raise ValueError("Frequency stage blocked: unconverged optimization/SCF")
+    if result.get("final_gradient_thresholds_passed") is not True:
+        raise ValueError("Frequency stage blocked: gradient not stationary")
+    if result.get("optimized_xyz_sha256") != sha(geometry_path):
+        raise ValueError("Optimized geometry bytes changed")
+    expected_coordinates_sha = result.get("optimized_coordinates_angstrom_npy_sha256")
+    if not expected_coordinates_sha or coordinates_path is None or expected_coordinates_sha != sha(coordinates_path):
+        raise ValueError("Frequency stage requires the same full-precision optimized coordinates")
+    for key in ("xc", "basis", "grid_level", "dispersion", "density_fitting", "auxbasis", "density_fit_backend",
+                "direct_scf", "direct_scf_tol", "scf_conv_tol_hartree", "optimizer_thresholds",
+                "global_four_center_ERI_cache_allowed", "charge", "spin_2S", "multiplicity"):
+        if result.get("settings", {}).get(key) != settings[key]:
+            raise ValueError("Frequency method differs from optimized method: " + key)
+
+
+def frequencies_payload(wavenumbers, modes, atom_count):
+    if np.iscomplexobj(wavenumbers) or np.iscomplexobj(modes):
+        raise ValueError("Signed real frequencies/modes required; do not discard imaginary components")
+    freq, modes = np.asarray(wavenumbers, float), np.asarray(modes, float)
+    expected = 3 * atom_count - 6
+    if freq.shape != (expected,) or modes.shape != (expected, atom_count, 3):
+        raise ValueError("Incomplete/nonlinear molecular vibrational mode count")
+    if not np.isfinite(freq).all() or not np.isfinite(modes).all():
+        raise ValueError("Nonfinite frequency or normal mode")
+    if np.any(np.linalg.norm(modes.reshape(expected, -1), axis=1) == 0):
+        raise ValueError("Zero normal-mode vectors are not valid vibration evidence")
+    return {"normal_mode_count": expected, "expected_normal_mode_count": expected,
+            "imaginary_frequency_count": int(np.sum(freq < 0)),
+            "frequencies_cm1": freq.tolist(), "frequencies_thz": (freq * CM1_TO_THZ).tolist(),
+            "IR_intensities_status": "NOT_COMPUTED",
+            "normal_modes_complete": True, "all_frequencies_real_positive": bool(np.all(freq > 0))}
+
+
+def prepare_hessian_for_analysis(hessian, atom_count):
+    raw = np.asarray(hessian, float)
+    if raw.shape != (atom_count, atom_count, 3, 3) or not np.isfinite(raw).all():
+        raise ValueError("Incomplete or nonfinite raw Hessian")
+    transposed = raw.transpose(1, 0, 3, 2)
+    asymmetry = float(np.max(np.abs(raw - transposed)))
+    if asymmetry > 1e-5:
+        raise ValueError("Raw Hessian symmetry check failed; do not hide asymmetry")
+    return (raw + transposed) * .5, asymmetry
+
+
+def frequency_minimum_checks(info):
+    passed = bool(info["normal_modes_complete"] and info["all_frequencies_real_positive"]
+                  and info["normal_mode_count"] == info["expected_normal_mode_count"]
+                  and info["imaginary_frequency_count"] == 0)
+    return {"stationary_minimum_verified": passed, "frequency_validation_passed": passed}
+
+
+
+def direct_integral_policy(mf):
+    """Require the reviewed no-DF, no-global-four-center-ERI execution policy."""
+    if getattr(mf, "with_df", None) is not None:
+        raise RuntimeError("Direct RKS control must not carry a density-fitting object")
+    if getattr(mf, "_eri", None) is not None:
+        raise RuntimeError("Global four-center ERI cache is forbidden in this control")
+    if getattr(mf.mol, "incore_anyway", None) is not False or mf.direct_scf is not True:
+        raise RuntimeError("Screened direct SCF and incore_anyway=False are required")
+    if mf.direct_scf_tol != 1e-13:
+        raise RuntimeError("Direct SCF screening tolerance changed from reviewed setting")
+    return {"storage": "SCREENED_DIRECT_NO_GLOBAL_ERI", "density_fitting": False,
+            "global_four_center_ERI_cached": False, "array_saved_to_output": False}
+
+
+def screened_direct_rks_type(parent_type, direct_get_jk):
+    """Bypass RHF's small-molecule incore heuristic, including for water tests.
+
+    Delegate precisely to the normal SCF screened-direct contraction. This is not
+    a new electronic-structure approximation and does not loosen screening.
+    """
+    class ScreenedDirectRKS(parent_type):
+        def get_jk(self, mol=None, dm=None, hermi=1, with_j=True, with_k=True, omega=None):
+            direct_integral_policy(self)
+            return direct_get_jk(self, mol=mol, dm=dm, hermi=hermi,
+                                 with_j=with_j, with_k=with_k, omega=omega)
+    return ScreenedDirectRKS
+
+
+def direct_gradient_type(parent_type, emit, memory_mb=None):
+    """State/timing wrapper calling the unchanged standard non-DF RKS kernel."""
+    class ScreenedDirectRKSGradients(parent_type):
+        def reset(self, mol=None):
+            emit("gradient_scanner_geometry_reset", {})
+            return super().reset(mol)
+
+        def kernel(self, *args, **kwargs):
+            if not self.base.converged:
+                raise RuntimeError("Unconverged SCF cannot enter nuclear gradient")
+            policy = direct_integral_policy(self.base)
+            emit("direct_gradient_started", {"scf_converged": True,
+                "SCF_energy_hartree": float(self.base.e_tot), "direct_integral_policy": policy,
+                "current_rss_mb_before_gradient": float(memory_mb()) if memory_mb is not None else None})
+            cpu, wall = time.process_time(), time.perf_counter()
+            gradient = super().kernel(*args, **kwargs)
+            values = np.asarray(gradient)
+            if values.shape != (self.mol.natm, 3) or not np.isfinite(values).all():
+                raise RuntimeError("Incomplete or nonfinite direct RKS nuclear gradient")
+            emit("direct_gradient_kernel_complete", {
+                "gradient_cpu_seconds": time.process_time() - cpu,
+                "gradient_wall_seconds": time.perf_counter() - wall,
+                "direct_integral_policy": direct_integral_policy(self.base)})
+            return gradient
+    return ScreenedDirectRKSGradients
+
+
+def worker_settings(args):
+    return {"xc": "PBE", "basis": "def2-svp", "grid_level": args.grid_level,
+            "dispersion": "NONE_EXPLICIT_PBE_PILOT_NOT_D3", "density_fitting": False,
+            "auxbasis": None, "hessian_auxbasis_response": None,
+            "scf_conv_tol_hartree": 1e-8, "scf_max_cycle": 80, "threads": args.threads,
+            "max_memory_mb": 8000, "density_fit_backend": "SCREENED_DIRECT_RKS_V4",
+            "direct_scf": True, "direct_scf_tol": 1e-13,
+            "global_four_center_ERI_cache_allowed": False,
+            "charge": 0, "spin_2S": 0, "multiplicity": 1,
+            "optimizer_maxsteps": args.maxsteps, "optimizer_thresholds": THRESHOLDS}
+
+
+def precise_input_coordinates(xyz_coordinates, npy_path=None, expected_sha=None):
+    if npy_path is None:
+        if expected_sha:
+            raise ValueError("Coordinate SHA supplied without a coordinate NPY")
+        return np.asarray(xyz_coordinates, float)
+    if not expected_sha or sha(npy_path) != expected_sha:
+        raise ValueError("Full precision coordinate NPY requires its expected SHA")
+    values = np.load(npy_path, allow_pickle=False)
+    if values.shape != np.asarray(xyz_coordinates).shape or not np.isfinite(values).all():
+        raise ValueError("Full precision coordinates have invalid shape or values")
+    if not np.allclose(values, xyz_coordinates, atol=5e-12, rtol=0):
+        raise ValueError("Full precision coordinates differ from provenance-bound XYZ")
+    return values
+
+
+def atomic_npy(path, value):
+    path = Path(path)
+    temporary = path.with_name(path.name + ".writing")
+    with temporary.open("wb") as handle:
+        np.save(handle, value, allow_pickle=False)
+    os.replace(temporary, path)
+
+
+def install_sites():
+    for relative in (".runtime/quantum-upgrade-site", ".runtime/quantum-pilot-site"):
+        sys.path.insert(0, str(ROOT / relative))
+
+
+def execute(args):
+    install_sites()
+    import pyscf
+    from pyscf import dft, gto, lib
+    from pyscf.grad.rks import Gradients as RKSGradients
+    from pyscf.scf.hf import SCF as DirectSCF
+    from pyscf.geomopt import geometric_solver
+    from pyscf.hessian import thermo
+
+    started = utc()
+    wall_start, cpu_start = time.perf_counter(), time.process_time()
+    out = args.output.resolve()
+    if out.exists():
+        raise FileExistsError("Use a new phase directory; preserve prior calculations")
+    out.mkdir(parents=True)
+    identity = "water" if args.phase == "water-optfreq" else "spinosin"
+    symbols, coordinates = read_xyz(args.input_xyz, FORMULAS[identity])
+    coordinates = precise_input_coordinates(coordinates, args.input_coordinates_npy,
+                                            args.expected_coordinates_sha256)
+    provenance = None
+    if identity == "spinosin":
+        if args.provenance_json is None:
+            raise ValueError("Reviewed Spinosin provenance JSON required")
+        provenance = json.loads(args.provenance_json.read_text())
+        if (provenance.get("identity_verified") is not True
+                or provenance.get("stereochemistry_verified") is not True
+                or provenance.get("geometry_origin") not in ("documented_conformer_generation", "database_3d")
+                or not provenance.get("source_url")
+                or provenance.get("input_xyz_sha256") != sha(args.input_xyz)):
+            raise ValueError("Unverified identity/stereochemistry or mismatched source geometry")
+    if args.expected_input_sha256 and sha(args.input_xyz) != args.expected_input_sha256:
+        raise ValueError("Input geometry SHA mismatch")
+    settings = worker_settings(args)
+    lib.num_threads(args.threads)
+    log_handle = (out / "pyscf.log").open("w", buffering=1)
+    state = {"status": "PARTIAL", "phase": args.phase, "identity": identity,
+             "started_at_utc": started, "settings": settings, "input_xyz_sha256": sha(args.input_xyz),
+             "input_xyz_source": str(args.input_xyz), "input_provenance": provenance,
+             "versions": {"python": sys.version.split()[0], "numpy": np.__version__, "pyscf": pyscf.__version__,
+                          "geometric": importlib.metadata.version("geometric")},
+             "script_sha256": sha(__file__), "geometry_optimized": False,
+             "actual_pyscf_threads": int(lib.num_threads()),
+             "frequencies_status": "NOT_RUN", "IR_intensities_status": "NOT_COMPUTED",
+             "optimizer_converged": False, "scf_converged": False}
+    if args.input_coordinates_npy:
+        state.update(input_coordinates_angstrom_npy_source=str(args.input_coordinates_npy),
+                     input_coordinates_angstrom_npy_sha256=sha(args.input_coordinates_npy))
+    write(out / "input.json", state)
+    shutil.copy2(args.input_xyz, out / "input.xyz")
+    atomic_npy(out / "input_coordinates_angstrom.npy", coordinates)
+    checkpoint = out / "calculation.chk"
+    if args.checkpoint:
+        if not args.checkpoint.is_file():
+            raise ValueError("Requested checkpoint is missing")
+        shutil.copy2(args.checkpoint, checkpoint)
+        state["initial_checkpoint_sha256"] = sha(args.checkpoint)
+
+    def progress(event, **kwargs):
+        record = {"utc": utc(), "event": event, "process_cpu_seconds": time.process_time() - cpu_start,
+                  "wall_seconds": time.perf_counter() - wall_start, **kwargs}
+        with (out / "events.jsonl").open("a") as handle:
+            handle.write(json.dumps(record, allow_nan=False) + "\n")
+        write(out / "progress.json", {**state, **record})
+
+    def molecule(coords):
+        mol = gto.Mole()
+        mol.stdout = log_handle
+        mol.build(atom=list(zip(symbols, np.asarray(coords))), unit="Angstrom", basis=settings["basis"],
+                         charge=0, spin=0, symmetry=False, max_memory=8000, verbose=4)
+        mol.incore_anyway = False
+        return mol
+
+    def scf_method(mol):
+        state["scf_converged"] = False
+        Type = screened_direct_rks_type(dft.rks.RKS, DirectSCF.get_jk)
+        mf = Type(mol)
+        mf.xc = settings["xc"]
+        mf.max_memory = settings["max_memory_mb"]
+        mf.direct_scf = settings["direct_scf"]
+        mf.direct_scf_tol = settings["direct_scf_tol"]
+        mf._eri = None
+        mf.mol.incore_anyway = False
+        direct_integral_policy(mf)
+        mf.grids.level = settings["grid_level"]
+        mf.conv_tol = settings["scf_conv_tol_hartree"]
+        mf.max_cycle = settings["scf_max_cycle"]
+        mf.chkfile = str(checkpoint)
+        if checkpoint.exists():
+            mf.init_guess = "chkfile"
+        def scf_callback(env):
+            state["scf_converged"] = False
+            progress("scf_cycle", cycle=int(env.get("cycle", -1)),
+                     latest_scf_iteration_energy_hartree=float(env["e_tot"]), scf_converged=False)
+        mf.callback = scf_callback
+        return mf
+
+    def gradient_event(event, details):
+        if event == "gradient_scanner_geometry_reset":
+            state["scf_converged"] = False
+        elif event == "direct_gradient_started":
+            state.update(scf_converged=details["scf_converged"],
+                         latest_completed_SCF_energy_hartree=details["SCF_energy_hartree"],
+                         direct_integral_policy=details["direct_integral_policy"])
+        elif event == "direct_gradient_kernel_complete":
+            state["last_gradient_timing"] = details
+        progress(event, **details)
+
+    GradientClass = direct_gradient_type(RKSGradients, gradient_event,
+                                         memory_mb=lambda: lib.current_memory()[0])
+
+    def gradient_method(mf):
+        gradient = GradientClass(mf)
+        gradient.grid_response = False
+        return gradient
+
+    def final_scf_gradient(mol):
+        mf = scf_method(mol)
+        energy = float(mf.kernel())
+        state.update(scf_converged=bool(mf.converged), energy_hartree=energy,
+                     atoms=mol.natm, electrons=mol.nelectron, basis_functions=mol.nao_nr())
+        if not mf.converged or not np.isfinite(energy):
+            raise RuntimeError("SCF not converged; no derivative success claimed")
+        gradient = np.asarray(gradient_method(mf).kernel())
+        state["direct_integral_policy"] = direct_integral_policy(mf)
+        state.update(stationary_checks(gradient))
+        np.save(out / "gradient_hartree_per_bohr.npy", gradient)
+        progress("scf_gradient_complete", **{k: state[k] for k in ("energy_hartree", "scf_converged",
+                  "atom_rms_hartree_per_bohr", "atom_max_hartree_per_bohr")})
+        return mf, gradient
+
+    def normal_modes(mf, mol):
+        if not state.get("geometry_optimized") or not state.get("final_gradient_thresholds_passed"):
+            raise ValueError("Nonstationary/unoptimized structure cannot enter Hessian stage")
+        atomic_npy(out / "normal_mode_geometry_angstrom.npy", mol.atom_coords(unit="Angstrom"))
+        atomic_npy(out / "normal_mode_geometry_bohr.npy", mol.atom_coords(unit="Bohr"))
+        (out / "normal_mode_geometry.xyz").write_text(xyz_text(symbols, mol.atom_coords(unit="Angstrom"),
+                                                             "Actual full-precision analysis geometry is saved in NPY"))
+        state["normal_mode_geometry_angstrom_npy_sha256"] = sha(out / "normal_mode_geometry_angstrom.npy")
+        progress("hessian_started")
+        direct_integral_policy(mf)
+        hobj = mf.Hessian()
+        if type(hobj).__module__ != "pyscf.hessian.rks":
+            raise RuntimeError("Reviewed standard non-DF RKS Hessian is required")
+        state.update(hessian_backend=type(hobj).__module__, hessian_density_fitting=False)
+        hessian = np.asarray(hobj.kernel())
+        direct_integral_policy(mf)
+        np.save(out / "hessian_hartree_per_bohr2.npy", hessian)
+        used_hessian, asymmetry = prepare_hessian_for_analysis(hessian, mol.natm)
+        np.save(out / "hessian_used_for_analysis.npy", used_hessian)
+        analysis = thermo.harmonic_analysis(mol, used_hessian, exclude_trans=True, exclude_rot=True, imaginary_freq=False)
+        info = frequencies_payload(analysis["freq_wavenumber"], analysis["norm_mode"], mol.natm)
+        np.save(out / "normal_modes.npy", analysis["norm_mode"])
+        np.save(out / "reduced_mass_amu.npy", analysis["reduced_mass"])
+        with (out / "frequencies.csv").open("w", newline="") as handle:
+            writer = csv.writer(handle, lineterminator="\n")
+            writer.writerow(["mode", "frequency_cm1", "frequency_thz", "imaginary", "IR_intensity_status"])
+            for i, value in enumerate(info["frequencies_cm1"], 1):
+                writer.writerow([i, value, value * CM1_TO_THZ, value < 0, "NOT_COMPUTED"])
+        state.update(info, frequencies_status="DONE", hessian_max_symmetry_difference=asymmetry,
+                     raw_hessian_sha256=sha(out / "hessian_hartree_per_bohr2.npy"),
+                     analysis_hessian_sha256=sha(out / "hessian_used_for_analysis.npy"),
+                     harmonic_analysis_excludes_translations_and_rotations=True,
+                     mass_convention="PySCF default isotope-average atomic masses",
+                     normal_mode_hessian_symmetrized=True,
+                     normal_mode_hessian_symmetrization="(raw + raw.transpose(1,0,3,2)) / 2 after raw asymmetry<=1e-5",
+                     **frequency_minimum_checks(info))
+        progress("frequencies_complete", mode_count=info["normal_mode_count"],
+                 imaginary_modes=info["imaginary_frequency_count"])
+
+    def stop_handler(signum, _frame):
+        raise BudgetStop("Worker interrupted by resource supervisor signal " + str(signum))
+
+    old_handlers = {sig: signal.signal(sig, stop_handler) for sig in (signal.SIGTERM, signal.SIGXCPU)}
+    try:
+        mol = molecule(coordinates)
+        state.update(atoms=mol.natm, electrons=mol.nelectron, basis_functions=mol.nao_nr())
+        progress("worker_started", basis_functions=mol.nao_nr())
+        if args.phase == "spinosin-frequency":
+            if args.optimization_result is None:
+                raise ValueError("Frequency phase requires actual optimization result JSON")
+            optimized = json.loads(args.optimization_result.read_text())
+            require_optimized_result(optimized, args.input_xyz, settings, args.input_coordinates_npy)
+            state.update(optimizer_converged=True, geometry_optimized=True,
+                         optimization_result_sha256=sha(args.optimization_result))
+            mf, _ = final_scf_gradient(mol)
+            if not state["final_gradient_thresholds_passed"]:
+                raise RuntimeError("Fresh same-method gradient no longer satisfies stationarity")
+            normal_modes(mf, mol)
+        elif args.phase == "spinosin-scf-gradient":
+            final_scf_gradient(mol)
+        else:
+            mf = scf_method(mol)
+            (out / "geometry_steps").mkdir()
+
+            def geometry_callback(env):
+                current = env["mol"]
+                cycle = int(env["self"].cycle)
+                gradient = np.asarray(env["gradients"])
+                text = xyz_text(symbols, current.atom_coords(unit="Angstrom"), f"PySCF geometry cycle {cycle}; not convergence certificate")
+                step = out / "geometry_steps" / f"step_{cycle:04d}"
+                step.with_suffix(".xyz").write_text(text)
+                atomic_npy(step.with_suffix(".coordinates_angstrom.npy"), current.atom_coords(unit="Angstrom"))
+                atomic_npy(step.with_suffix(".coordinates_bohr.npy"), current.atom_coords(unit="Bohr"))
+                np.save(step.with_suffix(".gradient.npy"), gradient)
+                info = {"cycle": cycle, "energy_hartree": float(env["energy"]),
+                        "scf_converged": bool(env["g_scanner"].converged),
+                        "coordinates_angstrom_npy_sha256": sha(step.with_suffix(".coordinates_angstrom.npy")),
+                        "coordinates_bohr_npy_sha256": sha(step.with_suffix(".coordinates_bohr.npy")),
+                        "gradient_npy_sha256": sha(step.with_suffix(".gradient.npy")),
+                        **stationary_checks(gradient)}
+                write(step.with_suffix(".json"), info)
+                temporary = out / "last_geometry.xyz.writing"
+                temporary.write_text(text)
+                os.replace(temporary, out / "last_geometry.xyz")
+                state.update(last_geometry_cycle=cycle, last_geometry_energy_hartree=info["energy_hartree"],
+                             energy_hartree=info["energy_hartree"], scf_converged=info["scf_converged"],
+                             last_geometry_gradient_checks=stationary_checks(gradient),
+                             direct_integral_policy=direct_integral_policy(env["g_scanner"].base))
+                progress("geometry_cycle", **info)
+
+            progress("geometry_optimization_started")
+            converged, optimized_mol = geometric_solver.kernel(gradient_method(mf), maxsteps=args.maxsteps,
+                assert_convergence=True, callback=geometry_callback, **THRESHOLDS)
+            state["optimizer_converged"] = bool(converged)
+            optimized_path = out / "optimized.xyz"
+            optimized_path.write_text(xyz_text(symbols, optimized_mol.atom_coords(unit="Angstrom"),
+                                               f"Optimizer returned converged={bool(converged)}; inspect result.json"))
+            state["optimized_xyz_sha256"] = sha(optimized_path)
+            atomic_npy(out / "optimized_coordinates_angstrom.npy", optimized_mol.atom_coords(unit="Angstrom"))
+            state["optimized_coordinates_angstrom_npy_sha256"] = sha(out / "optimized_coordinates_angstrom.npy")
+            # The direct backend must never own a full four-center ERI cache.
+            # Keep its MO checkpoint, then construct a fresh same-method SCF.
+            direct_integral_policy(mf)
+            del mf
+            gc.collect()
+            mf, _ = final_scf_gradient(optimized_mol)
+            state["geometry_optimized"] = bool(converged and state["final_gradient_thresholds_passed"])
+            if not state["geometry_optimized"]:
+                state.update(status="PARTIAL", stop_reason="Optimizer/fresh gradient convergence conditions not all met")
+            elif args.phase == "water-optfreq":
+                normal_modes(mf, optimized_mol)
+        if args.phase == "spinosin-scf-gradient" or state.get("geometry_optimized"):
+            state["status"] = "DONE"
+        if args.phase in ("water-optfreq", "spinosin-frequency") and state.get("frequencies_status") != "DONE":
+            state["status"] = "PARTIAL"
+        elif args.phase in ("water-optfreq", "spinosin-frequency") and not state.get("frequency_validation_passed"):
+            state.update(status="PARTIAL", stop_reason="Frequencies computed but nonpositive modes prevent a verified minimum")
+    except (BudgetStop, KeyboardInterrupt) as exc:
+        state.update(status="PARTIAL", stop_reason=str(exc), interrupted=True)
+    except Exception as exc:
+        state.update(status="PARTIAL", stop_reason=str(exc), exception_type=type(exc).__name__)
+        import traceback
+        (out / "exception_traceback.txt").write_text(traceback.format_exc())
+    finally:
+        for sig, handler in old_handlers.items():
+            signal.signal(sig, handler)
+        state.update(completed_at_utc=utc(), wall_seconds=time.perf_counter() - wall_start,
+                     process_cpu_seconds=time.process_time() - cpu_start,
+                     peak_rss_kib=resource.getrusage(resource.RUSAGE_SELF).ru_maxrss,
+                     checkpoint_present=checkpoint.exists(),
+                     checkpoint_sha256=sha(checkpoint) if checkpoint.exists() else None)
+        write(out / "result.json", state)
+        log_handle.flush()
+        log_handle.close()
+    print(json.dumps({k: state.get(k) for k in ("status", "phase", "energy_hartree", "geometry_optimized", "frequencies_status", "stop_reason")}))
+    return state
+
+
+def main():
+    p = argparse.ArgumentParser(description=__doc__)
+    p.add_argument("--phase", required=True, choices=("water-optfreq", "spinosin-scf-gradient", "spinosin-optimize", "spinosin-frequency"))
+    p.add_argument("--input-xyz", required=True, type=Path)
+    p.add_argument("--input-coordinates-npy", type=Path, help="Optional SHA-bound Angstrom coordinates matching XYZ")
+    p.add_argument("--expected-coordinates-sha256")
+    p.add_argument("--output", required=True, type=Path)
+    p.add_argument("--provenance-json", type=Path)
+    p.add_argument("--expected-input-sha256")
+    p.add_argument("--checkpoint", type=Path)
+    p.add_argument("--optimization-result", type=Path)
+    p.add_argument("--grid-level", type=int, default=1, choices=(1, 2, 3))
+    p.add_argument("--maxsteps", type=int, default=35)
+    p.add_argument("--threads", type=int, default=1, choices=(1, 2, 3, 4))
+    a = p.parse_args()
+    if a.maxsteps < 1 or a.maxsteps > 100:
+        p.error("Bounded optimizer maxsteps must be1..100")
+    result = execute(a)
+    sys.exit(0 if result["status"] == "DONE" else 2)
+
+
+if __name__ == "__main__":
+    main()
+#INFO: ******************** input file end ********************
+
+
+System: uname_result(system='Linux', node='141739321b54', release='6.18.57', version='#1 SMP Tue Oct 20 21:56:04 UTC 2026', machine='x86_64')  Threads 4
+Python 3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]
+numpy 2.3.5  scipy 1.17.0  h5py 3.16.0
+Date: Sun Nov  1 07:03:41 2026
+PySCF version 2.14.0
+PySCF path  /workspace/research4/.runtime/quantum-upgrade-site/pyscf
+
+[CONFIG] conf_file None
+[INPUT] verbose = 4
+[INPUT] num. atoms = 75
+[INPUT] num. electrons = 320
+[INPUT] charge = 0
+[INPUT] spin (= nelec alpha-beta = 2S) = 0
+[INPUT] symmetry False subgroup None
+[INPUT] Mole.unit = Angstrom
+[INPUT] Symbol           X                Y                Z      unit          X                Y                Z       unit  Magmom
+[INPUT]  1 C     -4.163534991997  -1.072149683067   0.896914436789 AA   -7.867940844917  -2.026069265536   1.694922642700 Bohr   0.0
+[INPUT]  2 O     -3.351318075777   0.027249696292   0.527284215628 AA   -6.333073319523   0.051494462970   0.996422757343 Bohr   0.0
+[INPUT]  3 C     -2.216372689895  -0.189753777724  -0.186709558967 AA   -4.188337373868  -0.358582670999  -0.352829931286 Bohr   0.0
+[INPUT]  4 C     -1.820336452661  -1.484231366085  -0.586647688203 AA   -3.439937350092  -2.804790787390  -1.108603462313 Bohr   0.0
+[INPUT]  5 C     -0.630144492519  -1.611368623474  -1.306987928002 AA   -1.190800509763  -3.045045384083  -2.469849232037 Bohr   0.0
+[INPUT]  6 O     -0.249432039028  -2.878736199478  -1.673407620731 AA   -0.471358240456  -5.440023001885  -3.162282097943 Bohr   0.0
+[INPUT]  7 C      0.903439665789  -3.096533351627  -2.363902915783 AA    1.707253538409  -5.851599970156  -4.467129095890 Bohr   0.0
+[INPUT]  8 C      1.112055258129  -4.518911740413  -2.679695462230 AA    2.101479873246  -8.539505570462  -5.063890520854 Bohr   0.0
+[INPUT]  9 C      0.277813277246  -5.512815225554  -2.116242932495 AA    0.524991007763 -10.417710951629  -3.999119555463 Bohr   0.0
+[INPUT] 10 C      0.466942259166  -6.865820503584  -2.409954482901 AA    0.882392985810 -12.974520372196  -4.554153945351 Bohr   0.0
+[INPUT] 11 C      1.498664501402  -7.266796736992  -3.284099385803 AA    2.832065460257 -13.732255635797  -6.206048405021 Bohr   0.0
+[INPUT] 12 O      1.729003243185  -8.562070685702  -3.610367772786 AA    3.267342598104 -16.179968655144  -6.822606299522 Bohr   0.0
+[INPUT] 13 C      2.337403758903  -6.285283473037  -3.857277019212 AA    4.417052946855 -11.877464379295  -7.289197152890 Bohr   0.0
+[INPUT] 14 C      2.142085216743  -4.938339652081  -3.558251837376 AA    4.047954395124  -9.332109452512  -6.724121454871 Bohr   0.0
+[INPUT] 15 C      1.741228547173  -2.055555184299  -2.698166462235 AA    3.290445074432  -3.884436332254  -5.098795652111 Bohr   0.0
+[INPUT] 16 C      1.417014234173  -0.684944225016  -2.355039234299 AA    2.677768817197  -1.294356995882  -4.450379165431 Bohr   0.0
+[INPUT] 17 O      2.175658040979   0.289681672244  -2.632711817905 AA    4.111397838158   0.547419023847  -4.975104300746 Bohr   0.0
+[INPUT] 18 C      0.160227518392  -0.500378741642  -1.652171794682 AA    0.302786127380  -0.945578780259  -3.122152202681 Bohr   0.0
+[INPUT] 19 C     -0.263168819011   0.806356875061  -1.244158380629 AA   -0.497316992456   1.523793652525  -2.351118594971 Bohr   0.0
+[INPUT] 20 O      0.501781262462   1.849871436726  -1.562900313915 AA    0.948229160491   3.495750381067  -2.953453553295 Bohr   0.0
+[INPUT] 21 C     -1.450307041253   0.968611452526  -0.496930217829 AA   -2.740683104496   1.830410366391  -0.939062014717 Bohr   0.0
+[INPUT] 22 C     -1.871098823484   2.325245970904   0.010570003377 AA   -3.535864328380   4.394078057257   0.019974411517 Bohr   0.0
+[INPUT] 23 O     -2.103358750957   3.197266261364  -1.104211964793 AA   -3.974771981016   6.041957581290  -2.086658196926 Bohr   0.0
+[INPUT] 24 C     -2.606200271471   4.481015617611  -0.735798456714 AA   -4.925004738848   8.467892277184  -1.390457566067 Bohr   0.0
+[INPUT] 25 C     -2.921719911616   5.179426285574  -2.057543991191 AA   -5.521250445643   9.787697162109  -3.888194632596 Bohr   0.0
+[INPUT] 26 O     -3.794987129345   4.404795705354  -2.842196573132 AA   -7.171486320712   8.323857517780  -5.370973115397 Bohr   0.0
+[INPUT] 27 C     -1.570645958125   5.198302611915   0.141652476070 AA   -2.968090699511   9.823368249130   0.267684384639 Bohr   0.0
+[INPUT] 28 O     -2.017080703358   6.468885936183   0.620228276749 AA   -3.811730100491  12.224422750436   1.172061577766 Bohr   0.0
+[INPUT] 29 C     -1.272610399678   4.355339292576   1.384387080072 AA   -2.404885118664   8.230398442526   2.616112431722 Bohr   0.0
+[INPUT] 30 O     -0.272592797350   4.958055151039   2.181858059770 AA   -0.515125730521   9.369366345953   4.123114175640 Bohr   0.0
+[INPUT] 31 C     -0.830260086551   2.953310049545   0.975823467496 AA   -1.568964175739   5.580947154566   1.844039099491 Bohr   0.0
+[INPUT] 32 O     -0.742139917608   2.108181102890   2.128809033033 AA   -1.402441190386   3.983884905446   4.022866043933 Bohr   0.0
+[INPUT] 33 C      0.548148944392   1.785807582472   2.555244959049 AA    1.035851380370   3.374687242044   4.828713153779 Bohr   0.0
+[INPUT] 34 O      1.145377306344   0.900894248877   1.620157699396 AA    2.164449418283   1.702443397574   3.061654330463 Bohr   0.0
+[INPUT] 35 C      2.469404206928   0.511530788002   1.985789400731 AA    4.666497641943   0.966653093606   3.752598108446 Bohr   0.0
+[INPUT] 36 C      3.088928281658  -0.263472815155   0.834013683954 AA    5.837228470757  -0.497891461912   1.576057446812 Bohr   0.0
+[INPUT] 37 O      2.364481835969  -1.463787012134   0.612889775726 AA    4.468223096490  -2.766156557629   1.158193820669 Bohr   0.0
+[INPUT] 38 C      2.422488368557  -0.266814097706   3.312947450778 AA    4.577839556517  -0.504205570838   6.260563347046 Bohr   0.0
+[INPUT] 39 O      3.737956725530  -0.620694485467   3.698268767223 AA    7.063714476727  -1.172942584560   6.988715105085 Bohr   0.0
+[INPUT] 40 C      1.768542462478   0.609122196385   4.381333517619 AA    3.342060893747   1.151074127562   8.279520408677 Bohr   0.0
+[INPUT] 41 O      1.696186647658  -0.148717014083   5.581059554236 AA    3.205328220218  -0.281034426679  10.546674042394 Bohr   0.0
+[INPUT] 42 C      0.404306269167   1.107092182946   3.921522869099 AA    0.764028119171   2.092101020414   7.410604213815 Bohr   0.0
+[INPUT] 43 O     -0.093630162585   1.995053553153   4.906840219024 AA   -0.176935364285   3.770104819299   9.272584150956 Bohr   0.0
+[INPUT] 44 H     -4.549911706661  -1.619250903903   0.008455830358 AA   -8.598087016542  -3.059940735332   0.015979203533 Bohr   0.0
+[INPUT] 45 H     -3.617131472415  -1.786658277129   1.551399712687 AA   -6.835387839409  -3.376294821960   2.931720566708 Bohr   0.0
+[INPUT] 46 H     -5.018107816682  -0.650988675106   1.458133602208 AA   -9.482849437068  -1.230190306145   2.755473161199 Bohr   0.0
+[INPUT] 47 H     -2.399134262239  -2.382527721156  -0.346319139498 AA   -4.533706691693  -4.502324877168  -0.654448325347 Bohr   0.0
+[INPUT] 48 H     -0.528408058525  -5.213066072918  -1.433321584855 AA   -0.998546512625  -9.851267147078  -2.708585243803 Bohr   0.0
+[INPUT] 49 H     -0.192633825311  -7.624304546699  -1.956530211156 AA   -0.364025172166 -14.407847483538  -3.697306253521 Bohr   0.0
+[INPUT] 50 H      1.078601281029  -9.124784400269  -3.149334127071 AA    2.038261018749 -17.243343462212  -5.951378974911 Bohr   0.0
+[INPUT] 51 H      3.133523805177  -6.606257197730  -4.544199013402 AA    5.921501796589 -12.484016812146  -8.587291590849 Bohr   0.0
+[INPUT] 52 H      2.798802762411  -4.194403943274  -4.031702870244 AA    5.288970697633  -7.926274708583  -7.618814240384 Bohr   0.0
+[INPUT] 53 H      2.676811930055  -2.237657621914  -3.241685531071 AA    5.058441434773  -4.228560065962  -6.125897835690 Bohr   0.0
+[INPUT] 54 H      1.316205052823   1.441380721914  -2.052307170101 AA    2.487267073604   2.723814805646  -3.878298474972 Bohr   0.0
+[INPUT] 55 H     -2.817755393584   2.207102653818   0.585160089101 AA   -5.324785979890   4.170819544517   1.105792307427 Bohr   0.0
+[INPUT] 56 H     -3.555753405891   4.367499625393  -0.153406518247 AA   -6.719400103623   8.253378141133  -0.289896305211 Bohr   0.0
+[INPUT] 57 H     -3.414581174587   6.153021688166  -1.848910000237 AA   -6.452623250065  11.627525829144  -3.493933529418 Bohr   0.0
+[INPUT] 58 H     -1.953199597402   5.392705474267  -2.581541976373 AA   -3.691012305700  10.190736416807  -4.878407314413 Bohr   0.0
+[INPUT] 59 H     -3.420133413806   3.500680433901  -2.797273317303 AA   -6.463115461568   6.615327269697  -5.286080465256 Bohr   0.0
+[INPUT] 60 H     -0.623629408192   5.299203188655  -0.440297692141 AA   -1.178488784708  10.014042704979  -0.832042051424 Bohr   0.0
+[INPUT] 61 H     -1.851116397008   7.129200611563  -0.075168066463 AA   -3.498103015037  13.472236642936  -0.142047058928 Bohr   0.0
+[INPUT] 62 H     -2.233379732564   4.257918181701   1.955230999602 AA   -4.220476026700   8.046299224221   3.694851099508 Bohr   0.0
+[INPUT] 63 H     -0.543502598739   5.896178797616   2.248761732903 AA   -1.027071059607  11.142163108961   4.249543794589 Bohr   0.0
+[INPUT] 64 H      0.150129530484   3.010514610747   0.461550112110 AA    0.283703695823   5.689048108313   0.872203304650 Bohr   0.0
+[INPUT] 65 H      1.172773005151   2.712014380648   2.655819914523 AA    2.216219786019   5.124964425306   5.018772274614 Bohr   0.0
+[INPUT] 66 H      3.108903000783   1.417229587532   2.146592480979 AA    5.874975219318   2.678175776065   4.056471890100 Bohr   0.0
+[INPUT] 67 H      4.150446276322  -0.459327332028   1.114551513611 AA    7.843206756969  -0.868002859059   2.106197112444 Bohr   0.0
+[INPUT] 68 H      3.076994805364   0.393322536280  -0.067708251834 AA    5.814677468846   0.743271872189  -0.127950052340 Bohr   0.0
+[INPUT] 69 H      2.824077573316  -1.954367607365  -0.091135412922 AA    5.336733168094  -3.693219524642  -0.172220970672 Bohr   0.0
+[INPUT] 70 H      1.787166202161  -1.170347297510   3.148159560754 AA    3.377254661163  -2.211635862918   5.949159366256 Bohr   0.0
+[INPUT] 71 H      3.659613780965  -0.904749615288   4.630463668774 AA    6.915667767707  -1.709728984200   8.750308163732 Bohr   0.0
+[INPUT] 72 H      2.422121080133   1.507031852827   4.527869135366 AA    4.577145481987   2.847877462839   8.556432593714 Bohr   0.0
+[INPUT] 73 H      1.237782826959   0.418785453523   6.230057392663 AA    2.339070544643   0.791389812110  11.773102212455 Bohr   0.0
+[INPUT] 74 H     -0.269956392403   0.227217423152   3.775174062274 AA   -0.510143647217   0.429378700488   7.134045050260 Bohr   0.0
+[INPUT] 75 H     -0.871316877530   2.429824400802   4.505323872481 AA   -1.646550266243   4.591702648301   8.513828221453 Bohr   0.0
+
+nuclear repulsion = 5655.40884583778
+number of shells = 354
+number of NR pGTOs = 1256
+number of NR cGTOs = 762
+basis = def2-svp
+ecp = {}
+CPU time:         0.60
+Create scanner for <class '__main__.direct_gradient_type.<locals>.ScreenedDirectRKSGradients'>
+Create scanner for <class '__main__.screened_direct_rks_type.<locals>.ScreenedDirectRKS'>
+
+Geometry optimization cycle 1
+Cartesian coordinates (Angstrom)
+ Atom        New coordinates             dX        dY        dZ
+   C  -4.163535  -1.072150   0.896914    0.000000  0.000000  0.000000
+   O  -3.351318   0.027250   0.527284    0.000000  0.000000  0.000000
+   C  -2.216373  -0.189754  -0.186710    0.000000  0.000000  0.000000
+   C  -1.820336  -1.484231  -0.586648    0.000000  0.000000  0.000000
+   C  -0.630144  -1.611369  -1.306988    0.000000  0.000000  0.000000
+   O  -0.249432  -2.878736  -1.673408    0.000000  0.000000  0.000000
+   C   0.903440  -3.096533  -2.363903    0.000000  0.000000  0.000000
+   C   1.112055  -4.518912  -2.679695    0.000000  0.000000  0.000000
+   C   0.277813  -5.512815  -2.116243    0.000000  0.000000  0.000000
+   C   0.466942  -6.865821  -2.409954    0.000000  0.000000  0.000000
+   C   1.498665  -7.266797  -3.284099    0.000000  0.000000  0.000000
+   O   1.729003  -8.562071  -3.610368    0.000000  0.000000  0.000000
+   C   2.337404  -6.285283  -3.857277    0.000000  0.000000  0.000000
+   C   2.142085  -4.938340  -3.558252    0.000000  0.000000  0.000000
+   C   1.741229  -2.055555  -2.698166    0.000000  0.000000  0.000000
+   C   1.417014  -0.684944  -2.355039    0.000000  0.000000  0.000000
+   O   2.175658   0.289682  -2.632712    0.000000  0.000000  0.000000
+   C   0.160228  -0.500379  -1.652172    0.000000  0.000000  0.000000
+   C  -0.263169   0.806357  -1.244158    0.000000  0.000000  0.000000
+   O   0.501781   1.849871  -1.562900    0.000000  0.000000  0.000000
+   C  -1.450307   0.968611  -0.496930    0.000000  0.000000  0.000000
+   C  -1.871099   2.325246   0.010570    0.000000  0.000000  0.000000
+   O  -2.103359   3.197266  -1.104212    0.000000  0.000000  0.000000
+   C  -2.606200   4.481016  -0.735798    0.000000  0.000000  0.000000
+   C  -2.921720   5.179426  -2.057544    0.000000  0.000000  0.000000
+   O  -3.794987   4.404796  -2.842197    0.000000  0.000000  0.000000
+   C  -1.570646   5.198303   0.141652    0.000000  0.000000  0.000000
+   O  -2.017081   6.468886   0.620228    0.000000  0.000000  0.000000
+   C  -1.272610   4.355339   1.384387    0.000000  0.000000  0.000000
+   O  -0.272593   4.958055   2.181858    0.000000  0.000000  0.000000
+   C  -0.830260   2.953310   0.975823    0.000000  0.000000  0.000000
+   O  -0.742140   2.108181   2.128809    0.000000  0.000000  0.000000
+   C   0.548149   1.785808   2.555245    0.000000  0.000000  0.000000
+   O   1.145377   0.900894   1.620158    0.000000  0.000000  0.000000
+   C   2.469404   0.511531   1.985789    0.000000  0.000000  0.000000
+   C   3.088928  -0.263473   0.834014    0.000000  0.000000  0.000000
+   O   2.364482  -1.463787   0.612890    0.000000  0.000000  0.000000
+   C   2.422488  -0.266814   3.312947    0.000000  0.000000  0.000000
+   O   3.737957  -0.620694   3.698269    0.000000  0.000000  0.000000
+   C   1.768542   0.609122   4.381334    0.000000  0.000000  0.000000
+   O   1.696187  -0.148717   5.581060    0.000000  0.000000  0.000000
+   C   0.404306   1.107092   3.921523    0.000000  0.000000  0.000000
+   O  -0.093630   1.995054   4.906840    0.000000  0.000000  0.000000
+   H  -4.549912  -1.619251   0.008456    0.000000  0.000000  0.000000
+   H  -3.617131  -1.786658   1.551400    0.000000  0.000000  0.000000
+   H  -5.018108  -0.650989   1.458134    0.000000  0.000000  0.000000
+   H  -2.399134  -2.382528  -0.346319    0.000000  0.000000  0.000000
+   H  -0.528408  -5.213066  -1.433322    0.000000  0.000000  0.000000
+   H  -0.192634  -7.624305  -1.956530    0.000000  0.000000  0.000000
+   H   1.078601  -9.124784  -3.149334    0.000000  0.000000  0.000000
+   H   3.133524  -6.606257  -4.544199    0.000000  0.000000  0.000000
+   H   2.798803  -4.194404  -4.031703    0.000000  0.000000  0.000000
+   H   2.676812  -2.237658  -3.241686    0.000000  0.000000  0.000000
+   H   1.316205   1.441381  -2.052307    0.000000  0.000000  0.000000
+   H  -2.817755   2.207103   0.585160    0.000000  0.000000  0.000000
+   H  -3.555753   4.367500  -0.153407    0.000000  0.000000  0.000000
+   H  -3.414581   6.153022  -1.848910    0.000000  0.000000  0.000000
+   H  -1.953200   5.392705  -2.581542    0.000000  0.000000  0.000000
+   H  -3.420133   3.500680  -2.797273    0.000000  0.000000  0.000000
+   H  -0.623629   5.299203  -0.440298    0.000000  0.000000  0.000000
+   H  -1.851116   7.129201  -0.075168    0.000000  0.000000  0.000000
+   H  -2.233380   4.257918   1.955231    0.000000  0.000000  0.000000
+   H  -0.543503   5.896179   2.248762    0.000000  0.000000 -0.000000
+   H   0.150130   3.010515   0.461550    0.000000  0.000000  0.000000
+   H   1.172773   2.712014   2.655820    0.000000  0.000000  0.000000
+   H   3.108903   1.417230   2.146592    0.000000  0.000000  0.000000
+   H   4.150446  -0.459327   1.114552    0.000000  0.000000  0.000000
+   H   3.076995   0.393323  -0.067708    0.000000  0.000000  0.000000
+   H   2.824078  -1.954368  -0.091135    0.000000  0.000000  0.000000
+   H   1.787166  -1.170347   3.148160    0.000000  0.000000  0.000000
+   H   3.659614  -0.904750   4.630464    0.000000  0.000000  0.000000
+   H   2.422121   1.507032   4.527869    0.000000  0.000000  0.000000
+   H   1.237783   0.418785   6.230057    0.000000  0.000000  0.000000
+   H  -0.269956   0.227217   3.775174    0.000000  0.000000  0.000000
+   H  -0.871317   2.429824   4.505324    0.000000  0.000000  0.000000
+
+WARN: Mole.unit (Angstrom) is changed to Bohr
+
+New geometry
+   1 C     -4.163534991997  -1.072149683067   0.896914436789 AA   -7.867940844917  -2.026069265536   1.694922642700 Bohr
+   2 O     -3.351318075777   0.027249696292   0.527284215628 AA   -6.333073319523   0.051494462970   0.996422757343 Bohr
+   3 C     -2.216372689895  -0.189753777724  -0.186709558967 AA   -4.188337373868  -0.358582670999  -0.352829931286 Bohr
+   4 C     -1.820336452661  -1.484231366085  -0.586647688203 AA   -3.439937350092  -2.804790787390  -1.108603462313 Bohr
+   5 C     -0.630144492519  -1.611368623474  -1.306987928002 AA   -1.190800509763  -3.045045384083  -2.469849232037 Bohr
+   6 O     -0.249432039028  -2.878736199478  -1.673407620731 AA   -0.471358240456  -5.440023001885  -3.162282097943 Bohr
+   7 C      0.903439665789  -3.096533351627  -2.363902915783 AA    1.707253538409  -5.851599970156  -4.467129095890 Bohr
+   8 C      1.112055258129  -4.518911740413  -2.679695462230 AA    2.101479873246  -8.539505570462  -5.063890520854 Bohr
+   9 C      0.277813277246  -5.512815225554  -2.116242932495 AA    0.524991007763 -10.417710951629  -3.999119555463 Bohr
+  10 C      0.466942259166  -6.865820503584  -2.409954482901 AA    0.882392985810 -12.974520372196  -4.554153945351 Bohr
+  11 C      1.498664501402  -7.266796736992  -3.284099385803 AA    2.832065460257 -13.732255635797  -6.206048405021 Bohr
+  12 O      1.729003243185  -8.562070685702  -3.610367772786 AA    3.267342598104 -16.179968655144  -6.822606299522 Bohr
+  13 C      2.337403758903  -6.285283473037  -3.857277019212 AA    4.417052946855 -11.877464379295  -7.289197152890 Bohr
+  14 C      2.142085216743  -4.938339652081  -3.558251837376 AA    4.047954395124  -9.332109452512  -6.724121454871 Bohr
+  15 C      1.741228547173  -2.055555184299  -2.698166462235 AA    3.290445074432  -3.884436332254  -5.098795652111 Bohr
+  16 C      1.417014234173  -0.684944225016  -2.355039234299 AA    2.677768817197  -1.294356995882  -4.450379165431 Bohr
+  17 O      2.175658040979   0.289681672244  -2.632711817905 AA    4.111397838158   0.547419023847  -4.975104300746 Bohr
+  18 C      0.160227518392  -0.500378741642  -1.652171794682 AA    0.302786127380  -0.945578780259  -3.122152202681 Bohr
+  19 C     -0.263168819011   0.806356875061  -1.244158380629 AA   -0.497316992456   1.523793652525  -2.351118594971 Bohr
+  20 O      0.501781262462   1.849871436726  -1.562900313915 AA    0.948229160491   3.495750381067  -2.953453553295 Bohr
+  21 C     -1.450307041253   0.968611452526  -0.496930217829 AA   -2.740683104496   1.830410366391  -0.939062014717 Bohr
+  22 C     -1.871098823484   2.325245970904   0.010570003377 AA   -3.535864328380   4.394078057257   0.019974411517 Bohr
+  23 O     -2.103358750957   3.197266261364  -1.104211964793 AA   -3.974771981016   6.041957581290  -2.086658196926 Bohr
+  24 C     -2.606200271471   4.481015617611  -0.735798456714 AA   -4.925004738848   8.467892277184  -1.390457566067 Bohr
+  25 C     -2.921719911616   5.179426285574  -2.057543991191 AA   -5.521250445643   9.787697162109  -3.888194632596 Bohr
+  26 O     -3.794987129345   4.404795705354  -2.842196573132 AA   -7.171486320712   8.323857517780  -5.370973115397 Bohr
+  27 C     -1.570645958125   5.198302611915   0.141652476070 AA   -2.968090699511   9.823368249130   0.267684384639 Bohr
+  28 O     -2.017080703358   6.468885936183   0.620228276749 AA   -3.811730100491  12.224422750436   1.172061577766 Bohr
+  29 C     -1.272610399678   4.355339292576   1.384387080072 AA   -2.404885118664   8.230398442526   2.616112431722 Bohr
+  30 O     -0.272592797350   4.958055151039   2.181858059770 AA   -0.515125730521   9.369366345953   4.123114175640 Bohr
+  31 C     -0.830260086551   2.953310049545   0.975823467496 AA   -1.568964175739   5.580947154566   1.844039099491 Bohr
+  32 O     -0.742139917608   2.108181102890   2.128809033033 AA   -1.402441190386   3.983884905446   4.022866043933 Bohr
+  33 C      0.548148944392   1.785807582472   2.555244959049 AA    1.035851380370   3.374687242044   4.828713153779 Bohr
+  34 O      1.145377306344   0.900894248877   1.620157699396 AA    2.164449418283   1.702443397574   3.061654330463 Bohr
+  35 C      2.469404206928   0.511530788002   1.985789400731 AA    4.666497641943   0.966653093606   3.752598108446 Bohr
+  36 C      3.088928281658  -0.263472815155   0.834013683954 AA    5.837228470757  -0.497891461912   1.576057446812 Bohr
+  37 O      2.364481835969  -1.463787012134   0.612889775726 AA    4.468223096490  -2.766156557629   1.158193820669 Bohr
+  38 C      2.422488368557  -0.266814097706   3.312947450778 AA    4.577839556517  -0.504205570838   6.260563347046 Bohr
+  39 O      3.737956725530  -0.620694485467   3.698268767223 AA    7.063714476727  -1.172942584560   6.988715105085 Bohr
+  40 C      1.768542462478   0.609122196385   4.381333517619 AA    3.342060893747   1.151074127562   8.279520408677 Bohr
+  41 O      1.696186647658  -0.148717014083   5.581059554236 AA    3.205328220218  -0.281034426679  10.546674042394 Bohr
+  42 C      0.404306269167   1.107092182946   3.921522869099 AA    0.764028119171   2.092101020414   7.410604213815 Bohr
+  43 O     -0.093630162585   1.995053553153   4.906840219024 AA   -0.176935364285   3.770104819299   9.272584150956 Bohr
+  44 H     -4.549911706661  -1.619250903903   0.008455830358 AA   -8.598087016542  -3.059940735332   0.015979203533 Bohr
+  45 H     -3.617131472415  -1.786658277129   1.551399712687 AA   -6.835387839409  -3.376294821960   2.931720566708 Bohr
+  46 H     -5.018107816682  -0.650988675106   1.458133602208 AA   -9.482849437068  -1.230190306145   2.755473161199 Bohr
+  47 H     -2.399134262239  -2.382527721156  -0.346319139498 AA   -4.533706691693  -4.502324877168  -0.654448325347 Bohr
+  48 H     -0.528408058525  -5.213066072918  -1.433321584855 AA   -0.998546512625  -9.851267147078  -2.708585243803 Bohr
+  49 H     -0.192633825311  -7.624304546699  -1.956530211156 AA   -0.364025172166 -14.407847483538  -3.697306253521 Bohr
+  50 H      1.078601281029  -9.124784400269  -3.149334127071 AA    2.038261018749 -17.243343462212  -5.951378974911 Bohr
+  51 H      3.133523805177  -6.606257197730  -4.544199013402 AA    5.921501796589 -12.484016812146  -8.587291590849 Bohr
+  52 H      2.798802762411  -4.194403943274  -4.031702870244 AA    5.288970697633  -7.926274708583  -7.618814240384 Bohr
+  53 H      2.676811930055  -2.237657621914  -3.241685531071 AA    5.058441434773  -4.228560065962  -6.125897835690 Bohr
+  54 H      1.316205052823   1.441380721914  -2.052307170101 AA    2.487267073604   2.723814805646  -3.878298474972 Bohr
+  55 H     -2.817755393584   2.207102653818   0.585160089101 AA   -5.324785979890   4.170819544517   1.105792307427 Bohr
+  56 H     -3.555753405891   4.367499625393  -0.153406518247 AA   -6.719400103623   8.253378141133  -0.289896305211 Bohr
+  57 H     -3.414581174587   6.153021688166  -1.848910000237 AA   -6.452623250065  11.627525829144  -3.493933529418 Bohr
+  58 H     -1.953199597402   5.392705474267  -2.581541976373 AA   -3.691012305700  10.190736416807  -4.878407314413 Bohr
+  59 H     -3.420133413806   3.500680433901  -2.797273317303 AA   -6.463115461568   6.615327269697  -5.286080465256 Bohr
+  60 H     -0.623629408192   5.299203188655  -0.440297692141 AA   -1.178488784708  10.014042704979  -0.832042051424 Bohr
+  61 H     -1.851116397008   7.129200611563  -0.075168066463 AA   -3.498103015037  13.472236642936  -0.142047058928 Bohr
+  62 H     -2.233379732564   4.257918181701   1.955230999602 AA   -4.220476026700   8.046299224221   3.694851099508 Bohr
+  63 H     -0.543502598739   5.896178797616   2.248761732903 AA   -1.027071059607  11.142163108961   4.249543794589 Bohr
+  64 H      0.150129530484   3.010514610747   0.461550112110 AA    0.283703695823   5.689048108313   0.872203304650 Bohr
+  65 H      1.172773005151   2.712014380648   2.655819914523 AA    2.216219786019   5.124964425306   5.018772274614 Bohr
+  66 H      3.108903000783   1.417229587532   2.146592480979 AA    5.874975219318   2.678175776065   4.056471890100 Bohr
+  67 H      4.150446276322  -0.459327332028   1.114551513611 AA    7.843206756969  -0.868002859059   2.106197112444 Bohr
+  68 H      3.076994805364   0.393322536280  -0.067708251834 AA    5.814677468846   0.743271872189  -0.127950052340 Bohr
+  69 H      2.824077573316  -1.954367607365  -0.091135412922 AA    5.336733168094  -3.693219524642  -0.172220970672 Bohr
+  70 H      1.787166202161  -1.170347297510   3.148159560754 AA    3.377254661163  -2.211635862918   5.949159366256 Bohr
+  71 H      3.659613780965  -0.904749615288   4.630463668774 AA    6.915667767707  -1.709728984200   8.750308163732 Bohr
+  72 H      2.422121080133   1.507031852827   4.527869135366 AA    4.577145481987   2.847877462839   8.556432593714 Bohr
+  73 H      1.237782826959   0.418785453523   6.230057392663 AA    2.339070544643   0.791389812110  11.773102212455 Bohr
+  74 H     -0.269956392403   0.227217423152   3.775174062274 AA   -0.510143647217   0.429378700488   7.134045050260 Bohr
+  75 H     -0.871316877530   2.429824400802   4.505323872481 AA   -1.646550266243   4.591702648301   8.513828221453 Bohr
+
+
+******** <class 'pyscf.scf.hf.ScreenedDirectRKS_Scanner'> ********
+method = ScreenedDirectRKS_Scanner
+initial guess = chkfile
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-08
+SCF conv_tol_grad = None
+SCF max_cycles = 80
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /workspace/research4/reports/pyscf-spinosin-continuation-20261031-v2/spinosin-direct-optimization-001/calculation.chk
+max_memory 8000 MB (current use 129 MB)
+XC library pyscf.dft.libxc version 7.0.0
+    S. Lehtola, C. Steigemann, M. J.T. Oliveira, and M. A.L. Marques.,  SoftwareX 7, 1–5 (2018)
+XC functionals = PBE
+    J. P. Perdew, K. Burke, and M. Ernzerhof.,  Phys. Rev. Lett. 77, 3865 (1996)
+    J. P. Perdew, K. Burke, and M. Ernzerhof.,  Phys. Rev. Lett. 78, 1396 (1997)
+    J. P. Perdew, K. Burke, and M. Ernzerhof.,  Phys. Rev. Lett. 77, 3865 (1996)
+    J. P. Perdew, K. Burke, and M. Ernzerhof.,  Phys. Rev. Lett. 78, 1396 (1997)
+radial grids: 
+    Treutler-Ahlrichs [JCP 102, 346 (1995); DOI:10.1063/1.469408] (M4) radial grids
+    
+becke partition: Becke, JCP 88, 2547 (1988); DOI:10.1063/1.454033
+pruning grids: <function nwchem_prune at 0x7f388cc42c00>
+grids dens level: 1
+symmetrized grids: False
+atomic radii adjust function: <function treutler_atomic_radii_adjust at 0x7f388cc43100>
+small_rho_cutoff = 0
+Set gradient conv threshold to 0.0001
+tot grids = 301848
