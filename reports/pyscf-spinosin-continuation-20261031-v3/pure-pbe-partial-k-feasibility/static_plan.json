@@ -1,0 +1,96 @@
+{
+  "status": "NOT_IMPLEMENTED_NOT_VALIDATED",
+  "created_at_UTC": "2026-11-01T15:06:42.948449+00:00",
+  "new_worker_created": false,
+  "frozen_sources_patched": false,
+  "active_calculation_products_read": 0,
+  "new_SCF_gradient_Hessian_or_integral_evaluations": 0,
+  "source_partial_with_k_load_lines": [],
+  "current_exact_build_guard_None_inference_from_ABI": true,
+  "current_native_call_runtime_traced": false,
+  "source_counts_for_full75_atom_partial_not_measured_calls": {
+    "get_jk_rounds_before_and_after": 151,
+    "J_bindings_retained": 151,
+    "K_bindings_candidate_removed": 226
+  },
+  "candidate_edits": [
+    {
+      "lines": "120-126",
+      "integral": "int2e_ipip1",
+      "keep_J": "lk->s1ij,dm0",
+      "skip_when_with_k_false": [
+        "jk->s1il,dm0",
+        "vk1_diag reshape"
+      ]
+    },
+    {
+      "lines": "141-146",
+      "integral": "int2e_ip1ip2",
+      "keep_J": "ji->s1kl,dm0[:,p0:p1]",
+      "skip_when_with_k_false": [
+        "li->s1kj,dm0[:,p0:p1]",
+        "lj->s1ki,dm0",
+        "vk1[:,:,p0:p1]+=vk2"
+      ]
+    },
+    {
+      "lines": "148-155",
+      "integral": "int2e_ipvip1",
+      "keep_J": "lk->s1ij,dm0",
+      "skip_when_with_k_false": [
+        "li->s1kj,dm0[:,p0:p1]",
+        "vk1+=vk2.transpose(0,2,1)",
+        "vk1 reshape"
+      ]
+    },
+    {
+      "lines": "158-175",
+      "retain": "all e1/ej multiplicities,core and overlap terms,global atom order,symmetry",
+      "skip_when_with_k_false": [
+        "ek diagonal/cross contractions",
+        "ek nonzero assembly"
+      ]
+    }
+  ],
+  "return_contract": "tuple e1,ej,ek; each float64 shape(len(atmlst),len(atmlst),3,3); ek zero only on audited false path",
+  "true_path": "Preserve or delegate original unmodified implementation",
+  "screening_change_combined_with_K_removal": false,
+  "suffix_guard_only_fix_safety": "NOT_ESTABLISHED_FULL_GLOBAL_SCREEN_DM_VS_CONTRACTION_SLICE_CONTRACT_MUST_BE_REVIEWED",
+  "speedup_or_memory_reduction_measured": false,
+  "abi_evidence": {
+    "path": "reports/pyscf-spinosin-continuation-20261031-v3/non-df-pure-j-abi-audit/symbols.json",
+    "sha256": "a21b7157766b6f0a74b559f1636c469323cf7dda4d0b25aaa36598fdebf49293",
+    "index_sha256": "6f62bfa2cffc39abf435f0188ef96d4a76c241941ce4375428c49fff21951a83"
+  },
+  "old_report_files_preserved": {
+    "reports/pyscf-spinosin-continuation-20261031-v3/direct-hessian-cost-audit/README.md": "1ab7d626d9a651cfcad0d24d1325d0e6e000aa4c97144e3d5c744afedc9404fd",
+    "reports/pyscf-spinosin-continuation-20261031-v3/direct-hessian-cost-audit/audit.json": "0ab35db0786d1423b9335d7af353d7141b6b435911610759b851e97cc893f4ac",
+    "reports/pyscf-spinosin-continuation-20261031-v3/direct-hessian-cost-audit/files_sha256.json": "1702729d11586bd7f45b81152d3ab885555ab9cb03f345dd157dfef1cc5bcc6e"
+  },
+  "source_references": {
+    ".runtime/quantum-upgrade-site/pyscf/hessian/rhf.py": {
+      "sha256": "2d986bfc01aac98447034a207df639b3d6897f67ce1ab2a013fe2d0853c85de5",
+      "lines": "99-208,261-283"
+    },
+    ".runtime/quantum-upgrade-site/pyscf/hessian/rks.py": {
+      "sha256": "d61dbd1727b286845737853b92e1812a3e6a966dca29a9a8a79ff5e9a7725c03",
+      "lines": "45-118"
+    },
+    ".runtime/quantum-upgrade-site/pyscf/scf/_vhf.py": {
+      "sha256": "ef0a04f43338780a7f57d9268f9634c1079ae989ba3030d6154c8612798f82ba",
+      "lines": "151-244,482-503"
+    },
+    ".runtime/quantum-upgrade-site/pyscf/lib/vhf/optimizer.c": {
+      "sha256": "bc2c1890058633ab06efe4f421e740562fe7a668dae6d6e0d42e7da7a7a4200b",
+      "lines": "472-492"
+    },
+    ".runtime/quantum-upgrade-site/pyscf/lib/vhf/hessian_screen.c": {
+      "sha256": "8556d566b1616d5bc66781d152ec5c73a1fd00f9b6993ae76d0579f5d350412c",
+      "lines": "218-240,262-285,391-414"
+    },
+    ".runtime/quantum-upgrade-site/pyscf/lib/vhf/nr_direct.c": {
+      "sha256": "9c181daa8ce689e312e548694f47a2935105094fab1e685e82b4bf485e0639c4",
+      "lines": "66-93,407-427"
+    }
+  }
+}
