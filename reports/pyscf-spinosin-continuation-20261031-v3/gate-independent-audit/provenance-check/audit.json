@@ -1,0 +1,2876 @@
+{
+  "status": "PASS_WITH_STALE_PROGRESS_NOTE",
+  "created_utc": "2026-11-01T08:20:41.668544+00:00",
+  "scope": "Only two named closed V3 validation phases; provenance/checksums/SCF/optimizer/fresh-gradient audit. No Hessian or normal-mode numerical matrix analysis.",
+  "quantum_operations_run": false,
+  "PySCF_imported": false,
+  "checkpoint_handling": "Only checksum the closed water checkpoint against its declared SHA; no checkpoint parsing and no active checkpoint read.",
+  "ledger_file_sha256_at_read_only": "33be5cca42a83272c1fc4a7a1e68cc854ac7f810a514d4ba12eb0b1f033032c5",
+  "ledger_is_mutable_outside_selected_closed_rows": true,
+  "selected_closed_row_canonical_SHA256": {
+    "water_native4_validation_001": "21ee0e0bd54d3626be9ee7872da17804846ab17d06c425f395e8cd2a807d9e59",
+    "ethanol_native4_validation_001": "eb70608e205fa4097e64d3dc35b3eead57d86b85456e9216a8a9b35c4b664e72"
+  },
+  "closed_phase_actual_CPU_sum_seconds": 187.48375000000001,
+  "CPU_accounting_limit": "Actual wait4 child user+system values are read from the closed supervisor ledger, not independently remeasured. Payload process CPU covers a narrower interval. Neither is wall seconds multiplied by thread count.",
+  "source_bindings": {
+    "scripts/run_pyscf_monitored_budget_20261031.py": "f03c6720f4e4999cf0fcaeec67b9ae80f2a2666a9bf7167f21066ad268624d9f",
+    "scripts/pyscf_spinosin_parallel_hessian_worker_20261031.py": "acfe7708748ac237c9912aa9b1d98e047d842794fd0c6f08b1a67b993f5b277d",
+    "scripts/validate_pyscf_native4_large_block_engineering_20261031.py": "48bbf31c5cbffe098a037b54751b9801e342d25682f68b3e6957d61ee2ee99c4"
+  },
+  "runs": [
+    {
+      "run": "water-native4-validation-001",
+      "phase": "water_native4_validation_001",
+      "proof_sha256": "f6e1a9825c4169263c9ae5dec113ea535a432c4e8d476fa94d0456adbdc64348",
+      "ledger_actual_wait4_CPU_seconds": 5.3780269999999994,
+      "result_process_CPU_seconds": 4.7293628850000005,
+      "CPU_difference_seconds": 0.648664114999999,
+      "ledger_wall_seconds": 2.1304082959995867,
+      "peak_group_RSS_sampled_bytes": 172863488,
+      "peak_cgroup_memory_sampled_bytes": 2512056320,
+      "monitor_samples": 21,
+      "final_flags": {
+        "status": "DONE",
+        "geometry_optimized": true,
+        "optimizer_converged": true,
+        "scf_converged": true,
+        "final_gradient_thresholds_passed": true
+      },
+      "initial_input_flags": {
+        "status": "PARTIAL",
+        "geometry_optimized": false,
+        "optimizer_converged": false,
+        "scf_converged": false
+      },
+      "progress_status": "PARTIAL",
+      "note": "progress.json remains a stale PARTIAL snapshot; final result, closed ledger and completion events are authoritative for this audit.",
+      "partial_callback_false_flag_count": 22,
+      "partial_callback_explanation": "scf_cycle callbacks are iteration-time records, preceding completed-SCF convergence checks; false here does not contradict later converged gradient events.",
+      "last_converged_SCF_log": {
+        "line": 1577,
+        "text": "converged SCF energy = -76.2725345404429"
+      },
+      "optimizer_execution_log_converged": [
+        [
+          92,
+          "Converged! =D"
+        ]
+      ],
+      "selected_event_evidence": [
+        {
+          "line": 12,
+          "utc": "2026-11-01T08:12:20.970223+00:00",
+          "event": "direct_gradient_started",
+          "scf_converged": true,
+          "SCF_energy_hartree": -76.27194978874624
+        },
+        {
+          "line": 14,
+          "utc": "2026-11-01T08:12:21.009083+00:00",
+          "event": "direct_gradient_kernel_complete"
+        },
+        {
+          "line": 15,
+          "utc": "2026-11-01T08:12:21.010699+00:00",
+          "event": "geometry_cycle",
+          "cycle": 1,
+          "scf_converged": true,
+          "energy_hartree": -76.27194978874624
+        },
+        {
+          "line": 22,
+          "utc": "2026-11-01T08:12:21.104841+00:00",
+          "event": "direct_gradient_started",
+          "scf_converged": true,
+          "SCF_energy_hartree": -76.27251393108952
+        },
+        {
+          "line": 23,
+          "utc": "2026-11-01T08:12:21.144778+00:00",
+          "event": "direct_gradient_kernel_complete"
+        },
+        {
+          "line": 24,
+          "utc": "2026-11-01T08:12:21.146392+00:00",
+          "event": "geometry_cycle",
+          "cycle": 2,
+          "scf_converged": true,
+          "energy_hartree": -76.27251393108952
+        },
+        {
+          "line": 31,
+          "utc": "2026-11-01T08:12:21.250658+00:00",
+          "event": "direct_gradient_started",
+          "scf_converged": true,
+          "SCF_energy_hartree": -76.27253447848744
+        },
+        {
+          "line": 32,
+          "utc": "2026-11-01T08:12:21.304180+00:00",
+          "event": "direct_gradient_kernel_complete"
+        },
+        {
+          "line": 33,
+          "utc": "2026-11-01T08:12:21.305841+00:00",
+          "event": "geometry_cycle",
+          "cycle": 3,
+          "scf_converged": true,
+          "energy_hartree": -76.27253447848744
+        },
+        {
+          "line": 39,
+          "utc": "2026-11-01T08:12:21.395859+00:00",
+          "event": "direct_gradient_started",
+          "scf_converged": true,
+          "SCF_energy_hartree": -76.2725345404863
+        },
+        {
+          "line": 40,
+          "utc": "2026-11-01T08:12:21.437541+00:00",
+          "event": "direct_gradient_kernel_complete"
+        },
+        {
+          "line": 41,
+          "utc": "2026-11-01T08:12:21.439171+00:00",
+          "event": "geometry_cycle",
+          "cycle": 4,
+          "scf_converged": true,
+          "energy_hartree": -76.2725345404863
+        },
+        {
+          "line": 43,
+          "utc": "2026-11-01T08:12:21.522786+00:00",
+          "event": "direct_gradient_started",
+          "scf_converged": true,
+          "SCF_energy_hartree": -76.2725345404429
+        },
+        {
+          "line": 44,
+          "utc": "2026-11-01T08:12:21.564787+00:00",
+          "event": "direct_gradient_kernel_complete"
+        },
+        {
+          "line": 45,
+          "utc": "2026-11-01T08:12:21.565764+00:00",
+          "event": "scf_gradient_complete",
+          "scf_converged": true,
+          "energy_hartree": -76.2725345404429
+        },
+        {
+          "line": 56,
+          "utc": "2026-11-01T08:12:22.216416+00:00",
+          "event": "frequencies_complete"
+        }
+      ]
+    },
+    {
+      "run": "validation-ethanol-native4-001",
+      "phase": "ethanol_native4_validation_001",
+      "proof_sha256": "052395262bbf9921c8dde3c52a814188e7bdceaa3bb9f4e2a24db578d2040938",
+      "ledger_actual_wait4_CPU_seconds": 182.105723,
+      "result_process_CPU_seconds": 181.424017566,
+      "CPU_difference_seconds": 0.6817054340000084,
+      "ledger_wall_seconds": 98.47061644500172,
+      "peak_group_RSS_sampled_bytes": 533635072,
+      "peak_cgroup_memory_sampled_bytes": 2885554176,
+      "monitor_samples": 973,
+      "final_flags": {
+        "status": "DONE",
+        "geometry_optimized": true,
+        "optimizer_converged": true,
+        "scf_converged": true,
+        "final_gradient_thresholds_passed": true
+      },
+      "initial_input_flags": {
+        "status": "PARTIAL",
+        "geometry_optimized": false,
+        "optimizer_converged": false,
+        "scf_converged": false
+      },
+      "progress_status": "PARTIAL",
+      "note": "progress.json remains a stale PARTIAL snapshot; final result, closed ledger and completion events are authoritative for this audit.",
+      "partial_callback_false_flag_count": 0,
+      "partial_callback_explanation": "scf_cycle callbacks are iteration-time records, preceding completed-SCF convergence checks; false here does not contradict later converged gradient events.",
+      "last_converged_SCF_log": {
+        "line": 947,
+        "text": "converged SCF energy = -154.722416848926"
+      },
+      "optimizer_execution_log_converged": [
+        [
+          125,
+          "Converged! =D"
+        ]
+      ],
+      "selected_event_evidence": [
+        {
+          "line": 3,
+          "utc": "2026-11-01T08:13:07.827725+00:00",
+          "event": "direct_gradient_started",
+          "scf_converged": true,
+          "SCF_energy_hartree": -154.72061349491835
+        },
+        {
+          "line": 5,
+          "utc": "2026-11-01T08:13:09.615814+00:00",
+          "event": "direct_gradient_kernel_complete"
+        },
+        {
+          "line": 6,
+          "utc": "2026-11-01T08:13:09.616842+00:00",
+          "event": "validation_geometry_cycle",
+          "cycle": 1,
+          "energy_hartree": -154.72061349491835
+        },
+        {
+          "line": 8,
+          "utc": "2026-11-01T08:13:11.747124+00:00",
+          "event": "direct_gradient_started",
+          "scf_converged": true,
+          "SCF_energy_hartree": -154.72232860028538
+        },
+        {
+          "line": 9,
+          "utc": "2026-11-01T08:13:13.673728+00:00",
+          "event": "direct_gradient_kernel_complete"
+        },
+        {
+          "line": 10,
+          "utc": "2026-11-01T08:13:13.674868+00:00",
+          "event": "validation_geometry_cycle",
+          "cycle": 2,
+          "energy_hartree": -154.72232860028538
+        },
+        {
+          "line": 12,
+          "utc": "2026-11-01T08:13:15.640737+00:00",
+          "event": "direct_gradient_started",
+          "scf_converged": true,
+          "SCF_energy_hartree": -154.72240298557088
+        },
+        {
+          "line": 13,
+          "utc": "2026-11-01T08:13:17.458850+00:00",
+          "event": "direct_gradient_kernel_complete"
+        },
+        {
+          "line": 14,
+          "utc": "2026-11-01T08:13:17.459990+00:00",
+          "event": "validation_geometry_cycle",
+          "cycle": 3,
+          "energy_hartree": -154.72240298557088
+        },
+        {
+          "line": 16,
+          "utc": "2026-11-01T08:13:19.265808+00:00",
+          "event": "direct_gradient_started",
+          "scf_converged": true,
+          "SCF_energy_hartree": -154.72241644771123
+        },
+        {
+          "line": 17,
+          "utc": "2026-11-01T08:13:20.827344+00:00",
+          "event": "direct_gradient_kernel_complete"
+        },
+        {
+          "line": 18,
+          "utc": "2026-11-01T08:13:20.828292+00:00",
+          "event": "validation_geometry_cycle",
+          "cycle": 4,
+          "energy_hartree": -154.72241644771123
+        },
+        {
+          "line": 20,
+          "utc": "2026-11-01T08:13:22.159706+00:00",
+          "event": "direct_gradient_started",
+          "scf_converged": true,
+          "SCF_energy_hartree": -154.7224168474304
+        },
+        {
+          "line": 21,
+          "utc": "2026-11-01T08:13:23.728719+00:00",
+          "event": "direct_gradient_kernel_complete"
+        },
+        {
+          "line": 22,
+          "utc": "2026-11-01T08:13:23.729817+00:00",
+          "event": "validation_geometry_cycle",
+          "cycle": 5,
+          "energy_hartree": -154.7224168474304
+        },
+        {
+          "line": 23,
+          "utc": "2026-11-01T08:13:25.073048+00:00",
+          "event": "direct_gradient_started",
+          "scf_converged": true,
+          "SCF_energy_hartree": -154.7224168489262
+        },
+        {
+          "line": 24,
+          "utc": "2026-11-01T08:13:26.622022+00:00",
+          "event": "direct_gradient_kernel_complete"
+        },
+        {
+          "line": 25,
+          "utc": "2026-11-01T08:13:26.622772+00:00",
+          "event": "validation_opt_fresh_gradient_passed"
+        },
+        {
+          "line": 34,
+          "utc": "2026-11-01T08:13:51.155328+00:00",
+          "event": "direct_gradient_started",
+          "scf_converged": true,
+          "SCF_energy_hartree": -154.7224168489262
+        },
+        {
+          "line": 36,
+          "utc": "2026-11-01T08:13:52.797667+00:00",
+          "event": "direct_gradient_kernel_complete"
+        },
+        {
+          "line": 37,
+          "utc": "2026-11-01T08:13:52.799430+00:00",
+          "event": "validation_Hessian_case_complete"
+        },
+        {
+          "line": 48,
+          "utc": "2026-11-01T08:14:17.078223+00:00",
+          "event": "direct_gradient_started",
+          "scf_converged": true,
+          "SCF_energy_hartree": -154.7224168489262
+        },
+        {
+          "line": 50,
+          "utc": "2026-11-01T08:14:18.304167+00:00",
+          "event": "direct_gradient_kernel_complete"
+        },
+        {
+          "line": 51,
+          "utc": "2026-11-01T08:14:18.306105+00:00",
+          "event": "validation_Hessian_case_complete"
+        },
+        {
+          "line": 60,
+          "utc": "2026-11-01T08:14:41.371525+00:00",
+          "event": "direct_gradient_started",
+          "scf_converged": true,
+          "SCF_energy_hartree": -154.7224168489262
+        },
+        {
+          "line": 62,
+          "utc": "2026-11-01T08:14:42.563388+00:00",
+          "event": "direct_gradient_kernel_complete"
+        },
+        {
+          "line": 63,
+          "utc": "2026-11-01T08:14:42.565524+00:00",
+          "event": "validation_Hessian_case_complete"
+        }
+      ]
+    }
+  ],
+  "gradient_statistics": [
+    {
+      "path": "reports/pyscf-spinosin-continuation-20261031-v3/water-native4-validation-001/geometry_steps/step_0001.gradient.npy",
+      "sha256": "f70ee10e10bb9bd0b05669201e7c298523aae352e3925a5e21b18b48aef3a83d",
+      "log_header_line": 1309,
+      "summary": {
+        "component_rms_hartree_per_bohr": 0.010661940577329772,
+        "component_max_hartree_per_bohr": 0.022850410688452616,
+        "atom_rms_hartree_per_bohr": 0.018467022787215414,
+        "atom_max_hartree_per_bohr": 0.022850410688452616,
+        "gradient_norm_hartree_per_bohr": 0.031985821731989314
+      },
+      "printed_max_abs_error": 3.1812765963201706e-11,
+      "recorded_summary_exact_checks": {
+        "component_rms_hartree_per_bohr": true,
+        "component_max_hartree_per_bohr": true,
+        "atom_rms_hartree_per_bohr": true,
+        "atom_max_hartree_per_bohr": true,
+        "gradient_norm_hartree_per_bohr": true
+      },
+      "stationary_thresholds_pass": false
+    },
+    {
+      "path": "reports/pyscf-spinosin-continuation-20261031-v3/water-native4-validation-001/geometry_steps/step_0002.gradient.npy",
+      "sha256": "b15cb4422dadfac3036bb6473f6e695ab4b9f00134161e102e1bca9a71c18e56",
+      "log_header_line": 1383,
+      "summary": {
+        "component_rms_hartree_per_bohr": 0.0015799315574333164,
+        "component_max_hartree_per_bohr": 0.0036909761294974253,
+        "atom_rms_hartree_per_bohr": 0.00273652172995593,
+        "atom_max_hartree_per_bohr": 0.0036909761294974253,
+        "gradient_norm_hartree_per_bohr": 0.004739794672299949
+      },
+      "printed_max_abs_error": 2.9497425335645033e-11,
+      "recorded_summary_exact_checks": {
+        "component_rms_hartree_per_bohr": true,
+        "component_max_hartree_per_bohr": true,
+        "atom_rms_hartree_per_bohr": true,
+        "atom_max_hartree_per_bohr": true,
+        "gradient_norm_hartree_per_bohr": true
+      },
+      "stationary_thresholds_pass": false
+    },
+    {
+      "path": "reports/pyscf-spinosin-continuation-20261031-v3/water-native4-validation-001/geometry_steps/step_0003.gradient.npy",
+      "sha256": "fdf0fa502d762414c4ff710ef4a7e6671dd74a42028cd6f255ba6e7efccaad44",
+      "log_header_line": 1457,
+      "summary": {
+        "component_rms_hartree_per_bohr": 9.211692847801257e-05,
+        "component_max_hartree_per_bohr": 0.00015335735077459667,
+        "atom_rms_hartree_per_bohr": 0.00015955120036110617,
+        "atom_max_hartree_per_bohr": 0.00019523659686238295,
+        "gradient_norm_hartree_per_bohr": 0.0002763507854340377
+      },
+      "printed_max_abs_error": 4.922962216916474e-11,
+      "recorded_summary_exact_checks": {
+        "component_rms_hartree_per_bohr": true,
+        "component_max_hartree_per_bohr": true,
+        "atom_rms_hartree_per_bohr": true,
+        "atom_max_hartree_per_bohr": true,
+        "gradient_norm_hartree_per_bohr": true
+      },
+      "stationary_thresholds_pass": true
+    },
+    {
+      "path": "reports/pyscf-spinosin-continuation-20261031-v3/water-native4-validation-001/geometry_steps/step_0004.gradient.npy",
+      "sha256": "f781018dce2f50f54f910793b2ceeba688322a497de877f8346b06ffe30f28c1",
+      "log_header_line": 1529,
+      "summary": {
+        "component_rms_hartree_per_bohr": 7.896234217580824e-05,
+        "component_max_hartree_per_bohr": 0.00023100125260766546,
+        "atom_rms_hartree_per_bohr": 0.00013676678853313869,
+        "atom_max_hartree_per_bohr": 0.00023100125260766546,
+        "gradient_norm_hartree_per_bohr": 0.0002368870265274247
+      },
+      "printed_max_abs_error": 4.739233452292352e-11,
+      "recorded_summary_exact_checks": {
+        "component_rms_hartree_per_bohr": true,
+        "component_max_hartree_per_bohr": true,
+        "atom_rms_hartree_per_bohr": true,
+        "atom_max_hartree_per_bohr": true,
+        "gradient_norm_hartree_per_bohr": true
+      },
+      "stationary_thresholds_pass": true
+    },
+    {
+      "path": "reports/pyscf-spinosin-continuation-20261031-v3/water-native4-validation-001/gradient_hartree_per_bohr.npy",
+      "sha256": "30594a0c70c3fe75043a64974aa6d2f1e7be6c20157a81d31d98ac18334955a4",
+      "log_header_line": 1584,
+      "summary": {
+        "component_rms_hartree_per_bohr": 7.873648124197528e-05,
+        "component_max_hartree_per_bohr": 0.00023043787845722363,
+        "atom_rms_hartree_per_bohr": 0.00013637558592029502,
+        "atom_max_hartree_per_bohr": 0.00023043787845722363,
+        "gradient_norm_hartree_per_bohr": 0.00023620944372592585
+      },
+      "printed_max_abs_error": 2.848907635949645e-11,
+      "recorded_summary_exact_checks": {
+        "component_rms_hartree_per_bohr": true,
+        "component_max_hartree_per_bohr": true,
+        "atom_rms_hartree_per_bohr": true,
+        "atom_max_hartree_per_bohr": true,
+        "gradient_norm_hartree_per_bohr": true
+      },
+      "stationary_thresholds_pass": true
+    },
+    {
+      "path": "reports/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-001/geometry_steps/step_0001.gradient.npy",
+      "sha256": "876b0fbd3a3a0f5c175bd80c9ce8b423d1f49e029039922407732066a283c3d2",
+      "log_header_line": 513,
+      "summary": {
+        "component_rms_hartree_per_bohr": 0.006728600192242527,
+        "component_max_hartree_per_bohr": 0.0166228284160006,
+        "atom_rms_hartree_per_bohr": 0.011654277396781772,
+        "atom_max_hartree_per_bohr": 0.01757959976056377,
+        "gradient_norm_hartree_per_bohr": 0.034962832190345315
+      },
+      "printed_max_abs_error": 4.2632652670713395e-11,
+      "recorded_summary_exact_checks": {
+        "component_rms_hartree_per_bohr": true,
+        "component_max_hartree_per_bohr": true,
+        "atom_rms_hartree_per_bohr": true,
+        "atom_max_hartree_per_bohr": true,
+        "gradient_norm_hartree_per_bohr": true
+      },
+      "stationary_thresholds_pass": false
+    },
+    {
+      "path": "reports/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-001/geometry_steps/step_0002.gradient.npy",
+      "sha256": "43a1cf94e1d5ecf9dedcd322bab4d9479245aad8b3c581347bff4bd28a774d6b",
+      "log_header_line": 609,
+      "summary": {
+        "component_rms_hartree_per_bohr": 0.0017711991413300588,
+        "component_max_hartree_per_bohr": 0.006488515147336393,
+        "atom_rms_hartree_per_bohr": 0.0030678069031060307,
+        "atom_max_hartree_per_bohr": 0.007136575888628215,
+        "gradient_norm_hartree_per_bohr": 0.00920342070931809
+      },
+      "printed_max_abs_error": 4.980912942298063e-11,
+      "recorded_summary_exact_checks": {
+        "component_rms_hartree_per_bohr": true,
+        "component_max_hartree_per_bohr": true,
+        "atom_rms_hartree_per_bohr": true,
+        "atom_max_hartree_per_bohr": true,
+        "gradient_norm_hartree_per_bohr": true
+      },
+      "stationary_thresholds_pass": false
+    },
+    {
+      "path": "reports/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-001/geometry_steps/step_0003.gradient.npy",
+      "sha256": "279e7c8956fb109cff1ff6bbd1bb45c0f0fa27995b183a78b5f5e838a93ba026",
+      "log_header_line": 703,
+      "summary": {
+        "component_rms_hartree_per_bohr": 0.0006793395713530727,
+        "component_max_hartree_per_bohr": 0.00260327905655533,
+        "atom_rms_hartree_per_bohr": 0.0011766506531755844,
+        "atom_max_hartree_per_bohr": 0.0028083945098896284,
+        "gradient_norm_hartree_per_bohr": 0.0035299519595267527
+      },
+      "printed_max_abs_error": 4.4894906477306595e-11,
+      "recorded_summary_exact_checks": {
+        "component_rms_hartree_per_bohr": true,
+        "component_max_hartree_per_bohr": true,
+        "atom_rms_hartree_per_bohr": true,
+        "atom_max_hartree_per_bohr": true,
+        "gradient_norm_hartree_per_bohr": true
+      },
+      "stationary_thresholds_pass": false
+    },
+    {
+      "path": "reports/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-001/geometry_steps/step_0004.gradient.npy",
+      "sha256": "b9df23c72153e85d70e69e16f906c8f4c8c8b6ebf54a158e339fa58eddb2b144",
+      "log_header_line": 797,
+      "summary": {
+        "component_rms_hartree_per_bohr": 7.818926622405949e-05,
+        "component_max_hartree_per_bohr": 0.00019295445909239817,
+        "atom_rms_hartree_per_bohr": 0.0001354277817066002,
+        "atom_max_hartree_per_bohr": 0.00022152132607355726,
+        "gradient_norm_hartree_per_bohr": 0.00040628334511980054
+      },
+      "printed_max_abs_error": 4.74732150630903e-11,
+      "recorded_summary_exact_checks": {
+        "component_rms_hartree_per_bohr": true,
+        "component_max_hartree_per_bohr": true,
+        "atom_rms_hartree_per_bohr": true,
+        "atom_max_hartree_per_bohr": true,
+        "gradient_norm_hartree_per_bohr": true
+      },
+      "stationary_thresholds_pass": true
+    },
+    {
+      "path": "reports/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-001/geometry_steps/step_0005.gradient.npy",
+      "sha256": "26206767e868def2ce3a2671ac0c3a7c28591d209d4d5e4623e83a2876981037",
+      "log_header_line": 887,
+      "summary": {
+        "component_rms_hartree_per_bohr": 4.387927481114081e-05,
+        "component_max_hartree_per_bohr": 0.00014397772206553583,
+        "atom_rms_hartree_per_bohr": 7.600113337217313e-05,
+        "atom_max_hartree_per_bohr": 0.00015161023597172135,
+        "gradient_norm_hartree_per_bohr": 0.00022800340011651943
+      },
+      "printed_max_abs_error": 4.470688735527936e-11,
+      "recorded_summary_exact_checks": {
+        "component_rms_hartree_per_bohr": true,
+        "component_max_hartree_per_bohr": true,
+        "atom_rms_hartree_per_bohr": true,
+        "atom_max_hartree_per_bohr": true,
+        "gradient_norm_hartree_per_bohr": true
+      },
+      "stationary_thresholds_pass": true
+    },
+    {
+      "path": "reports/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-001/gradient_hartree_per_bohr.npy",
+      "sha256": "0ba36203bd36129355fa47f058d10010511af3ee5b22886a1a9e2a8e7b2f7966",
+      "log_header_line": 954,
+      "summary": {
+        "component_rms_hartree_per_bohr": 4.410762282590432e-05,
+        "component_max_hartree_per_bohr": 0.00014717555623633416,
+        "atom_rms_hartree_per_bohr": 7.639664373555101e-05,
+        "atom_max_hartree_per_bohr": 0.00015358569894336033,
+        "gradient_norm_hartree_per_bohr": 0.00022918993120665305
+      },
+      "printed_max_abs_error": 4.848561149130965e-11,
+      "recorded_summary_exact_checks": {
+        "component_rms_hartree_per_bohr": true,
+        "component_max_hartree_per_bohr": true,
+        "atom_rms_hartree_per_bohr": true,
+        "atom_max_hartree_per_bohr": true,
+        "gradient_norm_hartree_per_bohr": true
+      },
+      "stationary_thresholds_pass": true
+    },
+    {
+      "path": "reports/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-001/standard_full_native1/post_Hessian_gradient_hartree_per_bohr.npy",
+      "sha256": "0ba36203bd36129355fa47f058d10010511af3ee5b22886a1a9e2a8e7b2f7966",
+      "log_header_line": 972,
+      "summary": {
+        "component_rms_hartree_per_bohr": 4.410762282590432e-05,
+        "component_max_hartree_per_bohr": 0.00014717555623633416,
+        "atom_rms_hartree_per_bohr": 7.639664373555101e-05,
+        "atom_max_hartree_per_bohr": 0.00015358569894336033,
+        "gradient_norm_hartree_per_bohr": 0.00022918993120665305
+      },
+      "printed_max_abs_error": 4.848561149130965e-11,
+      "recorded_summary_exact_checks": {},
+      "stationary_thresholds_pass": true
+    },
+    {
+      "path": "reports/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-001/response_block4_native4/post_Hessian_gradient_hartree_per_bohr.npy",
+      "sha256": "2033ac6ea8bb3094f711d6bfdf3059027548ef80de5b2a8ec2589cbb970d9fc7",
+      "log_header_line": 990,
+      "summary": {
+        "component_rms_hartree_per_bohr": 4.4107622826162534e-05,
+        "component_max_hartree_per_bohr": 0.00014717555623988687,
+        "atom_rms_hartree_per_bohr": 7.639664373599827e-05,
+        "atom_max_hartree_per_bohr": 0.00015358569894727422,
+        "gradient_norm_hartree_per_bohr": 0.00022918993120799483
+      },
+      "printed_max_abs_error": 4.848383513447025e-11,
+      "recorded_summary_exact_checks": {},
+      "stationary_thresholds_pass": true
+    },
+    {
+      "path": "reports/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-001/response_block8_native4/post_Hessian_gradient_hartree_per_bohr.npy",
+      "sha256": "1d861d2b20748a841b086a1d3251bc54e6de4265efc4b8b7315ffbf46664736f",
+      "log_header_line": 1008,
+      "summary": {
+        "component_rms_hartree_per_bohr": 4.410762282616187e-05,
+        "component_max_hartree_per_bohr": 0.00014717555623988687,
+        "atom_rms_hartree_per_bohr": 7.639664373599712e-05,
+        "atom_max_hartree_per_bohr": 0.00015358569894727422,
+        "gradient_norm_hartree_per_bohr": 0.00022918993120799136
+      },
+      "printed_max_abs_error": 4.848383513447025e-11,
+      "recorded_summary_exact_checks": {},
+      "stationary_thresholds_pass": true
+    }
+  ],
+  "checks": [
+    {
+      "check": "water_native4_validation_001.proof_sha_result_ledger",
+      "passed": true
+    },
+    {
+      "check": "water_native4_validation_001.embedded_proof_equals_file",
+      "passed": true
+    },
+    {
+      "check": "water_native4_validation_001.parent_supervisor_source",
+      "passed": true,
+      "path": "scripts/run_pyscf_monitored_budget_20261031.py",
+      "expected": "f03c6720f4e4999cf0fcaeec67b9ae80f2a2666a9bf7167f21066ad268624d9f",
+      "actual": "f03c6720f4e4999cf0fcaeec67b9ae80f2a2666a9bf7167f21066ad268624d9f"
+    },
+    {
+      "check": "water_native4_validation_001.parent_source_equals_ledger_runner",
+      "passed": true
+    },
+    {
+      "check": "water_native4_validation_001.pid_phase_and_ledger_binding",
+      "passed": true
+    },
+    {
+      "check": "water_native4_validation_001.contract.cpu_soft_limit_seconds",
+      "passed": true
+    },
+    {
+      "check": "water_native4_validation_001.contract.cpu_hard_limit_seconds",
+      "passed": true
+    },
+    {
+      "check": "water_native4_validation_001.contract.rss_stop_bytes",
+      "passed": true
+    },
+    {
+      "check": "water_native4_validation_001.contract.cgroup_kill_bytes",
+      "passed": true
+    },
+    {
+      "check": "water_native4_validation_001.contract.expected_cgroup_memory_max_bytes",
+      "passed": true
+    },
+    {
+      "check": "water_native4_validation_001.contract.threads",
+      "passed": true
+    },
+    {
+      "check": "water_native4_validation_001.contract.wall_limit_seconds",
+      "passed": true
+    },
+    {
+      "check": "water_native4_validation_001.contract.monitor_interval_seconds",
+      "passed": true
+    },
+    {
+      "check": "water_native4_validation_001.AS_contract",
+      "passed": true
+    },
+    {
+      "check": "water_native4_validation_001.closed_clean",
+      "passed": true
+    },
+    {
+      "check": "water_native4_validation_001.execution_log",
+      "passed": true,
+      "path": "reports/pyscf-spinosin-continuation-20261031-v3/execution/water_native4_validation_001.log",
+      "expected": "1b48ff57eaf1c5c765ea2ed8758c292e3e5a94871ba87bddeb1b9adcd15e7e7a",
+      "actual": "1b48ff57eaf1c5c765ea2ed8758c292e3e5a94871ba87bddeb1b9adcd15e7e7a"
+    },
+    {
+      "check": "water_native4_validation_001.worker_source",
+      "passed": true,
+      "path": "scripts/pyscf_spinosin_parallel_hessian_worker_20261031.py",
+      "expected": "acfe7708748ac237c9912aa9b1d98e047d842794fd0c6f08b1a67b993f5b277d",
+      "actual": "acfe7708748ac237c9912aa9b1d98e047d842794fd0c6f08b1a67b993f5b277d"
+    },
+    {
+      "check": "water_native4_validation_001.final_flag.geometry_optimized",
+      "passed": true
+    },
+    {
+      "check": "water_native4_validation_001.final_flag.optimizer_converged",
+      "passed": true
+    },
+    {
+      "check": "water_native4_validation_001.final_flag.scf_converged",
+      "passed": true
+    },
+    {
+      "check": "water_native4_validation_001.final_flag.final_gradient_thresholds_passed",
+      "passed": true
+    },
+    {
+      "check": "water_native4_validation_001.result_DONE",
+      "passed": true
+    },
+    {
+      "check": "water_native4_validation_001.actual_CPU_within_grant",
+      "passed": true
+    },
+    {
+      "check": "water_native4_validation_001.CPU_scope_consistent",
+      "passed": true
+    },
+    {
+      "check": "water_native4_validation_001.log_energy_and_result_scope",
+      "passed": true
+    },
+    {
+      "check": "water_native4_validation_001.optimized_xyz_sha256",
+      "passed": true,
+      "path": "reports/pyscf-spinosin-continuation-20261031-v3/water-native4-validation-001/optimized.xyz",
+      "expected": "21f50784ccb6b67f072c14e87d1bd3adede278b6a74371f5cb2cc85a10abf916",
+      "actual": "21f50784ccb6b67f072c14e87d1bd3adede278b6a74371f5cb2cc85a10abf916"
+    },
+    {
+      "check": "water_native4_validation_001.optimized_coordinates_angstrom_npy_sha256",
+      "passed": true,
+      "path": "reports/pyscf-spinosin-continuation-20261031-v3/water-native4-validation-001/optimized_coordinates_angstrom.npy",
+      "expected": "42cc76c1ea2ceec687c8568b8ba5b93587447c154a419d0e6457a26398631758",
+      "actual": "42cc76c1ea2ceec687c8568b8ba5b93587447c154a419d0e6457a26398631758"
+    },
+    {
+      "check": "water_native4_validation_001.normal_mode_geometry_angstrom_npy_sha256",
+      "passed": true,
+      "path": "reports/pyscf-spinosin-continuation-20261031-v3/water-native4-validation-001/normal_mode_geometry_angstrom.npy",
+      "expected": "42cc76c1ea2ceec687c8568b8ba5b93587447c154a419d0e6457a26398631758",
+      "actual": "42cc76c1ea2ceec687c8568b8ba5b93587447c154a419d0e6457a26398631758"
+    },
+    {
+      "check": "water_native4_validation_001.hessian_cache_manifest_sha256",
+      "passed": true,
+      "path": "reports/pyscf-spinosin-continuation-20261031-v3/water-native4-validation-001/hessian_cache_manifest.json",
+      "expected": "25d3e51f20b978e185cf6f20856965fec23c323f0cd90e161ad60ace586ea5e5",
+      "actual": "25d3e51f20b978e185cf6f20856965fec23c323f0cd90e161ad60ace586ea5e5"
+    },
+    {
+      "check": "water_native4_validation_001.raw_hessian_sha256",
+      "passed": true,
+      "path": "reports/pyscf-spinosin-continuation-20261031-v3/water-native4-validation-001/hessian_hartree_per_bohr2.npy",
+      "expected": "a276db230eec7ce706a783177d9fa1eb2a87fe3685bb38d78458e2f8e1414ebf",
+      "actual": "a276db230eec7ce706a783177d9fa1eb2a87fe3685bb38d78458e2f8e1414ebf"
+    },
+    {
+      "check": "water_native4_validation_001.analysis_hessian_sha256",
+      "passed": true,
+      "path": "reports/pyscf-spinosin-continuation-20261031-v3/water-native4-validation-001/hessian_used_for_analysis.npy",
+      "expected": "f60e635890865b321f0e587fc5d697716963433704ab32a809adcdf8420eb1eb",
+      "actual": "f60e635890865b321f0e587fc5d697716963433704ab32a809adcdf8420eb1eb"
+    },
+    {
+      "check": "water_native4_validation_001.checkpoint_sha256",
+      "passed": true,
+      "path": "reports/pyscf-spinosin-continuation-20261031-v3/water-native4-validation-001/calculation.chk",
+      "expected": "15de7bdf32a83d3d5d667158f4364dc1a33fb665b54280635cdecb40636ae0bf",
+      "actual": "15de7bdf32a83d3d5d667158f4364dc1a33fb665b54280635cdecb40636ae0bf"
+    },
+    {
+      "check": "water_native4_validation_001.native_source.pyscf.scf._vhf",
+      "passed": true,
+      "path": ".runtime/quantum-upgrade-site/pyscf/scf/_vhf.py",
+      "expected": "ef0a04f43338780a7f57d9268f9634c1079ae989ba3030d6154c8612798f82ba",
+      "actual": "ef0a04f43338780a7f57d9268f9634c1079ae989ba3030d6154c8612798f82ba"
+    },
+    {
+      "check": "water_native4_validation_001.native_source.nr_direct.c",
+      "passed": true,
+      "path": ".runtime/quantum-upgrade-site/pyscf/lib/vhf/nr_direct.c",
+      "expected": "9c181daa8ce689e312e548694f47a2935105094fab1e685e82b4bf485e0639c4",
+      "actual": "9c181daa8ce689e312e548694f47a2935105094fab1e685e82b4bf485e0639c4"
+    },
+    {
+      "check": "water_native4_validation_001.native_source.libcvhf_binary",
+      "passed": true,
+      "path": ".runtime/quantum-upgrade-site/pyscf/lib/libcvhf.so",
+      "expected": "5d7461e3976fd40fce7c9ba571e45b01830dd018d75927e389c32a6f4d09df0c",
+      "actual": "5d7461e3976fd40fce7c9ba571e45b01830dd018d75927e389c32a6f4d09df0c"
+    },
+    {
+      "check": "water_native4_validation_001.input_xyz",
+      "passed": true,
+      "path": "examples/gaussian/water.xyz",
+      "expected": "a18494b5e737a2405750ea188d8d1854243b37e7e4861600e1d8b26dd68f674b",
+      "actual": "a18494b5e737a2405750ea188d8d1854243b37e7e4861600e1d8b26dd68f674b"
+    },
+    {
+      "check": "water_native4_validation_001.last_converged_log_energy",
+      "passed": true,
+      "line": 1577,
+      "log_energy": -76.2725345404429,
+      "result_energy": -76.2725345404429,
+      "absolute_difference": 0.0
+    },
+    {
+      "check": "water_native4_validation_001.optimizer_log_converged",
+      "passed": true,
+      "lines": [
+        92
+      ]
+    },
+    {
+      "check": "water_native4_validation_001.gradient_log_block_count",
+      "passed": true
+    },
+    {
+      "check": "water-native4-validation-001/geometry_steps/step_0001.gradient.npy.finite_shape",
+      "passed": true
+    },
+    {
+      "check": "water-native4-validation-001/geometry_steps/step_0001.gradient.npy.recorded_summary",
+      "passed": true,
+      "exact_checks": {
+        "component_rms_hartree_per_bohr": true,
+        "component_max_hartree_per_bohr": true,
+        "atom_rms_hartree_per_bohr": true,
+        "atom_max_hartree_per_bohr": true,
+        "gradient_norm_hartree_per_bohr": true
+      }
+    },
+    {
+      "check": "water-native4-validation-001/geometry_steps/step_0001.gradient.npy.printed_gradient",
+      "passed": true,
+      "header_line": 1309,
+      "max_abs_error": 3.1812765963201706e-11
+    },
+    {
+      "check": "water-native4-validation-001/geometry_steps/step_0001.gradient.npy.step_gradient",
+      "passed": true,
+      "path": "reports/pyscf-spinosin-continuation-20261031-v3/water-native4-validation-001/geometry_steps/step_0001.gradient.npy",
+      "expected": "f70ee10e10bb9bd0b05669201e7c298523aae352e3925a5e21b18b48aef3a83d",
+      "actual": "f70ee10e10bb9bd0b05669201e7c298523aae352e3925a5e21b18b48aef3a83d"
+    },
+    {
+      "check": "water-native4-validation-001/geometry_steps/step_0001.gradient.npy.coordinates_angstrom_npy_sha256",
+      "passed": true,
+      "path": "reports/pyscf-spinosin-continuation-20261031-v3/water-native4-validation-001/geometry_steps/step_0001.coordinates_angstrom.npy",
+      "expected": "951cc9d0dabd91c4e3658d916f1b621cdaa89514b54c6a56b753c08abe78e2d6",
+      "actual": "951cc9d0dabd91c4e3658d916f1b621cdaa89514b54c6a56b753c08abe78e2d6"
+    },
+    {
+      "check": "water-native4-validation-001/geometry_steps/step_0001.gradient.npy.coordinates_bohr_npy_sha256",
+      "passed": true,
+      "path": "reports/pyscf-spinosin-continuation-20261031-v3/water-native4-validation-001/geometry_steps/step_0001.coordinates_bohr.npy",
+      "expected": "0ea2e9870f7fce7a53892d2ad879599b1d8a43b60bc573f10999fc7a8d62d1e2",
+      "actual": "0ea2e9870f7fce7a53892d2ad879599b1d8a43b60bc573f10999fc7a8d62d1e2"
+    },
+    {
+      "check": "water-native4-validation-001/geometry_steps/step_0002.gradient.npy.finite_shape",
+      "passed": true
+    },
+    {
+      "check": "water-native4-validation-001/geometry_steps/step_0002.gradient.npy.recorded_summary",
+      "passed": true,
+      "exact_checks": {
+        "component_rms_hartree_per_bohr": true,
+        "component_max_hartree_per_bohr": true,
+        "atom_rms_hartree_per_bohr": true,
+        "atom_max_hartree_per_bohr": true,
+        "gradient_norm_hartree_per_bohr": true
+      }
+    },
+    {
+      "check": "water-native4-validation-001/geometry_steps/step_0002.gradient.npy.printed_gradient",
+      "passed": true,
+      "header_line": 1383,
+      "max_abs_error": 2.9497425335645033e-11
+    },
+    {
+      "check": "water-native4-validation-001/geometry_steps/step_0002.gradient.npy.step_gradient",
+      "passed": true,
+      "path": "reports/pyscf-spinosin-continuation-20261031-v3/water-native4-validation-001/geometry_steps/step_0002.gradient.npy",
+      "expected": "b15cb4422dadfac3036bb6473f6e695ab4b9f00134161e102e1bca9a71c18e56",
+      "actual": "b15cb4422dadfac3036bb6473f6e695ab4b9f00134161e102e1bca9a71c18e56"
+    },
+    {
+      "check": "water-native4-validation-001/geometry_steps/step_0002.gradient.npy.coordinates_angstrom_npy_sha256",
+      "passed": true,
+      "path": "reports/pyscf-spinosin-continuation-20261031-v3/water-native4-validation-001/geometry_steps/step_0002.coordinates_angstrom.npy",
+      "expected": "9c4b7896b122116a77c53e730e496bbfecce0c686b8d93b5a7f322716fcf5d20",
+      "actual": "9c4b7896b122116a77c53e730e496bbfecce0c686b8d93b5a7f322716fcf5d20"
+    },
+    {
+      "check": "water-native4-validation-001/geometry_steps/step_0002.gradient.npy.coordinates_bohr_npy_sha256",
+      "passed": true,
+      "path": "reports/pyscf-spinosin-continuation-20261031-v3/water-native4-validation-001/geometry_steps/step_0002.coordinates_bohr.npy",
+      "expected": "6ed70a514b569f398dc6c7645813b4edae6d6a09c80a42d4a79883cff8bbc0d3",
+      "actual": "6ed70a514b569f398dc6c7645813b4edae6d6a09c80a42d4a79883cff8bbc0d3"
+    },
+    {
+      "check": "water-native4-validation-001/geometry_steps/step_0003.gradient.npy.finite_shape",
+      "passed": true
+    },
+    {
+      "check": "water-native4-validation-001/geometry_steps/step_0003.gradient.npy.recorded_summary",
+      "passed": true,
+      "exact_checks": {
+        "component_rms_hartree_per_bohr": true,
+        "component_max_hartree_per_bohr": true,
+        "atom_rms_hartree_per_bohr": true,
+        "atom_max_hartree_per_bohr": true,
+        "gradient_norm_hartree_per_bohr": true
+      }
+    },
+    {
+      "check": "water-native4-validation-001/geometry_steps/step_0003.gradient.npy.printed_gradient",
+      "passed": true,
+      "header_line": 1457,
+      "max_abs_error": 4.922962216916474e-11
+    },
+    {
+      "check": "water-native4-validation-001/geometry_steps/step_0003.gradient.npy.step_gradient",
+      "passed": true,
+      "path": "reports/pyscf-spinosin-continuation-20261031-v3/water-native4-validation-001/geometry_steps/step_0003.gradient.npy",
+      "expected": "fdf0fa502d762414c4ff710ef4a7e6671dd74a42028cd6f255ba6e7efccaad44",
+      "actual": "fdf0fa502d762414c4ff710ef4a7e6671dd74a42028cd6f255ba6e7efccaad44"
+    },
+    {
+      "check": "water-native4-validation-001/geometry_steps/step_0003.gradient.npy.coordinates_angstrom_npy_sha256",
+      "passed": true,
+      "path": "reports/pyscf-spinosin-continuation-20261031-v3/water-native4-validation-001/geometry_steps/step_0003.coordinates_angstrom.npy",
+      "expected": "0323388337c3adb1666a301c70b7e415cde4bd0356a5abefc8ccc028f6e1beb0",
+      "actual": "0323388337c3adb1666a301c70b7e415cde4bd0356a5abefc8ccc028f6e1beb0"
+    },
+    {
+      "check": "water-native4-validation-001/geometry_steps/step_0003.gradient.npy.coordinates_bohr_npy_sha256",
+      "passed": true,
+      "path": "reports/pyscf-spinosin-continuation-20261031-v3/water-native4-validation-001/geometry_steps/step_0003.coordinates_bohr.npy",
+      "expected": "3836e5f0c47997e19923ab33f14ca19fb3c5f4da391dda6e961c0de4d3bd8f5b",
+      "actual": "3836e5f0c47997e19923ab33f14ca19fb3c5f4da391dda6e961c0de4d3bd8f5b"
+    },
+    {
+      "check": "water-native4-validation-001/geometry_steps/step_0004.gradient.npy.finite_shape",
+      "passed": true
+    },
+    {
+      "check": "water-native4-validation-001/geometry_steps/step_0004.gradient.npy.recorded_summary",
+      "passed": true,
+      "exact_checks": {
+        "component_rms_hartree_per_bohr": true,
+        "component_max_hartree_per_bohr": true,
+        "atom_rms_hartree_per_bohr": true,
+        "atom_max_hartree_per_bohr": true,
+        "gradient_norm_hartree_per_bohr": true
+      }
+    },
+    {
+      "check": "water-native4-validation-001/geometry_steps/step_0004.gradient.npy.printed_gradient",
+      "passed": true,
+      "header_line": 1529,
+      "max_abs_error": 4.739233452292352e-11
+    },
+    {
+      "check": "water-native4-validation-001/geometry_steps/step_0004.gradient.npy.step_gradient",
+      "passed": true,
+      "path": "reports/pyscf-spinosin-continuation-20261031-v3/water-native4-validation-001/geometry_steps/step_0004.gradient.npy",
+      "expected": "f781018dce2f50f54f910793b2ceeba688322a497de877f8346b06ffe30f28c1",
+      "actual": "f781018dce2f50f54f910793b2ceeba688322a497de877f8346b06ffe30f28c1"
+    },
+    {
+      "check": "water-native4-validation-001/geometry_steps/step_0004.gradient.npy.coordinates_angstrom_npy_sha256",
+      "passed": true,
+      "path": "reports/pyscf-spinosin-continuation-20261031-v3/water-native4-validation-001/geometry_steps/step_0004.coordinates_angstrom.npy",
+      "expected": "42cc76c1ea2ceec687c8568b8ba5b93587447c154a419d0e6457a26398631758",
+      "actual": "42cc76c1ea2ceec687c8568b8ba5b93587447c154a419d0e6457a26398631758"
+    },
+    {
+      "check": "water-native4-validation-001/geometry_steps/step_0004.gradient.npy.coordinates_bohr_npy_sha256",
+      "passed": true,
+      "path": "reports/pyscf-spinosin-continuation-20261031-v3/water-native4-validation-001/geometry_steps/step_0004.coordinates_bohr.npy",
+      "expected": "5ba9d5022887202fc9d721f202fd1baf6e34a8bf2b558ed766380a5481beff20",
+      "actual": "5ba9d5022887202fc9d721f202fd1baf6e34a8bf2b558ed766380a5481beff20"
+    },
+    {
+      "check": "water-native4-validation-001/gradient_hartree_per_bohr.npy.finite_shape",
+      "passed": true
+    },
+    {
+      "check": "water-native4-validation-001/gradient_hartree_per_bohr.npy.recorded_summary",
+      "passed": true,
+      "exact_checks": {
+        "component_rms_hartree_per_bohr": true,
+        "component_max_hartree_per_bohr": true,
+        "atom_rms_hartree_per_bohr": true,
+        "atom_max_hartree_per_bohr": true,
+        "gradient_norm_hartree_per_bohr": true
+      }
+    },
+    {
+      "check": "water-native4-validation-001/gradient_hartree_per_bohr.npy.printed_gradient",
+      "passed": true,
+      "header_line": 1584,
+      "max_abs_error": 2.848907635949645e-11
+    },
+    {
+      "check": "water-native4-validation-001/hessian_cache_manifest.json.binding.input_evidence.pyscf.hessian.rks",
+      "passed": true,
+      "path": ".runtime/quantum-upgrade-site/pyscf/hessian/rks.py",
+      "expected": "d61dbd1727b286845737853b92e1812a3e6a966dca29a9a8a79ff5e9a7725c03",
+      "actual": "d61dbd1727b286845737853b92e1812a3e6a966dca29a9a8a79ff5e9a7725c03"
+    },
+    {
+      "check": "water-native4-validation-001/hessian_cache_manifest.json.binding.input_evidence.pyscf.gto.mole",
+      "passed": true,
+      "path": ".runtime/quantum-upgrade-site/pyscf/gto/mole.py",
+      "expected": "005bd63c5fa100a20cc264a995c38f44f2e05c7c82d37bd36eba2355dc651392",
+      "actual": "005bd63c5fa100a20cc264a995c38f44f2e05c7c82d37bd36eba2355dc651392"
+    },
+    {
+      "check": "water-native4-validation-001/hessian_cache_manifest.json.binding.input_evidence.pyscf.hessian.rhf",
+      "passed": true,
+      "path": ".runtime/quantum-upgrade-site/pyscf/hessian/rhf.py",
+      "expected": "2d986bfc01aac98447034a207df639b3d6897f67ce1ab2a013fe2d0853c85de5",
+      "actual": "2d986bfc01aac98447034a207df639b3d6897f67ce1ab2a013fe2d0853c85de5"
+    },
+    {
+      "check": "water-native4-validation-001/hessian_cache_manifest.json.binding.input_evidence.pyscf.scf.cphf",
+      "passed": true,
+      "path": ".runtime/quantum-upgrade-site/pyscf/scf/cphf.py",
+      "expected": "e39e3a06fc33e23307a8558d2410bc1137e08ef9c27d48b4ce95fd20a22a63e3",
+      "actual": "e39e3a06fc33e23307a8558d2410bc1137e08ef9c27d48b4ce95fd20a22a63e3"
+    },
+    {
+      "check": "water-native4-validation-001/hessian_cache_manifest.json.binding.input_evidence.pyscf.lib.linalg_helper",
+      "passed": true,
+      "path": ".runtime/quantum-upgrade-site/pyscf/lib/linalg_helper.py",
+      "expected": "9dcd5d4582c3695818e05fa72217c7764f87d5491ed29acb7b64d2725ee130e0",
+      "actual": "9dcd5d4582c3695818e05fa72217c7764f87d5491ed29acb7b64d2725ee130e0"
+    },
+    {
+      "check": "water-native4-validation-001/hessian_cache_manifest.json.partial_hessian.array.file_sha256",
+      "passed": true,
+      "path": "outputs/pyscf-spinosin-continuation-20261031-v3/water-native4-validation-cache-001/partial_hessian.npy",
+      "expected": "a87db27b95d591c4a668cd850a27f65f3f0d0a7e9f5d0518dbbdef1ac9c1b20d",
+      "actual": "a87db27b95d591c4a668cd850a27f65f3f0d0a7e9f5d0518dbbdef1ac9c1b20d"
+    },
+    {
+      "check": "water-native4-validation-001/hessian_cache_manifest.json.partial_hessian.array.file_bytes",
+      "passed": true
+    },
+    {
+      "check": "water-native4-validation-001/hessian_cache_manifest.json.H1AO_atoms[0].array.file_sha256",
+      "passed": true,
+      "path": "outputs/pyscf-spinosin-continuation-20261031-v3/water-native4-validation-cache-001/H1AO/atom_000.npy",
+      "expected": "3625827c06f78440f31fdb637654230cfe64ab1b76556d998f16d2a4dc025c9e",
+      "actual": "3625827c06f78440f31fdb637654230cfe64ab1b76556d998f16d2a4dc025c9e"
+    },
+    {
+      "check": "water-native4-validation-001/hessian_cache_manifest.json.H1AO_atoms[0].array.file_bytes",
+      "passed": true
+    },
+    {
+      "check": "water-native4-validation-001/hessian_cache_manifest.json.H1AO_atoms[1].array.file_sha256",
+      "passed": true,
+      "path": "outputs/pyscf-spinosin-continuation-20261031-v3/water-native4-validation-cache-001/H1AO/atom_001.npy",
+      "expected": "cd6138b2328997ac7bf411a7bac3d7fd370e18cec1de7f7cd5e34782f66ef9a3",
+      "actual": "cd6138b2328997ac7bf411a7bac3d7fd370e18cec1de7f7cd5e34782f66ef9a3"
+    },
+    {
+      "check": "water-native4-validation-001/hessian_cache_manifest.json.H1AO_atoms[1].array.file_bytes",
+      "passed": true
+    },
+    {
+      "check": "water-native4-validation-001/hessian_cache_manifest.json.H1AO_atoms[2].array.file_sha256",
+      "passed": true,
+      "path": "outputs/pyscf-spinosin-continuation-20261031-v3/water-native4-validation-cache-001/H1AO/atom_002.npy",
+      "expected": "0ae21edb75a4775854cfc0fba656bd933f57917c78e6d1ee987e76874a110280",
+      "actual": "0ae21edb75a4775854cfc0fba656bd933f57917c78e6d1ee987e76874a110280"
+    },
+    {
+      "check": "water-native4-validation-001/hessian_cache_manifest.json.H1AO_atoms[2].array.file_bytes",
+      "passed": true
+    },
+    {
+      "check": "water-native4-validation-001/hessian_cache_manifest.json.response_blocks[0].arrays[0].MO1.file_sha256",
+      "passed": true,
+      "path": "outputs/pyscf-spinosin-continuation-20261031-v3/water-native4-validation-cache-001/response/atom_000.MO1.npy",
+      "expected": "ba66978e9b5946e337dc29997441db22d68109ebd2b0887b83988b3173b4c075",
+      "actual": "ba66978e9b5946e337dc29997441db22d68109ebd2b0887b83988b3173b4c075"
+    },
+    {
+      "check": "water-native4-validation-001/hessian_cache_manifest.json.response_blocks[0].arrays[0].MO1.file_bytes",
+      "passed": true
+    },
+    {
+      "check": "water-native4-validation-001/hessian_cache_manifest.json.response_blocks[0].arrays[0].MO_E1.file_sha256",
+      "passed": true,
+      "path": "outputs/pyscf-spinosin-continuation-20261031-v3/water-native4-validation-cache-001/response/atom_000.MO_E1.npy",
+      "expected": "e21b641f2d9ef120c41ac0c2df7fdb4a3dc9691f5d959b7282e8fca51f4b9c58",
+      "actual": "e21b641f2d9ef120c41ac0c2df7fdb4a3dc9691f5d959b7282e8fca51f4b9c58"
+    },
+    {
+      "check": "water-native4-validation-001/hessian_cache_manifest.json.response_blocks[0].arrays[0].MO_E1.file_bytes",
+      "passed": true
+    },
+    {
+      "check": "water-native4-validation-001/hessian_cache_manifest.json.response_blocks[0].arrays[1].MO1.file_sha256",
+      "passed": true,
+      "path": "outputs/pyscf-spinosin-continuation-20261031-v3/water-native4-validation-cache-001/response/atom_001.MO1.npy",
+      "expected": "c91f40b19075d4e4900ae4e2c6611898aa5c5f46c2c95147cb48a15561ff1ff8",
+      "actual": "c91f40b19075d4e4900ae4e2c6611898aa5c5f46c2c95147cb48a15561ff1ff8"
+    },
+    {
+      "check": "water-native4-validation-001/hessian_cache_manifest.json.response_blocks[0].arrays[1].MO1.file_bytes",
+      "passed": true
+    },
+    {
+      "check": "water-native4-validation-001/hessian_cache_manifest.json.response_blocks[0].arrays[1].MO_E1.file_sha256",
+      "passed": true,
+      "path": "outputs/pyscf-spinosin-continuation-20261031-v3/water-native4-validation-cache-001/response/atom_001.MO_E1.npy",
+      "expected": "9f50a3f918c3236e8aa5be53618fb9e9de9cc2792edc2512601cb53455e8281d",
+      "actual": "9f50a3f918c3236e8aa5be53618fb9e9de9cc2792edc2512601cb53455e8281d"
+    },
+    {
+      "check": "water-native4-validation-001/hessian_cache_manifest.json.response_blocks[0].arrays[1].MO_E1.file_bytes",
+      "passed": true
+    },
+    {
+      "check": "water-native4-validation-001/hessian_cache_manifest.json.response_blocks[1].arrays[0].MO1.file_sha256",
+      "passed": true,
+      "path": "outputs/pyscf-spinosin-continuation-20261031-v3/water-native4-validation-cache-001/response/atom_002.MO1.npy",
+      "expected": "b72ab3224b9e1687e9e03a021fb1d666ebcc88923e89f0a64d44b5eee31e2db0",
+      "actual": "b72ab3224b9e1687e9e03a021fb1d666ebcc88923e89f0a64d44b5eee31e2db0"
+    },
+    {
+      "check": "water-native4-validation-001/hessian_cache_manifest.json.response_blocks[1].arrays[0].MO1.file_bytes",
+      "passed": true
+    },
+    {
+      "check": "water-native4-validation-001/hessian_cache_manifest.json.response_blocks[1].arrays[0].MO_E1.file_sha256",
+      "passed": true,
+      "path": "outputs/pyscf-spinosin-continuation-20261031-v3/water-native4-validation-cache-001/response/atom_002.MO_E1.npy",
+      "expected": "73477d65ea0b59009d49deae5149c68e24386e75104ba1405cd00c596809a2bb",
+      "actual": "73477d65ea0b59009d49deae5149c68e24386e75104ba1405cd00c596809a2bb"
+    },
+    {
+      "check": "water-native4-validation-001/hessian_cache_manifest.json.response_blocks[1].arrays[0].MO_E1.file_bytes",
+      "passed": true
+    },
+    {
+      "check": "water-native4-validation-001/hessian_cache_manifest.json.binding_sha",
+      "passed": true
+    },
+    {
+      "check": "water_native4_validation_001.all_gradient_start_SCF_flags",
+      "passed": true
+    },
+    {
+      "check": "water_native4_validation_001.fresh_gradient_SCF_energy",
+      "passed": true
+    },
+    {
+      "check": "water_native4_validation_001.fresh_gradient_after_optimizer_steps",
+      "passed": true
+    },
+    {
+      "check": "ethanol_native4_validation_001.proof_sha_result_ledger",
+      "passed": true
+    },
+    {
+      "check": "ethanol_native4_validation_001.embedded_proof_equals_file",
+      "passed": true
+    },
+    {
+      "check": "ethanol_native4_validation_001.parent_supervisor_source",
+      "passed": true,
+      "path": "scripts/run_pyscf_monitored_budget_20261031.py",
+      "expected": "f03c6720f4e4999cf0fcaeec67b9ae80f2a2666a9bf7167f21066ad268624d9f",
+      "actual": "f03c6720f4e4999cf0fcaeec67b9ae80f2a2666a9bf7167f21066ad268624d9f"
+    },
+    {
+      "check": "ethanol_native4_validation_001.parent_source_equals_ledger_runner",
+      "passed": true
+    },
+    {
+      "check": "ethanol_native4_validation_001.pid_phase_and_ledger_binding",
+      "passed": true
+    },
+    {
+      "check": "ethanol_native4_validation_001.contract.cpu_soft_limit_seconds",
+      "passed": true
+    },
+    {
+      "check": "ethanol_native4_validation_001.contract.cpu_hard_limit_seconds",
+      "passed": true
+    },
+    {
+      "check": "ethanol_native4_validation_001.contract.rss_stop_bytes",
+      "passed": true
+    },
+    {
+      "check": "ethanol_native4_validation_001.contract.cgroup_kill_bytes",
+      "passed": true
+    },
+    {
+      "check": "ethanol_native4_validation_001.contract.expected_cgroup_memory_max_bytes",
+      "passed": true
+    },
+    {
+      "check": "ethanol_native4_validation_001.contract.threads",
+      "passed": true
+    },
+    {
+      "check": "ethanol_native4_validation_001.contract.wall_limit_seconds",
+      "passed": true
+    },
+    {
+      "check": "ethanol_native4_validation_001.contract.monitor_interval_seconds",
+      "passed": true
+    },
+    {
+      "check": "ethanol_native4_validation_001.AS_contract",
+      "passed": true
+    },
+    {
+      "check": "ethanol_native4_validation_001.closed_clean",
+      "passed": true
+    },
+    {
+      "check": "ethanol_native4_validation_001.execution_log",
+      "passed": true,
+      "path": "reports/pyscf-spinosin-continuation-20261031-v3/execution/ethanol_native4_validation_001.log",
+      "expected": "99a322768203d37dde9afeaeaa3710b8a4cb90cea431fca5fb9e7578ea801e4e",
+      "actual": "99a322768203d37dde9afeaeaa3710b8a4cb90cea431fca5fb9e7578ea801e4e"
+    },
+    {
+      "check": "ethanol_native4_validation_001.worker_source",
+      "passed": true,
+      "path": "scripts/validate_pyscf_native4_large_block_engineering_20261031.py",
+      "expected": "48bbf31c5cbffe098a037b54751b9801e342d25682f68b3e6957d61ee2ee99c4",
+      "actual": "48bbf31c5cbffe098a037b54751b9801e342d25682f68b3e6957d61ee2ee99c4"
+    },
+    {
+      "check": "ethanol_native4_validation_001.helper_source",
+      "passed": true,
+      "path": "scripts/pyscf_spinosin_parallel_hessian_worker_20261031.py",
+      "expected": "acfe7708748ac237c9912aa9b1d98e047d842794fd0c6f08b1a67b993f5b277d",
+      "actual": "acfe7708748ac237c9912aa9b1d98e047d842794fd0c6f08b1a67b993f5b277d"
+    },
+    {
+      "check": "ethanol_native4_validation_001.final_flag.geometry_optimized",
+      "passed": true
+    },
+    {
+      "check": "ethanol_native4_validation_001.final_flag.optimizer_converged",
+      "passed": true
+    },
+    {
+      "check": "ethanol_native4_validation_001.final_flag.scf_converged",
+      "passed": true
+    },
+    {
+      "check": "ethanol_native4_validation_001.final_flag.final_gradient_thresholds_passed",
+      "passed": true
+    },
+    {
+      "check": "ethanol_native4_validation_001.result_DONE",
+      "passed": true
+    },
+    {
+      "check": "ethanol_native4_validation_001.actual_CPU_within_grant",
+      "passed": true
+    },
+    {
+      "check": "ethanol_native4_validation_001.CPU_scope_consistent",
+      "passed": true
+    },
+    {
+      "check": "ethanol_native4_validation_001.log_energy_and_result_scope",
+      "passed": true
+    },
+    {
+      "check": "ethanol_native4_validation_001.input_xyz",
+      "passed": true,
+      "path": "reports/pyscf-spinosin-continuation-20261031-v2/validation-ethanol-structure/ethanol_mmff94s.xyz",
+      "expected": "cbb1b416a40f359b2c85e4a3152a13a201615071c2a74a1304f60e2ef2514ed6",
+      "actual": "cbb1b416a40f359b2c85e4a3152a13a201615071c2a74a1304f60e2ef2514ed6"
+    },
+    {
+      "check": "ethanol_native4_validation_001.source_provenance",
+      "passed": true,
+      "path": "reports/pyscf-spinosin-continuation-20261031-v2/validation-ethanol-structure/provenance.json",
+      "expected": "1622efb83e5f4c4fc1db6a2a3c44a816b18b354ca26ae63294c16dd0e5d8ad89",
+      "actual": "1622efb83e5f4c4fc1db6a2a3c44a816b18b354ca26ae63294c16dd0e5d8ad89"
+    },
+    {
+      "check": "ethanol_native4_validation_001.last_converged_log_energy",
+      "passed": true,
+      "line": 947,
+      "log_energy": -154.722416848926,
+      "result_energy": -154.7224168489262,
+      "absolute_difference": 1.9895196601282805e-13
+    },
+    {
+      "check": "ethanol_native4_validation_001.optimizer_log_converged",
+      "passed": true,
+      "lines": [
+        125
+      ]
+    },
+    {
+      "check": "ethanol_native4_validation_001.gradient_log_block_count",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-native4-001/geometry_steps/step_0001.gradient.npy.finite_shape",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-native4-001/geometry_steps/step_0001.gradient.npy.recorded_summary",
+      "passed": true,
+      "exact_checks": {
+        "component_rms_hartree_per_bohr": true,
+        "component_max_hartree_per_bohr": true,
+        "atom_rms_hartree_per_bohr": true,
+        "atom_max_hartree_per_bohr": true,
+        "gradient_norm_hartree_per_bohr": true
+      }
+    },
+    {
+      "check": "validation-ethanol-native4-001/geometry_steps/step_0001.gradient.npy.printed_gradient",
+      "passed": true,
+      "header_line": 513,
+      "max_abs_error": 4.2632652670713395e-11
+    },
+    {
+      "check": "validation-ethanol-native4-001/geometry_steps/step_0002.gradient.npy.finite_shape",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-native4-001/geometry_steps/step_0002.gradient.npy.recorded_summary",
+      "passed": true,
+      "exact_checks": {
+        "component_rms_hartree_per_bohr": true,
+        "component_max_hartree_per_bohr": true,
+        "atom_rms_hartree_per_bohr": true,
+        "atom_max_hartree_per_bohr": true,
+        "gradient_norm_hartree_per_bohr": true
+      }
+    },
+    {
+      "check": "validation-ethanol-native4-001/geometry_steps/step_0002.gradient.npy.printed_gradient",
+      "passed": true,
+      "header_line": 609,
+      "max_abs_error": 4.980912942298063e-11
+    },
+    {
+      "check": "validation-ethanol-native4-001/geometry_steps/step_0003.gradient.npy.finite_shape",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-native4-001/geometry_steps/step_0003.gradient.npy.recorded_summary",
+      "passed": true,
+      "exact_checks": {
+        "component_rms_hartree_per_bohr": true,
+        "component_max_hartree_per_bohr": true,
+        "atom_rms_hartree_per_bohr": true,
+        "atom_max_hartree_per_bohr": true,
+        "gradient_norm_hartree_per_bohr": true
+      }
+    },
+    {
+      "check": "validation-ethanol-native4-001/geometry_steps/step_0003.gradient.npy.printed_gradient",
+      "passed": true,
+      "header_line": 703,
+      "max_abs_error": 4.4894906477306595e-11
+    },
+    {
+      "check": "validation-ethanol-native4-001/geometry_steps/step_0004.gradient.npy.finite_shape",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-native4-001/geometry_steps/step_0004.gradient.npy.recorded_summary",
+      "passed": true,
+      "exact_checks": {
+        "component_rms_hartree_per_bohr": true,
+        "component_max_hartree_per_bohr": true,
+        "atom_rms_hartree_per_bohr": true,
+        "atom_max_hartree_per_bohr": true,
+        "gradient_norm_hartree_per_bohr": true
+      }
+    },
+    {
+      "check": "validation-ethanol-native4-001/geometry_steps/step_0004.gradient.npy.printed_gradient",
+      "passed": true,
+      "header_line": 797,
+      "max_abs_error": 4.74732150630903e-11
+    },
+    {
+      "check": "validation-ethanol-native4-001/geometry_steps/step_0005.gradient.npy.finite_shape",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-native4-001/geometry_steps/step_0005.gradient.npy.recorded_summary",
+      "passed": true,
+      "exact_checks": {
+        "component_rms_hartree_per_bohr": true,
+        "component_max_hartree_per_bohr": true,
+        "atom_rms_hartree_per_bohr": true,
+        "atom_max_hartree_per_bohr": true,
+        "gradient_norm_hartree_per_bohr": true
+      }
+    },
+    {
+      "check": "validation-ethanol-native4-001/geometry_steps/step_0005.gradient.npy.printed_gradient",
+      "passed": true,
+      "header_line": 887,
+      "max_abs_error": 4.470688735527936e-11
+    },
+    {
+      "check": "validation-ethanol-native4-001/gradient_hartree_per_bohr.npy.finite_shape",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-native4-001/gradient_hartree_per_bohr.npy.recorded_summary",
+      "passed": true,
+      "exact_checks": {
+        "component_rms_hartree_per_bohr": true,
+        "component_max_hartree_per_bohr": true,
+        "atom_rms_hartree_per_bohr": true,
+        "atom_max_hartree_per_bohr": true,
+        "gradient_norm_hartree_per_bohr": true
+      }
+    },
+    {
+      "check": "validation-ethanol-native4-001/gradient_hartree_per_bohr.npy.printed_gradient",
+      "passed": true,
+      "header_line": 954,
+      "max_abs_error": 4.848561149130965e-11
+    },
+    {
+      "check": "validation-ethanol-native4-001/standard_full_native1/post_Hessian_gradient_hartree_per_bohr.npy.finite_shape",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-native4-001/standard_full_native1/post_Hessian_gradient_hartree_per_bohr.npy.recorded_summary",
+      "passed": true,
+      "exact_checks": {}
+    },
+    {
+      "check": "validation-ethanol-native4-001/standard_full_native1/post_Hessian_gradient_hartree_per_bohr.npy.printed_gradient",
+      "passed": true,
+      "header_line": 972,
+      "max_abs_error": 4.848561149130965e-11
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block4_native4/post_Hessian_gradient_hartree_per_bohr.npy.finite_shape",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block4_native4/post_Hessian_gradient_hartree_per_bohr.npy.recorded_summary",
+      "passed": true,
+      "exact_checks": {}
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block4_native4/post_Hessian_gradient_hartree_per_bohr.npy.printed_gradient",
+      "passed": true,
+      "header_line": 990,
+      "max_abs_error": 4.848383513447025e-11
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block8_native4/post_Hessian_gradient_hartree_per_bohr.npy.finite_shape",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block8_native4/post_Hessian_gradient_hartree_per_bohr.npy.recorded_summary",
+      "passed": true,
+      "exact_checks": {}
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block8_native4/post_Hessian_gradient_hartree_per_bohr.npy.printed_gradient",
+      "passed": true,
+      "header_line": 1008,
+      "max_abs_error": 4.848383513447025e-11
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block4_native4/hessian_cache_manifest.json.partial_hessian.array.file_sha256",
+      "passed": true,
+      "path": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block4_native4/partial_hessian.npy",
+      "expected": "e484b913f4d514345913d41edaade354338a66674e0b48ba253e69baed311c83",
+      "actual": "e484b913f4d514345913d41edaade354338a66674e0b48ba253e69baed311c83"
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block4_native4/hessian_cache_manifest.json.partial_hessian.array.file_bytes",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block4_native4/hessian_cache_manifest.json.H1AO_atoms[0].array.file_sha256",
+      "passed": true,
+      "path": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block4_native4/H1AO/atom_000.npy",
+      "expected": "6d252c5fae6f31484129d863e4c1e958098cbcd2ae4f7e6339716d584c2ac174",
+      "actual": "6d252c5fae6f31484129d863e4c1e958098cbcd2ae4f7e6339716d584c2ac174"
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block4_native4/hessian_cache_manifest.json.H1AO_atoms[0].array.file_bytes",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block4_native4/hessian_cache_manifest.json.H1AO_atoms[1].array.file_sha256",
+      "passed": true,
+      "path": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block4_native4/H1AO/atom_001.npy",
+      "expected": "2b17f2ad84a91ad6469e9bd5dbe98b43f1a8e41743dcf4b9e4793d00c1c17ddd",
+      "actual": "2b17f2ad84a91ad6469e9bd5dbe98b43f1a8e41743dcf4b9e4793d00c1c17ddd"
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block4_native4/hessian_cache_manifest.json.H1AO_atoms[1].array.file_bytes",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block4_native4/hessian_cache_manifest.json.H1AO_atoms[2].array.file_sha256",
+      "passed": true,
+      "path": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block4_native4/H1AO/atom_002.npy",
+      "expected": "6ac5c5ec16c957731697112030a31ac1583edc20a766c23b1bdd311f63a79b14",
+      "actual": "6ac5c5ec16c957731697112030a31ac1583edc20a766c23b1bdd311f63a79b14"
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block4_native4/hessian_cache_manifest.json.H1AO_atoms[2].array.file_bytes",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block4_native4/hessian_cache_manifest.json.H1AO_atoms[3].array.file_sha256",
+      "passed": true,
+      "path": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block4_native4/H1AO/atom_003.npy",
+      "expected": "d6fa04225a60abb8aceeab5bb5f9355b62f2037a0622a36251bb3b48acc8d8f3",
+      "actual": "d6fa04225a60abb8aceeab5bb5f9355b62f2037a0622a36251bb3b48acc8d8f3"
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block4_native4/hessian_cache_manifest.json.H1AO_atoms[3].array.file_bytes",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block4_native4/hessian_cache_manifest.json.H1AO_atoms[4].array.file_sha256",
+      "passed": true,
+      "path": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block4_native4/H1AO/atom_004.npy",
+      "expected": "42ea675a40e511548d812cd525662c2ea11d9a51e5bcd7f2698698c40e0eb5fb",
+      "actual": "42ea675a40e511548d812cd525662c2ea11d9a51e5bcd7f2698698c40e0eb5fb"
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block4_native4/hessian_cache_manifest.json.H1AO_atoms[4].array.file_bytes",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block4_native4/hessian_cache_manifest.json.H1AO_atoms[5].array.file_sha256",
+      "passed": true,
+      "path": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block4_native4/H1AO/atom_005.npy",
+      "expected": "2f35f1f65c170ff259b3e96cb15de8d6f741acc3e6a120a309dbec9a9438f9cd",
+      "actual": "2f35f1f65c170ff259b3e96cb15de8d6f741acc3e6a120a309dbec9a9438f9cd"
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block4_native4/hessian_cache_manifest.json.H1AO_atoms[5].array.file_bytes",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block4_native4/hessian_cache_manifest.json.H1AO_atoms[6].array.file_sha256",
+      "passed": true,
+      "path": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block4_native4/H1AO/atom_006.npy",
+      "expected": "5417cdb71c741c61d6152d45c80826f83b8554b4e443e002eb0e8a5584e8868c",
+      "actual": "5417cdb71c741c61d6152d45c80826f83b8554b4e443e002eb0e8a5584e8868c"
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block4_native4/hessian_cache_manifest.json.H1AO_atoms[6].array.file_bytes",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block4_native4/hessian_cache_manifest.json.H1AO_atoms[7].array.file_sha256",
+      "passed": true,
+      "path": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block4_native4/H1AO/atom_007.npy",
+      "expected": "a23cc8aae21a565e4d2a1e49a40093d1bcb1d8a1ec830ca7d79d109039ec7d65",
+      "actual": "a23cc8aae21a565e4d2a1e49a40093d1bcb1d8a1ec830ca7d79d109039ec7d65"
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block4_native4/hessian_cache_manifest.json.H1AO_atoms[7].array.file_bytes",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block4_native4/hessian_cache_manifest.json.H1AO_atoms[8].array.file_sha256",
+      "passed": true,
+      "path": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block4_native4/H1AO/atom_008.npy",
+      "expected": "354cd77ab637f80d2f0957145b9105fb9de356536691a1f76bccd3344a80cc58",
+      "actual": "354cd77ab637f80d2f0957145b9105fb9de356536691a1f76bccd3344a80cc58"
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block4_native4/hessian_cache_manifest.json.H1AO_atoms[8].array.file_bytes",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block4_native4/hessian_cache_manifest.json.response_blocks[0].arrays[0].MO1.file_sha256",
+      "passed": true,
+      "path": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block4_native4/response/atom_000.MO1.npy",
+      "expected": "a5c994e75244a50f91bc57161dc939b4c5c07f7073eef703cda5ce78b816cb1e",
+      "actual": "a5c994e75244a50f91bc57161dc939b4c5c07f7073eef703cda5ce78b816cb1e"
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block4_native4/hessian_cache_manifest.json.response_blocks[0].arrays[0].MO1.file_bytes",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block4_native4/hessian_cache_manifest.json.response_blocks[0].arrays[0].MO_E1.file_sha256",
+      "passed": true,
+      "path": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block4_native4/response/atom_000.MO_E1.npy",
+      "expected": "a7481cae92a1f5925e466b0f6e17c2cfb82a59f679566063a4a7378faf885d0f",
+      "actual": "a7481cae92a1f5925e466b0f6e17c2cfb82a59f679566063a4a7378faf885d0f"
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block4_native4/hessian_cache_manifest.json.response_blocks[0].arrays[0].MO_E1.file_bytes",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block4_native4/hessian_cache_manifest.json.response_blocks[0].arrays[1].MO1.file_sha256",
+      "passed": true,
+      "path": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block4_native4/response/atom_001.MO1.npy",
+      "expected": "10c93fef2e7dd0a0a4f87c3e398ff15d9eb11a0a2b0f2129d2cc5d568ddaf331",
+      "actual": "10c93fef2e7dd0a0a4f87c3e398ff15d9eb11a0a2b0f2129d2cc5d568ddaf331"
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block4_native4/hessian_cache_manifest.json.response_blocks[0].arrays[1].MO1.file_bytes",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block4_native4/hessian_cache_manifest.json.response_blocks[0].arrays[1].MO_E1.file_sha256",
+      "passed": true,
+      "path": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block4_native4/response/atom_001.MO_E1.npy",
+      "expected": "bea86d4e54feab0e5aca3c32121310efd7e3ab52a5c59a1bb107da4e186886a9",
+      "actual": "bea86d4e54feab0e5aca3c32121310efd7e3ab52a5c59a1bb107da4e186886a9"
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block4_native4/hessian_cache_manifest.json.response_blocks[0].arrays[1].MO_E1.file_bytes",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block4_native4/hessian_cache_manifest.json.response_blocks[0].arrays[2].MO1.file_sha256",
+      "passed": true,
+      "path": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block4_native4/response/atom_002.MO1.npy",
+      "expected": "839d99489f4126e228a2270b5c6e1e52f79b9102345a852702e9e0fbbe55153e",
+      "actual": "839d99489f4126e228a2270b5c6e1e52f79b9102345a852702e9e0fbbe55153e"
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block4_native4/hessian_cache_manifest.json.response_blocks[0].arrays[2].MO1.file_bytes",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block4_native4/hessian_cache_manifest.json.response_blocks[0].arrays[2].MO_E1.file_sha256",
+      "passed": true,
+      "path": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block4_native4/response/atom_002.MO_E1.npy",
+      "expected": "d1242b70980668e3836ca28db2416c38193415b240664ea222c4022550bd3543",
+      "actual": "d1242b70980668e3836ca28db2416c38193415b240664ea222c4022550bd3543"
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block4_native4/hessian_cache_manifest.json.response_blocks[0].arrays[2].MO_E1.file_bytes",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block4_native4/hessian_cache_manifest.json.response_blocks[0].arrays[3].MO1.file_sha256",
+      "passed": true,
+      "path": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block4_native4/response/atom_003.MO1.npy",
+      "expected": "4d1b4ea48a319556c3e9f152866a21c05ff7130c63ce5ffe2c086eb0391d7431",
+      "actual": "4d1b4ea48a319556c3e9f152866a21c05ff7130c63ce5ffe2c086eb0391d7431"
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block4_native4/hessian_cache_manifest.json.response_blocks[0].arrays[3].MO1.file_bytes",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block4_native4/hessian_cache_manifest.json.response_blocks[0].arrays[3].MO_E1.file_sha256",
+      "passed": true,
+      "path": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block4_native4/response/atom_003.MO_E1.npy",
+      "expected": "ea9a012e6ac5c52cbb64a7c6c983300f8ea29aa00849cbbcd89f60c6019fa2e5",
+      "actual": "ea9a012e6ac5c52cbb64a7c6c983300f8ea29aa00849cbbcd89f60c6019fa2e5"
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block4_native4/hessian_cache_manifest.json.response_blocks[0].arrays[3].MO_E1.file_bytes",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block4_native4/hessian_cache_manifest.json.response_blocks[1].arrays[0].MO1.file_sha256",
+      "passed": true,
+      "path": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block4_native4/response/atom_004.MO1.npy",
+      "expected": "9ce9465274189a0dfce44880dd3274b7f62c4e9b30c908085f5864712882d3de",
+      "actual": "9ce9465274189a0dfce44880dd3274b7f62c4e9b30c908085f5864712882d3de"
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block4_native4/hessian_cache_manifest.json.response_blocks[1].arrays[0].MO1.file_bytes",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block4_native4/hessian_cache_manifest.json.response_blocks[1].arrays[0].MO_E1.file_sha256",
+      "passed": true,
+      "path": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block4_native4/response/atom_004.MO_E1.npy",
+      "expected": "3d4765e11e9adf224265828f84f44e79233a59cca95c71063de00124cff63037",
+      "actual": "3d4765e11e9adf224265828f84f44e79233a59cca95c71063de00124cff63037"
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block4_native4/hessian_cache_manifest.json.response_blocks[1].arrays[0].MO_E1.file_bytes",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block4_native4/hessian_cache_manifest.json.response_blocks[1].arrays[1].MO1.file_sha256",
+      "passed": true,
+      "path": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block4_native4/response/atom_005.MO1.npy",
+      "expected": "f7d82d73ac79e9300452f38035f3de5a07e5f00339376e74bb6f50d4b3bf4659",
+      "actual": "f7d82d73ac79e9300452f38035f3de5a07e5f00339376e74bb6f50d4b3bf4659"
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block4_native4/hessian_cache_manifest.json.response_blocks[1].arrays[1].MO1.file_bytes",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block4_native4/hessian_cache_manifest.json.response_blocks[1].arrays[1].MO_E1.file_sha256",
+      "passed": true,
+      "path": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block4_native4/response/atom_005.MO_E1.npy",
+      "expected": "f4be033526571d55fbced872f1b2c32987441cf78f6b32aaa5d5a4c91ef50983",
+      "actual": "f4be033526571d55fbced872f1b2c32987441cf78f6b32aaa5d5a4c91ef50983"
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block4_native4/hessian_cache_manifest.json.response_blocks[1].arrays[1].MO_E1.file_bytes",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block4_native4/hessian_cache_manifest.json.response_blocks[1].arrays[2].MO1.file_sha256",
+      "passed": true,
+      "path": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block4_native4/response/atom_006.MO1.npy",
+      "expected": "8bd9cdb49763b63b3d9468f315555ea10774b6eb070ebf063a363636576d0eab",
+      "actual": "8bd9cdb49763b63b3d9468f315555ea10774b6eb070ebf063a363636576d0eab"
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block4_native4/hessian_cache_manifest.json.response_blocks[1].arrays[2].MO1.file_bytes",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block4_native4/hessian_cache_manifest.json.response_blocks[1].arrays[2].MO_E1.file_sha256",
+      "passed": true,
+      "path": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block4_native4/response/atom_006.MO_E1.npy",
+      "expected": "f172ba56ba5f96b22b5383b82b54a0e2004d094663e0532a5123640345872e3d",
+      "actual": "f172ba56ba5f96b22b5383b82b54a0e2004d094663e0532a5123640345872e3d"
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block4_native4/hessian_cache_manifest.json.response_blocks[1].arrays[2].MO_E1.file_bytes",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block4_native4/hessian_cache_manifest.json.response_blocks[1].arrays[3].MO1.file_sha256",
+      "passed": true,
+      "path": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block4_native4/response/atom_007.MO1.npy",
+      "expected": "a43c6bf836b3de16dbcfab8acaa62434a930ec74f625fd77505be24c2907a405",
+      "actual": "a43c6bf836b3de16dbcfab8acaa62434a930ec74f625fd77505be24c2907a405"
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block4_native4/hessian_cache_manifest.json.response_blocks[1].arrays[3].MO1.file_bytes",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block4_native4/hessian_cache_manifest.json.response_blocks[1].arrays[3].MO_E1.file_sha256",
+      "passed": true,
+      "path": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block4_native4/response/atom_007.MO_E1.npy",
+      "expected": "cc23f6ce70d1c19c8b64227e7b0cfd0a504f6d688ba9000ea8763b53c977ba5c",
+      "actual": "cc23f6ce70d1c19c8b64227e7b0cfd0a504f6d688ba9000ea8763b53c977ba5c"
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block4_native4/hessian_cache_manifest.json.response_blocks[1].arrays[3].MO_E1.file_bytes",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block4_native4/hessian_cache_manifest.json.response_blocks[2].arrays[0].MO1.file_sha256",
+      "passed": true,
+      "path": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block4_native4/response/atom_008.MO1.npy",
+      "expected": "d1a0158440ae74661046bb4ba44856c85768f0474d980bd6387b41e5aafa73ab",
+      "actual": "d1a0158440ae74661046bb4ba44856c85768f0474d980bd6387b41e5aafa73ab"
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block4_native4/hessian_cache_manifest.json.response_blocks[2].arrays[0].MO1.file_bytes",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block4_native4/hessian_cache_manifest.json.response_blocks[2].arrays[0].MO_E1.file_sha256",
+      "passed": true,
+      "path": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block4_native4/response/atom_008.MO_E1.npy",
+      "expected": "c5b637745d0987961a3cb0748896536954e8f0fe9aeaa51d4ecd628483289258",
+      "actual": "c5b637745d0987961a3cb0748896536954e8f0fe9aeaa51d4ecd628483289258"
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block4_native4/hessian_cache_manifest.json.response_blocks[2].arrays[0].MO_E1.file_bytes",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block4_native4/hessian_cache_manifest.json.binding_sha",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block8_native4/hessian_cache_manifest.json.partial_hessian.array.file_sha256",
+      "passed": true,
+      "path": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block8_native4/partial_hessian.npy",
+      "expected": "bd37d924d3e89fe4b653e9ebee6de13f308f0a670452ce2ac745116f7320a7a5",
+      "actual": "bd37d924d3e89fe4b653e9ebee6de13f308f0a670452ce2ac745116f7320a7a5"
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block8_native4/hessian_cache_manifest.json.partial_hessian.array.file_bytes",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block8_native4/hessian_cache_manifest.json.H1AO_atoms[0].array.file_sha256",
+      "passed": true,
+      "path": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block8_native4/H1AO/atom_000.npy",
+      "expected": "25afdccbb24f432be72eeec4ca8411cf8af9025e988364e83fb0eeebfd4df38a",
+      "actual": "25afdccbb24f432be72eeec4ca8411cf8af9025e988364e83fb0eeebfd4df38a"
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block8_native4/hessian_cache_manifest.json.H1AO_atoms[0].array.file_bytes",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block8_native4/hessian_cache_manifest.json.H1AO_atoms[1].array.file_sha256",
+      "passed": true,
+      "path": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block8_native4/H1AO/atom_001.npy",
+      "expected": "e4448f55dda2021d20328f749b4ec36c7b88b401e653028e76f07b0552f0c102",
+      "actual": "e4448f55dda2021d20328f749b4ec36c7b88b401e653028e76f07b0552f0c102"
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block8_native4/hessian_cache_manifest.json.H1AO_atoms[1].array.file_bytes",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block8_native4/hessian_cache_manifest.json.H1AO_atoms[2].array.file_sha256",
+      "passed": true,
+      "path": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block8_native4/H1AO/atom_002.npy",
+      "expected": "78feb55d7426a21ba261ce56f936006a58931bba5a6f609c7e92857bb7f2479a",
+      "actual": "78feb55d7426a21ba261ce56f936006a58931bba5a6f609c7e92857bb7f2479a"
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block8_native4/hessian_cache_manifest.json.H1AO_atoms[2].array.file_bytes",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block8_native4/hessian_cache_manifest.json.H1AO_atoms[3].array.file_sha256",
+      "passed": true,
+      "path": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block8_native4/H1AO/atom_003.npy",
+      "expected": "5afb195ac6eb9202d31f8f6b4f786c66b42318b354de8da7fe87211a89960144",
+      "actual": "5afb195ac6eb9202d31f8f6b4f786c66b42318b354de8da7fe87211a89960144"
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block8_native4/hessian_cache_manifest.json.H1AO_atoms[3].array.file_bytes",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block8_native4/hessian_cache_manifest.json.H1AO_atoms[4].array.file_sha256",
+      "passed": true,
+      "path": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block8_native4/H1AO/atom_004.npy",
+      "expected": "0741284d22b76f80a059c005c4fa8b8b5990bbf50d5ef3584ce050b26b33a0ea",
+      "actual": "0741284d22b76f80a059c005c4fa8b8b5990bbf50d5ef3584ce050b26b33a0ea"
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block8_native4/hessian_cache_manifest.json.H1AO_atoms[4].array.file_bytes",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block8_native4/hessian_cache_manifest.json.H1AO_atoms[5].array.file_sha256",
+      "passed": true,
+      "path": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block8_native4/H1AO/atom_005.npy",
+      "expected": "74ac9a3fe2c232b7b08671810ff09b6c00cd22fe52776ee819cefdd3c762bf13",
+      "actual": "74ac9a3fe2c232b7b08671810ff09b6c00cd22fe52776ee819cefdd3c762bf13"
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block8_native4/hessian_cache_manifest.json.H1AO_atoms[5].array.file_bytes",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block8_native4/hessian_cache_manifest.json.H1AO_atoms[6].array.file_sha256",
+      "passed": true,
+      "path": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block8_native4/H1AO/atom_006.npy",
+      "expected": "f9d5efa9499cf6f23bcc30ada82f4f6fc37a164213ef559afaf68fa3eab6b814",
+      "actual": "f9d5efa9499cf6f23bcc30ada82f4f6fc37a164213ef559afaf68fa3eab6b814"
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block8_native4/hessian_cache_manifest.json.H1AO_atoms[6].array.file_bytes",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block8_native4/hessian_cache_manifest.json.H1AO_atoms[7].array.file_sha256",
+      "passed": true,
+      "path": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block8_native4/H1AO/atom_007.npy",
+      "expected": "a895f7b3487e03b0d13ec32ad8fd0c6827fe27e64c0bafc311f6e454b5ef99bc",
+      "actual": "a895f7b3487e03b0d13ec32ad8fd0c6827fe27e64c0bafc311f6e454b5ef99bc"
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block8_native4/hessian_cache_manifest.json.H1AO_atoms[7].array.file_bytes",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block8_native4/hessian_cache_manifest.json.H1AO_atoms[8].array.file_sha256",
+      "passed": true,
+      "path": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block8_native4/H1AO/atom_008.npy",
+      "expected": "351d9802d29b67a3e913adefa67a8feea5e22480a8531256811ace9d11222664",
+      "actual": "351d9802d29b67a3e913adefa67a8feea5e22480a8531256811ace9d11222664"
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block8_native4/hessian_cache_manifest.json.H1AO_atoms[8].array.file_bytes",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block8_native4/hessian_cache_manifest.json.response_blocks[0].arrays[0].MO1.file_sha256",
+      "passed": true,
+      "path": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block8_native4/response/atom_000.MO1.npy",
+      "expected": "04d81f93b644723149c56126f0473012f68850ea311eeefd0995dfbc6e047c14",
+      "actual": "04d81f93b644723149c56126f0473012f68850ea311eeefd0995dfbc6e047c14"
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block8_native4/hessian_cache_manifest.json.response_blocks[0].arrays[0].MO1.file_bytes",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block8_native4/hessian_cache_manifest.json.response_blocks[0].arrays[0].MO_E1.file_sha256",
+      "passed": true,
+      "path": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block8_native4/response/atom_000.MO_E1.npy",
+      "expected": "9b7494f0c90946be2ae45423c1be05296a280e6aad561c0c85d5b4d4e5d4b6dd",
+      "actual": "9b7494f0c90946be2ae45423c1be05296a280e6aad561c0c85d5b4d4e5d4b6dd"
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block8_native4/hessian_cache_manifest.json.response_blocks[0].arrays[0].MO_E1.file_bytes",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block8_native4/hessian_cache_manifest.json.response_blocks[0].arrays[1].MO1.file_sha256",
+      "passed": true,
+      "path": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block8_native4/response/atom_001.MO1.npy",
+      "expected": "cb8918f15a0111b0dee426915155229f8d273a8ef4226f7c485bed51cc1490db",
+      "actual": "cb8918f15a0111b0dee426915155229f8d273a8ef4226f7c485bed51cc1490db"
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block8_native4/hessian_cache_manifest.json.response_blocks[0].arrays[1].MO1.file_bytes",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block8_native4/hessian_cache_manifest.json.response_blocks[0].arrays[1].MO_E1.file_sha256",
+      "passed": true,
+      "path": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block8_native4/response/atom_001.MO_E1.npy",
+      "expected": "ceb8151a4264e3ce7c544ff2b317e90ed0220b660b862bf60c94ae0f889d7486",
+      "actual": "ceb8151a4264e3ce7c544ff2b317e90ed0220b660b862bf60c94ae0f889d7486"
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block8_native4/hessian_cache_manifest.json.response_blocks[0].arrays[1].MO_E1.file_bytes",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block8_native4/hessian_cache_manifest.json.response_blocks[0].arrays[2].MO1.file_sha256",
+      "passed": true,
+      "path": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block8_native4/response/atom_002.MO1.npy",
+      "expected": "542e26d957d7c0ebb99d8a286e1ab14d0be38cc6096178e111979e3896043a44",
+      "actual": "542e26d957d7c0ebb99d8a286e1ab14d0be38cc6096178e111979e3896043a44"
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block8_native4/hessian_cache_manifest.json.response_blocks[0].arrays[2].MO1.file_bytes",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block8_native4/hessian_cache_manifest.json.response_blocks[0].arrays[2].MO_E1.file_sha256",
+      "passed": true,
+      "path": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block8_native4/response/atom_002.MO_E1.npy",
+      "expected": "f9ce9b0a5c1e5738fb2196467c7b72bea6d6a0bf934ef5cbf184f1cee0978eed",
+      "actual": "f9ce9b0a5c1e5738fb2196467c7b72bea6d6a0bf934ef5cbf184f1cee0978eed"
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block8_native4/hessian_cache_manifest.json.response_blocks[0].arrays[2].MO_E1.file_bytes",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block8_native4/hessian_cache_manifest.json.response_blocks[0].arrays[3].MO1.file_sha256",
+      "passed": true,
+      "path": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block8_native4/response/atom_003.MO1.npy",
+      "expected": "88cd2764dc79e3a1ead2add954be684cf2b8f3cc4ea16c2c814f390f2a780461",
+      "actual": "88cd2764dc79e3a1ead2add954be684cf2b8f3cc4ea16c2c814f390f2a780461"
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block8_native4/hessian_cache_manifest.json.response_blocks[0].arrays[3].MO1.file_bytes",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block8_native4/hessian_cache_manifest.json.response_blocks[0].arrays[3].MO_E1.file_sha256",
+      "passed": true,
+      "path": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block8_native4/response/atom_003.MO_E1.npy",
+      "expected": "5ae95bec57ec8d3174554a4e0432e1b9b14600f5c1f0f239d842d302f01c0007",
+      "actual": "5ae95bec57ec8d3174554a4e0432e1b9b14600f5c1f0f239d842d302f01c0007"
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block8_native4/hessian_cache_manifest.json.response_blocks[0].arrays[3].MO_E1.file_bytes",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block8_native4/hessian_cache_manifest.json.response_blocks[0].arrays[4].MO1.file_sha256",
+      "passed": true,
+      "path": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block8_native4/response/atom_004.MO1.npy",
+      "expected": "d3b9f877ed506e29d7dd155d3c2059b60e51f49553256144494407a6ae43773a",
+      "actual": "d3b9f877ed506e29d7dd155d3c2059b60e51f49553256144494407a6ae43773a"
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block8_native4/hessian_cache_manifest.json.response_blocks[0].arrays[4].MO1.file_bytes",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block8_native4/hessian_cache_manifest.json.response_blocks[0].arrays[4].MO_E1.file_sha256",
+      "passed": true,
+      "path": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block8_native4/response/atom_004.MO_E1.npy",
+      "expected": "f20afd093fd300f14d6c3fba42fac01c6a5edc6bca64d61b26668401fbd24e39",
+      "actual": "f20afd093fd300f14d6c3fba42fac01c6a5edc6bca64d61b26668401fbd24e39"
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block8_native4/hessian_cache_manifest.json.response_blocks[0].arrays[4].MO_E1.file_bytes",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block8_native4/hessian_cache_manifest.json.response_blocks[0].arrays[5].MO1.file_sha256",
+      "passed": true,
+      "path": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block8_native4/response/atom_005.MO1.npy",
+      "expected": "fc926aeeea0f56ca74fb2c1d164e63eeac86427a5c43c22364508b348c875300",
+      "actual": "fc926aeeea0f56ca74fb2c1d164e63eeac86427a5c43c22364508b348c875300"
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block8_native4/hessian_cache_manifest.json.response_blocks[0].arrays[5].MO1.file_bytes",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block8_native4/hessian_cache_manifest.json.response_blocks[0].arrays[5].MO_E1.file_sha256",
+      "passed": true,
+      "path": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block8_native4/response/atom_005.MO_E1.npy",
+      "expected": "7c0fa54eb8dbe97c03319e06ffade07bc57edd9c2279f5021fc5926a4505c402",
+      "actual": "7c0fa54eb8dbe97c03319e06ffade07bc57edd9c2279f5021fc5926a4505c402"
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block8_native4/hessian_cache_manifest.json.response_blocks[0].arrays[5].MO_E1.file_bytes",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block8_native4/hessian_cache_manifest.json.response_blocks[0].arrays[6].MO1.file_sha256",
+      "passed": true,
+      "path": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block8_native4/response/atom_006.MO1.npy",
+      "expected": "c9363f6c0564490ed700278c55d874af644357b848ac4917bdf6979d94218e7a",
+      "actual": "c9363f6c0564490ed700278c55d874af644357b848ac4917bdf6979d94218e7a"
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block8_native4/hessian_cache_manifest.json.response_blocks[0].arrays[6].MO1.file_bytes",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block8_native4/hessian_cache_manifest.json.response_blocks[0].arrays[6].MO_E1.file_sha256",
+      "passed": true,
+      "path": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block8_native4/response/atom_006.MO_E1.npy",
+      "expected": "ad499753f73a33c2fde4a27ca2073480baf7a79e3af658e96d650344cffd9690",
+      "actual": "ad499753f73a33c2fde4a27ca2073480baf7a79e3af658e96d650344cffd9690"
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block8_native4/hessian_cache_manifest.json.response_blocks[0].arrays[6].MO_E1.file_bytes",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block8_native4/hessian_cache_manifest.json.response_blocks[0].arrays[7].MO1.file_sha256",
+      "passed": true,
+      "path": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block8_native4/response/atom_007.MO1.npy",
+      "expected": "25290845c31acdcb84b972de96c94132827c60f95200d74af0140d722f623784",
+      "actual": "25290845c31acdcb84b972de96c94132827c60f95200d74af0140d722f623784"
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block8_native4/hessian_cache_manifest.json.response_blocks[0].arrays[7].MO1.file_bytes",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block8_native4/hessian_cache_manifest.json.response_blocks[0].arrays[7].MO_E1.file_sha256",
+      "passed": true,
+      "path": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block8_native4/response/atom_007.MO_E1.npy",
+      "expected": "b0f71a9af5873d4abe2c277627a8bcc0a7218e5632ce8356c0e1e4f25f9e3d21",
+      "actual": "b0f71a9af5873d4abe2c277627a8bcc0a7218e5632ce8356c0e1e4f25f9e3d21"
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block8_native4/hessian_cache_manifest.json.response_blocks[0].arrays[7].MO_E1.file_bytes",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block8_native4/hessian_cache_manifest.json.response_blocks[1].arrays[0].MO1.file_sha256",
+      "passed": true,
+      "path": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block8_native4/response/atom_008.MO1.npy",
+      "expected": "268922ed319f45e47b90c17af15cc1478a9bf5f2f56cc14c9d48bf075fbbd81c",
+      "actual": "268922ed319f45e47b90c17af15cc1478a9bf5f2f56cc14c9d48bf075fbbd81c"
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block8_native4/hessian_cache_manifest.json.response_blocks[1].arrays[0].MO1.file_bytes",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block8_native4/hessian_cache_manifest.json.response_blocks[1].arrays[0].MO_E1.file_sha256",
+      "passed": true,
+      "path": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block8_native4/response/atom_008.MO_E1.npy",
+      "expected": "e4358d35f13793629e2e4e273d255b2728de84b2b4fc1a18cbef7b652789dd06",
+      "actual": "e4358d35f13793629e2e4e273d255b2728de84b2b4fc1a18cbef7b652789dd06"
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block8_native4/hessian_cache_manifest.json.response_blocks[1].arrays[0].MO_E1.file_bytes",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block8_native4/hessian_cache_manifest.json.binding_sha",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block4_native4/result.json.raw_hessian_sha256",
+      "passed": true,
+      "path": "reports/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-001/response_block4_native4/hessian_hartree_per_bohr2.npy",
+      "expected": "404fa8a5f8c3b7f39c473498c1d5c63a7efe72972f3e6b69f04aa86b1a2fa0b9",
+      "actual": "404fa8a5f8c3b7f39c473498c1d5c63a7efe72972f3e6b69f04aa86b1a2fa0b9"
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block4_native4/result.json.analysis_hessian_sha256",
+      "passed": true,
+      "path": "reports/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-001/response_block4_native4/hessian_used_for_analysis.npy",
+      "expected": "10ba4e995e4bd5fb19badb0caa71e9142ff9a9be82a540407763dad1f39d078f",
+      "actual": "10ba4e995e4bd5fb19badb0caa71e9142ff9a9be82a540407763dad1f39d078f"
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block4_native4/result.json.normal_modes_file_sha256",
+      "passed": true,
+      "path": "reports/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-001/response_block4_native4/normal_modes.npy",
+      "expected": "d4815c12f64d0252117ee7ec14056aea678fc077098a49291c2d1dc362ec6a9c",
+      "actual": "d4815c12f64d0252117ee7ec14056aea678fc077098a49291c2d1dc362ec6a9c"
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block4_native4/result.json.geometry_source",
+      "passed": true,
+      "path": "reports/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-001/optimized_coordinates_angstrom.npy",
+      "expected": "163f0dcdc5edd4abe71ca16cd401a594b8a85cc659fe596f8d2d7eea8b352837",
+      "actual": "163f0dcdc5edd4abe71ca16cd401a594b8a85cc659fe596f8d2d7eea8b352837"
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block4_native4/result.json.proof_binding",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block8_native4/result.json.raw_hessian_sha256",
+      "passed": true,
+      "path": "reports/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-001/response_block8_native4/hessian_hartree_per_bohr2.npy",
+      "expected": "b32588d2fa26b311364d4740c8fc69758a92bf1a7231dedda5c34ad893c0d980",
+      "actual": "b32588d2fa26b311364d4740c8fc69758a92bf1a7231dedda5c34ad893c0d980"
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block8_native4/result.json.analysis_hessian_sha256",
+      "passed": true,
+      "path": "reports/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-001/response_block8_native4/hessian_used_for_analysis.npy",
+      "expected": "a0d5bbb55689cc10ef3ab0d50de58f9bbd563f2a3a4559e470920ef565d643e1",
+      "actual": "a0d5bbb55689cc10ef3ab0d50de58f9bbd563f2a3a4559e470920ef565d643e1"
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block8_native4/result.json.normal_modes_file_sha256",
+      "passed": true,
+      "path": "reports/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-001/response_block8_native4/normal_modes.npy",
+      "expected": "7007e746be3e7b68c66e1f7bbf624afa8489cf8bc6ad577414b7ba807928dba1",
+      "actual": "7007e746be3e7b68c66e1f7bbf624afa8489cf8bc6ad577414b7ba807928dba1"
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block8_native4/result.json.geometry_source",
+      "passed": true,
+      "path": "reports/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-001/optimized_coordinates_angstrom.npy",
+      "expected": "163f0dcdc5edd4abe71ca16cd401a594b8a85cc659fe596f8d2d7eea8b352837",
+      "actual": "163f0dcdc5edd4abe71ca16cd401a594b8a85cc659fe596f8d2d7eea8b352837"
+    },
+    {
+      "check": "validation-ethanol-native4-001/response_block8_native4/result.json.proof_binding",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-native4-001/standard_full_native1/result.json.raw_hessian_sha256",
+      "passed": true,
+      "path": "reports/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-001/standard_full_native1/hessian_hartree_per_bohr2.npy",
+      "expected": "79f9cb962724dff6b9078928a172c7cf544291cae13032475e4ebffcc8447253",
+      "actual": "79f9cb962724dff6b9078928a172c7cf544291cae13032475e4ebffcc8447253"
+    },
+    {
+      "check": "validation-ethanol-native4-001/standard_full_native1/result.json.analysis_hessian_sha256",
+      "passed": true,
+      "path": "reports/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-001/standard_full_native1/hessian_used_for_analysis.npy",
+      "expected": "249ce481e70d7125cd3546b3773fbc947b15ae9553bc4243a9869ef29e262d50",
+      "actual": "249ce481e70d7125cd3546b3773fbc947b15ae9553bc4243a9869ef29e262d50"
+    },
+    {
+      "check": "validation-ethanol-native4-001/standard_full_native1/result.json.normal_modes_file_sha256",
+      "passed": true,
+      "path": "reports/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-001/standard_full_native1/normal_modes.npy",
+      "expected": "aae7d1a80e83f760e5b90f1d40c5d0d805c5af9194c2d5a7b609fa48dafd0064",
+      "actual": "aae7d1a80e83f760e5b90f1d40c5d0d805c5af9194c2d5a7b609fa48dafd0064"
+    },
+    {
+      "check": "validation-ethanol-native4-001/standard_full_native1/result.json.geometry_source",
+      "passed": true,
+      "path": "reports/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-001/optimized_coordinates_angstrom.npy",
+      "expected": "163f0dcdc5edd4abe71ca16cd401a594b8a85cc659fe596f8d2d7eea8b352837",
+      "actual": "163f0dcdc5edd4abe71ca16cd401a594b8a85cc659fe596f8d2d7eea8b352837"
+    },
+    {
+      "check": "validation-ethanol-native4-001/standard_full_native1/result.json.proof_binding",
+      "passed": true
+    },
+    {
+      "check": "ethanol_native4_validation_001.all_gradient_start_SCF_flags",
+      "passed": true
+    },
+    {
+      "check": "ethanol_native4_validation_001.fresh_gradient_SCF_energy",
+      "passed": true
+    },
+    {
+      "check": "ethanol_native4_validation_001.fresh_gradient_after_optimizer_steps",
+      "passed": true
+    },
+    {
+      "check": "water_native4_validation_001.closed_row_unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "ethanol_native4_validation_001.closed_row_unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "scripts/run_pyscf_monitored_budget_20261031.py.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "scripts/pyscf_spinosin_parallel_hessian_worker_20261031.py.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "scripts/validate_pyscf_native4_large_block_engineering_20261031.py.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "reports/pyscf-spinosin-continuation-20261031-v3/water-native4-validation-001/result.json.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "reports/pyscf-spinosin-continuation-20261031-v3/water-native4-validation-001/input.json.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "reports/pyscf-spinosin-continuation-20261031-v3/water-native4-validation-001/progress.json.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "reports/pyscf-spinosin-continuation-20261031-v3/execution/water_native4_validation_001.log.supervisor-proof.json.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "scripts/run_pyscf_monitored_budget_20261031.py.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "reports/pyscf-spinosin-continuation-20261031-v3/execution/water_native4_validation_001.log.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "scripts/pyscf_spinosin_parallel_hessian_worker_20261031.py.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "reports/pyscf-spinosin-continuation-20261031-v3/water-native4-validation-001/optimized.xyz.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "reports/pyscf-spinosin-continuation-20261031-v3/water-native4-validation-001/optimized_coordinates_angstrom.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "reports/pyscf-spinosin-continuation-20261031-v3/water-native4-validation-001/normal_mode_geometry_angstrom.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "reports/pyscf-spinosin-continuation-20261031-v3/water-native4-validation-001/hessian_cache_manifest.json.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "reports/pyscf-spinosin-continuation-20261031-v3/water-native4-validation-001/hessian_hartree_per_bohr2.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "reports/pyscf-spinosin-continuation-20261031-v3/water-native4-validation-001/hessian_used_for_analysis.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "reports/pyscf-spinosin-continuation-20261031-v3/water-native4-validation-001/calculation.chk.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": ".runtime/quantum-upgrade-site/pyscf/scf/_vhf.py.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": ".runtime/quantum-upgrade-site/pyscf/lib/vhf/nr_direct.c.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": ".runtime/quantum-upgrade-site/pyscf/lib/libcvhf.so.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "examples/gaussian/water.xyz.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "reports/pyscf-spinosin-continuation-20261031-v3/water-native4-validation-001/events.jsonl.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "reports/pyscf-spinosin-continuation-20261031-v3/water-native4-validation-001/pyscf.log.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "reports/pyscf-spinosin-continuation-20261031-v3/water-native4-validation-001/geometry_steps/step_0001.gradient.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "reports/pyscf-spinosin-continuation-20261031-v3/water-native4-validation-001/geometry_steps/step_0001.json.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "reports/pyscf-spinosin-continuation-20261031-v3/water-native4-validation-001/geometry_steps/step_0001.coordinates_angstrom.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "reports/pyscf-spinosin-continuation-20261031-v3/water-native4-validation-001/geometry_steps/step_0001.coordinates_bohr.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "reports/pyscf-spinosin-continuation-20261031-v3/water-native4-validation-001/geometry_steps/step_0002.gradient.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "reports/pyscf-spinosin-continuation-20261031-v3/water-native4-validation-001/geometry_steps/step_0002.json.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "reports/pyscf-spinosin-continuation-20261031-v3/water-native4-validation-001/geometry_steps/step_0002.coordinates_angstrom.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "reports/pyscf-spinosin-continuation-20261031-v3/water-native4-validation-001/geometry_steps/step_0002.coordinates_bohr.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "reports/pyscf-spinosin-continuation-20261031-v3/water-native4-validation-001/geometry_steps/step_0003.gradient.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "reports/pyscf-spinosin-continuation-20261031-v3/water-native4-validation-001/geometry_steps/step_0003.json.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "reports/pyscf-spinosin-continuation-20261031-v3/water-native4-validation-001/geometry_steps/step_0003.coordinates_angstrom.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "reports/pyscf-spinosin-continuation-20261031-v3/water-native4-validation-001/geometry_steps/step_0003.coordinates_bohr.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "reports/pyscf-spinosin-continuation-20261031-v3/water-native4-validation-001/geometry_steps/step_0004.gradient.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "reports/pyscf-spinosin-continuation-20261031-v3/water-native4-validation-001/geometry_steps/step_0004.json.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "reports/pyscf-spinosin-continuation-20261031-v3/water-native4-validation-001/geometry_steps/step_0004.coordinates_angstrom.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "reports/pyscf-spinosin-continuation-20261031-v3/water-native4-validation-001/geometry_steps/step_0004.coordinates_bohr.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "reports/pyscf-spinosin-continuation-20261031-v3/water-native4-validation-001/gradient_hartree_per_bohr.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": ".runtime/quantum-upgrade-site/pyscf/hessian/rks.py.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": ".runtime/quantum-upgrade-site/pyscf/gto/mole.py.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": ".runtime/quantum-upgrade-site/pyscf/hessian/rhf.py.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": ".runtime/quantum-upgrade-site/pyscf/scf/cphf.py.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": ".runtime/quantum-upgrade-site/pyscf/lib/linalg_helper.py.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "outputs/pyscf-spinosin-continuation-20261031-v3/water-native4-validation-cache-001/partial_hessian.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "outputs/pyscf-spinosin-continuation-20261031-v3/water-native4-validation-cache-001/H1AO/atom_000.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "outputs/pyscf-spinosin-continuation-20261031-v3/water-native4-validation-cache-001/H1AO/atom_001.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "outputs/pyscf-spinosin-continuation-20261031-v3/water-native4-validation-cache-001/H1AO/atom_002.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "outputs/pyscf-spinosin-continuation-20261031-v3/water-native4-validation-cache-001/response/atom_000.MO1.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "outputs/pyscf-spinosin-continuation-20261031-v3/water-native4-validation-cache-001/response/atom_000.MO_E1.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "outputs/pyscf-spinosin-continuation-20261031-v3/water-native4-validation-cache-001/response/atom_001.MO1.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "outputs/pyscf-spinosin-continuation-20261031-v3/water-native4-validation-cache-001/response/atom_001.MO_E1.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "outputs/pyscf-spinosin-continuation-20261031-v3/water-native4-validation-cache-001/response/atom_002.MO1.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "outputs/pyscf-spinosin-continuation-20261031-v3/water-native4-validation-cache-001/response/atom_002.MO_E1.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "reports/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-001/result.json.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "reports/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-001/input.json.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "reports/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-001/progress.json.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "reports/pyscf-spinosin-continuation-20261031-v3/execution/ethanol_native4_validation_001.log.supervisor-proof.json.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "reports/pyscf-spinosin-continuation-20261031-v3/execution/ethanol_native4_validation_001.log.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "scripts/validate_pyscf_native4_large_block_engineering_20261031.py.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "reports/pyscf-spinosin-continuation-20261031-v2/validation-ethanol-structure/ethanol_mmff94s.xyz.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "reports/pyscf-spinosin-continuation-20261031-v2/validation-ethanol-structure/provenance.json.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "reports/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-001/events.jsonl.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "reports/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-001/pyscf.log.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "reports/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-001/geometry_steps/step_0001.gradient.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "reports/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-001/geometry_steps/step_0001.json.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "reports/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-001/geometry_steps/step_0002.gradient.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "reports/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-001/geometry_steps/step_0002.json.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "reports/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-001/geometry_steps/step_0003.gradient.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "reports/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-001/geometry_steps/step_0003.json.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "reports/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-001/geometry_steps/step_0004.gradient.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "reports/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-001/geometry_steps/step_0004.json.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "reports/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-001/geometry_steps/step_0005.gradient.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "reports/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-001/geometry_steps/step_0005.json.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "reports/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-001/gradient_hartree_per_bohr.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "reports/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-001/standard_full_native1/post_Hessian_gradient_hartree_per_bohr.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "reports/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-001/response_block4_native4/post_Hessian_gradient_hartree_per_bohr.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "reports/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-001/response_block8_native4/post_Hessian_gradient_hartree_per_bohr.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "reports/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-001/response_block4_native4/hessian_cache_manifest.json.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block4_native4/partial_hessian.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block4_native4/H1AO/atom_000.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block4_native4/H1AO/atom_001.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block4_native4/H1AO/atom_002.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block4_native4/H1AO/atom_003.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block4_native4/H1AO/atom_004.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block4_native4/H1AO/atom_005.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block4_native4/H1AO/atom_006.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block4_native4/H1AO/atom_007.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block4_native4/H1AO/atom_008.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block4_native4/response/atom_000.MO1.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block4_native4/response/atom_000.MO_E1.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block4_native4/response/atom_001.MO1.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block4_native4/response/atom_001.MO_E1.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block4_native4/response/atom_002.MO1.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block4_native4/response/atom_002.MO_E1.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block4_native4/response/atom_003.MO1.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block4_native4/response/atom_003.MO_E1.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block4_native4/response/atom_004.MO1.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block4_native4/response/atom_004.MO_E1.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block4_native4/response/atom_005.MO1.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block4_native4/response/atom_005.MO_E1.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block4_native4/response/atom_006.MO1.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block4_native4/response/atom_006.MO_E1.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block4_native4/response/atom_007.MO1.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block4_native4/response/atom_007.MO_E1.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block4_native4/response/atom_008.MO1.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block4_native4/response/atom_008.MO_E1.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "reports/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-001/response_block8_native4/hessian_cache_manifest.json.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block8_native4/partial_hessian.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block8_native4/H1AO/atom_000.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block8_native4/H1AO/atom_001.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block8_native4/H1AO/atom_002.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block8_native4/H1AO/atom_003.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block8_native4/H1AO/atom_004.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block8_native4/H1AO/atom_005.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block8_native4/H1AO/atom_006.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block8_native4/H1AO/atom_007.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block8_native4/H1AO/atom_008.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block8_native4/response/atom_000.MO1.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block8_native4/response/atom_000.MO_E1.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block8_native4/response/atom_001.MO1.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block8_native4/response/atom_001.MO_E1.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block8_native4/response/atom_002.MO1.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block8_native4/response/atom_002.MO_E1.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block8_native4/response/atom_003.MO1.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block8_native4/response/atom_003.MO_E1.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block8_native4/response/atom_004.MO1.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block8_native4/response/atom_004.MO_E1.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block8_native4/response/atom_005.MO1.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block8_native4/response/atom_005.MO_E1.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block8_native4/response/atom_006.MO1.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block8_native4/response/atom_006.MO_E1.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block8_native4/response/atom_007.MO1.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block8_native4/response/atom_007.MO_E1.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block8_native4/response/atom_008.MO1.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "outputs/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-cache-001/response_block8_native4/response/atom_008.MO_E1.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "reports/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-001/response_block4_native4/result.json.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "reports/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-001/response_block4_native4/hessian_hartree_per_bohr2.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "reports/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-001/response_block4_native4/hessian_used_for_analysis.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "reports/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-001/response_block4_native4/normal_modes.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "reports/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-001/optimized_coordinates_angstrom.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "reports/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-001/response_block8_native4/result.json.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "reports/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-001/response_block8_native4/hessian_hartree_per_bohr2.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "reports/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-001/response_block8_native4/hessian_used_for_analysis.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "reports/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-001/response_block8_native4/normal_modes.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "reports/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-001/standard_full_native1/result.json.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "reports/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-001/standard_full_native1/hessian_hartree_per_bohr2.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "reports/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-001/standard_full_native1/hessian_used_for_analysis.npy.unchanged_during_audit",
+      "passed": true
+    },
+    {
+      "check": "reports/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-001/standard_full_native1/normal_modes.npy.unchanged_during_audit",
+      "passed": true
+    }
+  ],
+  "check_count": 437,
+  "failed_checks": [],
+  "limitations": [
+    "Startup proof is an immutable launch contract, not continuous monitor-health evidence. Closed ledger separately records no monitor/kill failure and sampled peaks.",
+    "Observed native thread count is configured OpenMP maximum, not a measurement of simultaneously active native workers.",
+    "Requested CPHF tolerance and normal solver return are not an independently measured residual.",
+    "Small water/ethanol validation does not certify large Spinosin memory safety, convergence or positive frequencies.",
+    "All existing files and frozen sources are read-only; only this new provenance-check directory is written."
+  ]
+}
