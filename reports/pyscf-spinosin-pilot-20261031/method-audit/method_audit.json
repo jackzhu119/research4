@@ -1,0 +1,188 @@
+{
+  "completed_at_utc": "2026-11-01T04:08:58.857569+00:00",
+  "status": "IMPLEMENTATION_AND_SYNTHETIC_MATH_REVIEW_PASS_NO_QUANTUM_JOBS",
+  "quantum_scf_gradient_hessian_optimization_jobs": 0,
+  "script_sha256": "78bee5a8c81e33355cd9255126967d6e06833108dccb9159d1ffb49b8cf9e6f1",
+  "dependencies_snapshot": {
+    "pyscf": {
+      "found": true,
+      "version": "2.14.0",
+      "origin": "/workspace/research4/.runtime/quantum-upgrade-site/pyscf/__init__.py"
+    },
+    "h5py": {
+      "found": true,
+      "version": "3.16.0",
+      "origin": "/workspace/research4/.runtime/quantum-upgrade-site/h5py/__init__.py"
+    },
+    "geometric": {
+      "found": false,
+      "version": null,
+      "origin": null
+    },
+    "pyscf.dispersion": {
+      "found": false,
+      "version": null,
+      "origin": null
+    },
+    "dftd3": {
+      "found": false,
+      "version": null,
+      "origin": null
+    },
+    "rdkit": {
+      "found": false,
+      "version": null,
+      "origin": null
+    }
+  },
+  "source_files": {
+    "hessian/thermo.py": {
+      "path": "/workspace/research4/.runtime/quantum-upgrade-site/pyscf/hessian/thermo.py",
+      "sha256": "8143ebed7653bd79b4b8d7b2f5933671a33285b11aba47cf0d8134c229a031f8"
+    },
+    "geomopt/geometric_solver.py": {
+      "path": "/workspace/research4/.runtime/quantum-upgrade-site/pyscf/geomopt/geometric_solver.py",
+      "sha256": "b622fe771962991d3fcf1d6f02f0e8653ce7cb98c0c85a43c212f7f6e630a94a"
+    },
+    "hessian/rks.py": {
+      "path": "/workspace/research4/.runtime/quantum-upgrade-site/pyscf/hessian/rks.py",
+      "sha256": "d61dbd1727b286845737853b92e1812a3e6a966dca29a9a8a79ff5e9a7725c03"
+    },
+    "df/hessian/rks.py": {
+      "path": "/workspace/research4/.runtime/quantum-upgrade-site/pyscf/df/hessian/rks.py",
+      "sha256": "6aebab36cdb4b88ce6741c3eea9681e4aaa38b5b2e782b7c1ac43684690c1da1"
+    },
+    "df/hessian/rhf.py": {
+      "path": "/workspace/research4/.runtime/quantum-upgrade-site/pyscf/df/hessian/rhf.py",
+      "sha256": "e62940949da49ae7879b5a9f5e20b8000ee086f7a41241bfa36c8aed0542c380"
+    },
+    "scf/dispersion.py": {
+      "path": "/workspace/research4/.runtime/quantum-upgrade-site/pyscf/scf/dispersion.py",
+      "sha256": "4e35598212a97c6abeb87af73ef4e6964c5de24af995a6d22931aed17f225a3c"
+    },
+    "grad/dispersion.py": {
+      "path": "/workspace/research4/.runtime/quantum-upgrade-site/pyscf/grad/dispersion.py",
+      "sha256": "508eb61a8fa976822adda3e23f9ef39bde7d44cf7435774dc8faae680d574c6c"
+    },
+    "hessian/dispersion.py": {
+      "path": "/workspace/research4/.runtime/quantum-upgrade-site/pyscf/hessian/dispersion.py",
+      "sha256": "51fbb2030e9eba41e78da0d7817776943c61631e5b4ef4050918585b1937a73c"
+    }
+  },
+  "density_fitted_PBE": {
+    "gradient_class": "pyscf.df.grad.rks.Gradients",
+    "hessian_class": "pyscf.df.hessian.rks.Hessian",
+    "gradient_auxbasis_response": true,
+    "hessian_auxbasis_response": 2,
+    "RKS_hessian_grid_response_default": false,
+    "hessian_implementation_available": true,
+    "scientific_validation_on_a_real_optimized_molecule": "ROOT_RUN_REQUIRED"
+  },
+  "optimizer": {
+    "success_aware_API": "geometric_solver.kernel -> (converged_bool, mol)",
+    "unsafe_success_inference": "geometric_solver.optimize returns only mol even when maxsteps is exceeded",
+    "assert_convergence": true,
+    "documented_defaults": {
+      "energy_Eh": 1e-06,
+      "gradient_RMS_Eh_per_Bohr": 0.0003,
+      "gradient_max_Eh_per_Bohr": 0.00045,
+      "displacement_RMS_Angstrom": 0.0012,
+      "displacement_max_Angstrom": 0.0018
+    }
+  },
+  "D3_BJ": {
+    "energy_and_gradient_source_present": true,
+    "plugin_required": "pyscf-dispersion",
+    "plugin_snapshot_found": false,
+    "Hessian_implementation": "central finite difference of dispersion gradients, not analytic",
+    "displacement_Bohr": 1e-05,
+    "dispersion_gradient_calls_for_full_75atom_Hessian": 450,
+    "actual_dispersion_job_run_by_this_audit": false,
+    "cannot_silently_drop_term": true
+  },
+  "harmonic_analysis": {
+    "signature": "(mol, hess, exclude_trans=True, exclude_rot=True, imaginary_freq=True, mass=None)",
+    "input_hessian_units": "Hartree/Bohr^2; axes(atom,atom,cartesian,cartesian)",
+    "flattening": "hess.transpose(0,2,1,3).reshape(3N,3N)",
+    "mass_default": "isotope-average atomic masses in atomic mass units",
+    "translation_rotation_projected": true,
+    "signed_imaginary_frequency_option": "imaginary_freq=False",
+    "normal_mode_axes": "(mode,atom,cartesian)",
+    "normal_mode_mass_orthonormal": true,
+    "IR_intensities": "NOT_COMPUTED; PySCF standard routine has TODO only",
+    "small_optimized_molecule_actual_workflow_required_before_interpretation": true
+  },
+  "synthetic_checks": {
+    "nonphysical_matrices_only": true,
+    "positive_projected_modes": 3,
+    "negative_projected_modes": 3,
+    "mass_orthogonality_max_abs_error": 8.881784197001252e-16,
+    "no_synthetic_frequencies_exported_as_molecular_results": true
+  },
+  "unit_conversion": {
+    "cm_inverse_to_THz": 0.0299792458,
+    "THz_to_cm_inverse": 33.35640951981521,
+    "THz_range": [
+      0.1,
+      1.5
+    ],
+    "same_range_cm_inverse": [
+      3.335640951981521,
+      50.03461427972281
+    ]
+  },
+  "basis_AO_counts_per_element": {
+    "H": 5,
+    "C": 14,
+    "O": 14
+  },
+  "candidate_size_indicators": {
+    "Spinosin": {
+      "formula_composition": {
+        "C": 28,
+        "H": 32,
+        "O": 15
+      },
+      "expected_atoms": 75,
+      "neutral_electron_count": 320,
+      "closed_shell_occupation_if_singlet": 160,
+      "expected_nonlinear_vibrational_modes": 219,
+      "spherical_def2_svp_AO_count": 762,
+      "status": "FORMULA_AND_BASIS_DERIVED_SIZE_INDICATORS_ONLY_NOT_TIMING_OR_STRUCTURE_VALIDATION"
+    },
+    "Jujuboside A": {
+      "formula_composition": {
+        "C": 58,
+        "H": 94,
+        "O": 26
+      },
+      "expected_atoms": 178,
+      "neutral_electron_count": 650,
+      "closed_shell_occupation_if_singlet": 325,
+      "expected_nonlinear_vibrational_modes": 528,
+      "spherical_def2_svp_AO_count": 1646,
+      "status": "FORMULA_AND_BASIS_DERIVED_SIZE_INDICATORS_ONLY_NOT_TIMING_OR_STRUCTURE_VALIDATION"
+    },
+    "Jujuboside B": {
+      "formula_composition": {
+        "C": 52,
+        "H": 84,
+        "O": 21
+      },
+      "expected_atoms": 157,
+      "neutral_electron_count": 564,
+      "closed_shell_occupation_if_singlet": 282,
+      "expected_nonlinear_vibrational_modes": 465,
+      "spherical_def2_svp_AO_count": 1442,
+      "status": "FORMULA_AND_BASIS_DERIVED_SIZE_INDICATORS_ONLY_NOT_TIMING_OR_STRUCTURE_VALIDATION"
+    }
+  },
+  "resource_and_interpretation_limits": [
+    "Size indicators are not measured runtime estimates; no large-molecule DFT job was launched by audit.",
+    "Use the same declared XC, basis, density-fitting, dispersion and integration grid for stationary-point and frequency validation.",
+    "Re-run final SCF and nuclear gradient at returned optimized geometry; optimizer return alone is insufficient.",
+    "An imaginary mode must be preserved and reported, not deleted to improve a frequency match.",
+    "Low-frequency modes are grid/conformer/environment sensitive; coarse-grid isolated-molecule pilot is not a solid-state peak assignment.",
+    "Do not scale frequencies to experimental THz candidate peaks or imply IR intensities from eigenvectors."
+  ]
+}

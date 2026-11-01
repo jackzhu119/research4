@@ -1,0 +1,66 @@
+{
+  "completed_at_utc": "2026-11-01T04:22:34.255771+00:00",
+  "status": "CACHED_DF_EXECUTION_SOURCE_REVIEW_PASS_WITH_RESOURCE_GUARDS_REQUIRED",
+  "quantum_or_integral_jobs": 0,
+  "script_sha256": "82caad0cc6ccbf5ad11c2b8ba1de6572338f010265b5b419b97a95c943e2c41f",
+  "source_files": {
+    "DF_build": {
+      "path": "/workspace/research4/.runtime/quantum-upgrade-site/pyscf/df/df.py",
+      "sha256": "e88c889248ddfd211bbd58a825e63d441c47040bbbd49a54b2994d49f138ff3d"
+    },
+    "DF_dispatch": {
+      "path": "/workspace/research4/.runtime/quantum-upgrade-site/pyscf/df/df_jk.py",
+      "sha256": "7f4e8c3a930b8f55d1656b0bd6d24dcca7fe365ba5de00cfcebcebf813347cee"
+    },
+    "incore_cholesky": {
+      "path": "/workspace/research4/.runtime/quantum-upgrade-site/pyscf/df/incore.py",
+      "sha256": "365b7cb23c9a70722a6c862e65f6fa8d3338fe3d991739223701b82a67d1e457"
+    },
+    "outcore_blocked": {
+      "path": "/workspace/research4/.runtime/quantum-upgrade-site/pyscf/df/outcore.py",
+      "sha256": "db4f1e3f9db88ca885b1cc26e9d38c6b2c579d354ba10816f9b30817bee475bd"
+    }
+  },
+  "same_physical_method_if": [
+    "PBE pure nonhybrid only",
+    "same def2-SVP orbital and def2-universal-jfit auxiliary bases",
+    "same integration grid, charge, multiplicity and SCF thresholds",
+    "each geometry resets the DF cache"
+  ],
+  "incore_dispatch": {
+    "mol_incore_anyway": true,
+    "only_dfj": true,
+    "effect": "Suppresses direct-J shortcut; DF.loop builds cached tensor when _cderi is None, including after scanner resets",
+    "must_not_call_undo_df_or_hybrid_HF_fallback": true,
+    "reason": "incore_anyway on an ordinary/hybrid exact-exchange branch could request impossible full4-center ERIs"
+  },
+  "Spinosin_full_rank_sizes": {
+    "orbital_AO": 762,
+    "auxiliary_AO": 2459,
+    "packed_pairs": 290703,
+    "cached_tensor_float64_bytes": 5718709416,
+    "auxiliary_metric_float64_bytes": 48373448
+  },
+  "incore_allocation_source_arithmetic": {
+    "configured_MB": 8000,
+    "ideal_buffer_pairs_before_shell_rounding": 35124,
+    "ideal_single_buffer_bytes": 690959328,
+    "base_tensor_plus_two_buffers_and_metric_bytes": 7149001520,
+    "possible_third_buffer_temporary_bytes": 690959328,
+    "limitations": "Source arithmetic only, excludes process baseline, shell-rounding, libcint workspaces and transient copies. Not a measured memory guarantee. PySCF source also warns temporary use can be about twice returned tensor."
+  },
+  "outcore_alternative": {
+    "compatible_format": false,
+    "path": "outcore.cholesky_eri_b writes blocked transformed tensor directly to oneHDF5",
+    "approximate_final_tensor_bytes": 5718709416,
+    "compatible_format_True_unsafe_reason": "outcore.cholesky_eri creates a full blocked swap and a second compatible final tensor; totalabout11.44GB exceeds9.6GB initial free disk",
+    "reset_file_caution": "HDF5 creation helper opens existing files in append mode and deletes oldgroup; explicitly truncate/replace closed oldcache between geometries rather than assuming filesize reuse"
+  },
+  "runtime_required_checks": [
+    "CPU, address-space, RSS and disk limits enforced by parent supervisor",
+    "Confirm actual cached tensor type/shape and measuredmemory after build",
+    "Drop/reset previous cached mf and garbage collect BEFORE constructing a fresh final-SCF mf; avoid simultaneously retaining two5.72GB tensors",
+    "Run the small-molecule cached-vs-direct numerical check before interpreting the changed execution policy",
+    "Keep original direct-J phase/logs/checkpoints unchanged and declare any restarted phase separately"
+  ]
+}
