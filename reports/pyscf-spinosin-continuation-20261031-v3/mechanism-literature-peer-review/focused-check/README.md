@@ -1,0 +1,11 @@
+# Focused S01/S04 literature peer review
+
+Background only; no new quantum results, active calculation files or checkpoints were read. The sealed literature directory was preserved. Metadata/abstract receipts and short attributed excerpts are retained here; no full-article/PDF download was requested or saved.
+
+S01 DOI10.1016/j.jep.2023.116204 is the2023 Journal of Ethnopharmacology quality-control review recorded in the sealed source. Current direct official PubMed metadata and Abstract Results explicitly support spinosin as one of the reported key Q-markers. This supports a representative-component rationale; it does not measure spinosin in the project's855 samples, establish origin-group content differences, assign THz peaks, or explain classification performance. Publisher indexed pages may combine recommended articles; unrelated2025 pharmacopoeia text was excluded. See [official PubMed record](https://pubmed.ncbi.nlm.nih.gov/36720435/).
+
+S04 DOI10.1021/acs.jpclett.2c01278 is the2022 J. Physical Chemistry Letters article recorded in the sealed source. Its abstract supports the general concern that numerical integration errors can create spurious displacement-dependent oscillations for molecules with low-frequency modes and affect simulated vibrational properties. Larger integration grids only occasionally mitigate the reported issue. Checking grid/convergence sensitivity is a project methodological inference; retaining imaginary/small-frequency uncertainty is not a specific protocol experimentally validated by this abstract. The article supplies no established error size, direction or cause for this project's PBE/grid1 Spinosin calculation. See [official PubMed record](https://pubmed.ncbi.nlm.nih.gov/35735354/).
+
+Both source-to-claim links are usable within these limits. This is not a systematic search and makes no claim that Spinosin THz literature does not exist. Current direct PubMed web access succeeded; direct urllib Crossref/NCBI API attempts encountered proxy-tunnel403 and were not bypassed. Earlier sealed access limitations remain historical records of their own retrieval time.
+
+S01_metadata_receipts.json and S04_metadata_receipts.json contain source URLs, metadata and tool receipt/line references. sealed_inputs_sha256.json binds the three original inputs. index.json binds this new focused subdirectory.

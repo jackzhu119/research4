@@ -1,0 +1,242 @@
+{
+  "status": "DONE_SOURCE_AND_INTEGER_SIZE_AUDIT_ONLY",
+  "created_at_utc": "2026-11-01T06:26:09.027675+00:00",
+  "pyscf_version": "2.14.0",
+  "quantum_and_integral_jobs": 0,
+  "wavefunction_objects_constructed": 0,
+  "active_checkpoints_read": 0,
+  "large_arrays_allocated_or_saved": 0,
+  "source_sha256": {
+    "pyscf.hessian.rhf": {
+      "path": ".runtime/quantum-upgrade-site/pyscf/hessian/rhf.py",
+      "sha256": "2d986bfc01aac98447034a207df639b3d6897f67ce1ab2a013fe2d0853c85de5"
+    },
+    "pyscf.hessian.rks": {
+      "path": ".runtime/quantum-upgrade-site/pyscf/hessian/rks.py",
+      "sha256": "d61dbd1727b286845737853b92e1812a3e6a966dca29a9a8a79ff5e9a7725c03"
+    },
+    "pyscf.scf.cphf": {
+      "path": ".runtime/quantum-upgrade-site/pyscf/scf/cphf.py",
+      "sha256": "e39e3a06fc33e23307a8558d2410bc1137e08ef9c27d48b4ce95fd20a22a63e3"
+    },
+    "pyscf.lib.linalg_helper": {
+      "path": ".runtime/quantum-upgrade-site/pyscf/lib/linalg_helper.py",
+      "sha256": "9dcd5d4582c3695818e05fa72217c7764f87d5491ed29acb7b64d2725ee130e0"
+    }
+  },
+  "public_signatures": {
+    "rhf.hess_elec": {
+      "signature": "(hessobj, mo_energy=None, mo_coeff=None, mo_occ=None, mo1=None, mo_e1=None, h1ao=None, atmlst=None, max_memory=4000, verbose=None)",
+      "start_line": 39
+    },
+    "rks.partial_hess_elec": {
+      "signature": "(hessobj, mo_energy=None, mo_coeff=None, mo_occ=None, atmlst=None, max_memory=4000, verbose=None)",
+      "start_line": 45
+    },
+    "rks.make_h1": {
+      "signature": "(hessobj, mo_coeff, mo_occ, chkfile=None, atmlst=None, verbose=None)",
+      "start_line": 120
+    },
+    "rhf.solve_mo1": {
+      "signature": "(mf, mo_energy, mo_coeff, mo_occ, h1ao, fx=None, atmlst=None, max_memory=4000, verbose=None, max_cycle=50, level_shift=0)",
+      "start_line": 286
+    },
+    "HessianBase.solve_mo1": {
+      "signature": "(self, mo_energy, mo_coeff, mo_occ, h1ao, fx=None, atmlst=None, max_memory=4000, verbose=None)",
+      "start_line": 546
+    },
+    "HessianBase.kernel": {
+      "signature": "(self, mo_energy=None, mo_coeff=None, mo_occ=None, atmlst=None)",
+      "start_line": 556
+    },
+    "cphf.solve": {
+      "signature": "(fvind, mo_energy, mo_occ, h1, s1=None, max_cycle=50, tol=1e-09, hermi=False, verbose=2, level_shift=0)",
+      "start_line": 29
+    },
+    "cphf.solve_withs1": {
+      "signature": "(fvind, mo_energy, mo_occ, h1, s1, max_cycle=50, tol=1e-09, hermi=False, verbose=2, level_shift=0)",
+      "start_line": 86
+    },
+    "lib.krylov": {
+      "signature": "(aop, b, x0=None, tol=1e-10, max_cycle=30, dot=<function dot at 0x7f7272bf66b0>, lindep=1e-13, callback=None, hermi=False, max_memory=4000, verbose=2)",
+      "start_line": 1221
+    }
+  },
+  "RKS_hess_elec_is_RHF_function": true,
+  "native_kernel_accepts_cached_H1_or_response_arguments": false,
+  "hess_elec_accepts_cached_H1_and_responses": true,
+  "hess_elec_always_recomputes_partial_first": true,
+  "make_h1_chkfile_parameter_unused_in_RKS_body": true,
+  "native_CPHF_mid_iteration_restart_exposed": false,
+  "completed_atom_blocks_may_be_saved_by_new_validated_wrapper": true,
+  "new_checkpointed_wrapper_implemented_by_this_audit": false,
+  "assumed_molecular_dimensions_not_an_active_wavefunction_measurement": {
+    "atoms": 75,
+    "AO": 762,
+    "MO_full_rank_assumption": 762,
+    "doubly_occupied_orbitals": 160
+  },
+  "arrays": [
+    {
+      "name": "H1AO_all_atoms",
+      "shape": [
+        75,
+        3,
+        762,
+        762
+      ],
+      "dtype": "float64",
+      "payload_bytes": 1045159200,
+      "MiB": 996.7414855957031,
+      "GiB": 0.9733803570270538
+    },
+    {
+      "name": "H1AO_one_atom",
+      "shape": [
+        3,
+        762,
+        762
+      ],
+      "dtype": "float64",
+      "payload_bytes": 13935456,
+      "MiB": 13.289886474609375,
+      "GiB": 0.012978404760360718
+    },
+    {
+      "name": "MO1_returned_AO_representation_all_atoms",
+      "shape": [
+        75,
+        3,
+        762,
+        160
+      ],
+      "dtype": "float64",
+      "payload_bytes": 219456000,
+      "MiB": 209.28955078125,
+      "GiB": 0.20438432693481445
+    },
+    {
+      "name": "MO_E1_occupied_matrix_all_atoms",
+      "shape": [
+        75,
+        3,
+        160,
+        160
+      ],
+      "dtype": "float64",
+      "payload_bytes": 46080000,
+      "MiB": 43.9453125,
+      "GiB": 0.04291534423828125
+    },
+    {
+      "name": "partial_or_complete_Hessian",
+      "shape": [
+        75,
+        75,
+        3,
+        3
+      ],
+      "dtype": "float64",
+      "payload_bytes": 405000,
+      "MiB": 0.38623809814453125,
+      "GiB": 0.0003771856427192688
+    },
+    {
+      "name": "MO_coeff",
+      "shape": [
+        762,
+        762
+      ],
+      "dtype": "float64",
+      "payload_bytes": 4645152,
+      "MiB": 4.429962158203125,
+      "GiB": 0.004326134920120239
+    },
+    {
+      "name": "RKS_partial_XC_vmat_internal_not_checkpoint",
+      "shape": [
+        75,
+        3,
+        3,
+        762,
+        762
+      ],
+      "dtype": "float64",
+      "payload_bytes": 3135477600,
+      "MiB": 2990.2244567871094,
+      "GiB": 2.9201410710811615
+    },
+    {
+      "name": "all_atom_CPHF_rhs",
+      "shape": [
+        225,
+        762,
+        160
+      ],
+      "dtype": "float64",
+      "payload_bytes": 219456000,
+      "MiB": 209.28955078125,
+      "GiB": 0.20438432693481445
+    }
+  ],
+  "logical_complete_intermediate_payload_bytes": 1311100200,
+  "NPY_HDF_headers_and_transients_excluded_from_sizes": true,
+  "native_solve_mo1_minimum_memory_floor_decimal_MB": 2000,
+  "native_blksize_at_that_floor": 113,
+  "default_all75_atoms_fit_one_native_block": true,
+  "actual_imported_krylov_default_max_memory_MB": 4000,
+  "actual_SCF_class_conv_tol_cpscf": 1e-08,
+  "default_all_atom_krylov_incore_prediction": true,
+  "CPHF_chunk_arithmetic_not_measured_peak_RAM": [
+    {
+      "atoms": 1,
+      "RHS_vectors": 3,
+      "rhs_payload_bytes": 2926080,
+      "upper_bound_xs_plus_ax_bytes_50_cycles_no_deflation": 292608000,
+      "upper_bound_dense_Krylov_reduced_matrix_bytes": 180000,
+      "effective_native_CPHF_tolerance": 1e-08
+    },
+    {
+      "atoms": 2,
+      "RHS_vectors": 6,
+      "rhs_payload_bytes": 5852160,
+      "upper_bound_xs_plus_ax_bytes_50_cycles_no_deflation": 585216000,
+      "upper_bound_dense_Krylov_reduced_matrix_bytes": 720000,
+      "effective_native_CPHF_tolerance": 2e-08
+    },
+    {
+      "atoms": 4,
+      "RHS_vectors": 12,
+      "rhs_payload_bytes": 11704320,
+      "upper_bound_xs_plus_ax_bytes_50_cycles_no_deflation": 1170432000,
+      "upper_bound_dense_Krylov_reduced_matrix_bytes": 2880000,
+      "effective_native_CPHF_tolerance": 4e-08
+    },
+    {
+      "atoms": 5,
+      "RHS_vectors": 15,
+      "rhs_payload_bytes": 14630400,
+      "upper_bound_xs_plus_ax_bytes_50_cycles_no_deflation": 1463040000,
+      "upper_bound_dense_Krylov_reduced_matrix_bytes": 4500000,
+      "effective_native_CPHF_tolerance": 5e-08
+    },
+    {
+      "atoms": 10,
+      "RHS_vectors": 30,
+      "rhs_payload_bytes": 29260800,
+      "upper_bound_xs_plus_ax_bytes_50_cycles_no_deflation": 2926080000,
+      "upper_bound_dense_Krylov_reduced_matrix_bytes": 18000000,
+      "effective_native_CPHF_tolerance": 1e-07
+    },
+    {
+      "atoms": 75,
+      "RHS_vectors": 225,
+      "rhs_payload_bytes": 219456000,
+      "upper_bound_xs_plus_ax_bytes_50_cycles_no_deflation": 21945600000,
+      "upper_bound_dense_Krylov_reduced_matrix_bytes": 1012500000,
+      "effective_native_CPHF_tolerance": 7.5e-07
+    }
+  ],
+  "cross_process_automatic_resume_status": "BLOCKED_NOT_IMPLEMENTED_OR_VALIDATED",
+  "scientific_frequency_results_created": false
+}

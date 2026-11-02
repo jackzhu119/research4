@@ -1,5 +1,26 @@
 # Research data conventions
 
+## PySCF Spinosin pilot (2026-10-31 client date)
+
+The user explicitly authorizes actual cloud quantum calculations on branch
+`research/pyscf-spinosin-mechanism-20261031`, with no main merge or changes to
+spectra/classifiers. Use `reports/pyscf-spinosin-pilot-20261031/` and preserve
+all earlier quantum NOT_RUN snapshots. Structures require trusted connectivity,
+resolved stereo, formula/charge/radical checks and coordinate hashes. Verified
+ChEBI/PubChem stereo SMILES may generate documented ETKDG/MMFF model conformers;
+these are not downloaded experimental/database3D coordinates.
+Only root launches quantum workers through the cumulative CPU ledger: <=3300
+quantum CPU seconds plus <=300 reserved for preparation/tests, one worker/thread,
+bounded wall/memory and checkpoints. PBE/def2-SVP/grid1 without dispersion is
+the explicit pilot; do not label it D3 or silently add/suppress dispersion.
+The cached DF-J backend is tested against direct-J water before Spinosin use;
+do not save giant in-core integral tensors. Require optimizer convergence and
+fresh same-method gradient checks before Hessian. Completed frequency calculation
+and a positive-frequency minimum are distinct statuses; also require complete
+3N-6 modes and all-real-positive checks. IR intensity is NOT_COMPUTED.
+Theory–experiment proximity is exploratory, not chemical assignment, and no
+theoretical frequency enters the existing classifiers or changes96.0234%.
+
 ## External pretraining experiment (2026-10-31)
 
 The user now explicitly asks whether adding the external plant data to deep

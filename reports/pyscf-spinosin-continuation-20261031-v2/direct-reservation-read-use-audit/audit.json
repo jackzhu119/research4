@@ -1,0 +1,253 @@
+{
+  "schema_version": 1,
+  "status": "SOURCE_READ_USE_AUDIT_ONLY_NO_QUANTUM",
+  "audit_created_utc": "2026-11-01T08:02:14.970711+00:00",
+  "root_authorization_scope": "New additive direct-reservation-read-use-audit artifacts only; root controls all quantum launches and V8 implementation.",
+  "installed_source_version_label": "PySCF2.14 as provided by parent; source hashes are the authoritative binding.",
+  "quantum_execution": {
+    "imports_of_pyscf": false,
+    "integrals": false,
+    "SCF": false,
+    "gradients": false,
+    "Hessians": false,
+    "compilation": false
+  },
+  "modifications": {
+    "installed_sources": false,
+    "frozen_workers": false,
+    "earlier_reports": false,
+    "new_directory_only": true
+  },
+  "source_files": [
+    {
+      "path": ".runtime/quantum-upgrade-site/pyscf/lib/vhf/nr_direct.c",
+      "bytes": 27202,
+      "sha256": "9c181daa8ce689e312e548694f47a2935105094fab1e685e82b4bf485e0639c4",
+      "excerpt_ranges_inclusive": [
+        [
+          233,
+          265
+        ],
+        [
+          276,
+          302
+        ],
+        [
+          307,
+          345
+        ],
+        [
+          349,
+          375
+        ],
+        [
+          377,
+          428
+        ],
+        [
+          429,
+          483
+        ]
+      ]
+    },
+    {
+      "path": ".runtime/quantum-upgrade-site/pyscf/lib/vhf/nr_direct_dot.c",
+      "bytes": 135778,
+      "sha256": "3db439ca3438b8291ac3510e463d8b8cb7c7ba66d8e95f305161843819745fc8",
+      "excerpt_ranges_inclusive": [
+        [
+          38,
+          44
+        ],
+        [
+          58,
+          114
+        ],
+        [
+          180,
+          207
+        ]
+      ]
+    },
+    {
+      "path": ".runtime/quantum-upgrade-site/pyscf/lib/vhf/nr_direct.h",
+      "bytes": 3511,
+      "sha256": "df7f96a170594e1d180a44cf2f0b1b5d1b00bbadd01e3ef288c23ecc15149a8f",
+      "excerpt_ranges_inclusive": [
+        [
+          22,
+          42
+        ],
+        [
+          44,
+          58
+        ]
+      ]
+    },
+    {
+      "path": ".runtime/quantum-upgrade-site/pyscf/lib/np_helper/np_helper.c",
+      "bytes": 4095,
+      "sha256": "2c875766b8b721287ef8e210cae6ca94bcea2ea101930a7a31f1aeb80a656dea",
+      "excerpt_ranges_inclusive": [
+        [
+          20,
+          26
+        ]
+      ]
+    },
+    {
+      "path": ".runtime/quantum-upgrade-site/pyscf/grad/rhf.py",
+      "bytes": 18058,
+      "sha256": "d30fd1ab2a00997183802da28da775f6a29a6c9705c55b19c04d66a1a575267f",
+      "excerpt_ranges_inclusive": [
+        [
+          206,
+          219
+        ]
+      ]
+    },
+    {
+      "path": ".runtime/quantum-upgrade-site/pyscf/grad/rks.py",
+      "bytes": 30032,
+      "sha256": "cffc3e9efa10cf1b547d757e9d165c1000377e9159c794f87464a79c8c93ab46",
+      "excerpt_ranges_inclusive": [
+        [
+          75,
+          82
+        ]
+      ]
+    },
+    {
+      "path": ".runtime/quantum-upgrade-site/pyscf/scf/_vhf.py",
+      "bytes": 28821,
+      "sha256": "ef0a04f43338780a7f57d9268f9634c1079ae989ba3030d6154c8612798f82ba",
+      "excerpt_ranges_inclusive": [
+        [
+          431,
+          465
+        ]
+      ]
+    }
+  ],
+  "nonexistent_requested_variant": {
+    "path": ".runtime/quantum-upgrade-site/pyscf/lib/vhf/nr_direct_dot.h",
+    "exists": false,
+    "note": "The installed source contains nr_direct.c, nr_direct_dot.c and their shared nr_direct.h; no nr_direct_dot.h is installed."
+  },
+  "findings": [
+    {
+      "id": "malloc_is_not_full_payload_zeroing",
+      "evidence": [
+        "lib/vhf/nr_direct.c:248-265",
+        "lib/vhf/nr_direct_dot.c:180-193",
+        "lib/np_helper/np_helper.c:20-26"
+      ],
+      "finding": "JKArray.data is allocated by malloc at line255. The allocator function does not explicitly clear the entire data allocation; LOCATE clears only each first-seen output tile. This describes source-visible writes, not libc/OS allocation behavior."
+    },
+    {
+      "id": "nominal_reserve_is_per_thread_total",
+      "evidence": [
+        "lib/vhf/nr_direct.c:407-427"
+      ],
+      "finding": "The 400000000-double budget is divided by n_dm. Each OpenMP thread allocates n_dm JKArray.data buffers plus a separate integral/cache buffer. Thus the approximately3.2GB nominal reserve is per thread across the density buffers, not3.2GB per density; padding, metadata and allocator overhead are additional."
+    },
+    {
+      "id": "unique_tiles_are_epoch_scoped",
+      "evidence": [
+        "lib/vhf/nr_direct_dot.c:180-193",
+        "lib/vhf/nr_direct_dot.c:80-113"
+      ],
+      "finding": "Within one write-back epoch, each block-pair key is allocated and cleared only while its outptr is NOVALUE. Write-back resets each used key and resets stack_size/key_counts. Later epochs may touch the same tile again."
+    },
+    {
+      "id": "private_payload_bound",
+      "evidence": [
+        "lib/vhf/nr_direct.c:322-345",
+        "lib/vhf/nr_direct.c:398-401",
+        "lib/vhf/nr_direct.c:442-461",
+        "lib/vhf/nr_direct_dot.c:180-193",
+        "lib/vhf/nr_direct_dot.c:80-113"
+      ],
+      "finding": "For the reviewed full-AO output operators with matching disjoint AO block partitions, unique output tiles cover a subset of nbra*nket entries. Each JKArray.data stack high-water mark is therefore at most ncomp*nbra*nket doubles, at most ncomp*nao^2 for full762-AO output. Every epoch reuses the same data prefix."
+    },
+    {
+      "id": "thread_count_is_a_precondition",
+      "evidence": [
+        "lib/vhf/nr_direct.c:414-425"
+      ],
+      "finding": "The pragma has no num_threads(4). The four-thread arithmetic is conditional on an external runtime setting actually limiting this OpenMP team to at most4 threads; no live thread count was measured."
+    },
+    {
+      "id": "pure_J_gradient_call_shape",
+      "evidence": [
+        "grad/rks.py:79-80",
+        "grad/rhf.py:214-218",
+        "scf/_vhf.py:438-463"
+      ],
+      "finding": "The nonhybrid gradient requests get_j. One2D density and one J script reach the direct driver with n_dm=1, and the gradient call passes ncomp=3. The762-AO dimension is a task-supplied current-system dimension, not recomputed by this audit."
+    },
+    {
+      "id": "excluded_memory",
+      "evidence": [
+        "lib/vhf/nr_direct.c:276-302",
+        "lib/vhf/nr_direct.c:307-318",
+        "lib/vhf/nr_direct.c:371-374",
+        "lib/vhf/nr_direct.c:248-264",
+        "lib/vhf/nr_direct.c:427-428"
+      ],
+      "finding": "The private payload bound excludes shared output matrices, reordered density matrices, integral/cache buffers, outptr/keys metadata, Python/BLAS/allocator state, physical-page rounding and huge-page effects. It also excludes GGA numerical-grid and CPHF xs/ax history memory."
+    }
+  ],
+  "bound_conditions": [
+    "FullAO762-by762 output for the reviewed standard J operators.",
+    "Each output-axis uses the matching disjoint AO block partition.",
+    "n_dm counts actual driver operator/density entries, including any script replication.",
+    "Only one concurrently active direct-driver team is covered.",
+    "Four-thread totals require actual team size at most4.",
+    "The CPHF24-density case is a requested scenario, not an observed native call in this audit."
+  ],
+  "payload_arithmetic": [
+    {
+      "label": "direct_pure_J_gradient",
+      "n_dm": 1,
+      "ncomp": 3,
+      "nao": 762,
+      "double_bytes": 8,
+      "per_JKArray_payload_upper_bound_bytes": 13935456,
+      "per_thread_private_payload_upper_bound_bytes": 13935456,
+      "conditional_native_threads": 4,
+      "conditional_four_thread_private_payload_upper_bound_bytes": 55741824,
+      "four_thread_MiB": 53.1595458984375
+    },
+    {
+      "label": "CPHF_24_density_scalar_J_scenario",
+      "n_dm": 24,
+      "ncomp": 1,
+      "nao": 762,
+      "double_bytes": 8,
+      "per_JKArray_payload_upper_bound_bytes": 4645152,
+      "per_thread_private_payload_upper_bound_bytes": 111483648,
+      "conditional_native_threads": 4,
+      "conditional_four_thread_private_payload_upper_bound_bytes": 445934592,
+      "four_thread_MiB": 425.2763671875
+    }
+  ],
+  "reserve_arithmetic": {
+    "nominal_per_native_thread_bytes": 3200000000,
+    "nominal_four_native_threads_bytes": 12800000000,
+    "nominal_four_native_threads_GiB": 11.920928955078125,
+    "size_limit_expression_doubles": "floor((400000000 - di^4*ncomp - cache_size)/n_dm)",
+    "each_data_malloc_doubles": "size_limit +136^2",
+    "extra_integral_cache_malloc_doubles": "di^4*ncomp +2*di^2 +cache_size",
+    "note": "Nominal values are not exact allocated bytes. Total data and buf malloc bytes per thread equal8*(n_dm*size_limit+n_dm*136^2+di^4*ncomp+2*di^2+cache_size), plus metadata/allocator overhead. No integral/cache-size query was executed."
+  },
+  "resource_snapshot_file": "resource_snapshot.json",
+  "conclusion": {
+    "reserve_equals_RSS": false,
+    "private_payload_equals_total_RSS": false,
+    "whole_Hessian_memory_safety_proven": false,
+    "four_thread_run_authorized_by_this_audit": false,
+    "statement": "A nominal12.8GB virtual reserve for four native threads does not imply12.8GB resident payload. Conversely the55.74MB/445.93MB private payload figures are not totalRSS or physical-page bounds. Virtual-address/commit limits may still reject malloc, and GGA/CPHF history/other live arrays require separate budgets."
+  },
+  "independent_read_only_review": "A second agent independently checked allocation/LOCATE/write-back control flow and exact integer arithmetic, and required the epoch/thread-count/RSS qualifications recorded here."
+}

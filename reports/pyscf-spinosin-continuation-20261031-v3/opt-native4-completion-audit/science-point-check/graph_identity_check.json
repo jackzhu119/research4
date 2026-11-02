@@ -1,0 +1,150 @@
+{
+  "all_read_source_hashes_unchanged": true,
+  "boundaries": {
+    "PySCF_imported": false,
+    "active_frequency_phase_read": false,
+    "active_frequency_phase_reads_prohibited": true,
+    "checkpoint_read": false,
+    "checkpoint_reads_prohibited": true,
+    "explanation": "Checks trusted graph atom order, composition, charge/radicals/electrons, known-bond distance plausibility and stereochemistry assigned from the supplied optimized coordinates; no independent all-bond inference and no stationarity or frequency claim.",
+    "independent_connectivity_reconstruction_from_coordinates_claimed": false,
+    "new_coordinate_generation_or_forcefield_optimization": false,
+    "only_this_new_audit_json_written_after_authorization": true,
+    "quantum_evaluations": 0,
+    "source_files_modified": false,
+    "stationarity_verified_by_this_geometry_utility": false,
+    "verification_wrote_files": false
+  },
+  "execution_method": {
+    "call": "helper.verify_coordinates(source_record, symbols, coordinates)",
+    "coordinates_loader": "numpy.load(closed_phase / \"optimized_coordinates_angstrom.npy\", allow_pickle=False)",
+    "dependency_calls": [
+      "prepare_spinosin_conformers_20261031.verify_source",
+      "prepare_spinosin_conformers_20261031.stereo_key_from_coordinates"
+    ],
+    "environment": {
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONPATH": "/workspace/research4/.runtime/quantum-upgrade-site"
+    },
+    "generated_conformer_or_forcefield_called": false,
+    "hash_stability_check": "All seven source path hashes recorded before and after the earlier verification and exactly equal",
+    "helper_module": "/workspace/research4/scripts/prepare_pyscf_pilot_resume_20261031.py",
+    "helper_signature": "verify_coordinates(source_record, symbols, coordinates)",
+    "interpreter": "python3 -B",
+    "source_gate": "result status DONE; geometry_optimized, optimizer_converged, scf_converged and final_gradient_thresholds_passed all true; optimized XYZ and NPY SHA equal result; input provenance verified identity/stereochemistry and source InChIKey equal trusted graph",
+    "symbols_loader": "helper.read_xyz(closed_phase / \"optimized.xyz\")[0]",
+    "trusted_record_loader": "json.loads(trusted_graph_path.read_text()) after exact expected SHA validation"
+  },
+  "expected_trusted_graph_sha256": "9855fb57cac932c221ac561884562e38a97688b143bf8dbb7c5ad09333eea079",
+  "helper_source_sha256": {
+    "/workspace/research4/scripts/prepare_pyscf_pilot_resume_20261031.py": "e92210a5781fc4e5161508c6d018f43f58712c0d2071a0847d9aa7603b0b1808",
+    "/workspace/research4/scripts/prepare_spinosin_conformers_20261031.py": "4d76932c82298df45f2aac96e5cbd64410484bb0653036cf0d0cbfe77b8f1e74"
+  },
+  "raw_verification_stdout": {
+    "PySCF_imported": false,
+    "SCF_gradient_Hessian_integral_evaluations": 0,
+    "XYZ_vs_fullprecision_max_abs_difference_angstrom": 4.996003610813204e-13,
+    "all_read_source_hashes_unchanged": true,
+    "audit_kind": "CLOSED_OPTIMIZED_GEOMETRY_TRUSTED_GRAPH_AND_3D_STEREO_READONLY",
+    "checkpoint_reads": 0,
+    "closed_phase": "/workspace/research4/reports/pyscf-spinosin-continuation-20261031-v3/spinosin-native4-optimization-001",
+    "coordinate_dtype": "float64",
+    "coordinate_shape": [
+      75,
+      3
+    ],
+    "files_written_by_audit": 0,
+    "input_provenance": {
+      "geometry_origin": "documented_conformer_generation",
+      "identity_verified": true,
+      "input_xyz_sha256": "6b2a903af08b6c6df43444da144bb38fa0a07d5246dc5262b72be4b89b2544b6",
+      "source_inchikey": "VGGSULWDCMWZPO-ODEMIOGVSA-N",
+      "source_url": "https://www.ebi.ac.uk/chebi/CHEBI:81360",
+      "stereochemistry_verified": true
+    },
+    "new_coordinate_generation_or_forcefield_optimization": false,
+    "source_energy_hartree": -2210.4455219704696,
+    "source_files_sha256": {
+      "/workspace/research4/reports/pyscf-spinosin-continuation-20261031-v3/spinosin-native4-optimization-001/input.json": "b1f1e8f727efe08c4c5e772dd3f2f55a9c87a7148d05de28ab00846062f46eb3",
+      "/workspace/research4/reports/pyscf-spinosin-continuation-20261031-v3/spinosin-native4-optimization-001/optimized.xyz": "cc3c3283c83cac02686457110a65a48652e33cf564a366c8654fa75c1260b159",
+      "/workspace/research4/reports/pyscf-spinosin-continuation-20261031-v3/spinosin-native4-optimization-001/optimized_coordinates_angstrom.npy": "9353e100fe61a1e0870610de4bd4d96bc5633ab5c4456b92556593febc13dcc4",
+      "/workspace/research4/reports/pyscf-spinosin-continuation-20261031-v3/spinosin-native4-optimization-001/result.json": "299539676308f3bac4bc01d3a0c1554a9b636228d91f7acd05e9fa08c0b7adeb",
+      "/workspace/research4/reports/pyscf-spinosin-pilot-20261031/structures/spinosin_verified_2d.json": "9855fb57cac932c221ac561884562e38a97688b143bf8dbb7c5ad09333eea079",
+      "/workspace/research4/scripts/prepare_pyscf_pilot_resume_20261031.py": "e92210a5781fc4e5161508c6d018f43f58712c0d2071a0847d9aa7603b0b1808",
+      "/workspace/research4/scripts/prepare_spinosin_conformers_20261031.py": "4d76932c82298df45f2aac96e5cbd64410484bb0653036cf0d0cbfe77b8f1e74"
+    },
+    "source_result_status": "DONE",
+    "trusted_source": {
+      "formula": "C28H32O15",
+      "primary_source": "https://www.ebi.ac.uk/chebi/CHEBI:81360",
+      "pubchem_cid": 155692,
+      "source_inchikey": "VGGSULWDCMWZPO-ODEMIOGVSA-N"
+    },
+    "verification": {
+      "atom_count": 75,
+      "charge": 0,
+      "composition": {
+        "C": 28,
+        "H": 32,
+        "O": 15
+      },
+      "electron_count": 320,
+      "geometry_stationarity_verified_by_this_utility": false,
+      "identity_verified": true,
+      "maximum_bond_length_angstrom": 1.5522045717446435,
+      "minimum_bond_length_angstrom": 0.9732301192999939,
+      "multiplicity": 1,
+      "radical_electrons": 0,
+      "source_inchikey": "VGGSULWDCMWZPO-ODEMIOGVSA-N",
+      "stereochemistry_verified": true
+    },
+    "versions": {
+      "RDKit": "2026.09.1",
+      "numpy": "2.3.5",
+      "python": "3.12.14"
+    }
+  },
+  "saved_at_utc": "2026-11-01T09:56:53.260073+00:00",
+  "saved_from_previously_completed_stdout_without_rerunning_verification": true,
+  "schema": "research4-pyscf-closed-geometry-graph-stereo-audit-v1",
+  "source_sha256_after": {
+    "/workspace/research4/reports/pyscf-spinosin-continuation-20261031-v3/spinosin-native4-optimization-001/input.json": "b1f1e8f727efe08c4c5e772dd3f2f55a9c87a7148d05de28ab00846062f46eb3",
+    "/workspace/research4/reports/pyscf-spinosin-continuation-20261031-v3/spinosin-native4-optimization-001/optimized.xyz": "cc3c3283c83cac02686457110a65a48652e33cf564a366c8654fa75c1260b159",
+    "/workspace/research4/reports/pyscf-spinosin-continuation-20261031-v3/spinosin-native4-optimization-001/optimized_coordinates_angstrom.npy": "9353e100fe61a1e0870610de4bd4d96bc5633ab5c4456b92556593febc13dcc4",
+    "/workspace/research4/reports/pyscf-spinosin-continuation-20261031-v3/spinosin-native4-optimization-001/result.json": "299539676308f3bac4bc01d3a0c1554a9b636228d91f7acd05e9fa08c0b7adeb",
+    "/workspace/research4/reports/pyscf-spinosin-pilot-20261031/structures/spinosin_verified_2d.json": "9855fb57cac932c221ac561884562e38a97688b143bf8dbb7c5ad09333eea079",
+    "/workspace/research4/scripts/prepare_pyscf_pilot_resume_20261031.py": "e92210a5781fc4e5161508c6d018f43f58712c0d2071a0847d9aa7603b0b1808",
+    "/workspace/research4/scripts/prepare_spinosin_conformers_20261031.py": "4d76932c82298df45f2aac96e5cbd64410484bb0653036cf0d0cbfe77b8f1e74"
+  },
+  "source_sha256_before": {
+    "/workspace/research4/reports/pyscf-spinosin-continuation-20261031-v3/spinosin-native4-optimization-001/input.json": "b1f1e8f727efe08c4c5e772dd3f2f55a9c87a7148d05de28ab00846062f46eb3",
+    "/workspace/research4/reports/pyscf-spinosin-continuation-20261031-v3/spinosin-native4-optimization-001/optimized.xyz": "cc3c3283c83cac02686457110a65a48652e33cf564a366c8654fa75c1260b159",
+    "/workspace/research4/reports/pyscf-spinosin-continuation-20261031-v3/spinosin-native4-optimization-001/optimized_coordinates_angstrom.npy": "9353e100fe61a1e0870610de4bd4d96bc5633ab5c4456b92556593febc13dcc4",
+    "/workspace/research4/reports/pyscf-spinosin-continuation-20261031-v3/spinosin-native4-optimization-001/result.json": "299539676308f3bac4bc01d3a0c1554a9b636228d91f7acd05e9fa08c0b7adeb",
+    "/workspace/research4/reports/pyscf-spinosin-pilot-20261031/structures/spinosin_verified_2d.json": "9855fb57cac932c221ac561884562e38a97688b143bf8dbb7c5ad09333eea079",
+    "/workspace/research4/scripts/prepare_pyscf_pilot_resume_20261031.py": "e92210a5781fc4e5161508c6d018f43f58712c0d2071a0847d9aa7603b0b1808",
+    "/workspace/research4/scripts/prepare_spinosin_conformers_20261031.py": "4d76932c82298df45f2aac96e5cbd64410484bb0653036cf0d0cbfe77b8f1e74"
+  },
+  "status": "PASS_TRUSTED_GRAPH_AND_3D_STEREOCHEMISTRY",
+  "trusted_graph_expected_sha_matched": true,
+  "trusted_graph_path": "/workspace/research4/reports/pyscf-spinosin-pilot-20261031/structures/spinosin_verified_2d.json",
+  "verification_exit_code": 0,
+  "verify_coordinates_raw_return": {
+    "atom_count": 75,
+    "charge": 0,
+    "composition": {
+      "C": 28,
+      "H": 32,
+      "O": 15
+    },
+    "electron_count": 320,
+    "geometry_stationarity_verified_by_this_utility": false,
+    "identity_verified": true,
+    "maximum_bond_length_angstrom": 1.5522045717446435,
+    "minimum_bond_length_angstrom": 0.9732301192999939,
+    "multiplicity": 1,
+    "radical_electrons": 0,
+    "source_inchikey": "VGGSULWDCMWZPO-ODEMIOGVSA-N",
+    "stereochemistry_verified": true
+  }
+}

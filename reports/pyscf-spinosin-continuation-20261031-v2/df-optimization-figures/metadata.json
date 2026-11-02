@@ -1,0 +1,86 @@
+{
+  "status": "DONE_POSTPROCESSING_CLOSED_DF_OPTIMIZATION_ONLY",
+  "started_utc": "2026-11-01T08:03:51.015106+00:00",
+  "finished_utc": "2026-11-01T08:03:52.106106+00:00",
+  "elapsed_wall_seconds": 1.090997041999799,
+  "script_sha256": "94b5f00774b6952f1f18f6ab0bc7fd6235754cfb5844c6a9cabba3076633fb8e",
+  "source_phase": "reports/pyscf-spinosin-continuation-20261031-v2/spinosin-extended-optimization-001",
+  "source_result_status": "DONE",
+  "source_phase_exited": true,
+  "method_settings": {
+    "xc": "PBE",
+    "basis": "def2-svp",
+    "grid_level": 1,
+    "dispersion": "NONE_EXPLICIT_PBE_PILOT_NOT_D3",
+    "density_fitting": true,
+    "auxbasis": "def2-universal-jfit",
+    "hessian_auxbasis_response": 2,
+    "scf_conv_tol_hartree": 1e-08,
+    "scf_max_cycle": 80,
+    "threads": 4,
+    "max_memory_mb": 8000,
+    "density_fit_backend": "INCORE_DFJ_RELEASE_BEFORE_GRAD_V3",
+    "charge": 0,
+    "spin_2S": 0,
+    "multiplicity": 1,
+    "optimizer_maxsteps": 60,
+    "optimizer_thresholds": {
+      "convergence_energy": 1e-06,
+      "convergence_grms": 0.0003,
+      "convergence_gmax": 0.00045,
+      "convergence_drms": 0.0012,
+      "convergence_dmax": 0.0018
+    }
+  },
+  "complete_geometry_evaluations": 20,
+  "distinct_recorded_coordinate_arrays": 20,
+  "fresh_final_recheck_at_evaluation": 20,
+  "fresh_recheck_is_new_geometry_or_conformer": false,
+  "energy_reference_for_plot_hartree": -2210.4474787483687,
+  "first_callback_energy_hartree": -2210.4403572045712,
+  "last_callback_energy_hartree": -2210.4474787483687,
+  "fresh_final_validation": {
+    "same_complete_geometry_evaluation": 20,
+    "additional_geometry_or_conformer": false,
+    "energy_hartree": -2210.4474787341223,
+    "atom_rms_hartree_per_bohr": 7.407006626162465e-05,
+    "atom_max_hartree_per_bohr": 0.00022965282016092038,
+    "component_rms_hartree_per_bohr": 4.27643726950424e-05,
+    "component_max_hartree_per_bohr": 0.00017493473539664794,
+    "gradient_norm_hartree_per_bohr": 0.0006414655904256361,
+    "atom_rms_threshold_hartree_per_bohr": 0.0003,
+    "atom_max_threshold_hartree_per_bohr": 0.00045,
+    "gradient_thresholds_passed": true
+  },
+  "gradient_definitions": {
+    "atom_rms": "sqrt(mean_i(sum_a(g[i,a]**2)))",
+    "atom_max": "max_i(sqrt(sum_a(g[i,a]**2)))",
+    "component_rms": "sqrt(mean_i,a(g[i,a]**2))"
+  },
+  "gradient_thresholds_only_are_not_all_optimizer_gates": true,
+  "positive_frequency_minimum_verified": false,
+  "frequencies": "NOT_RUN",
+  "IR_intensities": "NOT_COMPUTED",
+  "new_quantum_computations": 0,
+  "checkpoints_opened": 0,
+  "geometry_display": {
+    "coordinates_source": "optimized_coordinates_angstrom.npy",
+    "units": "angstrom",
+    "rigid_rotation_for_display_only": true,
+    "topology_source": "reports/pyscf-spinosin-pilot-20261031/conformers/C001_mmff94s.sdf",
+    "source_inchikey": "VGGSULWDCMWZPO-ODEMIOGVSA-N"
+  },
+  "environment": {
+    "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+    "numpy": "2.3.5",
+    "matplotlib": "3.10.8",
+    "rdkit": "2026.09.1",
+    "platform": "Linux-6.18.57-x86_64-with-glibc2.41"
+  },
+  "limitations": [
+    "Energy and gradient traces are optimization evaluations, not independent samples or conformational sampling.",
+    "Density-fitted and no-DF methods must not be relabelled as one another.",
+    "Gas-phase uncorrected-PBE provisional geometry is not a solid-state mechanism or vibrational assignment.",
+    "No theoretical absorption spectrum or IR intensity was computed."
+  ]
+}

@@ -1,0 +1,1037 @@
+#INFO: **** input file is /workspace/research4/scripts/pyscf_spinosin_pure_j_worker_20261101.py ****
+"""V9 pure-PBE J-only partial Hessian; frozen V8 assembly and V4 supervision.
+
+Only unused K-shaped contractions in the RHF partial helper are removed. The
+original PySCF/V8 source files remain untouched. No work starts on import.
+RHF helper and V8 intermediate caches are SAVE_ONLY, not a restart facility.
+"""
+from __future__ import annotations
+
+import argparse
+from collections import Counter
+from contextlib import contextmanager
+from datetime import datetime, timezone
+import hashlib
+import importlib.metadata
+import importlib.util
+import inspect
+import json
+from pathlib import Path
+import resource
+import shutil
+import signal
+import sys
+import time
+from types import SimpleNamespace
+
+import numpy as np
+
+ROOT = Path(__file__).resolve().parents[1]
+V8_PATH = ROOT / "scripts/pyscf_spinosin_parallel_hessian_worker_20261031.py"
+SUPERVISOR_PATH = ROOT / "scripts/run_pyscf_actual_cpu_budget_20261101.py"
+V8_SHA256 = "acfe7708748ac237c9912aa9b1d98e047d842794fd0c6f08b1a67b993f5b277d"
+PINNED_SOURCES = {
+    "pyscf/hessian/rhf.py": "2d986bfc01aac98447034a207df639b3d6897f67ce1ab2a013fe2d0853c85de5",
+    "pyscf/hessian/rks.py": "d61dbd1727b286845737853b92e1812a3e6a966dca29a9a8a79ff5e9a7725c03",
+    "pyscf/scf/_vhf.py": "ef0a04f43338780a7f57d9268f9634c1079ae989ba3030d6154c8612798f82ba",
+    "pyscf/lib/libcvhf.so": "5d7461e3976fd40fce7c9ba571e45b01830dd018d75927e389c32a6f4d09df0c",
+    "pyscf/lib/deps/lib/libcint.so": "950bb0a297507369dce95b9013ef2c5b64b0fa36a0018c303c98e95efce7db7e",
+    "pyscf/lib/libcgto.so": "337d956486a156f1aa7ca636ac5a91c6277058ffedb6db2efe714fee65f726e0",
+}
+BARE_DERIVATIVE_GUARDS = ("int2e_ipip1ipip2", "int2e_ip1ip2", "int2e_ipvip1ipvip2")
+ENGINE_VERSION = "PURE_PBE_J_PARTIAL_V9_SAVE_ONLY"
+ENGINEERING_CHANGES = {
+    "unused_K_shaped_contraction_scripts_and_density_bindings_removed": True,
+    "only_pure_PBE_with_k_false_path_changed": True,
+    "with_k_true_delegates_original_unchanged": True,
+    "original_J_core_overlap_factors_slices_and_fullspace_retained": True,
+    "H1_CPHF_RKS_XC_nuclear_Hessian_and_global_assembly_unchanged": True,
+    "derivative_suffix_optimizer_enabled": False,
+    "derivative_vhfopt_contract": "REVIEWED_EXACT_ABI_BARE_GUARDS_FALSE_THEREFORE_NONE_ONLY",
+    "SCREENED_DIRECT_RKS_V4_tag_scope": "SCF_CPHF_DIRECT_POLICY_NOT_A_CLAIM_OF_DERIVATIVE_VHFOPT",
+    "libcint_internal_screening_disabled_claim": False,
+    "original_PySCF_files_modified": False, "original_V8_file_modified": False,
+    "thread_guard_arguments_unchanged_flag_scope": "ONLY_THE_THREAD_WRAPPER; NOT_THE_PURE_J_HELPER",
+    "RHF_parts_cache": "ONLY_RHF_PARTIAL_BEFORE_RKS_XC_SAVE_ONLY",
+    "cross_process_restore": "NOT_IMPLEMENTED_SAVE_ONLY",
+}
+TOLERANCES = {"energy_hartree": 1e-8, "gradient_hartree_per_bohr": 1e-8,
+              "RHF_e1_ej_hartree_per_bohr2": 1e-6,
+              "raw_hessian_hartree_per_bohr2": 1e-6, "frequencies_cm1": .01}
+
+
+def utc():
+    return datetime.now(timezone.utc).isoformat()
+
+
+def sha(path):
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+
+def write(path, value):
+    path = Path(path)
+    temporary = path.with_name(path.name + ".writing")
+    temporary.write_text(json.dumps(value, ensure_ascii=False, indent=2, allow_nan=False) + "\n")
+    temporary.replace(path)
+
+
+def load_module(name, path):
+    spec = importlib.util.spec_from_file_location(name, path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def load_frozen_v8():
+    if sha(V8_PATH) != V8_SHA256:
+        raise ValueError("Frozen V8 source differs from the reviewed source")
+    return load_module("research4_frozen_v8_for_pure_j", V8_PATH)
+
+
+def verify_resource_supervision(proof_path=None, *, expected_threads=None):
+    """Use the real new V4 verifier, not a renamed V3 proof or forged __file__."""
+    if not SUPERVISOR_PATH.is_file():
+        raise ValueError("Actual-CPU V4 supervisor implementation is required")
+    supervisor = load_module("research4_actual_cpu_supervision_v4", SUPERVISOR_PATH)
+    result = supervisor.verify_resource_supervision(proof_path, expected_threads=expected_threads)
+    proof = result.get("proof", {})
+    if proof.get("schema") != "research4-pyscf-actual-cpu-supervisor-proof-v4":
+        raise ValueError("Pure-J entry requires the actual V4 resource proof")
+    if proof.get("supervisor_script_sha256") != sha(SUPERVISOR_PATH):
+        raise ValueError("V4 verifier and actual supervisor source differ")
+    return result
+
+
+def require_none_derivative_abi(rhf_module):
+    """Do not enter the unvalidated slice-DM derivative-optimizer branch."""
+    present = [name for name in BARE_DERIVATIVE_GUARDS if hasattr(rhf_module._vhf.libcvhf, name)]
+    if present:
+        raise ValueError("Unreviewed derivative optimizer ABI; no suffix/screening change allowed: " + repr(present))
+    return {name: False for name in BARE_DERIVATIVE_GUARDS}
+
+
+def require_plain_pbe(hessobj):
+    mf = hessobj.base
+    if str(mf.xc).strip().upper() != "PBE" or getattr(mf, "with_df", None) is not None:
+        raise ValueError("J-only helper is authorized only for non-DF plain PBE")
+    ni = mf._numint
+    omega, alpha, hyb = ni.rsh_and_hybrid_coeff(mf.xc, spin=hessobj.mol.spin)
+    if (ni.libxc.is_hybrid_xc(mf.xc) or any(float(v) != 0 for v in (omega, alpha, hyb))
+            or ni._xc_type(mf.xc) != "GGA"):
+        raise ValueError("Pure PBE with zero hybrid/range-separated coefficients is required")
+
+
+def pure_j_partial_body(rhf_module, hessobj, mo_energy=None, mo_coeff=None, mo_occ=None,
+                        atmlst=None, max_memory=4000, verbose=None):
+    """Original PySCF2.14 e1/J algebra; reviewed None-optimizer path only.
+
+    This body has no hybrid/RHF implementation. The wrapper delegates every
+    with_k=True request to the original function with its original arguments.
+    """
+    require_plain_pbe(hessobj)
+    require_none_derivative_abi(rhf_module)
+    log = rhf_module.logger.new_logger(hessobj, verbose)
+    time0 = t1 = (rhf_module.logger.process_clock(), rhf_module.logger.perf_counter())
+    mol, mf = hessobj.mol, hessobj.base
+    if mo_energy is None: mo_energy = mf.mo_energy
+    if mo_occ is None: mo_occ = mf.mo_occ
+    if mo_coeff is None: mo_coeff = mf.mo_coeff
+    if atmlst is None: atmlst = range(mol.natm)
+    nao, nmo = mo_coeff.shape
+    mocc = mo_coeff[:, mo_occ > 0]
+    dm0 = np.dot(mocc, mocc.T) * 2
+    dme0 = np.einsum("pi,qi,i->pq", mocc, mocc, mo_energy[mo_occ > 0]) * 2
+    hcore_deriv = hessobj.hcore_generator(mol)
+    s1aa, s1ab, s1a = rhf_module.get_ovlp(mol)
+
+    # Current audited bare guards are False. Explicit None preserves the stock
+    # helper's observed optimizer contract, without calling a suffixed helper.
+    vj1_diag = rhf_module._get_jk(mol, "int2e_ipip1", 9, "s2kl",
+        ["lk->s1ij", dm0], vhfopt=None)[0].reshape(3, 3, nao, nao)
+    t1 = log.timer_debug1("contracting J-only int2e_ipip1", *t1)
+    aoslices = mol.aoslice_by_atom()
+    natm = len(atmlst)
+    e1 = np.zeros((natm, natm, 3, 3))
+    ej = np.zeros((natm, natm, 3, 3))
+    ek = np.zeros((natm, natm, 3, 3))
+    for i0, ia in enumerate(atmlst):
+        shl0, shl1, p0, p1 = aoslices[ia]
+        shls_slice = (shl0, shl1) + (0, mol.nbas) * 3
+        vj1 = rhf_module._get_jk(mol, "int2e_ip1ip2", 9, "s1",
+            ["ji->s1kl", dm0[:, p0:p1]], shls_slice=shls_slice, vhfopt=None)[0]
+        t1 = log.timer_debug1("contracting J-only int2e_ip1ip2 for atom %d" % ia, *t1)
+        vj2 = rhf_module._get_jk(mol, "int2e_ipvip1", 9, "s2kl",
+            ["lk->s1ij", dm0], shls_slice=shls_slice, vhfopt=None)[0]
+        vj1[:, :, p0:p1] += vj2.transpose(0, 2, 1) * .5
+        vj1 = vj1.reshape(3, 3, nao, nao)
+        t1 = log.timer_debug1("contracting J-only int2e_ipvip1 for atom %d" % ia, *t1)
+        ej[i0, i0] += np.einsum("xypq,pq->xy", vj1_diag[:, :, p0:p1], dm0[p0:p1]) * 2
+        e1[i0, i0] -= np.einsum("xypq,pq->xy", s1aa[:, :, p0:p1], dme0[p0:p1]) * 2
+        for j0, ja in enumerate(atmlst[:i0+1]):
+            q0, q1 = aoslices[ja][2:]
+            ej[i0, j0] += np.einsum("xypq,pq->xy", vj1[:, :, q0:q1], dm0[q0:q1]) * 4
+            e1[i0, j0] -= np.einsum("xypq,pq->xy", s1ab[:, :, p0:p1, q0:q1], dme0[p0:p1, q0:q1]) * 2
+            h1ao = hcore_deriv(ia, ja)
+            e1[i0, j0] += np.einsum("xypq,pq->xy", h1ao, dm0)
+        for j0 in range(i0):
+            e1[j0, i0] = e1[i0, j0].T
+            ej[j0, i0] = ej[i0, j0].T
+    log.timer("RHF pure-PBE J-only partial helper", *time0)
+    return e1, ej, ek
+
+
+class PureJPartialContext:
+    """Process-local scoped function replacement; source bytes never change."""
+    def __init__(self, rhf_module, callback=None):
+        self.rhf = rhf_module
+        self.callback = callback
+        self.original = self.wrapper = None
+        self.active = False
+
+    def __enter__(self):
+        original = self.rhf._partial_hess_ejk
+        if self.active or getattr(original, "_research4_pure_j", False):
+            raise RuntimeError("Do not nest pure-J helper contexts")
+        signature = inspect.signature(original)
+        self.original = original
+        def wrapped(*args, **kwargs):
+            with_k = kwargs.get("with_k", args[7] if len(args) > 7 else True)
+            if with_k is not False:
+                return original(*args, **kwargs)
+            bound = signature.bind(*args, **kwargs)
+            bound.apply_defaults()
+            values = bound.arguments
+            checker = getattr(self.callback, "validate_helper_arguments", None)
+            if checker is not None:
+                checker(values["hessobj"], values["mo_energy"], values["mo_coeff"], values["mo_occ"])
+            started = utc(); cpu, wall = time.process_time(), time.perf_counter()
+            parts = pure_j_partial_body(self.rhf, values["hessobj"],
+                values["mo_energy"], values["mo_coeff"], values["mo_occ"],
+                values["atmlst"], values["max_memory"], values["verbose"])
+            if self.callback is not None:
+                self.callback(values["hessobj"], parts, {
+                    "started_utc": started, "returned_utc": utc(),
+                    "helper_CPU_seconds": time.process_time()-cpu,
+                    "helper_wall_seconds": time.perf_counter()-wall,
+                    "with_k": False, "atmlst": None if values["atmlst"] is None else list(values["atmlst"]),
+                    "scope": "ONLY_RHF_PARTIAL_BEFORE_RKS_XC", "zero_ek_contract": True})
+            return parts
+        wrapped._research4_pure_j = True
+        self.wrapper = wrapped
+        self.rhf._partial_hess_ejk = wrapped
+        self.active = True
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        changed = self.rhf._partial_hess_ejk is not self.wrapper
+        self.rhf._partial_hess_ejk = self.original
+        self.active = False
+        if changed and exc_type is None:
+            raise RuntimeError("Another writer replaced the scoped pure-J helper")
+        return False
+
+
+class RHFPartsCapture:
+    """Save a complete RHF tuple before RKS XC; never loads saved arrays."""
+    def __init__(self, engine, hobj, cache_root, manifest_path, settings, versions,
+                 input_evidence, *, require_zero_ek=True):
+        self.engine, self.hobj = engine, hobj
+        self.settings, self.versions, self.input_evidence = settings, versions, input_evidence
+        self.cache_root, self.manifest_path = Path(cache_root).resolve(), Path(manifest_path).resolve()
+        self.require_zero_ek = require_zero_ek
+        self.natom = int(hobj.mol.natm)
+        if not self.cache_root.is_relative_to(engine.ROOT / "outputs"):
+            raise ValueError("RHF helper caches must use ignored repository outputs/")
+        if self.cache_root.exists() or self.manifest_path.exists():
+            raise FileExistsError("Preserve all earlier RHF helper caches/manifests")
+        self.binding = self.current_binding()
+        self.cache_root.parent.mkdir(parents=True, exist_ok=True)
+        required = self.natom*self.natom*9*8*3
+        if shutil.disk_usage(self.cache_root.parent).free < required*2 + 16*1024**2:
+            raise RuntimeError("Insufficient disk for complete RHF helper cache")
+        self.cache_root.mkdir()
+        self.parts = None
+        self.helper_arguments_validated = False
+        changes = dict(ENGINEERING_CHANGES)
+        if not require_zero_ek:
+            changes.update(unused_K_shaped_contraction_scripts_and_density_bindings_removed=False,
+                reference_case_unmodified_stock_partial=True,
+                RHF_parts_cache="ONLY_STOCK_RHF_HELPER_BEFORE_RKS_XC_SAVE_ONLY")
+        self.manifest = {"status": "WAITING_FOR_COMPLETE_RHF_HELPER", "started_utc": utc(),
+            "scope": "ONLY_RHF_PARTIAL_BEFORE_RKS_XC", "complete_RKS_partial_or_full_Hessian": False,
+            "cross_process_restore": "NOT_IMPLEMENTED_SAVE_ONLY", "resume_command_created": False,
+            "binding": self.binding, "binding_sha256": self.binding_sha(),
+            "actual_entrypoint": {"path": str(Path(__file__).resolve()), "sha256": sha(__file__)},
+            "original_V8_source_sha256": V8_SHA256,
+            "engineering_changes": changes, "arrays": {},
+            "zero_ek_required": require_zero_ek}
+        write(self.manifest_path, self.manifest)
+
+    def current_binding(self):
+        return self.engine.hessian_cache_binding(self.hobj.base, self.settings,
+            self.versions, self.input_evidence, hobj=self.hobj)
+
+    def binding_sha(self):
+        return hashlib.sha256(json.dumps(self.binding, sort_keys=True, allow_nan=False).encode()).hexdigest()
+
+    def validate_helper_arguments(self, hobj, mo_energy=None, mo_coeff=None, mo_occ=None):
+        if hobj is not self.hobj or self.current_binding() != self.binding:
+            raise RuntimeError("RHF helper argument binding changed")
+        for name,value in (("mo_energy",mo_energy),("mo_coeff",mo_coeff),("mo_occ",mo_occ)):
+            actual = getattr(hobj.base,name) if value is None else value
+            if (np.asarray(actual).dtype != np.asarray(getattr(hobj.base,name)).dtype
+                    or not np.array_equal(np.asarray(actual),np.asarray(getattr(hobj.base,name)))):
+                raise ValueError("Explicit RHF helper MO arguments differ from bound MF: " + name)
+        self.helper_arguments_validated = True
+
+    def mark_outer_failure(self, exc):
+        if self.manifest["status"] == "WAITING_FOR_COMPLETE_RHF_HELPER":
+            self.manifest["status"] = "PARTIAL_RHF_HELPER_NOT_RETURNED"
+        self.manifest.update(outer_Hessian_status="PARTIAL",outer_failure_utc=utc(),
+            outer_exception_type=type(exc).__name__,outer_stop_reason=str(exc))
+        write(self.manifest_path,self.manifest)
+
+    def __call__(self, hobj, parts, helper_record):
+        if hobj is not self.hobj or self.current_binding() != self.binding:
+            raise RuntimeError("RHF helper geometry/orbitals/grid/settings binding changed")
+        if not self.helper_arguments_validated:
+            raise RuntimeError("Actual RHF helper MO arguments must be validated before capture")
+        self.engine.require_full_atoms(helper_record.get("atmlst"), self.natom)
+        if self.parts is not None or self.manifest["arrays"]:
+            raise RuntimeError("Do not overwrite or duplicate a completed RHF helper tuple")
+        if not isinstance(parts, tuple) or len(parts) != 3:
+            raise ValueError("RHF helper must return an e1/ej/ek tuple")
+        for name, value in zip(("e1", "ej", "ek"), parts):
+            array = np.asarray(value)
+            if array.dtype != np.dtype("float64") or array.shape != (self.natom,self.natom,3,3) or not np.isfinite(array).all():
+                raise ValueError("Complete finite float64 RHF helper arrays required")
+        if self.require_zero_ek and np.count_nonzero(parts[2]):
+            raise ValueError("Pure-J helper must return same-shape exactly-zero ek")
+        try:
+            for name, value in zip(("e1", "ej", "ek"), parts):
+                path = self.cache_root / (name + ".npy")
+                if path.exists():
+                    raise FileExistsError("Preserve an existing RHF helper array")
+                self.engine.atomic_npy(path, value)
+                self.manifest["arrays"][name] = {"path": str(path), "file_sha256": sha(path),
+                    "file_bytes": path.stat().st_size, **self.engine.array_fingerprint(value)}
+            if self.current_binding() != self.binding:
+                raise RuntimeError("RHF helper binding changed while saving")
+            self.parts = tuple(np.array(value, copy=True) for value in parts)
+            self.manifest.update(status="DONE_RHF_HELPER_ONLY_BEFORE_RKS_XC",
+                completed_utc=utc(), complete_RHF_helper_returned_before_RKS_XC=True,
+                actual_helper_MO_arguments_verified_equal_bound_MF=True,
+                ek_nonzero_entries=int(np.count_nonzero(parts[2])),
+                ek_max_abs_hartree_per_bohr2=float(np.max(np.abs(parts[2]))),
+                helper_record=helper_record)
+            write(self.manifest_path, self.manifest)
+        except BaseException as exc:
+            self.manifest.update(status="PARTIAL_RHF_CACHE_NOT_VALIDATED", exception_type=type(exc).__name__, stop_reason=str(exc))
+            write(self.manifest_path, self.manifest)
+            raise
+
+
+def source_identity(rhf_module=None):
+    identity = {"actual_entrypoint": {"path": str(Path(__file__).resolve()), "sha256": sha(__file__)},
+                "frozen_V8": {"path": str(V8_PATH), "sha256": sha(V8_PATH)},
+                "actual_V4_supervisor": {"path": str(SUPERVISOR_PATH), "sha256": sha(SUPERVISOR_PATH)},
+                "pinned_PySCF": {}}
+    if identity["frozen_V8"]["sha256"] != V8_SHA256:
+        raise ValueError("Frozen V8 changed")
+    for relative, expected in PINNED_SOURCES.items():
+        path = ROOT / ".runtime/quantum-upgrade-site" / relative
+        actual = sha(path)
+        if actual != expected:
+            raise ValueError("Unreviewed PySCF source/binary: " + relative)
+        identity["pinned_PySCF"][relative] = {"sha256": actual, "path": str(path)}
+    if rhf_module is not None:
+        expected_source = ROOT/".runtime/quantum-upgrade-site/pyscf/hessian/rhf.py"
+        if Path(inspect.getsourcefile(rhf_module)).resolve() != expected_source.resolve():
+            raise ValueError("Loaded RHF Hessian module differs from pinned installed source")
+        if (Path(inspect.getsourcefile(rhf_module._partial_hess_ejk)).resolve() != expected_source.resolve()
+                or getattr(rhf_module._partial_hess_ejk,"_research4_pure_j",False)):
+            raise ValueError("Stock partial helper identity must be restored outside the scoped candidate")
+        loaded_vhf = Path(rhf_module._vhf.__file__).resolve()
+        if loaded_vhf != (ROOT/".runtime/quantum-upgrade-site/pyscf/scf/_vhf.py").resolve():
+            raise ValueError("Loaded VHF module differs from pinned source")
+        loaded_binary = Path(rhf_module._vhf.libcvhf._name).resolve()
+        if loaded_binary != (ROOT/".runtime/quantum-upgrade-site/pyscf/lib/libcvhf.so").resolve():
+            raise ValueError("Loaded CVHF binary differs from pinned ABI")
+        identity["loaded_RHF_helper_source_identity_verified"] = True
+        identity["loaded_CVHF_binary_path"] = str(loaded_binary)
+        identity["bare_derivative_optimizer_guards"] = require_none_derivative_abi(rhf_module)
+    return identity
+
+
+def pure_j_checkpointed_hessian(engine, rhf_module, hobj, cache_root, manifest_path,
+                                settings, block_atoms=8, versions=None, native_lindep=1e-13,
+                                input_evidence=None, response_operator_factory=None, memory_event=None):
+    """Unchanged V8 global assembly; RHF save occurs before RKS XC work."""
+    with engine.hessian_memory_context(hobj, settings, emit=memory_event):
+        helper = RHFPartsCapture(engine, hobj,
+            Path(cache_root).with_name(Path(cache_root).name + "-rhf-pure-j-parts"),
+            Path(manifest_path).with_name("rhf_helper_cache_manifest.json"),
+            settings, versions or {}, input_evidence or {})
+        with PureJPartialContext(rhf_module, callback=helper):
+            try:
+                return engine._run_checkpointed_hessian_in_memory_context(hobj, cache_root,
+                    manifest_path, settings, block_atoms=block_atoms, versions=versions,
+                    native_lindep=native_lindep, input_evidence=input_evidence,
+                    response_operator_factory=response_operator_factory)
+            except BaseException as exc:
+                helper.mark_outer_failure(exc)
+                raise
+
+
+def configure_engine(engine):
+    """Adapter metadata identifies both real files; no __file__ masquerading."""
+    original_settings, original_write = engine.worker_settings, engine.write
+    original_hessian = engine.run_checkpointed_hessian
+    def settings(args):
+        value = original_settings(args)
+        value.update(engineering_worker_version=ENGINE_VERSION,
+                     partial_hessian_engine=ENGINE_VERSION,
+                     engineering_changes=dict(ENGINEERING_CHANGES),
+                     actual_entrypoint={"path": str(Path(__file__).resolve()), "sha256": sha(__file__)},
+                     original_V8_source_sha256=V8_SHA256)
+        return value
+    def metadata_write(path, value):
+        if isinstance(value, dict) and "settings" in value and "phase" in value:
+            value.update(actual_entrypoint={"path": str(Path(__file__).resolve()), "sha256": sha(__file__)},
+                         original_V8_source_sha256=V8_SHA256,
+                         engineering_changes=dict(ENGINEERING_CHANGES),
+                         original_script_sha256_field_scope="FROZEN_V8_EXECUTION_SCAFFOLD_NOT_THIS_ENTRYPOINT")
+        return original_write(path, value)
+    def run_hessian(*args, **kwargs):
+        from pyscf.hessian import rhf
+        source_identity(rhf)
+        return pure_j_checkpointed_hessian(engine, rhf, *args, **kwargs)
+    engine.verify_resource_supervision = verify_resource_supervision
+    engine.worker_settings, engine.write = settings, metadata_write
+    engine.run_checkpointed_hessian = run_hessian
+    return engine
+
+
+def compare_complete_cases(reference, candidate, atom_count):
+    """Fixed gates cover all atom pairs and every actual mode, including negatives."""
+    modes = 3*atom_count-6
+    differences = {}
+    for name, shape, tolerance in (
+        ("gradient", (atom_count,3), TOLERANCES["gradient_hartree_per_bohr"]),
+        ("e1", (atom_count,atom_count,3,3), TOLERANCES["RHF_e1_ej_hartree_per_bohr2"]),
+        ("ej", (atom_count,atom_count,3,3), TOLERANCES["RHF_e1_ej_hartree_per_bohr2"]),
+        ("raw_hessian", (atom_count,atom_count,3,3), TOLERANCES["raw_hessian_hartree_per_bohr2"]),
+        ("frequencies_cm1", (modes,), TOLERANCES["frequencies_cm1"])):
+        a,b = np.asarray(reference[name]),np.asarray(candidate[name])
+        if a.shape != shape or b.shape != shape or np.iscomplexobj(a) or np.iscomplexobj(b) or not np.isfinite(a).all() or not np.isfinite(b).all():
+            raise ValueError("Incomplete/nonfinite actual comparison data: " + name)
+        delta = float(np.max(np.abs(a-b)))
+        differences[name] = {"max_abs_difference": delta, "fixed_tolerance": tolerance, "passed": delta <= tolerance}
+    energy_delta = abs(float(reference["energy_hartree"])-float(candidate["energy_hartree"]))
+    if not np.isfinite(energy_delta): raise ValueError("Finite same-MF energies required")
+    differences["energy_hartree"] = {"max_abs_difference": energy_delta,
+        "fixed_tolerance": TOLERANCES["energy_hartree"], "passed": energy_delta <= TOLERANCES["energy_hartree"]}
+    sym = [(.5*(np.asarray(case["raw_hessian"])+np.asarray(case["raw_hessian"]).transpose(1,0,3,2)))
+           for case in (reference,candidate)]
+    sym_delta = float(np.max(np.abs(sym[0]-sym[1])))
+    differences["symmetrized_hessian"] = {"max_abs_difference": sym_delta,
+        "fixed_tolerance": TOLERANCES["raw_hessian_hartree_per_bohr2"],
+        "passed": sym_delta <= TOLERANCES["raw_hessian_hartree_per_bohr2"]}
+    positive = {name: bool(np.all(np.asarray(case["frequencies_cm1"]) > 0)) for name,case in (("stock",reference),("pure_j",candidate))}
+    return {"differences": differences, "all_atom_pair_cross_couplings_compared": True,
+        "all_actual_modes_compared": modes,
+        "numerical_equivalence_passed": all(row["passed"] for row in differences.values()),
+        "positive_frequency_minima": positive,
+        "both_minima_positive": all(positive.values()),
+        "IR_intensities_status": "NOT_COMPUTED"}
+
+
+def verify_closed_validation_source(identity, optimization_result_path, xyz_path,
+                                    coordinates_path, expected_xyz_sha, expected_coordinates_sha,
+                                    geometry_record_path=None):
+    """Read supplied closed-Opt geometry, never invent coordinates or run Opt."""
+    compositions = {"water": {"H": 2, "O": 1},
+                    "validation_ethanol": {"C": 2, "H": 6, "O": 1}}
+    if identity not in compositions:
+        raise ValueError("Only sourced water or ethanol numerical-validation fixtures are allowed")
+    old = json.loads(Path(optimization_result_path).read_text())
+    if (old.get("status") != "DONE" or old.get("geometry_optimized") is not True
+            or old.get("optimizer_converged") is not True or old.get("scf_converged") is not True
+            or old.get("final_gradient_thresholds_passed") is not True):
+        raise ValueError("A closed successful Opt/fresh-gradient source is required")
+    if old.get("identity") != identity:
+        raise ValueError("Closed optimization identity does not match requested fixture")
+    if identity == "validation_ethanol":
+        prior = old.get("source_provenance",{})
+        if (prior.get("identity_verified") is not True or prior.get("stereochemistry_verified") is not True
+                or prior.get("inchikey") != "LFQSCWFLJHTTHZ-UHFFFAOYSA-N"
+                or prior.get("formula") != "C2H6O" or prior.get("atom_count") != 9
+                or prior.get("input_xyz_sha256") != old.get("input_xyz_sha256")):
+            raise ValueError("Closed ethanol Opt must retain its verified original graph provenance")
+    settings = old.get("settings", {})
+    for key, expected in {"xc": "PBE", "basis": "def2-svp", "grid_level": 1,
+                          "density_fitting": False, "charge": 0, "multiplicity": 1,
+                          "dispersion": "NONE_EXPLICIT_PBE_PILOT_NOT_D3"}.items():
+        if settings.get(key) != expected:
+            raise ValueError("Closed validation geometry has a different physical model: " + key)
+    if not expected_xyz_sha or sha(xyz_path) != expected_xyz_sha:
+        raise ValueError("Expected supplied closed XYZ SHA must match")
+    if not expected_coordinates_sha or sha(coordinates_path) != expected_coordinates_sha:
+        raise ValueError("Expected supplied closed coordinate SHA must match")
+    bound = old.get("optimized_coordinates_angstrom_npy_sha256")
+    extra = None
+    if bound is None:
+        if geometry_record_path is None:
+            raise ValueError("Closed source requires a SHA-binding geometry record")
+        extra = json.loads(Path(geometry_record_path).read_text())
+        if extra.get("identity") != identity or extra.get("validation_only") is not True:
+            raise ValueError("Geometry record must be the same closed validation fixture")
+        bound = extra.get("normal_mode_geometry_source_sha256")
+    if bound != expected_coordinates_sha:
+        raise ValueError("Closed optimized geometry record differs from supplied coordinate bytes")
+    lines = Path(xyz_path).read_text().splitlines()
+    rows = [line.split() for line in lines[2:] if line.strip()]
+    natom = sum(compositions[identity].values())
+    if int(lines[0]) != natom or len(rows) != natom or any(len(row) != 4 for row in rows):
+        raise ValueError("Complete explicit closed-source XYZ atom rows required")
+    symbols = [row[0] for row in rows]
+    rounded = np.asarray([[float(v) for v in row[1:]] for row in rows])
+    coordinates = np.load(coordinates_path, allow_pickle=False)
+    if (Counter(symbols) != Counter(compositions[identity]) or coordinates.shape != (natom,3)
+            or coordinates.dtype != np.dtype("float64") or np.iscomplexobj(coordinates)
+            or not np.isfinite(coordinates).all()
+            or not np.allclose(rounded, coordinates, atol=1e-10, rtol=0)):
+        raise ValueError("Closed XYZ/coordinate composition or full-precision values differ")
+    distance = np.linalg.norm(coordinates[:,None]-coordinates[None,:], axis=-1)
+    if (np.min(distance[np.triu_indices(natom,1)]) < .25
+            or np.linalg.matrix_rank(coordinates-coordinates.mean(0), tol=1e-10) < 2):
+        raise ValueError("Nonoverlapping nonlinear closed geometry required")
+    evidence = {"identity": identity, "validation_only": True,
+        "closed_optimization_result": str(Path(optimization_result_path).resolve()),
+        "closed_optimization_result_sha256": sha(optimization_result_path),
+        "closed_geometry_record_sha256": None if geometry_record_path is None else sha(geometry_record_path),
+        "input_xyz_sha256": expected_xyz_sha, "coordinates_npy_sha256": expected_coordinates_sha,
+        "prior_optimization_verified": True, "new_geometry_optimization_performed": False,
+        "geometry_origin": "CLOSED_DFT_OPTIMIZATION_OF_PREVIOUSLY_VERIFIED_MODEL",
+        "not_downloaded_official_or_experimental_3D": True,
+        "original_graph_provenance": old.get("source_provenance",{"scope":"closed water software-validation input"}),
+        "not_a_plant_or_acid_jujube_sample": True}
+    return symbols, coordinates, evidence
+
+
+def mf_fingerprint(engine, mf):
+    return {"molecule": engine.molecule_cache_identity(mf.mol),
+        "coordinates_bohr": engine.array_fingerprint(mf.mol.atom_coords()),
+        "MO_coeff": engine.array_fingerprint(mf.mo_coeff),
+        "MO_energy": engine.array_fingerprint(mf.mo_energy),
+        "MO_occ": engine.array_fingerprint(mf.mo_occ),
+        "energy_hartree": float(mf.e_tot),
+        "grid_coordinates": engine.array_fingerprint(mf.grids.coords),
+        "grid_weights": engine.array_fingerprint(mf.grids.weights),
+        "xc": mf.xc, "conv_tol_cpscf": float(mf.conv_tol_cpscf)}
+
+
+@contextmanager
+def stock_partial_capture_context(rhf_module, callback):
+    """Record an unmodified stock RHF tuple; never replace its contraction list."""
+    original = rhf_module._partial_hess_ejk
+    signature = inspect.signature(original)
+    def wrapped(*args, **kwargs):
+        bound = signature.bind(*args, **kwargs); bound.apply_defaults()
+        values = bound.arguments
+        checker = getattr(callback,"validate_helper_arguments",None)
+        if checker is not None:
+            checker(values["hessobj"],values["mo_energy"],values["mo_coeff"],values["mo_occ"])
+        cpu, wall = time.process_time(), time.perf_counter()
+        parts = original(*args, **kwargs)
+        callback(values["hessobj"], parts, {"with_k": values["with_k"],
+            "atmlst": None if values["atmlst"] is None else list(values["atmlst"]),
+            "scope": "ONLY_STOCK_RHF_HELPER_BEFORE_RKS_XC", "zero_ek_contract": False,
+            "helper_CPU_seconds": time.process_time()-cpu,
+            "helper_wall_seconds": time.perf_counter()-wall})
+        return parts
+    rhf_module._partial_hess_ejk = wrapped
+    try:
+        yield
+    finally:
+        rhf_module._partial_hess_ejk = original
+
+
+def compare_on_same_mf(mf, evaluate, fingerprint, persist):
+    """Injectable pure control-flow guard; two cases share the actual MF object."""
+    original = fingerprint(mf)
+    results = []
+    for label, enabled in (("stock_partial_B8_native4", False), ("pure_j_partial_B8_native4", True)):
+        if fingerprint(mf) != original:
+            raise RuntimeError("MF/geometry/MO/grid drift before case")
+        case = evaluate(mf, label, enabled)
+        if fingerprint(mf) != original:
+            raise RuntimeError("MF/geometry/MO/grid drift during case")
+        persist(label, case)
+        results.append(case)
+    return results
+
+
+def verify_completed_equivalence_records(paths):
+    """Scientific launch gate: real saved water+ethanol results for this entry SHA."""
+    if paths is None or len(paths) != 2:
+        raise ValueError("Spinosin requires completed water and ethanol pure-J equivalence results")
+    identities = set(); evidence = []
+    for path in paths:
+        value = json.loads(Path(path).read_text())
+        identity = value.get("identity")
+        if identity not in ("water","validation_ethanol") or identity in identities:
+            raise ValueError("Exactly one water and one ethanol validation result required")
+        identities.add(identity)
+        for flag in ("validation_only","validation_passed","numerical_equivalence_passed",
+                     "stationary_minimum_verified","final_gradient_thresholds_passed",
+                     "same_MF_geometry_MO_grid_retained"):
+            if value.get(flag) is not True:
+                raise ValueError("Incomplete validation scientific gate: " + flag)
+        if value.get("status") != "DONE" or value.get("tolerances_fixed_before_results") != TOLERANCES:
+            raise ValueError("Validation status or fixed predeclared tolerances differ")
+        if value.get("actual_entrypoint",{}).get("sha256") != sha(__file__):
+            raise ValueError("Validation was not run with this exact pure-J entrypoint")
+        source = value.get("source_identity",{})
+        if (source.get("frozen_V8",{}).get("sha256") != V8_SHA256
+                or source.get("actual_V4_supervisor",{}).get("sha256") != sha(SUPERVISOR_PATH)
+                or value.get("resource_supervision",{}).get("proof",{}).get("schema") != "research4-pyscf-actual-cpu-supervisor-proof-v4"):
+            raise ValueError("Validation source/supervisor identity differs")
+        execution = verify_closed_validation_execution(value,path)
+        comparison = value.get("comparison",{})
+        expected_modes = 3 if identity=="water" else 21
+        if comparison.get("all_actual_modes_compared") != expected_modes or comparison.get("all_atom_pair_cross_couplings_compared") is not True:
+            raise ValueError("All actual modes and full cross couplings must be compared")
+        for key,tolerance in (("raw_hessian",1e-6),("e1",1e-6),("ej",1e-6),
+                              ("gradient",1e-8),("frequencies_cm1",.01),("energy_hartree",1e-8)):
+            row=comparison.get("differences",{}).get(key,{})
+            delta=row.get("max_abs_difference")
+            if (isinstance(delta,bool) or not isinstance(delta,(int,float)) or not np.isfinite(delta)
+                    or delta<0 or delta>tolerance or row.get("fixed_tolerance")!=tolerance or row.get("passed") is not True):
+                raise ValueError("Validation measured numerical gate failed: " + key)
+        evidence.append({"identity":identity,"result_path":str(Path(path).resolve()),"result_sha256":sha(path),
+                         "actual_entrypoint_sha256":value["actual_entrypoint"]["sha256"],
+                         "closed_parent_execution":execution})
+    return evidence
+
+
+def verify_closed_validation_execution(value,result_path):
+    """A self-reported DONE file cannot override a failed or unclosed parent row."""
+    resource_record=value.get("resource_supervision",{})
+    proof=resource_record.get("proof",{})
+    ledger_path=Path(proof.get("ledger_path",""))
+    ledger=json.loads(ledger_path.read_text())
+    if ledger.get("schema")!="research4-pyscf-actual-cpu-budget-v4":
+        raise ValueError("Validation parent ledger must be actual-CPU V4")
+    if (ledger.get("runner_sha256")!=sha(SUPERVISOR_PATH)
+            or proof.get("supervisor_script_sha256")!=sha(SUPERVISOR_PATH)):
+        raise ValueError("Validation ledger/proof supervisor source identity differs")
+    rows=[r for r in ledger.get("phases",[]) if r.get("phase")==proof.get("phase")]
+    if not proof.get("phase") or len(rows)!=1:
+        raise ValueError("Validation must bind one unique parent phase")
+    row=rows[0]
+    if row.get("status")!="EXITED" or type(row.get("exit_code")) is not int or row["exit_code"]!=0:
+        raise ValueError("Validation parent must have closed EXITED0")
+    if not isinstance(row.get("ended_at_utc"),str) or not row["ended_at_utc"]:
+        raise ValueError("Closed validation parent requires an actual end timestamp")
+    failures=("wall_terminated","memory_terminated","cpu_terminated","monitor_failed","hard_killed",
+        "actual_cpu_guard_TERM_sent","owned_child_pidfd_containment_requested",
+        "owned_unreaped_child_direct_PID_containment_requested",
+        "residual_processes_require_review_after_main_payload_exit")
+    if any(row.get(k) for k in failures) or row.get("resource_stop_reason") or row.get("actual_cpu_stop_observation"):
+        raise ValueError("Validation parent resource stop/monitor/containment cannot pass")
+    if row.get("pid")!=proof.get("child_pid") or row.get("actual_cpu_guard_enabled") is not True:
+        raise ValueError("Validation parent PID/actual-CPU guard differs from proof")
+    for key in ("actual_cpu_guard_source","actual_cpu_clock_ticks_per_second",
+                "actual_cpu_cleanup_reserve_seconds","actual_cpu_stop_threshold_seconds",
+                "actual_cpu_closed_batch_cost_seconds","actual_cpu_batch_cap_seconds"):
+        if key not in proof or row.get(key)!=proof[key]:
+            raise ValueError("Validation parent actual-CPU contract differs: "+key)
+    proof_path=Path(row.get("supervisor_proof_path",""));log_path=Path(row.get("log",""))
+    if (sha(proof_path)!=row.get("supervisor_proof_sha256")
+            or sha(proof_path)!=resource_record.get("proof_sha256")
+            or json.loads(proof_path.read_text())!=proof
+            or sha(log_path)!=row.get("log_sha256")):
+        raise ValueError("Validation parent proof/log bytes do not match closed evidence")
+    command=row.get("command",[])
+    if not isinstance(command,list) or not all(isinstance(v,str) for v in command):
+        raise ValueError("Validation parent complete command is required")
+    def argument(name):
+        if name in command:
+            index=command.index(name)
+            return command[index+1] if index+1<len(command) else None
+        values=[v.split("=",1)[1] for v in command if v.startswith(name+"=")]
+        return values[0] if len(values)==1 else None
+    if (argument("--phase")!="pure-j-equivalence" or argument("--identity")!=value["identity"]
+            or argument("--output") is None
+            or Path(argument("--output")).resolve()!=Path(result_path).resolve().parent
+            or not any(Path(token).resolve()==Path(__file__).resolve() for token in command)):
+        raise ValueError("Closed parent command is not this fixture/output/entrypoint")
+    return {"ledger_path":str(ledger_path.resolve()),"phase":row["phase"],
+        "exit_code":0,"closed_row_canonical_sha256":hashlib.sha256(json.dumps(row,sort_keys=True,allow_nan=False).encode()).hexdigest(),
+        "proof_sha256":sha(proof_path),"log_sha256":sha(log_path),
+        "healthy_closed_parent_verified":True}
+
+
+def execute_equivalence(args):
+    """ROOT-only supervised fresh SCF/G and same-MF complete stock/pure-J Hessians."""
+    if args.threads != 4 or args.native_direct_driver_threads != 4 or args.hessian_block_atoms != 8 or args.grid_level != 1:
+        raise ValueError("Reviewed validation requires native4/outer4, B8 and grid1")
+    engine = load_frozen_v8()
+    supervision = verify_resource_supervision(expected_threads=4)
+    engine.install_sites()
+    import pyscf
+    from pyscf import dft, gto, lib
+    from pyscf.scf import _vhf
+    from pyscf.scf.hf import SCF as DirectSCF
+    from pyscf.grad.rks import Gradients as RKSGradients
+    from pyscf.hessian import rhf, thermo
+    from pyscf.lib import linalg_helper
+    sources = source_identity(rhf)
+    symbols, coordinates, source = verify_closed_validation_source(args.identity,
+        args.optimization_result, args.input_xyz, args.input_coordinates_npy,
+        args.expected_input_sha256, args.expected_coordinates_sha256, args.closed_geometry_record)
+    out = args.output.resolve()
+    if out.exists(): raise FileExistsError("Use a new actual-validation output directory")
+    out.mkdir(parents=True)
+    lib.num_threads(4)
+    settings = engine.worker_settings(SimpleNamespace(grid_level=1, threads=4, maxsteps=35,
+        hessian_block_atoms=8, native_direct_driver_threads=4))
+    settings["validation_scope"] = "STOCK_PARTIAL_VS_PURE_J_ONLY_BOTH_WITH_UNCHANGED_V8_B8_ASSEMBLY"
+    settings["actual_entrypoint"] = sources["actual_entrypoint"]
+    settings["frozen_V8_source_sha256"] = V8_SHA256
+    start_cpu, start_wall = time.process_time(), time.perf_counter()
+    natom = len(symbols)
+    state = {"status": "PARTIAL", "phase": "pure-j-equivalence", "identity": args.identity,
+        "validation_only": True, "started_at_utc": utc(), "source": source,
+        "actual_entrypoint": sources["actual_entrypoint"], "source_identity": sources,
+        "settings": settings, "resource_supervision": supervision,
+        "engineering_changes": dict(ENGINEERING_CHANGES),
+        "engineering_changes_scope": "CANDIDATE_VARIANT_ONLY; FIRST_CASE_STOCK_PARTIAL_UNCHANGED",
+        "versions": {"python": sys.version.split()[0], "numpy": np.__version__,
+            "pyscf": pyscf.__version__, "geometric": importlib.metadata.version("geometric")},
+        "new_geometry_optimization_performed": False, "prior_optimized_geometry_verified": True,
+        "geometry_optimized_claim_scope": "PRIOR_CLOSED_INPUT_ONLY_NOT_NEW_OPT",
+        "geometry_optimized": True, "scf_converged": False,
+        "numerical_equivalence_passed": False, "validation_passed": False,
+        "frequencies_status": "NOT_RUN", "IR_intensities_status": "NOT_COMPUTED",
+        "tolerances_fixed_before_results": TOLERANCES,
+        "not_a_plant_or_acid_jujube_result": True, "new_Spinosin_frequencies": 0,
+        "cross_process_restore": "NOT_IMPLEMENTED_SAVE_ONLY"}
+    write(out/"input.json", state)
+    write(out/"derived_input_provenance.json",source)
+    log_handle = (out/"pyscf.log").open("w", buffering=1)
+    def progress(event, **details):
+        record = {"utc": utc(), "event": event,
+            "process_cpu_seconds": time.process_time()-start_cpu,
+            "wall_seconds": time.perf_counter()-start_wall, **details}
+        with (out/"events.jsonl").open("a") as f: f.write(json.dumps(record, allow_nan=False)+"\n")
+        write(out/"progress.json", {**state, **record})
+    def stop(signum, _frame): raise engine.BudgetStop("V4 supervised validation signal " + str(signum))
+    handlers = {s: signal.signal(s, stop) for s in (signal.SIGTERM,signal.SIGXCPU)}
+    controls = {}
+    Gradient = engine.direct_gradient_type(RKSGradients,
+        lambda event, details: progress(event, **details), memory_mb=lambda:lib.current_memory()[0])
+    def gradient(method):
+        g = Gradient(method); g.grid_response = False
+        return np.asarray(g.kernel())
+    def guard(label):
+        return engine.NativeDirectDriverThreadGuard(_vhf, lib.with_omp_threads, lib.num_threads,
+            native_threads=4, emit=lambda details:progress("native_direct_driver_entered",case=label,native_control=details))
+    try:
+        initial_guard = guard("fresh_SCF_gradient")
+        with initial_guard:
+            mol = gto.Mole(); mol.stdout = log_handle
+            mol.build(atom=list(zip(symbols,coordinates)), unit="Angstrom", basis="def2-svp",
+                charge=0, spin=0, symmetry=False, verbose=4, max_memory=8000)
+            Type = engine.screened_direct_rks_type(dft.rks.RKS, DirectSCF.get_jk)
+            mf = Type(mol); mf.xc = "PBE"; mf.grids.level = 1; mf.max_memory = 8000
+            mf.direct_scf = True; mf.direct_scf_tol = 1e-13; mf._eri = None
+            mf.mol.incore_anyway = False; mf.conv_tol = 1e-8; mf.max_cycle = 80
+            mf.conv_tol_cpscf = 1e-8; mf.chkfile = str(out/"fresh_calculation.chk")
+            engine.direct_integral_policy(mf)
+            energy = float(mf.kernel())
+            state.update(energy_hartree=energy,scf_converged=bool(mf.converged))
+            if not mf.converged or not np.isfinite(energy): raise RuntimeError("Fresh validation SCF did not converge")
+            fresh_gradient = gradient(mf)
+            state.update(engine.stationary_checks(fresh_gradient))
+            np.save(out/"fresh_gradient_hartree_per_bohr.npy",fresh_gradient)
+            if not state["final_gradient_thresholds_passed"]:
+                raise RuntimeError("Closed geometry failed new fresh gradient stationarity; no Hessian")
+            progress("fresh_SCF_gradient_passed_no_new_Opt")
+        controls["fresh_SCF_gradient"] = initial_guard.summary()
+        original_fingerprint = mf_fingerprint(engine,mf)
+        original_stock_helper = rhf._partial_hess_ejk
+        write(out/"same_MF_fingerprint.json", original_fingerprint)
+        np.save(out/"actual_geometry_angstrom.npy",mf.mol.atom_coords(unit="Angstrom"))
+        def evaluate(method,label,enabled):
+            case_out = out/label; case_out.mkdir()
+            case_cpu,case_wall = time.process_time(),time.perf_counter()
+            hobj=method.Hessian();hobj.max_cycle=50;hobj.level_shift=0
+            if type(hobj).__module__ != "pyscf.hessian.rks":raise RuntimeError("Standard RKS Hessian required")
+            parts_capture=None;native_guard=guard(label)
+            try:
+                with native_guard,engine.hessian_memory_context(hobj,settings):
+                    parts_capture=RHFPartsCapture(engine,hobj,args.hessian_cache_dir.resolve()/label/"rhf-parts",
+                        case_out/"rhf_helper_cache_manifest.json",settings,state["versions"],
+                        {**source,"same_MF_fingerprint":original_fingerprint,"pure_j_enabled":enabled},
+                        require_zero_ek=enabled)
+                    scope=PureJPartialContext(rhf,parts_capture) if enabled else stock_partial_capture_context(rhf,parts_capture)
+                    with scope:
+                        raw=np.asarray(engine._run_checkpointed_hessian_in_memory_context(hobj,
+                            args.hessian_cache_dir.resolve()/label/"global",
+                            case_out/"hessian_cache_manifest.json",settings,block_atoms=8,
+                            versions=state["versions"],native_lindep=float(inspect.signature(linalg_helper.krylov).parameters["lindep"].default),
+                            input_evidence={**source,"same_MF_fingerprint":original_fingerprint,"pure_j_enabled":enabled},
+                            response_operator_factory=rhf.gen_vind))
+                    used,asym=engine.prepare_hessian_for_analysis(raw,natom)
+                    normal=thermo.harmonic_analysis(mol,used,exclude_trans=True,exclude_rot=True,imaginary_freq=False)
+                    info=engine.frequencies_payload(normal["freq_wavenumber"],normal["norm_mode"],natom)
+                    post_gradient=gradient(method)
+            finally:
+                if sys.exc_info()[0] is not None and parts_capture is not None:
+                    parts_capture.mark_outer_failure(sys.exc_info()[1])
+                controls[label]=native_guard.summary()
+                write(case_out/"native_driver_control.json",controls[label])
+                if rhf._partial_hess_ejk is not original_stock_helper:
+                    raise RuntimeError("Stock RHF partial function object was not restored after the case")
+                source_identity(rhf)
+            if controls[label].get("restoration_failures") or not controls[label].get("original_driver_restored"):
+                raise RuntimeError("Native driver context failed restoration")
+            if parts_capture is None or parts_capture.parts is None:
+                raise RuntimeError("Complete RHF helper tuple was not captured")
+            ek_nonzero=int(np.count_nonzero(parts_capture.parts[2]))
+            if (enabled and ek_nonzero!=0) or (not enabled and ek_nonzero==0):
+                raise RuntimeError("Stock reference must show nonzero unused ek and pure-J must show exact zero ek")
+            np.save(case_out/"hessian_hartree_per_bohr2.npy",raw)
+            np.save(case_out/"hessian_used_for_analysis.npy",used)
+            np.save(case_out/"normal_modes.npy",normal["norm_mode"])
+            np.save(case_out/"frequencies_cm1.npy",np.asarray(info["frequencies_cm1"]))
+            np.save(case_out/"post_Hessian_gradient_hartree_per_bohr.npy",post_gradient)
+            with (case_out/"frequencies.csv").open("w") as f:
+                f.write("mode,frequency_cm1,frequency_THz,imaginary,IR_intensity_status\n")
+                for i,cm in enumerate(info["frequencies_cm1"],1):f.write(f"{i},{cm:.15g},{cm*engine.CM1_TO_THZ:.15g},{cm<0},NOT_COMPUTED\n")
+            metadata={"identity":args.identity,"validation_only":True,"case":label,
+                "pure_j_helper_enabled":enabled,"only_variable_between_cases":"STOCK_VS_PURE_J_RHF_PARTIAL_HELPER",
+                "both_cases_original_V8_B8_native4_global_assembly":True,
+                "energy_hartree":float(method.e_tot),"CPU_seconds":time.process_time()-case_cpu,
+                "wall_seconds":time.perf_counter()-case_wall,"raw_hessian_max_asymmetry":asym,
+                "same_MF_fingerprint_after":mf_fingerprint(engine,method),"source_identity":sources,
+                "raw_hessian_sha256":sha(case_out/"hessian_hartree_per_bohr2.npy"),
+                "analysis_hessian_sha256":sha(case_out/"hessian_used_for_analysis.npy"),
+                "normal_modes_sha256":sha(case_out/"normal_modes.npy"),
+                "raw_e1_ej_ek_cache_manifest_sha256":sha(case_out/"rhf_helper_cache_manifest.json"),
+                "RHF_ek_nonzero_entries":ek_nonzero,
+                "RHF_ek_max_abs_hartree_per_bohr2":float(np.max(np.abs(parts_capture.parts[2]))),
+                "RHF_ek_scope":"UNUSED_EXCHANGE_OUTPUT; NOT_COMPARABLE_ENERGY_MODEL_CONTRIBUTION_FOR_PURE_PBE",
+                "actual_entrypoint":sources["actual_entrypoint"],**info,**engine.frequency_minimum_checks(info),
+                "stock_partial_function_object_and_source_restored":True,
+                "new_geometry_optimization_performed":False,"IR_intensities_status":"NOT_COMPUTED"}
+            energy_drift=abs(float(method.e_tot)-energy)
+            gradient_drift=float(np.max(np.abs(post_gradient-fresh_gradient)))
+            metadata.update(energy_difference_from_initial_fresh_SCF=energy_drift,
+                gradient_difference_from_initial_fresh_G=gradient_drift)
+            write(case_out/"result.json",metadata)
+            if energy_drift>TOLERANCES["energy_hartree"] or gradient_drift>TOLERANCES["gradient_hartree_per_bohr"]:
+                raise RuntimeError("Actual post-Hessian energy/gradient drift exceeded predeclared gate")
+            return {"energy_hartree":float(method.e_tot),"gradient":post_gradient,
+                "e1":parts_capture.parts[0],"ej":parts_capture.parts[1],
+                "ek_nonzero_entries":ek_nonzero,
+                "raw_hessian":raw,"frequencies_cm1":np.asarray(info["frequencies_cm1"])}
+        cases=compare_on_same_mf(mf,evaluate,lambda m:mf_fingerprint(engine,m),
+            lambda label,case:progress("complete_Hessian_case_saved",case=label))
+        comparison=compare_complete_cases(cases[0],cases[1],natom)
+        write(out/"comparison.json",comparison)
+        state.update(comparison=comparison,numerical_equivalence_passed=comparison["numerical_equivalence_passed"],
+            stationary_minimum_verified=comparison["both_minima_positive"],
+            same_MF_geometry_MO_grid_retained=True,
+            stock_ek_nonzero_and_pure_ek_exact_zero_verified=cases[0]["ek_nonzero_entries"]>0 and cases[1]["ek_nonzero_entries"]==0,
+            frequencies_status="DONE_VALIDATION_FIXTURE_ONLY_NOT_SPINOSIN",
+            validation_passed=comparison["numerical_equivalence_passed"] and comparison["both_minima_positive"])
+        state["status"]="DONE" if state["validation_passed"] else "PARTIAL"
+        if not state["validation_passed"]:state["stop_reason"]="Fixed full-matrix/mode or positive-minimum gate failed"
+    except (engine.BudgetStop,KeyboardInterrupt) as exc:
+        state.update(status="PARTIAL",stop_reason=str(exc),interrupted=True)
+    except Exception as exc:
+        state.update(status="PARTIAL",exception_type=type(exc).__name__,stop_reason=str(exc))
+        import traceback
+        (out/"exception_traceback.txt").write_text(traceback.format_exc())
+    finally:
+        if "initial_guard" in locals() and "fresh_SCF_gradient" not in controls:
+            controls["fresh_SCF_gradient"]=initial_guard.summary()
+        for signum,prior in handlers.items():signal.signal(signum,prior)
+        state.update(completed_at_utc=utc(),wall_seconds=time.perf_counter()-start_wall,
+            process_cpu_seconds=time.process_time()-start_cpu,
+            peak_rss_kib=resource.getrusage(resource.RUSAGE_SELF).ru_maxrss,native_driver_controls=controls)
+        if any(c.get("restoration_failures") for c in controls.values()):
+            state.update(status="PARTIAL",validation_passed=False,stop_reason="Native thread restoration failure")
+        write(out/"result.json",state);log_handle.close()
+    print(json.dumps({k:state.get(k) for k in ("status","identity","validation_passed","numerical_equivalence_passed","stop_reason")},indent=2))
+    return state
+
+
+def main(argv=None):
+    parser=argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--phase",required=True,choices=("pure-j-equivalence","spinosin-frequency"))
+    parser.add_argument("--identity",choices=("water","validation_ethanol"))
+    parser.add_argument("--input-xyz",required=True,type=Path)
+    parser.add_argument("--input-coordinates-npy",required=True,type=Path)
+    parser.add_argument("--expected-input-sha256",required=True)
+    parser.add_argument("--expected-coordinates-sha256",required=True)
+    parser.add_argument("--optimization-result",required=True,type=Path)
+    parser.add_argument("--closed-geometry-record",type=Path)
+    parser.add_argument("--output",required=True,type=Path)
+    parser.add_argument("--hessian-cache-dir",required=True,type=Path)
+    parser.add_argument("--provenance-json",type=Path)
+    parser.add_argument("--checkpoint",type=Path)
+    parser.add_argument("--grid-level",type=int,default=1,choices=(1,))
+    parser.add_argument("--threads",type=int,default=4,choices=(4,))
+    parser.add_argument("--native-direct-threads",dest="native_direct_driver_threads",type=int,default=4,choices=(4,))
+    parser.add_argument("--hessian-block-atoms",type=int,default=8,choices=(8,))
+    parser.add_argument("--maxsteps",type=int,default=35,choices=(35,))
+    parser.add_argument("--validation-results",type=Path,nargs=2,
+        help="Completed water and ethanol pure-J validation result JSONs, mandatory before Spinosin")
+    args=parser.parse_args(argv)
+    if args.phase=="pure-j-equivalence":
+        if not args.identity:parser.error("Small-molecule equivalence requires explicit --identity")
+        result=execute_equivalence(args)
+    else:
+        if args.identity is not None:parser.error("Spinosin phase cannot be labelled as a validation fixture")
+        validation_evidence=verify_completed_equivalence_records(args.validation_results)
+        engine=configure_engine(load_frozen_v8())
+        previous=engine.worker_settings
+        def validated_settings(values):
+            result=previous(values)
+            result["completed_pure_j_equivalence_evidence"]=validation_evidence
+            return result
+        engine.worker_settings=validated_settings
+        # Frozen scaffold performs the actual V4 verification via this adapter
+        # before installing/using quantum dependencies, not via its V3 verifier.
+        source_identity()
+        result=engine.execute(args)
+    return 0 if result.get("status")=="DONE" else 2
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+#INFO: ******************** input file end ********************
+
+
+System: uname_result(system='Linux', node='141739321b54', release='6.18.57', version='#1 SMP Tue Oct 20 21:56:04 UTC 2026', machine='x86_64')  Threads 4
+Python 3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]
+numpy 2.3.5  scipy 1.17.0  h5py 3.16.0
+Date: Sun Nov  1 16:55:32 2026
+PySCF version 2.14.0
+PySCF path  /workspace/research4/.runtime/quantum-upgrade-site/pyscf
+
+[CONFIG] conf_file None
+[INPUT] verbose = 4
+[INPUT] num. atoms = 3
+[INPUT] num. electrons = 10
+[INPUT] charge = 0
+[INPUT] spin (= nelec alpha-beta = 2S) = 0
+[INPUT] symmetry False subgroup None
+[INPUT] Mole.unit = Angstrom
+[INPUT] Symbol           X                Y                Z      unit          X                Y                Z       unit  Magmom
+[INPUT]  1 O     -0.000000000000  -0.007961272665  -0.000000000000 AA   -0.000000000000  -0.015044624939  -0.000000000000 Bohr   0.0
+[INPUT]  2 H      0.757825476942   0.604998877565   0.000000000000 AA    1.432082601639   1.143282184266   0.000000000000 Bohr   0.0
+[INPUT]  3 H     -0.757825476942   0.604998877565  -0.000000000000 AA   -1.432082601639   1.143282184266  -0.000000000000 Bohr   0.0
+
+nuclear repulsion = 9.03584207047572
+number of shells = 12
+number of NR pGTOs = 38
+number of NR cGTOs = 24
+basis = def2-svp
+ecp = {}
+CPU time:         0.54
+
+
+******** <class 'research4_frozen_v8_for_pure_j.screened_direct_rks_type.<locals>.ScreenedDirectRKS'> ********
+method = ScreenedDirectRKS
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-08
+SCF conv_tol_grad = None
+SCF max_cycles = 80
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /workspace/research4/reports/pyscf-spinosin-pure-j-20261101-v4/water-pure-j-equivalence-001/fresh_calculation.chk
+max_memory 8000 MB (current use 101 MB)
+XC library pyscf.dft.libxc version 7.0.0
+    S. Lehtola, C. Steigemann, M. J.T. Oliveira, and M. A.L. Marques.,  SoftwareX 7, 1–5 (2018)
+XC functionals = PBE
+    J. P. Perdew, K. Burke, and M. Ernzerhof.,  Phys. Rev. Lett. 77, 3865 (1996)
+    J. P. Perdew, K. Burke, and M. Ernzerhof.,  Phys. Rev. Lett. 78, 1396 (1997)
+    J. P. Perdew, K. Burke, and M. Ernzerhof.,  Phys. Rev. Lett. 77, 3865 (1996)
+    J. P. Perdew, K. Burke, and M. Ernzerhof.,  Phys. Rev. Lett. 78, 1396 (1997)
+radial grids: 
+    Treutler-Ahlrichs [JCP 102, 346 (1995); DOI:10.1063/1.469408] (M4) radial grids
+    
+becke partition: Becke, JCP 88, 2547 (1988); DOI:10.1063/1.454033
+pruning grids: <function nwchem_prune at 0x7f2d46f3de40>
+grids dens level: 1
+symmetrized grids: False
+atomic radii adjust function: <function treutler_atomic_radii_adjust at 0x7f2d46f3e340>
+small_rho_cutoff = 0
+Set gradient conv threshold to 0.0001
+Initial guess from minao.
+tot grids = 10128
+init E= -76.2149032397609
+  HOMO = -0.399531383918187  LUMO = -0.00878284866713264  gap/eV = 10.63281
+cycle= 1 E= -76.1629710282547  delta_E= 0.0519  |g|= 0.766  |ddm|= 1.41
+  HOMO = -0.0399874090899344  LUMO = 0.072174435603249  gap/eV = 3.05208
+cycle= 2 E= -75.9191155203834  delta_E= 0.244  |g|= 1.34  |ddm|=  1.5
+  HOMO = -0.237693755038734  LUMO = 0.0228784727650106  gap/eV = 7.09053
+cycle= 3 E= -76.2722367922939  delta_E= -0.353  |g|= 0.0361  |ddm|= 1.07
+  HOMO = -0.227192801122225  LUMO = 0.026046149519054  gap/eV = 6.89098
+cycle= 4 E= -76.272527285602  delta_E= -0.00029  |g|= 0.00671  |ddm|= 0.031
+  HOMO = -0.227719596699127  LUMO = 0.0251461080810111  gap/eV = 6.88083
+cycle= 5 E= -76.2725343112729  delta_E= -7.03e-06  |g|= 0.00106  |ddm|= 0.00343
+  HOMO = -0.227893457772977  LUMO = 0.0250957033471608  gap/eV = 6.88419
+cycle= 6 E= -76.2725345398574  delta_E= -2.29e-07  |g|= 4.34e-05  |ddm|= 0.000844
+  HOMO = -0.227901537299373  LUMO = 0.0250852492629456  gap/eV = 6.88412
+cycle= 7 E= -76.2725345404882  delta_E= -6.31e-10  |g|= 3.71e-06  |ddm|= 6.05e-05
+  HOMO = -0.227902224713803  LUMO = 0.025085911731745  gap/eV = 6.88416
+Extra cycle  E= -76.2725345404866  delta_E= 1.59e-12  |g|= 5.04e-06  |ddm|= 6.09e-06
+converged SCF energy = -76.2725345404866
+
+
+******** <class 'research4_frozen_v8_for_pure_j.direct_gradient_type.<locals>.ScreenedDirectRKSGradients'> for <class 'research4_frozen_v8_for_pure_j.screened_direct_rks_type.<locals>.ScreenedDirectRKS'> ********
+unit = Eh/Bohr
+max_memory 8000 MB (current use 117 MB)
+grid_response = False
+--------------- ScreenedDirectRKS gradients ---------------
+         x                y                z
+0 O    -0.0000000000    -0.0002311504    -0.0000000000
+1 H     0.0000354332    -0.0000113035     0.0000000000
+2 H    -0.0000354332    -0.0000113035    -0.0000000000
+----------------------------------------------
+
+
+******** <class 'research4_frozen_v8_for_pure_j.direct_gradient_type.<locals>.ScreenedDirectRKSGradients'> for <class 'research4_frozen_v8_for_pure_j.screened_direct_rks_type.<locals>.ScreenedDirectRKS'> ********
+unit = Eh/Bohr
+max_memory 8000 MB (current use 123 MB)
+grid_response = False
+--------------- ScreenedDirectRKS gradients ---------------
+         x                y                z
+0 O    -0.0000000000    -0.0002311504    -0.0000000000
+1 H     0.0000354332    -0.0000113035     0.0000000000
+2 H    -0.0000354332    -0.0000113035    -0.0000000000
+----------------------------------------------
+
+
+******** <class 'research4_frozen_v8_for_pure_j.direct_gradient_type.<locals>.ScreenedDirectRKSGradients'> for <class 'research4_frozen_v8_for_pure_j.screened_direct_rks_type.<locals>.ScreenedDirectRKS'> ********
+unit = Eh/Bohr
+max_memory 8000 MB (current use 123 MB)
+grid_response = False
+--------------- ScreenedDirectRKS gradients ---------------
+         x                y                z
+0 O    -0.0000000000    -0.0002311504    -0.0000000000
+1 H     0.0000354332    -0.0000113035     0.0000000000
+2 H    -0.0000354332    -0.0000113035    -0.0000000000
+----------------------------------------------

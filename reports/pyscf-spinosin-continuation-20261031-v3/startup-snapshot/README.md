@@ -1,0 +1,1 @@
+Startup snapshot only. Spinosin optimization was RUNNING; no optimized direct result or Spinosin frequency had completed. This is not a final calculation result. The live cpu_budget.json and eventual worker result.json are authoritative. No active HDF5 checkpoint was read or copied.

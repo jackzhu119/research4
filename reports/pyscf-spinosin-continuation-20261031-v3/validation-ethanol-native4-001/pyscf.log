@@ -1,0 +1,1019 @@
+#INFO: **** input file is /workspace/research4/scripts/validate_pyscf_native4_large_block_engineering_20261031.py ****
+"""Sourced ethanol: standard native1 versus V8 native4 B4/B8 validation.
+
+Root alone executes this program through the cumulative budget runner. Importing
+it performs no quantum work and creates no default molecular geometry.
+"""
+from __future__ import annotations
+
+import argparse
+from collections import Counter
+import csv
+from datetime import datetime, timezone
+import hashlib
+import importlib.metadata
+import importlib.util
+import inspect
+import json
+from pathlib import Path
+import resource
+import signal
+import sys
+import time
+from types import SimpleNamespace
+
+import numpy as np
+
+
+ROOT = Path(__file__).resolve().parents[1]
+WORKER = ROOT / "scripts/pyscf_spinosin_parallel_hessian_worker_20261031.py"
+IDENTITY = "validation_ethanol"
+COMPOSITION = {"C": 2, "H": 6, "O": 1}
+INCHIKEY = "LFQSCWFLJHTTHZ-UHFFFAOYSA-N"
+TOLERANCES = {"energy_hartree": 1e-8, "gradient_hartree_per_bohr": 1e-8,
+              "raw_hessian_hartree_per_bohr2": 1e-6, "frequencies_cm1": 1e-2}
+CASES = (("standard_full_native1", None), ("response_block4_native4", 4), ("response_block8_native4", 8))
+
+
+def utc():
+    return datetime.now(timezone.utc).isoformat()
+
+
+def sha(path):
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+
+def write(path, value):
+    path = Path(path); temporary = path.with_name(path.name + ".writing")
+    temporary.write_text(json.dumps(value, ensure_ascii=False, indent=2, allow_nan=False) + "\n")
+    temporary.replace(path)
+
+
+def verify_source(xyz_path, provenance_path, expected_sha, coordinates_path=None):
+    """Require an actually supplied, verified9-atom ethanol source; never guess."""
+    xyz_path, provenance_path = Path(xyz_path), Path(provenance_path)
+    if not expected_sha or sha(xyz_path) != expected_sha:
+        raise ValueError("Explicit expected XYZ SHA must match supplied structure")
+    provenance = json.loads(provenance_path.read_text())
+    expected = {"identity": IDENTITY, "validation_only": True, "identity_verified": True,
+                "stereochemistry_verified": True, "molecule": "ethanol", "formula": "C2H6O",
+                "atom_count": 9, "electron_count": 26, "charge": 0, "multiplicity": 1,
+                "composition": COMPOSITION, "smiles": "CCO", "inchikey": INCHIKEY}
+    if any(provenance.get(key) != value for key, value in expected.items()):
+        raise ValueError("Root-supplied provenance is not the verified ethanol validation model")
+    if (provenance.get("input_xyz_sha256") != expected_sha or not provenance.get("source_url")
+            or provenance.get("coordinate_units") != "angstrom"):
+        raise ValueError("Trusted source URL, coordinate units and provenance hash required")
+    lines = xyz_path.read_text().splitlines(); rows = [line.split() for line in lines[2:] if line.strip()]
+    if not lines or int(lines[0]) != 9 or len(rows) != 9 or any(len(row) != 4 for row in rows):
+        raise ValueError("Exactly9 explicitly supplied XYZ atom rows required")
+    symbols = [row[0] for row in rows]; coords = np.asarray([[float(v) for v in row[1:]] for row in rows])
+    if Counter(symbols) != Counter(COMPOSITION) or not np.isfinite(coords).all():
+        raise ValueError("Ethanol composition or finite coordinates mismatch")
+    if coordinates_path is not None:
+        coordinates_path = Path(coordinates_path)
+        if sha(coordinates_path) != provenance.get("coordinates_sha256"):
+            raise ValueError("Supplied full-precision source coordinates differ from provenance")
+        precise = np.load(coordinates_path, allow_pickle=False)
+        if precise.shape != (9, 3) or not np.isfinite(precise).all() or not np.allclose(precise, coords, atol=1e-11, rtol=0):
+            raise ValueError("Full-precision source geometry differs from supplied XYZ")
+        coords = precise
+    distances = np.linalg.norm(coords[:, None] - coords[None, :], axis=2)
+    if np.min(distances[np.triu_indices(9, 1)]) < .25 or np.linalg.matrix_rank(coords - coords.mean(0), tol=1e-10) < 2:
+        raise ValueError("Overlapping or linear coordinates cannot use the nonlinear21-mode convention")
+    return symbols, coords, provenance
+
+
+def compare_case(reference, candidate):
+    """Compare every atom-pair Hessian entry, not only within response blocks."""
+    arrays = {}
+    for key, shape in [("gradient", (9, 3)), ("raw_hessian", (9, 9, 3, 3)),
+                       ("analysis_hessian", (9, 9, 3, 3)), ("frequencies_cm1", (21,))]:
+        first, second = np.asarray(reference[key]), np.asarray(candidate[key])
+        if first.shape != shape or second.shape != shape or not np.isfinite(first).all() or not np.isfinite(second).all():
+            raise ValueError("Incomplete/nonfinite full-system comparison array: " + key)
+        arrays[key] = float(np.max(np.abs(second - first)))
+    energy_difference = abs(float(candidate["energy_hartree"]) - float(reference["energy_hartree"]))
+    if not np.isfinite(energy_difference):
+        raise ValueError("Finite comparison energy required")
+    checks = {"energy": energy_difference <= TOLERANCES["energy_hartree"],
+              "gradient": arrays["gradient"] <= TOLERANCES["gradient_hartree_per_bohr"],
+              "full_raw_hessian": arrays["raw_hessian"] <= TOLERANCES["raw_hessian_hartree_per_bohr2"],
+              "all21_frequencies": arrays["frequencies_cm1"] <= TOLERANCES["frequencies_cm1"]}
+    return {"max_abs_energy_difference_hartree": energy_difference,
+            "max_abs_gradient_difference_hartree_per_bohr": arrays["gradient"],
+            "max_abs_raw_hessian_difference_hartree_per_bohr2": arrays["raw_hessian"],
+            "max_abs_analysis_hessian_difference_hartree_per_bohr2": arrays["analysis_hessian"],
+            "max_abs_frequency_difference_cm1": arrays["frequencies_cm1"],
+            "all_atom_pair_cross_couplings_compared": True, "checks": checks,
+            "numerical_equivalence_passed": bool(all(checks.values())),
+            "candidate_imaginary_frequency_count": int(np.sum(np.asarray(candidate["frequencies_cm1"]) < 0)),
+            "candidate_all21_frequencies_positive": bool(np.all(np.asarray(candidate["frequencies_cm1"]) > 0))}
+
+
+def compare_same_state(mf, evaluate, fingerprint, persist):
+    """Injectable orchestration: same MF object, geometry and orbital gauge."""
+    original = fingerprint(mf); reference = None; comparisons = []
+    for label, block in CASES:
+        if fingerprint(mf) != original:
+            raise RuntimeError("MF geometry/orbitals changed before engineering case")
+        actual = evaluate(mf, label, block)
+        if fingerprint(mf) != original:
+            raise RuntimeError("MF geometry/orbitals changed during engineering case")
+        if reference is None:
+            reference = actual
+        difference = compare_case(reference, actual)
+        record = {"case": label, "response_block_atoms": block,
+                  "native_direct_driver_threads": 1 if block is None else 4, **difference}
+        persist(label, actual, record)
+        comparisons.append(record)
+    return comparisons
+
+
+def evaluate_with_native_scope(mf, label, block, evaluate, scope_factory, control_sink=None):
+    """Each case owns one nonnested native1/4 scope, restored before return."""
+    native_threads = 1 if block is None else 4
+    guard = scope_factory(native_threads, label)
+    try:
+        with guard:
+            actual = evaluate(mf, label, block, native_threads)
+    finally:
+        control = guard.summary()
+        if control_sink is not None:
+            control_sink(control)
+    if control.get("restoration_failures") or control.get("original_driver_restored") is not True:
+        raise RuntimeError("Native driver scope did not restore before engineering comparison")
+    actual["native_direct_driver_control"] = control
+    return actual
+
+
+def combined_native_controls(initial, cases):
+    """Configured native limits are not measurements of active worker count."""
+    controls = [initial, *cases.values()]
+    return {"initial_opt_fresh_gradient": initial, "cases": cases,
+            "scopes_are_sequential_not_nested": True,
+            "native_thread_observation_kind": "OMP_CONFIGURED_MAX_NOT_ACTIVE_WORKER_COUNT",
+            "max_observed_native_threads": max((value.get("max_observed_native_threads", 0) for value in controls), default=0),
+            "restoration_failures": sum(value.get("restoration_failures", 0) for value in controls)}
+
+
+def import_engineering_worker():
+    spec = importlib.util.spec_from_file_location("parallel_hessian_engineering_v8", WORKER)
+    module = importlib.util.module_from_spec(spec); spec.loader.exec_module(module)
+    return module
+
+
+def prepare_supervised_runtime(expected_threads, loader=import_engineering_worker):
+    """Validate the real parent proof before even installing quantum sites."""
+    engine = loader()
+    supervision = engine.verify_resource_supervision(expected_threads=expected_threads)
+    engine.install_sites()
+    return engine, supervision
+
+
+def execute(args):
+    symbols, coordinates, provenance = verify_source(args.input_xyz, args.provenance_json,
+        args.expected_input_sha256, args.input_coordinates_npy)
+    if args.threads != 4 or not 1 <= args.maxsteps <= 100:
+        raise ValueError("The native4 comparison requires4outer threads and1..100optimizer steps")
+    out = args.output.resolve()
+    if out.exists(): raise FileExistsError("Preserve earlier validation outputs")
+    out.mkdir(parents=True)
+    engine, resource_supervision = prepare_supervised_runtime(args.threads)
+    import pyscf
+    from pyscf import dft, gto, lib
+    from pyscf.scf import _vhf
+    from pyscf.scf.hf import SCF as DirectSCF
+    from pyscf.grad.rks import Gradients as RKSGradients
+    from pyscf.geomopt import geometric_solver
+    from pyscf.hessian import thermo, rhf as rhf_hessian
+    from pyscf.lib import linalg_helper
+    lib.num_threads(args.threads)
+    settings = engine.worker_settings(SimpleNamespace(grid_level=1, threads=args.threads,
+        maxsteps=args.maxsteps, hessian_block_atoms=4, native_direct_driver_threads=1))
+    started = utc(); wall, cpu = time.perf_counter(), time.process_time()
+    state = {"identity": IDENTITY, "validation_only": True, "status": "PARTIAL", "started_at_utc": started,
+        "atoms": 9, "electrons": 26, "settings": settings, "script_sha256": sha(__file__),
+        "engineering_helper_source_sha256": sha(WORKER), "input_xyz_sha256": sha(args.input_xyz),
+        "resource_supervision": resource_supervision,
+        "provenance_sha256": sha(args.provenance_json), "source_provenance": provenance,
+        "versions": {"python": sys.version.split()[0], "pyscf": pyscf.__version__, "numpy": np.__version__,
+                     "geometric": importlib.metadata.version("geometric")},
+        "tolerances_fixed_before_results": TOLERANCES, "geometry_optimized": False,
+        "optimizer_converged": False, "scf_converged": False,
+        "frequencies_status": "VALIDATION_ONLY_NOT_HERBAL_THEORY", "IR_intensities_status": "NOT_COMPUTED",
+        "numerical_equivalence_passed": False, "stationary_minimum_verified": False,
+        "not_a_plant_or_acid_jujube_result": True, "new_Spinosin_frequencies": 0}
+    write(out / "input.json", state)
+    log_handle = (out / "pyscf.log").open("w", buffering=1)
+    checkpoint = out / "calculation.chk"
+    def progress(event, **details):
+        record = {"utc": utc(), "event": event, "process_cpu_seconds": time.process_time()-cpu,
+                  "wall_seconds": time.perf_counter()-wall, **details}
+        with (out / "events.jsonl").open("a") as handle: handle.write(json.dumps(record, allow_nan=False) + "\n")
+        write(out / "progress.json", {**state, **record})
+    Type = engine.screened_direct_rks_type(dft.rks.RKS, DirectSCF.get_jk)
+    Gradient = engine.direct_gradient_type(RKSGradients, lambda event, details: progress(event, **details),
+                                           memory_mb=lambda: lib.current_memory()[0])
+    def scf_method(mol):
+        method = Type(mol); method.xc = "PBE"; method.max_memory = 8000
+        method.direct_scf = True; method.direct_scf_tol = 1e-13
+        method.conv_tol = 1e-8; method.max_cycle = 80; method.conv_tol_cpscf = 1e-8
+        method.grids.level = 1; method._eri = None; mol.incore_anyway = False
+        method.chkfile = str(checkpoint)
+        if checkpoint.exists(): method.init_guess = "chkfile"
+        engine.direct_integral_policy(method)
+        return method
+    def gradient_method(method):
+        obj = Gradient(method); obj.grid_response = False; return obj
+    def fingerprint(method):
+        return {"geometry": engine.array_fingerprint(method.mol.atom_coords()),
+                "MO_coeff": engine.array_fingerprint(method.mo_coeff),
+                "MO_energy": engine.array_fingerprint(method.mo_energy),
+                "MO_occupancy": engine.array_fingerprint(method.mo_occ), "energy_hartree": float(method.e_tot)}
+    def stop(signum, _frame): raise engine.BudgetStop("Validation resource signal " + str(signum))
+    handlers = {s: signal.signal(s, stop) for s in (signal.SIGTERM, signal.SIGXCPU)}
+    driver_guard = engine.NativeDirectDriverThreadGuard(_vhf, lib.with_omp_threads, lib.num_threads,
+        native_threads=1, emit=lambda details: progress("native_direct_driver_entered", native_control=details))
+    try:
+        with driver_guard:
+            mol = gto.Mole(); mol.stdout = log_handle
+            mol.build(atom=list(zip(symbols, coordinates)), unit="Angstrom", basis="def2-svp",
+                      charge=0, spin=0, symmetry=False, verbose=4, max_memory=8000)
+            mol.incore_anyway = False; method = scf_method(mol)
+            (out / "geometry_steps").mkdir()
+            def callback(env):
+                cycle = int(env["self"].cycle); prefix = out / "geometry_steps" / f"step_{cycle:04d}"
+                gradient = np.asarray(env["gradients"]); current = env["mol"]
+                np.save(prefix.with_suffix(".gradient.npy"), gradient)
+                np.save(prefix.with_suffix(".coordinates_angstrom.npy"), current.atom_coords(unit="Angstrom"))
+                write(prefix.with_suffix(".json"), {"cycle": cycle, "energy_hartree": float(env["energy"]),
+                    "scf_converged": bool(env["g_scanner"].converged), **engine.stationary_checks(gradient)})
+                progress("validation_geometry_cycle", cycle=cycle, energy_hartree=float(env["energy"]))
+            converged, optimized = geometric_solver.kernel(gradient_method(method), maxsteps=args.maxsteps,
+                assert_convergence=True, callback=callback, **engine.THRESHOLDS)
+            state["optimizer_converged"] = bool(converged)
+            (out / "optimized.xyz").write_text(engine.xyz_text(symbols, optimized.atom_coords(unit="Angstrom"),
+                                                              "Ethanol validation model, not a plant spectrum"))
+            np.save(out / "optimized_coordinates_angstrom.npy", optimized.atom_coords(unit="Angstrom"))
+            method = scf_method(optimized); energy = float(method.kernel())
+            state.update(scf_converged=bool(method.converged), energy_hartree=energy)
+            if not method.converged or not np.isfinite(energy): raise RuntimeError("Fresh validation SCF not converged")
+            gradient = np.asarray(gradient_method(method).kernel()); np.save(out / "gradient_hartree_per_bohr.npy", gradient)
+            state.update(engine.stationary_checks(gradient))
+            state["geometry_optimized"] = bool(converged and state["final_gradient_thresholds_passed"])
+            if not state["geometry_optimized"]: raise RuntimeError("Validation Opt/fresh-gradient gate failed; no Hessian")
+            progress("validation_opt_fresh_gradient_passed")
+        state["initial_opt_fresh_native_control"] = driver_guard.summary()
+        np.save(out / "same_MF_MO_coeff.npy", method.mo_coeff)
+        np.save(out / "same_MF_MO_energy.npy", method.mo_energy)
+        np.save(out / "same_MF_MO_occupancy.npy", method.mo_occ)
+        same_fingerprint = fingerprint(method); write(out / "same_MF_fingerprint.json", same_fingerprint)
+        def evaluate_unwrapped(same_method, label, block, native_threads):
+            case_out = out / label; case_out.mkdir(); start_cpu, start_wall = time.process_time(), time.perf_counter()
+            case_settings = engine.worker_settings(SimpleNamespace(grid_level=1, threads=args.threads,
+                maxsteps=args.maxsteps, hessian_block_atoms=block or 4, native_direct_driver_threads=native_threads))
+            hobj = same_method.Hessian(); hobj.max_cycle = 50; hobj.level_shift = 0
+            if type(hobj).__module__ != "pyscf.hessian.rks": raise RuntimeError("Standard non-DF RKS Hessian required")
+            if block is None:
+                with engine.hessian_memory_context(hobj, case_settings, emit=lambda event, meta: progress(event, case=label, metadata=meta)):
+                    raw = np.asarray(hobj.kernel())
+            else:
+                cache = args.hessian_cache_dir.resolve() / label
+                raw = np.asarray(engine.run_checkpointed_hessian(hobj, cache, case_out / "hessian_cache_manifest.json",
+                    case_settings, block_atoms=block, versions=state["versions"],
+                    native_lindep=float(inspect.signature(linalg_helper.krylov).parameters["lindep"].default),
+                    response_operator_factory=rhf_hessian.gen_vind,
+                    input_evidence={"validation_only": True, "identity": IDENTITY,
+                        "geometry_optimized": True, "final_gradient_thresholds_passed": True,
+                        "same_MF_fingerprint": same_fingerprint, "source_provenance_sha256": sha(args.provenance_json)}))
+            np.save(case_out / "hessian_hartree_per_bohr2.npy", raw)
+            used, asym = engine.prepare_hessian_for_analysis(raw, 9); np.save(case_out / "hessian_used_for_analysis.npy", used)
+            normal = thermo.harmonic_analysis(same_method.mol, used, exclude_trans=True, exclude_rot=True, imaginary_freq=False)
+            info = engine.frequencies_payload(normal["freq_wavenumber"], normal["norm_mode"], 9)
+            np.save(case_out / "normal_modes.npy", normal["norm_mode"])
+            np.save(case_out / "reduced_mass_amu.npy", normal["reduced_mass"])
+            actual_gradient = np.asarray(gradient_method(same_method).kernel())
+            np.save(case_out / "post_Hessian_gradient_hartree_per_bohr.npy", actual_gradient)
+            initial_energy_difference = abs(float(same_method.e_tot) - energy)
+            initial_gradient_difference = float(np.max(np.abs(actual_gradient - gradient)))
+            with (case_out / "frequencies.csv").open("w", newline="") as handle:
+                writer = csv.writer(handle); writer.writerow(["mode", "frequency_cm1", "frequency_thz", "IR_intensity_status", "validation_only"])
+                writer.writerows((i+1, cm, cm*engine.CM1_TO_THZ, "NOT_COMPUTED", True) for i, cm in enumerate(info["frequencies_cm1"]))
+            case_metadata = {"identity": IDENTITY, "validation_only": True, "case": label,
+                "settings": case_settings, "energy_hartree": float(same_method.e_tot),
+                "same_MF_fingerprint_before": same_fingerprint,
+                "same_MF_fingerprint_after": fingerprint(same_method),
+                "normal_mode_geometry_source": str(out / "optimized_coordinates_angstrom.npy"),
+                "normal_mode_geometry_source_sha256": sha(out / "optimized_coordinates_angstrom.npy"),
+                "raw_hessian_sha256": sha(case_out / "hessian_hartree_per_bohr2.npy"),
+                "analysis_hessian_sha256": sha(case_out / "hessian_used_for_analysis.npy"),
+                "normal_modes_file_sha256": sha(case_out / "normal_modes.npy"),
+                "raw_hessian_max_asymmetry": asym, "CPU_seconds": time.process_time()-start_cpu,
+                "wall_seconds": time.perf_counter()-start_wall, **info, **engine.frequency_minimum_checks(info),
+                "max_abs_energy_difference_from_initial_fresh_SCF_hartree": initial_energy_difference,
+                "max_abs_gradient_difference_from_initial_fresh_gradient_hartree_per_bohr": initial_gradient_difference,
+                "CPHF_residual_norm": "NOT_COMPUTED", "native_solver_normal_return_is_not_measured_residual": True}
+            if (initial_energy_difference > TOLERANCES["energy_hartree"]
+                    or initial_gradient_difference > TOLERANCES["gradient_hartree_per_bohr"]):
+                raise RuntimeError("Hessian case changed the initial fresh SCF/gradient beyond fixed tolerance")
+            return {"energy_hartree": float(same_method.e_tot), "gradient": actual_gradient,
+                    "raw_hessian": raw, "analysis_hessian": used,
+                    "frequencies_cm1": np.asarray(info["frequencies_cm1"]), "case_metadata": case_metadata}
+        case_native_controls = {}
+        def scope_factory(native_threads, label):
+            return engine.NativeDirectDriverThreadGuard(_vhf, lib.with_omp_threads, lib.num_threads,
+                native_threads=native_threads, emit=lambda details: progress("native_direct_driver_entered", case=label, native_control=details))
+        def evaluate(same_method, label, block):
+            def save_control(control):
+                case_native_controls[label] = control
+                if (out / label).is_dir():
+                    write(out / label / "native_driver_control.json", control)
+            actual = evaluate_with_native_scope(same_method, label, block, evaluate_unwrapped, scope_factory, save_control)
+            metadata = actual.pop("case_metadata")
+            metadata.update(native_direct_driver_control=actual["native_direct_driver_control"],
+                            resource_supervision=resource_supervision)
+            write(out / label / "result.json", metadata)
+            return actual
+        def persist(label, actual, comparison):
+            write(out / label / "comparison_to_standard.json", comparison)
+            progress("validation_Hessian_case_complete", case=label, comparison=comparison)
+        comparisons = compare_same_state(method, evaluate, fingerprint, persist)
+        write(out / "all_case_comparisons.json", comparisons)
+        state.update(numerical_equivalence_passed=all(row["numerical_equivalence_passed"] for row in comparisons),
+                     all_cases_positive21_frequency_minimum=all(row["candidate_all21_frequencies_positive"] for row in comparisons),
+                     comparisons=comparisons, same_MF_geometry_and_orbitals_unchanged=True)
+        state["stationary_minimum_verified"] = bool(state["all_cases_positive21_frequency_minimum"])
+        state["status"] = "DONE" if state["numerical_equivalence_passed"] else "PARTIAL"
+        if not state["numerical_equivalence_passed"]: state["stop_reason"] = "Predeclared engineering numerical equivalence threshold failed"
+    except (engine.BudgetStop, KeyboardInterrupt) as exc:
+        state.update(status="PARTIAL", stop_reason=str(exc), interrupted=True)
+    except Exception as exc:
+        state.update(status="PARTIAL", stop_reason=str(exc), exception_type=type(exc).__name__)
+        import traceback
+        (out / "exception_traceback.txt").write_text(traceback.format_exc())
+    finally:
+        for signum, previous in handlers.items(): signal.signal(signum, previous)
+        state.update(completed_at_utc=utc(), wall_seconds=time.perf_counter()-wall,
+                     process_cpu_seconds=time.process_time()-cpu,
+                     peak_rss_kib=resource.getrusage(resource.RUSAGE_SELF).ru_maxrss,
+                     native_direct_driver_control=combined_native_controls(driver_guard.summary(), locals().get("case_native_controls", {})))
+        if state["native_direct_driver_control"].get("restoration_failures"):
+            state.update(status="PARTIAL", stop_reason="Native thread restoration failure")
+        write(out / "result.json", state); log_handle.close()
+    print(json.dumps({key: state.get(key) for key in ["identity", "status", "geometry_optimized", "numerical_equivalence_passed", "stationary_minimum_verified", "stop_reason"]}))
+    return state
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--input-xyz", required=True, type=Path)
+    parser.add_argument("--provenance-json", required=True, type=Path)
+    parser.add_argument("--expected-input-sha256", required=True)
+    parser.add_argument("--input-coordinates-npy", type=Path)
+    parser.add_argument("--output", required=True, type=Path)
+    parser.add_argument("--hessian-cache-dir", required=True, type=Path)
+    parser.add_argument("--threads", type=int, choices=(4,), default=4)
+    parser.add_argument("--maxsteps", type=int, default=50)
+    args = parser.parse_args(); result = execute(args)
+    sys.exit(0 if result["status"] == "DONE" else 2)
+
+
+if __name__ == "__main__":
+    main()
+#INFO: ******************** input file end ********************
+
+
+System: uname_result(system='Linux', node='141739321b54', release='6.18.57', version='#1 SMP Tue Oct 20 21:56:04 UTC 2026', machine='x86_64')  Threads 4
+Python 3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]
+numpy 2.3.5  scipy 1.17.0  h5py 3.16.0
+Date: Sun Nov  1 08:13:04 2026
+PySCF version 2.14.0
+PySCF path  /workspace/research4/.runtime/quantum-upgrade-site/pyscf
+
+[CONFIG] conf_file None
+[INPUT] verbose = 4
+[INPUT] num. atoms = 9
+[INPUT] num. electrons = 26
+[INPUT] charge = 0
+[INPUT] spin (= nelec alpha-beta = 2S) = 0
+[INPUT] symmetry False subgroup None
+[INPUT] Mole.unit = Angstrom
+[INPUT] Symbol           X                Y                Z      unit          X                Y                Z       unit  Magmom
+[INPUT]  1 C     -1.013552452285   0.121370292553   0.091470676010 AA   -1.915336547700   0.229356612584   0.172854526087 Bohr   0.0
+[INPUT]  2 C      0.433976045831  -0.317616304485   0.033823122411 AA    0.820095871242  -0.600207828173   0.063916438034 Bohr   0.0
+[INPUT]  3 O      1.235564947994   0.783355048643  -0.367389175598 AA    2.334879360821   1.480326500230  -0.694264923010 Bohr   0.0
+[INPUT]  4 H     -1.660403827278  -0.705272485983   0.398255308755 AA   -3.137708489735  -1.332771841700   0.752593461202 Bohr   0.0
+[INPUT]  5 H     -1.345469991489   0.485838779730  -0.886329329180 AA   -2.542569792736   0.918102234383  -1.674919688320 Bohr   0.0
+[INPUT]  6 H     -1.138041121102   0.948630578406   0.798041629326 AA   -2.150586037376   1.792651986576   1.508080115429 Bohr   0.0
+[INPUT]  7 H      0.771058773952  -0.659181997831   1.017066934048 AA    1.457089908712  -1.245673442145   1.921977955702 Bohr   0.0
+[INPUT]  8 H      0.560836132767  -1.128205759032  -0.689994079137 AA    1.059826691690  -2.131999896728  -1.303899837141 Bohr   0.0
+[INPUT]  9 H      2.156031491611   0.471081847999  -0.394945086636 AA    4.074309035082   0.890215674972  -0.746338047984 Bohr   0.0
+
+nuclear repulsion = 81.8049634472706
+number of shells = 36
+number of NR pGTOs = 114
+number of NR cGTOs = 72
+basis = def2-svp
+ecp = {}
+CPU time:         0.56
+Create scanner for <class 'parallel_hessian_engineering_v8.direct_gradient_type.<locals>.ScreenedDirectRKSGradients'>
+Create scanner for <class 'parallel_hessian_engineering_v8.screened_direct_rks_type.<locals>.ScreenedDirectRKS'>
+
+Geometry optimization cycle 1
+Cartesian coordinates (Angstrom)
+ Atom        New coordinates             dX        dY        dZ
+   C  -1.013552   0.121370   0.091471    0.000000  0.000000 -0.000000
+   C   0.433976  -0.317616   0.033823    0.000000  0.000000  0.000000
+   O   1.235565   0.783355  -0.367389    0.000000  0.000000  0.000000
+   H  -1.660404  -0.705272   0.398255    0.000000  0.000000  0.000000
+   H  -1.345470   0.485839  -0.886329    0.000000 -0.000000  0.000000
+   H  -1.138041   0.948631   0.798042    0.000000  0.000000  0.000000
+   H   0.771059  -0.659182   1.017067    0.000000  0.000000  0.000000
+   H   0.560836  -1.128206  -0.689994    0.000000  0.000000  0.000000
+   H   2.156031   0.471082  -0.394945    0.000000 -0.000000  0.000000
+
+WARN: Mole.unit (Angstrom) is changed to Bohr
+
+New geometry
+   1 C     -1.013552452285   0.121370292553   0.091470676010 AA   -1.915336547700   0.229356612584   0.172854526087 Bohr
+   2 C      0.433976045831  -0.317616304485   0.033823122411 AA    0.820095871242  -0.600207828173   0.063916438034 Bohr
+   3 O      1.235564947994   0.783355048643  -0.367389175598 AA    2.334879360821   1.480326500230  -0.694264923010 Bohr
+   4 H     -1.660403827278  -0.705272485983   0.398255308755 AA   -3.137708489735  -1.332771841700   0.752593461202 Bohr
+   5 H     -1.345469991489   0.485838779730  -0.886329329180 AA   -2.542569792736   0.918102234383  -1.674919688320 Bohr
+   6 H     -1.138041121102   0.948630578406   0.798041629326 AA   -2.150586037376   1.792651986576   1.508080115429 Bohr
+   7 H      0.771058773952  -0.659181997831   1.017066934048 AA    1.457089908712  -1.245673442145   1.921977955702 Bohr
+   8 H      0.560836132767  -1.128205759032  -0.689994079137 AA    1.059826691690  -2.131999896728  -1.303899837141 Bohr
+   9 H      2.156031491611   0.471081847999  -0.394945086636 AA    4.074309035082   0.890215674972  -0.746338047984 Bohr
+
+
+******** <class 'pyscf.scf.hf.ScreenedDirectRKS_Scanner'> ********
+method = ScreenedDirectRKS_Scanner
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-08
+SCF conv_tol_grad = None
+SCF max_cycles = 80
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /workspace/research4/reports/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-001/calculation.chk
+max_memory 8000 MB (current use 115 MB)
+XC library pyscf.dft.libxc version 7.0.0
+    S. Lehtola, C. Steigemann, M. J.T. Oliveira, and M. A.L. Marques.,  SoftwareX 7, 1–5 (2018)
+XC functionals = PBE
+    J. P. Perdew, K. Burke, and M. Ernzerhof.,  Phys. Rev. Lett. 77, 3865 (1996)
+    J. P. Perdew, K. Burke, and M. Ernzerhof.,  Phys. Rev. Lett. 78, 1396 (1997)
+    J. P. Perdew, K. Burke, and M. Ernzerhof.,  Phys. Rev. Lett. 77, 3865 (1996)
+    J. P. Perdew, K. Burke, and M. Ernzerhof.,  Phys. Rev. Lett. 78, 1396 (1997)
+radial grids: 
+    Treutler-Ahlrichs [JCP 102, 346 (1995); DOI:10.1063/1.469408] (M4) radial grids
+    
+becke partition: Becke, JCP 88, 2547 (1988); DOI:10.1063/1.454033
+pruning grids: <function nwchem_prune at 0x7f5342714b80>
+grids dens level: 1
+symmetrized grids: False
+atomic radii adjust function: <function treutler_atomic_radii_adjust at 0x7f5342715080>
+small_rho_cutoff = 0
+Set gradient conv threshold to 0.0001
+Initial guess from minao.
+tot grids = 30376
+init E= -154.742259506591
+  HOMO = -0.341816313369864  LUMO = -0.00853715892823814  gap/eV = 9.06899
+cycle= 1 E= -154.60870167475  delta_E= 0.134  |g|= 0.731  |ddm|= 2.78
+  HOMO = -0.0383527299557489  LUMO = 0.0598566547804205  gap/eV = 2.67241
+cycle= 2 E= -154.353950767547  delta_E= 0.255  |g|= 1.33  |ddm|= 2.41
+  HOMO = -0.214191092961808  LUMO = 0.0298898663657714  gap/eV = 6.64178
+cycle= 3 E= -154.717870941005  delta_E= -0.364  |g|= 0.107  |ddm|= 1.79
+  HOMO = -0.207297428574432  LUMO = 0.0293801485983414  gap/eV = 6.44032
+cycle= 4 E= -154.719780967473  delta_E= -0.00191  |g|= 0.0583  |ddm|= 0.142
+  HOMO = -0.206946976472376  LUMO = 0.0301755705230424  gap/eV = 6.45243
+cycle= 5 E= -154.720601232096  delta_E= -0.00082  |g|= 0.00715  |ddm|= 0.053
+  HOMO = -0.207157441401916  LUMO = 0.0299896601466316  gap/eV = 6.45310
+cycle= 6 E= -154.720613088511  delta_E= -1.19e-05  |g|= 0.00129  |ddm|= 0.00724
+  HOMO = -0.20713068294851  LUMO = 0.0299856752987693  gap/eV = 6.45226
+cycle= 7 E= -154.720613425735  delta_E= -3.37e-07  |g|= 0.000529  |ddm|= 0.00154
+  HOMO = -0.207188710053622  LUMO = 0.0299627811252381  gap/eV = 6.45322
+cycle= 8 E= -154.720613490813  delta_E= -6.51e-08  |g|= 0.000127  |ddm|= 0.000575
+  HOMO = -0.207188726666003  LUMO = 0.0299653522786865  gap/eV = 6.45329
+cycle= 9 E= -154.720613494916  delta_E= -4.1e-09  |g|= 8.51e-06  |ddm|= 0.000142
+  HOMO = -0.20719012610717  LUMO = 0.0299639468402702  gap/eV = 6.45329
+Extra cycle  E= -154.720613494918  delta_E= -2.73e-12  |g|= 8.45e-06  |ddm|= 2.23e-05
+converged SCF energy = -154.720613494918
+
+
+******** <class 'pyscf.grad.rhf.ScreenedDirectRKSGradients_Scanner'> for <class 'pyscf.scf.hf.ScreenedDirectRKS_Scanner'> ********
+unit = Eh/Bohr
+max_memory 8000 MB (current use 145 MB)
+grid_response = False
+--------------- ScreenedDirectRKS_Scanner gradients ---------------
+         x                y                z
+0 C    -0.0067764570     0.0002993350     0.0007358670
+1 C    -0.0028890221    -0.0166228284     0.0049373530
+2 O     0.0000099380    -0.0078632332     0.0021504650
+3 H     0.0058524661     0.0069662954    -0.0026314059
+4 H     0.0024120315    -0.0017213307     0.0085607943
+5 H     0.0005075244    -0.0059381325    -0.0068222129
+6 H    -0.0005732357     0.0098714944    -0.0132425800
+7 H     0.0018517319     0.0152017918     0.0061965255
+8 H    -0.0005735211    -0.0003165477     0.0001607633
+----------------------------------------------
+cycle 1: E = -154.720613495  dE = -154.721  norm(grad) = 0.0349628
+
+Geometry optimization cycle 2
+Cartesian coordinates (Angstrom)
+ Atom        New coordinates             dX        dY        dZ
+   C  -1.003104   0.127245   0.088967    0.010449  0.005874 -0.002504
+   C   0.446643  -0.316788   0.031986    0.012666  0.000829 -0.001837
+   O   1.234388   0.804315  -0.373037   -0.001177  0.020960 -0.005648
+   H  -1.662073  -0.707811   0.399548   -0.001669 -0.002538  0.001292
+   H  -1.335279   0.490936  -0.904494    0.010191  0.005097 -0.018164
+   H  -1.123803   0.961561   0.809304    0.014238  0.012931  0.011262
+   H   0.755996  -0.692586   1.037874   -0.015062 -0.033404  0.020807
+   H   0.542867  -1.166346  -0.687509   -0.017969 -0.038140  0.002485
+   H   2.161371   0.511204  -0.406980    0.005340  0.040122 -0.012035
+New geometry
+   1 C     -1.003103827923   0.127244615803   0.088966502062 AA   -1.895591509278   0.240457474693   0.168122323158 Bohr
+   2 C      0.446642507571  -0.316787509351   0.031986484542 AA    0.844032014899  -0.598641632357   0.060445695472 Bohr
+   3 O      1.234388005632   0.804314569225  -0.373037195102 AA    2.332655262093   1.519934253833  -0.704938133019 Bohr
+   4 H     -1.662072673884  -0.707810601675   0.399547762401 AA   -3.140862152764  -1.337568185230   0.755035844620 Bohr
+   5 H     -1.335278688317   0.490936032842  -0.904493583237 AA   -2.523311020887   0.927734646751  -1.709245153745 Bohr
+   6 H     -1.123803358876   0.961561164072   0.809303812410 AA   -2.123680566143   1.817087252115   1.529362557021 Bohr
+   7 H      0.755996379656  -0.692585663099   1.037874322502 AA    1.428626108712  -1.308797221057   1.961298221247 Bohr
+   8 H      0.542867083541  -1.166345754093  -0.687509072551 AA    1.025870109933  -2.204074041785  -1.299203855275 Bohr
+   9 H      2.161371224543   0.511203977527  -0.406979599605 AA    4.084399667902   0.966035511314  -0.769079981539 Bohr
+
+
+******** <class 'pyscf.scf.hf.ScreenedDirectRKS_Scanner'> ********
+method = ScreenedDirectRKS_Scanner
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-08
+SCF conv_tol_grad = None
+SCF max_cycles = 80
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /workspace/research4/reports/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-001/calculation.chk
+max_memory 8000 MB (current use 128 MB)
+XC library pyscf.dft.libxc version 7.0.0
+    S. Lehtola, C. Steigemann, M. J.T. Oliveira, and M. A.L. Marques.,  SoftwareX 7, 1–5 (2018)
+XC functionals = PBE
+    J. P. Perdew, K. Burke, and M. Ernzerhof.,  Phys. Rev. Lett. 77, 3865 (1996)
+    J. P. Perdew, K. Burke, and M. Ernzerhof.,  Phys. Rev. Lett. 78, 1396 (1997)
+    J. P. Perdew, K. Burke, and M. Ernzerhof.,  Phys. Rev. Lett. 77, 3865 (1996)
+    J. P. Perdew, K. Burke, and M. Ernzerhof.,  Phys. Rev. Lett. 78, 1396 (1997)
+radial grids: 
+    Treutler-Ahlrichs [JCP 102, 346 (1995); DOI:10.1063/1.469408] (M4) radial grids
+    
+becke partition: Becke, JCP 88, 2547 (1988); DOI:10.1063/1.454033
+pruning grids: <function nwchem_prune at 0x7f5342714b80>
+grids dens level: 1
+symmetrized grids: False
+atomic radii adjust function: <function treutler_atomic_radii_adjust at 0x7f5342715080>
+small_rho_cutoff = 0
+Set gradient conv threshold to 0.0001
+tot grids = 30376
+init E= -154.694509637991
+  HOMO = -0.220042623192588  LUMO = 0.0208070559988101  gap/eV = 6.55385
+cycle= 1 E= -154.721989826875  delta_E= -0.0275  |g|= 0.0364  |ddm|= 0.101
+  HOMO = -0.212329531502641  LUMO = 0.03034210943754  gap/eV = 6.60343
+cycle= 2 E= -154.721475562633  delta_E= 0.000514  |g|= 0.0608  |ddm|= 0.0915
+  HOMO = -0.210317039560575  LUMO = 0.0298348256802146  gap/eV = 6.53487
+cycle= 3 E= -154.722320615891  delta_E= -0.000845  |g|= 0.0065  |ddm|= 0.0521
+  HOMO = -0.211347094670081  LUMO = 0.0296270493041373  gap/eV = 6.55724
+cycle= 4 E= -154.722327337711  delta_E= -6.72e-06  |g|= 0.00242  |ddm|= 0.00671
+  HOMO = -0.211022766427433  LUMO = 0.0296962357601291  gap/eV = 6.55030
+cycle= 5 E= -154.722328576883  delta_E= -1.24e-06  |g|= 0.000297  |ddm|= 0.00284
+  HOMO = -0.211072655906469  LUMO = 0.0296669963120526  gap/eV = 6.55086
+cycle= 6 E= -154.72232860025  delta_E= -2.34e-08  |g|= 1.82e-05  |ddm|= 0.000337
+  HOMO = -0.211074819377324  LUMO = 0.0296663289484558  gap/eV = 6.55090
+cycle= 7 E= -154.72232860031  delta_E= -5.96e-11  |g|= 8.97e-06  |ddm|= 2.72e-05
+  HOMO = -0.211074332334598  LUMO = 0.0296663923870808  gap/eV = 6.55089
+Extra cycle  E= -154.722328600285  delta_E= 2.47e-11  |g|= 1.34e-05  |ddm|= 1.86e-05
+converged SCF energy = -154.722328600285
+
+
+******** <class 'pyscf.grad.rhf.ScreenedDirectRKSGradients_Scanner'> for <class 'pyscf.scf.hf.ScreenedDirectRKS_Scanner'> ********
+unit = Eh/Bohr
+max_memory 8000 MB (current use 146 MB)
+grid_response = False
+--------------- ScreenedDirectRKS_Scanner gradients ---------------
+         x                y                z
+0 C     0.0007443794    -0.0009179877     0.0001466624
+1 C    -0.0021519466    -0.0064885151     0.0020491492
+2 O     0.0030675356     0.0038977126    -0.0014646140
+3 H     0.0002616086    -0.0000780986    -0.0000096731
+4 H     0.0001473860     0.0003216485    -0.0000293421
+5 H     0.0001223198     0.0002834673    -0.0001846140
+6 H    -0.0008476909     0.0012926597    -0.0001272093
+7 H    -0.0008729407     0.0012255332    -0.0003359044
+8 H    -0.0006177020     0.0003355332    -0.0000127495
+----------------------------------------------
+cycle 2: E = -154.7223286  dE = -0.00171511  norm(grad) = 0.00920342
+
+Geometry optimization cycle 3
+Cartesian coordinates (Angstrom)
+ Atom        New coordinates             dX        dY        dZ
+   C  -1.003371   0.131191   0.088344   -0.000267  0.003947 -0.000622
+   C   0.449446  -0.311110   0.030172    0.002803  0.005678 -0.001815
+   O   1.235851   0.803944  -0.372799    0.001463 -0.000371  0.000238
+   H  -1.661893  -0.705055   0.399104    0.000180  0.002756 -0.000444
+   H  -1.338334   0.493018  -0.905230   -0.003056  0.002082 -0.000736
+   H  -1.126330   0.963891   0.810674   -0.002526  0.002330  0.001370
+   H   0.763194  -0.693657   1.034382    0.007198 -0.001071 -0.003493
+   H   0.550429  -1.165567  -0.685991    0.007562  0.000779  0.001518
+   H   2.162563   0.507640  -0.406156    0.001192 -0.003564  0.000824
+New geometry
+   1 C     -1.003371054699   0.131191364809   0.088344190618 AA   -1.896096494697   0.247915749398   0.166946324964 Bohr
+   2 C      0.449445549872  -0.311109896088   0.030171771308 AA    0.849328997163  -0.587912498249   0.057016384464 Bohr
+   3 O      1.235850822324   0.803943769001  -0.372799021997 AA    2.335419585011   1.519233542962  -0.704488051079 Bohr
+   4 H     -1.661892696234  -0.705054958002   0.399104151410 AA   -3.140522044297  -1.332360773391   0.754197541342 Bohr
+   5 H     -1.338334465075   0.493017718407  -0.905229835550 AA   -2.529085602059   0.931668462347  -1.710636468974 Bohr
+   6 H     -1.126329643972   0.963891237197   0.810674211039 AA   -2.128454553087   1.821490452170   1.531952235111 Bohr
+   7 H      0.763194381077  -0.693657069545   1.034381811036 AA    1.442228360042  -1.310821885809   1.954698331089 Bohr
+   8 H      0.550428685376  -1.165567187064  -0.685991318340 AA    1.040159466465  -2.202602763331  -1.296335715492 Bohr
+   9 H      2.162563277734   0.507639676099  -0.406156048707 AA    4.086652321958   0.959299957789  -0.767523695892 Bohr
+
+
+******** <class 'pyscf.scf.hf.ScreenedDirectRKS_Scanner'> ********
+method = ScreenedDirectRKS_Scanner
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-08
+SCF conv_tol_grad = None
+SCF max_cycles = 80
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /workspace/research4/reports/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-001/calculation.chk
+max_memory 8000 MB (current use 129 MB)
+XC library pyscf.dft.libxc version 7.0.0
+    S. Lehtola, C. Steigemann, M. J.T. Oliveira, and M. A.L. Marques.,  SoftwareX 7, 1–5 (2018)
+XC functionals = PBE
+    J. P. Perdew, K. Burke, and M. Ernzerhof.,  Phys. Rev. Lett. 77, 3865 (1996)
+    J. P. Perdew, K. Burke, and M. Ernzerhof.,  Phys. Rev. Lett. 78, 1396 (1997)
+    J. P. Perdew, K. Burke, and M. Ernzerhof.,  Phys. Rev. Lett. 77, 3865 (1996)
+    J. P. Perdew, K. Burke, and M. Ernzerhof.,  Phys. Rev. Lett. 78, 1396 (1997)
+radial grids: 
+    Treutler-Ahlrichs [JCP 102, 346 (1995); DOI:10.1063/1.469408] (M4) radial grids
+    
+becke partition: Becke, JCP 88, 2547 (1988); DOI:10.1063/1.454033
+pruning grids: <function nwchem_prune at 0x7f5342714b80>
+grids dens level: 1
+symmetrized grids: False
+atomic radii adjust function: <function treutler_atomic_radii_adjust at 0x7f5342715080>
+small_rho_cutoff = 0
+Set gradient conv threshold to 0.0001
+tot grids = 30376
+init E= -154.723237929914
+  HOMO = -0.21039167869849  LUMO = 0.0290740206357376  gap/eV = 6.51619
+cycle= 1 E= -154.722392594943  delta_E= 0.000845  |g|= 0.00691  |ddm|= 0.0174
+  HOMO = -0.212094513462108  LUMO = 0.0289839021388798  gap/eV = 6.56008
+cycle= 2 E= -154.722379280789  delta_E= 1.33e-05  |g|= 0.011  |ddm|= 0.0166
+  HOMO = -0.210697734453521  LUMO = 0.0292141914028559  gap/eV = 6.52834
+cycle= 3 E= -154.722402459877  delta_E= -2.32e-05  |g|= 0.00168  |ddm|= 0.0106
+  HOMO = -0.210829401119157  LUMO = 0.0292024429854387  gap/eV = 6.53160
+cycle= 4 E= -154.72240296552  delta_E= -5.06e-07  |g|= 0.000289  |ddm|= 0.00149
+  HOMO = -0.210837059457763  LUMO = 0.0291979585924751  gap/eV = 6.53169
+cycle= 5 E= -154.722402984587  delta_E= -1.91e-08  |g|= 6.23e-05  |ddm|= 0.000273
+  HOMO = -0.210832152372977  LUMO = 0.0292003222534181  gap/eV = 6.53162
+cycle= 6 E= -154.722402985575  delta_E= -9.88e-10  |g|= 7.12e-06  |ddm|= 6.71e-05
+  HOMO = -0.210831396036606  LUMO = 0.0291999941891894  gap/eV = 6.53159
+Extra cycle  E= -154.722402985571  delta_E= 3.89e-12  |g|= 9.14e-06  |ddm|= 1.82e-05
+converged SCF energy = -154.722402985571
+
+
+******** <class 'pyscf.grad.rhf.ScreenedDirectRKSGradients_Scanner'> for <class 'pyscf.scf.hf.ScreenedDirectRKS_Scanner'> ********
+unit = Eh/Bohr
+max_memory 8000 MB (current use 146 MB)
+grid_response = False
+--------------- ScreenedDirectRKS_Scanner gradients ---------------
+         x                y                z
+0 C     0.0000769095     0.0000159305    -0.0000192287
+1 C    -0.0006877713    -0.0026032791     0.0007981156
+2 O     0.0007377225     0.0016965939    -0.0005713911
+3 H    -0.0001640038    -0.0002444820     0.0000855964
+4 H    -0.0001117092     0.0001906392    -0.0002462740
+5 H    -0.0000726000     0.0002982988     0.0001190470
+6 H     0.0000879267     0.0004465325     0.0001582675
+7 H     0.0000236939     0.0002899356    -0.0003622114
+8 H    -0.0000438688    -0.0002259000     0.0000703437
+----------------------------------------------
+cycle 3: E = -154.722402986  dE = -7.43853e-05  norm(grad) = 0.00352995
+
+Geometry optimization cycle 4
+Cartesian coordinates (Angstrom)
+ Atom        New coordinates             dX        dY        dZ
+   C  -1.000836   0.134454   0.087748    0.002535  0.003263 -0.000596
+   C   0.452196  -0.306013   0.028633    0.002751  0.005096 -0.001539
+   O   1.238908   0.804775  -0.372875    0.003057  0.000831 -0.000076
+   H  -1.658055  -0.702433   0.398389    0.003837  0.002622 -0.000716
+   H  -1.336845   0.495083  -0.905398    0.001489  0.002065 -0.000169
+   H  -1.124427   0.965601   0.811052    0.001902  0.001710  0.000378
+   H   0.764545  -0.693683   1.031899    0.001350 -0.000026 -0.002483
+   H   0.551976  -1.163811  -0.684524    0.001547  0.001756  0.001467
+   H   2.165993   0.509585  -0.407043    0.003430  0.001945 -0.000887
+New geometry
+   1 C     -1.000835944710   0.134454025077   0.087747693372 AA   -1.891305831122   0.254081283741   0.165819108536 Bohr
+   2 C      0.452196257189  -0.306013467431   0.028633148358 AA    0.854527080641  -0.578281643873   0.054108808480 Bohr
+   3 O      1.238907756021   0.804774852209  -0.372874990804 AA    2.341196352478   1.520804062613  -0.704631611319 Bohr
+   4 H     -1.658055354471  -0.702433430082   0.398388616882 AA   -3.133270519319  -1.327406803594   0.752845377051 Bohr
+   5 H     -1.336845416065   0.495083204685  -0.905398462072 AA   -2.526271707242   0.935571665727  -1.710955126919 Bohr
+   6 H     -1.124427289286   0.965600833998   0.811052199868 AA   -2.124859623738   1.824721121908   1.532666530477 Bohr
+   7 H      0.764544577301  -0.693683323334   1.031899093274 AA    1.444779861120  -1.310871498280   1.950006674475 Bohr
+   8 H      0.551975682319  -1.163811134004  -0.684524018211 AA    1.043082867003  -2.199284303987  -1.293562920106 Bohr
+   9 H      2.165992804202   0.509584627920  -0.407043347175 AA    4.093133187721   0.962975384058  -0.769200446988 Bohr
+
+
+******** <class 'pyscf.scf.hf.ScreenedDirectRKS_Scanner'> ********
+method = ScreenedDirectRKS_Scanner
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-08
+SCF conv_tol_grad = None
+SCF max_cycles = 80
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /workspace/research4/reports/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-001/calculation.chk
+max_memory 8000 MB (current use 129 MB)
+XC library pyscf.dft.libxc version 7.0.0
+    S. Lehtola, C. Steigemann, M. J.T. Oliveira, and M. A.L. Marques.,  SoftwareX 7, 1–5 (2018)
+XC functionals = PBE
+    J. P. Perdew, K. Burke, and M. Ernzerhof.,  Phys. Rev. Lett. 77, 3865 (1996)
+    J. P. Perdew, K. Burke, and M. Ernzerhof.,  Phys. Rev. Lett. 78, 1396 (1997)
+    J. P. Perdew, K. Burke, and M. Ernzerhof.,  Phys. Rev. Lett. 77, 3865 (1996)
+    J. P. Perdew, K. Burke, and M. Ernzerhof.,  Phys. Rev. Lett. 78, 1396 (1997)
+radial grids: 
+    Treutler-Ahlrichs [JCP 102, 346 (1995); DOI:10.1063/1.469408] (M4) radial grids
+    
+becke partition: Becke, JCP 88, 2547 (1988); DOI:10.1063/1.454033
+pruning grids: <function nwchem_prune at 0x7f5342714b80>
+grids dens level: 1
+symmetrized grids: False
+atomic radii adjust function: <function treutler_atomic_radii_adjust at 0x7f5342715080>
+small_rho_cutoff = 0
+Set gradient conv threshold to 0.0001
+tot grids = 30376
+init E= -154.724636477245
+  HOMO = -0.209867069476835  LUMO = 0.0295642179149573  gap/eV = 6.51526
+cycle= 1 E= -154.72241247686  delta_E= 0.00222  |g|= 0.00425  |ddm|= 0.012
+  HOMO = -0.211806309162793  LUMO = 0.0288662448756818  gap/eV = 6.54903
+cycle= 2 E= -154.722406127345  delta_E= 6.35e-06  |g|= 0.00718  |ddm|= 0.0116
+  HOMO = -0.21080287368605  LUMO = 0.0290918061923384  gap/eV = 6.52787
+cycle= 3 E= -154.722416341509  delta_E= -1.02e-05  |g|= 0.000745  |ddm|= 0.00706
+  HOMO = -0.210830597631934  LUMO = 0.0291068751061108  gap/eV = 6.52903
+cycle= 4 E= -154.722416430464  delta_E= -8.9e-08  |g|= 0.000269  |ddm|= 0.000738
+  HOMO = -0.210832341150238  LUMO = 0.0291032437688767  gap/eV = 6.52898
+cycle= 5 E= -154.722416447474  delta_E= -1.7e-08  |g|= 3.02e-05  |ddm|= 0.000238
+  HOMO = -0.210828648129548  LUMO = 0.029105256914971  gap/eV = 6.52893
+cycle= 6 E= -154.722416447713  delta_E= -2.39e-10  |g|= 4.59e-06  |ddm|= 3.57e-05
+  HOMO = -0.210827604077061  LUMO = 0.0291053900988474  gap/eV = 6.52891
+Extra cycle  E= -154.722416447711  delta_E= 2.16e-12  |g|= 5.66e-06  |ddm|= 1.14e-05
+converged SCF energy = -154.722416447711
+
+
+******** <class 'pyscf.grad.rhf.ScreenedDirectRKSGradients_Scanner'> for <class 'pyscf.scf.hf.ScreenedDirectRKS_Scanner'> ********
+unit = Eh/Bohr
+max_memory 8000 MB (current use 147 MB)
+grid_response = False
+--------------- ScreenedDirectRKS_Scanner gradients ---------------
+         x                y                z
+0 C    -0.0000302239     0.0000434054    -0.0000101958
+1 C    -0.0001889711    -0.0000403495     0.0000348996
+2 O    -0.0000946791     0.0001929545    -0.0000536297
+3 H    -0.0001239135    -0.0000457472     0.0000246340
+4 H    -0.0000017142    -0.0000526777    -0.0000405660
+5 H     0.0000043876    -0.0000212768     0.0000424025
+6 H     0.0000813501    -0.0000303421     0.0000461575
+7 H     0.0000706228    -0.0000662232    -0.0000289399
+8 H     0.0001280401    -0.0001148595     0.0000179633
+----------------------------------------------
+cycle 4: E = -154.722416448  dE = -1.34621e-05  norm(grad) = 0.000406283
+
+Geometry optimization cycle 5
+Cartesian coordinates (Angstrom)
+ Atom        New coordinates             dX        dY        dZ
+   C  -0.998560   0.136583   0.087368    0.002276  0.002129 -0.000380
+   C   0.454289  -0.304149   0.028024    0.002093  0.001865 -0.000609
+   O   1.241165   0.805990  -0.373076    0.002257  0.001216 -0.000201
+   H  -1.655151  -0.700626   0.397916    0.002904  0.001808 -0.000473
+   H  -1.335046   0.497438  -0.905475    0.001799  0.002355 -0.000077
+   H  -1.122379   0.967488   0.810831    0.002049  0.001887 -0.000221
+   H   0.765817  -0.692615   1.031191    0.001273  0.001068 -0.000708
+   H   0.553073  -1.162124  -0.684991    0.001097  0.001688 -0.000467
+   H   2.168186   0.511205  -0.407695    0.002193  0.001620 -0.000652
+New geometry
+   1 C     -0.998560131966   0.136583337305   0.087367700130 AA   -1.887005168325   0.258105100686   0.165101025378 Bohr
+   2 C      0.454288958501  -0.304148661053   0.028024368584 AA    0.858481712980  -0.574757670543   0.052958381438 Bohr
+   3 O      1.241165018042   0.805990427636  -0.373075755015 AA    2.345461959490   1.523101167253  -0.705011000694 Bohr
+   4 H     -1.655151427415  -0.700625519726   0.397915782416 AA   -3.127782892497  -1.323990348163   0.751951849408 Bohr
+   5 H     -1.335046372875   0.497437944116  -0.905475245030 AA   -2.522872008328   0.940021478346  -1.711100225681 Bohr
+   6 H     -1.122378705840   0.967487594071   0.810830717681 AA   -2.120988362081   1.828286581708   1.532247989802 Bohr
+   7 H      0.765817346165  -0.692615072043   1.031190985240 AA    1.447185045693  -1.308852795907   1.948668544224 Bohr
+   8 H      0.553072875321  -1.162123525858  -0.684991277027 AA    1.045156261283  -2.196095186786  -1.294445911298 Bohr
+   9 H      2.168185790469   0.511205117157  -0.407694981062 AA    4.097277331160   0.966037664903  -0.770431856567 Bohr
+
+
+******** <class 'pyscf.scf.hf.ScreenedDirectRKS_Scanner'> ********
+method = ScreenedDirectRKS_Scanner
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-08
+SCF conv_tol_grad = None
+SCF max_cycles = 80
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /workspace/research4/reports/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-001/calculation.chk
+max_memory 8000 MB (current use 128 MB)
+XC library pyscf.dft.libxc version 7.0.0
+    S. Lehtola, C. Steigemann, M. J.T. Oliveira, and M. A.L. Marques.,  SoftwareX 7, 1–5 (2018)
+XC functionals = PBE
+    J. P. Perdew, K. Burke, and M. Ernzerhof.,  Phys. Rev. Lett. 77, 3865 (1996)
+    J. P. Perdew, K. Burke, and M. Ernzerhof.,  Phys. Rev. Lett. 78, 1396 (1997)
+    J. P. Perdew, K. Burke, and M. Ernzerhof.,  Phys. Rev. Lett. 77, 3865 (1996)
+    J. P. Perdew, K. Burke, and M. Ernzerhof.,  Phys. Rev. Lett. 78, 1396 (1997)
+radial grids: 
+    Treutler-Ahlrichs [JCP 102, 346 (1995); DOI:10.1063/1.469408] (M4) radial grids
+    
+becke partition: Becke, JCP 88, 2547 (1988); DOI:10.1063/1.454033
+pruning grids: <function nwchem_prune at 0x7f5342714b80>
+grids dens level: 1
+symmetrized grids: False
+atomic radii adjust function: <function treutler_atomic_radii_adjust at 0x7f5342715080>
+small_rho_cutoff = 0
+Set gradient conv threshold to 0.0001
+tot grids = 30376
+init E= -154.722886940629
+  HOMO = -0.21064208009251  LUMO = 0.029270162119913  gap/eV = 6.52834
+cycle= 1 E= -154.722416758704  delta_E= 0.00047  |g|= 0.000631  |ddm|= 0.0023
+  HOMO = -0.211015010105036  LUMO = 0.0290943841325997  gap/eV = 6.53371
+cycle= 2 E= -154.722416622848  delta_E= 1.36e-07  |g|= 0.00105  |ddm|= 0.00179
+  HOMO = -0.210858716369382  LUMO = 0.0291363205957902  gap/eV = 6.53060
+cycle= 3 E= -154.722416846751  delta_E= -2.24e-07  |g|= 0.000106  |ddm|= 0.00105
+  HOMO = -0.210859591363403  LUMO = 0.0291421633898983  gap/eV = 6.53078
+cycle= 4 E= -154.722416848435  delta_E= -1.68e-09  |g|= 4.66e-05  |ddm|= 0.00012
+  HOMO = -0.210855290840071  LUMO = 0.0291415217538664  gap/eV = 6.53065
+Extra cycle  E= -154.72241684743  delta_E= 1.01e-09  |g|= 8.34e-05  |ddm|= 0.000101
+converged SCF energy = -154.72241684743
+
+
+******** <class 'pyscf.grad.rhf.ScreenedDirectRKSGradients_Scanner'> for <class 'pyscf.scf.hf.ScreenedDirectRKS_Scanner'> ********
+unit = Eh/Bohr
+max_memory 8000 MB (current use 146 MB)
+grid_response = False
+--------------- ScreenedDirectRKS_Scanner gradients ---------------
+         x                y                z
+0 C    -0.0000028130     0.0000118054    -0.0000050415
+1 C    -0.0000330791     0.0001439777    -0.0000340859
+2 O    -0.0001036325    -0.0000698149     0.0000194454
+3 H    -0.0000205736     0.0000005738    -0.0000005653
+4 H    -0.0000101583    -0.0000473041     0.0000050220
+5 H    -0.0000142964    -0.0000385452     0.0000033063
+6 H     0.0000104592    -0.0000523082     0.0000008090
+7 H     0.0000147482    -0.0000570130     0.0000353855
+8 H     0.0000045884    -0.0000261607     0.0000085103
+----------------------------------------------
+cycle 5: E = -154.722416847  dE = -3.99719e-07  norm(grad) = 0.000228003
+
+
+******** <class 'parallel_hessian_engineering_v8.screened_direct_rks_type.<locals>.ScreenedDirectRKS'> ********
+method = ScreenedDirectRKS
+initial guess = chkfile
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-08
+SCF conv_tol_grad = None
+SCF max_cycles = 80
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /workspace/research4/reports/pyscf-spinosin-continuation-20261031-v3/validation-ethanol-native4-001/calculation.chk
+max_memory 8000 MB (current use 129 MB)
+XC library pyscf.dft.libxc version 7.0.0
+    S. Lehtola, C. Steigemann, M. J.T. Oliveira, and M. A.L. Marques.,  SoftwareX 7, 1–5 (2018)
+XC functionals = PBE
+    J. P. Perdew, K. Burke, and M. Ernzerhof.,  Phys. Rev. Lett. 77, 3865 (1996)
+    J. P. Perdew, K. Burke, and M. Ernzerhof.,  Phys. Rev. Lett. 78, 1396 (1997)
+    J. P. Perdew, K. Burke, and M. Ernzerhof.,  Phys. Rev. Lett. 77, 3865 (1996)
+    J. P. Perdew, K. Burke, and M. Ernzerhof.,  Phys. Rev. Lett. 78, 1396 (1997)
+radial grids: 
+    Treutler-Ahlrichs [JCP 102, 346 (1995); DOI:10.1063/1.469408] (M4) radial grids
+    
+becke partition: Becke, JCP 88, 2547 (1988); DOI:10.1063/1.454033
+pruning grids: <function nwchem_prune at 0x7f5342714b80>
+grids dens level: 1
+symmetrized grids: False
+atomic radii adjust function: <function treutler_atomic_radii_adjust at 0x7f5342715080>
+small_rho_cutoff = 0
+Set gradient conv threshold to 0.0001
+tot grids = 30376
+init E= -154.72241684743
+  HOMO = -0.210864665336028  LUMO = 0.0291431868138647  gap/eV = 6.53095
+cycle= 1 E= -154.722416844055  delta_E= 3.38e-09  |g|= 0.000153  |ddm|= 0.000182
+  HOMO = -0.21084167645227  LUMO = 0.0291415312785825  gap/eV = 6.53028
+cycle= 2 E= -154.722416832309  delta_E= 1.17e-08  |g|= 0.000287  |ddm|= 0.00034
+  HOMO = -0.210859941345202  LUMO = 0.0291416670383504  gap/eV = 6.53078
+cycle= 3 E= -154.72241684887  delta_E= -1.66e-08  |g|= 1.56e-05  |ddm|= 0.000225
+  HOMO = -0.210857879799065  LUMO = 0.02914226548969  gap/eV = 6.53074
+cycle= 4 E= -154.722416848926  delta_E= -5.61e-11  |g|= 1.52e-07  |ddm|= 1.56e-05
+  HOMO = -0.210857892838321  LUMO = 0.0291422570086994  gap/eV = 6.53074
+Extra cycle  E= -154.722416848926  delta_E= -1.99e-13  |g|= 1.83e-07  |ddm|= 2.77e-07
+converged SCF energy = -154.722416848926
+
+
+******** <class 'parallel_hessian_engineering_v8.direct_gradient_type.<locals>.ScreenedDirectRKSGradients'> for <class 'parallel_hessian_engineering_v8.screened_direct_rks_type.<locals>.ScreenedDirectRKS'> ********
+unit = Eh/Bohr
+max_memory 8000 MB (current use 147 MB)
+grid_response = False
+--------------- ScreenedDirectRKS gradients ---------------
+         x                y                z
+0 C    -0.0000095456     0.0000130645    -0.0000044941
+1 C    -0.0000253359     0.0001471756    -0.0000358611
+2 O    -0.0001014144    -0.0000688919     0.0000190268
+3 H    -0.0000209360    -0.0000001077    -0.0000003305
+4 H    -0.0000099152    -0.0000472084     0.0000042954
+5 H    -0.0000138971    -0.0000381681     0.0000037629
+6 H     0.0000106840    -0.0000543295     0.0000042343
+7 H     0.0000143168    -0.0000605738     0.0000334307
+8 H     0.0000012842    -0.0000257544     0.0000087223
+----------------------------------------------
+
+
+******** <class 'parallel_hessian_engineering_v8.direct_gradient_type.<locals>.ScreenedDirectRKSGradients'> for <class 'parallel_hessian_engineering_v8.screened_direct_rks_type.<locals>.ScreenedDirectRKS'> ********
+unit = Eh/Bohr
+max_memory 8000 MB (current use 138 MB)
+grid_response = False
+--------------- ScreenedDirectRKS gradients ---------------
+         x                y                z
+0 C    -0.0000095456     0.0000130645    -0.0000044941
+1 C    -0.0000253359     0.0001471756    -0.0000358611
+2 O    -0.0001014144    -0.0000688919     0.0000190268
+3 H    -0.0000209360    -0.0000001077    -0.0000003305
+4 H    -0.0000099152    -0.0000472084     0.0000042954
+5 H    -0.0000138971    -0.0000381681     0.0000037629
+6 H     0.0000106840    -0.0000543295     0.0000042343
+7 H     0.0000143168    -0.0000605738     0.0000334307
+8 H     0.0000012842    -0.0000257544     0.0000087223
+----------------------------------------------
+
+
+******** <class 'parallel_hessian_engineering_v8.direct_gradient_type.<locals>.ScreenedDirectRKSGradients'> for <class 'parallel_hessian_engineering_v8.screened_direct_rks_type.<locals>.ScreenedDirectRKS'> ********
+unit = Eh/Bohr
+max_memory 8000 MB (current use 135 MB)
+grid_response = False
+--------------- ScreenedDirectRKS gradients ---------------
+         x                y                z
+0 C    -0.0000095456     0.0000130645    -0.0000044941
+1 C    -0.0000253359     0.0001471756    -0.0000358611
+2 O    -0.0001014144    -0.0000688919     0.0000190268
+3 H    -0.0000209360    -0.0000001077    -0.0000003305
+4 H    -0.0000099152    -0.0000472084     0.0000042954
+5 H    -0.0000138971    -0.0000381681     0.0000037629
+6 H     0.0000106840    -0.0000543295     0.0000042343
+7 H     0.0000143168    -0.0000605738     0.0000334307
+8 H     0.0000012842    -0.0000257544     0.0000087223
+----------------------------------------------
+
+
+******** <class 'parallel_hessian_engineering_v8.direct_gradient_type.<locals>.ScreenedDirectRKSGradients'> for <class 'parallel_hessian_engineering_v8.screened_direct_rks_type.<locals>.ScreenedDirectRKS'> ********
+unit = Eh/Bohr
+max_memory 8000 MB (current use 136 MB)
+grid_response = False
+--------------- ScreenedDirectRKS gradients ---------------
+         x                y                z
+0 C    -0.0000095456     0.0000130645    -0.0000044941
+1 C    -0.0000253359     0.0001471756    -0.0000358611
+2 O    -0.0001014144    -0.0000688919     0.0000190268
+3 H    -0.0000209360    -0.0000001077    -0.0000003305
+4 H    -0.0000099152    -0.0000472084     0.0000042954
+5 H    -0.0000138971    -0.0000381681     0.0000037629
+6 H     0.0000106840    -0.0000543295     0.0000042343
+7 H     0.0000143168    -0.0000605738     0.0000334307
+8 H     0.0000012842    -0.0000257544     0.0000087223
+----------------------------------------------
