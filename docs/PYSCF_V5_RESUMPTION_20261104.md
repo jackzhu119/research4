@@ -10,7 +10,7 @@
 - 找回原C001优化几何和全部原始证据；旧pilot311份文件哈希均一致。
 - 旧本轮V4的13阶段实际CPU合计3605.273693秒，包含3次退出监督异常，
   全部原样迁入V5，未把失败成本删掉。
-- 新V5修复已确认退出的原子进程至wait4回收之间的有限等待窗口；真正
+- 新V5修复已确认退出的原计算进程至wait4回收之间的有限等待窗口；真正
   live/不可读/身份不符仍失败关闭，原CPU/RSS/身份保护逻辑保留。
 - 新guard/state/consumer/controller通过93项针对性纯测试和独立审查。
 - 3个真实子进程退出smoke通过（非DFT），新水/乙醇SCF、梯度、恢复、
@@ -33,9 +33,14 @@
 中性单重态、完整762 AO/320电子、不采用DF或D3。用户新上传的SDF是另一
 来源的计算构象，原子顺序不同，未替换旧坐标或混用轨道。
 
-新V5 `v5-spinosin-C001-prepare-001` 正在实际执行fresh SCF与梯度。
-完成并健康闭合后，验证精确状态恢复，再用已通过门禁的逐原子完整RHF
-贡献检查点继续全系统Hessian、CPHF及219个正常模式。所有耦合保留。
+新V5 `v5-spinosin-C001-prepare-001` 已实际完成fresh SCF与梯度并健康
+闭合，实际CPU3709.041739秒；恢复后的梯度独立计算也健康完成，差值
+9.947598300641403e−14 Eh/Bohr，实际CPU3062.520454秒。
+首次1单元早期pilot及随后10单元均正常完成，累计11／150个RHF贡献
+单元已封存。实际成本分别为326.810172和3334.927806 CPU秒。
+这些是完整Hessian的中间贡献，不是11个频率或全流程完成百分比。
+`controller-pilot-001`继续下一段，所有原子间与轨道空间耦合均保留。
+全系统Hessian、CPHF及219个正常模式分析目前仍未完成。
 每10个新单元正常闭合后封存、哈希、提交并推送研究分支；失败即停，
 不自动放行未知结果。模式计算完成与正频率极小点资格分别记录。
 
@@ -53,6 +58,7 @@
 科学门禁：`resource-protocol/spinosin-root-numerical-gate.json`。
 独立完整矩阵/频率审计：`real-restart-validation-independent-audit/`。
 研究窗口、迁移授权与来源：`resource-protocol/`、`migration-source/`。
+前11单元及无覆盖恢复命令：`first-unit-checkpoint-archive/`。
 有限运行及闭合备份入口：`run_bounded_spinosin_backup_job.py`，
 其执行须绑定实际健康snapshot、恢复梯度与门禁；未运行不能记作完成。
 
