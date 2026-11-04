@@ -1,5 +1,38 @@
 # 方案C：研究状态、准确率审计与本次实际执行
 
+## 2026-11-04：新增实测与独立审计（当前状态）
+
+本节覆盖本轮新结果；下文2026-10-31的“迁移未运行／黄芪资格阻塞”等为历史快照，不覆盖本节。原R0—R4、权重及报告不改。详见[多表示实测报告](SUPPLEMENTAL_MULTIREPRESENTATION_RESULTS_20261104.md)。
+
+| 证据 | 实际协议／规模 | 当前结论 |
+| --- | --- | --- |
+| 原R2 MC-UVE＋SVM | 原855，5外折／2内折，821正确 | 96.0234%、Macro-F1 0.9197；可重放内部开发强候选，非独立确认 |
+| 固定7组传统基线 | 513 source／171支持池／171 query，三seed，无校准 | LDA93.5673%、MC93.1774%；不能与855 OOF直接作提升差 |
+| 本轮7组神经M／C | 相同固定171 query，三seed | M82.4561%／C82.6511%，M Macro-F1 .668225低于.699761，BA70.8844%低于75.3061% |
+| 黄芪神经M／C | 241／80／82，三seed | 78.4553%／69.9187%；仍低于同拆分LDA84.1463% |
+| 天麻神经M／C | 242／80／83，三seed | 94.3775%／93.5743%；M等于α单支，低于MLP99.1968% |
+| 扩展10组M／C | 516／174／174，三seed | 81.8008%／79.8851%，BA反降；MC94.8276%更高 |
+| 扩展任务旧171 | 相同旧query子集 | M82.4561%低于MC95.9064%；子集Macro-F1口径不混比 |
+| 新3 query | 新3类各1份，重复seed不增加N | M44.4444%，与单支及MLP相同；仅描述，不是校准／泛化证明 |
+
+[真实score CSV](../reports/supplemental-multirepresentation-20261104-v2/score/model_comparison.csv)及[独立审计summary](../reports/supplemental-multirepresentation-independent-audit-20261104-v2/summary.json)核对通过。实际完成27个source fit、36个最终fit，全部source OOF选轮锁在真实query预测前；三任务选96，10组继承96。36保存权重原生重放、54逐seed评分、18汇总、逐类／混淆／改对伤害均复算，logit／softmax最大差0，审计新增fit0。query标签未参与训练或选轮；所有既有query已曝光，证据仍是开发性质。
+
+[传统同拆分无校准表](../reports/supplemental-spectra-benchmark-20261104-v1/scoring/model_calibration_comparison.csv)以`none,0,all`筛选，避免把argmax头控制或支持校准得分混作原分类器。NN和传统模型同角色／query，但输入、候选和计算预算不同，不称严格等预算。
+
+新增独立样品记录仅酸枣仁9条；303新增可读记录是黄芪／天麻既有样品的表示，原855酸枣仁四表示早已齐。2个受阻文件未补造。单来源批次及物理单位等局限继续存在；[表示审计](../reports/supplemental-intake-summary-20261104-v2-modality-availability/availability_comparison.json)没有证明“303份新生物样品”。
+
+两轮跨植物α迁移已真实完成：48预算A80.3509%／B76.1404%，96预算A87.0565%／Aextra86.3548%／B85.3801%。[六行预算表](../reports/cross-plant-conservative-pilot-20261104-v2/two_budget_model_comparison.csv)及45权重重放保留负结果；预算提升不归因于新增外部观测。本轮固定query融合与855 OOF迁移不是同一协议。
+
+v1仅prepare失败、0fits；其child2.214606＋监督.043965017 CPU秒保留。v2时间轴显式within-span均匀化再固定polyphase，未改标签／样品／超参；实际child430.602959＋监督1.353656048，独立审计最终3.988732564 CPU秒。含10秒非实测保守reserve的总envelope charge448.294784878，小于3600；[审计闭合回执](../reports/supplemental-multirepresentation-independent-audit-20261104-v2/audit_stage_closed.json)和原deadline均有记录，未重置预算。
+
+V6b水／乙醇各三阶段与独立分析实际通过，3／21全正模式，完整raw Hessian相对旧stock误差约2.93e−13／3.41e−13 Eh/Bohr²；这是软件对照，不是酸枣仁机制证据。该快照时新Spinosin V6b尚NOT_RUN；IR NOT_COMPUTED，未把SDF／DFT作为样品特征或声称分类增益。
+
+[传统与神经联合对照表及图](../reports/supplemental-combined-models-20261104-v1/README.md)已按相同query和三seed样本SD整理，包含Accuracy、Macro-F1和旧171配对；历史96.02%另列，不作跨协议提升比较。
+
+## 历史审计：2026-10-31快照
+
+以下保留当时数值、源身份和运行记录；涉及新增任务是否运行时，以以上更新为准。
+
 > 2026-10-31升级增补：本轮新增多表示八家族×三seed、480内层与120外层管线，以及真实防泄漏对抗／预测重放。主神经策略727／855＝85.0292%、Macro-F1 0.7449，未超过已审计R2；96.0234%历史结果与全部权重不改。HQ／TM追加独立性声明后另做四来源组探索，详见[升级执行报告](MULTIREPRESENTATION_UPGRADE_REPORT.md)和[要求证据映射](UPGRADE_REQUIREMENTS_TRACEABILITY.md)，不与本文件历史运行混算。
 
 2026-10-31，北京时间。主任务仍为酸枣仁THz识别及模型优化。

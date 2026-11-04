@@ -1,0 +1,75 @@
+{
+  "status": "PASS_STATIC_REVIEW_NOT_RUN",
+  "reviewed_at_utc": "2026-11-04T17:56:40.993650+00:00",
+  "review_scope": "Only standard-library AST and source text; optional replay code not executed",
+  "prior_review": {
+    "path": "reports/supplemental-multirepresentation-independent-audit-preparation-20261104-v1/standardlib_review.json",
+    "sha256": "e2001cd9f3599b8b5a439112f5752d2448a38dd823027ad3223517c2715591b1"
+  },
+  "source_refs": [
+    {
+      "path": "scripts/audit_supplemental_multirepresentation_20261104.py",
+      "bytes": 46757,
+      "sha256": "d6bf78990ab226c9742d5ec3b6cd97c9874210c6ea92b35c53c49c62828c6971"
+    },
+    {
+      "path": "scripts/run_supplemental_multirepresentation_20261104.py",
+      "bytes": 62371,
+      "sha256": "1b70e4c76df2ed9d840f5fdff3e9a982cba3f65fcd929b980cfe67ca1c292c38"
+    },
+    {
+      "path": "scripts/draft_supplemental_multirepresentation_20261104.py",
+      "bytes": 36996,
+      "sha256": "b27ca13dd18d7493ceaaa427167638b26a904921d34fff3802cb4e9b83907229"
+    },
+    {
+      "path": "tests/test_supplemental_multirepresentation_independent_audit.py",
+      "bytes": 4838,
+      "sha256": "99ca617d9cb7968646168a14e69e8f9c5363089cdbdccbd811b3bba9ef74a9ac"
+    }
+  ],
+  "resolved_findings": [
+    {
+      "id": "EXPANDED_STRATA_IDENTITY",
+      "status": "RESOLVED_IN_SOURCE",
+      "evidence": "validate_expanded_strata requires legacy IDs exactly original171 and new IDs exactly expanded minus original before stratum metrics."
+    },
+    {
+      "id": "PREDICTION_METADATA_DIAGNOSTICS",
+      "status": "RESOLVED_IN_SOURCE",
+      "evidence": "All36 prediction metadata model keys, IDs, label-free status, samples checked, eval/unchanged state/no-grad flags validated before truth read."
+    }
+  ],
+  "optional_replay_static_checks": [
+    "Explicit --replay-models only; Torch import inside replay_saved_models after terminal-Q authority, actual original/global/local locks, all six healthy stage closures and36 prediction-ID/class-column checks.",
+    "ReplayNet independent reconstruction uses the same Encoder12/2/.35/residual/no-attention and state-dict keys; seed initialization, parameter count, weights_only load and fitted-state hashes verified.",
+    "Frozen source scaler is checked against mean/variance recomputed from registered prepared source rows, with appropriate constant-feature scale handling.",
+    "All frozen query logits, derived softmax and exact predicted-class argmax are checked; reversed and singleton-first inference plus state/BN hash invariance checked.",
+    "Append progress per successfully replayed model; complete replay requires36 models; zero fitting/optimizer paths.",
+    "Explicit independent audit CPU/wall budget, OS CPU/10GiBAS and RSS best-effort limit; actual process records and healthy close receipt; hard kill cannot produce healthy close.",
+    "Without replay flag, status explicitly NOT_RUN_HASH_VERIFICATION_ONLY and models_replayed0."
+  ],
+  "numerical_import_owners": {
+    "torch": [
+      "replay_saved_models"
+    ],
+    "numpy": [
+      "audit"
+    ]
+  },
+  "numerical_modules_loaded": [],
+  "arrays_or_truth_read": 0,
+  "Q_files_or_ledger_read": 0,
+  "new_model_fits": 0,
+  "actual_models_replayed": 0,
+  "audit_executed": false,
+  "tests_executed_by_this_review": false,
+  "Git_operations": 0,
+  "large_artifact_hashing": 0,
+  "blocking_findings": [],
+  "limitations": [
+    "Static review does not establish numerical correctness or an executed NN/replay result.",
+    "Future actual results still require all gates and successful healthy closure.",
+    "The source script hashes identify this inspected version, not approval of later edits."
+  ]
+}
