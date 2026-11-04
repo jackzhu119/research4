@@ -1,0 +1,2105 @@
+{
+  "schema": "research4-v4-independent-provenance-audit-v1",
+  "created_at_utc": "2026-11-04T07:54:30.413418+00:00",
+  "status": "METADATA_AUDIT_PASS_WITH_PARTIAL_SCIENTIFIC_VALIDATION",
+  "scope": "V4 final evidence closure; no V4 ethanol003/004 will run. Further work uses a separately documented V5 race fix.",
+  "ledger_observed": {
+    "path": "reports/pyscf-sdf-continuation-20261103-v1/cpu_budget.json",
+    "sha256": "4533c152abb267c685a451a2690c9e6be8e94e2fe7e88e9194c8f2dda7384e35",
+    "bytes": 51070,
+    "closed_phase_count": 13,
+    "healthy_closed_phase_count": 10,
+    "failed_closed_phase_count": 3,
+    "actual_wait4_CPU_seconds_decimal": "3605.2736930000000000",
+    "actual_wait4_CPU_seconds": 3605.273693,
+    "healthy_actual_wait4_CPU_seconds": 82.531861,
+    "failed_actual_wait4_CPU_seconds": 3522.741832,
+    "water_actual_wait4_CPU_seconds": 13.542441,
+    "ethanol_actual_wait4_CPU_seconds_all_attempts": 126.736775,
+    "spinosin_prepare_actual_wait4_CPU_seconds": 3464.994477,
+    "CPU_source": "Final actual wait4 cost; independent full-birth proc CPU guard; single payload,1..4threads",
+    "CPU_independently_remeasured_here": false,
+    "remaining_CPU_seconds_as_recorded": 125994.726307,
+    "migration_constraint": "V5 must import this full actual cost, retain original cap and deadline; no fresh allowance or reset. This audit does not itself authorize or launch a calculation.",
+    "original_deadline_to_retain": "2026-11-05T01:20:50.391742+00:00"
+  },
+  "water": {
+    "status": "PASS",
+    "healthy_parent_phases": 6,
+    "helper_unit_chain": [
+      0,
+      2,
+      4,
+      6
+    ],
+    "normal_modes": 3,
+    "snapshot_manifest_sha256": "cd2fe125bad8dc797ad3d0bfa441267835b844c480e1f8f7bafb7014d8cc907a",
+    "sealed_full_Hessian_NumPy_audit_path": "reports/pyscf-sdf-continuation-20261103-v1/real-restart-validation-independent-audit/water/audit.json",
+    "sealed_full_Hessian_NumPy_audit_sha256": "3cc63f8e50e113cc24c1b4a76ba29bb19c6a1c1cb0583084d6bad1069e8ff9af",
+    "sealed_index_sha256": "7a50710afe5c9484c430b94c9e60d94149427e256d897dbe47d2f1b081a0887d",
+    "non_array_inputs_checked": 26,
+    "array_inputs_not_opened": 11,
+    "numeric_scope": "Separate sealed NumPy replay compared all 81 raw/symmetrized Hessian elements and three modes. This metadata auditor did not reopen arrays. Small-molecule software control, not Spinosin physical validation."
+  },
+  "ethanol": {
+    "status": "PARTIAL",
+    "healthy_stock_reference": "validation-ethanol-stock-hessian-002",
+    "healthy_stock_normal_modes": 21,
+    "failed_stock001_is_excluded": true,
+    "helper_completed_units": 10,
+    "helper_required_units": 18,
+    "helper_unit_chain": [
+      0,
+      5,
+      10
+    ],
+    "units_from_healthy_producer": 5,
+    "units_from_failed_producer_with_explicit_root_forensic_release": 5,
+    "failed_segment002_parent_preserved": "PARTIAL_OR_FAILED",
+    "root_release_path": "reports/pyscf-sdf-continuation-20261103-v1/resource-protocol/ethanol-segment002-root-forensic-release.json",
+    "root_release_sha256": "03c1d44f09b8d37cc7b177cf25dc830cb18fe18be54a3d1992147718d4c856b6",
+    "root_release_consumed_in_later_V4_segment": false,
+    "segment003_and_004": "NOT_RUN_V4_STOPPED",
+    "complete_segmented_Hessian_and_modes_comparison": "NOT_RUN",
+    "full_restart_validation": "INCOMPLETE"
+  },
+  "spinosin_prepare": {
+    "status": "PARTIAL_PARENT_NOT_HEALTHY",
+    "worker_scientific_phase_status": "DONE_PREPARE_STATE_ONLY",
+    "fresh_SCF_gradient_recorded": true,
+    "new_optimization": "NOT_RUN; original optimized geometry verified/reused",
+    "frequencies": "NOT_RUN",
+    "parent_status": "PARTIAL_OR_FAILED",
+    "parent_stop_reason": "MONITOR_FAILED_CLOSED",
+    "parent_exit_code": 0,
+    "eligible_as_healthy_snapshot_source": false,
+    "arrays_not_opened_or_released_by_this_audit": true
+  },
+  "failed_signal_boundary": {
+    "phases": [
+      "validation-ethanol-stock-hessian-001",
+      "validation-ethanol-segment-002",
+      "spinosin-C001-prepare-001"
+    ],
+    "identity_checked_process_group_KILL_sent": false,
+    "owned_child_pidfd_KILL_requested": true,
+    "all_actual_wait4_exit0": true,
+    "pidfd_KILL_request_impact": "UNKNOWN. A request was recorded; actual wait4 exit0 does not establish that no signal request occurred. All original failed flags remain unchanged.",
+    "corrected_forensic_audit_sha256": "abb32b84aaa977f983f6872f2afb3c8ba11b7b5cf6de792b426996107804c008",
+    "corrected_forensic_index_sha256": "19cd1d5c2dd6ca04a332575b4549f58dc2e607b0f609b24375a46d51a8e8859d",
+    "non_array_inputs_checked": 17,
+    "array_inputs_not_opened": 6
+  },
+  "migration_sealed_evidence": {
+    "audit_path": "reports/pyscf-sdf-continuation-20261103-v1/v4-closed-migration-source-audit/audit.json",
+    "audit_sha256": "4cea61f6228bed5ae0d8cf12380843527d532cc8da76791ae6b59c8045b2e89e",
+    "index_sha256": "114be6bd945759b13d4e54190e54e031e9f8facba8f37d3b080223474d69a137",
+    "index_file_checks": 5,
+    "sealed_ledger_recomputed_sum": "3605.2736930000000000"
+  },
+  "no_repeated_SCF_evidence": {
+    "all_consumer_result_flags_true": true,
+    "source_review": "Frozen consumer calls verified restore_snapshot; preserved MOs and actual grid arrays are assigned without calling SCF kernel. Fresh SCF belongs to prepare-state.",
+    "independent_dynamic_call_trace": "NOT_PERFORMED; result-, source- and hash-backed provenance only."
+  },
+  "process_identities": [
+    {
+      "phase": "validation-water-prepare-001",
+      "supervisor_pid": 3138,
+      "supervisor_start_ticks": 270036,
+      "payload_pid": 3142,
+      "payload_start_ticks": 270044
+    },
+    {
+      "phase": "validation-ethanol-prepare-001",
+      "supervisor_pid": 3170,
+      "supervisor_start_ticks": 272589,
+      "payload_pid": 3173,
+      "payload_start_ticks": 272597
+    },
+    {
+      "phase": "validation-water-restore-gradient-001",
+      "supervisor_pid": 3585,
+      "supervisor_start_ticks": 306928,
+      "payload_pid": 3588,
+      "payload_start_ticks": 306936
+    },
+    {
+      "phase": "validation-ethanol-restore-gradient-001",
+      "supervisor_pid": 3593,
+      "supervisor_start_ticks": 308022,
+      "payload_pid": 3598,
+      "payload_start_ticks": 308029
+    },
+    {
+      "phase": "validation-water-stock-hessian-001",
+      "supervisor_pid": 3634,
+      "supervisor_start_ticks": 313357,
+      "payload_pid": 3635,
+      "payload_start_ticks": 313362
+    },
+    {
+      "phase": "validation-water-segment-001",
+      "supervisor_pid": 3646,
+      "supervisor_start_ticks": 313516,
+      "payload_pid": 3647,
+      "payload_start_ticks": 313522
+    },
+    {
+      "phase": "validation-water-segment-002",
+      "supervisor_pid": 3658,
+      "supervisor_start_ticks": 313615,
+      "payload_pid": 3659,
+      "payload_start_ticks": 313621
+    },
+    {
+      "phase": "validation-water-segment-003",
+      "supervisor_pid": 3670,
+      "supervisor_start_ticks": 313735,
+      "payload_pid": 3671,
+      "payload_start_ticks": 313743
+    },
+    {
+      "phase": "validation-ethanol-stock-hessian-001",
+      "supervisor_pid": 3693,
+      "supervisor_start_ticks": 315182,
+      "payload_pid": 3694,
+      "payload_start_ticks": 315188
+    },
+    {
+      "phase": "validation-ethanol-stock-hessian-002",
+      "supervisor_pid": 3744,
+      "supervisor_start_ticks": 321571,
+      "payload_pid": 3745,
+      "payload_start_ticks": 321576
+    },
+    {
+      "phase": "validation-ethanol-segment-001",
+      "supervisor_pid": 3761,
+      "supervisor_start_ticks": 324104,
+      "payload_pid": 3762,
+      "payload_start_ticks": 324110
+    },
+    {
+      "phase": "validation-ethanol-segment-002",
+      "supervisor_pid": 3779,
+      "supervisor_start_ticks": 324384,
+      "payload_pid": 3780,
+      "payload_start_ticks": 324389
+    },
+    {
+      "phase": "spinosin-C001-prepare-001",
+      "supervisor_pid": 3851,
+      "supervisor_start_ticks": 332961,
+      "payload_pid": 3854,
+      "payload_start_ticks": 332967
+    }
+  ],
+  "all_payload_PIDs_and_starttick_identities_unique": true,
+  "phase_records": [
+    {
+      "phase": "validation-water-prepare-001",
+      "qualification": "HEALTHY_CLOSED",
+      "parent": {
+        "phase": "validation-water-prepare-001",
+        "status": "EXITED",
+        "pid": 3142,
+        "started_at_utc": "2026-11-04T07:21:00.354407+00:00",
+        "ended_at_utc": "2026-11-04T07:21:02.510845+00:00",
+        "actual_cpu_seconds": 2.947584,
+        "exit_code": 0,
+        "wall_terminated": false,
+        "hard_killed": false,
+        "memory_terminated": false,
+        "monitor_failed": false,
+        "cpu_terminated": false,
+        "resource_stop_reason": null,
+        "monitor_exception": null,
+        "identity_checked_signal_attempts": null,
+        "owned_child_pidfd_containment_requested": null,
+        "SIGKILL_requested_at_utc": null
+      },
+      "proof_sha256": "4a7e80375342e15d7e258cc5c6551a8196af01a8cd99c4f7c21d3610cb42518e",
+      "result_sha256": "7d7cac4edf96f87e6f4d5a8764d7c4b36e34ab60ff73d5d02e871f948c7f079e",
+      "worker_status": "DONE",
+      "worker_phase": "prepare-state",
+      "worker_completed_at_utc": "2026-11-04T07:21:02.288770+00:00",
+      "snapshot_manifest_sha256": "cd2fe125bad8dc797ad3d0bfa441267835b844c480e1f8f7bafb7014d8cc907a",
+      "no_new_SCF_performed": null,
+      "stable_MF_state_unchanged": null,
+      "optimizer_convergence_basis": "VERIFIED_ORIGINAL_OPTIMIZATION_NO_NEW_OPT_RUN",
+      "frequencies_status": "NOT_RUN",
+      "normal_mode_count": null,
+      "incremental_before": null,
+      "incremental_after": null
+    },
+    {
+      "phase": "validation-ethanol-prepare-001",
+      "qualification": "HEALTHY_CLOSED",
+      "parent": {
+        "phase": "validation-ethanol-prepare-001",
+        "status": "EXITED",
+        "pid": 3173,
+        "started_at_utc": "2026-11-04T07:21:25.878037+00:00",
+        "ended_at_utc": "2026-11-04T07:21:31.340695+00:00",
+        "actual_cpu_seconds": 8.592119,
+        "exit_code": 0,
+        "wall_terminated": false,
+        "hard_killed": false,
+        "memory_terminated": false,
+        "monitor_failed": false,
+        "cpu_terminated": false,
+        "resource_stop_reason": null,
+        "monitor_exception": null,
+        "identity_checked_signal_attempts": null,
+        "owned_child_pidfd_containment_requested": null,
+        "SIGKILL_requested_at_utc": null
+      },
+      "proof_sha256": "be4b84f0ebeffc49e92c6643effd234a3b98f72a853cad3bb3b754cf5142b30d",
+      "result_sha256": "dd3f1edb535271670b9cda18a7484d0a3e2069b599f66811540b1f3a73e9e4c6",
+      "worker_status": "DONE",
+      "worker_phase": "prepare-state",
+      "worker_completed_at_utc": "2026-11-04T07:21:31.157624+00:00",
+      "snapshot_manifest_sha256": "a0617e2f3c9a204c7b2475cdf9db03efdaf4595545fe9caaa75c7f0ca83460b5",
+      "no_new_SCF_performed": null,
+      "stable_MF_state_unchanged": null,
+      "optimizer_convergence_basis": "VERIFIED_ORIGINAL_OPTIMIZATION_NO_NEW_OPT_RUN",
+      "frequencies_status": "NOT_RUN",
+      "normal_mode_count": null,
+      "incremental_before": null,
+      "incremental_after": null
+    },
+    {
+      "phase": "validation-water-restore-gradient-001",
+      "qualification": "HEALTHY_CLOSED",
+      "parent": {
+        "phase": "validation-water-restore-gradient-001",
+        "status": "EXITED",
+        "pid": 3588,
+        "started_at_utc": "2026-11-04T07:27:09.269642+00:00",
+        "ended_at_utc": "2026-11-04T07:27:10.081735+00:00",
+        "actual_cpu_seconds": 0.866089,
+        "exit_code": 0,
+        "wall_terminated": false,
+        "hard_killed": false,
+        "memory_terminated": false,
+        "monitor_failed": false,
+        "cpu_terminated": false,
+        "resource_stop_reason": null,
+        "monitor_exception": null,
+        "identity_checked_signal_attempts": null,
+        "owned_child_pidfd_containment_requested": null,
+        "SIGKILL_requested_at_utc": null
+      },
+      "proof_sha256": "323f86f62759070ec024797768833e83b6cb9ba9c6c91cbc80837d4890abd5f9",
+      "result_sha256": "505761826a5bdc0bb08faa495612cafcd26269301075ba391d9580da6e686a8c",
+      "worker_status": "DONE",
+      "worker_phase": "restore-gradient-check",
+      "worker_completed_at_utc": "2026-11-04T07:27:09.951273+00:00",
+      "snapshot_manifest_sha256": "cd2fe125bad8dc797ad3d0bfa441267835b844c480e1f8f7bafb7014d8cc907a",
+      "no_new_SCF_performed": true,
+      "stable_MF_state_unchanged": true,
+      "optimizer_convergence_basis": null,
+      "frequencies_status": "NOT_RUN",
+      "normal_mode_count": null,
+      "incremental_before": null,
+      "incremental_after": null
+    },
+    {
+      "phase": "validation-ethanol-restore-gradient-001",
+      "qualification": "HEALTHY_CLOSED",
+      "parent": {
+        "phase": "validation-ethanol-restore-gradient-001",
+        "status": "EXITED",
+        "pid": 3598,
+        "started_at_utc": "2026-11-04T07:27:20.202686+00:00",
+        "ended_at_utc": "2026-11-04T07:27:22.538288+00:00",
+        "actual_cpu_seconds": 3.257608,
+        "exit_code": 0,
+        "wall_terminated": false,
+        "hard_killed": false,
+        "memory_terminated": false,
+        "monitor_failed": false,
+        "cpu_terminated": false,
+        "resource_stop_reason": null,
+        "monitor_exception": null,
+        "identity_checked_signal_attempts": null,
+        "owned_child_pidfd_containment_requested": null,
+        "SIGKILL_requested_at_utc": null
+      },
+      "proof_sha256": "387607cb39a45459b48b14b9a40d9e9d5c81582b56b5d0f4557ac7fdbf7c9db9",
+      "result_sha256": "4cc46936818acdbeb1895d232c357a72b34bfb81a75d44a1b74f1ac712243e8c",
+      "worker_status": "DONE",
+      "worker_phase": "restore-gradient-check",
+      "worker_completed_at_utc": "2026-11-04T07:27:22.360070+00:00",
+      "snapshot_manifest_sha256": "a0617e2f3c9a204c7b2475cdf9db03efdaf4595545fe9caaa75c7f0ca83460b5",
+      "no_new_SCF_performed": true,
+      "stable_MF_state_unchanged": true,
+      "optimizer_convergence_basis": null,
+      "frequencies_status": "NOT_RUN",
+      "normal_mode_count": null,
+      "incremental_before": null,
+      "incremental_after": null
+    },
+    {
+      "phase": "validation-water-stock-hessian-001",
+      "qualification": "HEALTHY_CLOSED",
+      "parent": {
+        "phase": "validation-water-stock-hessian-001",
+        "status": "EXITED",
+        "pid": 3635,
+        "started_at_utc": "2026-11-04T07:28:13.532062+00:00",
+        "ended_at_utc": "2026-11-04T07:28:15.061625+00:00",
+        "actual_cpu_seconds": 3.21103,
+        "exit_code": 0,
+        "wall_terminated": false,
+        "hard_killed": false,
+        "memory_terminated": false,
+        "monitor_failed": false,
+        "cpu_terminated": false,
+        "resource_stop_reason": null,
+        "monitor_exception": null,
+        "identity_checked_signal_attempts": null,
+        "owned_child_pidfd_containment_requested": null,
+        "SIGKILL_requested_at_utc": null
+      },
+      "proof_sha256": "8c21a09779f873af2a3cca8c7c68d2418d9bd1fd55c4ca9a18a5e4b202add99a",
+      "result_sha256": "46f66a5e6bd89ce0fc820d5f8f2a36089f8626e374b1a864937df48a13216405",
+      "worker_status": "FREQUENCIES_COMPUTED",
+      "worker_phase": "stock-hessian-reference",
+      "worker_completed_at_utc": "2026-11-04T07:28:14.862544+00:00",
+      "snapshot_manifest_sha256": "cd2fe125bad8dc797ad3d0bfa441267835b844c480e1f8f7bafb7014d8cc907a",
+      "no_new_SCF_performed": true,
+      "stable_MF_state_unchanged": true,
+      "optimizer_convergence_basis": null,
+      "frequencies_status": "DONE",
+      "normal_mode_count": 3,
+      "incremental_before": null,
+      "incremental_after": null
+    },
+    {
+      "phase": "validation-water-segment-001",
+      "qualification": "HEALTHY_CLOSED",
+      "parent": {
+        "phase": "validation-water-segment-001",
+        "status": "EXITED",
+        "pid": 3647,
+        "started_at_utc": "2026-11-04T07:28:15.131056+00:00",
+        "ended_at_utc": "2026-11-04T07:28:16.050107+00:00",
+        "actual_cpu_seconds": 1.523598,
+        "exit_code": 0,
+        "wall_terminated": false,
+        "hard_killed": false,
+        "memory_terminated": false,
+        "monitor_failed": false,
+        "cpu_terminated": false,
+        "resource_stop_reason": null,
+        "monitor_exception": null,
+        "identity_checked_signal_attempts": null,
+        "owned_child_pidfd_containment_requested": null,
+        "SIGKILL_requested_at_utc": null
+      },
+      "proof_sha256": "a9b559399282f24c1a7a34c2295dd539099f706def09d3ee90e3233350ae7b04",
+      "result_sha256": "2d8d8db5be737eaec9bdd7d66d9d4136f0726c7675c3b1a8505c59a228a7772c",
+      "worker_status": "CHECKPOINT_SEGMENT_COMPLETE",
+      "worker_phase": "hessian-segment",
+      "worker_completed_at_utc": "2026-11-04T07:28:15.920814+00:00",
+      "snapshot_manifest_sha256": "cd2fe125bad8dc797ad3d0bfa441267835b844c480e1f8f7bafb7014d8cc907a",
+      "no_new_SCF_performed": true,
+      "stable_MF_state_unchanged": true,
+      "optimizer_convergence_basis": null,
+      "frequencies_status": "NOT_RUN",
+      "normal_mode_count": null,
+      "incremental_before": {
+        "diag_completed": 0,
+        "row_completed": 0,
+        "total_units_completed": 0,
+        "total_units": 6,
+        "new_units_this_context": 0,
+        "complete_RHF_helper": false,
+        "cache_dir": "/workspace/research4/outputs/pyscf-sdf-continuation-20261103-v1/water-restart-validation",
+        "binding_sha256": "9fdcb83e78aa70464b44a22bd3be5645d7e1a2ce5983a43ac7f661ae004d20de"
+      },
+      "incremental_after": {
+        "diag_completed": 2,
+        "row_completed": 0,
+        "total_units_completed": 2,
+        "total_units": 6,
+        "new_units_this_context": 2,
+        "complete_RHF_helper": false,
+        "cache_dir": "/workspace/research4/outputs/pyscf-sdf-continuation-20261103-v1/water-restart-validation",
+        "binding_sha256": "9fdcb83e78aa70464b44a22bd3be5645d7e1a2ce5983a43ac7f661ae004d20de"
+      }
+    },
+    {
+      "phase": "validation-water-segment-002",
+      "qualification": "HEALTHY_CLOSED",
+      "parent": {
+        "phase": "validation-water-segment-002",
+        "status": "EXITED",
+        "pid": 3659,
+        "started_at_utc": "2026-11-04T07:28:16.121425+00:00",
+        "ended_at_utc": "2026-11-04T07:28:17.246794+00:00",
+        "actual_cpu_seconds": 1.720995,
+        "exit_code": 0,
+        "wall_terminated": false,
+        "hard_killed": false,
+        "memory_terminated": false,
+        "monitor_failed": false,
+        "cpu_terminated": false,
+        "resource_stop_reason": null,
+        "monitor_exception": null,
+        "identity_checked_signal_attempts": null,
+        "owned_child_pidfd_containment_requested": null,
+        "SIGKILL_requested_at_utc": null
+      },
+      "proof_sha256": "e14b6f7f06dee31ae909230f247f32f249478649d733a60e9cfb4e0cb2fcff07",
+      "result_sha256": "fd9ce0997a1ada541969a56a41713d4ebd94115558fd989aeda33456dbc46195",
+      "worker_status": "CHECKPOINT_SEGMENT_COMPLETE",
+      "worker_phase": "hessian-segment",
+      "worker_completed_at_utc": "2026-11-04T07:28:17.093408+00:00",
+      "snapshot_manifest_sha256": "cd2fe125bad8dc797ad3d0bfa441267835b844c480e1f8f7bafb7014d8cc907a",
+      "no_new_SCF_performed": true,
+      "stable_MF_state_unchanged": true,
+      "optimizer_convergence_basis": null,
+      "frequencies_status": "NOT_RUN",
+      "normal_mode_count": null,
+      "incremental_before": {
+        "diag_completed": 2,
+        "row_completed": 0,
+        "total_units_completed": 2,
+        "total_units": 6,
+        "new_units_this_context": 0,
+        "complete_RHF_helper": false,
+        "cache_dir": "/workspace/research4/outputs/pyscf-sdf-continuation-20261103-v1/water-restart-validation",
+        "binding_sha256": "9fdcb83e78aa70464b44a22bd3be5645d7e1a2ce5983a43ac7f661ae004d20de"
+      },
+      "incremental_after": {
+        "diag_completed": 3,
+        "row_completed": 1,
+        "total_units_completed": 4,
+        "total_units": 6,
+        "new_units_this_context": 2,
+        "complete_RHF_helper": false,
+        "cache_dir": "/workspace/research4/outputs/pyscf-sdf-continuation-20261103-v1/water-restart-validation",
+        "binding_sha256": "9fdcb83e78aa70464b44a22bd3be5645d7e1a2ce5983a43ac7f661ae004d20de"
+      }
+    },
+    {
+      "phase": "validation-water-segment-003",
+      "qualification": "HEALTHY_CLOSED",
+      "parent": {
+        "phase": "validation-water-segment-003",
+        "status": "EXITED",
+        "pid": 3671,
+        "started_at_utc": "2026-11-04T07:28:17.335402+00:00",
+        "ended_at_utc": "2026-11-04T07:28:18.870199+00:00",
+        "actual_cpu_seconds": 3.273145,
+        "exit_code": 0,
+        "wall_terminated": false,
+        "hard_killed": false,
+        "memory_terminated": false,
+        "monitor_failed": false,
+        "cpu_terminated": false,
+        "resource_stop_reason": null,
+        "monitor_exception": null,
+        "identity_checked_signal_attempts": null,
+        "owned_child_pidfd_containment_requested": null,
+        "SIGKILL_requested_at_utc": null
+      },
+      "proof_sha256": "c2460b2fa7e36d94c00c8d63fdbf6fa24b02291ef697c906008fed251ec9d268",
+      "result_sha256": "77ea80322e803d9d6adce7ed3db765a0e46823cf8276ccec2ed715dbfaa12d71",
+      "worker_status": "FREQUENCIES_COMPUTED",
+      "worker_phase": "hessian-segment",
+      "worker_completed_at_utc": "2026-11-04T07:28:18.716751+00:00",
+      "snapshot_manifest_sha256": "cd2fe125bad8dc797ad3d0bfa441267835b844c480e1f8f7bafb7014d8cc907a",
+      "no_new_SCF_performed": true,
+      "stable_MF_state_unchanged": true,
+      "optimizer_convergence_basis": null,
+      "frequencies_status": "DONE",
+      "normal_mode_count": 3,
+      "incremental_before": {
+        "diag_completed": 3,
+        "row_completed": 1,
+        "total_units_completed": 4,
+        "total_units": 6,
+        "new_units_this_context": 0,
+        "complete_RHF_helper": false,
+        "cache_dir": "/workspace/research4/outputs/pyscf-sdf-continuation-20261103-v1/water-restart-validation",
+        "binding_sha256": "9fdcb83e78aa70464b44a22bd3be5645d7e1a2ce5983a43ac7f661ae004d20de"
+      },
+      "incremental_after": {
+        "diag_completed": 3,
+        "row_completed": 3,
+        "total_units_completed": 6,
+        "total_units": 6,
+        "new_units_this_context": 2,
+        "complete_RHF_helper": true,
+        "cache_dir": "/workspace/research4/outputs/pyscf-sdf-continuation-20261103-v1/water-restart-validation",
+        "binding_sha256": "9fdcb83e78aa70464b44a22bd3be5645d7e1a2ce5983a43ac7f661ae004d20de"
+      }
+    },
+    {
+      "phase": "validation-ethanol-stock-hessian-001",
+      "qualification": "FAILED_CLOSED_NOT_HEALTHY",
+      "parent": {
+        "phase": "validation-ethanol-stock-hessian-001",
+        "status": "PARTIAL_OR_FAILED",
+        "pid": 3694,
+        "started_at_utc": "2026-11-04T07:28:31.787116+00:00",
+        "ended_at_utc": "2026-11-04T07:28:56.867252+00:00",
+        "actual_cpu_seconds": 52.973237,
+        "exit_code": 0,
+        "wall_terminated": false,
+        "hard_killed": true,
+        "memory_terminated": false,
+        "monitor_failed": true,
+        "cpu_terminated": false,
+        "resource_stop_reason": "MONITOR_FAILED_CLOSED",
+        "monitor_exception": "RuntimeError('Live payload leader missing from RSS observation')",
+        "identity_checked_signal_attempts": [
+          {
+            "utc": "2026-11-04T07:28:56.764752+00:00",
+            "signal": 9,
+            "sent": false,
+            "reason": "PROCESS_IDENTITY_CHANGED_OR_ENDED"
+          }
+        ],
+        "owned_child_pidfd_containment_requested": true,
+        "SIGKILL_requested_at_utc": "2026-11-04T07:28:56.764807+00:00"
+      },
+      "proof_sha256": "a22d888f7c8ef3462ea1f5729115bc18c3bdf3bba20bfaec1f95855f706f9222",
+      "result_sha256": "ac422aeb7a12737b9f77352183e2e49ae878ad0bff780a679979b1d7a3967a85",
+      "worker_status": "FREQUENCIES_COMPUTED",
+      "worker_phase": "stock-hessian-reference",
+      "worker_completed_at_utc": "2026-11-04T07:28:56.678274+00:00",
+      "snapshot_manifest_sha256": "a0617e2f3c9a204c7b2475cdf9db03efdaf4595545fe9caaa75c7f0ca83460b5",
+      "no_new_SCF_performed": true,
+      "stable_MF_state_unchanged": true,
+      "optimizer_convergence_basis": null,
+      "frequencies_status": "DONE",
+      "normal_mode_count": 21,
+      "incremental_before": null,
+      "incremental_after": null
+    },
+    {
+      "phase": "validation-ethanol-stock-hessian-002",
+      "qualification": "HEALTHY_CLOSED",
+      "parent": {
+        "phase": "validation-ethanol-stock-hessian-002",
+        "status": "EXITED",
+        "pid": 3745,
+        "started_at_utc": "2026-11-04T07:29:35.667292+00:00",
+        "ended_at_utc": "2026-11-04T07:30:00.943605+00:00",
+        "actual_cpu_seconds": 53.059125,
+        "exit_code": 0,
+        "wall_terminated": false,
+        "hard_killed": false,
+        "memory_terminated": false,
+        "monitor_failed": false,
+        "cpu_terminated": false,
+        "resource_stop_reason": null,
+        "monitor_exception": null,
+        "identity_checked_signal_attempts": null,
+        "owned_child_pidfd_containment_requested": null,
+        "SIGKILL_requested_at_utc": null
+      },
+      "proof_sha256": "5faab16ed00c8e20e47e28bf605beee72b521b02c42b83c05b30f97fce60025a",
+      "result_sha256": "6bfa77a178fb6ed472ab997b55751e2199add4eb485745efac9aece98782e4ed",
+      "worker_status": "FREQUENCIES_COMPUTED",
+      "worker_phase": "stock-hessian-reference",
+      "worker_completed_at_utc": "2026-11-04T07:30:00.835598+00:00",
+      "snapshot_manifest_sha256": "a0617e2f3c9a204c7b2475cdf9db03efdaf4595545fe9caaa75c7f0ca83460b5",
+      "no_new_SCF_performed": true,
+      "stable_MF_state_unchanged": true,
+      "optimizer_convergence_basis": null,
+      "frequencies_status": "DONE",
+      "normal_mode_count": 21,
+      "incremental_before": null,
+      "incremental_after": null
+    },
+    {
+      "phase": "validation-ethanol-segment-001",
+      "qualification": "HEALTHY_CLOSED",
+      "parent": {
+        "phase": "validation-ethanol-segment-001",
+        "status": "EXITED",
+        "pid": 3762,
+        "started_at_utc": "2026-11-04T07:30:01.008525+00:00",
+        "ended_at_utc": "2026-11-04T07:30:03.743096+00:00",
+        "actual_cpu_seconds": 4.0805679999999995,
+        "exit_code": 0,
+        "wall_terminated": false,
+        "hard_killed": false,
+        "memory_terminated": false,
+        "monitor_failed": false,
+        "cpu_terminated": false,
+        "resource_stop_reason": null,
+        "monitor_exception": null,
+        "identity_checked_signal_attempts": null,
+        "owned_child_pidfd_containment_requested": null,
+        "SIGKILL_requested_at_utc": null
+      },
+      "proof_sha256": "f2ab2f078d5390ed6b2ca739ce0f586f4f9c3cdfae7c9db2fab7e8900baaf2bb",
+      "result_sha256": "cc69d9105c069418d8f146c084534bd21459c7063b2cf4d247f6a1e0f17069b1",
+      "worker_status": "CHECKPOINT_SEGMENT_COMPLETE",
+      "worker_phase": "hessian-segment",
+      "worker_completed_at_utc": "2026-11-04T07:30:03.574320+00:00",
+      "snapshot_manifest_sha256": "a0617e2f3c9a204c7b2475cdf9db03efdaf4595545fe9caaa75c7f0ca83460b5",
+      "no_new_SCF_performed": true,
+      "stable_MF_state_unchanged": true,
+      "optimizer_convergence_basis": null,
+      "frequencies_status": "NOT_RUN",
+      "normal_mode_count": null,
+      "incremental_before": {
+        "diag_completed": 0,
+        "row_completed": 0,
+        "total_units_completed": 0,
+        "total_units": 18,
+        "new_units_this_context": 0,
+        "complete_RHF_helper": false,
+        "cache_dir": "/workspace/research4/outputs/pyscf-sdf-continuation-20261103-v1/ethanol-restart-validation",
+        "binding_sha256": "5aa011a4027baa73cfef875760c7d6db6106a52936fc8b88b8fb1c5ffe454683"
+      },
+      "incremental_after": {
+        "diag_completed": 5,
+        "row_completed": 0,
+        "total_units_completed": 5,
+        "total_units": 18,
+        "new_units_this_context": 5,
+        "complete_RHF_helper": false,
+        "cache_dir": "/workspace/research4/outputs/pyscf-sdf-continuation-20261103-v1/ethanol-restart-validation",
+        "binding_sha256": "5aa011a4027baa73cfef875760c7d6db6106a52936fc8b88b8fb1c5ffe454683"
+      }
+    },
+    {
+      "phase": "validation-ethanol-segment-002",
+      "qualification": "FAILED_CLOSED_NOT_HEALTHY",
+      "parent": {
+        "phase": "validation-ethanol-segment-002",
+        "status": "PARTIAL_OR_FAILED",
+        "pid": 3780,
+        "started_at_utc": "2026-11-04T07:30:03.800929+00:00",
+        "ended_at_utc": "2026-11-04T07:30:06.940709+00:00",
+        "actual_cpu_seconds": 4.7741180000000005,
+        "exit_code": 0,
+        "wall_terminated": false,
+        "hard_killed": true,
+        "memory_terminated": false,
+        "monitor_failed": true,
+        "cpu_terminated": false,
+        "resource_stop_reason": "MONITOR_FAILED_CLOSED",
+        "monitor_exception": "RuntimeError('Live payload leader missing from RSS observation')",
+        "identity_checked_signal_attempts": [
+          {
+            "utc": "2026-11-04T07:30:06.838389+00:00",
+            "signal": 9,
+            "sent": false,
+            "reason": "PROCESS_IDENTITY_CHANGED_OR_ENDED"
+          }
+        ],
+        "owned_child_pidfd_containment_requested": true,
+        "SIGKILL_requested_at_utc": "2026-11-04T07:30:06.838409+00:00"
+      },
+      "proof_sha256": "56e839c2c096a9ad64d3970d3c243b565e4873da3aaf308d7d74f36ebdf91681",
+      "result_sha256": "09983594071393963e07872a28ae2a2706a6fe7dc87f3899def4e0c88d74d725",
+      "worker_status": "CHECKPOINT_SEGMENT_COMPLETE",
+      "worker_phase": "hessian-segment",
+      "worker_completed_at_utc": "2026-11-04T07:30:06.737460+00:00",
+      "snapshot_manifest_sha256": "a0617e2f3c9a204c7b2475cdf9db03efdaf4595545fe9caaa75c7f0ca83460b5",
+      "no_new_SCF_performed": true,
+      "stable_MF_state_unchanged": true,
+      "optimizer_convergence_basis": null,
+      "frequencies_status": "NOT_RUN",
+      "normal_mode_count": null,
+      "incremental_before": {
+        "diag_completed": 5,
+        "row_completed": 0,
+        "total_units_completed": 5,
+        "total_units": 18,
+        "new_units_this_context": 0,
+        "complete_RHF_helper": false,
+        "cache_dir": "/workspace/research4/outputs/pyscf-sdf-continuation-20261103-v1/ethanol-restart-validation",
+        "binding_sha256": "5aa011a4027baa73cfef875760c7d6db6106a52936fc8b88b8fb1c5ffe454683"
+      },
+      "incremental_after": {
+        "diag_completed": 9,
+        "row_completed": 1,
+        "total_units_completed": 10,
+        "total_units": 18,
+        "new_units_this_context": 5,
+        "complete_RHF_helper": false,
+        "cache_dir": "/workspace/research4/outputs/pyscf-sdf-continuation-20261103-v1/ethanol-restart-validation",
+        "binding_sha256": "5aa011a4027baa73cfef875760c7d6db6106a52936fc8b88b8fb1c5ffe454683"
+      }
+    },
+    {
+      "phase": "spinosin-C001-prepare-001",
+      "qualification": "FAILED_CLOSED_NOT_HEALTHY",
+      "parent": {
+        "phase": "spinosin-C001-prepare-001",
+        "status": "PARTIAL_OR_FAILED",
+        "pid": 3854,
+        "started_at_utc": "2026-11-04T07:31:29.584200+00:00",
+        "ended_at_utc": "2026-11-04T07:46:08.572882+00:00",
+        "actual_cpu_seconds": 3464.994477,
+        "exit_code": 0,
+        "wall_terminated": false,
+        "hard_killed": true,
+        "memory_terminated": false,
+        "monitor_failed": true,
+        "cpu_terminated": false,
+        "resource_stop_reason": "MONITOR_FAILED_CLOSED",
+        "monitor_exception": "RuntimeError('Live payload leader missing from RSS observation')",
+        "identity_checked_signal_attempts": [
+          {
+            "utc": "2026-11-04T07:46:08.471006+00:00",
+            "signal": 9,
+            "sent": false,
+            "reason": "PROCESS_IDENTITY_CHANGED_OR_ENDED"
+          }
+        ],
+        "owned_child_pidfd_containment_requested": true,
+        "SIGKILL_requested_at_utc": "2026-11-04T07:46:08.471049+00:00"
+      },
+      "proof_sha256": "394a19673bd7363121be1acf2cdb50dd29d9096a182c6faedbafd0440c24ff1b",
+      "result_sha256": "23bcdb7bbff9ef43dbc73f65eb7d1793925a6511a5acc0905652ad5c4d2cf269",
+      "worker_status": "DONE",
+      "worker_phase": "prepare-state",
+      "worker_completed_at_utc": "2026-11-04T07:46:08.323899+00:00",
+      "snapshot_manifest_sha256": "2a1639891f1a39af2bc31f8597271441fbcb26ee6a610fbdb31e313e8384beb8",
+      "no_new_SCF_performed": null,
+      "stable_MF_state_unchanged": null,
+      "optimizer_convergence_basis": "VERIFIED_ORIGINAL_OPTIMIZATION_NO_NEW_OPT_RUN",
+      "frequencies_status": "NOT_RUN",
+      "normal_mode_count": null,
+      "incremental_before": null,
+      "incremental_after": null
+    }
+  ],
+  "checks": [
+    {
+      "check": "validation-water-prepare-001: parent closed",
+      "passed": true
+    },
+    {
+      "check": "validation-water-prepare-001: proof SHA+PID+phase",
+      "passed": true
+    },
+    {
+      "check": "validation-water-prepare-001: timestamps",
+      "passed": true
+    },
+    {
+      "check": "validation-water-prepare-001: result proof binding",
+      "passed": true
+    },
+    {
+      "check": "validation-water-prepare-001: frozen supervisor source",
+      "passed": true
+    },
+    {
+      "check": "validation-water-prepare-001: frozen worker source",
+      "passed": true
+    },
+    {
+      "check": "validation-water-prepare-001: log SHA",
+      "passed": true
+    },
+    {
+      "check": "validation-water-prepare-001: final actual CPU finite",
+      "passed": true
+    },
+    {
+      "check": "validation-water-prepare-001: snapshot manifest SHA",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-prepare-001: parent closed",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-prepare-001: proof SHA+PID+phase",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-prepare-001: timestamps",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-prepare-001: result proof binding",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-prepare-001: frozen supervisor source",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-prepare-001: frozen worker source",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-prepare-001: log SHA",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-prepare-001: final actual CPU finite",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-prepare-001: snapshot manifest SHA",
+      "passed": true
+    },
+    {
+      "check": "validation-water-restore-gradient-001: parent closed",
+      "passed": true
+    },
+    {
+      "check": "validation-water-restore-gradient-001: proof SHA+PID+phase",
+      "passed": true
+    },
+    {
+      "check": "validation-water-restore-gradient-001: timestamps",
+      "passed": true
+    },
+    {
+      "check": "validation-water-restore-gradient-001: result proof binding",
+      "passed": true
+    },
+    {
+      "check": "validation-water-restore-gradient-001: frozen supervisor source",
+      "passed": true
+    },
+    {
+      "check": "validation-water-restore-gradient-001: frozen worker source",
+      "passed": true
+    },
+    {
+      "check": "validation-water-restore-gradient-001: log SHA",
+      "passed": true
+    },
+    {
+      "check": "validation-water-restore-gradient-001: final actual CPU finite",
+      "passed": true
+    },
+    {
+      "check": "validation-water-restore-gradient-001: snapshot manifest SHA",
+      "passed": true
+    },
+    {
+      "check": "validation-water-restore-gradient-001: same snapshot binding",
+      "passed": true
+    },
+    {
+      "check": "validation-water-restore-gradient-001: no new SCF and preserved MF",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-restore-gradient-001: parent closed",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-restore-gradient-001: proof SHA+PID+phase",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-restore-gradient-001: timestamps",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-restore-gradient-001: result proof binding",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-restore-gradient-001: frozen supervisor source",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-restore-gradient-001: frozen worker source",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-restore-gradient-001: log SHA",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-restore-gradient-001: final actual CPU finite",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-restore-gradient-001: snapshot manifest SHA",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-restore-gradient-001: same snapshot binding",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-restore-gradient-001: no new SCF and preserved MF",
+      "passed": true
+    },
+    {
+      "check": "validation-water-stock-hessian-001: parent closed",
+      "passed": true
+    },
+    {
+      "check": "validation-water-stock-hessian-001: proof SHA+PID+phase",
+      "passed": true
+    },
+    {
+      "check": "validation-water-stock-hessian-001: timestamps",
+      "passed": true
+    },
+    {
+      "check": "validation-water-stock-hessian-001: result proof binding",
+      "passed": true
+    },
+    {
+      "check": "validation-water-stock-hessian-001: frozen supervisor source",
+      "passed": true
+    },
+    {
+      "check": "validation-water-stock-hessian-001: frozen worker source",
+      "passed": true
+    },
+    {
+      "check": "validation-water-stock-hessian-001: log SHA",
+      "passed": true
+    },
+    {
+      "check": "validation-water-stock-hessian-001: final actual CPU finite",
+      "passed": true
+    },
+    {
+      "check": "validation-water-stock-hessian-001: snapshot manifest SHA",
+      "passed": true
+    },
+    {
+      "check": "validation-water-stock-hessian-001: same snapshot binding",
+      "passed": true
+    },
+    {
+      "check": "validation-water-stock-hessian-001: no new SCF and preserved MF",
+      "passed": true
+    },
+    {
+      "check": "validation-water-segment-001: parent closed",
+      "passed": true
+    },
+    {
+      "check": "validation-water-segment-001: proof SHA+PID+phase",
+      "passed": true
+    },
+    {
+      "check": "validation-water-segment-001: timestamps",
+      "passed": true
+    },
+    {
+      "check": "validation-water-segment-001: result proof binding",
+      "passed": true
+    },
+    {
+      "check": "validation-water-segment-001: frozen supervisor source",
+      "passed": true
+    },
+    {
+      "check": "validation-water-segment-001: frozen worker source",
+      "passed": true
+    },
+    {
+      "check": "validation-water-segment-001: log SHA",
+      "passed": true
+    },
+    {
+      "check": "validation-water-segment-001: final actual CPU finite",
+      "passed": true
+    },
+    {
+      "check": "validation-water-segment-001: snapshot manifest SHA",
+      "passed": true
+    },
+    {
+      "check": "validation-water-segment-001: same snapshot binding",
+      "passed": true
+    },
+    {
+      "check": "validation-water-segment-001: no new SCF and preserved MF",
+      "passed": true
+    },
+    {
+      "check": "validation-water-segment-002: parent closed",
+      "passed": true
+    },
+    {
+      "check": "validation-water-segment-002: proof SHA+PID+phase",
+      "passed": true
+    },
+    {
+      "check": "validation-water-segment-002: timestamps",
+      "passed": true
+    },
+    {
+      "check": "validation-water-segment-002: result proof binding",
+      "passed": true
+    },
+    {
+      "check": "validation-water-segment-002: frozen supervisor source",
+      "passed": true
+    },
+    {
+      "check": "validation-water-segment-002: frozen worker source",
+      "passed": true
+    },
+    {
+      "check": "validation-water-segment-002: log SHA",
+      "passed": true
+    },
+    {
+      "check": "validation-water-segment-002: final actual CPU finite",
+      "passed": true
+    },
+    {
+      "check": "validation-water-segment-002: snapshot manifest SHA",
+      "passed": true
+    },
+    {
+      "check": "validation-water-segment-002: same snapshot binding",
+      "passed": true
+    },
+    {
+      "check": "validation-water-segment-002: no new SCF and preserved MF",
+      "passed": true
+    },
+    {
+      "check": "validation-water-segment-002: prior complete record 000000-diag-0000",
+      "passed": true
+    },
+    {
+      "check": "validation-water-segment-002: healthy prior producer 000000-diag-0000",
+      "passed": true
+    },
+    {
+      "check": "validation-water-segment-002: prior complete record 000001-diag-0001",
+      "passed": true
+    },
+    {
+      "check": "validation-water-segment-002: healthy prior producer 000001-diag-0001",
+      "passed": true
+    },
+    {
+      "check": "validation-water-segment-003: parent closed",
+      "passed": true
+    },
+    {
+      "check": "validation-water-segment-003: proof SHA+PID+phase",
+      "passed": true
+    },
+    {
+      "check": "validation-water-segment-003: timestamps",
+      "passed": true
+    },
+    {
+      "check": "validation-water-segment-003: result proof binding",
+      "passed": true
+    },
+    {
+      "check": "validation-water-segment-003: frozen supervisor source",
+      "passed": true
+    },
+    {
+      "check": "validation-water-segment-003: frozen worker source",
+      "passed": true
+    },
+    {
+      "check": "validation-water-segment-003: log SHA",
+      "passed": true
+    },
+    {
+      "check": "validation-water-segment-003: final actual CPU finite",
+      "passed": true
+    },
+    {
+      "check": "validation-water-segment-003: snapshot manifest SHA",
+      "passed": true
+    },
+    {
+      "check": "validation-water-segment-003: same snapshot binding",
+      "passed": true
+    },
+    {
+      "check": "validation-water-segment-003: no new SCF and preserved MF",
+      "passed": true
+    },
+    {
+      "check": "validation-water-segment-003: prior complete record 000000-diag-0000",
+      "passed": true
+    },
+    {
+      "check": "validation-water-segment-003: healthy prior producer 000000-diag-0000",
+      "passed": true
+    },
+    {
+      "check": "validation-water-segment-003: prior complete record 000001-diag-0001",
+      "passed": true
+    },
+    {
+      "check": "validation-water-segment-003: healthy prior producer 000001-diag-0001",
+      "passed": true
+    },
+    {
+      "check": "validation-water-segment-003: prior complete record 000002-diag-0002",
+      "passed": true
+    },
+    {
+      "check": "validation-water-segment-003: healthy prior producer 000002-diag-0002",
+      "passed": true
+    },
+    {
+      "check": "validation-water-segment-003: prior complete record 000003-row-0000",
+      "passed": true
+    },
+    {
+      "check": "validation-water-segment-003: healthy prior producer 000003-row-0000",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-stock-hessian-001: parent closed",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-stock-hessian-001: proof SHA+PID+phase",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-stock-hessian-001: timestamps",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-stock-hessian-001: result proof binding",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-stock-hessian-001: frozen supervisor source",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-stock-hessian-001: frozen worker source",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-stock-hessian-001: log SHA",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-stock-hessian-001: final actual CPU finite",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-stock-hessian-001: snapshot manifest SHA",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-stock-hessian-001: same snapshot binding",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-stock-hessian-001: no new SCF and preserved MF",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-stock-hessian-002: parent closed",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-stock-hessian-002: proof SHA+PID+phase",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-stock-hessian-002: timestamps",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-stock-hessian-002: result proof binding",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-stock-hessian-002: frozen supervisor source",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-stock-hessian-002: frozen worker source",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-stock-hessian-002: log SHA",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-stock-hessian-002: final actual CPU finite",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-stock-hessian-002: snapshot manifest SHA",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-stock-hessian-002: same snapshot binding",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-stock-hessian-002: no new SCF and preserved MF",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-segment-001: parent closed",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-segment-001: proof SHA+PID+phase",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-segment-001: timestamps",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-segment-001: result proof binding",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-segment-001: frozen supervisor source",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-segment-001: frozen worker source",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-segment-001: log SHA",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-segment-001: final actual CPU finite",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-segment-001: snapshot manifest SHA",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-segment-001: same snapshot binding",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-segment-001: no new SCF and preserved MF",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-segment-002: parent closed",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-segment-002: proof SHA+PID+phase",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-segment-002: timestamps",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-segment-002: result proof binding",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-segment-002: frozen supervisor source",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-segment-002: frozen worker source",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-segment-002: log SHA",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-segment-002: final actual CPU finite",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-segment-002: snapshot manifest SHA",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-segment-002: same snapshot binding",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-segment-002: no new SCF and preserved MF",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-segment-002: prior complete record 000000-diag-0000",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-segment-002: healthy prior producer 000000-diag-0000",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-segment-002: prior complete record 000001-diag-0001",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-segment-002: healthy prior producer 000001-diag-0001",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-segment-002: prior complete record 000002-diag-0002",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-segment-002: healthy prior producer 000002-diag-0002",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-segment-002: prior complete record 000003-diag-0003",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-segment-002: healthy prior producer 000003-diag-0003",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-segment-002: prior complete record 000004-diag-0004",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-segment-002: healthy prior producer 000004-diag-0004",
+      "passed": true
+    },
+    {
+      "check": "spinosin-C001-prepare-001: parent closed",
+      "passed": true
+    },
+    {
+      "check": "spinosin-C001-prepare-001: proof SHA+PID+phase",
+      "passed": true
+    },
+    {
+      "check": "spinosin-C001-prepare-001: timestamps",
+      "passed": true
+    },
+    {
+      "check": "spinosin-C001-prepare-001: result proof binding",
+      "passed": true
+    },
+    {
+      "check": "spinosin-C001-prepare-001: frozen supervisor source",
+      "passed": true
+    },
+    {
+      "check": "spinosin-C001-prepare-001: frozen worker source",
+      "passed": true
+    },
+    {
+      "check": "spinosin-C001-prepare-001: log SHA",
+      "passed": true
+    },
+    {
+      "check": "spinosin-C001-prepare-001: final actual CPU finite",
+      "passed": true
+    },
+    {
+      "check": "spinosin-C001-prepare-001: snapshot manifest SHA",
+      "passed": true
+    },
+    {
+      "check": "13 terminal rows",
+      "passed": true
+    },
+    {
+      "check": "13 unique process identities",
+      "passed": true
+    },
+    {
+      "check": "13 unique PIDs",
+      "passed": true
+    },
+    {
+      "check": "final CPU sum equals consumed",
+      "passed": true
+    },
+    {
+      "check": "remaining algebra",
+      "passed": true
+    },
+    {
+      "check": "water: same snapshot across all phases",
+      "passed": true
+    },
+    {
+      "check": "ethanol: same snapshot across all phases",
+      "passed": true
+    },
+    {
+      "check": "real-restart-validation-independent-audit/water: indexed README.md",
+      "passed": true
+    },
+    {
+      "check": "real-restart-validation-independent-audit/water: indexed audit.json",
+      "passed": true
+    },
+    {
+      "check": "real-restart-validation-independent-audit/water: indexed frequencies_replayed.csv",
+      "passed": true
+    },
+    {
+      "check": "real-restart-validation-independent-audit/water: indexed ledger_observed.json",
+      "passed": true
+    },
+    {
+      "check": "sealed metadata input reports/pyscf-sdf-continuation-20261103-v1/execution/validation-water-prepare-001.log.supervisor-proof.json",
+      "passed": true
+    },
+    {
+      "check": "sealed metadata input reports/pyscf-sdf-continuation-20261103-v1/execution/validation-water-prepare-001.log",
+      "passed": true
+    },
+    {
+      "check": "sealed metadata input reports/pyscf-sdf-continuation-20261103-v1/validation-water-prepare-001/result.json",
+      "passed": true
+    },
+    {
+      "check": "sealed metadata input scripts/pyscf_molecular_state_worker_20261103.py",
+      "passed": true
+    },
+    {
+      "check": "sealed metadata input reports/pyscf-sdf-continuation-20261103-v1/execution/validation-water-restore-gradient-001.log.supervisor-proof.json",
+      "passed": true
+    },
+    {
+      "check": "sealed metadata input reports/pyscf-sdf-continuation-20261103-v1/execution/validation-water-restore-gradient-001.log",
+      "passed": true
+    },
+    {
+      "check": "sealed metadata input reports/pyscf-sdf-continuation-20261103-v1/validation-water-restore-gradient-001/result.json",
+      "passed": true
+    },
+    {
+      "check": "sealed metadata input scripts/pyscf_resumable_hessian_worker_20261103.py",
+      "passed": true
+    },
+    {
+      "check": "sealed metadata input reports/pyscf-sdf-continuation-20261103-v1/execution/validation-water-stock-hessian-001.log.supervisor-proof.json",
+      "passed": true
+    },
+    {
+      "check": "sealed metadata input reports/pyscf-sdf-continuation-20261103-v1/execution/validation-water-stock-hessian-001.log",
+      "passed": true
+    },
+    {
+      "check": "sealed metadata input reports/pyscf-sdf-continuation-20261103-v1/validation-water-stock-hessian-001/result.json",
+      "passed": true
+    },
+    {
+      "check": "sealed metadata input reports/pyscf-sdf-continuation-20261103-v1/execution/validation-water-segment-003.log.supervisor-proof.json",
+      "passed": true
+    },
+    {
+      "check": "sealed metadata input reports/pyscf-sdf-continuation-20261103-v1/execution/validation-water-segment-003.log",
+      "passed": true
+    },
+    {
+      "check": "sealed metadata input reports/pyscf-sdf-continuation-20261103-v1/validation-water-segment-003/result.json",
+      "passed": true
+    },
+    {
+      "check": "sealed metadata input reports/pyscf-sdf-continuation-20261103-v1/validation-water-prepare-001/exact-mf-snapshot/manifest.json",
+      "passed": true
+    },
+    {
+      "check": "sealed metadata input reports/pyscf-sdf-continuation-20261103-v1/validation-water-prepare-001/optimized.xyz",
+      "passed": true
+    },
+    {
+      "check": "sealed metadata input reports/pyscf-sdf-continuation-20261103-v1/execution/validation-water-segment-001.log.supervisor-proof.json",
+      "passed": true
+    },
+    {
+      "check": "sealed metadata input reports/pyscf-sdf-continuation-20261103-v1/execution/validation-water-segment-001.log",
+      "passed": true
+    },
+    {
+      "check": "sealed metadata input reports/pyscf-sdf-continuation-20261103-v1/validation-water-segment-001/result.json",
+      "passed": true
+    },
+    {
+      "check": "sealed metadata input reports/pyscf-sdf-continuation-20261103-v1/execution/validation-water-segment-002.log.supervisor-proof.json",
+      "passed": true
+    },
+    {
+      "check": "sealed metadata input reports/pyscf-sdf-continuation-20261103-v1/execution/validation-water-segment-002.log",
+      "passed": true
+    },
+    {
+      "check": "sealed metadata input reports/pyscf-sdf-continuation-20261103-v1/validation-water-segment-002/result.json",
+      "passed": true
+    },
+    {
+      "check": "sealed metadata input reports/pyscf-sdf-continuation-20261103-v1/validation-water-stock-hessian-001/frequencies.csv",
+      "passed": true
+    },
+    {
+      "check": "sealed metadata input reports/pyscf-sdf-continuation-20261103-v1/validation-water-stock-hessian-001/hessian_cache_manifest.json",
+      "passed": true
+    },
+    {
+      "check": "sealed metadata input reports/pyscf-sdf-continuation-20261103-v1/validation-water-segment-003/frequencies.csv",
+      "passed": true
+    },
+    {
+      "check": "sealed metadata input reports/pyscf-sdf-continuation-20261103-v1/validation-water-segment-003/hessian_cache_manifest.json",
+      "passed": true
+    },
+    {
+      "check": "real-restart-validation-independent-audit/failed-unit-forensic-audit/correction-v2: indexed README.md",
+      "passed": true
+    },
+    {
+      "check": "real-restart-validation-independent-audit/failed-unit-forensic-audit/correction-v2: indexed audit.json",
+      "passed": true
+    },
+    {
+      "check": "sealed metadata input reports/pyscf-sdf-continuation-20261103-v1/cpu_budget.json",
+      "passed": true
+    },
+    {
+      "check": "sealed metadata input reports/pyscf-sdf-continuation-20261103-v1/execution/validation-ethanol-segment-002.log.supervisor-proof.json",
+      "passed": true
+    },
+    {
+      "check": "sealed metadata input reports/pyscf-sdf-continuation-20261103-v1/execution/validation-ethanol-segment-002.log",
+      "passed": true
+    },
+    {
+      "check": "sealed metadata input reports/pyscf-sdf-continuation-20261103-v1/validation-ethanol-segment-002/result.json",
+      "passed": true
+    },
+    {
+      "check": "sealed metadata input scripts/pyscf_resumable_hessian_worker_20261103.py",
+      "passed": true
+    },
+    {
+      "check": "sealed metadata input reports/pyscf-sdf-continuation-20261103-v1/validation-ethanol-prepare-001/exact-mf-snapshot/manifest.json",
+      "passed": true
+    },
+    {
+      "check": "sealed metadata input outputs/pyscf-sdf-continuation-20261103-v1/ethanol-restart-validation/header.json",
+      "passed": true
+    },
+    {
+      "check": "sealed metadata input outputs/pyscf-sdf-continuation-20261103-v1/ethanol-restart-validation/units/000000-diag-0000/attempt-000001/complete.json",
+      "passed": true
+    },
+    {
+      "check": "sealed metadata input outputs/pyscf-sdf-continuation-20261103-v1/ethanol-restart-validation/units/000001-diag-0001/attempt-000001/complete.json",
+      "passed": true
+    },
+    {
+      "check": "sealed metadata input outputs/pyscf-sdf-continuation-20261103-v1/ethanol-restart-validation/units/000002-diag-0002/attempt-000001/complete.json",
+      "passed": true
+    },
+    {
+      "check": "sealed metadata input outputs/pyscf-sdf-continuation-20261103-v1/ethanol-restart-validation/units/000003-diag-0003/attempt-000001/complete.json",
+      "passed": true
+    },
+    {
+      "check": "sealed metadata input outputs/pyscf-sdf-continuation-20261103-v1/ethanol-restart-validation/units/000004-diag-0004/attempt-000001/complete.json",
+      "passed": true
+    },
+    {
+      "check": "sealed metadata input outputs/pyscf-sdf-continuation-20261103-v1/ethanol-restart-validation/units/000005-diag-0005/attempt-000001/complete.json",
+      "passed": true
+    },
+    {
+      "check": "sealed metadata input outputs/pyscf-sdf-continuation-20261103-v1/ethanol-restart-validation/units/000006-diag-0006/attempt-000001/complete.json",
+      "passed": true
+    },
+    {
+      "check": "sealed metadata input outputs/pyscf-sdf-continuation-20261103-v1/ethanol-restart-validation/units/000007-diag-0007/attempt-000001/complete.json",
+      "passed": true
+    },
+    {
+      "check": "sealed metadata input outputs/pyscf-sdf-continuation-20261103-v1/ethanol-restart-validation/units/000008-diag-0008/attempt-000001/complete.json",
+      "passed": true
+    },
+    {
+      "check": "sealed metadata input outputs/pyscf-sdf-continuation-20261103-v1/ethanol-restart-validation/units/000009-row-0000/attempt-000001/complete.json",
+      "passed": true
+    },
+    {
+      "check": "forensic original source",
+      "passed": true
+    },
+    {
+      "check": "forensic correction source",
+      "passed": true
+    },
+    {
+      "check": "root release exact corrected evidence",
+      "passed": true
+    },
+    {
+      "check": "root release exactly five allowed records",
+      "passed": true
+    },
+    {
+      "check": "released complete SHA 000005-diag-0005",
+      "passed": true
+    },
+    {
+      "check": "released proof and timestamp 000005-diag-0005",
+      "passed": true
+    },
+    {
+      "check": "released complete SHA 000006-diag-0006",
+      "passed": true
+    },
+    {
+      "check": "released proof and timestamp 000006-diag-0006",
+      "passed": true
+    },
+    {
+      "check": "released complete SHA 000007-diag-0007",
+      "passed": true
+    },
+    {
+      "check": "released proof and timestamp 000007-diag-0007",
+      "passed": true
+    },
+    {
+      "check": "released complete SHA 000008-diag-0008",
+      "passed": true
+    },
+    {
+      "check": "released proof and timestamp 000008-diag-0008",
+      "passed": true
+    },
+    {
+      "check": "released complete SHA 000009-row-0000",
+      "passed": true
+    },
+    {
+      "check": "released proof and timestamp 000009-row-0000",
+      "passed": true
+    },
+    {
+      "check": "ethanol003/004 NOT_RUN",
+      "passed": true
+    },
+    {
+      "check": "v4-closed-migration-source-audit: indexed README.md",
+      "passed": true
+    },
+    {
+      "check": "v4-closed-migration-source-audit: indexed audit.json",
+      "passed": true
+    },
+    {
+      "check": "v4-closed-migration-source-audit: indexed audit.py",
+      "passed": true
+    },
+    {
+      "check": "v4-closed-migration-source-audit: indexed ledger_closed_snapshot.json",
+      "passed": true
+    },
+    {
+      "check": "v4-closed-migration-source-audit: indexed pilot_311_files_verified.json",
+      "passed": true
+    },
+    {
+      "check": "migration snapshot equals terminal ledger",
+      "passed": true
+    },
+    {
+      "check": "independent Decimal sum of sealed 13 rows",
+      "passed": true
+    },
+    {
+      "check": "restore source makes MF without SCF kernel",
+      "passed": true
+    },
+    {
+      "check": "consumer declares restore/no SCF",
+      "passed": true
+    },
+    {
+      "check": "10 healthy and 3 failed",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-stock-hessian-001: failed signal boundary preserved",
+      "passed": true
+    },
+    {
+      "check": "validation-ethanol-segment-002: failed signal boundary preserved",
+      "passed": true
+    },
+    {
+      "check": "spinosin-C001-prepare-001: failed signal boundary preserved",
+      "passed": true
+    },
+    {
+      "check": "new output path unused provenance-independent.json",
+      "passed": true
+    },
+    {
+      "check": "new output path unused README.md",
+      "passed": true
+    }
+  ],
+  "all_metadata_checks_passed": true,
+  "input_metadata_files": {
+    "reports/pyscf-sdf-continuation-20261103-v1/cpu_budget.json": {
+      "sha256": "4533c152abb267c685a451a2690c9e6be8e94e2fe7e88e9194c8f2dda7384e35",
+      "bytes": 51070
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/execution/validation-water-prepare-001.log.supervisor-proof.json": {
+      "sha256": "4a7e80375342e15d7e258cc5c6551a8196af01a8cd99c4f7c21d3610cb42518e",
+      "bytes": 1624
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/validation-water-prepare-001/result.json": {
+      "sha256": "7d7cac4edf96f87e6f4d5a8764d7c4b36e34ab60ff73d5d02e871f948c7f079e",
+      "bytes": 8573
+    },
+    "scripts/run_pyscf_actual_cpu_budget_20261101.py": {
+      "sha256": "354ff51b5c2af2810033656d9972948262cfebb4dabb3978fca2d021f97e2b8f",
+      "bytes": 48962
+    },
+    "scripts/pyscf_molecular_state_worker_20261103.py": {
+      "sha256": "dcfffc4d0c68cd30c6d2c60597b77a4c3931516412b7f3308bb9d0b72ef45360",
+      "bytes": 41374
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/execution/validation-water-prepare-001.log": {
+      "sha256": "1efecbebe45402adbc70a8a7a66e4289ca1b1ec5957cf2ddd81ec9cae1a8c413",
+      "bytes": 196
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/validation-water-prepare-001/exact-mf-snapshot/manifest.json": {
+      "sha256": "cd2fe125bad8dc797ad3d0bfa441267835b844c480e1f8f7bafb7014d8cc907a",
+      "bytes": 17163
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/execution/validation-ethanol-prepare-001.log.supervisor-proof.json": {
+      "sha256": "be4b84f0ebeffc49e92c6643effd234a3b98f72a853cad3bb3b754cf5142b30d",
+      "bytes": 1631
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/validation-ethanol-prepare-001/result.json": {
+      "sha256": "dd3f1edb535271670b9cda18a7484d0a3e2069b599f66811540b1f3a73e9e4c6",
+      "bytes": 8613
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/execution/validation-ethanol-prepare-001.log": {
+      "sha256": "19d952074707aee694066f5d5934458878e1dd1406eef8a957f8cb539f504020",
+      "bytes": 199
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/validation-ethanol-prepare-001/exact-mf-snapshot/manifest.json": {
+      "sha256": "a0617e2f3c9a204c7b2475cdf9db03efdaf4595545fe9caaa75c7f0ca83460b5",
+      "bytes": 17193
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/execution/validation-water-restore-gradient-001.log.supervisor-proof.json": {
+      "sha256": "323f86f62759070ec024797768833e83b6cb9ba9c6c91cbc80837d4890abd5f9",
+      "bytes": 1639
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/validation-water-restore-gradient-001/result.json": {
+      "sha256": "505761826a5bdc0bb08faa495612cafcd26269301075ba391d9580da6e686a8c",
+      "bytes": 22306
+    },
+    "scripts/pyscf_resumable_hessian_worker_20261103.py": {
+      "sha256": "d23c4a3185aa4f666e22d671034728c1ca2443676a05fc8bec0587d6c8d6bf03",
+      "bytes": 29389
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/execution/validation-water-restore-gradient-001.log": {
+      "sha256": "84052c6530c8c7699cb42d745f664b50f36f12246eee926a733b632bad79bd59",
+      "bytes": 199
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/execution/validation-ethanol-restore-gradient-001.log.supervisor-proof.json": {
+      "sha256": "387607cb39a45459b48b14b9a40d9e9d5c81582b56b5d0f4557ac7fdbf7c9db9",
+      "bytes": 1641
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/validation-ethanol-restore-gradient-001/result.json": {
+      "sha256": "4cc46936818acdbeb1895d232c357a72b34bfb81a75d44a1b74f1ac712243e8c",
+      "bytes": 22348
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/execution/validation-ethanol-restore-gradient-001.log": {
+      "sha256": "94d75248ea619ad0df141ed78c682e1b9e9a7b186a13904657e5329ca081db5a",
+      "bytes": 201
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/execution/validation-water-stock-hessian-001.log.supervisor-proof.json": {
+      "sha256": "8c21a09779f873af2a3cca8c7c68d2418d9bd1fd55c4ca9a18a5e4b202add99a",
+      "bytes": 1635
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/validation-water-stock-hessian-001/result.json": {
+      "sha256": "46f66a5e6bd89ce0fc820d5f8f2a36089f8626e374b1a864937df48a13216405",
+      "bytes": 23974
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/execution/validation-water-stock-hessian-001.log": {
+      "sha256": "3ba7a047a560b05dbd2e458654b4d55d5ac7d81da1b6430a2c58d1b867b94ca1",
+      "bytes": 210
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/execution/validation-water-segment-001.log.supervisor-proof.json": {
+      "sha256": "a9b559399282f24c1a7a34c2295dd539099f706def09d3ee90e3233350ae7b04",
+      "bytes": 1630
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/validation-water-segment-001/result.json": {
+      "sha256": "2d8d8db5be737eaec9bdd7d66d9d4136f0726c7675c3b1a8505c59a228a7772c",
+      "bytes": 23542
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/execution/validation-water-segment-001.log": {
+      "sha256": "24302a39cccd32ad3e7a3ddeffca658572327fd93e2076419355b0c27efaa997",
+      "bytes": 215
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/execution/validation-water-segment-002.log.supervisor-proof.json": {
+      "sha256": "e14b6f7f06dee31ae909230f247f32f249478649d733a60e9cfb4e0cb2fcff07",
+      "bytes": 1631
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/validation-water-segment-002/result.json": {
+      "sha256": "fd9ce0997a1ada541969a56a41713d4ebd94115558fd989aeda33456dbc46195",
+      "bytes": 24978
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/execution/validation-water-segment-002.log": {
+      "sha256": "24302a39cccd32ad3e7a3ddeffca658572327fd93e2076419355b0c27efaa997",
+      "bytes": 215
+    },
+    "outputs/pyscf-sdf-continuation-20261103-v1/water-restart-validation/units/000000-diag-0000/attempt-000001/complete.json": {
+      "sha256": "491659067513a06160b6181bd28a8b716429c815aefbf576b85325ce20cc124b",
+      "bytes": 3483
+    },
+    "outputs/pyscf-sdf-continuation-20261103-v1/water-restart-validation/units/000001-diag-0001/attempt-000001/complete.json": {
+      "sha256": "18e74ef0f0890568f3bc5fe277874903e4fc33f1cdbdc09db1ef856a301190a3",
+      "bytes": 3483
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/execution/validation-water-segment-003.log.supervisor-proof.json": {
+      "sha256": "c2460b2fa7e36d94c00c8d63fdbf6fa24b02291ef697c906008fed251ec9d268",
+      "bytes": 1631
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/validation-water-segment-003/result.json": {
+      "sha256": "77ea80322e803d9d6adce7ed3db765a0e46823cf8276ccec2ed715dbfaa12d71",
+      "bytes": 27616
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/execution/validation-water-segment-003.log": {
+      "sha256": "b38f141de68f53e76fc6480989fe029a800ab8fc29a531656745c3473484c0a9",
+      "bytes": 202
+    },
+    "outputs/pyscf-sdf-continuation-20261103-v1/water-restart-validation/units/000002-diag-0002/attempt-000001/complete.json": {
+      "sha256": "27a63536f9c411d6113a7d737f59c672ab8995b0103fc20518d30bd54f95b2f4",
+      "bytes": 3484
+    },
+    "outputs/pyscf-sdf-continuation-20261103-v1/water-restart-validation/units/000003-row-0000/attempt-000001/complete.json": {
+      "sha256": "63a8e8389cfe477e456a75f793b893279e5d03c761e9885158e980b80a8a890d",
+      "bytes": 3716
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/execution/validation-ethanol-stock-hessian-001.log.supervisor-proof.json": {
+      "sha256": "a22d888f7c8ef3462ea1f5729115bc18c3bdf3bba20bfaec1f95855f706f9222",
+      "bytes": 1648
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/validation-ethanol-stock-hessian-001/result.json": {
+      "sha256": "ac422aeb7a12737b9f77352183e2e49ae878ad0bff780a679979b1d7a3967a85",
+      "bytes": 24910
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/execution/validation-ethanol-stock-hessian-001.log": {
+      "sha256": "8e0236b3133a25c93e1ca6c801cf4b29d6e98877261948ba4b7470cda1a76644",
+      "bytes": 213
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/execution/validation-ethanol-stock-hessian-002.log.supervisor-proof.json": {
+      "sha256": "5faab16ed00c8e20e47e28bf605beee72b521b02c42b83c05b30f97fce60025a",
+      "bytes": 1639
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/validation-ethanol-stock-hessian-002/result.json": {
+      "sha256": "6bfa77a178fb6ed472ab997b55751e2199add4eb485745efac9aece98782e4ed",
+      "bytes": 24896
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/execution/validation-ethanol-stock-hessian-002.log": {
+      "sha256": "8e0236b3133a25c93e1ca6c801cf4b29d6e98877261948ba4b7470cda1a76644",
+      "bytes": 213
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/execution/validation-ethanol-segment-001.log.supervisor-proof.json": {
+      "sha256": "f2ab2f078d5390ed6b2ca739ce0f586f4f9c3cdfae7c9db2fab7e8900baaf2bb",
+      "bytes": 1633
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/validation-ethanol-segment-001/result.json": {
+      "sha256": "cc69d9105c069418d8f146c084534bd21459c7063b2cf4d247f6a1e0f17069b1",
+      "bytes": 23586
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/execution/validation-ethanol-segment-001.log": {
+      "sha256": "6802e0cea89ca704b6c0ea7e847c0eb129ce9ed7f65430d30b0995d83fee30e7",
+      "bytes": 217
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/execution/validation-ethanol-segment-002.log.supervisor-proof.json": {
+      "sha256": "56e839c2c096a9ad64d3970d3c243b565e4873da3aaf308d7d74f36ebdf91681",
+      "bytes": 1634
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/validation-ethanol-segment-002/result.json": {
+      "sha256": "09983594071393963e07872a28ae2a2706a6fe7dc87f3899def4e0c88d74d725",
+      "bytes": 27251
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/execution/validation-ethanol-segment-002.log": {
+      "sha256": "6802e0cea89ca704b6c0ea7e847c0eb129ce9ed7f65430d30b0995d83fee30e7",
+      "bytes": 217
+    },
+    "outputs/pyscf-sdf-continuation-20261103-v1/ethanol-restart-validation/units/000000-diag-0000/attempt-000001/complete.json": {
+      "sha256": "3bbf201bbfe665c97da7c8f55ba66324b0859aa19323e3054f30eac1f10afff9",
+      "bytes": 3490
+    },
+    "outputs/pyscf-sdf-continuation-20261103-v1/ethanol-restart-validation/units/000001-diag-0001/attempt-000001/complete.json": {
+      "sha256": "2f0b3dfe58cb8a646ee8d4c9411333902de8b0f6bf72e923ad8f39b82fea4cf2",
+      "bytes": 3490
+    },
+    "outputs/pyscf-sdf-continuation-20261103-v1/ethanol-restart-validation/units/000002-diag-0002/attempt-000001/complete.json": {
+      "sha256": "40cb07fee151c540437194eb0a78c00434da5fb3a8fa2bd1f76416e9e0798744",
+      "bytes": 3490
+    },
+    "outputs/pyscf-sdf-continuation-20261103-v1/ethanol-restart-validation/units/000003-diag-0003/attempt-000001/complete.json": {
+      "sha256": "1cd15fb8282ed2b3a11f96021cf4877330e63a80461ccccf7c9c8ed7b3d1fbad",
+      "bytes": 3490
+    },
+    "outputs/pyscf-sdf-continuation-20261103-v1/ethanol-restart-validation/units/000004-diag-0004/attempt-000001/complete.json": {
+      "sha256": "b186d05ba19b4a1b13d3569acd3f08062155c9adf184000a751b72265852c78e",
+      "bytes": 3490
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/execution/spinosin-C001-prepare-001.log.supervisor-proof.json": {
+      "sha256": "394a19673bd7363121be1acf2cdb50dd29d9096a182c6faedbafd0440c24ff1b",
+      "bytes": 1632
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/spinosin-C001-prepare-001/result.json": {
+      "sha256": "23bcdb7bbff9ef43dbc73f65eb7d1793925a6511a5acc0905652ad5c4d2cf269",
+      "bytes": 8610
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/execution/spinosin-C001-prepare-001.log": {
+      "sha256": "746a04983d20c763c83834c1bb1dfec403068e067036a8b1c265988071271ee9",
+      "bytes": 205
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/spinosin-C001-prepare-001/exact-mf-snapshot/manifest.json": {
+      "sha256": "2a1639891f1a39af2bc31f8597271441fbcb26ee6a610fbdb31e313e8384beb8",
+      "bytes": 17250
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/real-restart-validation-independent-audit/water/audit.json": {
+      "sha256": "3cc63f8e50e113cc24c1b4a76ba29bb19c6a1c1cb0583084d6bad1069e8ff9af",
+      "bytes": 34686
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/real-restart-validation-independent-audit/water/index.json": {
+      "sha256": "7a50710afe5c9484c430b94c9e60d94149427e256d897dbe47d2f1b081a0887d",
+      "bytes": 765
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/real-restart-validation-independent-audit/water/README.md": {
+      "sha256": "732b5adfd77f3169d02052071658852ec12963805f527b09aa6cbe9d103eb4de",
+      "bytes": 644
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/real-restart-validation-independent-audit/water/frequencies_replayed.csv": {
+      "sha256": "a9b6e6cc1953c79e53ace8b6b8cf1a2bb2543b5f46879c10678c8deb49a49a46",
+      "bytes": 548
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/real-restart-validation-independent-audit/water/ledger_observed.json": {
+      "sha256": "072e70fa71b4f3434412e35837b221e9bdded4b48c48f10ea2f870531eb1cc5a",
+      "bytes": 49919
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/validation-water-prepare-001/optimized.xyz": {
+      "sha256": "04820073ff19bd00d91ae440c622b50e3947ab02259c17c94216bf746b624323",
+      "bytes": 213
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/validation-water-stock-hessian-001/frequencies.csv": {
+      "sha256": "c49d25e9e9ca2579865e3ac90571cdf0725a47abba35ec76ad49cda8d3f01a36",
+      "bytes": 238
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/validation-water-stock-hessian-001/hessian_cache_manifest.json": {
+      "sha256": "af2bb9cca7308c568b28102fd5e2ca60f7c9a3e027c13e9df10691aef36897cb",
+      "bytes": 14317
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/validation-water-segment-003/frequencies.csv": {
+      "sha256": "11bcf27bde09abf7f0f27721c242392965fa89cb1e04af2a40198dce64e9dfa4",
+      "bytes": 240
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/validation-water-segment-003/hessian_cache_manifest.json": {
+      "sha256": "81af8f70692a6f80e2accb587aec8a9f72e9ffe626a8067e717b657910f2d917",
+      "bytes": 14238
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/real-restart-validation-independent-audit/failed-unit-forensic-audit/correction-v2/audit.json": {
+      "sha256": "abb32b84aaa977f983f6872f2afb3c8ba11b7b5cf6de792b426996107804c008",
+      "bytes": 15588
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/real-restart-validation-independent-audit/failed-unit-forensic-audit/correction-v2/index.json": {
+      "sha256": "19cd1d5c2dd6ca04a332575b4549f58dc2e607b0f609b24375a46d51a8e8859d",
+      "bytes": 739
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/real-restart-validation-independent-audit/failed-unit-forensic-audit/correction-v2/README.md": {
+      "sha256": "ee56c8f79fc9209e8230adaff2b8f5414c175d9ea9de1d4eac7e2a2948b8ceac",
+      "bytes": 574
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/real-restart-validation-independent-audit/failed-unit-forensic-audit/ledger_observed.json": {
+      "sha256": "072e70fa71b4f3434412e35837b221e9bdded4b48c48f10ea2f870531eb1cc5a",
+      "bytes": 49919
+    },
+    "outputs/pyscf-sdf-continuation-20261103-v1/ethanol-restart-validation/header.json": {
+      "sha256": "5564292df416130258a7ba2f54962c20dfde2a87a83e1138b108f15ba492c1d1",
+      "bytes": 13517
+    },
+    "outputs/pyscf-sdf-continuation-20261103-v1/ethanol-restart-validation/units/000005-diag-0005/attempt-000001/complete.json": {
+      "sha256": "b536828b4752de73727efb69e44def7eb30036f87180fdf71969f6f3a6e5bf24",
+      "bytes": 3491
+    },
+    "outputs/pyscf-sdf-continuation-20261103-v1/ethanol-restart-validation/units/000006-diag-0006/attempt-000001/complete.json": {
+      "sha256": "f7e189b9b633af81449f9138d4fd70c75e9fdeac65e39742e9c35abc4df73e7a",
+      "bytes": 3491
+    },
+    "outputs/pyscf-sdf-continuation-20261103-v1/ethanol-restart-validation/units/000007-diag-0007/attempt-000001/complete.json": {
+      "sha256": "d9a2f16f32adec961a43bc777dcc0066d02f1a6c0e3139b392d9a06f9ce98b6d",
+      "bytes": 3491
+    },
+    "outputs/pyscf-sdf-continuation-20261103-v1/ethanol-restart-validation/units/000008-diag-0008/attempt-000001/complete.json": {
+      "sha256": "f808159a06a1445a0240d6fb72275f47a37d4c9e4a19cbb0a7aed06c83a7c581",
+      "bytes": 3491
+    },
+    "outputs/pyscf-sdf-continuation-20261103-v1/ethanol-restart-validation/units/000009-row-0000/attempt-000001/complete.json": {
+      "sha256": "f545fa2d140b940b19ff19f164f5ef406ee2b918042b068346e5933e69ba13da",
+      "bytes": 3723
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/real-restart-validation-independent-audit/failed-unit-forensic-audit/audit.py": {
+      "sha256": "5cfb9d81045fa25ef9e1148bc92a74262f70289dd5c0f42534d3a1bf8f5b445e",
+      "bytes": 7795
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/real-restart-validation-independent-audit/failed-unit-forensic-audit/correct_signal_receipt_v2.py": {
+      "sha256": "b922114f6c5ea510ee1387579eddb4d12fe296aa581a4e05f7d6f7cba2841718",
+      "bytes": 2916
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/resource-protocol/ethanol-segment002-root-forensic-release.json": {
+      "sha256": "03c1d44f09b8d37cc7b177cf25dc830cb18fe18be54a3d1992147718d4c856b6",
+      "bytes": 3160
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/v4-closed-migration-source-audit/audit.json": {
+      "sha256": "4cea61f6228bed5ae0d8cf12380843527d532cc8da76791ae6b59c8045b2e89e",
+      "bytes": 24966
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/v4-closed-migration-source-audit/index.json": {
+      "sha256": "114be6bd945759b13d4e54190e54e031e9f8facba8f37d3b080223474d69a137",
+      "bytes": 839
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/v4-closed-migration-source-audit/README.md": {
+      "sha256": "197e83eb899a343c97c395d10991eea41d917ff70f2d2fe20781375cd1de3dc4",
+      "bytes": 722
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/v4-closed-migration-source-audit/audit.py": {
+      "sha256": "597e10500e7a0b679de35335ccc8f2ff7737c93fee64b51381b452ca82a34951",
+      "bytes": 11026
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/v4-closed-migration-source-audit/ledger_closed_snapshot.json": {
+      "sha256": "4533c152abb267c685a451a2690c9e6be8e94e2fe7e88e9194c8f2dda7384e35",
+      "bytes": 51070
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/v4-closed-migration-source-audit/pilot_311_files_verified.json": {
+      "sha256": "0020fc4e819468650c7a07bf998ce5118644ba93fbb138fb78a1b44d6c004eab",
+      "bytes": 105317
+    }
+  },
+  "new_quantum_evaluations": 0,
+  "PySCF_imported": false,
+  "HDF_NPY_payload_reads": 0,
+  "Git_operations": 0
+}
