@@ -1,0 +1,66 @@
+{
+  "schema": "research4-staged-full-rks-hessian-result-v6b",
+  "status": "NOT_RUN",
+  "target": "Spinosin75/full219 signed modes",
+  "source_worker": {
+    "path": "/workspace/research4/scripts/pyscf_staged_hessian_worker_20261105_v6b.py",
+    "sha256": "f13701964cd8a5fbda25a19ca27ec91b4a414f6b5cb49c14abacf6c82eaa448d",
+    "bytes": 35143
+  },
+  "stages": [
+    "rks-partial",
+    "h1ao",
+    "global"
+  ],
+  "numerical_policy": {
+    "xc": "PBE",
+    "basis": "def2-svp",
+    "density_fitting": false,
+    "dispersion": "NONE_EXPLICIT_PBE_PILOT_NOT_D3",
+    "full_AO_MO_space": true,
+    "grid_changed": false,
+    "MF_Hessian_memory_mb": 3000,
+    "stock_hess_elec_max_memory_argument_mb": 4000,
+    "conv_tol_cpscf": 1e-08,
+    "hessian_max_cycle": 50,
+    "level_shift": 0,
+    "response_block_atoms": 8
+  },
+  "guard_source_sha256": "b985d6d6e20f5e4a48387094461f19b133dae761338664e88836c62051f993a5",
+  "guard_frozen": true,
+  "frozen_dependencies": [
+    {
+      "path": "/workspace/research4/scripts/run_pyscf_continuation_budget_20261105_v6b.py",
+      "sha256": "b985d6d6e20f5e4a48387094461f19b133dae761338664e88836c62051f993a5",
+      "bytes": 77031
+    },
+    {
+      "path": "/workspace/research4/scripts/pyscf_molecular_state_worker_20261104_v5.py",
+      "sha256": "be4727b76d59a0b0dd3defba249ef833ee8ef0ea89473e390dcef389728415c8",
+      "bytes": 41377
+    },
+    {
+      "path": "/workspace/research4/scripts/pyscf_resumable_hessian_worker_20261104_v5.py",
+      "sha256": "b40188f747c01e9efa97672af6eedfd281a9e9697d20bc7d57f125bb131fa190",
+      "bytes": 29399
+    },
+    {
+      "path": "/workspace/research4/scripts/pyscf_spinosin_parallel_hessian_worker_20261031.py",
+      "sha256": "acfe7708748ac237c9912aa9b1d98e047d842794fd0c6f08b1a67b993f5b277d",
+      "bytes": 70233
+    },
+    {
+      "path": "/workspace/research4/scripts/pyscf_incremental_rhf_checkpoint_20261103.py",
+      "sha256": "ce96055f24b39833337844c178f94597a9ac4ba7721ba019816d03628f971f55",
+      "bytes": 24588
+    }
+  ],
+  "small_molecule_controls": "NOT_RUN_WATER_ETHANOL_REQUIRED_AFTER_ACTIVE_V5_PHASE",
+  "stage_cache_compatibility": "ONLY_NEW_V6B_HEALTHY_COMPLETE_STAGE_MANIFESTS; OLD_FAILED_NATIVE_ARRAYS_QUARANTINED",
+  "old_RHF_seed_compatibility": "HEALTHY_V5_149_SAME_EXACT_STATE_WITH_FROZEN_CORE; LAST1_RECOMPUTED_UNDER_V6B",
+  "V5_analyzer_compatibility": "BLOCKED_NEW_V6B_PROOF_SCHEMA_NEEDS_REVIEWED_POSTPROCESSOR",
+  "target_arrays_or_numerical_packages_read": false,
+  "QM_launched": false,
+  "actual_allocation_or_ledger_created": false,
+  "IR_intensities_status": "NOT_COMPUTED"
+}
