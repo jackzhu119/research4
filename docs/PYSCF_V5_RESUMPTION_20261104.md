@@ -36,10 +36,12 @@
 新V5 `v5-spinosin-C001-prepare-001` 已实际完成fresh SCF与梯度并健康
 闭合，实际CPU3709.041739秒；恢复后的梯度独立计算也健康完成，差值
 9.947598300641403e−14 Eh/Bohr，实际CPU3062.520454秒。
-首次1单元早期pilot及随后10单元均正常完成，累计11／150个RHF贡献
-单元已封存。实际成本分别为326.810172和3334.927806 CPU秒。
-这些是完整Hessian的中间贡献，不是11个频率或全流程完成百分比。
-`controller-pilot-001`继续下一段，所有原子间与轨道空间耦合均保留。
+首次1单元早期pilot、随后10单元及一次有限串行控制器pilot均正常完成，
+累计21／150个RHF贡献单元已封存。实际成本依次为326.810172、
+3334.927806、3408.969120 CPU秒。有限控制器的`PARTIAL`／
+`FINITE_SEGMENT_COUNT_EXHAUSTED`表示按指定一段正常停下，不是数值失败。
+这些是完整Hessian的中间贡献，不是21个频率或全流程完成百分比。
+所有原子间与轨道空间耦合均保留，后续由有限分段及闭合Git备份入口继续。
 全系统Hessian、CPHF及219个正常模式分析目前仍未完成。
 每10个新单元正常闭合后封存、哈希、提交并推送研究分支；失败即停，
 不自动放行未知结果。模式计算完成与正频率极小点资格分别记录。
@@ -58,7 +60,8 @@
 科学门禁：`resource-protocol/spinosin-root-numerical-gate.json`。
 独立完整矩阵/频率审计：`real-restart-validation-independent-audit/`。
 研究窗口、迁移授权与来源：`resource-protocol/`、`migration-source/`。
-前11单元及无覆盖恢复命令：`first-unit-checkpoint-archive/`。
+前11单元及无覆盖恢复命令：`first-unit-checkpoint-archive/`；
+前21单元完整前缀：`controller-pilot-001/checkpoint-archive/`。
 有限运行及闭合备份入口：`run_bounded_spinosin_backup_job.py`，
 其执行须绑定实际健康snapshot、恢复梯度与门禁；未运行不能记作完成。
 
