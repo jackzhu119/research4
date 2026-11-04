@@ -1,0 +1,135 @@
+{
+  "schema": "research4-v5-modes-analysis-control-preflight-v2",
+  "created_at_utc": "2026-11-04T09:46:33.316369+00:00",
+  "source_sha256": "a2e3588c6dea121be58e4a69afb137bc6e5092199ca4180937fcdb34f6f57154",
+  "test_sha256": "8ddf29b2a399ead85095c5918be25dcb07a29dcd1f96870c2279422d8c950a72",
+  "unit_test_exit_code": 0,
+  "unit_test_count": 19,
+  "unit_log_sha256": "67b37394db5519f5d4c35a442675ca83afb160a1f953fdcc1a0ed7d701886e4d",
+  "runs": [
+    {
+      "label": "target-NOT_RUN",
+      "command": [
+        "/workspace/research4/.runtime/python/bin/python",
+        "scripts/analyze_spinosin_v5_modes_20261104.py",
+        "--preflight",
+        "--output",
+        "reports/pyscf-spinosin-resumable-20261104-v5/modes-analysis-preflight-20261104-v2/target-NOT_RUN"
+      ],
+      "exit_code": 0,
+      "execution_log_sha256": "b09ec03ae1f4c14f5fca2c4522bc323e1c04d7e72ea7fd5406b51e8685fa4202",
+      "new_quantum_evaluations": 0
+    },
+    {
+      "label": "water",
+      "command": [
+        "/workspace/research4/.runtime/python/bin/python",
+        "scripts/analyze_spinosin_v5_modes_20261104.py",
+        "--result",
+        "reports/pyscf-spinosin-resumable-20261104-v5/v5-validation-water-segment-003/result.json",
+        "--result-sha256",
+        "7090385cd5f9e09a1665f3ff74cf90b62b7a6955e16a61df5c11718fe83e6abc",
+        "--control-validation",
+        "--output",
+        "reports/pyscf-spinosin-resumable-20261104-v5/modes-analysis-preflight-20261104-v2/controls/water"
+      ],
+      "exit_code": 0,
+      "execution_log_sha256": "4ea9992d5b82a67485c9588f9f961b5f298b1797f03198419ba1f7efbe6c2a07",
+      "new_quantum_evaluations": 0
+    },
+    {
+      "label": "ethanol",
+      "command": [
+        "/workspace/research4/.runtime/python/bin/python",
+        "scripts/analyze_spinosin_v5_modes_20261104.py",
+        "--result",
+        "reports/pyscf-spinosin-resumable-20261104-v5/v5-validation-ethanol-segment-004/result.json",
+        "--result-sha256",
+        "6dcbc8c60484dde9813ed02488bc440c3207a6332c35fcb00fc931e290ad042a",
+        "--control-validation",
+        "--output",
+        "reports/pyscf-spinosin-resumable-20261104-v5/modes-analysis-preflight-20261104-v2/controls/ethanol"
+      ],
+      "exit_code": 0,
+      "execution_log_sha256": "009295a9fd43ec11eb82238c585c3549cb85ffe114e4cddf3936dcac1e524825",
+      "new_quantum_evaluations": 0
+    }
+  ],
+  "target_status": "NOT_RUN",
+  "target_frequencies_or_arrays_read": false,
+  "new_quantum_evaluations": 0,
+  "controls": {
+    "water": {
+      "case": "water_software_control",
+      "normal_modes": 3,
+      "qualified_for_mechanism": false,
+      "Spinosin_target_status": "NOT_RUN_CONTROL_ONLY",
+      "numpy_replay": {
+        "status": "PASS_INDEPENDENT_NUMPY_TR_REPLAY",
+        "mode_count": 3,
+        "raw_Hessian_max_asymmetry": 1.5952671739150048e-07,
+        "max_frequency_difference_cm1": 1.8189894035458565e-12,
+        "mass_weighted_orthogonality_error": 7.771561172376096e-16,
+        "external_projection_error": 4.0578884112016044e-16,
+        "projected_eigen_equation_residual": 3.885780586188048e-16,
+        "projected_eigen_residual_units": "Eh/(amu Bohr^2)",
+        "eigen_residual_is_not_a_CPHF_residual": true,
+        "signed_imaginary_modes_retained": true,
+        "masses_amu": {
+          "H": 1.008,
+          "C": 12.011,
+          "O": 15.999
+        },
+        "frequency_factor_cm1": 5140.487138493369,
+        "arbitrary_signs_and_degenerate_rotations_allowed": true
+      },
+      "peak_rss_kib": 86512,
+      "postprocessing_environment": {
+        "python": "3.12.14",
+        "numpy": "2.3.5",
+        "matplotlib": "3.10.8",
+        "max_virtual_address_space_bytes": 1073741824,
+        "CPU_affinity": [
+          0
+        ],
+        "BLAS_threads": "1"
+      }
+    },
+    "ethanol": {
+      "case": "ethanol_software_control",
+      "normal_modes": 21,
+      "qualified_for_mechanism": false,
+      "Spinosin_target_status": "NOT_RUN_CONTROL_ONLY",
+      "numpy_replay": {
+        "status": "PASS_INDEPENDENT_NUMPY_TR_REPLAY",
+        "mode_count": 21,
+        "raw_Hessian_max_asymmetry": 1.2294277595970016e-08,
+        "max_frequency_difference_cm1": 2.3874235921539366e-12,
+        "mass_weighted_orthogonality_error": 3.3306690738754696e-15,
+        "external_projection_error": 3.3306690738754696e-16,
+        "projected_eigen_equation_residual": 3.3306690738754696e-16,
+        "projected_eigen_residual_units": "Eh/(amu Bohr^2)",
+        "eigen_residual_is_not_a_CPHF_residual": true,
+        "signed_imaginary_modes_retained": true,
+        "masses_amu": {
+          "H": 1.008,
+          "C": 12.011,
+          "O": 15.999
+        },
+        "frequency_factor_cm1": 5140.487138493369,
+        "arbitrary_signs_and_degenerate_rotations_allowed": true
+      },
+      "peak_rss_kib": 87708,
+      "postprocessing_environment": {
+        "python": "3.12.14",
+        "numpy": "2.3.5",
+        "matplotlib": "3.10.8",
+        "max_virtual_address_space_bytes": 1073741824,
+        "CPU_affinity": [
+          0
+        ],
+        "BLAS_threads": "1"
+      }
+    }
+  }
+}

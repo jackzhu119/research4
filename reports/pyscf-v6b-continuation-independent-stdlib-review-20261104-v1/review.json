@@ -1,0 +1,91 @@
+{
+  "schema": "research4.v6b-guard-independent-stdlib-review.v1",
+  "status": "PASS_STATIC_AND_40_STDLIB_SYNTHETIC_TESTS",
+  "reviewed_at_utc": "2026-11-04T19:07:08.723640+00:00",
+  "reviewer": "/root/checkpoint_math_review/v6_guard_stdlib_review",
+  "source": {
+    "path": "scripts/run_pyscf_continuation_budget_20261105_v6b.py",
+    "sha256": "b985d6d6e20f5e4a48387094461f19b133dae761338664e88836c62051f993a5"
+  },
+  "tests": {
+    "path": "tests/test_pyscf_continuation_budget_v6b.py",
+    "sha256": "07aee984cafd21778458e2c233290d59f9c393a1bbc72b948ccb18028dc2d640"
+  },
+  "frozen_V6_preserved": {
+    "source_sha256": "ae2cc7bc8ed4f3d6f39e13a842e635e5a26152c02aab52d6af25d91cc65f5b1b",
+    "tests_sha256": "335115b7593d507f4fdcbc221d5715a86fbe3e29f2c8701fa608a211aba801d5",
+    "previous_review_index_sha256": "64bfaf8d44b046c62d884ed1637c2cfaf4a1e140d4e511f11e290314ef94be5f"
+  },
+  "blocking_findings_remaining": [],
+  "policy_bound_not_actual_allocation": {
+    "additional_CPU_seconds_maximum": 86400,
+    "deadline_extension_seconds_maximum": 86400,
+    "cumulative_CPU_ceiling_seconds": 216000,
+    "cumulative_wall_ceiling_seconds": 151200,
+    "actual_CPU_allocation_seconds": 0,
+    "actual_authorization_and_registration": "NOT_RUN"
+  },
+  "unchanged_phase_and_runtime_policy": {
+    "phase_CPU_ceiling_seconds": 122400,
+    "phase_wall_ceiling_seconds": 43200,
+    "threads_maximum": 4,
+    "address_space_GiB": 24,
+    "RSS_stop_GiB": 10,
+    "cgroup_kill_GiB": 12,
+    "cgroup_max_GiB": 16
+  },
+  "mechanical_difference_review": {
+    "inverse_replacements": [
+      "V6b -> V6",
+      "v6b -> v6",
+      "216000,151200 cumulative ceilings ->172800,108000",
+      "86400 additional bounds ->43200"
+    ],
+    "inverse_full_text_equal_frozen_V6": true,
+    "inverse_full_AST_equal_frozen_V6": true,
+    "twelve_monitor_helpers_AST_equal_V5": {
+      "parse_proc_stat": true,
+      "read_process_identity": true,
+      "identity_matches": true,
+      "owned_identity_matches": true,
+      "terminal_reap_observation": true,
+      "bounded_owned_reap": true,
+      "signal_bound_group": true,
+      "actual_cpu_observation": true,
+      "process_group_snapshot": true,
+      "read_cgroup_memory": true,
+      "resource_runtime_snapshot": true,
+      "phase_limits": true
+    },
+    "entire_monitor_while_AST_equal_V5": true,
+    "monitor_while_AST_characters": 22681
+  },
+  "cross_version_registry_review": [
+    "V6 and V6b use the identical .runtime/pyscf-v6-continuation-registry directory, stable ancestor key and claim schema.",
+    "Version-specific claim payload/source SHA differs but cannot replace the same lineage claim; V6 registration blocks an independent V6b pool and vice versa.",
+    "Both directions were actually exercised using genuine register calls with one shared temporary registry.",
+    "This is an alternative allocation policy, not automatic migration of an already allocated V6 ledger or a second independent budget pool."
+  ],
+  "preserved_budget_and_provenance_review": [
+    "All exact closed V5 phases, failed actual costs, source SHA, created time, cap/deadline and authorization lineage are inherited and checked.",
+    "Effective caps equal source caps plus the explicit chosen increments, including tested0 and smaller3600CPU/1800wall choices; 86400 is a bound, not a default grant.",
+    "Root approval/source/evidence and one canonical absolute ledger path are mandatory.",
+    "No-replace claim precedes the ledger; partial registration, aliases and missing claims fail closed.",
+    "The effective deadline remains the original deadline plus an explicit increment and within the supplied pre-existing research authorization endpoint; no new72h clock is started."
+  ],
+  "scope": {
+    "real_active_V5_ledger_read": false,
+    "real_authority_or_runtime_registry_read": false,
+    "arrays_or_CHK_read": false,
+    "numerical_libraries_imported": false,
+    "QM_run": false,
+    "Git_run": false,
+    "production_source_or_previous_review_modified_by_reviewer": false
+  },
+  "remaining_conditions": [
+    "Root must actually stop/close V5, verify every actual old cost and exact final source SHA, and approve the factual conservative authorization endpoint before any registration.",
+    "No real ledger/claim/allocation or native OS monitor execution was performed by this review.",
+    "If V6 has already claimed this ancestry, V6b must block rather than create a second pool; changing that state would need a separate explicit audited decision.",
+    "Molecular water/ethanol equivalence, stage caches and219-frequency science are outside this stdlib guard review and remain NOT_RUN."
+  ]
+}

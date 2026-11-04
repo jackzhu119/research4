@@ -1,0 +1,21 @@
+Traceback (most recent call last):
+  File "/workspace/research4/scripts/analyze_pyscf_staged_modes_20261105_v6b.py", line 748, in <module>
+    main()
+  File "/workspace/research4/scripts/analyze_pyscf_staged_modes_20261105_v6b.py", line 742, in main
+    result = analyze(args.result, args.result_sha256, args.output, control=args.control_validation)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/research4/scripts/analyze_pyscf_staged_modes_20261105_v6b.py", line 718, in analyze
+    return _analyze_closed(result_path, expected_sha, output, control=control)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/research4/scripts/analyze_pyscf_staged_modes_20261105_v6b.py", line 567, in _analyze_closed
+    gate = qualify(result_path, expected_sha, control=control)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/research4/scripts/analyze_pyscf_staged_modes_20261105_v6b.py", line 380, in qualify
+    source = source_gate(result, args, control, hashes)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/research4/scripts/analyze_pyscf_staged_modes_20261105_v6b.py", line 285, in source_gate
+    retain_v5_closure(g["path"], gradient["resource_supervision"], qualified_g["producer"], hashes)
+  File "/workspace/research4/scripts/analyze_pyscf_staged_modes_20261105_v6b.py", line 251, in retain_v5_closure
+    checked(root_path(rows[0]["log"]), hashes, closure["log_sha256"])
+                                               ~~~~~~~^^^^^^^^^^^^^^
+KeyError: 'log_sha256'

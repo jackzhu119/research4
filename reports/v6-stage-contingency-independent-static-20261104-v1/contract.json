@@ -1,0 +1,103 @@
+{
+  "schema": "research4-independent-V6-stage-static-contract-v1",
+  "created_at_utc": "2026-11-04T18:29:01.728975+00:00",
+  "status": "PASS_PINNED_STOCK_DATA_FLOW_CONTRACT_ONLY",
+  "source_files": {
+    "rhf": {
+      "path": ".runtime/quantum-upgrade-site/pyscf/hessian/rhf.py",
+      "sha256": "2d986bfc01aac98447034a207df639b3d6897f67ce1ab2a013fe2d0853c85de5"
+    },
+    "rks": {
+      "path": ".runtime/quantum-upgrade-site/pyscf/hessian/rks.py",
+      "sha256": "d61dbd1727b286845737853b92e1812a3e6a966dca29a9a8a79ff5e9a7725c03"
+    },
+    "v8": {
+      "path": "scripts/pyscf_spinosin_parallel_hessian_worker_20261031.py",
+      "sha256": "acfe7708748ac237c9912aa9b1d98e047d842794fd0c6f08b1a67b993f5b277d"
+    }
+  },
+  "raw_partial": {
+    "meaning": "Full electronic RKS partial=RHF one-electron+J-hybridK+XC; nuclear and orbital response excluded.",
+    "shape": [
+      75,
+      75,
+      3,
+      3
+    ],
+    "bytes_float64": 405000,
+    "stock_in_place_response_write_lines": [
+      80,
+      82,
+      83
+    ],
+    "contract": "Return a fresh mutable owner each kernel call; never alias the stored partial, writable mmap, or prior assembly result. Do not add RHF/J/XC a second time."
+  },
+  "H1AO": {
+    "shape": [
+      75,
+      3,
+      762,
+      762
+    ],
+    "bytes_float64": 1045159200,
+    "RKS_build_in_place_lines": [
+      140,
+      173,
+      174
+    ],
+    "stock_hess_elec_and_solver_write_H1AO": false,
+    "contract": "Global atom-indexed75 sequence, every(3,762,762) block complete and valid. Fresh disk loads can provide kernel ownership without retaining a second1GiB cache copy. Native generation mutates its own H1AO; consumers here read it."
+  },
+  "global_assembly": {
+    "stock_nuclear_call_lines": [
+      569
+    ],
+    "nuclear_added_once": true,
+    "contract": "One stock hobj.kernel assembly, preserving all interatomic couplings. Nuclear is added once by kernel; partial cache must exclude it. PBE pilot remains no-dispersion/noNLC."
+  },
+  "implicit_arguments": {
+    "hess_elec_default_max_memory": 4000,
+    "MF_and_hobj_resource_context_max_memory": 3000,
+    "RKS_XC_native_memory_floor_MB": 2000,
+    "contract": "Bind actual bound-method args including defaults. None resolves to the same MF MO frame, full atom order; explicitMO args must match exact fingerprints. Do not substitute hobj.max_memory3000 for stock default call argument4000. H1 chkfile=None; logger identity is not a physical cache key."
+  },
+  "response": {
+    "block_atoms": 8,
+    "global_atoms": 75,
+    "MO1_shape": [
+      75,
+      3,
+      762,
+      160
+    ],
+    "MO_E1_shape": [
+      75,
+      3,
+      160,
+      160
+    ],
+    "MO1_bytes_float64": 219456000,
+    "MO_E1_bytes_float64": 46080000,
+    "contract": "Create full-AO/MO rhf.gen_vind once, preserve samefx for all8-atom RHS chunks. Each stock solve returns length75 global lists; retain realglobal indices, never renumber local chunks. Require complete0..74 coverage, no missing/duplicate atoms. CPHF conv_tol1e-8/maxcycle50/levelshift0 and native lindep remain unchanged; residual is NOT_COMPUTED."
+  },
+  "atom_order": "OnlyNone or exact range(75); fullpermutations and subsets are forbidden because partial indices arelocal-atmlst while H1/MO1 lists use global atom IDs.",
+  "binding_and_alias": "Before/after native phases bind geometry, atom/basis/env excluding only transient17, MOgauge/energies/occupations, actualgrid coordinates/weights and numerical controls. Scope instance wrappers with MethodType and restore missing/own attributes in finally. Call already-bound originals without an extra self.",
+  "stage_gate": "Every cache stage needs actual healthy closed producer/proof/log/result/source/payload hashes. READY in a live child is insufficient. Kernel must not begin without both fullRKS partial and all75H1 blocks qualified.",
+  "V6_acceptance_boundary": "V5 cachedRHF producers can be validated by frozenV5 verifier. NewV6 stage/final products require explicit new-source receipts and compatible versioned postprocessor/observer; pinnedV5 consumers do not accept new entry source automatically.",
+  "suggested_stdlib_fixtures": [
+    "Mutable list/deepcopy fakepartial: response changes returned copy; persistent cache and later return stay unchanged;\u6838counter exactly1.",
+    "inspect.signature fakebound methods: None/fullorder/explicit matchingframe accepted; changedMO, atompermutation/subset, maxmemory4001 and nonNonechkfile rejected.",
+    "N11/B8 fakeglobal solver produces length11 with entries8..10 in remainder; verify samefx and onefactory, globalindexing, completecoverage and allpairterms.",
+    "Exception injection: instance method dictionary and memory settings restored exactly, including previously missing attributes.",
+    "Synthetic closed-stage JSON/filehash fixtures: parentRUNNING, missingH1atom, alteredbinding/payload or incompletepartial blocks all prevent kernel invocation."
+  ],
+  "new_V6_implementation_reviewed": false,
+  "numerical_equivalence_validated": false,
+  "stdlib_fixture_executions": 0,
+  "numeric_libraries_imported": false,
+  "arrays_or_HDF_read": 0,
+  "QM_calls": 0,
+  "Git_operations": 0,
+  "frozen_files_modified": false,
+  "audit_source_sha256": "6d3bf6748f54ebfd933f1140529df29e0faa9c86c71669b85810003b2fc4493d"
+}
