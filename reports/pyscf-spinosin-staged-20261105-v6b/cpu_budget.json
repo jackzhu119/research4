@@ -4,8 +4,8 @@
   "run_deadline_at_utc": "2026-11-05T23:20:50.391742+00:00",
   "quantum_cpu_cap_seconds": 216000,
   "run_wall_cap_seconds": 144000,
-  "consumed_cpu_seconds": 129542.777675,
-  "remaining_quantum_cpu_seconds": 86457.222325,
+  "consumed_cpu_seconds": 154406.137675,
+  "remaining_quantum_cpu_seconds": 61593.862324999995,
   "phases": [
     {
       "phase": "validation-water-prepare-001",
@@ -5492,6 +5492,179 @@
       "peak_group_rss_bytes_sampled": 227127296,
       "peak_cgroup_memory_bytes_sampled": 2520809472,
       "log_sha256": "06956142d1ecff39b3db802a78067c471310acfa088918773a675c01a23c760e"
+    },
+    {
+      "phase": "v6b-spinosin-C001-A-001",
+      "started_at_utc": "2026-11-04T20:37:15.620145+00:00",
+      "status": "PARTIAL_OR_FAILED",
+      "command": [
+        ".runtime/bin/python",
+        "scripts/pyscf_staged_hessian_worker_20261105_v6b.py",
+        "--execute",
+        "--stage",
+        "rks-partial",
+        "--threads",
+        "2",
+        "--snapshot",
+        "reports/pyscf-spinosin-resumable-20261104-v5/v5-spinosin-C001-prepare-001/exact-mf-snapshot",
+        "--snapshot-manifest-sha256",
+        "3089d6014ba2d2283540eb13cc7dbcdbbf284721042e7250b624197fc15c3311",
+        "--gradient-check-result",
+        "reports/pyscf-spinosin-resumable-20261104-v5/v5-spinosin-C001-restore-gradient-001/result.json",
+        "--gradient-check-result-sha256",
+        "6b143defc238471bc815857df08fc4034a9d8454a00567f3b084907a54a5c403",
+        "--output",
+        "reports/pyscf-spinosin-staged-20261105-v6b/spinosin-rks-partial-001",
+        "--rhf-cache",
+        "outputs/pyscf-spinosin-staged-20261105-v6b/spinosin-C001-healthy149"
+      ],
+      "log": "/workspace/research4/reports/pyscf-spinosin-staged-20261105-v6b/execution/v6b-spinosin-C001-A-001.log",
+      "granted_cpu_seconds": 80000,
+      "cpu_soft_limit_seconds": 79880,
+      "cpu_hard_limit_seconds": 80000,
+      "cpu_cleanup_margin_seconds": 120,
+      "cpu_boundary_reserve_seconds": 6,
+      "wall_limit_seconds": 43200,
+      "wall_cleanup_seconds": 60,
+      "wall_SIGTERM_after_seconds": 43140,
+      "address_space_limit_gib": 24,
+      "threads": 2,
+      "rss_stop_bytes": 10737418240,
+      "cgroup_kill_bytes": 12884901888,
+      "monitor_interval_seconds": 0.1,
+      "memory_kill_grace_seconds": 1.0,
+      "expected_cgroup_memory_max_bytes": 17179869184,
+      "guard_semantics": "BEST_EFFORT_RSS_GUARD_NOT_HARD_RSS_LIMIT",
+      "not_a_hard_RSS_limit": true,
+      "actual_cpu_guard_enabled": true,
+      "actual_cpu_guard_source": "PROC_STAT_CUMULATIVE_FROM_PROCESS_BIRTH",
+      "actual_cpu_clock_ticks_per_second": 100,
+      "actual_cpu_cleanup_reserve_seconds": 120,
+      "actual_cpu_stop_threshold_seconds": 79880,
+      "actual_cpu_closed_batch_cost_seconds": 129542.777675,
+      "actual_cpu_batch_cap_seconds": 216000,
+      "cpu_guard_kill_grace_seconds": 1.0,
+      "profiling_RLIMIT_is_supplementary_not_exact_actual_CPU_guarantee": true,
+      "supervisor_proof_path": "/workspace/research4/reports/pyscf-spinosin-staged-20261105-v6b/execution/v6b-spinosin-C001-A-001.log.supervisor-proof.json",
+      "prior_V3_exclusive_lock_held": true,
+      "cgroup_memory_before_launch": {
+        "current_bytes": 1520517120,
+        "max_bytes": 17179869184,
+        "source": "/sys/fs/cgroup",
+        "observed_at_utc": "2026-11-04T20:37:15.620138+00:00"
+      },
+      "environment_thread_limits": {
+        "OMP_NUM_THREADS": "2",
+        "OPENBLAS_NUM_THREADS": "2",
+        "MKL_NUM_THREADS": "2",
+        "NUMEXPR_NUM_THREADS": "2"
+      },
+      "pid": 22619,
+      "supervisor_proof_sha256": "63b39988d69b8ab7e931f649edd8ca07418ae0f0dadf9f27ba005e83d157d5fe",
+      "ended_at_utc": "2026-11-05T00:09:23.099448+00:00",
+      "ended_at_utc_semantics": "TERMINAL_OBSERVED_UPPER_BOUND_NOT_EXACT_DEATH_TIME",
+      "exact_death_time_known": false,
+      "actual_cpu_seconds": 24863.36,
+      "actual_cpu_accounting_source": "PROC_STAT_FINAL_TICKS",
+      "actual_cpu_precision_seconds": 0.01,
+      "actual_wait4_cpu_seconds": null,
+      "wait4_obtained": false,
+      "actual_CPU_is_unknown_do_not_resume_budget": false,
+      "proc_terminal_CPU_measurement": {
+        "utime_ticks": 2445491,
+        "stime_ticks": 40845,
+        "cutime_ticks": 0,
+        "cstime_ticks": 0,
+        "clock_ticks_per_second": 100,
+        "process_wide_native_threads_already_included": true,
+        "no_threads_multiplier": true,
+        "component_quantization_uncertainty_upper_bound_seconds": 0.02,
+        "same_dead_task_double_read": true
+      },
+      "supervisor_process_CPU_seconds_tick_precision_NOT_CHILD_LEDGER": 178.98,
+      "exit_code": -9,
+      "exit_code_source": "PROC_STAT_RAW_WAIT_STATUS9_INFERRED_SIGKILL_NOT_WAIT4",
+      "raw_terminal_exit_status": 9,
+      "wall_terminated": null,
+      "memory_terminated": null,
+      "cpu_terminated": null,
+      "elapsed_wall_seconds": null,
+      "peak_rss_kib": null,
+      "termination_flags_unknown_because_supervisor_did_not_close": true,
+      "hard_killed": true,
+      "hard_killed_semantics": "SIGKILL_OBSERVED_NOT_A_CLAIM_THIS_TOOL_OR_GUARD_SENT_IT",
+      "monitor_failed": true,
+      "supervisor_terminated_without_wait4": true,
+      "residual_processes_require_review_after_main_payload_exit": [],
+      "source_for_scientific_cache_qualified": false,
+      "healthy_producer": false,
+      "orphan_reconciliation": {
+        "schema": "research4-orphan-phase-reconciliation-v1",
+        "original_ledger_sha256": "fc79956be003d49c5c06417a3050322d35434186b1d10a7e804fe1d9f351d0c3",
+        "observation": {
+          "path": "/workspace/research4/reports/pyscf-spinosin-staged-20261105-v6b/restart-forensics-20261105-001/observation.json",
+          "sha256": "df29d58d9e2faa950bc00fdec1619bbd413743e5c07b699afb510640f5a5fe69",
+          "bytes": 4335
+        },
+        "raw_process_snapshots": {
+          "supervisor_stat": {
+            "path": "/workspace/research4/reports/pyscf-spinosin-staged-20261105-v6b/restart-forensics-20261105-001/proc_22618_stat",
+            "sha256": "eb24a67db4321ae664909cde28e656fa8da6c8db911715c0746015d2a931e7b6",
+            "bytes": 178
+          },
+          "supervisor_status": {
+            "path": "/workspace/research4/reports/pyscf-spinosin-staged-20261105-v6b/restart-forensics-20261105-001/proc_22618_status",
+            "sha256": "da580f53647ae70a1028026b9cc609e939429df1b2bdf48657ea6bdec6b2750a",
+            "bytes": 774
+          },
+          "child_stat": {
+            "path": "/workspace/research4/reports/pyscf-spinosin-staged-20261105-v6b/restart-forensics-20261105-001/proc_22619_stat",
+            "sha256": "11b32cce100320d4314ac136669f28c0bee04368ecd56df2c07e627f6ffed072",
+            "bytes": 190
+          },
+          "child_status": {
+            "path": "/workspace/research4/reports/pyscf-spinosin-staged-20261105-v6b/restart-forensics-20261105-001/proc_22619_status",
+            "sha256": "7f52878419ca01d6749b1a142252ec369b6bfdfa11733d7c0ca999719b6b0a5b",
+            "bytes": 773
+          }
+        },
+        "root_addendum": {
+          "path": "/workspace/research4/reports/pyscf-spinosin-staged-20261105-v6b/resource-protocol/root-orphan-reconciliation-addendum-001.json",
+          "sha256": "694e16379cd5e02b09f31e88474bfe85b9ba1bec20a66018e51de7014e147428",
+          "bytes": 3103
+        },
+        "approval_status": "EXPLICIT_ROOT_APPROVED",
+        "reconciliation_receipt_path": "/workspace/research4/reports/pyscf-spinosin-staged-20261105-v6b/restart-reconciliation-execute-001/result.json",
+        "conservative_non_actual_holdback_seconds": 1.0,
+        "holdback_is_actual_cost": false,
+        "scientific_result_created": false,
+        "failed_cache_released": false,
+        "accounting_addendum": {
+          "phase": "v6b-spinosin-C001-A-001",
+          "schema": "research4-orphan-phase-reconciliation-v1",
+          "source": "PROC_STAT_FINAL_TICKS_NOT_WAIT4",
+          "charged_child_cpu_seconds": 24863.36,
+          "separately_reported_supervisor_CPU_not_charged": 178.98,
+          "non_actual_holdback_seconds": 1.0,
+          "holdback_covered_by_unchanged_existing_boundary": true,
+          "selected_future_threads": 2,
+          "existing_boundary_reserve_seconds": 6,
+          "no_additional_reserve_cost_or_phase": true,
+          "original_ledger_sha256": "fc79956be003d49c5c06417a3050322d35434186b1d10a7e804fe1d9f351d0c3",
+          "observation": {
+            "path": "/workspace/research4/reports/pyscf-spinosin-staged-20261105-v6b/restart-forensics-20261105-001/observation.json",
+            "sha256": "df29d58d9e2faa950bc00fdec1619bbd413743e5c07b699afb510640f5a5fe69",
+            "bytes": 4335
+          },
+          "reconciler_source_sha256": "1fe7f40a3ee0e15e1ba206b66100a0404939591866e644634e919ea411a6e8d4"
+        },
+        "original_partial_input": {
+          "path": "/workspace/research4/reports/pyscf-spinosin-staged-20261105-v6b/spinosin-rks-partial-001/input.json",
+          "sha256": "5d86add32aee28b221187ec6c3a892189399534cd7a91906f238cd48b6f47271",
+          "bytes": 5067
+        },
+        "kernel_boot_id": "50ca0010-b743-43c7-bc0f-b6bcbc47c68d"
+      }
     }
   ],
   "cpu_accounting": "Final actual wait4 cost; independent full-birth proc CPU guard; single payload,1..4threads",
