@@ -1,0 +1,13 @@
+# Frozen V2 quantum queue orchestration
+
+Source: `scripts/research4_quantum_queue_20261105_v2.py`, SHA256 `3af76bd231b4a6caa1bf70fe788c2ad2be1dd9cec8b84d181a17e53efeb79dad`. Both independent reviews passed;41 stdlib fixtures passed independently. Actual V2 quantum queue execution remains NOT_RUN in this preparation. The old queue815 and all scientific workers/guards remain unchanged.
+
+The configuration schema is `research4-materialized-quantum-queue-v2`; the grant schema is `research4-materialized-quantum-queue-grant-v2`. CLI and scientific path/SHA dependency keys are unchanged. A fresh root-approved V2 configuration, grant and queue-state directory are required. Historical healthy outputs may be skipped only with exact immutable seals and full healthy-producer revalidation. Failed outputs/costs remain preserved.
+
+Read-only Git observations are informational. Actual write/unknown Git, recognized ML and unknown process visibility defer the NEXT launch; an active guarded scientific stage continues to healthy closure. No external conflict observation deliberately sends SIGTERM to expensive active science. The frozen guard still continuously enforces the original quantum resource limits.
+
+Deliberate launcher stops for explicit signals or its own unchanged resource/cleanup boundaries publish exact reasons and a resource sample before signalling the unreaped same-identity owned guardian. Signal-call return is recorded separately; attribution is scoped to that job and PID/start/UID/boot. A nonzero guardian exit without a launcher call is recorded as UNKNOWN_EXTERNAL_TO_LAUNCHER. The cause of the previous queue815 SIGTERM remains unknown; historical flags are not rewritten as a proven wall timeout or Git cause.
+
+Process evidence uses actual executable, real interpreter script position, PID/start/UID/boot, bounded cwd and command hash. Full argv, authentication arguments and arbitrary Python source strings are not logged. Unknown proc/boot/executable/cwd visibility fails closed for new launches. The optional root-grant `opaque_process_identity_exceptions` defaults to[] and allows at most2 exact `{pid,start_ticks,uid:0,comm:dockerd|containerd,boot_id}` records. Root must bind approved live stable double-read identities; an exception remains explicitly opaque, never proof of full visibility.
+
+Cumulative CPU cap, deadline, phase request clipping, timers, global quantum locks, scientific source pins and parent/producer/seal qualification are unchanged. This engineering fix allocates no new budget, refunds no cost, performs no new quantum computation and guarantees no scientific completion. Actual execution remains the root agent's responsibility after strict serial scheduling and the fresh resource gate.

@@ -1,0 +1,65 @@
+{
+  "schema": "research4-root-approved-specific-opaque-baseline-services-v1",
+  "created_at_utc": "2026-11-05T02:45:26.582685+00:00",
+  "root_approved": true,
+  "scope": "Only pre-existing uid0 dockerd/containerd observability exceptions for v2 process scanning, exactsameboot/PID/start/UID/comm. Not proof executablevisibility,notQapproval,notgeneralOTHERexception.",
+  "opaque_process_identity_exceptions": [
+    {
+      "pid": 125,
+      "start_ticks": 574,
+      "uid": 0,
+      "comm": "dockerd",
+      "boot_id": "50ca0010-b743-43c7-bc0f-b6bcbc47c68d"
+    },
+    {
+      "pid": 176,
+      "start_ticks": 584,
+      "uid": 0,
+      "comm": "containerd",
+      "boot_id": "50ca0010-b743-43c7-bc0f-b6bcbc47c68d"
+    }
+  ],
+  "evidence": [
+    {
+      "identity_before": {
+        "pid": 125,
+        "start_ticks": 574,
+        "uid": 0,
+        "comm": "dockerd",
+        "boot_id": "50ca0010-b743-43c7-bc0f-b6bcbc47c68d"
+      },
+      "identity_after": {
+        "pid": 125,
+        "start_ticks": 574,
+        "uid": 0,
+        "comm": "dockerd",
+        "boot_id": "50ca0010-b743-43c7-bc0f-b6bcbc47c68d"
+      },
+      "exe_visibility": {
+        "status": "PERMISSION_DENIED_ACTUAL_EXE_UNKNOWN"
+      },
+      "earlier_root_approved_baseline_service": true
+    },
+    {
+      "identity_before": {
+        "pid": 176,
+        "start_ticks": 584,
+        "uid": 0,
+        "comm": "containerd",
+        "boot_id": "50ca0010-b743-43c7-bc0f-b6bcbc47c68d"
+      },
+      "identity_after": {
+        "pid": 176,
+        "start_ticks": 584,
+        "uid": 0,
+        "comm": "containerd",
+        "boot_id": "50ca0010-b743-43c7-bc0f-b6bcbc47c68d"
+      },
+      "exe_visibility": {
+        "status": "PERMISSION_DENIED_ACTUAL_EXE_UNKNOWN"
+      },
+      "earlier_root_approved_baseline_service": true
+    }
+  ],
+  "current_quantum_worker_or_ledger_not_modified": true
+}
