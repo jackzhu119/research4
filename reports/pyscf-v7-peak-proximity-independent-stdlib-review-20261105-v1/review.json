@@ -1,0 +1,45 @@
+{
+  "schema": "research4-v7-peak-proximity-independent-stdlib-review-v1",
+  "reviewed_at_utc": "2026-11-05T08:18:28.259691+00:00",
+  "status": "PASS_STDLIB_SOURCE_AND_REAL_ANALYZER_INTERFACE_REVIEW",
+  "candidate": {
+    "path": "scripts/summarize_v7_audited_peak_proximity_20261105.py",
+    "sha256": "e94e64d32218b815a3c11583be7bc32383f40f5fe3373b972a256568db49e0bc",
+    "bytes": 11421
+  },
+  "frozen_actual_analyzer_interface": {
+    "path": "scripts/analyze_pyscf_staged_modes_20261105_v7_v2.py",
+    "sha256": "76e2eddebf681f9adf2ab7c5f9fa0bdc126b0c93f081cc93a606009f31c94705",
+    "bytes": 62169
+  },
+  "tests": {
+    "path": "tests/test_summarize_v7_audited_peak_proximity_stdlib.py",
+    "sha256": "ae8b0d5fd52882c29087e20370a2189a30b8a11ece854c1a5324a1b9af37740c",
+    "bytes": 5176
+  },
+  "test_execution": {
+    "command": "python -B tests/test_summarize_v7_audited_peak_proximity_stdlib.py",
+    "tests_passed": 16,
+    "reported_test_wall_seconds": 0.004,
+    "numpy_scipy_pyscf_torch_h5py_imported": false,
+    "scientific_CSV_JSON_or_array_inputs_read": false
+  },
+  "blocking_findings": [],
+  "verified_interfaces": [
+    "artifact_index.analysis_source_sha256 and V7_worker_sha256 match actual76e2 exporter",
+    "checks schema/status/case/75atoms/219modes/source_result_sha256 and all-positive qualification names match actual76e2",
+    "all_frequencies_cm1_THz.csv case/mode/frequency_cm1/frequency_THz/imaginary/qualified_for_mechanism/IR_intensity_status exact exporter fields",
+    "source-peaks path/SHA and 20fold record names match frozenA2 experimental_candidates source recipe",
+    "unit conversion .0299792458 matches frozen scientific convention",
+    "nonpositive or unqualified audit produces BLOCKED without reading candidate peaks",
+    "all closest ties kept at preregistered1e-12THz; fixed0.1to1.5THz; no fitting or classifier change",
+    "equal/nearby frequency is labeled positional-only, no chemical attribution and IR NOT_COMPUTED",
+    "existing audit219signed rows remain sealed at source; no negative modes made positive",
+    "source hashes/size/symlink checks and existing globalQ exclusive lock precede small file processing",
+    "no new PNG/PDF/XYZ/quantum/numeric payload processing"
+  ],
+  "trust_boundary": "Caller supplies the trusted actual sealed audit-index SHA and global-result SHA; this optional small table consumes that audited derivative evidence and does not rerun source quantum provenance or load Hessians. It is not a replacement for76e2 audit.",
+  "actual_scientific_execution": "NOT_RUN",
+  "frozen_sources_or_ledgers_modified": false,
+  "Git_executed": false
+}
