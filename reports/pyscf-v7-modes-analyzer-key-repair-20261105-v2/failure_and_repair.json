@@ -1,0 +1,74 @@
+{
+  "schema": "research4-v7-analyzer-actual-failure-minimal-key-repair-v2",
+  "created_at_utc": "2026-11-05T01:30:32.105399+00:00",
+  "status": "MINIMAL_SOURCE_REPAIR_STDLIB_TESTS_PASSED_ACTUAL_NUMERICAL_REPLAY_NOT_RUN_BY_THIS_AGENT",
+  "failed_analyzer": {
+    "path": "scripts/analyze_pyscf_staged_modes_20261105_v7.py",
+    "sha256": "9eaf4a08b7073b39aca7ce5b91dd483ba3119ab83d8064b5f98aea2901067b23",
+    "bytes": 62169
+  },
+  "replacement_analyzer": {
+    "path": "scripts/analyze_pyscf_staged_modes_20261105_v7_v2.py",
+    "sha256": "76e2eddebf681f9adf2ab7c5f9fa0bdc126b0c93f081cc93a606009f31c94705",
+    "bytes": 62169
+  },
+  "tests": {
+    "path": "tests/test_analyze_pyscf_staged_modes_v7_v2_stdlib.py",
+    "sha256": "7c83d23cfaca24298823367acd505f5af01acab61bbfa93b85e598e1223b8628",
+    "bytes": 21121
+  },
+  "frozen_snapshot_source": {
+    "path": "scripts/pyscf_molecular_state_worker_20261104_v5.py",
+    "sha256": "be4727b76d59a0b0dd3defba249ef833ee8ef0ea89473e390dcef389728415c8",
+    "bytes": 41377
+  },
+  "actual_failure_reported_by_root": {
+    "molecule_case": "water_software_control",
+    "exception_type": "KeyError",
+    "exception_key": "mo_occ",
+    "location": "_analyze_closed line723 in executed9eaf",
+    "actual_failure_log_path": null,
+    "actual_failure_log_location_owner": "root preservation report; not guessed by this source-repair task",
+    "postprocessing_CPU_seconds": null,
+    "postprocessing_CPU_accounting_status": "UNKNOWN_DO_NOT_INFER_FROM_WALL",
+    "tool_wall_seconds_reported_by_root": 0.413241061,
+    "expensive_healthy_DFT_producers_changed_or_rerun": false,
+    "independent_mode_replay_completed_by_failed9eaf": false
+  },
+  "verified_frozen_interface": {
+    "snapshot_arrays_source_line": 379,
+    "validate_arrays_source_line": 341,
+    "load_snapshot_payload_source_line": 491,
+    "dictionary_preserves_manifest_keys": true,
+    "case_sensitive_MO_keys": [
+      "MO_coeff",
+      "MO_energy",
+      "MO_occ"
+    ],
+    "actual_replacements": [
+      {
+        "from": "source_arrays[\"mo_occ\"]",
+        "to": "source_arrays[\"MO_occ\"]"
+      },
+      {
+        "from": "source_arrays[\"mo_coeff\"]",
+        "to": "source_arrays[\"MO_coeff\"]"
+      }
+    ],
+    "all_other_source_bytes_unchanged": true
+  },
+  "stdlib_test_execution": {
+    "command": "python -B tests/test_analyze_pyscf_staged_modes_v7_v2_stdlib.py",
+    "tests_passed": 21,
+    "reported_test_wall_seconds": 0.199,
+    "real_snapshot_schema_checked_via_AST": true,
+    "sentinel_dictionary_indexing_checked": true,
+    "lowercase_mutation_rejected": true,
+    "quantum_or_numeric_libraries_imported": false,
+    "scientific_arrays_read": false
+  },
+  "old_source_old_results_original_review_preserved": true,
+  "no_quantum_budget_changed": true,
+  "no_Git_executed": true,
+  "new_numerical_replay_authorized_by_this_receipt": false
+}

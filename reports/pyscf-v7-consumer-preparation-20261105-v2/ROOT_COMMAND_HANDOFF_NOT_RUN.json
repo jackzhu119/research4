@@ -1,0 +1,139 @@
+{
+  "schema": "research4-v7-consumer-root-command-handoff-v1",
+  "created_at_utc": "2026-11-05T01:18:43.013627+00:00",
+  "status": "NOT_RUN_COMMAND_PREPARATION_ONLY",
+  "guard": "scripts/run_pyscf_continuation_budget_20261105_v6b.py",
+  "ledger": "reports/pyscf-spinosin-staged-20261105-v6b/cpu_budget.json",
+  "worker": "scripts/pyscf_staged_consumer_20261105_v7.py",
+  "candidate_worker_sha256": "6e9b835f4b49329cd52162b5862da14b3dcd87c80390c1e09b3cf62e14c07dbe",
+  "guard_request_examples": {
+    "cpu_seconds": 1800,
+    "wall_seconds": 1200,
+    "threads": 2,
+    "memory_gib": 24
+  },
+  "budget_increased": false,
+  "execution_authorized_by_this_file": false,
+  "each_stage_requires_real_healthy_closure_before_dependent_refs": true,
+  "canonical_ref_keys": [
+    "path",
+    "sha256"
+  ],
+  "artifact_bytes_are_not_ref_keys": true,
+  "controls": {
+    "water": {
+      "source_A": {
+        "path": "/workspace/research4/reports/pyscf-spinosin-grid-checkpoint-20261105-v7/control-water-rks-partial-002/result.json",
+        "sha256": "81807f2352ce30e3a05e57fb88d6e7e80eaa4d7a00d58af515ae0ee98490ed18"
+      },
+      "common_worker_args": [
+        "--execute",
+        "--threads",
+        "2",
+        "--control-validation",
+        "--snapshot",
+        "/workspace/research4/reports/pyscf-spinosin-resumable-20261104-v5/v5-validation-water-prepare-001/exact-mf-snapshot",
+        "--snapshot-manifest-sha256",
+        "123e3e760111f349315703fd213d94aac26eda87e02d03caf98dc9ebbd0cfaf4",
+        "--gradient-check-result",
+        "/workspace/research4/reports/pyscf-spinosin-resumable-20261104-v5/v5-validation-water-restore-gradient-001/result.json",
+        "--gradient-check-result-sha256",
+        "517de6a69fc64ff96abac6d6ca5b1482c6e429ade82cf4328d36b596548f6397",
+        "--partial-result",
+        "/workspace/research4/reports/pyscf-spinosin-grid-checkpoint-20261105-v7/control-water-rks-partial-002/result.json",
+        "--partial-result-sha256",
+        "81807f2352ce30e3a05e57fb88d6e7e80eaa4d7a00d58af515ae0ee98490ed18"
+      ],
+      "H1_worker_args_append": [
+        "--stage",
+        "h1ao",
+        "--output",
+        "/workspace/research4/reports/pyscf-spinosin-grid-checkpoint-20261105-v7/control-water-h1ao-001"
+      ],
+      "response_blocks": 1,
+      "response_worker_args_append": [
+        "--stage",
+        "response-block",
+        "--block-index",
+        "ACTUAL_ZERO_BASED_BLOCK",
+        "--h1-result",
+        "ACTUAL_HEALTHY_B_RESULT",
+        "--h1-result-sha256",
+        "ACTUAL_CLOSED_B_SHA",
+        "--output",
+        "ACTUAL_FRESH_RESPONSE_DIRECTORY"
+      ],
+      "global_worker_args_append": [
+        "--stage",
+        "global-assemble",
+        "--h1-result",
+        "ACTUAL_HEALTHY_B_RESULT",
+        "--h1-result-sha256",
+        "ACTUAL_CLOSED_B_SHA",
+        "--response-index",
+        "ACTUAL_CANONICAL_2KEY_RESPONSE_INDEX",
+        "--response-index-sha256",
+        "ACTUAL_INDEX_SHA",
+        "--output",
+        "/workspace/research4/reports/pyscf-spinosin-grid-checkpoint-20261105-v7/control-water-global-assemble-001"
+      ]
+    },
+    "ethanol": {
+      "source_A": {
+        "path": "/workspace/research4/reports/pyscf-spinosin-grid-checkpoint-20261105-v7/control-ethanol-rks-partial-001/result.json",
+        "sha256": "f4c1155cd0e91a578a3d9d1f07dd1f3da659ed572a4e3fae61782c5648b76cd2"
+      },
+      "common_worker_args": [
+        "--execute",
+        "--threads",
+        "2",
+        "--control-validation",
+        "--snapshot",
+        "/workspace/research4/reports/pyscf-spinosin-resumable-20261104-v5/v5-validation-ethanol-prepare-001/exact-mf-snapshot",
+        "--snapshot-manifest-sha256",
+        "9966fbec6184b744e236471d3b38e0cac2d40cde7cb16b45cd444b1da1e35cba",
+        "--gradient-check-result",
+        "/workspace/research4/reports/pyscf-spinosin-resumable-20261104-v5/v5-validation-ethanol-restore-gradient-001/result.json",
+        "--gradient-check-result-sha256",
+        "205fa6d04c591bbac3a0397f184a5cf64673b6198cce7500592ba2cce29fe8bc",
+        "--partial-result",
+        "/workspace/research4/reports/pyscf-spinosin-grid-checkpoint-20261105-v7/control-ethanol-rks-partial-001/result.json",
+        "--partial-result-sha256",
+        "f4c1155cd0e91a578a3d9d1f07dd1f3da659ed572a4e3fae61782c5648b76cd2"
+      ],
+      "H1_worker_args_append": [
+        "--stage",
+        "h1ao",
+        "--output",
+        "/workspace/research4/reports/pyscf-spinosin-grid-checkpoint-20261105-v7/control-ethanol-h1ao-001"
+      ],
+      "response_blocks": 2,
+      "response_worker_args_append": [
+        "--stage",
+        "response-block",
+        "--block-index",
+        "ACTUAL_ZERO_BASED_BLOCK",
+        "--h1-result",
+        "ACTUAL_HEALTHY_B_RESULT",
+        "--h1-result-sha256",
+        "ACTUAL_CLOSED_B_SHA",
+        "--output",
+        "ACTUAL_FRESH_RESPONSE_DIRECTORY"
+      ],
+      "global_worker_args_append": [
+        "--stage",
+        "global-assemble",
+        "--h1-result",
+        "ACTUAL_HEALTHY_B_RESULT",
+        "--h1-result-sha256",
+        "ACTUAL_CLOSED_B_SHA",
+        "--response-index",
+        "ACTUAL_CANONICAL_2KEY_RESPONSE_INDEX",
+        "--response-index-sha256",
+        "ACTUAL_INDEX_SHA",
+        "--output",
+        "/workspace/research4/reports/pyscf-spinosin-grid-checkpoint-20261105-v7/control-ethanol-global-assemble-001"
+      ]
+    }
+  }
+}

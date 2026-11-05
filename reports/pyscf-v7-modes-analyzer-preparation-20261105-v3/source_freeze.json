@@ -1,0 +1,48 @@
+{
+  "schema": "research4-v7-analyzer-source-freeze-receipt-v1",
+  "created_at_utc": "2026-11-05T01:26:44.969775+00:00",
+  "status": "SOURCE_FROZEN_STDLIB_TESTS_PASSED_NUMERICAL_NOT_EXECUTED_BY_THIS_AGENT",
+  "files": [
+    {
+      "path": "scripts/analyze_pyscf_staged_modes_20261105_v7.py",
+      "sha256": "9eaf4a08b7073b39aca7ce5b91dd483ba3119ab83d8064b5f98aea2901067b23",
+      "bytes": 62169
+    },
+    {
+      "path": "tests/test_analyze_pyscf_staged_modes_v7_stdlib.py",
+      "sha256": "008744c9dccfc8fb3af248e946773639d6054c8d361710c6d684f5dcb7e23cfc",
+      "bytes": 17460
+    },
+    {
+      "path": "scripts/pyscf_staged_consumer_20261105_v7.py",
+      "sha256": "6e9b835f4b49329cd52162b5862da14b3dcd87c80390c1e09b3cf62e14c07dbe",
+      "bytes": 41227
+    }
+  ],
+  "test_command": "python -B tests/test_analyze_pyscf_staged_modes_v7_stdlib.py",
+  "stdlib_tests_passed": 17,
+  "this_agent_quantum_runs": 0,
+  "this_agent_numerical_replays": 0,
+  "this_agent_scientific_arrays_read": false,
+  "old_f137_worker_sha256": "f13701964cd8a5fbda25a19ca27ec91b4a414f6b5cb49c14abacf6c82eaa448d",
+  "old_38dde_source_sha256": "38dde5e185c4fc48d58732982e0164b3a2f5430a26bdfc1076b21103d1d75c6a",
+  "new_budget_or_quantum_authority_issued": false,
+  "parent_independent_review": "/root/v7_staged_consumer reported 17 stdlib tests PASS and 12 native-source expectations PASS without numerical imports or array reads; receipt to be supplied by parent",
+  "actual_control_analysis_results": "NOT_CLAIMED_BY_THIS_SOURCE_PREPARATION_RECEIPT",
+  "root_control_command_template": [
+    ".runtime/bin/python",
+    "-B",
+    "scripts/analyze_pyscf_staged_modes_20261105_v7.py",
+    "--result",
+    "ACTUAL_CLOSED_CONTROL/result.json",
+    "--result-sha256",
+    "ACTUAL_RESULT_SHA256",
+    "--output",
+    "FRESH_CONTROL_ANALYSIS_DIRECTORY",
+    "--control-validation",
+    "--cpu-seconds",
+    "300",
+    "--wall-seconds",
+    "900"
+  ]
+}

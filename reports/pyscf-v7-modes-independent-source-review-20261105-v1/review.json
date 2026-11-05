@@ -1,0 +1,53 @@
+{
+  "schema": "research4-v7-modes-independent-source-review-v1",
+  "created_at_utc": "2026-11-05T01:26:46.375490+00:00",
+  "reviewer": "/root/v7_staged_consumer",
+  "status": "PASS_SOURCE_AND_STDLIB_NO_NUMERICAL_EXECUTION",
+  "candidate_sources": [
+    {
+      "path": "scripts/analyze_pyscf_staged_modes_20261105_v7.py",
+      "sha256": "9eaf4a08b7073b39aca7ce5b91dd483ba3119ab83d8064b5f98aea2901067b23",
+      "bytes": 62169
+    },
+    {
+      "path": "tests/test_analyze_pyscf_staged_modes_v7_stdlib.py",
+      "sha256": "008744c9dccfc8fb3af248e946773639d6054c8d361710c6d684f5dcb7e23cfc",
+      "bytes": 17460
+    },
+    {
+      "path": "scripts/pyscf_staged_consumer_20261105_v7.py",
+      "sha256": "6e9b835f4b49329cd52162b5862da14b3dcd87c80390c1e09b3cf62e14c07dbe",
+      "bytes": 41227
+    },
+    {
+      "path": "scripts/analyze_pyscf_staged_modes_20261105_v6b_v2.py",
+      "sha256": "38dde5e185c4fc48d58732982e0164b3a2f5430a26bdfc1076b21103d1d75c6a",
+      "bytes": 50986
+    }
+  ],
+  "independent_tests": {
+    "command": "python -B -S -m unittest discover -s tests -p 'test_analyze_pyscf_staged_modes_v7_stdlib.py' -v",
+    "passed": 17,
+    "elapsed_seconds": 0.139
+  },
+  "actual_cold_formula_gate": "UNCHANGED_FROZEN_NUMERICAL_FORMULAS_V7_LABELS_ONLY",
+  "pure_literal_native_module_source_count": 12,
+  "metadata_review": [
+    "exact frozen V7 consumer source and actual healthy global-assemble proof before numerical imports",
+    "A producer is real V7 native XC/RHF assembly, not passed through old V6b compatibility",
+    "all healthy source chunk/RHF/current closed row hashes and full grid coverage",
+    "all complete H1 and B8 response producers exact refs/argv/source-G-boot/physical binding; no gaps or duplicate blocks",
+    "full-cross stock hess_elec plus exactly one nuclear contribution, zero in-phase native H1 or response solve",
+    "native module receipt path and hash for all12 actually executed reviewed source modules",
+    "original source electron count defines occupied space; numerical side also checks MO0/2 and full square coefficient space",
+    "complete signed modes distinct from all-positive minimum; IR and independent CPHF residual remain NOT_COMPUTED",
+    "real shared Q lock and allclosed ledger required; finite CPU/wall/address space; final artifact race hash"
+  ],
+  "arrays_read": false,
+  "numerical_packages_imported": false,
+  "Q_or_numeric_replay_executed": false,
+  "Git_executed": false,
+  "code_modified_by_reviewer": false,
+  "actual_control_or_Spinosin_frequency_claim": "NOT_RUN_BY_THIS_REVIEW_ROOT_EXECUTION_REQUIRED",
+  "remaining_source_blockers": []
+}
