@@ -1,0 +1,295 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "research4-theory-four-arm-preregistration-v1",
+  "title": "真实合格219模式后才可实例化的四臂先验注册schema；当前NOT_RUN",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "status",
+    "created_at_utc",
+    "theory_analysis_index",
+    "qualified_checks",
+    "frequency_csv",
+    "fixed_geometry_and_atom_order_ref",
+    "source_ids_ref",
+    "excluded_query_ids_commitment",
+    "candidate_windows_ref",
+    "training_only_width_weight_search_ref",
+    "classifier_grid_ref",
+    "random_matched_policy_ref",
+    "arms",
+    "primary_comparison",
+    "evidence_limit"
+  ],
+  "properties": {
+    "schema": {
+      "const": "research4-theory-four-arm-preregistration-v1"
+    },
+    "status": {
+      "const": "PREREGISTERED_AFTER_REAL_QUALIFIED_219_MODES_BEFORE_QUERY"
+    },
+    "created_at_utc": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "theory_analysis_index": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256",
+        "bytes"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "bytes": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "description": {
+          "type": "string"
+        }
+      }
+    },
+    "frequency_csv": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256",
+        "bytes"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "bytes": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "description": {
+          "type": "string"
+        }
+      }
+    },
+    "fixed_geometry_and_atom_order_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256",
+        "bytes"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "bytes": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "description": {
+          "type": "string"
+        }
+      }
+    },
+    "source_ids_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256",
+        "bytes"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "bytes": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "description": {
+          "type": "string"
+        }
+      }
+    },
+    "candidate_windows_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256",
+        "bytes"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "bytes": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "description": {
+          "type": "string"
+        }
+      }
+    },
+    "training_only_width_weight_search_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256",
+        "bytes"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "bytes": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "description": {
+          "type": "string"
+        }
+      }
+    },
+    "classifier_grid_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256",
+        "bytes"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "bytes": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "description": {
+          "type": "string"
+        }
+      }
+    },
+    "random_matched_policy_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256",
+        "bytes"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "bytes": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "description": {
+          "type": "string"
+        }
+      }
+    },
+    "excluded_query_ids_commitment": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "qualified_checks": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "actual_complete_modes",
+        "normal_mode_count",
+        "qualified_for_mechanism",
+        "all_frequencies_positive",
+        "authentic_healthy_producer_chain_verified",
+        "IR_status"
+      ],
+      "properties": {
+        "actual_complete_modes": {
+          "const": true
+        },
+        "normal_mode_count": {
+          "const": 219
+        },
+        "qualified_for_mechanism": {
+          "const": true
+        },
+        "all_frequencies_positive": {
+          "const": true
+        },
+        "authentic_healthy_producer_chain_verified": {
+          "const": true
+        },
+        "IR_status": {
+          "const": "NOT_COMPUTED"
+        }
+      }
+    },
+    "arms": {
+      "const": [
+        "MC_UVE_original",
+        "theory_windows_only",
+        "MC_UVE_plus_theory",
+        "MC_UVE_plus_matched_random_windows"
+      ]
+    },
+    "primary_comparison": {
+      "const": "MC_UVE_plus_theory_vs_MC_UVE_plus_matched_random_windows"
+    },
+    "evidence_limit": {
+      "const": "NO_CHEMICAL_ASSIGNMENT_NO_ACCURACY_GAIN_CLAIM_WITHOUT_ACTUAL_TEST"
+    }
+  }
+}
