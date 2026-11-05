@@ -1,0 +1,39 @@
+{
+  "schema": "research4-root-finite-V7-control-A-scope-v1",
+  "root_authorized_for_actual_controls": true,
+  "created_at_utc": "2026-11-05T00:53:14.345042+00:00",
+  "allowed_cases": [
+    "water_software_control",
+    "ethanol_software_control"
+  ],
+  "Spinosin_execution_authorized": false,
+  "same_cumulative_ledger": "/workspace/research4/reports/pyscf-spinosin-staged-20261105-v6b/cpu_budget.json",
+  "ledger_sha256_before_scope": "f104b082f16be2a8eaea75f6843960c525a9abca9c58127204c585b76dc74bda",
+  "closed_phase_count_before_scope": 65,
+  "consumed_CPU_before_scope": 154406.137675,
+  "group_control_CPU_max": 1200,
+  "group_control_wall_max_seconds": 3600,
+  "max_single_phase_requested_CPU": 300,
+  "max_single_phase_wall": 900,
+  "threads": 2,
+  "source_refs": {
+    "scripts/pyscf_xc_chunk_checkpoint_20261105_v7.py": {
+      "sha256": "da1e2b0267c48e748a2bcb7d3f2ee3110d8e2288aa340d23dab7a12c994ddf8e",
+      "bytes": 18573
+    },
+    "scripts/pyscf_xc_chunk_worker_20261105_v7.py": {
+      "sha256": "00e710eb0d637dbd073939bea5d4496993cb68f29efad1439322df3972415f02",
+      "bytes": 46346
+    }
+  },
+  "parent_guard_sha256": "b985d6d6e20f5e4a48387094461f19b133dae761338664e88836c62051f993a5",
+  "review_basis": "Independent27stdlib tests and source/math/actual-module binding review PASS. Actual numerical differentials still NOT_RUN at this decision.",
+  "scope": "Finite native water/ethanol XC-plan/RHF/XCchunks/Aassembly/partial-reference/partial-compare controls only. Consumer stages require separately pinned/reviewed actual scope before launch.",
+  "no_budget_growth": true,
+  "no_deadline_extension": true,
+  "no_automatic_retry": true,
+  "stop_on_failed_phase": true,
+  "no_Git_or_other_numerical_payload_while_phase_running": true,
+  "control_counts_not_Spinosin_scientific_results": true,
+  "root_budget_tracking": "Before each phase calculate complete actual closed CPU delta from this baseline, clamp request to remaining group and existing cumulative guard cap; preserve >=6sec boundary."
+}
