@@ -2,7 +2,7 @@
 
 Status: **PREPARATION ONLY**. The source, metadata preflight, standard-library tests and static formula/source checks are complete. No new water, ethanol or Spinosin numerical result has been analyzed by this preparation work.
 
-The new analyzer retains the frozen V7 independent numerical formulas and the full signed-frequency/normal-mode/translation-rotation subspace audit. A result with negative or zero modes remains a completed calculation when all modes are present; it does not qualify as an all-positive minimum. IR intensity is **NOT_COMPUTED**. 
+The new analyzer retains the frozen V7 independent numerical formulas and the full signed-frequency/normal-mode/translation-rotation subspace audit. A result with negative or zero modes remains a completed calculation when all modes are present; it does not qualify as an all-positive minimum. IR intensity is **NOT_COMPUTED**.
 
 The original V7 analyzer, V7 A/H1 and V6b budget/proofs are immutable. Legacy H1 is validated by its genuine old guardian. New response/global producers require the V8 source, result schema and guardian. The original V5 SCF/snapshot/gradient receipts keep their actual source/schema.
 
