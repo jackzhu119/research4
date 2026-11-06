@@ -1,0 +1,36 @@
+{
+  "schema": "research4-root-host-a-result-return-v1",
+  "role": "A",
+  "run_id": "host-a-004",
+  "work_directory": "reports/cloud-followup-20261106-v1/queue-host-a-004",
+  "ledger": "reports/pyscf-spinosin-96h-continuation-20261105-v8/cpu_budget.json",
+  "upload": {
+    "enabled": true,
+    "branch": "research/pyscf-spinosin-mechanism-20261031",
+    "allowlist": [
+      "*.json",
+      "*.jsonl",
+      "*.log",
+      "execution/*.log",
+      "execution/*.json",
+      "science/**/*.json",
+      "science/**/*.jsonl",
+      "science/**/*.csv",
+      "science/**/*.xyz",
+      "science/**/*.npy",
+      "science/**/*.log",
+      "closed-budget-snapshots/*.json",
+      "git-return/**/*.json"
+    ],
+    "resource_protocol_files": [
+      "reports/cloud-followup-20261106-v1/resource-protocol/host-a004-reused-evidence_ROOT_APPROVED.json",
+      "reports/cloud-followup-20261106-v1/resource-protocol/a003-block00-metadata-adapter-actual-validation-001.json",
+      "reports/cloud-followup-20261106-v1/resource-protocol/a003-block00-output-binding-forensics-independent-001.json",
+      "reports/cloud-followup-20261106-v1/resource-protocol/postrun-anomaly-review-001.json",
+      "reports/cloud-followup-20261106-v1/resource-protocol/postrun-anomaly-resource-correction-001.json"
+    ]
+  },
+  "budget_copy_policy": "Copy actually closed ledger bytes into this run prefix after no Q; original ledger is not manually modified; raw CPU cost snapshots allow remote audit",
+  "excluded": "CHK,HDF,NPZ,venvs,unrelatedrawdata,models,secrets; preserve those local checkpoints",
+  "no_main_or_force_push": true
+}

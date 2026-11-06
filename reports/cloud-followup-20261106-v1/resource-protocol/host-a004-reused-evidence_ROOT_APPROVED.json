@@ -1,0 +1,1207 @@
+{
+  "schema": "research4-root-audited-reused-evidence-v1",
+  "root_approved": true,
+  "created_at_utc": "2026-11-06T15:40:18.731104+00:00",
+  "source_queue_config": {
+    "path": "/workspace/research4/reports/cloud-followup-20261106-v1/queue-configs/host-a-003/config_ROOT_APPROVED.json",
+    "sha256": "73ff097169792db88258ff3f7ed0137d883a33d78046ee5e6b2817dbf2440d5e"
+  },
+  "source_queue_grant": {
+    "path": "/workspace/research4/reports/cloud-followup-20261106-v1/queue-configs/host-a-003/root_grant_ROOT_APPROVED.json",
+    "sha256": "82ab0962d4666fef65528693595ede813ed32b37cba2a840eebb28423c2af205"
+  },
+  "source_queue_state": {
+    "path": "/workspace/research4/reports/cloud-followup-20261106-v1/queue-host-a-003/state.json",
+    "sha256": "4e4920ae3682d3fd8dc96e52071fe001003249b2ed9ed245d97b86e81e72569e"
+  },
+  "metadata_adapter_source": {
+    "path": "/workspace/research4/scripts/research4_cloud_followup_queue_20261106_v2.py",
+    "sha256": "06a3c5f22854f78bf8f868bf85b3956506b8514110147b977550ba838eb3780f"
+  },
+  "forensic_reason": "A003 legacy residual block00 physically completed and exited0; old queue could not seal missing output_directory and left stale RUNNING. Old state remains unchanged; new strict metadata-only adapter independently validates actual sealed input/unique guard output/result/proof/source/log/cost. Nine completed FD jobs also reverified; no numerical reruns.",
+  "independent_forensics": {
+    "path": "/workspace/research4/reports/cloud-followup-20261106-v1/resource-protocol/a003-block00-output-binding-forensics-independent-001.json",
+    "sha256": "a55dafff04cc36f3cf7a9edbd7bdba124e013a961191eb04ae9603be9ed257b1"
+  },
+  "actual_adapter_validation": {
+    "path": "/workspace/research4/reports/cloud-followup-20261106-v1/resource-protocol/a003-block00-metadata-adapter-actual-validation-001.json",
+    "sha256": "3153c3284c55d88913243f342bcd2f6b8c410f63699893d1ce642f88a4ef5149"
+  },
+  "actual_ledger_sha256_at_audit_informational_not_future_pin": "b7829e99d2b351ce937665fd1bf947ad6c2886034d7f2546ce44beef4ede603d",
+  "records": [
+    {
+      "job": {
+        "id": "spinosin-m001-h010-plus",
+        "kind": "quantum",
+        "worker": {
+          "path": "/workspace/research4/scripts/research4_cloud_followup_worker_20261106_v2.py",
+          "sha256": "d1755eb103eb5c6bd4100771500fb969e19d0a05c69fe88257ef63668025b1fb"
+        },
+        "payload_argv": [
+          "/workspace/research4/.runtime/bin/python",
+          "/workspace/research4/scripts/research4_cloud_followup_worker_20261106_v2.py",
+          "--execute",
+          "--source-result",
+          "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/global-assemble-recovery-002/science/global-assemble/result.json",
+          "--source-result-sha256",
+          "253c10a92c083f54aaeb3f1e407e095790649737f5f876bd3cecfd35bfb4f9b7",
+          "--main-pipeline-state",
+          "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/global-assemble-recovery-002/state.json",
+          "--main-pipeline-state-sha256",
+          "f2974458d23abeb320db736ce6c4cdb3f0b4d509f707a4dc67fd7d5ceaaa2578",
+          "--mode-index",
+          "1",
+          "--mode-array-sha256",
+          "10440a6727b4360a685c7feac9d3179f38347ac4e4de375f6a183f047f38957c",
+          "--step-bohr",
+          "0.01",
+          "--sign",
+          "1",
+          "--output",
+          "{output}",
+          "--source-qualification",
+          "/workspace/research4/reports/cloud-followup-20261106-v1/source-qualification-host-a-003/spinosin/qualification.json",
+          "--source-qualification-sha256",
+          "f7745721fd2f96e06ae89dfe6e0e6ecf1c3016237b12741b048e51d9262b51a7"
+        ],
+        "result_schema": "research4-cloud-followup-scf-gradient-v1",
+        "success_statuses": [
+          "DISPLACED_SCF_GRADIENT_COMPUTED"
+        ],
+        "cpu_seconds": 6000,
+        "wall_seconds": 14400,
+        "optional": true,
+        "depends_on": [],
+        "required_result_fields": {
+          "scf_converged": true,
+          "gradient_completed": true
+        },
+        "retry_closed_resource_failure": true,
+        "threads": 2,
+        "memory_gib": 24,
+        "retry_request": {
+          "cpu_seconds": 7500,
+          "wall_seconds": 14400
+        }
+      },
+      "seal": {
+        "result": {
+          "path": "/workspace/research4/reports/cloud-followup-20261106-v1/queue-host-a-003/science/spinosin-m001-h010-plus-attempt001/result.json",
+          "sha256": "a4ed262ffcd35137b574131ab2d38d386d6ce90d4591408fa2467b375b0c75a2"
+        },
+        "artifacts": [
+          {
+            "relative_path": "analytic_H_times_direction.npy",
+            "size_bytes": 1928,
+            "sha256": "967532d6173613fde7eaceb49c8a9f21bd3bc9e95d273ea4929a6cde689e2ca3"
+          },
+          {
+            "relative_path": "direction_cartesian_unit.npy",
+            "size_bytes": 1928,
+            "sha256": "4f82923948ad4c66d025235e325df9711e8d0923509e044a6419081859836ea3"
+          },
+          {
+            "relative_path": "displaced.xyz",
+            "size_bytes": 3698,
+            "sha256": "18f96d81ced3ada54a41544ed11954ebf6e8f904773fc7bf1f80ad743cbfd1fd"
+          },
+          {
+            "relative_path": "displaced_coordinates_bohr.npy",
+            "size_bytes": 1928,
+            "sha256": "f95f6ee7331718593787e08620ed35edd646d35a6b553f0d02b987ce284573e7"
+          },
+          {
+            "relative_path": "events.jsonl",
+            "size_bytes": 5000,
+            "sha256": "ca42a4f982a53d64cfa680f4398a4778994eb81520f2fdb8fd5d31b5eabfaed4"
+          },
+          {
+            "relative_path": "gradient_hartree_per_bohr.npy",
+            "size_bytes": 1928,
+            "sha256": "1c69429148a2d0021bbbef9d470e1370c7656cd67774a24bfa2a6cb79ef08a30"
+          },
+          {
+            "relative_path": "input.json",
+            "size_bytes": 7827,
+            "sha256": "46cdd9616f33648650fd0a07b8881de713274f7dff880238f313d675e0ad78a8"
+          },
+          {
+            "relative_path": "progress.json",
+            "size_bytes": 34225,
+            "sha256": "80221581d2f360b71d1a11fef0cbfb88ce912a4702048cb586cacf23e7d54ca4"
+          },
+          {
+            "relative_path": "pyscf.log",
+            "size_bytes": 16745,
+            "sha256": "3eb3186eebfb5dc55b238cb27a05ce99e10f16f73f591dca3dd612b820ea80cd"
+          },
+          {
+            "relative_path": "result.json",
+            "size_bytes": 34888,
+            "sha256": "a4ed262ffcd35137b574131ab2d38d386d6ce90d4591408fa2467b375b0c75a2"
+          },
+          {
+            "relative_path": "scf.chk",
+            "size_bytes": 4696064,
+            "sha256": "fa9880d051010d6d9da9802b9d8f988b8f48a3f2d90042c41130341e11f589d3"
+          },
+          {
+            "relative_path": "source_coordinates_bohr.npy",
+            "size_bytes": 1928,
+            "sha256": "13cc6a1ca8b437d1369658487748390c326d51d89822be3d1894795bef7cd221"
+          }
+        ],
+        "phase": "cloudhosta20261106v3-spinosin-m001-h010-plus-attempt001",
+        "closed_row_sha256": "9224ca0d38d5cbfe67fefe8d506670bcdd0f6a36c6a02cb03522010b1c745e71",
+        "proof": {
+          "path": "/workspace/research4/reports/cloud-followup-20261106-v1/queue-host-a-003/execution/spinosin-m001-h010-plus-attempt001.log.supervisor-proof.json",
+          "sha256": "eadfba7e2e445cbb46c456b4ef7ed4b5c338284b7593aa91f213a85b23360669"
+        },
+        "log": {
+          "path": "/workspace/research4/reports/cloud-followup-20261106-v1/queue-host-a-003/execution/spinosin-m001-h010-plus-attempt001.log",
+          "sha256": "5bdca20a55e831adcc57c0f19ca10bd693293962c09eacee918df12bddf078c3"
+        },
+        "actual_cpu_seconds": 5400.307901
+      },
+      "source_queue_state": {
+        "path": "/workspace/research4/reports/cloud-followup-20261106-v1/queue-host-a-003/state.json",
+        "sha256": "4e4920ae3682d3fd8dc96e52071fe001003249b2ed9ed245d97b86e81e72569e"
+      },
+      "output_directory": "/workspace/research4/reports/cloud-followup-20261106-v1/queue-host-a-003/science/spinosin-m001-h010-plus-attempt001",
+      "status": "DONE_VERIFIED_FROM_CLOSED_PROVENANCE",
+      "scientific_release": true,
+      "legacy_output_binding": false
+    },
+    {
+      "job": {
+        "id": "spinosin-m001-h010-minus",
+        "kind": "quantum",
+        "worker": {
+          "path": "/workspace/research4/scripts/research4_cloud_followup_worker_20261106_v2.py",
+          "sha256": "d1755eb103eb5c6bd4100771500fb969e19d0a05c69fe88257ef63668025b1fb"
+        },
+        "payload_argv": [
+          "/workspace/research4/.runtime/bin/python",
+          "/workspace/research4/scripts/research4_cloud_followup_worker_20261106_v2.py",
+          "--execute",
+          "--source-result",
+          "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/global-assemble-recovery-002/science/global-assemble/result.json",
+          "--source-result-sha256",
+          "253c10a92c083f54aaeb3f1e407e095790649737f5f876bd3cecfd35bfb4f9b7",
+          "--main-pipeline-state",
+          "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/global-assemble-recovery-002/state.json",
+          "--main-pipeline-state-sha256",
+          "f2974458d23abeb320db736ce6c4cdb3f0b4d509f707a4dc67fd7d5ceaaa2578",
+          "--mode-index",
+          "1",
+          "--mode-array-sha256",
+          "10440a6727b4360a685c7feac9d3179f38347ac4e4de375f6a183f047f38957c",
+          "--step-bohr",
+          "0.01",
+          "--sign",
+          "-1",
+          "--output",
+          "{output}",
+          "--source-qualification",
+          "/workspace/research4/reports/cloud-followup-20261106-v1/source-qualification-host-a-003/spinosin/qualification.json",
+          "--source-qualification-sha256",
+          "f7745721fd2f96e06ae89dfe6e0e6ecf1c3016237b12741b048e51d9262b51a7"
+        ],
+        "result_schema": "research4-cloud-followup-scf-gradient-v1",
+        "success_statuses": [
+          "DISPLACED_SCF_GRADIENT_COMPUTED"
+        ],
+        "cpu_seconds": 6000,
+        "wall_seconds": 14400,
+        "optional": true,
+        "depends_on": [],
+        "required_result_fields": {
+          "scf_converged": true,
+          "gradient_completed": true
+        },
+        "retry_closed_resource_failure": true,
+        "threads": 2,
+        "memory_gib": 24,
+        "retry_request": {
+          "cpu_seconds": 7500,
+          "wall_seconds": 14400
+        }
+      },
+      "seal": {
+        "result": {
+          "path": "/workspace/research4/reports/cloud-followup-20261106-v1/queue-host-a-003/science/spinosin-m001-h010-minus-attempt001/result.json",
+          "sha256": "2f919e65e8ce1718ed31caf768ab81f03ea5915ec301f92c94f9f028be26ebe7"
+        },
+        "artifacts": [
+          {
+            "relative_path": "analytic_H_times_direction.npy",
+            "size_bytes": 1928,
+            "sha256": "967532d6173613fde7eaceb49c8a9f21bd3bc9e95d273ea4929a6cde689e2ca3"
+          },
+          {
+            "relative_path": "direction_cartesian_unit.npy",
+            "size_bytes": 1928,
+            "sha256": "4f82923948ad4c66d025235e325df9711e8d0923509e044a6419081859836ea3"
+          },
+          {
+            "relative_path": "displaced.xyz",
+            "size_bytes": 3698,
+            "sha256": "503a22e8ada4a444d7e7d52e130481d7f60277f20730c7c3b57c3469dec4edf6"
+          },
+          {
+            "relative_path": "displaced_coordinates_bohr.npy",
+            "size_bytes": 1928,
+            "sha256": "992f96c1601a79c5af76d0ca406e5e310820316faf173135b822f99d6e40954f"
+          },
+          {
+            "relative_path": "events.jsonl",
+            "size_bytes": 5016,
+            "sha256": "67e689be630a07fe6f6a4bd42cc1aeb37aade009841de350acd9606df17b6cfd"
+          },
+          {
+            "relative_path": "gradient_hartree_per_bohr.npy",
+            "size_bytes": 1928,
+            "sha256": "e8436f372b9493da115c16ed46d3418657ee97ca11354efa735b42fcd8e400f4"
+          },
+          {
+            "relative_path": "input.json",
+            "size_bytes": 7834,
+            "sha256": "2385ccbaf8a75f877d34854a190d284506f28db8c8aa8cd19c2a974c81bc0875"
+          },
+          {
+            "relative_path": "progress.json",
+            "size_bytes": 34225,
+            "sha256": "2a1de185b72a37aa0f7f76b90dfdfd97210c8fe728248451c513d659665d4cf7"
+          },
+          {
+            "relative_path": "pyscf.log",
+            "size_bytes": 16742,
+            "sha256": "f2e2f5abe774304ceb415a27983ae6cb79b7f63f8b81bf55977fb654cdd32101"
+          },
+          {
+            "relative_path": "result.json",
+            "size_bytes": 34885,
+            "sha256": "2f919e65e8ce1718ed31caf768ab81f03ea5915ec301f92c94f9f028be26ebe7"
+          },
+          {
+            "relative_path": "scf.chk",
+            "size_bytes": 4696056,
+            "sha256": "88a8095712db739949f6c8daa7e8e277bea46c285c47240cd70f9f006837ef2b"
+          },
+          {
+            "relative_path": "source_coordinates_bohr.npy",
+            "size_bytes": 1928,
+            "sha256": "13cc6a1ca8b437d1369658487748390c326d51d89822be3d1894795bef7cd221"
+          }
+        ],
+        "phase": "cloudhosta20261106v3-spinosin-m001-h010-minus-attempt001",
+        "closed_row_sha256": "ee1db5aa2c0fdbee62f140ca3bd3cf034967753ed1e16e661958345748ed6ae9",
+        "proof": {
+          "path": "/workspace/research4/reports/cloud-followup-20261106-v1/queue-host-a-003/execution/spinosin-m001-h010-minus-attempt001.log.supervisor-proof.json",
+          "sha256": "04a2c17ccc0c1b545b64b98ff820795484dc5a9d361c5826b577da00774737c8"
+        },
+        "log": {
+          "path": "/workspace/research4/reports/cloud-followup-20261106-v1/queue-host-a-003/execution/spinosin-m001-h010-minus-attempt001.log",
+          "sha256": "5bdca20a55e831adcc57c0f19ca10bd693293962c09eacee918df12bddf078c3"
+        },
+        "actual_cpu_seconds": 5301.771959000001
+      },
+      "source_queue_state": {
+        "path": "/workspace/research4/reports/cloud-followup-20261106-v1/queue-host-a-003/state.json",
+        "sha256": "4e4920ae3682d3fd8dc96e52071fe001003249b2ed9ed245d97b86e81e72569e"
+      },
+      "output_directory": "/workspace/research4/reports/cloud-followup-20261106-v1/queue-host-a-003/science/spinosin-m001-h010-minus-attempt001",
+      "status": "DONE_VERIFIED_FROM_CLOSED_PROVENANCE",
+      "scientific_release": true,
+      "legacy_output_binding": false
+    },
+    {
+      "job": {
+        "id": "spinosin-m001-h010-fd",
+        "kind": "analysis",
+        "worker": {
+          "path": "/workspace/research4/scripts/research4_cloud_followup_worker_20261106_v2.py",
+          "sha256": "d1755eb103eb5c6bd4100771500fb969e19d0a05c69fe88257ef63668025b1fb"
+        },
+        "payload_argv": [
+          "/workspace/research4/.runtime/bin/python",
+          "/workspace/research4/scripts/research4_cloud_followup_worker_20261106_v2.py",
+          "--analyze-only",
+          "--plus-result",
+          "{result:spinosin-m001-h010-plus}",
+          "--minus-result",
+          "{result:spinosin-m001-h010-minus}",
+          "--output",
+          "{output}"
+        ],
+        "result_schema": "research4-cloud-followup-directional-finite-difference-v1",
+        "success_statuses": [
+          "DIRECTIONAL_FINITE_DIFFERENCE_ANALYZED"
+        ],
+        "cpu_seconds": 60,
+        "wall_seconds": 180,
+        "optional": true,
+        "depends_on": [
+          "spinosin-m001-h010-plus",
+          "spinosin-m001-h010-minus"
+        ],
+        "required_result_fields": {
+          "new_quantum_evaluations": 0
+        },
+        "retry_closed_resource_failure": false
+      },
+      "seal": {
+        "result": {
+          "path": "/workspace/research4/reports/cloud-followup-20261106-v1/queue-host-a-003/science/spinosin-m001-h010-fd-attempt001/result.json",
+          "sha256": "8f77c2c9ff4cc2dbcda29f43867cc9130030abb01f2eaa128c1786d7b6dd4616"
+        },
+        "artifacts": [
+          {
+            "relative_path": "finite_difference_H_times_direction.npy",
+            "size_bytes": 1928,
+            "sha256": "08097481b292f81e4fb8d2c60c37bdbd01b22d55cc7c2a2f1bd46d75025b172f"
+          },
+          {
+            "relative_path": "finite_difference_minus_analytic_Hq.npy",
+            "size_bytes": 1928,
+            "sha256": "cf8933df04cc1502e7de3130411d906301ab1d54931ad31096ab7a6bb635820a"
+          },
+          {
+            "relative_path": "result.json",
+            "size_bytes": 2589,
+            "sha256": "8f77c2c9ff4cc2dbcda29f43867cc9130030abb01f2eaa128c1786d7b6dd4616"
+          }
+        ],
+        "log": {
+          "path": "/workspace/research4/reports/cloud-followup-20261106-v1/queue-host-a-003/execution/spinosin-m001-h010-fd-attempt001.log",
+          "sha256": "b6c3b5d03e969d1074f0a26307f5df522da55248a8bc9267e989d10a1aea1ab3"
+        },
+        "new_quantum_evaluations": 0
+      },
+      "source_queue_state": {
+        "path": "/workspace/research4/reports/cloud-followup-20261106-v1/queue-host-a-003/state.json",
+        "sha256": "4e4920ae3682d3fd8dc96e52071fe001003249b2ed9ed245d97b86e81e72569e"
+      },
+      "output_directory": "/workspace/research4/reports/cloud-followup-20261106-v1/queue-host-a-003/science/spinosin-m001-h010-fd-attempt001",
+      "status": "DONE_VERIFIED_FROM_CLOSED_PROVENANCE",
+      "scientific_release": true,
+      "legacy_output_binding": false
+    },
+    {
+      "job": {
+        "id": "spinosin-m001-h005-plus",
+        "kind": "quantum",
+        "worker": {
+          "path": "/workspace/research4/scripts/research4_cloud_followup_worker_20261106_v2.py",
+          "sha256": "d1755eb103eb5c6bd4100771500fb969e19d0a05c69fe88257ef63668025b1fb"
+        },
+        "payload_argv": [
+          "/workspace/research4/.runtime/bin/python",
+          "/workspace/research4/scripts/research4_cloud_followup_worker_20261106_v2.py",
+          "--execute",
+          "--source-result",
+          "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/global-assemble-recovery-002/science/global-assemble/result.json",
+          "--source-result-sha256",
+          "253c10a92c083f54aaeb3f1e407e095790649737f5f876bd3cecfd35bfb4f9b7",
+          "--main-pipeline-state",
+          "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/global-assemble-recovery-002/state.json",
+          "--main-pipeline-state-sha256",
+          "f2974458d23abeb320db736ce6c4cdb3f0b4d509f707a4dc67fd7d5ceaaa2578",
+          "--mode-index",
+          "1",
+          "--mode-array-sha256",
+          "10440a6727b4360a685c7feac9d3179f38347ac4e4de375f6a183f047f38957c",
+          "--step-bohr",
+          "0.005",
+          "--sign",
+          "1",
+          "--output",
+          "{output}",
+          "--source-qualification",
+          "/workspace/research4/reports/cloud-followup-20261106-v1/source-qualification-host-a-003/spinosin/qualification.json",
+          "--source-qualification-sha256",
+          "f7745721fd2f96e06ae89dfe6e0e6ecf1c3016237b12741b048e51d9262b51a7"
+        ],
+        "result_schema": "research4-cloud-followup-scf-gradient-v1",
+        "success_statuses": [
+          "DISPLACED_SCF_GRADIENT_COMPUTED"
+        ],
+        "cpu_seconds": 6000,
+        "wall_seconds": 14400,
+        "optional": true,
+        "depends_on": [],
+        "required_result_fields": {
+          "scf_converged": true,
+          "gradient_completed": true
+        },
+        "retry_closed_resource_failure": true,
+        "threads": 2,
+        "memory_gib": 24,
+        "retry_request": {
+          "cpu_seconds": 7500,
+          "wall_seconds": 14400
+        }
+      },
+      "seal": {
+        "result": {
+          "path": "/workspace/research4/reports/cloud-followup-20261106-v1/queue-host-a-003/science/spinosin-m001-h005-plus-attempt001/result.json",
+          "sha256": "225697ca64a98d0161daa970faa8ac29b25e1898e705e23662ba72ab26d4c9c4"
+        },
+        "artifacts": [
+          {
+            "relative_path": "analytic_H_times_direction.npy",
+            "size_bytes": 1928,
+            "sha256": "967532d6173613fde7eaceb49c8a9f21bd3bc9e95d273ea4929a6cde689e2ca3"
+          },
+          {
+            "relative_path": "direction_cartesian_unit.npy",
+            "size_bytes": 1928,
+            "sha256": "4f82923948ad4c66d025235e325df9711e8d0923509e044a6419081859836ea3"
+          },
+          {
+            "relative_path": "displaced.xyz",
+            "size_bytes": 3698,
+            "sha256": "d9aa2bf0bf9fcd3f3d86803639fe16d4e124ce46de8a905e12a13ccdad5149c9"
+          },
+          {
+            "relative_path": "displaced_coordinates_bohr.npy",
+            "size_bytes": 1928,
+            "sha256": "8db5a9c7449854b2239b4f3684f3e58a8a5551faacda571449a7f78c962d6295"
+          },
+          {
+            "relative_path": "events.jsonl",
+            "size_bytes": 5018,
+            "sha256": "ed27314e075f04dec68351b97eaeca74493bbe459ee97b122fbe02eff3dd223d"
+          },
+          {
+            "relative_path": "gradient_hartree_per_bohr.npy",
+            "size_bytes": 1928,
+            "sha256": "b2e8c3f7ae70f5567762d28fc16e927969805b323dd3219a4b49573757e47f94"
+          },
+          {
+            "relative_path": "input.json",
+            "size_bytes": 7829,
+            "sha256": "82871c9593961f85257d916ae08ae73f54c4479f4ea135e48a4faae8f9239654"
+          },
+          {
+            "relative_path": "progress.json",
+            "size_bytes": 34201,
+            "sha256": "a5f2da22fa1be165f1c1ad4f97fcf7e9f8d9da38059b2115c64eedcbd2134a0c"
+          },
+          {
+            "relative_path": "pyscf.log",
+            "size_bytes": 16751,
+            "sha256": "9f311fcb66a2b4b20ceb39b06440e5a40b30f6d0643156e3374d2020786b51f0"
+          },
+          {
+            "relative_path": "result.json",
+            "size_bytes": 34862,
+            "sha256": "225697ca64a98d0161daa970faa8ac29b25e1898e705e23662ba72ab26d4c9c4"
+          },
+          {
+            "relative_path": "scf.chk",
+            "size_bytes": 4696056,
+            "sha256": "5092c7a2fdc6089a21be50edc1ab68107269e08cb571f41e1441e145d16afc72"
+          },
+          {
+            "relative_path": "source_coordinates_bohr.npy",
+            "size_bytes": 1928,
+            "sha256": "13cc6a1ca8b437d1369658487748390c326d51d89822be3d1894795bef7cd221"
+          }
+        ],
+        "phase": "cloudhosta20261106v3-spinosin-m001-h005-plus-attempt001",
+        "closed_row_sha256": "7b8457a6eddea9d64a4cadb2b7483d857326bc660ef6431039231bd4b68788e5",
+        "proof": {
+          "path": "/workspace/research4/reports/cloud-followup-20261106-v1/queue-host-a-003/execution/spinosin-m001-h005-plus-attempt001.log.supervisor-proof.json",
+          "sha256": "aefaf4691223b9a78b05b022fa244c2f75acffce065b97da6d9955340a37869b"
+        },
+        "log": {
+          "path": "/workspace/research4/reports/cloud-followup-20261106-v1/queue-host-a-003/execution/spinosin-m001-h005-plus-attempt001.log",
+          "sha256": "5bdca20a55e831adcc57c0f19ca10bd693293962c09eacee918df12bddf078c3"
+        },
+        "actual_cpu_seconds": 5455.584538
+      },
+      "source_queue_state": {
+        "path": "/workspace/research4/reports/cloud-followup-20261106-v1/queue-host-a-003/state.json",
+        "sha256": "4e4920ae3682d3fd8dc96e52071fe001003249b2ed9ed245d97b86e81e72569e"
+      },
+      "output_directory": "/workspace/research4/reports/cloud-followup-20261106-v1/queue-host-a-003/science/spinosin-m001-h005-plus-attempt001",
+      "status": "DONE_VERIFIED_FROM_CLOSED_PROVENANCE",
+      "scientific_release": true,
+      "legacy_output_binding": false
+    },
+    {
+      "job": {
+        "id": "spinosin-m001-h005-minus",
+        "kind": "quantum",
+        "worker": {
+          "path": "/workspace/research4/scripts/research4_cloud_followup_worker_20261106_v2.py",
+          "sha256": "d1755eb103eb5c6bd4100771500fb969e19d0a05c69fe88257ef63668025b1fb"
+        },
+        "payload_argv": [
+          "/workspace/research4/.runtime/bin/python",
+          "/workspace/research4/scripts/research4_cloud_followup_worker_20261106_v2.py",
+          "--execute",
+          "--source-result",
+          "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/global-assemble-recovery-002/science/global-assemble/result.json",
+          "--source-result-sha256",
+          "253c10a92c083f54aaeb3f1e407e095790649737f5f876bd3cecfd35bfb4f9b7",
+          "--main-pipeline-state",
+          "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/global-assemble-recovery-002/state.json",
+          "--main-pipeline-state-sha256",
+          "f2974458d23abeb320db736ce6c4cdb3f0b4d509f707a4dc67fd7d5ceaaa2578",
+          "--mode-index",
+          "1",
+          "--mode-array-sha256",
+          "10440a6727b4360a685c7feac9d3179f38347ac4e4de375f6a183f047f38957c",
+          "--step-bohr",
+          "0.005",
+          "--sign",
+          "-1",
+          "--output",
+          "{output}",
+          "--source-qualification",
+          "/workspace/research4/reports/cloud-followup-20261106-v1/source-qualification-host-a-003/spinosin/qualification.json",
+          "--source-qualification-sha256",
+          "f7745721fd2f96e06ae89dfe6e0e6ecf1c3016237b12741b048e51d9262b51a7"
+        ],
+        "result_schema": "research4-cloud-followup-scf-gradient-v1",
+        "success_statuses": [
+          "DISPLACED_SCF_GRADIENT_COMPUTED"
+        ],
+        "cpu_seconds": 6000,
+        "wall_seconds": 14400,
+        "optional": true,
+        "depends_on": [],
+        "required_result_fields": {
+          "scf_converged": true,
+          "gradient_completed": true
+        },
+        "retry_closed_resource_failure": true,
+        "threads": 2,
+        "memory_gib": 24,
+        "retry_request": {
+          "cpu_seconds": 7500,
+          "wall_seconds": 14400
+        }
+      },
+      "seal": {
+        "result": {
+          "path": "/workspace/research4/reports/cloud-followup-20261106-v1/queue-host-a-003/science/spinosin-m001-h005-minus-attempt001/result.json",
+          "sha256": "0db142998cf039a815997d793df78ed2650d48fd32eaaeb77756eeb2f4d5f0f8"
+        },
+        "artifacts": [
+          {
+            "relative_path": "analytic_H_times_direction.npy",
+            "size_bytes": 1928,
+            "sha256": "967532d6173613fde7eaceb49c8a9f21bd3bc9e95d273ea4929a6cde689e2ca3"
+          },
+          {
+            "relative_path": "direction_cartesian_unit.npy",
+            "size_bytes": 1928,
+            "sha256": "4f82923948ad4c66d025235e325df9711e8d0923509e044a6419081859836ea3"
+          },
+          {
+            "relative_path": "displaced.xyz",
+            "size_bytes": 3698,
+            "sha256": "65c7f6dc1b1b5bf6224d62896ace56429f262c0895c9cdf8a96229930a595b9b"
+          },
+          {
+            "relative_path": "displaced_coordinates_bohr.npy",
+            "size_bytes": 1928,
+            "sha256": "fb66c7c8aa749e5ea05e7c68bbb1faf26aa933e7f61132156603168e38d57c6e"
+          },
+          {
+            "relative_path": "events.jsonl",
+            "size_bytes": 5015,
+            "sha256": "17cf97462007254517a0c2b973332a312362363ed6de806ffa5ea4e1290cd25b"
+          },
+          {
+            "relative_path": "gradient_hartree_per_bohr.npy",
+            "size_bytes": 1928,
+            "sha256": "9d6a034f548c33f29559fcda0e03751ca5878b68c3a2e045ec74039ac6232701"
+          },
+          {
+            "relative_path": "input.json",
+            "size_bytes": 7835,
+            "sha256": "eece1a8a73cce95e205d82590e7e77069cc8d28312da04ed697ed8e59a012e44"
+          },
+          {
+            "relative_path": "progress.json",
+            "size_bytes": 34243,
+            "sha256": "44372f586c18c2b025545a27bba447a8b7a3f855ef817cf76fa2c8ba5e8767be"
+          },
+          {
+            "relative_path": "pyscf.log",
+            "size_bytes": 16754,
+            "sha256": "573d0a7e9991b3a765a58cecacc41100ed0aa50ec21a9b125070596fc893ca16"
+          },
+          {
+            "relative_path": "result.json",
+            "size_bytes": 34910,
+            "sha256": "0db142998cf039a815997d793df78ed2650d48fd32eaaeb77756eeb2f4d5f0f8"
+          },
+          {
+            "relative_path": "scf.chk",
+            "size_bytes": 4696048,
+            "sha256": "b10a438503d3e8b3c1f7bb380d8c9657bde9bec1a9f91b6a1aa1893a68d1b916"
+          },
+          {
+            "relative_path": "source_coordinates_bohr.npy",
+            "size_bytes": 1928,
+            "sha256": "13cc6a1ca8b437d1369658487748390c326d51d89822be3d1894795bef7cd221"
+          }
+        ],
+        "phase": "cloudhosta20261106v3-spinosin-m001-h005-minus-attempt001",
+        "closed_row_sha256": "b0db9ad6b75a7e2cc99f41bf18c2193fbbea52af891c1b59ac0761291891c34a",
+        "proof": {
+          "path": "/workspace/research4/reports/cloud-followup-20261106-v1/queue-host-a-003/execution/spinosin-m001-h005-minus-attempt001.log.supervisor-proof.json",
+          "sha256": "4874499feff862bbb5f172617d6c14960239befaf2d007b169ca012ecfa68ea7"
+        },
+        "log": {
+          "path": "/workspace/research4/reports/cloud-followup-20261106-v1/queue-host-a-003/execution/spinosin-m001-h005-minus-attempt001.log",
+          "sha256": "5bdca20a55e831adcc57c0f19ca10bd693293962c09eacee918df12bddf078c3"
+        },
+        "actual_cpu_seconds": 5624.295814
+      },
+      "source_queue_state": {
+        "path": "/workspace/research4/reports/cloud-followup-20261106-v1/queue-host-a-003/state.json",
+        "sha256": "4e4920ae3682d3fd8dc96e52071fe001003249b2ed9ed245d97b86e81e72569e"
+      },
+      "output_directory": "/workspace/research4/reports/cloud-followup-20261106-v1/queue-host-a-003/science/spinosin-m001-h005-minus-attempt001",
+      "status": "DONE_VERIFIED_FROM_CLOSED_PROVENANCE",
+      "scientific_release": true,
+      "legacy_output_binding": false
+    },
+    {
+      "job": {
+        "id": "spinosin-m001-h005-fd",
+        "kind": "analysis",
+        "worker": {
+          "path": "/workspace/research4/scripts/research4_cloud_followup_worker_20261106_v2.py",
+          "sha256": "d1755eb103eb5c6bd4100771500fb969e19d0a05c69fe88257ef63668025b1fb"
+        },
+        "payload_argv": [
+          "/workspace/research4/.runtime/bin/python",
+          "/workspace/research4/scripts/research4_cloud_followup_worker_20261106_v2.py",
+          "--analyze-only",
+          "--plus-result",
+          "{result:spinosin-m001-h005-plus}",
+          "--minus-result",
+          "{result:spinosin-m001-h005-minus}",
+          "--output",
+          "{output}"
+        ],
+        "result_schema": "research4-cloud-followup-directional-finite-difference-v1",
+        "success_statuses": [
+          "DIRECTIONAL_FINITE_DIFFERENCE_ANALYZED"
+        ],
+        "cpu_seconds": 60,
+        "wall_seconds": 180,
+        "optional": true,
+        "depends_on": [
+          "spinosin-m001-h005-plus",
+          "spinosin-m001-h005-minus"
+        ],
+        "required_result_fields": {
+          "new_quantum_evaluations": 0
+        },
+        "retry_closed_resource_failure": false
+      },
+      "seal": {
+        "result": {
+          "path": "/workspace/research4/reports/cloud-followup-20261106-v1/queue-host-a-003/science/spinosin-m001-h005-fd-attempt001/result.json",
+          "sha256": "8dfecc8bae9353eebf21fd4ac4292e0e1d6e9a924b4f708358e791d1ff383a5e"
+        },
+        "artifacts": [
+          {
+            "relative_path": "finite_difference_H_times_direction.npy",
+            "size_bytes": 1928,
+            "sha256": "3258adfd24bbf81c9a6003502a4625c62e2b46c5354ef746131c1f77e604cbee"
+          },
+          {
+            "relative_path": "finite_difference_minus_analytic_Hq.npy",
+            "size_bytes": 1928,
+            "sha256": "b5a6668fc31f680c5c907b700e9af1f88188dfa79936069475ec9997b53ada0c"
+          },
+          {
+            "relative_path": "result.json",
+            "size_bytes": 2588,
+            "sha256": "8dfecc8bae9353eebf21fd4ac4292e0e1d6e9a924b4f708358e791d1ff383a5e"
+          }
+        ],
+        "log": {
+          "path": "/workspace/research4/reports/cloud-followup-20261106-v1/queue-host-a-003/execution/spinosin-m001-h005-fd-attempt001.log",
+          "sha256": "b6c3b5d03e969d1074f0a26307f5df522da55248a8bc9267e989d10a1aea1ab3"
+        },
+        "new_quantum_evaluations": 0
+      },
+      "source_queue_state": {
+        "path": "/workspace/research4/reports/cloud-followup-20261106-v1/queue-host-a-003/state.json",
+        "sha256": "4e4920ae3682d3fd8dc96e52071fe001003249b2ed9ed245d97b86e81e72569e"
+      },
+      "output_directory": "/workspace/research4/reports/cloud-followup-20261106-v1/queue-host-a-003/science/spinosin-m001-h005-fd-attempt001",
+      "status": "DONE_VERIFIED_FROM_CLOSED_PROVENANCE",
+      "scientific_release": true,
+      "legacy_output_binding": false
+    },
+    {
+      "job": {
+        "id": "spinosin-m026-h010-plus",
+        "kind": "quantum",
+        "worker": {
+          "path": "/workspace/research4/scripts/research4_cloud_followup_worker_20261106_v2.py",
+          "sha256": "d1755eb103eb5c6bd4100771500fb969e19d0a05c69fe88257ef63668025b1fb"
+        },
+        "payload_argv": [
+          "/workspace/research4/.runtime/bin/python",
+          "/workspace/research4/scripts/research4_cloud_followup_worker_20261106_v2.py",
+          "--execute",
+          "--source-result",
+          "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/global-assemble-recovery-002/science/global-assemble/result.json",
+          "--source-result-sha256",
+          "253c10a92c083f54aaeb3f1e407e095790649737f5f876bd3cecfd35bfb4f9b7",
+          "--main-pipeline-state",
+          "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/global-assemble-recovery-002/state.json",
+          "--main-pipeline-state-sha256",
+          "f2974458d23abeb320db736ce6c4cdb3f0b4d509f707a4dc67fd7d5ceaaa2578",
+          "--mode-index",
+          "26",
+          "--mode-array-sha256",
+          "10440a6727b4360a685c7feac9d3179f38347ac4e4de375f6a183f047f38957c",
+          "--step-bohr",
+          "0.01",
+          "--sign",
+          "1",
+          "--output",
+          "{output}",
+          "--source-qualification",
+          "/workspace/research4/reports/cloud-followup-20261106-v1/source-qualification-host-a-003/spinosin/qualification.json",
+          "--source-qualification-sha256",
+          "f7745721fd2f96e06ae89dfe6e0e6ecf1c3016237b12741b048e51d9262b51a7"
+        ],
+        "result_schema": "research4-cloud-followup-scf-gradient-v1",
+        "success_statuses": [
+          "DISPLACED_SCF_GRADIENT_COMPUTED"
+        ],
+        "cpu_seconds": 6000,
+        "wall_seconds": 14400,
+        "optional": true,
+        "depends_on": [],
+        "required_result_fields": {
+          "scf_converged": true,
+          "gradient_completed": true
+        },
+        "retry_closed_resource_failure": true,
+        "threads": 2,
+        "memory_gib": 24,
+        "retry_request": {
+          "cpu_seconds": 7500,
+          "wall_seconds": 14400
+        }
+      },
+      "seal": {
+        "result": {
+          "path": "/workspace/research4/reports/cloud-followup-20261106-v1/queue-host-a-003/science/spinosin-m026-h010-plus-attempt001/result.json",
+          "sha256": "3078ecc5bcefec6c7c1e92ae53736016e714eb20e2c29bbbff43db10a74b063f"
+        },
+        "artifacts": [
+          {
+            "relative_path": "analytic_H_times_direction.npy",
+            "size_bytes": 1928,
+            "sha256": "b5951a82822bee367da9553ca44c2beaeae7adf623c9c7c1c83ce91e54bfef49"
+          },
+          {
+            "relative_path": "direction_cartesian_unit.npy",
+            "size_bytes": 1928,
+            "sha256": "206e7f31edc7b912c948b51d9bc708e277b2eec51d6666016a1697f4cc7004ad"
+          },
+          {
+            "relative_path": "displaced.xyz",
+            "size_bytes": 3698,
+            "sha256": "7cc212bec795fe27206cfdabcf018ecc7a0a3dcf66226b4717f78c822125a6f9"
+          },
+          {
+            "relative_path": "displaced_coordinates_bohr.npy",
+            "size_bytes": 1928,
+            "sha256": "0360249f57ef1c1fcd207282dabff94509a6199c948becd696f20e50338225df"
+          },
+          {
+            "relative_path": "events.jsonl",
+            "size_bytes": 5009,
+            "sha256": "4d53880dffb65445b0032fa667ab4ced9ce63931a213b2f8186ec0345c3bafa2"
+          },
+          {
+            "relative_path": "gradient_hartree_per_bohr.npy",
+            "size_bytes": 1928,
+            "sha256": "e90cc13e2a08ff20994a7b8a12b9ed480bf72cc5d06e2b43b5d95ff573a82595"
+          },
+          {
+            "relative_path": "input.json",
+            "size_bytes": 7831,
+            "sha256": "700c276cbb78a504cf2925c2c39cc9cffb44e4434bcb1d0166e43c1b07455d49"
+          },
+          {
+            "relative_path": "progress.json",
+            "size_bytes": 34217,
+            "sha256": "553658af5bc493d90baf742bd9ac665380ed987f322ec5aedf7c275edeaff779"
+          },
+          {
+            "relative_path": "pyscf.log",
+            "size_bytes": 16754,
+            "sha256": "6b6aea02ca2be8d4a17c7a212e42560318bd64bcc4daa348347bc07b8a21edf2"
+          },
+          {
+            "relative_path": "result.json",
+            "size_bytes": 34881,
+            "sha256": "3078ecc5bcefec6c7c1e92ae53736016e714eb20e2c29bbbff43db10a74b063f"
+          },
+          {
+            "relative_path": "scf.chk",
+            "size_bytes": 4696080,
+            "sha256": "0699db56ddfcead4aa1f40a27ba0ac1ea6da5b697a250d03c02d4c69625991ae"
+          },
+          {
+            "relative_path": "source_coordinates_bohr.npy",
+            "size_bytes": 1928,
+            "sha256": "13cc6a1ca8b437d1369658487748390c326d51d89822be3d1894795bef7cd221"
+          }
+        ],
+        "phase": "cloudhosta20261106v3-spinosin-m026-h010-plus-attempt001",
+        "closed_row_sha256": "4cdcafbe50012c2f7ca79ea06e14d2c6bc7c91105b1ca7f217b62e60e9223be4",
+        "proof": {
+          "path": "/workspace/research4/reports/cloud-followup-20261106-v1/queue-host-a-003/execution/spinosin-m026-h010-plus-attempt001.log.supervisor-proof.json",
+          "sha256": "89d93f94acab7a5697dec755bb1411b355bb4f5f9f6664b67794e6241fa399c5"
+        },
+        "log": {
+          "path": "/workspace/research4/reports/cloud-followup-20261106-v1/queue-host-a-003/execution/spinosin-m026-h010-plus-attempt001.log",
+          "sha256": "5bdca20a55e831adcc57c0f19ca10bd693293962c09eacee918df12bddf078c3"
+        },
+        "actual_cpu_seconds": 5628.118890000001
+      },
+      "source_queue_state": {
+        "path": "/workspace/research4/reports/cloud-followup-20261106-v1/queue-host-a-003/state.json",
+        "sha256": "4e4920ae3682d3fd8dc96e52071fe001003249b2ed9ed245d97b86e81e72569e"
+      },
+      "output_directory": "/workspace/research4/reports/cloud-followup-20261106-v1/queue-host-a-003/science/spinosin-m026-h010-plus-attempt001",
+      "status": "DONE_VERIFIED_FROM_CLOSED_PROVENANCE",
+      "scientific_release": true,
+      "legacy_output_binding": false
+    },
+    {
+      "job": {
+        "id": "spinosin-m026-h010-minus",
+        "kind": "quantum",
+        "worker": {
+          "path": "/workspace/research4/scripts/research4_cloud_followup_worker_20261106_v2.py",
+          "sha256": "d1755eb103eb5c6bd4100771500fb969e19d0a05c69fe88257ef63668025b1fb"
+        },
+        "payload_argv": [
+          "/workspace/research4/.runtime/bin/python",
+          "/workspace/research4/scripts/research4_cloud_followup_worker_20261106_v2.py",
+          "--execute",
+          "--source-result",
+          "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/global-assemble-recovery-002/science/global-assemble/result.json",
+          "--source-result-sha256",
+          "253c10a92c083f54aaeb3f1e407e095790649737f5f876bd3cecfd35bfb4f9b7",
+          "--main-pipeline-state",
+          "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/global-assemble-recovery-002/state.json",
+          "--main-pipeline-state-sha256",
+          "f2974458d23abeb320db736ce6c4cdb3f0b4d509f707a4dc67fd7d5ceaaa2578",
+          "--mode-index",
+          "26",
+          "--mode-array-sha256",
+          "10440a6727b4360a685c7feac9d3179f38347ac4e4de375f6a183f047f38957c",
+          "--step-bohr",
+          "0.01",
+          "--sign",
+          "-1",
+          "--output",
+          "{output}",
+          "--source-qualification",
+          "/workspace/research4/reports/cloud-followup-20261106-v1/source-qualification-host-a-003/spinosin/qualification.json",
+          "--source-qualification-sha256",
+          "f7745721fd2f96e06ae89dfe6e0e6ecf1c3016237b12741b048e51d9262b51a7"
+        ],
+        "result_schema": "research4-cloud-followup-scf-gradient-v1",
+        "success_statuses": [
+          "DISPLACED_SCF_GRADIENT_COMPUTED"
+        ],
+        "cpu_seconds": 6000,
+        "wall_seconds": 14400,
+        "optional": true,
+        "depends_on": [],
+        "required_result_fields": {
+          "scf_converged": true,
+          "gradient_completed": true
+        },
+        "retry_closed_resource_failure": true,
+        "threads": 2,
+        "memory_gib": 24,
+        "retry_request": {
+          "cpu_seconds": 7500,
+          "wall_seconds": 14400
+        }
+      },
+      "seal": {
+        "result": {
+          "path": "/workspace/research4/reports/cloud-followup-20261106-v1/queue-host-a-003/science/spinosin-m026-h010-minus-attempt001/result.json",
+          "sha256": "c752b89435e8a65cf620f109c2dd25ffa74f12968b7845eeca0a320f11be4dd0"
+        },
+        "artifacts": [
+          {
+            "relative_path": "analytic_H_times_direction.npy",
+            "size_bytes": 1928,
+            "sha256": "b5951a82822bee367da9553ca44c2beaeae7adf623c9c7c1c83ce91e54bfef49"
+          },
+          {
+            "relative_path": "direction_cartesian_unit.npy",
+            "size_bytes": 1928,
+            "sha256": "206e7f31edc7b912c948b51d9bc708e277b2eec51d6666016a1697f4cc7004ad"
+          },
+          {
+            "relative_path": "displaced.xyz",
+            "size_bytes": 3698,
+            "sha256": "6c4b4dc7b7fa5e68b5f0f7324e61335591e01a3ada94d7eaab3d545ec0c86692"
+          },
+          {
+            "relative_path": "displaced_coordinates_bohr.npy",
+            "size_bytes": 1928,
+            "sha256": "34a0cda9c849f59b87f9b428596bd55b08916f83a58402435731384075b7d101"
+          },
+          {
+            "relative_path": "events.jsonl",
+            "size_bytes": 5018,
+            "sha256": "4efc67fdd18e754a919dda52e6faa9525460674dcbb19cf7f4808f515b173a42"
+          },
+          {
+            "relative_path": "gradient_hartree_per_bohr.npy",
+            "size_bytes": 1928,
+            "sha256": "8d5bd213044e400157c7631d724a6d576295afd12f1ed624e2ba46a880eeee75"
+          },
+          {
+            "relative_path": "input.json",
+            "size_bytes": 7837,
+            "sha256": "efff38799db56f48a139285d140ab6914d6d4de5c51094063659f66617eb9e5c"
+          },
+          {
+            "relative_path": "progress.json",
+            "size_bytes": 34224,
+            "sha256": "baf16aed4771acaf5de5a9c432a27534dcfae7306d03dd300f75d9d8dc59d244"
+          },
+          {
+            "relative_path": "pyscf.log",
+            "size_bytes": 16754,
+            "sha256": "1618f7e22c9e008d0e43c1ffb9daabd5cb4759abbc18b7cd40dd1b26a24cbbd0"
+          },
+          {
+            "relative_path": "result.json",
+            "size_bytes": 34888,
+            "sha256": "c752b89435e8a65cf620f109c2dd25ffa74f12968b7845eeca0a320f11be4dd0"
+          },
+          {
+            "relative_path": "scf.chk",
+            "size_bytes": 4696096,
+            "sha256": "9ae6eb4a3dd3df099329bc1a1cac24ef1f6beb5d9feb76ed8c5db7267354ce80"
+          },
+          {
+            "relative_path": "source_coordinates_bohr.npy",
+            "size_bytes": 1928,
+            "sha256": "13cc6a1ca8b437d1369658487748390c326d51d89822be3d1894795bef7cd221"
+          }
+        ],
+        "phase": "cloudhosta20261106v3-spinosin-m026-h010-minus-attempt001",
+        "closed_row_sha256": "6b0c347bc3acc88e3facf8e4034d63dd2fdcfa624d3229fdd93451ed74716835",
+        "proof": {
+          "path": "/workspace/research4/reports/cloud-followup-20261106-v1/queue-host-a-003/execution/spinosin-m026-h010-minus-attempt001.log.supervisor-proof.json",
+          "sha256": "0e99dfbf39046b8c276fdb4caba54d41b701949b1fe729108a9dd365c4dd28ff"
+        },
+        "log": {
+          "path": "/workspace/research4/reports/cloud-followup-20261106-v1/queue-host-a-003/execution/spinosin-m026-h010-minus-attempt001.log",
+          "sha256": "5bdca20a55e831adcc57c0f19ca10bd693293962c09eacee918df12bddf078c3"
+        },
+        "actual_cpu_seconds": 5517.808869
+      },
+      "source_queue_state": {
+        "path": "/workspace/research4/reports/cloud-followup-20261106-v1/queue-host-a-003/state.json",
+        "sha256": "4e4920ae3682d3fd8dc96e52071fe001003249b2ed9ed245d97b86e81e72569e"
+      },
+      "output_directory": "/workspace/research4/reports/cloud-followup-20261106-v1/queue-host-a-003/science/spinosin-m026-h010-minus-attempt001",
+      "status": "DONE_VERIFIED_FROM_CLOSED_PROVENANCE",
+      "scientific_release": true,
+      "legacy_output_binding": false
+    },
+    {
+      "job": {
+        "id": "spinosin-m026-h010-fd",
+        "kind": "analysis",
+        "worker": {
+          "path": "/workspace/research4/scripts/research4_cloud_followup_worker_20261106_v2.py",
+          "sha256": "d1755eb103eb5c6bd4100771500fb969e19d0a05c69fe88257ef63668025b1fb"
+        },
+        "payload_argv": [
+          "/workspace/research4/.runtime/bin/python",
+          "/workspace/research4/scripts/research4_cloud_followup_worker_20261106_v2.py",
+          "--analyze-only",
+          "--plus-result",
+          "{result:spinosin-m026-h010-plus}",
+          "--minus-result",
+          "{result:spinosin-m026-h010-minus}",
+          "--output",
+          "{output}"
+        ],
+        "result_schema": "research4-cloud-followup-directional-finite-difference-v1",
+        "success_statuses": [
+          "DIRECTIONAL_FINITE_DIFFERENCE_ANALYZED"
+        ],
+        "cpu_seconds": 60,
+        "wall_seconds": 180,
+        "optional": true,
+        "depends_on": [
+          "spinosin-m026-h010-plus",
+          "spinosin-m026-h010-minus"
+        ],
+        "required_result_fields": {
+          "new_quantum_evaluations": 0
+        },
+        "retry_closed_resource_failure": false
+      },
+      "seal": {
+        "result": {
+          "path": "/workspace/research4/reports/cloud-followup-20261106-v1/queue-host-a-003/science/spinosin-m026-h010-fd-attempt001/result.json",
+          "sha256": "4e91fcded6451f37ddcb0bdc97958df1fd83363c51e098fbec91dc61721647fe"
+        },
+        "artifacts": [
+          {
+            "relative_path": "finite_difference_H_times_direction.npy",
+            "size_bytes": 1928,
+            "sha256": "9167fcbbe34ad1daff1d2e0d4a87a9dbba1d37c249f00bbb9cf89b7c19f43bb8"
+          },
+          {
+            "relative_path": "finite_difference_minus_analytic_Hq.npy",
+            "size_bytes": 1928,
+            "sha256": "9531291e1f23c71ffb46b79d98018515fe90537c47d3f7ce2cbaf4f5fd923d2d"
+          },
+          {
+            "relative_path": "result.json",
+            "size_bytes": 2591,
+            "sha256": "4e91fcded6451f37ddcb0bdc97958df1fd83363c51e098fbec91dc61721647fe"
+          }
+        ],
+        "log": {
+          "path": "/workspace/research4/reports/cloud-followup-20261106-v1/queue-host-a-003/execution/spinosin-m026-h010-fd-attempt001.log",
+          "sha256": "b6c3b5d03e969d1074f0a26307f5df522da55248a8bc9267e989d10a1aea1ab3"
+        },
+        "new_quantum_evaluations": 0
+      },
+      "source_queue_state": {
+        "path": "/workspace/research4/reports/cloud-followup-20261106-v1/queue-host-a-003/state.json",
+        "sha256": "4e4920ae3682d3fd8dc96e52071fe001003249b2ed9ed245d97b86e81e72569e"
+      },
+      "output_directory": "/workspace/research4/reports/cloud-followup-20261106-v1/queue-host-a-003/science/spinosin-m026-h010-fd-attempt001",
+      "status": "DONE_VERIFIED_FROM_CLOSED_PROVENANCE",
+      "scientific_release": true,
+      "legacy_output_binding": false
+    },
+    {
+      "job": {
+        "id": "spinosin-residual-block00",
+        "kind": "quantum",
+        "worker": {
+          "path": "/workspace/research4/scripts/audit_pyscf_saved_cphf_residual_20261105.py",
+          "sha256": "6ff1df9930257f33637a34cfc58ba01b0fe38c246458ab704891663efbef800c"
+        },
+        "payload_argv": [
+          "/workspace/research4/.runtime/bin/python",
+          "/workspace/research4/scripts/audit_pyscf_saved_cphf_residual_20261105.py",
+          "--execute",
+          "--response-result",
+          "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-00/result.json",
+          "--response-result-sha256",
+          "641336012967fdf96c3b944aa526b6d6393257ef8672108052339a7e0fa1b669",
+          "--main-pipeline-state",
+          "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/global-assemble-recovery-002/state.json",
+          "--main-pipeline-state-sha256",
+          "f2974458d23abeb320db736ce6c4cdb3f0b4d509f707a4dc67fd7d5ceaaa2578",
+          "--whole-block",
+          "--output",
+          "{output}"
+        ],
+        "result_schema": "research4-saved-cphf-equation-residual-audit-v1",
+        "success_statuses": [
+          "SAVED_RESPONSE_RESIDUALS_MEASURED_NOT_CONVERGENCE_GATED"
+        ],
+        "cpu_seconds": 4000,
+        "wall_seconds": 7200,
+        "optional": true,
+        "depends_on": [],
+        "required_result_fields": {},
+        "retry_closed_resource_failure": false,
+        "threads": 2,
+        "memory_gib": 24
+      },
+      "seal": {
+        "result": {
+          "path": "/workspace/research4/reports/cloud-followup-20261106-v1/queue-host-a-003/science/spinosin-residual-block00-attempt001/result.json",
+          "sha256": "9047cf497b4327ca0418bc2b848b6d9a224105e8a2459298b288466a87fb71d5"
+        },
+        "artifacts": [
+          {
+            "relative_path": "events.jsonl",
+            "size_bytes": 3838,
+            "sha256": "964a1f6f8d63773af2e4726c65ef920339a14ef7adc5f59192753cc3d3754a55"
+          },
+          {
+            "relative_path": "input.json",
+            "size_bytes": 6000,
+            "sha256": "fd8290f258a7b226f96eac52162290da9483232311cad4979f67f81a9fc3e3c5"
+          },
+          {
+            "relative_path": "progress.json",
+            "size_bytes": 43861,
+            "sha256": "4f0faaa4d60ab410366120f11c8c2b2696013e93cfb81651e69e964b342cedf1"
+          },
+          {
+            "relative_path": "pyscf.log",
+            "size_bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "relative_path": "result.json",
+            "size_bytes": 43424,
+            "sha256": "9047cf497b4327ca0418bc2b848b6d9a224105e8a2459298b288466a87fb71d5"
+          }
+        ],
+        "phase": "cloudhosta20261106v3-spinosin-residual-block00-attempt001",
+        "closed_row_sha256": "143c29a2d2954b807b61176ecbf0416f33f0c13741171e92c7ee29cb69106000",
+        "proof": {
+          "path": "/workspace/research4/reports/cloud-followup-20261106-v1/queue-host-a-003/execution/spinosin-residual-block00-attempt001.log.supervisor-proof.json",
+          "sha256": "f7fdca862fea70e32a4b7a0e507fbfadffa9ffa35cb08d06fed8d250e1395b9b"
+        },
+        "log": {
+          "path": "/workspace/research4/reports/cloud-followup-20261106-v1/queue-host-a-003/execution/spinosin-residual-block00-attempt001.log",
+          "sha256": "6f1baf9cd610bb6d3397714014c3a054df6f8e0fbaa60a3444d57e338d0e3438"
+        },
+        "actual_cpu_seconds": 1379.9283249999999,
+        "legacy_output_binding": {
+          "scope": "PINNED_6FF_LEGACY_MISSING_RESULT_OUTPUT_FIELD_ONLY",
+          "actual_output_from_unique_guard_command": "/workspace/research4/reports/cloud-followup-20261106-v1/queue-host-a-003/science/spinosin-residual-block00-attempt001",
+          "actual_input_json": {
+            "path": "/workspace/research4/reports/cloud-followup-20261106-v1/queue-host-a-003/science/spinosin-residual-block00-attempt001/input.json",
+            "sha256": "fd8290f258a7b226f96eac52162290da9483232311cad4979f67f81a9fc3e3c5"
+          },
+          "original_result_modified": false,
+          "scientific_source_or_method_modified": false
+        }
+      },
+      "source_queue_state": {
+        "path": "/workspace/research4/reports/cloud-followup-20261106-v1/queue-host-a-003/state.json",
+        "sha256": "4e4920ae3682d3fd8dc96e52071fe001003249b2ed9ed245d97b86e81e72569e"
+      },
+      "output_directory": "/workspace/research4/reports/cloud-followup-20261106-v1/queue-host-a-003/science/spinosin-residual-block00-attempt001",
+      "status": "DONE_VERIFIED_FROM_CLOSED_PROVENANCE",
+      "scientific_release": true,
+      "legacy_output_binding": true
+    }
+  ]
+}
