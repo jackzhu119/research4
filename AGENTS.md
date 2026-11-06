@@ -1,5 +1,32 @@
 # Research data conventions
 
+## Two-account cloud continuation (2026-11-06)
+
+The user explicitly authorized a second independent Codex cloud host, with
+prepared runnable inputs and GitHub return. Read
+`docs/RESEARCH4_PARALLEL_CLOUD_PLAN_20261106.md` and
+`docs/RESEARCH4_WORKER_B_QUICKSTART_20261106.md` for the current assignment.
+Host A retains its original exact-state Spinosin caches, registered v8 ledger,
+and research branch. Host B runs only the portable water, protocatechuic-acid
+and Calycosin package through its own reviewed supervisor and root release.
+The old pilot3300CPU and A host-bound producer proofs are historical/scoped
+records, not a substitute for the explicitly authorized B budget.
+
+The new B envelope is60000CPU seconds:1200 reserved for local package
+validation and58800 for the actual second host. The exact root-released
+remote run ID is `B20261106-01`; changing IDs does not create another grant.
+Use the atomic remote branch claim and actual local ledger/checkpoints to
+prevent duplicate deployment. The B result branch is distinct from A and main.
+The earlier72h cutoff is2026-11-09T08:25:17.730193Z. Preserve actual failed
+costs; no budget reset, unknown-orphan restart, force push or automatic main
+merge. Each account must use its own authorized GitHub connection.
+
+The prior Spinosin219-mode run is computationally complete with25 substantial
+imaginary modes; minimum and chemical-mechanism qualification remain false.
+IR intensities are NOT_COMPUTED. No theoretical result changes the historical
+96.0234% internal-CV classifier result. No further laboratory data are expected:
+standard THz/HPLC/LC-MS and independent-batch gaps remain explicit limitations.
+
 ## PySCF Spinosin pilot (2026-10-31 client date)
 
 The user explicitly authorizes actual cloud quantum calculations on branch

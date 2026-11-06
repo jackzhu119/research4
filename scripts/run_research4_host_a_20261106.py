@@ -112,11 +112,18 @@ def main():
             save(record, state); code = child.wait()
         actual = json.loads(Path(config["ledger"]).read_text())
         require(not any(row["status"] == "RUNNING" for row in actual["phases"]), "Unresolved quantum phase: preserve, do not upload or retry")
+        budget_copy = work / "closed-budget-snapshots" / (name + ".json")
+        budget_copy.parent.mkdir(parents=True, exist_ok=True)
+        with budget_copy.open("xb") as handle:
+            handle.write(Path(config["ledger"]).read_bytes())
+            handle.flush(); os.fsync(handle.fileno())
         queue = json.loads(Path(config["state"]).read_text()); last = queue["invocations"][-1]
-        state.update(status=last["status"], queue_returncode=code, quantum_phases_closed=True, ended_at_utc=now())
+        state.update(status=last["status"], queue_returncode=code, quantum_phases_closed=True, ended_at_utc=now(),
+                     closed_budget_snapshot={"path": str(budget_copy.relative_to(ROOT)), "sha256": sha(budget_copy)})
         save(record, state)
         returned = False
         for retry in range(3):
+            require(sha(UPLOADER) == args.uploader_sha256, "Reviewed uploader changed; preserve results without running new source")
             command = [str(PYTHON), str(UPLOADER), "--repo", str(ROOT), "--manifest", str(args.return_manifest),
                        "--manifest-sha256", args.return_manifest_sha256, "--attempt", name + "-upload" + str(retry + 1), "--execute"]
             result = subprocess.run(command, cwd=ROOT)
