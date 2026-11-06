@@ -39,15 +39,17 @@ class SummaryTests(unittest.TestCase):
         worker.write_bytes((REPO/"scripts/audit_pyscf_saved_cphf_residual_20261105.py").read_bytes()
                            if legacy else b"# Synthetic producer fixture, never executed\n")
         inp = output/"input.json"
-        write_json(inp, {"arguments": {"output": str(self.root/"reports/other-output" if wrong_input_output else output)}})
         log = self.root/"reports/job.log"; log.write_text("Unexecuted stdlib evidence fixture\n")
         proof = {"phase": "old-fake-job-attempt001", "ledger_path": str(self.root/"ledger.json"),
                  "supervisor_script_sha256": "b"*64}
         proof_file = self.root/"reports/job.proof.json"; write_json(proof_file, proof)
+        supervision = {"proof": proof, "proof_sha256": sha(proof_file),
+                       "live_parent_process_and_source_verified": True}
+        write_json(inp, {"arguments": {"output": str(self.root/"reports/other-output" if wrong_input_output else output)},
+                         "source_worker": reference(worker), "resource_supervision": supervision})
         result = {"schema": "research4-saved-cphf-equation-residual-audit-v1", "status": "SAVED_RESPONSE_RESIDUALS_MEASURED_NOT_CONVERGENCE_GATED",
                   "source_worker": reference(worker), "input_json_sha256": sha(inp),
-                  "resource_supervision": {"proof": proof, "proof_sha256": sha(proof_file),
-                                            "live_parent_process_and_source_verified": True}}
+                  "resource_supervision": supervision}
         write_json(output/"result.json", result)
         row = {"phase": proof["phase"], "status": "EXITED", "exit_code": 0,
                "actual_cpu_seconds": 1.25, "command": ["python", str(worker), "--output", str(output)],
@@ -107,6 +109,24 @@ class SummaryTests(unittest.TestCase):
     def test_legacy_input_output_mismatch_is_rejected(self):
         job, saved, ledger = self.quantum_fixture(wrong_input_output=True)
         with self.assertRaises(M.EvidenceError): M.verify_job(job, saved, ledger, [])
+
+    def test_explicit_null_output_is_not_missing_legacy_field(self):
+        job, saved, ledger = self.quantum_fixture()
+        result_path = Path(saved["seal"]["result"]["path"])
+        result = json.loads(result_path.read_text()); result["output_directory"] = None
+        write_json(result_path, result); saved["seal"]["result"] = reference(result_path)
+        with self.assertRaises(M.EvidenceError): M.verify_job(job, saved, ledger, [])
+
+    def test_legacy_input_source_and_resource_proof_must_match_result(self):
+        job, saved, ledger = self.quantum_fixture()
+        result_path = Path(saved["seal"]["result"]["path"]); inp = result_path.with_name("input.json")
+        original = json.loads(inp.read_text())
+        for field in ("source_worker", "resource_supervision"):
+            with self.subTest(field=field):
+                altered = {**original, field: {"changed": True}}; write_json(inp, altered)
+                result = json.loads(result_path.read_text()); result["input_json_sha256"] = sha(inp)
+                write_json(result_path, result); saved["seal"]["result"] = reference(result_path)
+                with self.assertRaises(M.EvidenceError): M.verify_job(job, saved, ledger, [])
 
     def test_unknown_producer_does_not_receive_legacy_alias(self):
         job, saved, ledger = self.quantum_fixture(legacy=False)
