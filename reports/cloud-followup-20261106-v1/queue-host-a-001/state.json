@@ -1,0 +1,293 @@
+{
+  "schema": "research4-cloud-followup-state-v1",
+  "config_sha256": "6c696c1e185782ac9b3535d0e19bd881ca6b954580b306e65324654bcb9ddd66",
+  "grant_sha256": "f4fde8590d07a703f1d3e820d9325a903cd1684c9e57927847c362bb6f836341",
+  "invocations": [
+    {
+      "id": "host-a-parallel-001-q1",
+      "status": "BLOCKED_REQUIRES_ROOT_REVIEW",
+      "identity": {
+        "pid": 62249,
+        "start_ticks": 18570157,
+        "uid": 1000,
+        "pgrp": 62247,
+        "session": 62247,
+        "state": "R",
+        "comm": "python",
+        "boot_id": "50ca0010-b743-43c7-bc0f-b6bcbc47c68d"
+      },
+      "started_at_utc": "2026-11-06T10:11:01.530014+00:00",
+      "own_CPU_seconds": 0.334055012,
+      "error_type": "RuntimeError",
+      "reason": "Closed quantum failure requires root review: water-c0-plus",
+      "ended_at_utc": "2026-11-06T10:11:02.826138+00:00"
+    }
+  ],
+  "jobs": {
+    "water-c0-plus": {
+      "status": "FAILED_CLOSED",
+      "attempt": 1,
+      "output": "/workspace/research4/reports/cloud-followup-20261106-v1/queue-host-a-001/science/water-c0-plus-attempt001",
+      "log": "/workspace/research4/reports/cloud-followup-20261106-v1/queue-host-a-001/execution/water-c0-plus-attempt001.log",
+      "phase": "cloudhosta20261106v1-water-c0-plus-attempt001",
+      "prelaunch_process_observation": {
+        "observed_at_utc": "2026-11-06T10:11:01.760565+00:00",
+        "redacted_process_scan": {
+          "observed_at_utc": "2026-11-06T10:11:01.704065+00:00",
+          "records": [
+            {
+              "pid": 125,
+              "start_ticks": 574,
+              "uid": 0,
+              "pgrp": 125,
+              "session": 125,
+              "state": "S",
+              "comm": "dockerd",
+              "boot_id": "50ca0010-b743-43c7-bc0f-b6bcbc47c68d",
+              "category": "ROOT_ACKNOWLEDGED_OPAQUE_DAEMON",
+              "error_type": "PermissionError",
+              "full_argv_logged": false,
+              "visibility_exception_root_grant_bound": true,
+              "identity_double_read_stable": true
+            },
+            {
+              "pid": 176,
+              "start_ticks": 584,
+              "uid": 0,
+              "pgrp": 176,
+              "session": 176,
+              "state": "S",
+              "comm": "containerd",
+              "boot_id": "50ca0010-b743-43c7-bc0f-b6bcbc47c68d",
+              "category": "ROOT_ACKNOWLEDGED_OPAQUE_DAEMON",
+              "error_type": "PermissionError",
+              "full_argv_logged": false,
+              "visibility_exception_root_grant_bound": true,
+              "identity_double_read_stable": true
+            }
+          ],
+          "conflicts": [],
+          "read_only_git": [],
+          "visibility_errors": [
+            {
+              "pid": 125,
+              "start_ticks": 574,
+              "uid": 0,
+              "pgrp": 125,
+              "session": 125,
+              "state": "S",
+              "comm": "dockerd",
+              "boot_id": "50ca0010-b743-43c7-bc0f-b6bcbc47c68d",
+              "category": "ROOT_ACKNOWLEDGED_OPAQUE_DAEMON",
+              "error_type": "PermissionError",
+              "full_argv_logged": false,
+              "visibility_exception_root_grant_bound": true,
+              "identity_double_read_stable": true
+            },
+            {
+              "pid": 176,
+              "start_ticks": 584,
+              "uid": 0,
+              "pgrp": 176,
+              "session": 176,
+              "state": "S",
+              "comm": "containerd",
+              "boot_id": "50ca0010-b743-43c7-bc0f-b6bcbc47c68d",
+              "category": "ROOT_ACKNOWLEDGED_OPAQUE_DAEMON",
+              "error_type": "PermissionError",
+              "full_argv_logged": false,
+              "visibility_exception_root_grant_bound": true,
+              "identity_double_read_stable": true
+            }
+          ],
+          "records_truncated": false
+        },
+        "active_quantum": []
+      },
+      "payload_argv": [
+        "/workspace/research4/.runtime/bin/python",
+        "/workspace/research4/scripts/research4_cloud_followup_worker_20261106.py",
+        "--execute",
+        "--source-result",
+        "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/controls/v8-control-water-global-003/result.json",
+        "--source-result-sha256",
+        "0c0095ba3de27abee012ffe6b8975908b127f2664a42b104a2a3830673f88165",
+        "--main-pipeline-state",
+        "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/global-assemble-recovery-002/state.json",
+        "--main-pipeline-state-sha256",
+        "f2974458d23abeb320db736ce6c4cdb3f0b4d509f707a4dc67fd7d5ceaaa2578",
+        "--coordinate-index",
+        "0",
+        "--step-bohr",
+        "0.005",
+        "--sign",
+        "1",
+        "--control-validation",
+        "--output",
+        "/workspace/research4/reports/cloud-followup-20261106-v1/queue-host-a-001/science/water-c0-plus-attempt001"
+      ],
+      "started_at_utc": "2026-11-06T10:11:01.760691+00:00",
+      "guardian_identity": {
+        "pid": 62250,
+        "start_ticks": 18570185,
+        "uid": 1000,
+        "pgrp": 62250,
+        "session": 62250,
+        "state": "R",
+        "comm": "python",
+        "boot_id": "50ca0010-b743-43c7-bc0f-b6bcbc47c68d"
+      },
+      "_last_sample": 185701.862741116,
+      "latest_guard_identity": {
+        "pid": 62250,
+        "start_ticks": 18570185,
+        "uid": 1000,
+        "pgrp": 62250,
+        "session": 62250,
+        "state": "R",
+        "comm": "python",
+        "boot_id": "50ca0010-b743-43c7-bc0f-b6bcbc47c68d"
+      },
+      "guard_returncode": 1,
+      "ended_at_utc": "2026-11-06T10:11:02.822073+00:00",
+      "actual_cpu_seconds": 0.35526299999999994,
+      "resource_stop_reason": null,
+      "scientific_release": false
+    }
+  },
+  "results": {},
+  "last_event": "FOLLOWUP_INVOCATION_ENDED",
+  "updated_at_utc": "2026-11-06T10:11:02.826144+00:00",
+  "failed_attempts": [
+    {
+      "status": "FAILED_CLOSED",
+      "attempt": 1,
+      "output": "/workspace/research4/reports/cloud-followup-20261106-v1/queue-host-a-001/science/water-c0-plus-attempt001",
+      "log": "/workspace/research4/reports/cloud-followup-20261106-v1/queue-host-a-001/execution/water-c0-plus-attempt001.log",
+      "phase": "cloudhosta20261106v1-water-c0-plus-attempt001",
+      "prelaunch_process_observation": {
+        "observed_at_utc": "2026-11-06T10:11:01.760565+00:00",
+        "redacted_process_scan": {
+          "observed_at_utc": "2026-11-06T10:11:01.704065+00:00",
+          "records": [
+            {
+              "pid": 125,
+              "start_ticks": 574,
+              "uid": 0,
+              "pgrp": 125,
+              "session": 125,
+              "state": "S",
+              "comm": "dockerd",
+              "boot_id": "50ca0010-b743-43c7-bc0f-b6bcbc47c68d",
+              "category": "ROOT_ACKNOWLEDGED_OPAQUE_DAEMON",
+              "error_type": "PermissionError",
+              "full_argv_logged": false,
+              "visibility_exception_root_grant_bound": true,
+              "identity_double_read_stable": true
+            },
+            {
+              "pid": 176,
+              "start_ticks": 584,
+              "uid": 0,
+              "pgrp": 176,
+              "session": 176,
+              "state": "S",
+              "comm": "containerd",
+              "boot_id": "50ca0010-b743-43c7-bc0f-b6bcbc47c68d",
+              "category": "ROOT_ACKNOWLEDGED_OPAQUE_DAEMON",
+              "error_type": "PermissionError",
+              "full_argv_logged": false,
+              "visibility_exception_root_grant_bound": true,
+              "identity_double_read_stable": true
+            }
+          ],
+          "conflicts": [],
+          "read_only_git": [],
+          "visibility_errors": [
+            {
+              "pid": 125,
+              "start_ticks": 574,
+              "uid": 0,
+              "pgrp": 125,
+              "session": 125,
+              "state": "S",
+              "comm": "dockerd",
+              "boot_id": "50ca0010-b743-43c7-bc0f-b6bcbc47c68d",
+              "category": "ROOT_ACKNOWLEDGED_OPAQUE_DAEMON",
+              "error_type": "PermissionError",
+              "full_argv_logged": false,
+              "visibility_exception_root_grant_bound": true,
+              "identity_double_read_stable": true
+            },
+            {
+              "pid": 176,
+              "start_ticks": 584,
+              "uid": 0,
+              "pgrp": 176,
+              "session": 176,
+              "state": "S",
+              "comm": "containerd",
+              "boot_id": "50ca0010-b743-43c7-bc0f-b6bcbc47c68d",
+              "category": "ROOT_ACKNOWLEDGED_OPAQUE_DAEMON",
+              "error_type": "PermissionError",
+              "full_argv_logged": false,
+              "visibility_exception_root_grant_bound": true,
+              "identity_double_read_stable": true
+            }
+          ],
+          "records_truncated": false
+        },
+        "active_quantum": []
+      },
+      "payload_argv": [
+        "/workspace/research4/.runtime/bin/python",
+        "/workspace/research4/scripts/research4_cloud_followup_worker_20261106.py",
+        "--execute",
+        "--source-result",
+        "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/controls/v8-control-water-global-003/result.json",
+        "--source-result-sha256",
+        "0c0095ba3de27abee012ffe6b8975908b127f2664a42b104a2a3830673f88165",
+        "--main-pipeline-state",
+        "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/global-assemble-recovery-002/state.json",
+        "--main-pipeline-state-sha256",
+        "f2974458d23abeb320db736ce6c4cdb3f0b4d509f707a4dc67fd7d5ceaaa2578",
+        "--coordinate-index",
+        "0",
+        "--step-bohr",
+        "0.005",
+        "--sign",
+        "1",
+        "--control-validation",
+        "--output",
+        "/workspace/research4/reports/cloud-followup-20261106-v1/queue-host-a-001/science/water-c0-plus-attempt001"
+      ],
+      "started_at_utc": "2026-11-06T10:11:01.760691+00:00",
+      "guardian_identity": {
+        "pid": 62250,
+        "start_ticks": 18570185,
+        "uid": 1000,
+        "pgrp": 62250,
+        "session": 62250,
+        "state": "R",
+        "comm": "python",
+        "boot_id": "50ca0010-b743-43c7-bc0f-b6bcbc47c68d"
+      },
+      "_last_sample": 185701.862741116,
+      "latest_guard_identity": {
+        "pid": 62250,
+        "start_ticks": 18570185,
+        "uid": 1000,
+        "pgrp": 62250,
+        "session": 62250,
+        "state": "R",
+        "comm": "python",
+        "boot_id": "50ca0010-b743-43c7-bc0f-b6bcbc47c68d"
+      },
+      "guard_returncode": 1,
+      "ended_at_utc": "2026-11-06T10:11:02.822073+00:00",
+      "actual_cpu_seconds": 0.35526299999999994,
+      "resource_stop_reason": null,
+      "scientific_release": false
+    }
+  ]
+}

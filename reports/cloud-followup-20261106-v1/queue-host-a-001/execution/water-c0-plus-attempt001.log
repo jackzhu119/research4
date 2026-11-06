@@ -1,0 +1,21 @@
+Traceback (most recent call last):
+  File "/workspace/research4/scripts/research4_cloud_followup_worker_20261106.py", line 454, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "/workspace/research4/scripts/research4_cloud_followup_worker_20261106.py", line 435, in main
+    value = execute(args)
+            ^^^^^^^^^^^^^
+  File "/workspace/research4/scripts/research4_cloud_followup_worker_20261106.py", line 202, in execute
+    gate = source_gate(args, analyzer)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/research4/scripts/research4_cloud_followup_worker_20261106.py", line 152, in source_gate
+    gate = analyzer.qualify(path, args.source_result_sha256, control=args.control_validation)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/research4/scripts/analyze_pyscf_staged_modes_20261105_v8.py", line 551, in qualify
+    command = closed_command(result, hashes, guard)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/research4/scripts/analyze_pyscf_staged_modes_20261105_v8.py", line 287, in closed_command
+    actual_guard.validate_ledger(ledger, allow_running=False)
+  File "/workspace/research4/scripts/run_pyscf_continuation_budget_20261105_v8.py", line 566, in validate_ledger
+    raise RuntimeError("Unknown/open quantum phase requires root recovery")
+RuntimeError: Unknown/open quantum phase requires root recovery
