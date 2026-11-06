@@ -1,0 +1,2219 @@
+#INFO: **** input file is /workspace/research4-worker-b/scripts/research4_parallel_b_quantum_20261106.py ****
+"""Portable, separately supervised B water/compound Opt/Freq worker.
+
+Default operation is NOT_RUN. Every actual operation, including force-field
+preparation and NumPy analysis, requires the B supervisor's live resource proof.
+There is no dependency on A's ledger, boot, checkpoints, ignored caches or sites.
+"""
+from __future__ import annotations
+
+import argparse
+from collections import Counter
+import csv
+from datetime import datetime, timezone
+import hashlib
+import importlib.metadata
+import importlib.util
+import json
+import math
+import os
+from pathlib import Path
+import resource
+import signal
+import sys
+import time
+import traceback
+
+ROOT = Path(__file__).resolve().parents[1]
+INPUT = ROOT / 'data/research/parallel_cloud_20261106/worker_b/cases.json'
+INPUT_SHA = '84f306a6e09a6b162650988d8ba81a34529f58a21accd53626d87e923613d893'
+SUPERVISOR = ROOT / 'scripts/research4_parallel_b_supervisor_20261106.py'
+SCHEMA = 'research4-parallel-b-quantum-result-v1'
+CASE_NAMES = ('water', 'protocatechuic_acid', 'calycosin')
+OPERATIONS = ('prepare', 'optimize', 'frequency', 'analyze')
+CM1_TO_THZ = .0299792458
+BOHR_TO_ANGSTROM = .52917721092
+FREQUENCY_FACTOR_CM1 = 5140.487138493369
+MASSES = {'H': 1.008, 'C': 12.011, 'O': 15.999}
+
+
+def require(ok, message):
+    if not ok:
+        raise ValueError(message)
+
+
+def utc():
+    return datetime.now(timezone.utc).isoformat()
+
+
+def sha(path):
+    digest = hashlib.sha256()
+    with Path(path).open('rb') as stream:
+        for block in iter(lambda: stream.read(1024 ** 2), b''):
+            digest.update(block)
+    return digest.hexdigest()
+
+
+def artifact(path):
+    path = Path(path).resolve()
+    require(path.is_relative_to(ROOT), 'Portable report artifacts must remain inside this checkout')
+    return {'path': path.relative_to(ROOT).as_posix(), 'sha256': sha(path), 'bytes': path.stat().st_size}
+
+
+def read_json(path, expected=None):
+    path = Path(path)
+    require(not path.is_symlink() and path.is_file() and path.stat().st_size <= 2 * 1024 ** 2,
+            'Small explicit non-symlink JSON required')
+    if expected:
+        require(sha(path) == expected, 'Metadata source hash differs: ' + str(path))
+    return json.loads(path.read_text())
+
+
+def save(path, value, exclusive=False):
+    path = Path(path)
+    temporary = path if exclusive else path.with_suffix(path.suffix + '.writing')
+    with temporary.open('x') as stream:
+        json.dump(value, stream, indent=2, ensure_ascii=False, allow_nan=False)
+        stream.write('\n'); stream.flush(); os.fsync(stream.fileno())
+    if not exclusive:
+        os.replace(temporary, path)
+
+
+def checked_record(record, parent=None):
+    require(isinstance(record, dict) and 'path' in record and 'sha256' in record, 'Artifact path/hash required')
+    path = Path(record['path'])
+    if not path.is_absolute():
+        path = (Path(parent) if parent is not None else ROOT) / path
+    require(path.is_file() and not path.is_symlink() and sha(path) == record['sha256'], 'Changed artifact: ' + str(path))
+    if 'bytes' in record:
+        require(path.stat().st_size == record['bytes'], 'Changed artifact size')
+    return path.resolve()
+
+
+def input_case(name):
+    require(name in CASE_NAMES, 'Only the three explicitly registered B cases are allowed')
+    manifest = read_json(INPUT, INPUT_SHA)
+    require(manifest['schema'] == 'research4-parallel-b-chemical-cases-v1', 'Wrong case input schema')
+    checked_record(manifest['source_evidence'], INPUT.parent)
+    case = manifest['cases'][name]
+    require(case['charge'] == case['spin_2S'] == 0 and case['multiplicity'] == 1,
+            'Only verified neutral singlets are supported')
+    require(case['expected_normal_modes'] == 3 * case['atoms'] - 6, 'Expected nonlinear mode count differs')
+    if 'supplied_sdf' in case:
+        checked_record(case['supplied_sdf'], INPUT.parent)
+    return manifest, case
+
+
+def supervise(args):
+    require(args.threads in (1, 2) and 1 <= args.maxsteps <= 35, 'Bounded1/2threads and1..35steps required')
+    spec = importlib.util.spec_from_file_location('research4_b_live_supervision', SUPERVISOR)
+    require(spec is not None and spec.loader is not None, 'Portable B supervisor missing')
+    module = importlib.util.module_from_spec(spec); sys.modules[spec.name] = module; spec.loader.exec_module(module)
+    return module.verify_b_resource_supervision(expected_threads=args.threads,
+        expected_worker_path=Path(__file__).resolve(), expected_case=args.case,
+        expected_input_manifest_sha256=INPUT_SHA, expected_operation=args.operation)
+
+
+def new_output(path):
+    path = Path(path)
+    require(not path.exists() and not path.is_symlink()
+            and path.resolve().is_relative_to(ROOT / 'reports'), 'Fresh independent attempt directory inside ROOT/reports required')
+    path.mkdir(parents=True)
+    return path.resolve()
+
+
+def versions():
+    return {name: importlib.metadata.version(name)
+            for name in ('pyscf', 'geometric', 'numpy', 'scipy', 'rdkit')}
+
+
+def xyz_text(symbols, coordinates, comment):
+    return str(len(symbols)) + '\n' + comment + '\n' + ''.join(
+        f'{symbol} {float(c[0]):.15f} {float(c[1]):.15f} {float(c[2]):.15f}\n'
+        for symbol, c in zip(symbols, coordinates))
+
+
+def validate_coordinates(symbols, coordinates, case):
+    require(Counter(symbols) == case['composition'] and len(symbols) == len(coordinates) == case['atoms'],
+            'Full atom composition/shape differs')
+    require(all(len(c) == 3 and all(math.isfinite(float(v)) for v in c) for c in coordinates),
+            'Nonfinite or incomplete coordinates')
+
+
+def save_array(path, value, np):
+    require(not Path(path).exists() and np.isfinite(value).all(), 'Fresh finite array required')
+    with Path(path).open('xb') as stream:
+        np.save(stream, value, allow_pickle=False)
+
+
+def source_result(args, expected_operation, expected_status):
+    require(args.source_result is not None and args.source_result_sha256, 'Actual preceding result path/hash required')
+    source = read_json(args.source_result, args.source_result_sha256)
+    require(source.get('schema') == SCHEMA and source.get('case') == args.case
+            and source.get('input_manifest_sha256') == INPUT_SHA
+            and source.get('operation') == expected_operation and source.get('status') in expected_status,
+            'Preceding case/operation/result status differs')
+    require(source.get('source_worker', {}).get('sha256') == sha(__file__), 'Preceding computation source differs')
+    require(source.get('settings') == input_case(args.case)[0]['method'], 'Preceding physical method differs')
+    return source
+
+
+def prepared_geometry(args, case):
+    source = source_result(args, 'prepare', ('PREPARED_FORCE_FIELD_MODELS',))
+    selected = read_json(checked_record(source['selected_conformer']))
+    require(selected.get('force_field_converged') is True, 'Selected force-field geometry is unconverged')
+    symbols, coords = selected['atom_symbols'], selected['coordinates_angstrom']
+    validate_coordinates(symbols, coords, case)
+    return source, symbols, coords
+
+
+def optimized_geometry(args, case):
+    source = source_result(args, 'optimize', ('OPTIMIZATION_CONVERGED',))
+    require(source.get('optimizer_converged') is True and source.get('scf_converged') is True
+            and source.get('fresh_gradient_thresholds_passed') is True, 'A true fresh-gradient-qualified optimization is required')
+    selected = read_json(checked_record(source['optimized_geometry']))
+    symbols, coords = selected['atom_symbols'], selected['coordinates_angstrom']
+    validate_coordinates(symbols, coords, case)
+    return source, symbols, coords
+
+
+def prepare(args, state, output, case, emit):
+    from rdkit import Chem
+    from rdkit.Chem import AllChem, rdMolDescriptors
+    graph = Chem.MolFromSmiles(case['smiles'])
+    require(graph is not None and Chem.MolToInchiKey(graph) == case['full_inchikey'], 'Source graph identity mismatch')
+    mol = Chem.AddHs(graph)
+    require(Chem.GetFormalCharge(mol) == case['charge']
+            and sum(a.GetNumRadicalElectrons() for a in mol.GetAtoms()) == 0
+            and rdMolDescriptors.CalcMolFormula(mol) == case['formula']
+            and Counter(a.GetSymbol() for a in mol.GetAtoms()) == case['composition'], 'Actual neutral formula/radicals differ')
+    require(not Chem.FindMolChiralCenters(graph, includeUnassigned=True), 'Unexpected defined/unresolved stereo for these achiral cases')
+    if 'supplied_sdf' in case:
+        supplier = Chem.SDMolSupplier(str(checked_record(case['supplied_sdf'], INPUT.parent)), removeHs=False)
+        records = [record for record in supplier if record is not None]
+        require(len(records) == 1 and Chem.MolToInchiKey(records[0]) == case['full_inchikey']
+                and rdMolDescriptors.CalcMolFormula(records[0]) == case['formula'], 'Supplied SDF graph/formula differs')
+        state['supplied_SDF_graph_verified'] = True
+        state['supplied_SDF_coordinates_used'] = False
+    params = AllChem.ETKDGv3(); params.randomSeed = args.seed; params.numThreads = 1; params.pruneRmsThresh = .1
+    ids = list(AllChem.EmbedMultipleConfs(mol, numConfs=args.conformers, params=params))
+    require(ids, 'No actual ETKDG conformer generated')
+    mmff = bool(AllChem.MMFFHasAllMoleculeParams(mol))
+    require(mmff or args.case == 'water', 'MMFF94s parameters missing for registered compound')
+    properties = AllChem.MMFFGetMoleculeProperties(mol, mmffVariant='MMFF94s') if mmff else None
+    force_field = 'MMFF94s' if mmff else 'UFF_EXPLICIT_WATER_ONLY_FALLBACK'
+    records = []; symbols = [a.GetSymbol() for a in mol.GetAtoms()]
+    for cid in ids:
+        field = AllChem.MMFFGetMoleculeForceField(mol, properties, confId=cid) if mmff else AllChem.UFFGetMoleculeForceField(mol, confId=cid)
+        require(field is not None, 'Force field not available')
+        status = int(field.Minimize(maxIts=500)); energy = float(field.CalcEnergy())
+        coords = [[float(v) for v in row] for row in mol.GetConformer(cid).GetPositions()]
+        validate_coordinates(symbols, coords, case)
+        value = {'atom_symbols': symbols, 'coordinates_angstrom': coords, 'conformer_id': cid,
+                 'force_field': force_field, 'force_field_status': status, 'force_field_converged': status == 0,
+                 'force_field_energy_kcal_mol': energy, 'DFT_status': 'NOT_RUN', 'experimental_crystal_coordinates': False}
+        path = output / f'conformer_{cid:03d}.json'; save(path, value, exclusive=True)
+        (output / f'conformer_{cid:03d}.xyz').write_text(xyz_text(symbols, coords, 'ETKDG/force-field model, not DFT or experimental3D'))
+        records.append({**value, 'artifact': artifact(path)})
+    converged = [r for r in records if r['force_field_converged'] and math.isfinite(r['force_field_energy_kcal_mol'])]
+    require(converged, 'No force-field-converged candidate')
+    chosen = min(converged, key=lambda r: (r['force_field_energy_kcal_mol'], r['conformer_id']))
+    state.update(status='PREPARED_FORCE_FIELD_MODELS', selected_conformer=chosen['artifact'], conformers=records,
+                 requested_conformers=args.conformers, actual_embedded_conformers=len(ids), seed=args.seed,
+                 force_field=force_field, global_minimum_claim=False, numerical_DFT_operations=0)
+    emit('force_field_preparation_complete', selected_conformer_id=chosen['conformer_id'], actual_embedded_conformers=len(ids))
+
+
+def make_scf(mol, settings, checkpoint, threads, emit):
+    from pyscf import dft, lib
+    from pyscf.scf import hf
+    class ScreenedDirectRKS(dft.rks.RKS):
+        def get_jk(self, mol=None, dm=None, hermi=1, with_j=True, with_k=True, omega=None):
+            require(self._eri is None and self.direct_scf is True and self.mol.incore_anyway is False,
+                    'Full screened-direct policy violated')
+            return hf.SCF.get_jk(self, mol=mol, dm=dm, hermi=hermi, with_j=with_j, with_k=with_k, omega=omega)
+    lib.num_threads(threads)
+    mf = ScreenedDirectRKS(mol); mf.xc = settings['xc']; mf.disp = None
+    mf.max_memory = settings['max_memory_mb']; mf.direct_scf = True; mf.direct_scf_tol = settings['direct_scf_tol']
+    mf.conv_tol = settings['scf_conv_tol']; mf.max_cycle = settings['scf_max_cycle']
+    mf.conv_tol_cpscf = settings['CPHF_conv_tol']; mf.grids.level = settings['grid_level']; mf.chkfile = str(checkpoint)
+    mf._eri = None; mf.mol.incore_anyway = False
+    mf.callback = lambda env: emit('scf_cycle', cycle=int(env.get('cycle', -1)), energy_hartree=float(env['e_tot']))
+    return mf
+
+
+def gradient_of(mf, settings, emit):
+    require(mf.converged, 'Unconverged SCF cannot enter gradient')
+    value = mf.nuc_grad_method(); value.grid_response = settings['gradient_grid_response']
+    emit('gradient_started')
+    result = value.kernel()
+    emit('gradient_complete')
+    return result
+
+
+def gradient_checks(np, gradient, settings):
+    require(gradient.ndim == 2 and gradient.shape[1] == 3 and np.isfinite(gradient).all(), 'Full finite gradient required')
+    norms = np.linalg.norm(gradient, axis=1)
+    rms = float(np.sqrt(np.mean(norms ** 2))); maximum = float(np.max(norms))
+    passed = rms <= settings['optimizer_thresholds']['convergence_grms'] and maximum <= settings['optimizer_thresholds']['convergence_gmax']
+    return {'atom_gradient_rms_hartree_per_bohr': rms, 'atom_gradient_max_hartree_per_bohr': maximum,
+            'fresh_gradient_thresholds_passed': bool(passed), 'final_gradient_thresholds_passed': bool(passed)}
+
+
+def signed_mode_flags(frequencies, expected, fresh_gradient_passed):
+    values = [float(v) for v in frequencies]
+    require(len(values) == expected and all(math.isfinite(v) for v in values), 'All finite signed modes required')
+    positive = all(v > 0 for v in values)
+    return {'normal_mode_count': len(values), 'imaginary_frequency_count': sum(v < 0 for v in values),
+            'positive_frequency_count': sum(v > 0 for v in values), 'zero_frequency_count': sum(v == 0 for v in values),
+            'all_frequencies_real_positive': positive,
+            'stationary_minimum_verified': bool(positive and fresh_gradient_passed),
+            'frequency_validation_passed': bool(positive and fresh_gradient_passed)}
+
+
+def molecule(case, symbols, coords, settings, log):
+    from pyscf import gto
+    mol = gto.Mole(); mol.stdout = log
+    mol.build(atom=list(zip(symbols, coords)), unit='Angstrom', basis=settings['basis'], charge=case['charge'],
+              spin=case['spin_2S'], symmetry=False, max_memory=settings['max_memory_mb'], verbose=4)
+    mol.incore_anyway = False
+    require(mol.natm == case['atoms'] and mol.nelectron == case['electrons'] and mol.nao_nr() == case['basis_functions'],
+            'Actual full AO/atom/electron dimensions differ')
+    return mol
+
+
+def optimize(args, state, output, case, settings, emit, log):
+    import numpy as np
+    from pyscf.geomopt import geometric_solver
+    source, symbols, coords = prepared_geometry(args, case)
+    state['preceding_result'] = artifact(args.source_result)
+    mol = molecule(case, symbols, coords, settings, log)
+    mf = make_scf(mol, settings, output / 'optimization.chk', args.threads, emit)
+    gradient = mf.nuc_grad_method(); gradient.grid_response = settings['gradient_grid_response']
+    (output / 'geometry_steps').mkdir()
+    def callback(env):
+        index = int(env['self'].cycle); stem = output / 'geometry_steps' / f'step_{index:04d}'
+        xyz = env['mol'].atom_coords(unit='Angstrom'); grad = np.asarray(env['gradients'])
+        require(bool(env['g_scanner'].converged) and np.isfinite(grad).all(), 'Optimization callback has unconverged SCF')
+        geometry = {'atom_symbols': symbols, 'coordinates_angstrom': xyz.tolist(), 'energy_hartree': float(env['energy']),
+                    'cycle': index, 'scf_converged': True, 'optimized_minimum_claim': False}
+        save(stem.with_suffix('.json'), geometry, exclusive=True)
+        stem.with_suffix('.xyz').write_text(xyz_text(symbols, xyz, 'Optimization checkpoint, not minimum certificate'))
+        save_array(stem.with_suffix('.gradient.npy'), grad, np)
+        state['last_geometry'] = artifact(stem.with_suffix('.json'))
+        state['optimizer_last_cycle'] = index
+        emit('geometry_cycle', cycle=index, energy_hartree=float(env['energy']))
+    emit('optimization_started')
+    state['quantum_payload_entered'] = True
+    converged, mol = geometric_solver.kernel(gradient, maxsteps=args.maxsteps, assert_convergence=True,
+                callback=callback, **settings['optimizer_thresholds'])
+    state['optimizer_converged'] = bool(converged)
+    require(converged, 'Optimizer did not converge within bounded maxsteps')
+    xyz = mol.atom_coords(unit='Angstrom')
+    geom = output / 'optimized_geometry.json'
+    save(geom, {'atom_symbols': symbols, 'coordinates_angstrom': xyz.tolist(), 'optimizer_converged': True}, exclusive=True)
+    (output / 'optimized.xyz').write_text(xyz_text(symbols, xyz, 'Local optimized geometry, inspect fresh gradient/frequencies'))
+    state['optimized_geometry'] = artifact(geom)
+    # A genuinely fresh final SCF/gradient; no optimizer-last-gradient shortcut.
+    final = make_scf(mol, settings, output / 'fresh_final_scf.chk', args.threads, emit)
+    state['energy_hartree'] = float(final.kernel()); state['scf_converged'] = bool(final.converged)
+    require(final.converged and np.isfinite(final.e_tot), 'Fresh final SCF failed')
+    gradient = np.asarray(gradient_of(final, settings, emit)); save_array(output / 'fresh_gradient.npy', gradient, np)
+    state.update(gradient_checks(np, gradient, settings))
+    require(state['fresh_gradient_thresholds_passed'], 'Fresh final gradient failed; no frequency eligibility')
+    state.update(status='OPTIMIZATION_CONVERGED', geometry_optimized=True, stationary_minimum_verified=False,
+                 frequency_validation_passed=False, frequencies_status='NOT_RUN', numerical_DFT_operations=1)
+    emit('optimization_and_fresh_gradient_complete')
+
+
+def frequency(args, state, output, case, settings, emit, log):
+    import numpy as np
+    from pyscf.hessian import thermo
+    source, symbols, coords = optimized_geometry(args, case)
+    state.update(preceding_result=artifact(args.source_result), optimizer_converged=True)
+    mol = molecule(case, symbols, coords, settings, log)
+    mf = make_scf(mol, settings, output / 'fresh_frequency_scf.chk', args.threads, emit)
+    state['quantum_payload_entered'] = True
+    state['energy_hartree'] = float(mf.kernel()); state['scf_converged'] = bool(mf.converged)
+    require(mf.converged and np.isfinite(mf.e_tot), 'Fresh frequency SCF failed')
+    grad = np.asarray(gradient_of(mf, settings, emit)); save_array(output / 'fresh_gradient.npy', grad, np)
+    state.update(gradient_checks(np, grad, settings)); require(state['fresh_gradient_thresholds_passed'], 'Fresh frequency gradient failed')
+    state['optimized_geometry'] = source['optimized_geometry']
+    hessian = mf.Hessian(); hessian.max_cycle = settings['CPHF_max_cycle']; hessian.level_shift = 0
+    hessian.max_memory = 2000
+    require(getattr(mf, 'with_df', None) is None and mf.disp is None and mf._eri is None, 'Non-DF explicit noD3 direct required')
+    emit('stock_complete_Hessian_started')
+    raw = np.asarray(hessian.kernel(atmlst=list(range(case['atoms']))))
+    require(raw.shape == (case['atoms'], case['atoms'], 3, 3) and np.isfinite(raw).all(), 'Incomplete full Hessian')
+    save_array(output / 'hessian_raw.npy', raw, np)
+    asymmetry = float(np.max(np.abs(raw - raw.transpose(1, 0, 3, 2))))
+    state['raw_Hessian_max_asymmetry_Eh_per_Bohr2'] = asymmetry
+    require(asymmetry <= 1e-5, 'Hessian asymmetry too large; do not hide with symmetrization')
+    used = (raw + raw.transpose(1, 0, 3, 2)) * .5; save_array(output / 'hessian_used.npy', used, np)
+    result = thermo.harmonic_analysis(mol, used, exclude_trans=True, exclude_rot=True, imaginary_freq=False)
+    cm = np.asarray(result['freq_wavenumber']); modes = np.asarray(result['norm_mode'])
+    require(not np.iscomplexobj(cm) and not np.iscomplexobj(modes) and cm.shape == (case['expected_normal_modes'],)
+            and modes.shape == (case['expected_normal_modes'], case['atoms'], 3)
+            and np.isfinite(cm).all() and np.isfinite(modes).all(), 'Complete finite signed real representation required')
+    save_array(output / 'normal_modes.npy', modes, np)
+    save_array(output / 'geometry_bohr.npy', mol.atom_coords(unit='Bohr'), np)
+    save_array(output / 'frequencies_cm1.npy', cm, np)
+    save_array(output / 'masses_amu.npy', mol.atom_mass_list(isotope_avg=True), np)
+    with (output / 'frequencies.csv').open('x', newline='') as stream:
+        writer = csv.writer(stream, lineterminator='\n'); writer.writerow(['mode', 'frequency_cm1', 'frequency_THz', 'imaginary', 'IR_intensity_status'])
+        for index, value in enumerate(cm, 1):
+            writer.writerow([index, float(value), float(value * CM1_TO_THZ), bool(value < 0), 'NOT_COMPUTED'])
+    state.update(status='FREQUENCIES_COMPUTED', frequencies_status='DONE', normal_modes_complete=True,
+                 **signed_mode_flags(cm, case['expected_normal_modes'], state['fresh_gradient_thresholds_passed']),
+                 complete_global_Hessian=True,
+                 frequencies_cm1=cm.tolist(), measured_CPHF_residual_norm='NOT_COMPUTED',
+                 stock_CPHF_normal_return_not_independent_residual_verification=True, numerical_DFT_operations=1)
+    state['arrays'] = {p.name: artifact(p) for p in output.glob('*.npy')}
+    emit('signed_modes_complete', normal_mode_count=len(cm), imaginary_frequency_count=int(np.sum(cm < 0)))
+
+
+def analyze(args, state, output, case, settings, emit):
+    import numpy as np
+    source = source_result(args, 'frequency', ('FREQUENCIES_COMPUTED',))
+    require(source.get('normal_mode_count') == case['expected_normal_modes'], 'All signed modes required')
+    def array(name, shape):
+        value = np.load(checked_record(source['arrays'][name]), allow_pickle=False)
+        require(value.shape == shape and np.isfinite(value).all(), 'Analysis array shape/finiteness differs: ' + name)
+        return value
+    n = case['atoms']; k = case['expected_normal_modes']
+    raw = array('hessian_raw.npy', (n, n, 3, 3)); used = array('hessian_used.npy', (n, n, 3, 3))
+    xyz = array('geometry_bohr.npy', (n, 3)); cm = array('frequencies_cm1.npy', (k,))
+    mass = array('masses_amu.npy', (n,)); modes = array('normal_modes.npy', (k, n, 3))
+    require(np.max(np.abs(used - (raw + raw.transpose(1, 0, 3, 2)) * .5)) < 1e-14, 'Hessian symmetrization differs')
+    geometry = read_json(checked_record(source['optimized_geometry'])); symbols = geometry['atom_symbols']
+    validate_coordinates(symbols, geometry['coordinates_angstrom'], case)
+    geometry_delta = float(np.max(np.abs(xyz * BOHR_TO_ANGSTROM - np.asarray(geometry['coordinates_angstrom']))))
+    require(geometry_delta <= 1e-10, 'Mode geometry and exact optimized atom-order coordinates differ')
+    require(np.allclose(mass, [MASSES[s] for s in symbols], atol=1e-12, rtol=0), 'Mass convention differs')
+    center = np.einsum('i,ij->j', mass, xyz) / np.sum(mass); centered = xyz - center
+    ext = []
+    for axis in np.eye(3):
+        ext.append((np.sqrt(mass)[:, None] * np.broadcast_to(axis, (n, 3))).ravel())
+        ext.append((np.sqrt(mass)[:, None] * np.cross(centered, axis)).ravel())
+    u, singular, _ = np.linalg.svd(np.asarray(ext).T, full_matrices=True)
+    require(int(np.sum(singular > 1e-10)) == 6, 'Expected nonlinear six-dimensional external space')
+    vib = u[:, 6:]; weights = np.repeat(np.sqrt(mass), 3)
+    cart = used.transpose(0, 2, 1, 3).reshape(3 * n, 3 * n)
+    weighted = cart / weights[:, None] / weights[None, :]
+    reduced = vib.T @ weighted @ vib
+    eig, vec = np.linalg.eigh((reduced + reduced.T) * .5)
+    replay = np.sign(eig) * np.sqrt(np.abs(eig)) * FREQUENCY_FACTOR_CM1
+    error = float(np.max(np.abs(replay - cm)))
+    mw_modes = modes.reshape(k, 3 * n) * weights[None, :]
+    orthogonality = float(np.max(np.abs(mw_modes @ mw_modes.T - np.eye(k))))
+    external_error = float(np.max(np.abs(mw_modes @ u[:, :6])))
+    eig_residual = float(np.max(np.abs(reduced @ vec - vec * eig[None, :])))
+    saved_coords = vib.T @ mw_modes.T
+    saved_eigenvalues = np.sign(cm) * (np.abs(cm) / FREQUENCY_FACTOR_CM1) ** 2
+    saved_residual = float(np.max(np.abs(reduced @ saved_coords - saved_coords * saved_eigenvalues[None, :])))
+    passed = (error <= 1e-6 and orthogonality <= 1e-6 and external_error <= 1e-6
+              and eig_residual <= 1e-9 and saved_residual <= 1e-8)
+    require(passed, 'Independent NumPy signed-frequency/TR replay failed')
+    with (output / 'independent_frequencies.csv').open('x', newline='') as stream:
+        writer = csv.writer(stream, lineterminator='\n'); writer.writerow(['mode', 'frequency_cm1', 'frequency_THz', 'imaginary', 'IR_intensity_status'])
+        for index, value in enumerate(replay, 1):
+            writer.writerow([index, float(value), float(value * CM1_TO_THZ), bool(value < 0), 'NOT_COMPUTED'])
+    state.update(status='MODES_ANALYZED', preceding_result=artifact(args.source_result),
+                 **signed_mode_flags(replay, k, source['fresh_gradient_thresholds_passed']),
+                 optimizer_converged=source['optimizer_converged'], scf_converged=source['scf_converged'],
+                 fresh_gradient_thresholds_passed=source['fresh_gradient_thresholds_passed'],
+                 final_gradient_thresholds_passed=source['final_gradient_thresholds_passed'],
+                 independent_mode_replay_passed=True, independent_replay_new_quantum_evaluations=0,
+                 max_frequency_difference_cm1=error, mass_weighted_orthogonality_error=orthogonality,
+                 external_projection_error=external_error, projected_eigen_equation_residual=eig_residual,
+                 saved_mode_eigen_equation_residual=saved_residual,
+                 mode_geometry_max_difference_angstrom=geometry_delta,
+                 projected_eigen_residual_units='Eh/(amu Bohr^2)', residual_is_not_a_CPHF_residual=True,
+                 signed_frequencies_cm1=replay.tolist(), numerical_DFT_operations=0)
+    emit('independent_numpy_replay_complete', imaginary_frequency_count=int(np.sum(replay < 0)))
+
+
+def run(args):
+    manifest, case = input_case(args.case)
+    require(1 <= args.conformers <= 16, 'Bounded1..16 ETKDG candidates required')
+    if not args.execute:
+        return {'schema': SCHEMA, 'status': 'NOT_RUN', 'case': args.case, 'operation': args.operation,
+                'input_manifest_sha256': INPUT_SHA, 'source_worker': artifact(__file__),
+                'expected_modes_not_actual_frequencies': case['expected_normal_modes'], 'new_quantum_evaluations': 0,
+                'IR_intensities_status': 'NOT_COMPUTED', 'default_preflight_only': True}
+    supervision = supervise(args)  # FIRST: no RDKit/NumPy/PySCF imports before realB-parent verification.
+    output = new_output(args.output); start = time.perf_counter(); cpu = time.process_time()
+    state = {'schema': SCHEMA, 'status': 'PARTIAL', 'case': args.case, 'operation': args.operation,
+             'source_worker': artifact(__file__), 'input_manifest_sha256': INPUT_SHA,
+             'resource_supervision': supervision, 'output_directory': str(output), 'started_at_utc': utc(),
+             'chemical_identity': case, 'settings': manifest['method'], 'atoms': case['atoms'],
+             'electrons': case['electrons'], 'basis_functions': case['basis_functions'],
+             'IR_intensities_status': 'NOT_COMPUTED', 'chemical_peak_assignment_verified': False,
+             'theory_enters_classifier': False, 'independent_plant_samples_added': 0,
+             'is_software_control': case['is_software_control'], 'numerical_DFT_operations': 0,
+             'A_state_ledger_data_or_models_modified': False, 'global_minimum_search_performed': False}
+    state.update(quantum_payload_entered=False, optimizer_maxsteps_actual=args.maxsteps,
+                 new_quantum_evaluations_scope='BOOLEAN_QUANTUM_STAGE_ENTERED_NOT_SCF_CYCLE_COUNT')
+    save(output / 'input.json', state, exclusive=True)
+    def emit(event, **data):
+        row = {'utc': utc(), 'event': event, 'wall_seconds': time.perf_counter() - start,
+               'process_cpu_seconds': time.process_time() - cpu, **data}
+        with (output / 'events.jsonl').open('a') as stream:
+            stream.write(json.dumps(row, allow_nan=False) + '\n'); stream.flush()
+        save(output / 'progress.json', {**state, **row})
+    def stopped(signum, _frame):
+        raise RuntimeError('ActualBsupervisor resource/termination signal ' + str(signum))
+    handlers = {sig: signal.signal(sig, stopped) for sig in (signal.SIGTERM, signal.SIGINT, signal.SIGXCPU)}
+    log = (output / 'pyscf.log').open('x', buffering=1)
+    try:
+        state['versions'] = versions()
+        if args.operation == 'prepare':
+            prepare(args, state, output, case, emit)
+        elif args.operation == 'optimize':
+            optimize(args, state, output, case, manifest['method'], emit, log)
+        elif args.operation == 'frequency':
+            frequency(args, state, output, case, manifest['method'], emit, log)
+        else:
+            analyze(args, state, output, case, manifest['method'], emit)
+    except BaseException as error:
+        state.update(status='PARTIAL', exception_type=type(error).__name__, stop_reason=str(error))
+        (output / 'exception_traceback.txt').write_text(traceback.format_exc())
+    finally:
+        for sig, old in handlers.items():
+            signal.signal(sig, old)
+        state.update(completed_at_utc=utc(), wall_seconds=time.perf_counter() - start,
+                     process_cpu_seconds=time.process_time() - cpu,
+                     peak_rss_kib=resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
+        state['checkpoint_files'] = [artifact(p) for p in output.glob('*.chk')]
+        # Actual count describes operations entered, not SCF cycle or force-field counts.
+        state['new_quantum_evaluations'] = int(state['quantum_payload_entered'])
+        log.flush(); log.close(); save(output / 'result.json', state, exclusive=True)
+    return state
+
+
+def parser():
+    p = argparse.ArgumentParser(description=__doc__)
+    p.add_argument('--case', choices=CASE_NAMES, required=True)
+    p.add_argument('--operation', choices=OPERATIONS, required=True)
+    p.add_argument('--output', type=Path, required=True)
+    p.add_argument('--execute', action='store_true')
+    p.add_argument('--source-result', type=Path); p.add_argument('--source-result-sha256')
+    p.add_argument('--threads', type=int, choices=(1, 2), default=2)
+    p.add_argument('--maxsteps', type=int, default=25)
+    p.add_argument('--conformers', type=int, default=8); p.add_argument('--seed', type=int, default=20261106)
+    return p
+
+
+def main():
+    args = parser().parse_args(); result = run(args)
+    print(json.dumps({k: result.get(k) for k in ('status', 'case', 'operation', 'normal_mode_count',
+          'imaginary_frequency_count', 'stationary_minimum_verified', 'stop_reason')}, ensure_ascii=False), flush=True)
+    if args.execute and result['status'] == 'PARTIAL':
+        raise SystemExit(2)
+
+
+if __name__ == '__main__':
+    main()
+#INFO: ******************** input file end ********************
+
+
+System: uname_result(system='Linux', node='595ff14d6639', release='6.18.57', version='#1 SMP Tue Oct 20 21:56:04 UTC 2026', machine='x86_64')  Threads 2
+Python 3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]
+numpy 2.3.5  scipy 1.17.0  h5py 3.16.0
+Date: Fri Nov  6 11:06:49 2026
+PySCF version 2.14.0
+PySCF path  /workspace/research4-worker-b/.runtime/worker-b-20261106/venv/lib/python3.12/site-packages/pyscf
+
+[CONFIG] conf_file None
+[INPUT] verbose = 4
+[INPUT] num. atoms = 17
+[INPUT] num. electrons = 80
+[INPUT] charge = 0
+[INPUT] spin (= nelec alpha-beta = 2S) = 0
+[INPUT] symmetry False subgroup None
+[INPUT] Mole.unit = Angstrom
+[INPUT] Symbol           X                Y                Z      unit          X                Y                Z       unit  Magmom
+[INPUT]  1 O     -2.877403482095   1.411772082769  -0.410448589173 AA   -5.437504531029   2.667862586739  -0.775635421752 Bohr   0.0
+[INPUT]  2 C     -2.403108621181   0.409561385884   0.091932703358 AA   -4.541217141614   0.773958850518   0.173727631238 Bohr   0.0
+[INPUT]  3 O     -3.176893867745  -0.499162298839   0.709410724735 AA   -6.003459336848  -0.943280036515   1.340591979579 Bohr   0.0
+[INPUT]  4 C     -0.965269885732   0.048602642371   0.102410175471 AA   -1.824095720324   0.091845683011   0.193527184009 Bohr   0.0
+[INPUT]  5 C     -0.499368918908  -1.130892983253   0.706074860704 AA   -0.943670491856  -2.137078014541   1.334288110171 Bohr   0.0
+[INPUT]  6 C      0.864355832445  -1.433615722714   0.693621194601 AA    1.633395797492  -2.709141083801   1.310754091989 Bohr   0.0
+[INPUT]  7 C      1.746955145478  -0.556872345141   0.079567783032 AA    3.301266776852  -1.052336218660   0.150361318269 Bohr   0.0
+[INPUT]  8 O      3.079092390892  -0.854346194242   0.068397159719 AA    5.818641331019  -1.614480322681   0.129251899567 Bohr   0.0
+[INPUT]  9 C      1.291088659271   0.614784755835  -0.521017968161 AA    2.439803968555   1.161774814085  -0.984581265801 Bohr   0.0
+[INPUT] 10 O      2.219271380210   1.430692677065  -1.106835577695 AA    4.193815104682   2.703617328074  -2.091616106769 Bohr   0.0
+[INPUT] 11 C     -0.062687959933   0.927672527495  -0.515645089094 AA   -0.118463075581   1.753047010248  -0.974427995865 Bohr   0.0
+[INPUT] 12 H     -4.083969329745  -0.136964328682   0.626821941235 AA   -7.717583534342  -0.258825070044   1.184521797802 Bohr   0.0
+[INPUT] 13 H     -1.189533140347  -1.819445778996   1.187920856804 AA   -2.247891851350  -3.438254220799   2.244845077019 Bohr   0.0
+[INPUT] 14 H      1.233547075165  -2.343353885570   1.157899046023 AA    2.331066133820  -4.428297056663   2.188112076878 Bohr   0.0
+[INPUT] 15 H      3.495323172352  -0.108817570260  -0.408781447066 AA    6.605203512592  -0.205635405332  -0.772484979758 Bohr   0.0
+[INPUT] 16 H      1.757656537731   2.201961538543  -1.480452839753 AA    3.321489477363   4.161104244673  -2.797650407469 Bohr   0.0
+[INPUT] 17 H     -0.429054987859   1.838423497737  -0.980874934739 AA   -0.810796419433   3.474116911689  -1.853584989108 Bohr   0.0
+
+nuclear repulsion = 584.923013522224
+number of shells = 84
+number of NR pGTOs = 306
+number of NR cGTOs = 184
+basis = def2-svp
+ecp = {}
+CPU time:         0.78
+Create scanner for <class 'pyscf.grad.rks.Gradients'>
+Create scanner for <class '__main__.make_scf.<locals>.ScreenedDirectRKS'>
+
+Geometry optimization cycle 1
+Cartesian coordinates (Angstrom)
+ Atom        New coordinates             dX        dY        dZ
+   O  -2.877403   1.411772  -0.410449    0.000000  0.000000  0.000000
+   C  -2.403109   0.409561   0.091933    0.000000  0.000000  0.000000
+   O  -3.176894  -0.499162   0.709411    0.000000  0.000000 -0.000000
+   C  -0.965270   0.048603   0.102410    0.000000 -0.000000  0.000000
+   C  -0.499369  -1.130893   0.706075    0.000000  0.000000  0.000000
+   C   0.864356  -1.433616   0.693621    0.000000  0.000000  0.000000
+   C   1.746955  -0.556872   0.079568    0.000000  0.000000  0.000000
+   O   3.079092  -0.854346   0.068397    0.000000  0.000000 -0.000000
+   C   1.291089   0.614785  -0.521018    0.000000  0.000000  0.000000
+   O   2.219271   1.430693  -1.106836    0.000000 -0.000000  0.000000
+   C  -0.062688   0.927673  -0.515645    0.000000  0.000000  0.000000
+   H  -4.083969  -0.136964   0.626822    0.000000  0.000000  0.000000
+   H  -1.189533  -1.819446   1.187921    0.000000  0.000000  0.000000
+   H   1.233547  -2.343354   1.157899    0.000000  0.000000  0.000000
+   H   3.495323  -0.108818  -0.408781    0.000000  0.000000  0.000000
+   H   1.757657   2.201962  -1.480453    0.000000  0.000000  0.000000
+   H  -0.429055   1.838423  -0.980875    0.000000  0.000000  0.000000
+
+WARN: Mole.unit (Angstrom) is changed to Bohr
+
+New geometry
+   1 O     -2.877403482095   1.411772082769  -0.410448589173 AA   -5.437504531029   2.667862586739  -0.775635421752 Bohr
+   2 C     -2.403108621181   0.409561385884   0.091932703358 AA   -4.541217141614   0.773958850518   0.173727631238 Bohr
+   3 O     -3.176893867745  -0.499162298839   0.709410724735 AA   -6.003459336848  -0.943280036515   1.340591979579 Bohr
+   4 C     -0.965269885732   0.048602642371   0.102410175471 AA   -1.824095720324   0.091845683011   0.193527184009 Bohr
+   5 C     -0.499368918908  -1.130892983253   0.706074860704 AA   -0.943670491856  -2.137078014541   1.334288110171 Bohr
+   6 C      0.864355832445  -1.433615722714   0.693621194601 AA    1.633395797492  -2.709141083801   1.310754091989 Bohr
+   7 C      1.746955145478  -0.556872345141   0.079567783032 AA    3.301266776852  -1.052336218660   0.150361318269 Bohr
+   8 O      3.079092390892  -0.854346194242   0.068397159719 AA    5.818641331019  -1.614480322681   0.129251899567 Bohr
+   9 C      1.291088659271   0.614784755835  -0.521017968161 AA    2.439803968555   1.161774814085  -0.984581265801 Bohr
+  10 O      2.219271380210   1.430692677065  -1.106835577695 AA    4.193815104682   2.703617328074  -2.091616106769 Bohr
+  11 C     -0.062687959933   0.927672527495  -0.515645089094 AA   -0.118463075581   1.753047010248  -0.974427995865 Bohr
+  12 H     -4.083969329745  -0.136964328682   0.626821941235 AA   -7.717583534342  -0.258825070044   1.184521797802 Bohr
+  13 H     -1.189533140347  -1.819445778996   1.187920856804 AA   -2.247891851350  -3.438254220799   2.244845077019 Bohr
+  14 H      1.233547075165  -2.343353885570   1.157899046023 AA    2.331066133820  -4.428297056663   2.188112076878 Bohr
+  15 H      3.495323172352  -0.108817570260  -0.408781447066 AA    6.605203512592  -0.205635405332  -0.772484979758 Bohr
+  16 H      1.757656537731   2.201961538543  -1.480452839753 AA    3.321489477363   4.161104244673  -2.797650407469 Bohr
+  17 H     -0.429054987859   1.838423497737  -0.980874934739 AA   -0.810796419433   3.474116911689  -1.853584989108 Bohr
+
+
+******** <class 'pyscf.scf.hf.ScreenedDirectRKS_Scanner'> ********
+method = ScreenedDirectRKS_Scanner
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-08
+SCF conv_tol_grad = None
+SCF max_cycles = 80
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /workspace/research4-worker-b/reports/parallel-cloud-20261106/worker-b/B20261106-01/science/protocatechuic_acid-optimize-attempt001/optimization.chk
+max_memory 3000 MB (current use 132 MB)
+XC library pyscf.dft.libxc version 7.0.0
+    S. Lehtola, C. Steigemann, M. J.T. Oliveira, and M. A.L. Marques.,  SoftwareX 7, 1–5 (2018)
+XC functionals = PBE
+    J. P. Perdew, K. Burke, and M. Ernzerhof.,  Phys. Rev. Lett. 77, 3865 (1996)
+    J. P. Perdew, K. Burke, and M. Ernzerhof.,  Phys. Rev. Lett. 78, 1396 (1997)
+    J. P. Perdew, K. Burke, and M. Ernzerhof.,  Phys. Rev. Lett. 77, 3865 (1996)
+    J. P. Perdew, K. Burke, and M. Ernzerhof.,  Phys. Rev. Lett. 78, 1396 (1997)
+radial grids: 
+    Treutler-Ahlrichs [JCP 102, 346 (1995); DOI:10.1063/1.469408] (M4) radial grids
+    
+becke partition: Becke, JCP 88, 2547 (1988); DOI:10.1063/1.454033
+pruning grids: <function nwchem_prune at 0x7f3a78297880>
+grids dens level: 1
+symmetrized grids: False
+atomic radii adjust function: <function treutler_atomic_radii_adjust at 0x7f3a78297740>
+small_rho_cutoff = 0
+Set gradient conv threshold to 0.0001
+Initial guess from minao.
+tot grids = 71816
+init E= -571.852710374088
+  HOMO = -0.274201725698701  LUMO = -0.138089546417774  gap/eV = 3.70380
+cycle= 1 E= -569.899482356417  delta_E= 1.95  |g|=  1.3  |ddm|= 5.45
+  HOMO = -0.0552115365292196  LUMO = -0.0152776246937174  gap/eV = 1.08666
+cycle= 2 E= -568.666496362463  delta_E= 1.23  |g|= 2.76  |ddm|= 5.09
+  HOMO = -0.169400355726844  LUMO = -0.0396808070062384  gap/eV = 3.52985
+cycle= 3 E= -570.107519852744  delta_E= -1.44  |g|= 0.718  |ddm|= 4.14
+  HOMO = -0.19244278218358  LUMO = -0.0626183494452648  gap/eV = 3.53270
+cycle= 4 E= -570.215021512194  delta_E= -0.108  |g|= 0.195  |ddm|= 0.89
+  HOMO = -0.204389684280115  LUMO = -0.0747533042738584  gap/eV = 3.52759
+cycle= 5 E= -570.220397895348  delta_E= -0.00538  |g|= 0.0992  |ddm|= 0.266
+  HOMO = -0.197599325810147  LUMO = -0.0687521177598547  gap/eV = 3.50611
+cycle= 6 E= -570.222676432877  delta_E= -0.00228  |g|= 0.0311  |ddm|= 0.154
+  HOMO = -0.19704862517142  LUMO = -0.0679219851145372  gap/eV = 3.51371
+cycle= 7 E= -570.222901542106  delta_E= -0.000225  |g|= 0.0103  |ddm|= 0.0469
+  HOMO = -0.197424729813195  LUMO = -0.0679906038559404  gap/eV = 3.52208
+cycle= 8 E= -570.222926750654  delta_E= -2.52e-05  |g|= 0.00358  |ddm|= 0.0165
+  HOMO = -0.197408783477965  LUMO = -0.0681095150030138  gap/eV = 3.51841
+cycle= 9 E= -570.222929978659  delta_E= -3.23e-06  |g|= 0.00118  |ddm|= 0.00538
+  HOMO = -0.197403651513945  LUMO = -0.0680892519813998  gap/eV = 3.51882
+cycle= 10 E= -570.222930274719  delta_E= -2.96e-07  |g|= 0.000562  |ddm|= 0.00192
+  HOMO = -0.197402013689935  LUMO = -0.0681080724839127  gap/eV = 3.51827
+cycle= 11 E= -570.222930314625  delta_E= -3.99e-08  |g|= 0.000411  |ddm|= 0.00105
+  HOMO = -0.197407923525908  LUMO = -0.0680927785178684  gap/eV = 3.51884
+cycle= 12 E= -570.222930356045  delta_E= -4.14e-08  |g|= 0.000106  |ddm|= 0.000611
+  HOMO = -0.197400500145589  LUMO = -0.0680921735493736  gap/eV = 3.51866
+cycle= 13 E= -570.222930357608  delta_E= -1.56e-09  |g|= 7.05e-05  |ddm|= 0.000151
+  HOMO = -0.197409240183838  LUMO = -0.0680962003196335  gap/eV = 3.51879
+Extra cycle  E= -570.222930352348  delta_E= 5.26e-09  |g|= 0.000177  |ddm|= 0.000233
+converged SCF energy = -570.222930352348
+
+
+******** <class 'pyscf.grad.rhf.Gradients_Scanner'> for <class 'pyscf.scf.hf.ScreenedDirectRKS_Scanner'> ********
+unit = Eh/Bohr
+max_memory 3000 MB (current use 158 MB)
+grid_response = False
+--------------- ScreenedDirectRKS_Scanner gradients ---------------
+         x                y                z
+0 O     0.0016505888    -0.0100787935     0.0056428564
+1 C    -0.0071183437    -0.0005736406     0.0012484838
+2 O     0.0079571963     0.0096879606    -0.0063842409
+3 C     0.0084804162     0.0000105745    -0.0011336453
+4 C    -0.0050435315     0.0011222438     0.0000571271
+5 C     0.0155613333    -0.0013023459    -0.0013242665
+6 C    -0.0288281409     0.0150387221    -0.0046042109
+7 O     0.0050032853    -0.0050539393     0.0024952314
+8 C     0.0115318585    -0.0220343082     0.0108973298
+9 O    -0.0084113381     0.0032415213    -0.0008013033
+10 C    -0.0022882721     0.0091148834    -0.0048845732
+11 H     0.0017313212     0.0007352825    -0.0006471180
+12 H     0.0066083320     0.0030101966    -0.0025877008
+13 H    -0.0053951817     0.0066499861    -0.0030284957
+14 H    -0.0049852187    -0.0001063408     0.0007303261
+15 H    -0.0010068915    -0.0007545729     0.0005572799
+16 H     0.0049612217    -0.0083628063     0.0040517776
+----------------------------------------------
+cycle 1: E = -570.222930352  dE = -570.223  norm(grad) = 0.0555233
+
+Geometry optimization cycle 2
+Cartesian coordinates (Angstrom)
+ Atom        New coordinates             dX        dY        dZ
+   O  -2.873914   1.427308  -0.432857    0.003489  0.015536 -0.022408
+   C  -2.452218   0.406133   0.092741   -0.049110 -0.003428  0.000809
+   O  -3.253874  -0.500845   0.709575   -0.076980 -0.001683  0.000164
+   C  -1.014633   0.020083   0.123161   -0.049363 -0.028520  0.020751
+   C  -0.510905  -1.155405   0.721175   -0.011536 -0.024512  0.015100
+   C   0.866803  -1.429021   0.687396    0.002447  0.004595 -0.006226
+   C   1.784952  -0.561801   0.070170    0.037997 -0.004929 -0.009398
+   O   3.129721  -0.779182   0.002538    0.050628  0.075164 -0.065859
+   C   1.265017   0.614906  -0.519621   -0.026072  0.000121  0.001397
+   O   2.269925   1.365246  -1.077499    0.050654 -0.065447  0.029337
+   C  -0.103373   0.904066  -0.497019   -0.040685 -0.023606  0.018626
+   H  -4.162368  -0.139377   0.623697   -0.078399 -0.002413 -0.003125
+   H  -1.199565  -1.856711   1.211436   -0.010031 -0.037265  0.023515
+   H   1.259465  -2.344846   1.151169    0.025918 -0.001492 -0.006730
+   H   3.527944  -0.022982  -0.478514    0.032621  0.085835 -0.069732
+   H   1.888679   2.167471  -1.476484    0.131022 -0.034490  0.003969
+   H  -0.495176   1.822952  -0.962316   -0.066122 -0.015472  0.018559
+New geometry
+   1 O     -2.873914259057   1.427308098881  -0.432856904965 AA   -5.430910855100   2.697221402258  -0.817981001510 Bohr
+   2 C     -2.452218387862   0.406133346423   0.092741345625 AA   -4.634021150681   0.767480794792   0.175255743655 Bohr
+   3 O     -3.253873944816  -0.500844835006   0.709574968206 AA   -6.148930599560  -0.946459569064   1.340902354756 Bohr
+   4 C     -1.014632755389   0.020083084527   0.123160972869 AA   -1.917378024698   0.037951529492   0.232740507957 Bohr
+   5 C     -0.510904950145  -1.155405404584   0.721175215764 AA   -0.965470431459  -2.183399777506   1.362823645618 Bohr
+   6 C      0.866803170386  -1.429021080933   0.687395652797 AA    1.638020595934  -2.700458469193   1.298989523003 Bohr
+   7 C      1.784951891568  -0.561800890472   0.070170220395 AA    3.373070220588  -1.061649819530   0.132602498647 Bohr
+   8 O      3.129720589072  -0.779181816560   0.002537711004 AA    5.914314759758  -1.472440234539   0.004795578780 Bohr
+   9 C      1.265016627849   0.614905840701  -0.519621412773 AA    2.390534969655   1.162003631320  -0.981942158600 Bohr
+  10 O      2.269925180390   1.365245579554  -1.077498940441 AA    4.289536914191   2.579940238130  -2.036177896943 Bohr
+  11 C     -0.103373103923   0.904066058541  -0.497019073561 AA   -0.195346855061   1.708437249157  -0.939229927716 Bohr
+  12 H     -4.162368463460  -0.139376861386   0.623697049773 AA   -7.865736425465  -0.263384096121   1.178616608770 Bohr
+  13 H     -1.199564612664  -1.856711180721   1.211436158735 AA   -2.266848586654  -3.508675623981   2.289282557405 Bohr
+  14 H      1.259464776254  -2.344845846619   1.151168874233 AA    2.380043490657  -4.431116454435   2.175393895424 Bohr
+  15 H      3.527944297097  -0.022982266478  -0.478513680999 AA    6.666848504235  -0.043430189365  -0.904259803946 Bohr
+  16 H      1.888678712602   2.167471448903  -1.476484223601 AA    3.569085504114   4.095927421241  -2.790150809847 Bohr
+  17 H     -0.495176490718   1.822951984493  -0.962315550806 AA   -0.935747950780   3.444879988925  -1.818512836434 Bohr
+
+
+******** <class 'pyscf.scf.hf.ScreenedDirectRKS_Scanner'> ********
+method = ScreenedDirectRKS_Scanner
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-08
+SCF conv_tol_grad = None
+SCF max_cycles = 80
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /workspace/research4-worker-b/reports/parallel-cloud-20261106/worker-b/B20261106-01/science/protocatechuic_acid-optimize-attempt001/optimization.chk
+max_memory 3000 MB (current use 195 MB)
+XC library pyscf.dft.libxc version 7.0.0
+    S. Lehtola, C. Steigemann, M. J.T. Oliveira, and M. A.L. Marques.,  SoftwareX 7, 1–5 (2018)
+XC functionals = PBE
+    J. P. Perdew, K. Burke, and M. Ernzerhof.,  Phys. Rev. Lett. 77, 3865 (1996)
+    J. P. Perdew, K. Burke, and M. Ernzerhof.,  Phys. Rev. Lett. 78, 1396 (1997)
+    J. P. Perdew, K. Burke, and M. Ernzerhof.,  Phys. Rev. Lett. 77, 3865 (1996)
+    J. P. Perdew, K. Burke, and M. Ernzerhof.,  Phys. Rev. Lett. 78, 1396 (1997)
+radial grids: 
+    Treutler-Ahlrichs [JCP 102, 346 (1995); DOI:10.1063/1.469408] (M4) radial grids
+    
+becke partition: Becke, JCP 88, 2547 (1988); DOI:10.1063/1.454033
+pruning grids: <function nwchem_prune at 0x7f3a78297880>
+grids dens level: 1
+symmetrized grids: False
+atomic radii adjust function: <function treutler_atomic_radii_adjust at 0x7f3a78297740>
+small_rho_cutoff = 0
+Set gradient conv threshold to 0.0001
+tot grids = 71816
+init E= -570.149682314878
+  HOMO = -0.218606141096304  LUMO = -0.0912674679512104  gap/eV = 3.46506
+cycle= 1 E= -570.221138508451  delta_E= -0.0715  |g|= 0.0982  |ddm|= 0.605
+  HOMO = -0.18893292213158  LUMO = -0.0646890069180501  gap/eV = 3.38085
+cycle= 2 E= -570.213020270077  delta_E= 0.00812  |g|= 0.217  |ddm|= 0.388
+  HOMO = -0.194851620474875  LUMO = -0.0679163590009439  gap/eV = 3.45408
+cycle= 3 E= -570.223271968164  delta_E= -0.0103  |g|= 0.0409  |ddm|= 0.261
+  HOMO = -0.196856878680761  LUMO = -0.0700191476258518  gap/eV = 3.45143
+cycle= 4 E= -570.223531025739  delta_E= -0.000259  |g|= 0.0206  |ddm|= 0.0566
+  HOMO = -0.197190697259564  LUMO = -0.0703636022579306  gap/eV = 3.45114
+cycle= 5 E= -570.223615969806  delta_E= -8.49e-05  |g|= 0.00381  |ddm|= 0.0226
+  HOMO = -0.196927634127444  LUMO = -0.0701543625897796  gap/eV = 3.44968
+cycle= 6 E= -570.223618984649  delta_E= -3.01e-06  |g|= 0.00117  |ddm|= 0.00558
+  HOMO = -0.196943218515416  LUMO = -0.0701522646914716  gap/eV = 3.45016
+cycle= 7 E= -570.223619283173  delta_E= -2.99e-07  |g|= 0.000491  |ddm|= 0.00191
+  HOMO = -0.196970390081033  LUMO = -0.0701616317318692  gap/eV = 3.45064
+cycle= 8 E= -570.223619347495  delta_E= -6.43e-08  |g|= 0.000142  |ddm|= 0.000804
+  HOMO = -0.196967246120106  LUMO = -0.0701687006594272  gap/eV = 3.45036
+cycle= 9 E= -570.223619352707  delta_E= -5.21e-09  |g|= 4.02e-05  |ddm|= 0.000223
+  HOMO = -0.196969479492131  LUMO = -0.0701669669820562  gap/eV = 3.45047
+Extra cycle  E= -570.223619350917  delta_E= 1.79e-09  |g|= 9.33e-05  |ddm|= 0.000152
+converged SCF energy = -570.223619350917
+
+
+******** <class 'pyscf.grad.rhf.Gradients_Scanner'> for <class 'pyscf.scf.hf.ScreenedDirectRKS_Scanner'> ********
+unit = Eh/Bohr
+max_memory 3000 MB (current use 168 MB)
+grid_response = False
+--------------- ScreenedDirectRKS_Scanner gradients ---------------
+         x                y                z
+0 O     0.0035471171     0.0030798529    -0.0024731684
+1 C    -0.0065609884    -0.0002897203     0.0013342687
+2 O     0.0025597462    -0.0012913840     0.0003883045
+3 C    -0.0038407610     0.0009981872    -0.0002434006
+4 C    -0.0013221725    -0.0030416331     0.0020513437
+5 C    -0.0061285893     0.0079340504    -0.0035765522
+6 C    -0.0000028756    -0.0001892215     0.0002472924
+7 O     0.0118263661     0.0086952909    -0.0064516420
+8 C    -0.0013192718    -0.0003290835     0.0003307300
+9 O     0.0068552551    -0.0097514333     0.0047854802
+10 C    -0.0081410724    -0.0044957639     0.0036884740
+11 H    -0.0001064224     0.0002396207    -0.0000775296
+12 H    -0.0001926809     0.0001877810    -0.0000511083
+13 H    -0.0000441353     0.0011730562    -0.0006223849
+14 H     0.0039328106    -0.0012892120     0.0001486164
+15 H    -0.0009915670    -0.0017125973     0.0011209667
+16 H     0.0004069155     0.0001409355    -0.0001140360
+----------------------------------------------
+cycle 2: E = -570.223619351  dE = -0.000688999  norm(grad) = 0.0278289
+
+Geometry optimization cycle 3
+Cartesian coordinates (Angstrom)
+ Atom        New coordinates             dX        dY        dZ
+   O  -2.890339   1.413002  -0.422546   -0.016425 -0.014306  0.010311
+   C  -2.439898   0.399414   0.094471    0.012320 -0.006720  0.001730
+   O  -3.237688  -0.512898   0.713382    0.016186 -0.012053  0.003807
+   C  -0.997662   0.030038   0.114713    0.016970  0.009955 -0.008448
+   C  -0.505228  -1.148407   0.715620    0.005677  0.006999 -0.005556
+   C   0.867916  -1.436668   0.690487    0.001112 -0.007647  0.003091
+   C   1.774315  -0.558547   0.068585   -0.010637  0.003254 -0.001585
+   O   3.103488  -0.829932   0.033102   -0.026232 -0.050751  0.030564
+   C   1.277501   0.633987  -0.533111    0.012485  0.019081 -0.013490
+   O   2.250392   1.418930  -1.106560   -0.019533  0.053685 -0.029061
+   C  -0.089442   0.918622  -0.507743    0.013931  0.014556 -0.010724
+   H  -4.148549  -0.156414   0.630746    0.013819 -0.017037  0.007049
+   H  -1.204327  -1.843007   1.203541   -0.004762  0.013704 -0.007895
+   H   1.261573  -2.354413   1.155049    0.002109 -0.009567  0.003880
+   H   3.535877  -0.089804  -0.443578    0.007933 -0.066821  0.034935
+   H   1.842999   2.213105  -1.497386   -0.045680  0.045633 -0.020902
+   H  -0.487218   1.837549  -0.972175    0.007958  0.014597 -0.009859
+New geometry
+   1 O     -2.890338798613   1.413001670247  -0.422546181422 AA   -5.461948736583   2.670186170319  -0.798496557868 Bohr
+   2 C     -2.439898341934   0.399413844762   0.094470852555 AA   -4.610739638035   0.754782776960   0.178524038083 Bohr
+   3 O     -3.237687899931  -0.512897744825   0.713382437472 AA   -6.118343407688  -0.969236267627   1.348097428896 Bohr
+   4 C     -0.997662430032   0.030038230201   0.114713304821 AA   -1.885308757528   0.056764028347   0.216776728956 Bohr
+   5 C     -0.505227770479  -1.148406786380   0.715619627503 AA   -0.954742116730  -2.170174305850   1.352325105343 Bohr
+   6 C      0.867915633691  -1.436667898186   0.690486656070 AA    1.640122846904  -2.714908859526   1.304830672638 Bohr
+   7 C      1.774315055811  -0.558546670896   0.068585211275 AA    3.352969514174  -1.055500235781   0.129607265506 Bohr
+   8 O      3.103488433383  -0.829932409079   0.033102071293 AA    5.864743169850  -1.568344955059   0.062553848900 Bohr
+   9 C      1.277501485555   0.633986757541  -0.533111231805 AA    2.414127931423   1.198061338353  -1.007434222040 Bohr
+  10 O      2.250392047642   1.418930456944  -1.106560423976 AA    4.252624642942   2.681389953428  -2.091096141598 Bohr
+  11 C     -0.089441980603   0.918622377919  -0.507742998746 AA   -0.169020847378   1.735944706164  -0.959495209295 Bohr
+  12 H     -4.148549234920  -0.156413578672   0.630746021368 AA   -7.839621868273  -0.295578825854   1.191937234545 Bohr
+  13 H     -1.204327008574  -1.843006866213   1.203540665034 AA   -2.275848210621  -3.482778222835   2.274362236691 Bohr
+  14 H      1.261573488822  -2.354413019879   1.155048553818 AA    2.384028379886  -4.449195791681   2.182725427290 Bohr
+  15 H      3.535877275385  -0.089803569222  -0.443578374990 AA    6.681839660551  -0.169704150838  -0.838241643510 Bohr
+  16 H      1.842998771549   2.213104885973  -1.497385778861 AA    3.482762926138   4.182162119425  -2.829649024866 Bohr
+  17 H     -0.487218223228   1.837548945842  -0.972174841312 AA   -0.920709004798   3.472464248125  -1.837144195273 Bohr
+
+
+******** <class 'pyscf.scf.hf.ScreenedDirectRKS_Scanner'> ********
+method = ScreenedDirectRKS_Scanner
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-08
+SCF conv_tol_grad = None
+SCF max_cycles = 80
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /workspace/research4-worker-b/reports/parallel-cloud-20261106/worker-b/B20261106-01/science/protocatechuic_acid-optimize-attempt001/optimization.chk
+max_memory 3000 MB (current use 230 MB)
+XC library pyscf.dft.libxc version 7.0.0
+    S. Lehtola, C. Steigemann, M. J.T. Oliveira, and M. A.L. Marques.,  SoftwareX 7, 1–5 (2018)
+XC functionals = PBE
+    J. P. Perdew, K. Burke, and M. Ernzerhof.,  Phys. Rev. Lett. 77, 3865 (1996)
+    J. P. Perdew, K. Burke, and M. Ernzerhof.,  Phys. Rev. Lett. 78, 1396 (1997)
+    J. P. Perdew, K. Burke, and M. Ernzerhof.,  Phys. Rev. Lett. 77, 3865 (1996)
+    J. P. Perdew, K. Burke, and M. Ernzerhof.,  Phys. Rev. Lett. 78, 1396 (1997)
+radial grids: 
+    Treutler-Ahlrichs [JCP 102, 346 (1995); DOI:10.1063/1.469408] (M4) radial grids
+    
+becke partition: Becke, JCP 88, 2547 (1988); DOI:10.1063/1.454033
+pruning grids: <function nwchem_prune at 0x7f3a78297880>
+grids dens level: 1
+symmetrized grids: False
+atomic radii adjust function: <function treutler_atomic_radii_adjust at 0x7f3a78297740>
+small_rho_cutoff = 0
+Set gradient conv threshold to 0.0001
+tot grids = 71816
+init E= -570.2160568374
+  HOMO = -0.19927895853992  LUMO = -0.0736022016395257  gap/eV = 3.41984
+cycle= 1 E= -570.225752971686  delta_E= -0.0097  |g|= 0.0215  |ddm|= 0.26
+  HOMO = -0.196222835685891  LUMO = -0.0685647313834252  gap/eV = 3.47375
+cycle= 2 E= -570.225355551726  delta_E= 0.000397  |g|= 0.0445  |ddm|= 0.091
+  HOMO = -0.195998719336524  LUMO = -0.0697071792422728  gap/eV = 3.43657
+cycle= 3 E= -570.225835291257  delta_E= -0.00048  |g|= 0.0129  |ddm|= 0.0653
+  HOMO = -0.196238681929057  LUMO = -0.0699929691225218  gap/eV = 3.43532
+cycle= 4 E= -570.225866782047  delta_E= -3.15e-05  |g|= 0.00471  |ddm|= 0.0154
+  HOMO = -0.196233357869178  LUMO = -0.0699059645953226  gap/eV = 3.43754
+cycle= 5 E= -570.225871191355  delta_E= -4.41e-06  |g|= 0.00137  |ddm|= 0.00533
+  HOMO = -0.19621993244128  LUMO = -0.06988520316711  gap/eV = 3.43774
+cycle= 6 E= -570.225871611628  delta_E= -4.2e-07  |g|= 0.000438  |ddm|= 0.00199
+  HOMO = -0.196221654426897  LUMO = -0.0698747024187858  gap/eV = 3.43808
+cycle= 7 E= -570.225871658101  delta_E= -4.65e-08  |g|= 0.000156  |ddm|= 0.000645
+  HOMO = -0.196218439389585  LUMO = -0.0698829247259738  gap/eV = 3.43776
+cycle= 8 E= -570.225871663896  delta_E= -5.8e-09  |g|= 5.87e-05  |ddm|= 0.000245
+  HOMO = -0.196226678997514  LUMO = -0.0698827436770277  gap/eV = 3.43799
+Extra cycle  E= -570.225871658241  delta_E= 5.65e-09  |g|= 0.00015  |ddm|= 0.00026
+converged SCF energy = -570.225871658241
+
+
+******** <class 'pyscf.grad.rhf.Gradients_Scanner'> for <class 'pyscf.scf.hf.ScreenedDirectRKS_Scanner'> ********
+unit = Eh/Bohr
+max_memory 3000 MB (current use 168 MB)
+grid_response = False
+--------------- ScreenedDirectRKS_Scanner gradients ---------------
+         x                y                z
+0 O     0.0001168017     0.0016524502    -0.0010982367
+1 C    -0.0014676774    -0.0014217736     0.0012811539
+2 O    -0.0000962447     0.0006023288    -0.0003475661
+3 C    -0.0008022368     0.0007613555    -0.0005083076
+4 C    -0.0004239991    -0.0004869326     0.0004720958
+5 C    -0.0005587334     0.0007873307    -0.0003320768
+6 C     0.0000076753    -0.0003263051     0.0002956756
+7 O     0.0036255693     0.0000920719    -0.0004893165
+8 C    -0.0000975592     0.0008320536    -0.0004847145
+9 O     0.0025802735     0.0008368481    -0.0007478221
+10 C    -0.0026034151    -0.0020516978     0.0015775133
+11 H    -0.0009050449    -0.0002180940     0.0002817677
+12 H    -0.0003128908    -0.0006171484     0.0004200377
+13 H    -0.0001254127    -0.0009944720     0.0006172124
+14 H     0.0012675062    -0.0002285419    -0.0000695037
+15 H     0.0002094313    -0.0000074584    -0.0000043971
+16 H     0.0000162178     0.0010203953    -0.0005605612
+----------------------------------------------
+cycle 3: E = -570.225871658  dE = -0.00225231  norm(grad) = 0.00744248
+
+Geometry optimization cycle 4
+Cartesian coordinates (Angstrom)
+ Atom        New coordinates             dX        dY        dZ
+   O  -2.906622   1.395472  -0.409874   -0.016284 -0.017529  0.012673
+   C  -2.433758   0.388026   0.096364    0.006141 -0.011388  0.001893
+   O  -3.206234  -0.541333   0.720274    0.031453 -0.028435  0.006892
+   C  -0.990833   0.038633   0.104758    0.006829  0.008595 -0.009955
+   C  -0.508598  -1.141344   0.705952   -0.003370  0.007062 -0.009668
+   C   0.859629  -1.438906   0.686548   -0.008287 -0.002238 -0.003939
+   C   1.756700  -0.556951   0.064429   -0.017616  0.001596 -0.004157
+   O   3.081464  -0.827591   0.029822   -0.022024  0.002341 -0.003280
+   C   1.267113   0.634828  -0.537128   -0.010389  0.000841 -0.004017
+   O   2.243640   1.411402  -1.107450   -0.006752 -0.007529 -0.000889
+   C  -0.092380   0.933344  -0.519791   -0.002938  0.014721 -0.012048
+   H  -4.120618  -0.194745   0.644774    0.027931 -0.038332  0.014028
+   H  -1.214320  -1.829033   1.190522   -0.009993  0.013973 -0.013019
+   H   1.255163  -2.354219   1.149104   -0.006410  0.000194 -0.005945
+   H   3.503632  -0.081793  -0.446061   -0.032245  0.008010 -0.002483
+   H   1.838167   2.206095  -1.499095   -0.004832 -0.007010 -0.001709
+   H  -0.489452   1.850528  -0.983002   -0.002234  0.012979 -0.010828
+New geometry
+   1 O     -2.906622475985   1.395472297687  -0.409873655127 AA   -5.492720427118   2.637060457045  -0.774548953864 Bohr
+   2 C     -2.433757580527   0.388025729039   0.096364229236 AA   -4.599135280780   0.733262357169   0.182102001460 Bohr
+   3 O     -3.206234437072  -0.541332948932   0.720274065857 AA   -6.058904977215  -1.022971015685   1.361120719097 Bohr
+   4 C     -0.990832955095   0.038632736340   0.104758379628 AA   -1.872402920324   0.073005291125   0.197964646749 Bohr
+   5 C     -0.508598022952  -1.141344435166   0.705951735357 AA   -0.961110970874  -2.156828396260   1.334055436986 Bohr
+   6 C      0.859629014856  -1.438905945582   0.686547845459 AA    1.624463406808  -2.719138156158   1.297387399328 Bohr
+   7 C      1.756699514928  -0.556951140862   0.064428584565 AA    3.319680966371  -1.052485120993   0.121752379422 Bohr
+   8 O      3.081464191643  -0.827591299902   0.029822360688 AA    5.823123384859  -1.563920899888   0.056356094088 Bohr
+   9 C      1.267112664227   0.634828213794  -0.537127732031 AA    2.394495904358   1.199651460217  -1.015024307447 Bohr
+  10 O      2.243640233738   1.411401614970  -1.107449736741 AA    4.239865563820   2.667162504063  -2.092776699163 Bohr
+  11 C     -0.092380310710   0.933343759613  -0.519791150215 AA   -0.174573486544   1.763764085740  -0.982262915879 Bohr
+  12 H     -4.120617922498  -0.194745211925   0.644773766466 AA   -7.786839337496  -0.368015114609   1.218445830925 Bohr
+  13 H     -1.214320333291  -1.829033401604   1.190521906494 AA   -2.294732857411  -3.456372201714   2.249760348570 Bohr
+  14 H      1.255163258398  -2.354218724383   1.149103856547 AA    2.371914799989  -4.448828626407   2.171491577556 Bohr
+  15 H      3.503631947022  -0.081793281912  -0.446061085865 AA    6.620904821148  -0.154566901643  -0.842933287110 Bohr
+  16 H      1.838166734839   2.206095196607  -1.499094934364 AA    3.473631700131   4.168915726306  -2.832878860672 Bohr
+  17 H     -0.489451877711   1.850527788882  -0.983002374202 AA   -0.924930000028   3.496990706884  -1.857605267040 Bohr
+
+
+******** <class 'pyscf.scf.hf.ScreenedDirectRKS_Scanner'> ********
+method = ScreenedDirectRKS_Scanner
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-08
+SCF conv_tol_grad = None
+SCF max_cycles = 80
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /workspace/research4-worker-b/reports/parallel-cloud-20261106/worker-b/B20261106-01/science/protocatechuic_acid-optimize-attempt001/optimization.chk
+max_memory 3000 MB (current use 230 MB)
+XC library pyscf.dft.libxc version 7.0.0
+    S. Lehtola, C. Steigemann, M. J.T. Oliveira, and M. A.L. Marques.,  SoftwareX 7, 1–5 (2018)
+XC functionals = PBE
+    J. P. Perdew, K. Burke, and M. Ernzerhof.,  Phys. Rev. Lett. 77, 3865 (1996)
+    J. P. Perdew, K. Burke, and M. Ernzerhof.,  Phys. Rev. Lett. 78, 1396 (1997)
+    J. P. Perdew, K. Burke, and M. Ernzerhof.,  Phys. Rev. Lett. 77, 3865 (1996)
+    J. P. Perdew, K. Burke, and M. Ernzerhof.,  Phys. Rev. Lett. 78, 1396 (1997)
+radial grids: 
+    Treutler-Ahlrichs [JCP 102, 346 (1995); DOI:10.1063/1.469408] (M4) radial grids
+    
+becke partition: Becke, JCP 88, 2547 (1988); DOI:10.1063/1.454033
+pruning grids: <function nwchem_prune at 0x7f3a78297880>
+grids dens level: 1
+symmetrized grids: False
+atomic radii adjust function: <function treutler_atomic_radii_adjust at 0x7f3a78297740>
+small_rho_cutoff = 0
+Set gradient conv threshold to 0.0001
+tot grids = 71816
+init E= -570.248402883008
+  HOMO = -0.189509633802528  LUMO = -0.0638402884356339  gap/eV = 3.41964
+cycle= 1 E= -570.225770264859  delta_E= 0.0226  |g|= 0.0247  |ddm|= 0.122
+  HOMO = -0.197845057636767  LUMO = -0.0699782146297894  gap/eV = 3.47943
+cycle= 2 E= -570.225151600843  delta_E= 0.000619  |g|= 0.0548  |ddm|= 0.106
+  HOMO = -0.196098548461586  LUMO = -0.0695840230502331  gap/eV = 3.44264
+cycle= 3 E= -570.225924333643  delta_E= -0.000773  |g|= 0.0101  |ddm|= 0.0715
+  HOMO = -0.195762769733997  LUMO = -0.0691774821822517  gap/eV = 3.44456
+cycle= 4 E= -570.225944377106  delta_E= -2e-05  |g|= 0.00367  |ddm|= 0.0127
+  HOMO = -0.195618798001869  LUMO = -0.0691118574159337  gap/eV = 3.44243
+cycle= 5 E= -570.225946928097  delta_E= -2.55e-06  |g|= 0.00119  |ddm|= 0.00452
+  HOMO = -0.19564081771759  LUMO = -0.0691238306523529  gap/eV = 3.44270
+cycle= 6 E= -570.225947238992  delta_E= -3.11e-07  |g|= 0.000415  |ddm|= 0.00167
+  HOMO = -0.195655493556345  LUMO = -0.0691270139863311  gap/eV = 3.44302
+cycle= 7 E= -570.22594728034  delta_E= -4.13e-08  |g|= 0.000147  |ddm|= 0.000608
+  HOMO = -0.195648796653848  LUMO = -0.0691301812772278  gap/eV = 3.44275
+cycle= 8 E= -570.22594728518  delta_E= -4.84e-09  |g|= 4.73e-05  |ddm|= 0.000221
+  HOMO = -0.195646472441056  LUMO = -0.0691207994354648  gap/eV = 3.44294
+Extra cycle  E= -570.225947281267  delta_E= 3.91e-09  |g|= 0.000123  |ddm|= 0.000225
+converged SCF energy = -570.225947281267
+
+
+******** <class 'pyscf.grad.rhf.Gradients_Scanner'> for <class 'pyscf.scf.hf.ScreenedDirectRKS_Scanner'> ********
+unit = Eh/Bohr
+max_memory 3000 MB (current use 168 MB)
+grid_response = False
+--------------- ScreenedDirectRKS_Scanner gradients ---------------
+         x                y                z
+0 O     0.0009261070     0.0002213674    -0.0000987029
+1 C    -0.0022420540    -0.0011837164     0.0008159864
+2 O     0.0019589051     0.0000817859    -0.0001991357
+3 C     0.0024579644     0.0007453399    -0.0007372105
+4 C    -0.0007661798     0.0005798877    -0.0001704133
+5 C     0.0007948748    -0.0008066009     0.0003741586
+6 C    -0.0007927414     0.0018380488    -0.0008997124
+7 O    -0.0000878087    -0.0003398405     0.0002932268
+8 C    -0.0008620999    -0.0009124375     0.0006785819
+9 O     0.0001555222    -0.0011314322     0.0006678933
+10 C    -0.0009146383     0.0014888953    -0.0006578724
+11 H     0.0004006798     0.0001928080    -0.0001436595
+12 H     0.0003485214    -0.0002036248     0.0001059917
+13 H    -0.0003747706     0.0000829451     0.0000560781
+14 H    -0.0006901010    -0.0002643166     0.0002717022
+15 H    -0.0004019992    -0.0001601024     0.0001489839
+16 H     0.0003801292     0.0000880763    -0.0001019013
+----------------------------------------------
+cycle 4: E = -570.225947281  dE = -7.5623e-05  norm(grad) = 0.00593655
+
+Geometry optimization cycle 5
+Cartesian coordinates (Angstrom)
+ Atom        New coordinates             dX        dY        dZ
+   O  -2.905506   1.389916  -0.411848    0.001116 -0.005557 -0.001974
+   C  -2.435698   0.381851   0.095658   -0.001941 -0.006175 -0.000707
+   O  -3.227703  -0.535800   0.714361   -0.021468  0.005533 -0.005913
+   C  -0.995460   0.021320   0.110892   -0.004627 -0.017313  0.006134
+   C  -0.503260  -1.156166   0.708638    0.005338 -0.014822  0.002687
+   C   0.867610  -1.442361   0.681597    0.007981 -0.003455 -0.004951
+   C   1.762502  -0.558798   0.058397    0.005803 -0.001847 -0.006031
+   O   3.088303  -0.819403   0.016801    0.006839  0.008188 -0.013022
+   C   1.265587   0.631527  -0.540470   -0.001525 -0.003301 -0.003343
+   O   2.226433   1.422675  -1.117395   -0.017207  0.011273 -0.009946
+   C  -0.096181   0.915700  -0.513688   -0.003800 -0.017644  0.006103
+   H  -4.136193  -0.175964   0.630150   -0.015575  0.018781 -0.014624
+   H  -1.203489  -1.847945   1.194913    0.010832 -0.018912  0.004391
+   H   1.271459  -2.355311   1.141212    0.016296 -0.001092 -0.007892
+   H   3.503422  -0.069599  -0.459528   -0.000209  0.012194 -0.013467
+   H   1.809359   2.213618  -1.504378   -0.028807  0.007523 -0.005283
+   H  -0.501255   1.830560  -0.973818   -0.011804 -0.019968  0.009184
+New geometry
+   1 O     -2.905506108842   1.389915697405  -0.411847810500 AA   -5.490610798962   2.626560004328  -0.778279566846 Bohr
+   2 C     -2.435698488673   0.381851064324   0.095657504448 AA   -4.602803065610   0.721593931947   0.180766485166 Bohr
+   3 O     -3.227702563287  -0.535799804889   0.714361187844 AA   -6.099473856169  -1.012514888837   1.349946999044 Bohr
+   4 C     -0.995460117144   0.021320061535   0.110892174673 AA   -1.881146989330   0.040289077261   0.209555839490 Bohr
+   5 C     -0.503260375902  -1.156166485735   0.708638419947 AA   -0.951024279800  -2.184838012440   1.339132535044 Bohr
+   6 C      0.867609807837  -1.442361191712   0.681596868738 AA    1.639544919798  -2.725667625038   1.288031409275 Bohr
+   7 C      1.762502157379  -0.558798201227   0.058397202353 AA    3.330646371402  -1.055975559219   0.110354718887 Bohr
+   8 O      3.088302877070  -0.819403458934   0.016800807789 AA    5.836046627369  -1.548448122907   0.031748925392 Bohr
+   9 C      1.265587275136   0.631526859701  -0.540470458167 AA    2.391613336742   1.193412805141  -1.021341144353 Bohr
+  10 O      2.226433396060   1.422674836236  -1.117395455028 AA    4.207349353139   2.688465804797  -2.111571382837 Bohr
+  11 C     -0.096180631474   0.915700066632  -0.513687905248 AA   -0.181755051974   1.730422338181  -0.970729454420 Bohr
+  12 H     -4.136192781011  -0.175963778681   0.630149546445 AA   -7.816271554514  -0.332523349551   1.190810060300 Bohr
+  13 H     -1.203488642719  -1.847945154836   1.194912749942 AA   -2.274263928764  -3.492110235857   2.258057840142 Bohr
+  14 H      1.271459242743  -2.355310960395   1.141211795307 AA    2.402709747331  -4.450892653332   2.156577743254 Bohr
+  15 H      3.503422451873  -0.069599427453  -0.459528445319 AA    6.620508932692  -0.131523856312  -0.868382908100 Bohr
+  16 H      1.809359476497   2.213617777801  -1.504378382092 AA    3.419193871466   4.183131344512  -2.842863129870 Bohr
+  17 H     -0.501255381552   1.830559602870  -0.973818402326 AA   -0.947235389598   3.459256304116  -1.840250075458 Bohr
+
+
+******** <class 'pyscf.scf.hf.ScreenedDirectRKS_Scanner'> ********
+method = ScreenedDirectRKS_Scanner
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-08
+SCF conv_tol_grad = None
+SCF max_cycles = 80
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /workspace/research4-worker-b/reports/parallel-cloud-20261106/worker-b/B20261106-01/science/protocatechuic_acid-optimize-attempt001/optimization.chk
+max_memory 3000 MB (current use 231 MB)
+XC library pyscf.dft.libxc version 7.0.0
+    S. Lehtola, C. Steigemann, M. J.T. Oliveira, and M. A.L. Marques.,  SoftwareX 7, 1–5 (2018)
+XC functionals = PBE
+    J. P. Perdew, K. Burke, and M. Ernzerhof.,  Phys. Rev. Lett. 77, 3865 (1996)
+    J. P. Perdew, K. Burke, and M. Ernzerhof.,  Phys. Rev. Lett. 78, 1396 (1997)
+    J. P. Perdew, K. Burke, and M. Ernzerhof.,  Phys. Rev. Lett. 77, 3865 (1996)
+    J. P. Perdew, K. Burke, and M. Ernzerhof.,  Phys. Rev. Lett. 78, 1396 (1997)
+radial grids: 
+    Treutler-Ahlrichs [JCP 102, 346 (1995); DOI:10.1063/1.469408] (M4) radial grids
+    
+becke partition: Becke, JCP 88, 2547 (1988); DOI:10.1063/1.454033
+pruning grids: <function nwchem_prune at 0x7f3a78297880>
+grids dens level: 1
+symmetrized grids: False
+atomic radii adjust function: <function treutler_atomic_radii_adjust at 0x7f3a78297740>
+small_rho_cutoff = 0
+Set gradient conv threshold to 0.0001
+tot grids = 71816
+init E= -570.220872116211
+  HOMO = -0.196865364973033  LUMO = -0.0705219716486019  gap/eV = 3.43798
+cycle= 1 E= -570.225902988692  delta_E= -0.00503  |g|= 0.0188  |ddm|= 0.0854
+  HOMO = -0.196981490625924  LUMO = -0.0694231024942114  gap/eV = 3.47104
+cycle= 2 E= -570.225520039841  delta_E= 0.000383  |g|= 0.044  |ddm|= 0.0696
+  HOMO = -0.196298266648674  LUMO = -0.0696078972197216  gap/eV = 3.44742
+cycle= 3 E= -570.225982114348  delta_E= -0.000462  |g|= 0.00657  |ddm|= 0.0504
+  HOMO = -0.196301789123884  LUMO = -0.0695170405534009  gap/eV = 3.44999
+cycle= 4 E= -570.225989299848  delta_E= -7.19e-06  |g|= 0.00319  |ddm|= 0.00958
+  HOMO = -0.196318786704841  LUMO = -0.0695626298602341  gap/eV = 3.44921
+cycle= 5 E= -570.225991496172  delta_E= -2.2e-06  |g|= 0.000745  |ddm|= 0.0038
+  HOMO = -0.196318391285184  LUMO = -0.0695722597949588  gap/eV = 3.44894
+cycle= 6 E= -570.225991636514  delta_E= -1.4e-07  |g|= 0.000158  |ddm|= 0.00098
+  HOMO = -0.196317012907362  LUMO = -0.0695677581795979  gap/eV = 3.44902
+cycle= 7 E= -570.225991641226  delta_E= -4.71e-09  |g|= 8.78e-05  |ddm|= 0.00026
+  HOMO = -0.196313327629741  LUMO = -0.0695716032630318  gap/eV = 3.44882
+Extra cycle  E= -570.225991628463  delta_E= 1.28e-08  |g|= 0.000233  |ddm|= 0.000347
+converged SCF energy = -570.225991628463
+
+
+******** <class 'pyscf.grad.rhf.Gradients_Scanner'> for <class 'pyscf.scf.hf.ScreenedDirectRKS_Scanner'> ********
+unit = Eh/Bohr
+max_memory 3000 MB (current use 167 MB)
+grid_response = False
+--------------- ScreenedDirectRKS_Scanner gradients ---------------
+         x                y                z
+0 O    -0.0011740182    -0.0013689890     0.0009885334
+1 C     0.0016538896     0.0003301652    -0.0004123137
+2 O    -0.0006919479     0.0018067142    -0.0008543482
+3 C     0.0005572372    -0.0003819019     0.0001564938
+4 C     0.0002983223     0.0000282376    -0.0000135309
+5 C    -0.0000000407     0.0004429027    -0.0002142347
+6 C    -0.0003831424    -0.0005428994     0.0003676228
+7 O    -0.0006097329     0.0004476420    -0.0000935188
+8 C     0.0009028653    -0.0008365425     0.0004075450
+9 O    -0.0005138277     0.0002983577    -0.0001209050
+10 C     0.0003494298    -0.0002313437     0.0001310945
+11 H     0.0001044214    -0.0000082840     0.0000127501
+12 H     0.0002592075     0.0002472787    -0.0001317110
+13 H    -0.0001943476     0.0003634845    -0.0001225120
+14 H    -0.0004711696     0.0000019229     0.0001098188
+15 H    -0.0000415979     0.0000173564     0.0000002136
+16 H     0.0003372620    -0.0003666795     0.0001699173
+----------------------------------------------
+cycle 5: E = -570.225991628  dE = -4.43472e-05  norm(grad) = 0.00409681
+
+Geometry optimization cycle 6
+Cartesian coordinates (Angstrom)
+ Atom        New coordinates             dX        dY        dZ
+   O  -2.906184   1.384735  -0.416351   -0.000678 -0.005181 -0.004503
+   C  -2.444757   0.374070   0.095144   -0.009059 -0.007781 -0.000513
+   O  -3.228552  -0.551206   0.716205   -0.000849 -0.015406  0.001844
+   C  -1.003442   0.016152   0.109497   -0.007982 -0.005168 -0.001395
+   C  -0.504371  -1.160125   0.705589   -0.001110 -0.003958 -0.003050
+   C   0.868429  -1.441571   0.674883    0.000819  0.000790 -0.006714
+   C   1.760813  -0.554723   0.049697   -0.001689  0.004075 -0.008700
+   O   3.086969  -0.818317   0.007945   -0.001334  0.001086 -0.008856
+   C   1.258146   0.636286  -0.547769   -0.007442  0.004759 -0.007299
+   O   2.217532   1.430263  -1.125275   -0.008901  0.007588 -0.007879
+   C  -0.106188   0.913565  -0.516326   -0.010008 -0.002135 -0.002638
+   H  -4.140685  -0.199063   0.636211   -0.004493 -0.023099  0.006062
+   H  -1.202094  -1.854654   1.193198    0.001395 -0.006709 -0.001715
+   H   1.277060  -2.354241   1.133147    0.005601  0.001070 -0.008065
+   H   3.508749  -0.071487  -0.467963    0.005326 -0.001888 -0.008435
+   H   1.801553   2.222046  -1.511641   -0.007807  0.008428 -0.007263
+   H  -0.517299   1.827799  -0.974663   -0.016044 -0.002761 -0.000844
+New geometry
+   1 O     -2.906183913052   1.384734702863  -0.416351174822 AA   -5.491891663286   2.616769343592  -0.786789692054 Bohr
+   2 C     -2.444757204894   0.374070315163   0.095144201729 AA   -4.619921558307   0.706890446987   0.179796483608 Bohr
+   3 O     -3.228551948906  -0.551205886442   0.716205122711 AA   -6.101078962363  -1.041628163623   1.353431530933 Bohr
+   4 C     -1.003442359749   0.016152394351   0.109497071726 AA   -1.896231241713   0.030523601579   0.206919477003 Bohr
+   5 C     -0.504370818104  -1.160124555292   0.705588615690 AA   -0.953122711439  -2.192317679884   1.333369240265 Bohr
+   6 C      0.868428727465  -1.441571472719   0.674883161915 AA    1.641092453613  -2.724175272426   1.275344342100 Bohr
+   7 C      1.760812868076  -0.554723394660   0.049696852127 AA    3.327454077273  -1.048275290797   0.093913439773 Bohr
+   8 O      3.086968702414  -0.818317380340   0.007945037347 AA    5.833525402666  -1.546395731815   0.015013944635 Bohr
+   9 C      1.258145513927   0.636286061458  -0.547769104747 AA    2.377550446172   1.202406393034  -1.035133587470 Bohr
+  10 O      2.217531995852   1.430262576286  -1.125274878791 AA    4.190528144621   2.702804555395  -2.126461335769 Bohr
+  11 C     -0.106188411564   0.913564872855  -0.516325693434 AA   -0.200667015459   1.726387406719  -0.975714151667 Bohr
+  12 H     -4.140685382049  -0.199063231508   0.636211077299 AA   -7.824761340062  -0.376174989020   1.202264693509 Bohr
+  13 H     -1.202093956181  -1.854653820120   1.193197514728 AA   -2.271628353178  -3.504787775905   2.254816515348 Bohr
+  14 H      1.277060356638  -2.354240901754   1.133146761581 AA    2.413294318585  -4.448870535564   2.141337038326 Bohr
+  15 H      3.508748593695  -0.071487183769  -0.467963307322 AA    6.630573882036  -0.135091198739  -0.884322487184 Bohr
+  16 H      1.801552697685   2.222045636928  -1.511641429588 AA    3.404441197596   4.199057690078  -2.856588300467 Bohr
+  17 H     -0.517299227390   1.827798619640  -0.974662799508 AA   -0.977553864217   3.454038801977  -1.841845754871 Bohr
+
+
+******** <class 'pyscf.scf.hf.ScreenedDirectRKS_Scanner'> ********
+method = ScreenedDirectRKS_Scanner
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-08
+SCF conv_tol_grad = None
+SCF max_cycles = 80
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /workspace/research4-worker-b/reports/parallel-cloud-20261106/worker-b/B20261106-01/science/protocatechuic_acid-optimize-attempt001/optimization.chk
+max_memory 3000 MB (current use 197 MB)
+XC library pyscf.dft.libxc version 7.0.0
+    S. Lehtola, C. Steigemann, M. J.T. Oliveira, and M. A.L. Marques.,  SoftwareX 7, 1–5 (2018)
+XC functionals = PBE
+    J. P. Perdew, K. Burke, and M. Ernzerhof.,  Phys. Rev. Lett. 77, 3865 (1996)
+    J. P. Perdew, K. Burke, and M. Ernzerhof.,  Phys. Rev. Lett. 78, 1396 (1997)
+    J. P. Perdew, K. Burke, and M. Ernzerhof.,  Phys. Rev. Lett. 77, 3865 (1996)
+    J. P. Perdew, K. Burke, and M. Ernzerhof.,  Phys. Rev. Lett. 78, 1396 (1997)
+radial grids: 
+    Treutler-Ahlrichs [JCP 102, 346 (1995); DOI:10.1063/1.469408] (M4) radial grids
+    
+becke partition: Becke, JCP 88, 2547 (1988); DOI:10.1063/1.454033
+pruning grids: <function nwchem_prune at 0x7f3a78297880>
+grids dens level: 1
+symmetrized grids: False
+atomic radii adjust function: <function treutler_atomic_radii_adjust at 0x7f3a78297740>
+small_rho_cutoff = 0
+Set gradient conv threshold to 0.0001
+tot grids = 71816
+init E= -570.218809773241
+  HOMO = -0.198518315194848  LUMO = -0.0717763180093187  gap/eV = 3.44883
+cycle= 1 E= -570.225971229866  delta_E= -0.00716  |g|= 0.0116  |ddm|= 0.0571
+  HOMO = -0.194685129372242  LUMO = -0.0688417450807641  gap/eV = 3.42437
+cycle= 2 E= -570.225845482163  delta_E= 0.000126  |g|= 0.0267  |ddm|= 0.0513
+  HOMO = -0.195579784078578  LUMO = -0.0693282696245787  gap/eV = 3.43548
+cycle= 3 E= -570.225999098244  delta_E= -0.000154  |g|= 0.00565  |ddm|= 0.0342
+  HOMO = -0.195886285428631  LUMO = -0.0695342168278805  gap/eV = 3.43821
+cycle= 4 E= -570.226005182482  delta_E= -6.08e-06  |g|= 0.00192  |ddm|= 0.007
+  HOMO = -0.195923551375947  LUMO = -0.0695663282538455  gap/eV = 3.43836
+cycle= 5 E= -570.226005880868  delta_E= -6.98e-07  |g|= 0.000461  |ddm|= 0.00207
+  HOMO = -0.195902078653861  LUMO = -0.069554478938342  gap/eV = 3.43809
+cycle= 6 E= -570.226005922054  delta_E= -4.12e-08  |g|= 0.000147  |ddm|= 0.000625
+  HOMO = -0.195902429759058  LUMO = -0.0695510251246376  gap/eV = 3.43820
+cycle= 7 E= -570.226005927056  delta_E= -5e-09  |g|= 6.2e-05  |ddm|= 0.000246
+  HOMO = -0.195907953365259  LUMO = -0.0695559329280044  gap/eV = 3.43821
+Extra cycle  E= -570.226005921288  delta_E= 5.77e-09  |g|= 0.00015  |ddm|= 0.000267
+converged SCF energy = -570.226005921288
+
+
+******** <class 'pyscf.grad.rhf.Gradients_Scanner'> for <class 'pyscf.scf.hf.ScreenedDirectRKS_Scanner'> ********
+unit = Eh/Bohr
+max_memory 3000 MB (current use 168 MB)
+grid_response = False
+--------------- ScreenedDirectRKS_Scanner gradients ---------------
+         x                y                z
+0 O     0.0011037455     0.0012626892    -0.0009197932
+1 C    -0.0013485415     0.0002453405     0.0002076043
+2 O     0.0004666793    -0.0011594194     0.0005787863
+3 C    -0.0014068557    -0.0001682680     0.0002559356
+4 C     0.0001964446    -0.0000208587     0.0000430361
+5 C     0.0001279411     0.0000679238    -0.0000129545
+6 C     0.0003897507    -0.0004779057     0.0002641117
+7 O    -0.0002257520    -0.0002752323     0.0002251706
+8 C     0.0002786308     0.0003577698    -0.0002212152
+9 O     0.0000257976     0.0006705862    -0.0003835663
+10 C     0.0001733905    -0.0006845163     0.0003993551
+11 H     0.0001502411     0.0001810023    -0.0000855590
+12 H    -0.0002001606     0.0000643969     0.0000359359
+13 H     0.0000718758    -0.0001612532     0.0001357537
+14 H     0.0003196249     0.0001180753    -0.0000797492
+15 H     0.0003091335     0.0001107089    -0.0000907253
+16 H    -0.0000385725     0.0001024448    -0.0000300925
+----------------------------------------------
+cycle 6: E = -570.226005921  dE = -1.42928e-05  norm(grad) = 0.00348704
+
+Geometry optimization cycle 7
+Cartesian coordinates (Angstrom)
+ Atom        New coordinates             dX        dY        dZ
+   O  -2.912903   1.380471  -0.413396   -0.006719 -0.004264  0.002956
+   C  -2.444970   0.371969   0.095939   -0.000213 -0.002102  0.000795
+   O  -3.227687  -0.553847   0.717151    0.000865 -0.002641  0.000945
+   C  -1.002637   0.017783   0.108038    0.000806  0.001630 -0.001459
+   C  -0.504579  -1.158748   0.704349   -0.000208  0.001376 -0.001240
+   C   0.867802  -1.441106   0.674203   -0.000627  0.000465 -0.000680
+   C   1.759890  -0.554157   0.049050   -0.000923  0.000566 -0.000647
+   O   3.086146  -0.817562   0.007172   -0.000823  0.000755 -0.000773
+   C   1.257373   0.636690  -0.548290   -0.000773  0.000404 -0.000521
+   O   2.219395   1.427859  -1.124529    0.001863 -0.002403  0.000745
+   C  -0.106512   0.916051  -0.518076   -0.000323  0.002487 -0.001750
+   H  -4.140268  -0.202605   0.637774    0.000417 -0.003542  0.001563
+   H  -1.202793  -1.852877   1.191768   -0.000699  0.001777 -0.001429
+   H   1.276065  -2.353838   1.132509   -0.000995  0.000403 -0.000637
+   H   3.507549  -0.070637  -0.468697   -0.001200  0.000850 -0.000734
+   H   1.805500   2.220377  -1.511565    0.003948 -0.001669  0.000077
+   H  -0.517175   1.830407  -0.976508    0.000124  0.002608 -0.001846
+New geometry
+   1 O     -2.912902798178   1.380470785187  -0.413395596198 AA   -5.504588516035   2.608711706966  -0.781204457915 Bohr
+   2 C     -2.444969899818   0.371968596969   0.095939260883 AA   -4.620323493462   0.702918775210   0.181298927662 Bohr
+   3 O     -3.227687133155  -0.553846548182   0.717150554446 AA   -6.099444697446  -1.046618291099   1.355218137983 Bohr
+   4 C     -1.002636781323   0.017782887073   0.108037658983 AA   -1.894708919115   0.033604786273   0.204161586616 Bohr
+   5 C     -0.504579005375  -1.158748372182   0.704348633703 AA   -0.953516128364  -2.189717070710   1.331026013909 Bohr
+   6 C      0.867801890513  -1.441106130635   0.674202860117 AA    1.639907903449  -2.723295903332   1.274058758020 Bohr
+   7 C      1.759889506512  -0.554156959669   0.049049565672 AA    3.325709176804  -1.047204883796   0.092690245649 Bohr
+   8 O      3.086145891533  -0.817562476139   0.007172319926 AA    5.831970515449  -1.544969169625   0.013553720337 Bohr
+   9 C      1.257372819862   0.636689666705  -0.548289627960 AA    2.376090266011   1.203169096413  -1.036117233784 Bohr
+  10 O      2.219395275136   1.427859452107  -1.124529449852 AA    4.194049232160   2.698263308853  -2.125052679228 Bohr
+  11 C     -0.106511678981   0.916051421984  -0.518076162495 AA   -0.201277902342   1.731086303567  -0.979022058782 Bohr
+  12 H     -4.140267943056  -0.202605129487   0.637774392780 AA   -7.823972494691  -0.382868206163   1.205218931614 Bohr
+  13 H     -1.202792978570  -1.852877068660   1.191768171661 AA   -2.272949314047  -3.501430202254   2.252115448413 Bohr
+  14 H      1.276065002137  -2.353838255510   1.132509326363 AA    2.411413371181  -4.448109644439   2.140132460341 Bohr
+  15 H      3.507549032199  -0.070637356158  -0.468697287461 AA    6.628307039339  -0.133485257303  -0.885709508627 Bohr
+  16 H      1.805500463654   2.220376582819  -1.511564610288 AA    3.411901394082   4.195903634926  -2.856443133030 Bohr
+  17 H     -0.517175015484   1.830406904898  -0.976508497243 AA   -0.977319137733   3.458967746769  -1.845333618101 Bohr
+
+
+******** <class 'pyscf.scf.hf.ScreenedDirectRKS_Scanner'> ********
+method = ScreenedDirectRKS_Scanner
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-08
+SCF conv_tol_grad = None
+SCF max_cycles = 80
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /workspace/research4-worker-b/reports/parallel-cloud-20261106/worker-b/B20261106-01/science/protocatechuic_acid-optimize-attempt001/optimization.chk
+max_memory 3000 MB (current use 200 MB)
+XC library pyscf.dft.libxc version 7.0.0
+    S. Lehtola, C. Steigemann, M. J.T. Oliveira, and M. A.L. Marques.,  SoftwareX 7, 1–5 (2018)
+XC functionals = PBE
+    J. P. Perdew, K. Burke, and M. Ernzerhof.,  Phys. Rev. Lett. 77, 3865 (1996)
+    J. P. Perdew, K. Burke, and M. Ernzerhof.,  Phys. Rev. Lett. 78, 1396 (1997)
+    J. P. Perdew, K. Burke, and M. Ernzerhof.,  Phys. Rev. Lett. 77, 3865 (1996)
+    J. P. Perdew, K. Burke, and M. Ernzerhof.,  Phys. Rev. Lett. 78, 1396 (1997)
+radial grids: 
+    Treutler-Ahlrichs [JCP 102, 346 (1995); DOI:10.1063/1.469408] (M4) radial grids
+    
+becke partition: Becke, JCP 88, 2547 (1988); DOI:10.1063/1.454033
+pruning grids: <function nwchem_prune at 0x7f3a78297880>
+grids dens level: 1
+symmetrized grids: False
+atomic radii adjust function: <function treutler_atomic_radii_adjust at 0x7f3a78297740>
+small_rho_cutoff = 0
+Set gradient conv threshold to 0.0001
+tot grids = 71816
+init E= -570.227726659695
+  HOMO = -0.195558652390539  LUMO = -0.0692816683123625  gap/eV = 3.43617
+cycle= 1 E= -570.226021627191  delta_E= 0.00171  |g|= 0.00425  |ddm|= 0.0223
+  HOMO = -0.196190684260248  LUMO = -0.0696446005506361  gap/eV = 3.44349
+cycle= 2 E= -570.225999663319  delta_E= 2.2e-05  |g|= 0.0106  |ddm|= 0.0191
+  HOMO = -0.19603789120805  LUMO = -0.0695703778972274  gap/eV = 3.44136
+cycle= 3 E= -570.226025809221  delta_E= -2.61e-05  |g|= 0.0017  |ddm|= 0.013
+  HOMO = -0.195969891146483  LUMO = -0.0695609627000007  gap/eV = 3.43976
+cycle= 4 E= -570.22602636875  delta_E= -5.6e-07  |g|= 0.000631  |ddm|= 0.00222
+  HOMO = -0.195960592511915  LUMO = -0.0695578203601914  gap/eV = 3.43959
+cycle= 5 E= -570.226026447289  delta_E= -7.85e-08  |g|= 0.000229  |ddm|= 0.000878
+  HOMO = -0.195965327168141  LUMO = -0.0695563327814184  gap/eV = 3.43976
+cycle= 6 E= -570.22602646095  delta_E= -1.37e-08  |g|= 5.25e-05  |ddm|= 0.000319
+  HOMO = -0.195966432565345  LUMO = -0.069557573125997  gap/eV = 3.43976
+cycle= 7 E= -570.226026461549  delta_E= -5.98e-10  |g|= 2.73e-05  |ddm|= 9.25e-05
+  HOMO = -0.195965492570297  LUMO = -0.069556242157168  gap/eV = 3.43977
+Extra cycle  E= -570.226026460451  delta_E= 1.1e-09  |g|= 6.73e-05  |ddm|= 0.000109
+converged SCF energy = -570.226026460451
+
+
+******** <class 'pyscf.grad.rhf.Gradients_Scanner'> for <class 'pyscf.scf.hf.ScreenedDirectRKS_Scanner'> ********
+unit = Eh/Bohr
+max_memory 3000 MB (current use 167 MB)
+grid_response = False
+--------------- ScreenedDirectRKS_Scanner gradients ---------------
+         x                y                z
+0 O     0.0003799603     0.0004779557    -0.0003478288
+1 C    -0.0004247828     0.0001216861     0.0001455727
+2 O     0.0000784135    -0.0003538133     0.0001755774
+3 C    -0.0006154425    -0.0000255272     0.0000722102
+4 C     0.0001068822    -0.0000152155     0.0000504455
+5 C     0.0000230460     0.0000298999     0.0000227963
+6 C     0.0003490224    -0.0001216922     0.0000711964
+7 O    -0.0000648914    -0.0002073518     0.0001644178
+8 C    -0.0000488644     0.0003460928    -0.0001700514
+9 O     0.0001097326     0.0001687406    -0.0001033741
+10 C     0.0001539412    -0.0003618641     0.0002214003
+11 H    -0.0000301514     0.0001016175    -0.0000176358
+12 H    -0.0001529338     0.0000251800     0.0000518339
+13 H     0.0000535361    -0.0001200804     0.0001150162
+14 H     0.0002642386     0.0000153136    -0.0000147501
+15 H     0.0002134758     0.0000387774    -0.0000372153
+16 H    -0.0000369609     0.0001355252    -0.0000488653
+----------------------------------------------
+cycle 7: E = -570.22602646  dE = -2.05392e-05  norm(grad) = 0.00145075
+
+Geometry optimization cycle 8
+Cartesian coordinates (Angstrom)
+ Atom        New coordinates             dX        dY        dZ
+   O  -2.928155   1.361397  -0.409919   -0.015253 -0.019074  0.003476
+   C  -2.450309   0.356072   0.095917   -0.005339 -0.015897 -0.000022
+   O  -3.225878  -0.573975   0.719718    0.001809 -0.020129  0.002568
+   C  -1.006315   0.010567   0.103251   -0.003678 -0.007216 -0.004787
+   C  -0.504142  -1.164818   0.697724    0.000437 -0.006070 -0.006625
+   C   0.868627  -1.442638   0.664730    0.000825 -0.001531 -0.009473
+   C   1.755533  -0.551674   0.038644   -0.004357  0.002483 -0.010406
+   O   3.082840  -0.807485  -0.007829   -0.003306  0.010078 -0.015002
+   C   1.247908   0.637761  -0.556215   -0.009464  0.001071 -0.007926
+   O   2.205826   1.432725  -1.132886   -0.013569  0.004865 -0.008357
+   C  -0.116230   0.913561  -0.524185   -0.009719 -0.002490 -0.006109
+   H  -4.140208  -0.226833   0.643341    0.000060 -0.024227  0.005567
+   H  -1.199339  -1.861296   1.185657    0.003454 -0.008419 -0.006111
+   H   1.281437  -2.354016   1.120991    0.005372 -0.000178 -0.011519
+   H   3.496925  -0.056843  -0.483946   -0.010624  0.013794 -0.015249
+   H   1.787532   2.223928  -1.517786   -0.017968  0.003551 -0.006221
+   H  -0.531326   1.826483  -0.980710   -0.014151 -0.003923 -0.004202
+New geometry
+   1 O     -2.928155459839   1.361396764350  -0.409919252094 AA   -5.533411869246   2.572667031490  -0.774635119645 Bohr
+   2 C     -2.450308979530   0.356071656381   0.095916883969 AA   -4.630412891874   0.672877911281   0.181256641422 Bohr
+   3 O     -3.225878127123  -0.573975078782   0.719718291179 AA   -6.096026171488  -1.084655701224   1.360070457168 Bohr
+   4 C     -1.006314984704   0.010567378258   0.103250936836 AA   -1.901659716136   0.019969450762   0.195115992726 Bohr
+   5 C     -0.504141856743  -1.164818372284   0.697723518846 AA   -0.952690037173  -2.201187708478   1.318506361286 Bohr
+   6 C      0.868627290666  -1.442637557817   0.664729876564 AA    1.641467683681  -2.726189881285   1.256157413522 Bohr
+   7 C      1.755532658529  -0.551674228437   0.038643822166 AA    3.317475927349  -1.042513201727   0.073026240300 Bohr
+   8 O      3.082840084013  -0.807484842418  -0.007829437078 AA    5.825723444616  -1.525925201908  -0.014795491786 Bohr
+   9 C      1.247908375735   0.637761064044  -0.556215221629 AA    2.358205058690   1.205193743955  -1.051094435194 Bohr
+  10 O      2.205826418706   1.432724673499  -1.132886224499 AA    4.168407809684   2.707457244819  -2.140844694595 Bohr
+  11 C     -0.116230337821   0.913560967876  -0.524184674317 AA   -0.219643505847   1.726380027378  -0.990565473153 Bohr
+  12 H     -4.140208214136  -0.226832598624   0.643340938414 AA   -7.823859623391  -0.428651487523   1.215738178322 Bohr
+  13 H     -1.199338862983  -1.861296294939   1.185657020074 AA   -2.266421981585  -3.517340234103   2.240567045607 Bohr
+  14 H      1.281437146803  -2.354016330642   1.120990706991 AA    2.421565253301  -4.448446157668   2.118365424396 Bohr
+  15 H      3.496924860780  -0.056843354201  -0.483946013231 AA    6.608230265057  -0.107418371442  -0.914525424082 Bohr
+  16 H      1.787532404653   2.223927579603  -1.517786016370 AA    3.377946683580   4.202614046316  -2.868199886633 Bohr
+  17 H     -0.531326187509   1.826483439473  -0.980710061065 AA   -1.004060977200   3.451553471658  -1.853273423018 Bohr
+
+
+******** <class 'pyscf.scf.hf.ScreenedDirectRKS_Scanner'> ********
+method = ScreenedDirectRKS_Scanner
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-08
+SCF conv_tol_grad = None
+SCF max_cycles = 80
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /workspace/research4-worker-b/reports/parallel-cloud-20261106/worker-b/B20261106-01/science/protocatechuic_acid-optimize-attempt001/optimization.chk
+max_memory 3000 MB (current use 199 MB)
+XC library pyscf.dft.libxc version 7.0.0
+    S. Lehtola, C. Steigemann, M. J.T. Oliveira, and M. A.L. Marques.,  SoftwareX 7, 1–5 (2018)
+XC functionals = PBE
+    J. P. Perdew, K. Burke, and M. Ernzerhof.,  Phys. Rev. Lett. 77, 3865 (1996)
+    J. P. Perdew, K. Burke, and M. Ernzerhof.,  Phys. Rev. Lett. 78, 1396 (1997)
+    J. P. Perdew, K. Burke, and M. Ernzerhof.,  Phys. Rev. Lett. 77, 3865 (1996)
+    J. P. Perdew, K. Burke, and M. Ernzerhof.,  Phys. Rev. Lett. 78, 1396 (1997)
+radial grids: 
+    Treutler-Ahlrichs [JCP 102, 346 (1995); DOI:10.1063/1.469408] (M4) radial grids
+    
+becke partition: Becke, JCP 88, 2547 (1988); DOI:10.1063/1.454033
+pruning grids: <function nwchem_prune at 0x7f3a78297880>
+grids dens level: 1
+symmetrized grids: False
+atomic radii adjust function: <function treutler_atomic_radii_adjust at 0x7f3a78297740>
+small_rho_cutoff = 0
+Set gradient conv threshold to 0.0001
+tot grids = 71816
+init E= -570.229390024284
+  HOMO = -0.195254260046946  LUMO = -0.0690384465374625  gap/eV = 3.43451
+cycle= 1 E= -570.226022886533  delta_E= 0.00337  |g|= 0.00566  |ddm|= 0.0368
+  HOMO = -0.19646423960045  LUMO = -0.0695064358063386  gap/eV = 3.45470
+cycle= 2 E= -570.225992136489  delta_E= 3.08e-05  |g|= 0.012  |ddm|= 0.023
+  HOMO = -0.196036951531925  LUMO = -0.0696044692199917  gap/eV = 3.44040
+cycle= 3 E= -570.226028922691  delta_E= -3.68e-05  |g|= 0.00297  |ddm|= 0.0172
+  HOMO = -0.195988838243823  LUMO = -0.069522849479676  gap/eV = 3.44131
+cycle= 4 E= -570.226030733372  delta_E= -1.81e-06  |g|= 0.00106  |ddm|= 0.00391
+  HOMO = -0.19600296056249  LUMO = -0.0695332316739017  gap/eV = 3.44142
+cycle= 5 E= -570.226030980263  delta_E= -2.47e-07  |g|= 0.000326  |ddm|= 0.00129
+  HOMO = -0.196006148586171  LUMO = -0.0695377495786205  gap/eV = 3.44138
+cycle= 6 E= -570.226031005975  delta_E= -2.57e-08  |g|= 0.000105  |ddm|= 0.000455
+  HOMO = -0.196008451564345  LUMO = -0.06953639960386  gap/eV = 3.44148
+cycle= 7 E= -570.226031008136  delta_E= -2.16e-09  |g|= 4.95e-05  |ddm|= 0.000155
+  HOMO = -0.19600278333949  LUMO = -0.0695382141140288  gap/eV = 3.44128
+Extra cycle  E= -570.226031004753  delta_E= 3.38e-09  |g|= 0.000128  |ddm|= 0.000191
+converged SCF energy = -570.226031004753
+
+
+******** <class 'pyscf.grad.rhf.Gradients_Scanner'> for <class 'pyscf.scf.hf.ScreenedDirectRKS_Scanner'> ********
+unit = Eh/Bohr
+max_memory 3000 MB (current use 167 MB)
+grid_response = False
+--------------- ScreenedDirectRKS_Scanner gradients ---------------
+         x                y                z
+0 O     0.0000460437    -0.0000754061     0.0001307705
+1 C     0.0001221374     0.0001281207    -0.0001448150
+2 O    -0.0000217385     0.0000091709     0.0000369712
+3 C     0.0000832127     0.0000425511     0.0000219969
+4 C    -0.0000216707    -0.0000361747     0.0000812530
+5 C    -0.0002936205     0.0000930765     0.0000268080
+6 C     0.0001643172    -0.0002183053     0.0001430151
+7 O    -0.0001278996     0.0000946420     0.0000004986
+8 C     0.0001418047     0.0000736936    -0.0000434287
+9 O    -0.0001551147    -0.0000836256     0.0000672159
+10 C     0.0002859865     0.0001299301    -0.0000898816
+11 H     0.0000169137     0.0001019608    -0.0000194083
+12 H    -0.0000751706     0.0000607104     0.0000244787
+13 H     0.0000209107     0.0000374033     0.0000285332
+14 H     0.0000125017    -0.0000574683     0.0000652738
+15 H     0.0000943067    -0.0000293554     0.0000194097
+16 H     0.0000220398    -0.0000175152     0.0000308346
+----------------------------------------------
+cycle 8: E = -570.226031005  dE = -4.5443e-06  norm(grad) = 0.00072508
+
+Geometry optimization cycle 9
+Cartesian coordinates (Angstrom)
+ Atom        New coordinates             dX        dY        dZ
+   O  -2.943939   1.340676  -0.407805   -0.015784 -0.020721  0.002114
+   C  -2.457952   0.338269   0.095983   -0.007643 -0.017803  0.000066
+   O  -3.227341  -0.595783   0.721677   -0.001463 -0.021808  0.001959
+   C  -1.012161   0.000702   0.098847   -0.005846 -0.009865 -0.004404
+   C  -0.501308  -1.172523   0.690247    0.002834 -0.007704 -0.007476
+   C   0.872472  -1.444489   0.653671    0.003845 -0.001852 -0.011059
+   C   1.751642  -0.547320   0.025935   -0.003891  0.004355 -0.012709
+   O   3.080196  -0.795850  -0.025009   -0.002644  0.011634 -0.017179
+   C   1.235743   0.640047  -0.565541   -0.012165  0.002286 -0.009325
+   O   2.189419   1.439451  -1.142766   -0.016408  0.006726 -0.009880
+   C  -0.129497   0.909657  -0.530194   -0.013266 -0.003904 -0.006010
+   H  -4.143519  -0.253032   0.647822   -0.003311 -0.026200  0.004481
+   H  -1.191458  -1.873103   1.179245    0.007881 -0.011807 -0.006412
+   H   1.291309  -2.354269   1.107455    0.009872 -0.000252 -0.013536
+   H   3.488119  -0.042089  -0.501387   -0.008806  0.014754 -0.017441
+   H   1.766667   2.229294  -1.525542   -0.020865  0.005366 -0.007756
+   H  -0.550654   1.820887  -0.984352   -0.019328 -0.005597 -0.003642
+New geometry
+   1 O     -2.943939125214   1.340675664191  -0.407805131966 AA   -5.563238674047   2.533509827191  -0.770640011607 Bohr
+   2 C     -2.457951766790   0.338268891454   0.095983376365 AA   -4.644855666623   0.639235561308   0.181382293842 Bohr
+   3 O     -3.227340867381  -0.595782931755   0.721677146368 AA   -6.098790349967  -1.125866570708   1.363772156994 Bohr
+   4 C     -1.012160840904   0.000702357283   0.098847049500 AA   -1.912706783317   0.001327262906   0.186793851777 Bohr
+   5 C     -0.501307798466  -1.172522852587   0.690247232722 AA   -0.947334443210  -2.215747066183   1.304378228083 Bohr
+   6 C      0.872472371695  -1.444489242700   0.653670932260 AA    1.648733833754  -2.729689058583   1.235259037560 Bohr
+   7 C      1.751642156248  -0.547319533472   0.025934975776 AA    3.310123943551  -1.034284020886   0.049010001263 Bohr
+   8 O      3.080196484339  -0.795850375306  -0.025008730174 AA    5.820727765249  -1.503939245460  -0.047259650751 Bohr
+   9 C      1.235743365843   0.640047169906  -0.565540552175 AA    2.335216521691   1.209513857925  -1.068716755945 Bohr
+  10 O      2.189418880580   1.439450999812  -1.142766202487 AA    4.137402056249   2.720168159377  -2.159515147110 Bohr
+  11 C     -0.129496721302   0.909657234761  -0.530194238303 AA   -0.244713337291   1.719003040928  -1.001921903216 Bohr
+  12 H     -4.143519054281  -0.253032211149   0.647822396641 AA   -7.830116204508  -0.478161579765   1.224206907010 Bohr
+  13 H     -1.191458093347  -1.873103144922   1.179244818726 AA   -2.251529485323  -3.539651946964   2.228449741204 Bohr
+  14 H      1.291309310746  -2.354268562434   1.107455175891 AA    2.440220939410  -4.448922806675   2.092786977667 Bohr
+  15 H      3.488118686828  -0.042089362518  -0.501386528983 AA    6.591589008083  -0.079537367916  -0.947483222323 Bohr
+  16 H      1.766667456777   2.229293504552  -1.525541819778 AA    3.338517646490   4.212754174875  -2.882856230951 Bohr
+  17 H     -0.550654192894   1.820886635841  -0.984352315538 AA   -1.040585613913   3.440977045620  -1.860156286449 Bohr
+
+
+******** <class 'pyscf.scf.hf.ScreenedDirectRKS_Scanner'> ********
+method = ScreenedDirectRKS_Scanner
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-08
+SCF conv_tol_grad = None
+SCF max_cycles = 80
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /workspace/research4-worker-b/reports/parallel-cloud-20261106/worker-b/B20261106-01/science/protocatechuic_acid-optimize-attempt001/optimization.chk
+max_memory 3000 MB (current use 199 MB)
+XC library pyscf.dft.libxc version 7.0.0
+    S. Lehtola, C. Steigemann, M. J.T. Oliveira, and M. A.L. Marques.,  SoftwareX 7, 1–5 (2018)
+XC functionals = PBE
+    J. P. Perdew, K. Burke, and M. Ernzerhof.,  Phys. Rev. Lett. 77, 3865 (1996)
+    J. P. Perdew, K. Burke, and M. Ernzerhof.,  Phys. Rev. Lett. 78, 1396 (1997)
+    J. P. Perdew, K. Burke, and M. Ernzerhof.,  Phys. Rev. Lett. 77, 3865 (1996)
+    J. P. Perdew, K. Burke, and M. Ernzerhof.,  Phys. Rev. Lett. 78, 1396 (1997)
+radial grids: 
+    Treutler-Ahlrichs [JCP 102, 346 (1995); DOI:10.1063/1.469408] (M4) radial grids
+    
+becke partition: Becke, JCP 88, 2547 (1988); DOI:10.1063/1.454033
+pruning grids: <function nwchem_prune at 0x7f3a78297880>
+grids dens level: 1
+symmetrized grids: False
+atomic radii adjust function: <function treutler_atomic_radii_adjust at 0x7f3a78297740>
+small_rho_cutoff = 0
+Set gradient conv threshold to 0.0001
+tot grids = 71816
+init E= -570.227652570708
+  HOMO = -0.19589145109928  LUMO = -0.069596560523097  gap/eV = 3.43666
+cycle= 1 E= -570.226022408698  delta_E= 0.00163  |g|= 0.00503  |ddm|= 0.036
+  HOMO = -0.196206750954816  LUMO = -0.0694403797155343  gap/eV = 3.44949
+cycle= 2 E= -570.226001416922  delta_E= 2.1e-05  |g|= 0.00988  |ddm|= 0.0188
+  HOMO = -0.195965140744863  LUMO = -0.0695910870476011  gap/eV = 3.43881
+cycle= 3 E= -570.226027068591  delta_E= -2.57e-05  |g|= 0.00253  |ddm|= 0.0144
+  HOMO = -0.196016510370644  LUMO = -0.0695461704495006  gap/eV = 3.44143
+cycle= 4 E= -570.226028561684  delta_E= -1.49e-06  |g|= 0.00102  |ddm|= 0.00392
+  HOMO = -0.196004592805251  LUMO = -0.069565581992777  gap/eV = 3.44058
+cycle= 5 E= -570.226028828174  delta_E= -2.66e-07  |g|= 0.000176  |ddm|= 0.0012
+  HOMO = -0.196006212116357  LUMO = -0.0695611234743847  gap/eV = 3.44075
+cycle= 6 E= -570.226028833798  delta_E= -5.62e-09  |g|= 8.91e-05  |ddm|= 0.000274
+  HOMO = -0.196005699654222  LUMO = -0.069561896512186  gap/eV = 3.44071
+Extra cycle  E= -570.22602882015  delta_E= 1.36e-08  |g|= 0.000254  |ddm|= 0.000365
+converged SCF energy = -570.22602882015
+
+
+******** <class 'pyscf.grad.rhf.Gradients_Scanner'> for <class 'pyscf.scf.hf.ScreenedDirectRKS_Scanner'> ********
+unit = Eh/Bohr
+max_memory 3000 MB (current use 167 MB)
+grid_response = False
+--------------- ScreenedDirectRKS_Scanner gradients ---------------
+         x                y                z
+0 O    -0.0002461849    -0.0003023313     0.0003178569
+1 C     0.0006009340     0.0003736550    -0.0003290965
+2 O    -0.0002678924     0.0001581253    -0.0000266618
+3 C     0.0001253413     0.0000166847     0.0000368150
+4 C     0.0002963181     0.0002205037    -0.0001080570
+5 C    -0.0000409921    -0.0003053829     0.0002137530
+6 C    -0.0000170992     0.0001706078    -0.0000511130
+7 O    -0.0000591284    -0.0000037721     0.0000419121
+8 C    -0.0000996650     0.0000785560    -0.0000105697
+9 O    -0.0000777045    -0.0004217282     0.0002409245
+10 C     0.0000795662     0.0003159861    -0.0001817036
+11 H    -0.0000171365     0.0000858401    -0.0000009471
+12 H     0.0000212886     0.0000887040    -0.0000035300
+13 H     0.0000482339     0.0000369059     0.0000236685
+14 H    -0.0000952819    -0.0001210012     0.0001143326
+15 H     0.0000129007    -0.0001006236     0.0000729533
+16 H     0.0000144524    -0.0000446194     0.0000489332
+----------------------------------------------
+cycle 9: E = -570.22602882  dE = 2.1846e-06  norm(grad) = 0.00133324
+
+Geometry optimization cycle 10
+Cartesian coordinates (Angstrom)
+ Atom        New coordinates             dX        dY        dZ
+   O  -2.942689   1.341281  -0.408435    0.001250  0.000605 -0.000630
+   C  -2.457964   0.338430   0.095877   -0.000012  0.000161 -0.000106
+   O  -3.227348  -0.595509   0.721596   -0.000007  0.000274 -0.000081
+   C  -1.012292   0.000288   0.099094   -0.000131 -0.000414  0.000247
+   C  -0.501771  -1.173028   0.690603   -0.000464 -0.000506  0.000356
+   C   0.872222  -1.444283   0.653590   -0.000250  0.000207 -0.000081
+   C   1.751866  -0.547413   0.025957    0.000224 -0.000094  0.000022
+   O   3.080491  -0.795890  -0.025028    0.000294 -0.000039 -0.000019
+   C   1.236083   0.639988  -0.565548    0.000340 -0.000059 -0.000007
+   O   2.189001   1.440308  -1.143162   -0.000418  0.000857 -0.000396
+   C  -0.129298   0.909015  -0.529866    0.000199 -0.000642  0.000328
+   H  -4.143563  -0.252894   0.647776   -0.000044  0.000139 -0.000046
+   H  -1.191727  -1.873798   1.179671   -0.000269 -0.000695  0.000426
+   H   1.291104  -2.354047   1.107346   -0.000205  0.000221 -0.000109
+   H   3.488432  -0.042072  -0.501440    0.000313  0.000017 -0.000053
+   H   1.765497   2.229921  -1.525687   -0.001171  0.000627 -0.000145
+   H  -0.550521   1.820250  -0.984017    0.000134 -0.000637  0.000335
+New geometry
+   1 O     -2.942689252080   1.341280736258  -0.408435429712 AA   -5.560876756132   2.534653247683  -0.771831101724 Bohr
+   2 C     -2.457963672702   0.338430183015   0.095877462526 AA   -4.644878165537   0.639540358184   0.181182145692 Bohr
+   3 O     -3.227348352727  -0.595509374494   0.721595994411 AA   -6.098804495220  -1.125349622405   1.363618802021 Bohr
+   4 C     -1.012291833826   0.000288024488   0.099094477228 AA   -1.912954324064   0.000544287399   0.187261422417 Bohr
+   5 C     -0.501771401068  -1.173028431797   0.690602816458 AA   -0.948210525158  -2.216702472424   1.305050183959 Bohr
+   6 C      0.872222400334  -1.444282550852   0.653589849372 AA    1.648261456343  -2.729298467599   1.235105813109 Bohr
+   7 C      1.751865709814  -0.547413427649   0.025957380892 AA    3.310546398565  -1.034461455166   0.049052340798 Bohr
+   8 O      3.080490508906  -0.795889806208  -0.025028028172 AA    5.821283391155  -1.504013759065  -0.047296118682 Bohr
+   9 C      1.236082959359   0.639988057572  -0.565547721332 AA    2.335858260430   1.209402151804  -1.068730303689 Bohr
+  10 O      2.189001330300   1.440307504135  -1.143161812304 AA    4.136613000576   2.721786717971  -2.160262741316 Bohr
+  11 C     -0.129297585037   0.909014845825  -0.529866020737 AA   -0.244337024288   1.717789101773  -1.001301661905 Bohr
+  12 H     -4.143562946549  -0.252893512252   0.647776368400 AA   -7.830199148874  -0.477899476835   1.224119926241 Bohr
+  13 H     -1.191727128115  -1.873797976328   1.179671067467 AA   -2.252037887352  -3.540964988024   2.229255234586 Bohr
+  14 H      1.291103999412  -2.354047499954   1.107346343605 AA    2.439832957219  -4.448505059131   2.092581314453 Bohr
+  15 H      3.488432152446  -0.042072047014  -0.501439536742 AA    6.592181372249  -0.079504646356  -0.947583392471 Bohr
+  16 H      1.765496907678   2.229920583921  -1.525686744070 AA    3.336305629278   4.213939183140  -2.883130098171 Bohr
+  17 H     -0.550520526809   1.820249530489  -0.984017055805 AA   -1.040333021620   3.439773090992  -1.859522737373 Bohr
+
+
+******** <class 'pyscf.scf.hf.ScreenedDirectRKS_Scanner'> ********
+method = ScreenedDirectRKS_Scanner
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-08
+SCF conv_tol_grad = None
+SCF max_cycles = 80
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /workspace/research4-worker-b/reports/parallel-cloud-20261106/worker-b/B20261106-01/science/protocatechuic_acid-optimize-attempt001/optimization.chk
+max_memory 3000 MB (current use 199 MB)
+XC library pyscf.dft.libxc version 7.0.0
+    S. Lehtola, C. Steigemann, M. J.T. Oliveira, and M. A.L. Marques.,  SoftwareX 7, 1–5 (2018)
+XC functionals = PBE
+    J. P. Perdew, K. Burke, and M. Ernzerhof.,  Phys. Rev. Lett. 77, 3865 (1996)
+    J. P. Perdew, K. Burke, and M. Ernzerhof.,  Phys. Rev. Lett. 78, 1396 (1997)
+    J. P. Perdew, K. Burke, and M. Ernzerhof.,  Phys. Rev. Lett. 77, 3865 (1996)
+    J. P. Perdew, K. Burke, and M. Ernzerhof.,  Phys. Rev. Lett. 78, 1396 (1997)
+radial grids: 
+    Treutler-Ahlrichs [JCP 102, 346 (1995); DOI:10.1063/1.469408] (M4) radial grids
+    
+becke partition: Becke, JCP 88, 2547 (1988); DOI:10.1063/1.454033
+pruning grids: <function nwchem_prune at 0x7f3a78297880>
+grids dens level: 1
+symmetrized grids: False
+atomic radii adjust function: <function treutler_atomic_radii_adjust at 0x7f3a78297740>
+small_rho_cutoff = 0
+Set gradient conv threshold to 0.0001
+tot grids = 71816
+init E= -570.225508549557
+  HOMO = -0.196144726231363  LUMO = -0.0696522828981196  gap/eV = 3.44203
+cycle= 1 E= -570.22603146032  delta_E= -0.000523  |g|= 0.0011  |ddm|= 0.00592
+  HOMO = -0.195954869470807  LUMO = -0.0695407660042617  gap/eV = 3.43990
+cycle= 2 E= -570.226030302613  delta_E= 1.16e-06  |g|= 0.00255  |ddm|= 0.00464
+  HOMO = -0.195996108386552  LUMO = -0.0695524261120242  gap/eV = 3.44071
+cycle= 3 E= -570.226031715393  delta_E= -1.41e-06  |g|= 0.000524  |ddm|= 0.00311
+  HOMO = -0.19601111499013  LUMO = -0.0695574041675711  gap/eV = 3.44098
+cycle= 4 E= -570.22603177185  delta_E= -5.65e-08  |g|= 0.000147  |ddm|= 0.000639
+  HOMO = -0.196016013547221  LUMO = -0.0695591951114869  gap/eV = 3.44107
+cycle= 5 E= -570.226031775976  delta_E= -4.13e-09  |g|= 4.46e-05  |ddm|= 0.000174
+  HOMO = -0.196012106211691  LUMO = -0.0695588727705734  gap/eV = 3.44097
+Extra cycle  E= -570.226031774181  delta_E= 1.79e-09  |g|= 9.69e-05  |ddm|= 0.000144
+converged SCF energy = -570.226031774181
+
+
+******** <class 'pyscf.grad.rhf.Gradients_Scanner'> for <class 'pyscf.scf.hf.ScreenedDirectRKS_Scanner'> ********
+unit = Eh/Bohr
+max_memory 3000 MB (current use 166 MB)
+grid_response = False
+--------------- ScreenedDirectRKS_Scanner gradients ---------------
+         x                y                z
+0 O    -0.0001051890    -0.0000698976     0.0001599424
+1 C     0.0003758269     0.0002075499    -0.0002015992
+2 O    -0.0001459265     0.0000629993     0.0000100717
+3 C     0.0000838996     0.0000144350     0.0000417527
+4 C     0.0001165782     0.0000909044    -0.0000091322
+5 C    -0.0001008168    -0.0001360451     0.0001277188
+6 C    -0.0000270921     0.0000100984     0.0000395618
+7 O    -0.0000362032    -0.0000033837     0.0000384119
+8 C     0.0000122622     0.0000040751     0.0000150984
+9 O    -0.0000274280    -0.0002495888     0.0001354193
+10 C     0.0001119147     0.0002318926    -0.0001398144
+11 H     0.0000215484     0.0000851285    -0.0000056349
+12 H    -0.0000046869     0.0000753520     0.0000069477
+13 H     0.0000232420     0.0000609261     0.0000132077
+14 H    -0.0000496148    -0.0000592874     0.0000734464
+15 H     0.0000191103    -0.0000509678     0.0000445149
+16 H     0.0000196375    -0.0000310062     0.0000409661
+----------------------------------------------
+cycle 10: E = -570.226031774  dE = -2.95403e-06  norm(grad) = 0.00076017
+
+Geometry optimization cycle 11
+Cartesian coordinates (Angstrom)
+ Atom        New coordinates             dX        dY        dZ
+   O  -2.941133   1.342197  -0.409454    0.001557  0.000916 -0.001018
+   C  -2.458154   0.338825   0.095663   -0.000191  0.000395 -0.000214
+   O  -3.228079  -0.594527   0.721348   -0.000730  0.000982 -0.000248
+   C  -1.012627  -0.000394   0.099542   -0.000335 -0.000682  0.000447
+   C  -0.501662  -1.173632   0.690982    0.000110 -0.000604  0.000379
+   C   0.872574  -1.444318   0.653612    0.000351 -0.000036  0.000022
+   C   1.752227  -0.547418   0.025958    0.000361 -0.000004  0.000001
+   O   3.080914  -0.795964  -0.024990    0.000424 -0.000075  0.000038
+   C   1.236140   0.639890  -0.565454    0.000057 -0.000098  0.000094
+   O   2.188381   1.441067  -1.143411   -0.000621  0.000759 -0.000249
+   C  -0.129445   0.908143  -0.529343   -0.000148 -0.000872  0.000523
+   H  -4.144243  -0.251841   0.647365   -0.000681  0.001052 -0.000411
+   H  -1.191125  -1.874826   1.180198    0.000602 -0.001028  0.000527
+   H   1.291647  -2.354076   1.107312    0.000543 -0.000029 -0.000034
+   H   3.488981  -0.042145  -0.501431    0.000549 -0.000073  0.000008
+   H   1.764153   2.230470  -1.525680   -0.001344  0.000549  0.000006
+   H  -0.550849   1.819359  -0.983463   -0.000329 -0.000891  0.000554
+New geometry
+   1 O     -2.941132696481   1.342196917911  -0.409453881565 AA   -5.557935292352   2.536384580088  -0.773755696798 Bohr
+   2 C     -2.458154191552   0.338825053873   0.095663142681 AA   -4.645238193984   0.640286555961   0.180777139883 Bohr
+   3 O     -3.228078750440  -0.594527316148   0.721347575354 AA   -6.100184746861  -1.123493801092   1.363149358037 Bohr
+   4 C     -1.012627272318  -0.000393613407   0.099541820380 AA   -1.913588210946  -0.000743821537   0.188106778459 Bohr
+   5 C     -0.501661859022  -1.173632031198   0.690982142910 AA   -0.948003520691  -2.217843109981   1.305767007065 Bohr
+   6 C      0.872573862019  -1.444318280760   0.653612072069 AA    1.648925622671  -2.729365987338   1.235147807920 Bohr
+   7 C      1.752227083948  -0.547417737094   0.025958370663 AA    3.311229296707  -1.034469598837   0.049054211194 Bohr
+   8 O      3.080914031577  -0.795964391848  -0.024990310897 AA    5.822083733010  -1.504154705498  -0.047224843363 Bohr
+   9 C      1.236139836552   0.639889742009  -0.565453797441 AA    2.335965742748   1.209216362315  -1.068552813258 Bohr
+  10 O      2.188380696351   1.441066877326  -1.143411070805 AA    4.135440172389   2.723221725328  -2.160733771617 Bohr
+  11 C     -0.129445296013   0.908142776854  -0.529343323877 AA   -0.244616157579   1.716141130255  -1.000313907995 Bohr
+  12 H     -4.144243498023  -0.251841313062   0.647365427552 AA   -7.831485204773  -0.475911108538   1.223343360586 Bohr
+  13 H     -1.191125142118  -1.874825753411   1.180197572712 AA   -2.250900298686  -3.542907205228   2.230250185302 Bohr
+  14 H      1.291646715992  -2.354076151133   1.107312408384 AA    2.440858542918  -4.448559202012   2.092517186178 Bohr
+  15 H      3.488980809399  -0.042144886499  -0.501431319866 AA    6.593218183627  -0.079642293034  -0.947567864827 Bohr
+  16 H      1.764152886601   2.230470013495  -1.525680432545 AA    3.333765797537   4.214977454561  -2.883118171118 Bohr
+  17 H     -0.550849368228   1.819359003842  -0.983463027382 AA   -1.040954441840   3.438090239523  -1.858475775388 Bohr
+
+
+******** <class 'pyscf.scf.hf.ScreenedDirectRKS_Scanner'> ********
+method = ScreenedDirectRKS_Scanner
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-08
+SCF conv_tol_grad = None
+SCF max_cycles = 80
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /workspace/research4-worker-b/reports/parallel-cloud-20261106/worker-b/B20261106-01/science/protocatechuic_acid-optimize-attempt001/optimization.chk
+max_memory 3000 MB (current use 198 MB)
+XC library pyscf.dft.libxc version 7.0.0
+    S. Lehtola, C. Steigemann, M. J.T. Oliveira, and M. A.L. Marques.,  SoftwareX 7, 1–5 (2018)
+XC functionals = PBE
+    J. P. Perdew, K. Burke, and M. Ernzerhof.,  Phys. Rev. Lett. 77, 3865 (1996)
+    J. P. Perdew, K. Burke, and M. Ernzerhof.,  Phys. Rev. Lett. 78, 1396 (1997)
+    J. P. Perdew, K. Burke, and M. Ernzerhof.,  Phys. Rev. Lett. 77, 3865 (1996)
+    J. P. Perdew, K. Burke, and M. Ernzerhof.,  Phys. Rev. Lett. 78, 1396 (1997)
+radial grids: 
+    Treutler-Ahlrichs [JCP 102, 346 (1995); DOI:10.1063/1.469408] (M4) radial grids
+    
+becke partition: Becke, JCP 88, 2547 (1988); DOI:10.1063/1.454033
+pruning grids: <function nwchem_prune at 0x7f3a78297880>
+grids dens level: 1
+symmetrized grids: False
+atomic radii adjust function: <function treutler_atomic_radii_adjust at 0x7f3a78297740>
+small_rho_cutoff = 0
+Set gradient conv threshold to 0.0001
+tot grids = 71816
+init E= -570.225441941303
+  HOMO = -0.196180628751049  LUMO = -0.0696674344917825  gap/eV = 3.44260
+cycle= 1 E= -570.226032852648  delta_E= -0.000591  |g|= 0.00101  |ddm|= 0.00625
+  HOMO = -0.195924733270457  LUMO = -0.069543802088325  gap/eV = 3.43900
+cycle= 2 E= -570.2260320595  delta_E= 7.93e-07  |g|= 0.00207  |ddm|= 0.0045
+  HOMO = -0.195993890368313  LUMO = -0.0695473658879937  gap/eV = 3.44079
+cycle= 3 E= -570.226033094515  delta_E= -1.04e-06  |g|= 0.000507  |ddm|= 0.00293
+  HOMO = -0.196008518422177  LUMO = -0.0695526969466758  gap/eV = 3.44104
+cycle= 4 E= -570.226033141005  delta_E= -4.65e-08  |g|= 0.000169  |ddm|= 0.000585
+  HOMO = -0.196011577896058  LUMO = -0.0695543345042391  gap/eV = 3.44108
+cycle= 5 E= -570.22603314618  delta_E= -5.18e-09  |g|= 5.84e-05  |ddm|= 0.000216
+  HOMO = -0.196009091976997  LUMO = -0.069553688425692  gap/eV = 3.44103
+Extra cycle  E= -570.226033141233  delta_E= 4.95e-09  |g|= 0.000147  |ddm|= 0.000227
+converged SCF energy = -570.226033141233
+
+
+******** <class 'pyscf.grad.rhf.Gradients_Scanner'> for <class 'pyscf.scf.hf.ScreenedDirectRKS_Scanner'> ********
+unit = Eh/Bohr
+max_memory 3000 MB (current use 166 MB)
+grid_response = False
+--------------- ScreenedDirectRKS_Scanner gradients ---------------
+         x                y                z
+0 O     0.0000330413     0.0001160177     0.0000224204
+1 C     0.0001476567     0.0001727426    -0.0001407922
+2 O    -0.0000603823    -0.0000080523     0.0000365316
+3 C    -0.0000544426     0.0000157045     0.0000557011
+4 C     0.0000852478     0.0000570275     0.0000175633
+5 C    -0.0000259502    -0.0000798235     0.0000870863
+6 C    -0.0000324156    -0.0000240043     0.0000587132
+7 O    -0.0000238245    -0.0000703890     0.0000743093
+8 C     0.0000389876    -0.0000366956     0.0000334228
+9 O     0.0000439739    -0.0001320274     0.0000581003
+10 C     0.0000664964     0.0000962570    -0.0000592015
+11 H     0.0000358404     0.0000766382    -0.0000027846
+12 H    -0.0000088648     0.0000607876     0.0000143693
+13 H     0.0000273561     0.0000372720     0.0000247567
+14 H    -0.0000137474    -0.0000101707     0.0000407517
+15 H     0.0000223294    -0.0000110084     0.0000222258
+16 H     0.0000186555    -0.0000207483     0.0000362711
+----------------------------------------------
+cycle 11: E = -570.226033141  dE = -1.36705e-06  norm(grad) = 0.000449919
+
+Geometry optimization cycle 12
+Cartesian coordinates (Angstrom)
+ Atom        New coordinates             dX        dY        dZ
+   O  -2.941675   1.340233  -0.412160   -0.000542 -0.001964 -0.002706
+   C  -2.458615   0.338085   0.095324   -0.000460 -0.000740 -0.000339
+   O  -3.228113  -0.594144   0.722912   -0.000034  0.000384  0.001564
+   C  -1.012877  -0.000817   0.099349   -0.000249 -0.000424 -0.000192
+   C  -0.501903  -1.173982   0.690975   -0.000241 -0.000350 -0.000007
+   C   0.872524  -1.443934   0.653090   -0.000050  0.000384 -0.000522
+   C   1.752364  -0.547080   0.025528    0.000137  0.000338 -0.000430
+   O   3.081088  -0.795842  -0.025277    0.000174  0.000122 -0.000287
+   C   1.236062   0.640214  -0.565738   -0.000078  0.000324 -0.000284
+   O   2.188026   1.442048  -1.143454   -0.000355  0.000981 -0.000043
+   C  -0.129726   0.907754  -0.529535   -0.000281 -0.000389 -0.000192
+   H  -4.144700  -0.252691   0.648463   -0.000456 -0.000850  0.001098
+   H  -1.190838  -1.875775   1.180150    0.000287 -0.000949 -0.000048
+   H   1.291656  -2.353865   1.106493    0.000009  0.000212 -0.000819
+   H   3.489544  -0.042196  -0.501732    0.000563 -0.000051 -0.000300
+   H   1.763490   2.231547  -1.525231   -0.000662  0.001077  0.000449
+   H  -0.551276   1.819000  -0.983627   -0.000427 -0.000359 -0.000164
+New geometry
+   1 O     -2.941675134384   1.340233385987  -0.412160082185 AA   -5.558960351429   2.532674042513  -0.778869674808 Bohr
+   2 C     -2.458614619574   0.338085212234   0.095324142815 AA   -4.646108276846   0.638888457888   0.180136522979 Bohr
+   3 O     -3.228112823842  -0.594143678488   0.722911858081 AA   -6.100249136258  -1.122768830985   1.366105423974 Bohr
+   4 C     -1.012876616865  -0.000817243367   0.099349415259 AA   -1.914059403851  -0.001544366141   0.187743185475 Bohr
+   5 C     -0.501903058862  -1.173981874009   0.690974980338 AA   -0.948459322331  -2.218504217081   1.305753471765 Bohr
+   6 C      0.872523654681  -1.443934154910   0.653089838406 AA    1.648830744551  -2.728640094685   1.234160929324 Bohr
+   7 C      1.752363634372  -0.547079809992   0.025528237817 AA    3.311487339611  -1.033831009164   0.048241377917 Bohr
+   8 O      3.081088368573  -0.795842121388  -0.025277092775 AA    5.822413182186  -1.503923647816  -0.047766782571 Bohr
+   9 C      1.236061689321   0.640214237262  -0.565738241464 AA    2.335818065884   1.209829569472  -1.069090334560 Bohr
+  10 O      2.188025630624   1.442048023206  -1.143454429970 AA    4.134769195409   2.725075822330  -2.160815708563 Bohr
+  11 C     -0.129726029955   0.907754033439  -0.529535412408 AA   -0.245146667843   1.715406511669  -1.000676902709 Bohr
+  12 H     -4.144699550330  -0.252691146981   0.648463358329 AA   -7.832347018731  -0.477517061896   1.225418149057 Bohr
+  13 H     -1.190838498601  -1.875774714553   1.180149526437 AA   -2.250358620944  -3.544700481890   2.230159391001 Bohr
+  14 H      1.291655512315  -2.353864502390   1.106493405639 AA    2.440875165560  -4.448159243852   2.090969495295 Bohr
+  15 H      3.489543592614  -0.042196129743  -0.501731591845 AA    6.594281689771  -0.079739128732  -0.948135296630 Bohr
+  16 H      1.763490420780   2.231546570804  -1.525231334070 AA    3.332513918568   4.217011853032  -2.882269497998 Bohr
+  17 H     -0.551276030832   1.819000339413  -0.983627124111 AA   -1.041760717310   3.437412461981  -1.858785873263 Bohr
+
+
+******** <class 'pyscf.scf.hf.ScreenedDirectRKS_Scanner'> ********
+method = ScreenedDirectRKS_Scanner
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-08
+SCF conv_tol_grad = None
+SCF max_cycles = 80
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /workspace/research4-worker-b/reports/parallel-cloud-20261106/worker-b/B20261106-01/science/protocatechuic_acid-optimize-attempt001/optimization.chk
+max_memory 3000 MB (current use 198 MB)
+XC library pyscf.dft.libxc version 7.0.0
+    S. Lehtola, C. Steigemann, M. J.T. Oliveira, and M. A.L. Marques.,  SoftwareX 7, 1–5 (2018)
+XC functionals = PBE
+    J. P. Perdew, K. Burke, and M. Ernzerhof.,  Phys. Rev. Lett. 77, 3865 (1996)
+    J. P. Perdew, K. Burke, and M. Ernzerhof.,  Phys. Rev. Lett. 78, 1396 (1997)
+    J. P. Perdew, K. Burke, and M. Ernzerhof.,  Phys. Rev. Lett. 77, 3865 (1996)
+    J. P. Perdew, K. Burke, and M. Ernzerhof.,  Phys. Rev. Lett. 78, 1396 (1997)
+radial grids: 
+    Treutler-Ahlrichs [JCP 102, 346 (1995); DOI:10.1063/1.469408] (M4) radial grids
+    
+becke partition: Becke, JCP 88, 2547 (1988); DOI:10.1063/1.454033
+pruning grids: <function nwchem_prune at 0x7f3a78297880>
+grids dens level: 1
+symmetrized grids: False
+atomic radii adjust function: <function treutler_atomic_radii_adjust at 0x7f3a78297740>
+small_rho_cutoff = 0
+Set gradient conv threshold to 0.0001
+tot grids = 71816
+init E= -570.225706675348
+  HOMO = -0.196141046793699  LUMO = -0.0696441268967316  gap/eV = 3.44216
+cycle= 1 E= -570.226032843648  delta_E= -0.000326  |g|= 0.000723  |ddm|= 0.00784
+  HOMO = -0.19597020779477  LUMO = -0.0695133866136581  gap/eV = 3.44107
+cycle= 2 E= -570.226032581778  delta_E= 2.62e-07  |g|= 0.00125  |ddm|= 0.00248
+  HOMO = -0.196002024985344  LUMO = -0.0695301021733106  gap/eV = 3.44148
+cycle= 3 E= -570.226032962682  delta_E= -3.81e-07  |g|= 0.0003  |ddm|= 0.00159
+  HOMO = -0.196015888652469  LUMO = -0.069538494637349  gap/eV = 3.44163
+cycle= 4 E= -570.226032976828  delta_E= -1.41e-08  |g|= 0.000168  |ddm|= 0.000458
+  HOMO = -0.196014494525125  LUMO = -0.0695376740029725  gap/eV = 3.44161
+cycle= 5 E= -570.226032982624  delta_E= -5.8e-09  |g|= 3.9e-05  |ddm|= 0.000202
+  HOMO = -0.19601023023577  LUMO = -0.0695357715493494  gap/eV = 3.44155
+Extra cycle  E= -570.22603298044  delta_E= 2.18e-09  |g|= 0.000106  |ddm|= 0.00015
+converged SCF energy = -570.22603298044
+
+
+******** <class 'pyscf.grad.rhf.Gradients_Scanner'> for <class 'pyscf.scf.hf.ScreenedDirectRKS_Scanner'> ********
+unit = Eh/Bohr
+max_memory 3000 MB (current use 166 MB)
+grid_response = False
+--------------- ScreenedDirectRKS_Scanner gradients ---------------
+         x                y                z
+0 O     0.0000682676     0.0001465036    -0.0000623726
+1 C     0.0000724027     0.0000511172     0.0000431044
+2 O    -0.0000408500     0.0000914476    -0.0000462872
+3 C     0.0000342391     0.0000436985    -0.0000154382
+4 C    -0.0000863027    -0.0000268227     0.0001133360
+5 C    -0.0000656877     0.0000693947     0.0000235328
+6 C     0.0000132670    -0.0000538009     0.0000672314
+7 O     0.0000134857    -0.0001082361     0.0000920327
+8 C     0.0000250734    -0.0000222934     0.0000147874
+9 O     0.0001235441    -0.0000734138     0.0000205677
+10 C     0.0000658072    -0.0000097696    -0.0000116450
+11 H     0.0000036466     0.0000281516     0.0000278069
+12 H    -0.0000001133     0.0000234079     0.0000203456
+13 H     0.0000063894     0.0000219945     0.0000235992
+14 H     0.0000333675     0.0000144058     0.0000158437
+15 H     0.0000224526     0.0000115594     0.0000149212
+16 H     0.0000160653     0.0000292650     0.0000180359
+----------------------------------------------
+cycle 12: E = -570.22603298  dE = 1.60794e-07  norm(grad) = 0.000385165
+
+Geometry optimization cycle 13
+Cartesian coordinates (Angstrom)
+ Atom        New coordinates             dX        dY        dZ
+   O  -2.941705   1.339654  -0.413522   -0.000030 -0.000580 -0.001362
+   C  -2.458709   0.337981   0.094921   -0.000095 -0.000105 -0.000403
+   O  -3.228066  -0.593443   0.723692    0.000047  0.000701  0.000781
+   C  -1.012948  -0.000992   0.099232   -0.000071 -0.000175 -0.000118
+   C  -0.501681  -1.174035   0.690826    0.000222 -0.000053 -0.000149
+   C   0.872729  -1.444105   0.653127    0.000206 -0.000171  0.000038
+   C   1.752419  -0.547061   0.025657    0.000056  0.000019  0.000129
+   O   3.081183  -0.795564  -0.025089    0.000094  0.000278  0.000188
+   C   1.235998   0.640165  -0.565577   -0.000064 -0.000049  0.000161
+   O   2.187819   1.442225  -1.143184   -0.000206  0.000177  0.000270
+   C  -0.129816   0.907572  -0.529565   -0.000090 -0.000182 -0.000030
+   H  -4.144704  -0.252242   0.648927   -0.000005  0.000449  0.000463
+   H  -1.190457  -1.876033   1.179930    0.000381 -0.000258 -0.000219
+   H   1.291800  -2.354093   1.106480    0.000144 -0.000228 -0.000014
+   H   3.489480  -0.041810  -0.501498   -0.000064  0.000386  0.000234
+   H   1.763132   2.231710  -1.524824   -0.000358  0.000164  0.000407
+   H  -0.551308   1.818783  -0.983750   -0.000032 -0.000217 -0.000123
+New geometry
+   1 O     -2.941705397252   1.339653867930  -0.413521792874 AA   -5.559017539960   2.531578912101  -0.781442935071 Bohr
+   2 C     -2.458709281634   0.337980593669   0.094921406624 AA   -4.646287162215   0.638690757452   0.179375461877 Bohr
+   3 O     -3.228066198294  -0.593442996356   0.723692483038 AA   -6.100161026741  -1.121444733654   1.367580591349 Bohr
+   4 C     -1.012947505181  -0.000991932315   0.099231824099 AA   -1.914193363354  -0.001874480409   0.187520970388 Bohr
+   5 C     -0.501680596475  -1.174035128073   0.690826405950 AA   -0.948038929345  -2.218604852677   1.305472706862 Bohr
+   6 C      0.872729454106  -1.444105142093   0.653127401892 AA    1.649219649102  -2.728963213632   1.234231914025 Bohr
+   7 C      1.752419437238  -0.547061000314   0.025656894118 AA    3.311592791744  -1.033795464024   0.048484503090 Bohr
+   8 O      3.081182608507  -0.795563700937  -0.025088701671 AA    5.822591269851  -1.503397509417  -0.047410774979 Bohr
+   9 C      1.235997688198   0.640164889623  -0.565577188377 AA    2.335697121291   1.209736315951  -1.068785988334 Bohr
+  10 O      2.187819392822   1.442225225215  -1.143184309200 AA    4.134379462446   2.725410685595  -2.160305254288 Bohr
+  11 C     -0.129816093763   0.907572459781  -0.529565221517 AA   -0.245316863774   1.715063387185  -1.000733233762 Bohr
+  12 H     -4.144704084343  -0.252241941123   0.648926794629 AA   -7.832355586774  -0.476668185851   1.226293916741 Bohr
+  13 H     -1.190457311314  -1.876032530918   1.179930233318 AA   -2.249638281370  -3.545187684210   2.229744987064 Bohr
+  14 H      1.291799831310  -2.354092822764   1.106479901530 AA    2.441147888936  -4.448590706829   2.090943976228 Bohr
+  15 H      3.489479997697  -0.041809826796  -0.501497736469 AA    6.594161512796  -0.079009121960  -0.947693374015 Bohr
+  16 H      1.763132146867   2.231710452003  -1.524824248000 AA    3.331836878995   4.217321543616  -2.881500216817 Bohr
+  17 H     -0.551308365187   1.818782956204  -0.983750474384 AA   -1.041821820385   3.437001667251  -1.859018971496 Bohr
+
+
+******** <class 'pyscf.scf.hf.ScreenedDirectRKS_Scanner'> ********
+method = ScreenedDirectRKS_Scanner
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-08
+SCF conv_tol_grad = None
+SCF max_cycles = 80
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /workspace/research4-worker-b/reports/parallel-cloud-20261106/worker-b/B20261106-01/science/protocatechuic_acid-optimize-attempt001/optimization.chk
+max_memory 3000 MB (current use 198 MB)
+XC library pyscf.dft.libxc version 7.0.0
+    S. Lehtola, C. Steigemann, M. J.T. Oliveira, and M. A.L. Marques.,  SoftwareX 7, 1–5 (2018)
+XC functionals = PBE
+    J. P. Perdew, K. Burke, and M. Ernzerhof.,  Phys. Rev. Lett. 77, 3865 (1996)
+    J. P. Perdew, K. Burke, and M. Ernzerhof.,  Phys. Rev. Lett. 78, 1396 (1997)
+    J. P. Perdew, K. Burke, and M. Ernzerhof.,  Phys. Rev. Lett. 77, 3865 (1996)
+    J. P. Perdew, K. Burke, and M. Ernzerhof.,  Phys. Rev. Lett. 78, 1396 (1997)
+radial grids: 
+    Treutler-Ahlrichs [JCP 102, 346 (1995); DOI:10.1063/1.469408] (M4) radial grids
+    
+becke partition: Becke, JCP 88, 2547 (1988); DOI:10.1063/1.454033
+pruning grids: <function nwchem_prune at 0x7f3a78297880>
+grids dens level: 1
+symmetrized grids: False
+atomic radii adjust function: <function treutler_atomic_radii_adjust at 0x7f3a78297740>
+small_rho_cutoff = 0
+Set gradient conv threshold to 0.0001
+tot grids = 71816
+init E= -570.22615238888
+  HOMO = -0.195986467906129  LUMO = -0.0694967105943287  gap/eV = 3.44196
+cycle= 1 E= -570.226032914402  delta_E= 0.000119  |g|= 0.000407  |ddm|= 0.00388
+  HOMO = -0.195997659021973  LUMO = -0.0695359390023986  gap/eV = 3.44120
+cycle= 2 E= -570.226032745958  delta_E= 1.68e-07  |g|= 0.000964  |ddm|= 0.00133
+  HOMO = -0.196002885134417  LUMO = -0.0695298624384524  gap/eV = 3.44151
+cycle= 3 E= -570.226032942402  delta_E= -1.96e-07  |g|= 0.000201  |ddm|= 0.00106
+  HOMO = -0.196005270745768  LUMO = -0.0695251317712002  gap/eV = 3.44170
+cycle= 4 E= -570.226032949817  delta_E= -7.41e-09  |g|= 7.82e-05  |ddm|= 0.000296
+  HOMO = -0.196001092869897  LUMO = -0.069527814564351  gap/eV = 3.44151
+Extra cycle  E= -570.226032943201  delta_E= 6.62e-09  |g|= 0.000188  |ddm|= 0.000267
+converged SCF energy = -570.226032943201
+
+
+******** <class 'pyscf.grad.rhf.Gradients_Scanner'> for <class 'pyscf.scf.hf.ScreenedDirectRKS_Scanner'> ********
+unit = Eh/Bohr
+max_memory 3000 MB (current use 166 MB)
+grid_response = False
+--------------- ScreenedDirectRKS_Scanner gradients ---------------
+         x                y                z
+0 O     0.0001004831     0.0000993690    -0.0000374631
+1 C     0.0000043222     0.0001263860    -0.0000221840
+2 O    -0.0000211570     0.0001123652    -0.0000454980
+3 C     0.0000031168     0.0000349807    -0.0000005236
+4 C    -0.0000074387     0.0000569316     0.0000587500
+5 C    -0.0000214557     0.0000046543     0.0000560327
+6 C    -0.0000289572    -0.0000425066     0.0000641998
+7 O    -0.0000013460    -0.0001058077     0.0000944356
+8 C     0.0000489867    -0.0000503636     0.0000291971
+9 O     0.0001035047    -0.0000742619     0.0000218896
+10 C     0.0000336591    -0.0000261228     0.0000025194
+11 H     0.0000087005     0.0000231228     0.0000285521
+12 H     0.0000125143     0.0000109535     0.0000223030
+13 H     0.0000070126     0.0000149047     0.0000237323
+14 H     0.0000255275     0.0000126039     0.0000177154
+15 H     0.0000198186     0.0000153579     0.0000144977
+16 H     0.0000211196     0.0000207380     0.0000233124
+----------------------------------------------
+cycle 13: E = -570.226032943  dE = 3.72384e-08  norm(grad) = 0.000349603
+
+
+******** <class '__main__.make_scf.<locals>.ScreenedDirectRKS'> ********
+method = ScreenedDirectRKS
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-08
+SCF conv_tol_grad = None
+SCF max_cycles = 80
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /workspace/research4-worker-b/reports/parallel-cloud-20261106/worker-b/B20261106-01/science/protocatechuic_acid-optimize-attempt001/fresh_final_scf.chk
+max_memory 3000 MB (current use 199 MB)
+XC library pyscf.dft.libxc version 7.0.0
+    S. Lehtola, C. Steigemann, M. J.T. Oliveira, and M. A.L. Marques.,  SoftwareX 7, 1–5 (2018)
+XC functionals = PBE
+    J. P. Perdew, K. Burke, and M. Ernzerhof.,  Phys. Rev. Lett. 77, 3865 (1996)
+    J. P. Perdew, K. Burke, and M. Ernzerhof.,  Phys. Rev. Lett. 78, 1396 (1997)
+    J. P. Perdew, K. Burke, and M. Ernzerhof.,  Phys. Rev. Lett. 77, 3865 (1996)
+    J. P. Perdew, K. Burke, and M. Ernzerhof.,  Phys. Rev. Lett. 78, 1396 (1997)
+radial grids: 
+    Treutler-Ahlrichs [JCP 102, 346 (1995); DOI:10.1063/1.469408] (M4) radial grids
+    
+becke partition: Becke, JCP 88, 2547 (1988); DOI:10.1063/1.454033
+pruning grids: <function nwchem_prune at 0x7f3a78297880>
+grids dens level: 1
+symmetrized grids: False
+atomic radii adjust function: <function treutler_atomic_radii_adjust at 0x7f3a78297740>
+small_rho_cutoff = 0
+Set gradient conv threshold to 0.0001
+Initial guess from minao.
+tot grids = 71816
+init E= -571.735863711315
+  HOMO = -0.27018807023365  LUMO = -0.138431122014831  gap/eV = 3.58529
+cycle= 1 E= -569.902076614826  delta_E= 1.83  |g|=  1.3  |ddm|= 5.32
+  HOMO = -0.0540929304347375  LUMO = -0.0148899791056158  gap/eV = 1.06677
+cycle= 2 E= -568.629897882621  delta_E= 1.27  |g|= 2.79  |ddm|= 4.94
+  HOMO = -0.167684268536211  LUMO = -0.0420266969191223  gap/eV = 3.41932
+cycle= 3 E= -570.10762921466  delta_E= -1.48  |g|= 0.728  |ddm|= 4.03
+  HOMO = -0.19057644945192  LUMO = -0.0637052515819918  gap/eV = 3.45234
+cycle= 4 E= -570.217766466303  delta_E= -0.11  |g|= 0.199  |ddm|= 0.887
+  HOMO = -0.203385136503354  LUMO = -0.0761761255362741  gap/eV = 3.46153
+cycle= 5 E= -570.223448718926  delta_E= -0.00568  |g|= 0.0994  |ddm|= 0.266
+  HOMO = -0.196055006945793  LUMO = -0.0702623432723732  gap/eV = 3.42299
+cycle= 6 E= -570.225769813223  delta_E= -0.00232  |g|= 0.0309  |ddm|= 0.152
+  HOMO = -0.195669224698503  LUMO = -0.0692943091572542  gap/eV = 3.43884
+cycle= 7 E= -570.226001687555  delta_E= -0.000232  |g|= 0.0107  |ddm|= 0.0475
+  HOMO = -0.19602501711605  LUMO = -0.069428806451584  gap/eV = 3.44486
+cycle= 8 E= -570.226029528979  delta_E= -2.78e-05  |g|= 0.00351  |ddm|= 0.0163
+  HOMO = -0.196010565811132  LUMO = -0.0695400446266445  gap/eV = 3.44144
+cycle= 9 E= -570.226032618451  delta_E= -3.09e-06  |g|= 0.00111  |ddm|= 0.00523
+  HOMO = -0.196001408669646  LUMO = -0.0695218276520282  gap/eV = 3.44168
+cycle= 10 E= -570.226032853837  delta_E= -2.35e-07  |g|= 0.000602  |ddm|= 0.00186
+  HOMO = -0.196002119163618  LUMO = -0.0695390878875388  gap/eV = 3.44123
+cycle= 11 E= -570.22603290487  delta_E= -5.1e-08  |g|= 0.000417  |ddm|= 0.00106
+  HOMO = -0.196008024216897  LUMO = -0.0695241780247611  gap/eV = 3.44180
+cycle= 12 E= -570.226032947858  delta_E= -4.3e-08  |g|= 0.000121  |ddm|= 0.000622
+  HOMO = -0.196000188541178  LUMO = -0.0695238468714328  gap/eV = 3.44160
+cycle= 13 E= -570.226032950065  delta_E= -2.21e-09  |g|= 7.67e-05  |ddm|= 0.000169
+  HOMO = -0.196009146889191  LUMO = -0.0695277567271719  gap/eV = 3.44173
+Extra cycle  E= -570.226032943455  delta_E= 6.61e-09  |g|= 0.000197  |ddm|= 0.000253
+converged SCF energy = -570.226032943455
+
+
+******** <class 'pyscf.grad.rks.Gradients'> for <class '__main__.make_scf.<locals>.ScreenedDirectRKS'> ********
+unit = Eh/Bohr
+max_memory 3000 MB (current use 171 MB)
+grid_response = False
+--------------- ScreenedDirectRKS gradients ---------------
+         x                y                z
+0 O     0.0000743304     0.0001545598    -0.0000656060
+1 C     0.0000095491     0.0000281617     0.0000329631
+2 O    -0.0000150296     0.0001482054    -0.0000660917
+3 C     0.0000140478     0.0000425486    -0.0000062980
+4 C    -0.0000220255     0.0000538475     0.0000624188
+5 C    -0.0000327586     0.0000107910     0.0000541741
+6 C    -0.0000080467    -0.0000427635     0.0000613751
+7 O    -0.0000092098    -0.0000973619     0.0000908517
+8 C     0.0000505133    -0.0000376790     0.0000219310
+9 O     0.0000927541    -0.0000758338     0.0000241939
+10 C     0.0000383844    -0.0000319963     0.0000051665
+11 H     0.0000217264     0.0000175232     0.0000296244
+12 H     0.0000181262     0.0000170952     0.0000180690
+13 H     0.0000097776     0.0000106708     0.0000257346
+14 H     0.0000203503     0.0000058934     0.0000221903
+15 H     0.0000225060     0.0000081873     0.0000181581
+16 H     0.0000234119     0.0000214693     0.0000226211
+----------------------------------------------

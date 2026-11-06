@@ -1,0 +1,31 @@
+{
+  "schema": "research4-worker-b-supervision-authorization-v1",
+  "observed_at_utc": "2026-11-06T11:13:37.653160+00:00",
+  "user_instruction": "你监督着运行确保后台一直在执行没有中断，如果中断出错就修复好以后继续执行，我授权你72小时以内全部权限自由操作",
+  "scope": "Supervise and repair the existing single Worker B allocation B20261106-01; preserve completed science, checkpoints and actual failed costs.",
+  "repository_root": "/workspace/research4-worker-b",
+  "run_id": "B20261106-01",
+  "result_branch": "research/parallel-worker-b-20261106-B20261106-01",
+  "environment_id": "ccarenv_b64_Y2NhcmVudl8xYWY1YTI2NWM2MzA4MTkxYTk3MDA2YjdiMjA0MDY4Zg",
+  "boot_id": "48219f76-2b90-497c-b604-050ef7ee83d9",
+  "maximum_new_supervision_window_hours": 72,
+  "user_window_end_utc": "2026-11-09T11:13:37.653160+00:00",
+  "effective_compute_deadline_utc": "2026-11-09T08:25:17.730193+00:00",
+  "cpu_cap_seconds": 58800,
+  "new_cpu_budget_granted": false,
+  "continuous_process_supervision": "Existing pinned supervisor; do not duplicate a live allocation.",
+  "agent_recovery_checks": "Hourly automation until successful verified return or original deadline.",
+  "recovery_rules": [
+    "Verify PID, start_ticks, UID, pgrp, session and boot_id; missing PID alone is not trustworthy CPU closure.",
+    "If any bound supervisor/worker is live, preserve it and inspect health; do not launch another copy.",
+    "Preserve every attempt, seal, manifest, proof, failed cost, ownership marker and original source snapshot.",
+    "Resume only after actual process closure, known cumulative costs, valid ownership, source and input bindings, sufficient budget and deadline.",
+    "Recover infrastructure/software faults under the same aggregate allocation; scientific non-convergence or imaginary modes must remain accurate scientific outcomes.",
+    "Retry failed result transport separately from calculation, only after all quantum processes have closed.",
+    "Do not run Host A, change main, force-push, duplicate the allocation or disclose credentials.",
+    "If original instance is unavailable, report access failure; do not infer completion or clone into a fresh empty ledger."
+  ],
+  "manifest_path": "/workspace/research4-worker-b/reports/parallel-cloud-20261106/worker-b/B20261106-01/manifest.json",
+  "state_path": "/workspace/research4-worker-b/reports/parallel-cloud-20261106/worker-b/B20261106-01/state.json",
+  "ledger_path": "/workspace/research4-worker-b/reports/parallel-cloud-20261106/worker-b/B20261106-01/cpu_budget_B.json"
+}

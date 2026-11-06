@@ -1,0 +1,691 @@
+#INFO: **** input file is /workspace/research4-worker-b/scripts/research4_parallel_b_quantum_20261106.py ****
+"""Portable, separately supervised B water/compound Opt/Freq worker.
+
+Default operation is NOT_RUN. Every actual operation, including force-field
+preparation and NumPy analysis, requires the B supervisor's live resource proof.
+There is no dependency on A's ledger, boot, checkpoints, ignored caches or sites.
+"""
+from __future__ import annotations
+
+import argparse
+from collections import Counter
+import csv
+from datetime import datetime, timezone
+import hashlib
+import importlib.metadata
+import importlib.util
+import json
+import math
+import os
+from pathlib import Path
+import resource
+import signal
+import sys
+import time
+import traceback
+
+ROOT = Path(__file__).resolve().parents[1]
+INPUT = ROOT / 'data/research/parallel_cloud_20261106/worker_b/cases.json'
+INPUT_SHA = '84f306a6e09a6b162650988d8ba81a34529f58a21accd53626d87e923613d893'
+SUPERVISOR = ROOT / 'scripts/research4_parallel_b_supervisor_20261106.py'
+SCHEMA = 'research4-parallel-b-quantum-result-v1'
+CASE_NAMES = ('water', 'protocatechuic_acid', 'calycosin')
+OPERATIONS = ('prepare', 'optimize', 'frequency', 'analyze')
+CM1_TO_THZ = .0299792458
+BOHR_TO_ANGSTROM = .52917721092
+FREQUENCY_FACTOR_CM1 = 5140.487138493369
+MASSES = {'H': 1.008, 'C': 12.011, 'O': 15.999}
+
+
+def require(ok, message):
+    if not ok:
+        raise ValueError(message)
+
+
+def utc():
+    return datetime.now(timezone.utc).isoformat()
+
+
+def sha(path):
+    digest = hashlib.sha256()
+    with Path(path).open('rb') as stream:
+        for block in iter(lambda: stream.read(1024 ** 2), b''):
+            digest.update(block)
+    return digest.hexdigest()
+
+
+def artifact(path):
+    path = Path(path).resolve()
+    require(path.is_relative_to(ROOT), 'Portable report artifacts must remain inside this checkout')
+    return {'path': path.relative_to(ROOT).as_posix(), 'sha256': sha(path), 'bytes': path.stat().st_size}
+
+
+def read_json(path, expected=None):
+    path = Path(path)
+    require(not path.is_symlink() and path.is_file() and path.stat().st_size <= 2 * 1024 ** 2,
+            'Small explicit non-symlink JSON required')
+    if expected:
+        require(sha(path) == expected, 'Metadata source hash differs: ' + str(path))
+    return json.loads(path.read_text())
+
+
+def save(path, value, exclusive=False):
+    path = Path(path)
+    temporary = path if exclusive else path.with_suffix(path.suffix + '.writing')
+    with temporary.open('x') as stream:
+        json.dump(value, stream, indent=2, ensure_ascii=False, allow_nan=False)
+        stream.write('\n'); stream.flush(); os.fsync(stream.fileno())
+    if not exclusive:
+        os.replace(temporary, path)
+
+
+def checked_record(record, parent=None):
+    require(isinstance(record, dict) and 'path' in record and 'sha256' in record, 'Artifact path/hash required')
+    path = Path(record['path'])
+    if not path.is_absolute():
+        path = (Path(parent) if parent is not None else ROOT) / path
+    require(path.is_file() and not path.is_symlink() and sha(path) == record['sha256'], 'Changed artifact: ' + str(path))
+    if 'bytes' in record:
+        require(path.stat().st_size == record['bytes'], 'Changed artifact size')
+    return path.resolve()
+
+
+def input_case(name):
+    require(name in CASE_NAMES, 'Only the three explicitly registered B cases are allowed')
+    manifest = read_json(INPUT, INPUT_SHA)
+    require(manifest['schema'] == 'research4-parallel-b-chemical-cases-v1', 'Wrong case input schema')
+    checked_record(manifest['source_evidence'], INPUT.parent)
+    case = manifest['cases'][name]
+    require(case['charge'] == case['spin_2S'] == 0 and case['multiplicity'] == 1,
+            'Only verified neutral singlets are supported')
+    require(case['expected_normal_modes'] == 3 * case['atoms'] - 6, 'Expected nonlinear mode count differs')
+    if 'supplied_sdf' in case:
+        checked_record(case['supplied_sdf'], INPUT.parent)
+    return manifest, case
+
+
+def supervise(args):
+    require(args.threads in (1, 2) and 1 <= args.maxsteps <= 35, 'Bounded1/2threads and1..35steps required')
+    spec = importlib.util.spec_from_file_location('research4_b_live_supervision', SUPERVISOR)
+    require(spec is not None and spec.loader is not None, 'Portable B supervisor missing')
+    module = importlib.util.module_from_spec(spec); sys.modules[spec.name] = module; spec.loader.exec_module(module)
+    return module.verify_b_resource_supervision(expected_threads=args.threads,
+        expected_worker_path=Path(__file__).resolve(), expected_case=args.case,
+        expected_input_manifest_sha256=INPUT_SHA, expected_operation=args.operation)
+
+
+def new_output(path):
+    path = Path(path)
+    require(not path.exists() and not path.is_symlink()
+            and path.resolve().is_relative_to(ROOT / 'reports'), 'Fresh independent attempt directory inside ROOT/reports required')
+    path.mkdir(parents=True)
+    return path.resolve()
+
+
+def versions():
+    return {name: importlib.metadata.version(name)
+            for name in ('pyscf', 'geometric', 'numpy', 'scipy', 'rdkit')}
+
+
+def xyz_text(symbols, coordinates, comment):
+    return str(len(symbols)) + '\n' + comment + '\n' + ''.join(
+        f'{symbol} {float(c[0]):.15f} {float(c[1]):.15f} {float(c[2]):.15f}\n'
+        for symbol, c in zip(symbols, coordinates))
+
+
+def validate_coordinates(symbols, coordinates, case):
+    require(Counter(symbols) == case['composition'] and len(symbols) == len(coordinates) == case['atoms'],
+            'Full atom composition/shape differs')
+    require(all(len(c) == 3 and all(math.isfinite(float(v)) for v in c) for c in coordinates),
+            'Nonfinite or incomplete coordinates')
+
+
+def save_array(path, value, np):
+    require(not Path(path).exists() and np.isfinite(value).all(), 'Fresh finite array required')
+    with Path(path).open('xb') as stream:
+        np.save(stream, value, allow_pickle=False)
+
+
+def source_result(args, expected_operation, expected_status):
+    require(args.source_result is not None and args.source_result_sha256, 'Actual preceding result path/hash required')
+    source = read_json(args.source_result, args.source_result_sha256)
+    require(source.get('schema') == SCHEMA and source.get('case') == args.case
+            and source.get('input_manifest_sha256') == INPUT_SHA
+            and source.get('operation') == expected_operation and source.get('status') in expected_status,
+            'Preceding case/operation/result status differs')
+    require(source.get('source_worker', {}).get('sha256') == sha(__file__), 'Preceding computation source differs')
+    require(source.get('settings') == input_case(args.case)[0]['method'], 'Preceding physical method differs')
+    return source
+
+
+def prepared_geometry(args, case):
+    source = source_result(args, 'prepare', ('PREPARED_FORCE_FIELD_MODELS',))
+    selected = read_json(checked_record(source['selected_conformer']))
+    require(selected.get('force_field_converged') is True, 'Selected force-field geometry is unconverged')
+    symbols, coords = selected['atom_symbols'], selected['coordinates_angstrom']
+    validate_coordinates(symbols, coords, case)
+    return source, symbols, coords
+
+
+def optimized_geometry(args, case):
+    source = source_result(args, 'optimize', ('OPTIMIZATION_CONVERGED',))
+    require(source.get('optimizer_converged') is True and source.get('scf_converged') is True
+            and source.get('fresh_gradient_thresholds_passed') is True, 'A true fresh-gradient-qualified optimization is required')
+    selected = read_json(checked_record(source['optimized_geometry']))
+    symbols, coords = selected['atom_symbols'], selected['coordinates_angstrom']
+    validate_coordinates(symbols, coords, case)
+    return source, symbols, coords
+
+
+def prepare(args, state, output, case, emit):
+    from rdkit import Chem
+    from rdkit.Chem import AllChem, rdMolDescriptors
+    graph = Chem.MolFromSmiles(case['smiles'])
+    require(graph is not None and Chem.MolToInchiKey(graph) == case['full_inchikey'], 'Source graph identity mismatch')
+    mol = Chem.AddHs(graph)
+    require(Chem.GetFormalCharge(mol) == case['charge']
+            and sum(a.GetNumRadicalElectrons() for a in mol.GetAtoms()) == 0
+            and rdMolDescriptors.CalcMolFormula(mol) == case['formula']
+            and Counter(a.GetSymbol() for a in mol.GetAtoms()) == case['composition'], 'Actual neutral formula/radicals differ')
+    require(not Chem.FindMolChiralCenters(graph, includeUnassigned=True), 'Unexpected defined/unresolved stereo for these achiral cases')
+    if 'supplied_sdf' in case:
+        supplier = Chem.SDMolSupplier(str(checked_record(case['supplied_sdf'], INPUT.parent)), removeHs=False)
+        records = [record for record in supplier if record is not None]
+        require(len(records) == 1 and Chem.MolToInchiKey(records[0]) == case['full_inchikey']
+                and rdMolDescriptors.CalcMolFormula(records[0]) == case['formula'], 'Supplied SDF graph/formula differs')
+        state['supplied_SDF_graph_verified'] = True
+        state['supplied_SDF_coordinates_used'] = False
+    params = AllChem.ETKDGv3(); params.randomSeed = args.seed; params.numThreads = 1; params.pruneRmsThresh = .1
+    ids = list(AllChem.EmbedMultipleConfs(mol, numConfs=args.conformers, params=params))
+    require(ids, 'No actual ETKDG conformer generated')
+    mmff = bool(AllChem.MMFFHasAllMoleculeParams(mol))
+    require(mmff or args.case == 'water', 'MMFF94s parameters missing for registered compound')
+    properties = AllChem.MMFFGetMoleculeProperties(mol, mmffVariant='MMFF94s') if mmff else None
+    force_field = 'MMFF94s' if mmff else 'UFF_EXPLICIT_WATER_ONLY_FALLBACK'
+    records = []; symbols = [a.GetSymbol() for a in mol.GetAtoms()]
+    for cid in ids:
+        field = AllChem.MMFFGetMoleculeForceField(mol, properties, confId=cid) if mmff else AllChem.UFFGetMoleculeForceField(mol, confId=cid)
+        require(field is not None, 'Force field not available')
+        status = int(field.Minimize(maxIts=500)); energy = float(field.CalcEnergy())
+        coords = [[float(v) for v in row] for row in mol.GetConformer(cid).GetPositions()]
+        validate_coordinates(symbols, coords, case)
+        value = {'atom_symbols': symbols, 'coordinates_angstrom': coords, 'conformer_id': cid,
+                 'force_field': force_field, 'force_field_status': status, 'force_field_converged': status == 0,
+                 'force_field_energy_kcal_mol': energy, 'DFT_status': 'NOT_RUN', 'experimental_crystal_coordinates': False}
+        path = output / f'conformer_{cid:03d}.json'; save(path, value, exclusive=True)
+        (output / f'conformer_{cid:03d}.xyz').write_text(xyz_text(symbols, coords, 'ETKDG/force-field model, not DFT or experimental3D'))
+        records.append({**value, 'artifact': artifact(path)})
+    converged = [r for r in records if r['force_field_converged'] and math.isfinite(r['force_field_energy_kcal_mol'])]
+    require(converged, 'No force-field-converged candidate')
+    chosen = min(converged, key=lambda r: (r['force_field_energy_kcal_mol'], r['conformer_id']))
+    state.update(status='PREPARED_FORCE_FIELD_MODELS', selected_conformer=chosen['artifact'], conformers=records,
+                 requested_conformers=args.conformers, actual_embedded_conformers=len(ids), seed=args.seed,
+                 force_field=force_field, global_minimum_claim=False, numerical_DFT_operations=0)
+    emit('force_field_preparation_complete', selected_conformer_id=chosen['conformer_id'], actual_embedded_conformers=len(ids))
+
+
+def make_scf(mol, settings, checkpoint, threads, emit):
+    from pyscf import dft, lib
+    from pyscf.scf import hf
+    class ScreenedDirectRKS(dft.rks.RKS):
+        def get_jk(self, mol=None, dm=None, hermi=1, with_j=True, with_k=True, omega=None):
+            require(self._eri is None and self.direct_scf is True and self.mol.incore_anyway is False,
+                    'Full screened-direct policy violated')
+            return hf.SCF.get_jk(self, mol=mol, dm=dm, hermi=hermi, with_j=with_j, with_k=with_k, omega=omega)
+    lib.num_threads(threads)
+    mf = ScreenedDirectRKS(mol); mf.xc = settings['xc']; mf.disp = None
+    mf.max_memory = settings['max_memory_mb']; mf.direct_scf = True; mf.direct_scf_tol = settings['direct_scf_tol']
+    mf.conv_tol = settings['scf_conv_tol']; mf.max_cycle = settings['scf_max_cycle']
+    mf.conv_tol_cpscf = settings['CPHF_conv_tol']; mf.grids.level = settings['grid_level']; mf.chkfile = str(checkpoint)
+    mf._eri = None; mf.mol.incore_anyway = False
+    mf.callback = lambda env: emit('scf_cycle', cycle=int(env.get('cycle', -1)), energy_hartree=float(env['e_tot']))
+    return mf
+
+
+def gradient_of(mf, settings, emit):
+    require(mf.converged, 'Unconverged SCF cannot enter gradient')
+    value = mf.nuc_grad_method(); value.grid_response = settings['gradient_grid_response']
+    emit('gradient_started')
+    result = value.kernel()
+    emit('gradient_complete')
+    return result
+
+
+def gradient_checks(np, gradient, settings):
+    require(gradient.ndim == 2 and gradient.shape[1] == 3 and np.isfinite(gradient).all(), 'Full finite gradient required')
+    norms = np.linalg.norm(gradient, axis=1)
+    rms = float(np.sqrt(np.mean(norms ** 2))); maximum = float(np.max(norms))
+    passed = rms <= settings['optimizer_thresholds']['convergence_grms'] and maximum <= settings['optimizer_thresholds']['convergence_gmax']
+    return {'atom_gradient_rms_hartree_per_bohr': rms, 'atom_gradient_max_hartree_per_bohr': maximum,
+            'fresh_gradient_thresholds_passed': bool(passed), 'final_gradient_thresholds_passed': bool(passed)}
+
+
+def signed_mode_flags(frequencies, expected, fresh_gradient_passed):
+    values = [float(v) for v in frequencies]
+    require(len(values) == expected and all(math.isfinite(v) for v in values), 'All finite signed modes required')
+    positive = all(v > 0 for v in values)
+    return {'normal_mode_count': len(values), 'imaginary_frequency_count': sum(v < 0 for v in values),
+            'positive_frequency_count': sum(v > 0 for v in values), 'zero_frequency_count': sum(v == 0 for v in values),
+            'all_frequencies_real_positive': positive,
+            'stationary_minimum_verified': bool(positive and fresh_gradient_passed),
+            'frequency_validation_passed': bool(positive and fresh_gradient_passed)}
+
+
+def molecule(case, symbols, coords, settings, log):
+    from pyscf import gto
+    mol = gto.Mole(); mol.stdout = log
+    mol.build(atom=list(zip(symbols, coords)), unit='Angstrom', basis=settings['basis'], charge=case['charge'],
+              spin=case['spin_2S'], symmetry=False, max_memory=settings['max_memory_mb'], verbose=4)
+    mol.incore_anyway = False
+    require(mol.natm == case['atoms'] and mol.nelectron == case['electrons'] and mol.nao_nr() == case['basis_functions'],
+            'Actual full AO/atom/electron dimensions differ')
+    return mol
+
+
+def optimize(args, state, output, case, settings, emit, log):
+    import numpy as np
+    from pyscf.geomopt import geometric_solver
+    source, symbols, coords = prepared_geometry(args, case)
+    state['preceding_result'] = artifact(args.source_result)
+    mol = molecule(case, symbols, coords, settings, log)
+    mf = make_scf(mol, settings, output / 'optimization.chk', args.threads, emit)
+    gradient = mf.nuc_grad_method(); gradient.grid_response = settings['gradient_grid_response']
+    (output / 'geometry_steps').mkdir()
+    def callback(env):
+        index = int(env['self'].cycle); stem = output / 'geometry_steps' / f'step_{index:04d}'
+        xyz = env['mol'].atom_coords(unit='Angstrom'); grad = np.asarray(env['gradients'])
+        require(bool(env['g_scanner'].converged) and np.isfinite(grad).all(), 'Optimization callback has unconverged SCF')
+        geometry = {'atom_symbols': symbols, 'coordinates_angstrom': xyz.tolist(), 'energy_hartree': float(env['energy']),
+                    'cycle': index, 'scf_converged': True, 'optimized_minimum_claim': False}
+        save(stem.with_suffix('.json'), geometry, exclusive=True)
+        stem.with_suffix('.xyz').write_text(xyz_text(symbols, xyz, 'Optimization checkpoint, not minimum certificate'))
+        save_array(stem.with_suffix('.gradient.npy'), grad, np)
+        state['last_geometry'] = artifact(stem.with_suffix('.json'))
+        state['optimizer_last_cycle'] = index
+        emit('geometry_cycle', cycle=index, energy_hartree=float(env['energy']))
+    emit('optimization_started')
+    state['quantum_payload_entered'] = True
+    converged, mol = geometric_solver.kernel(gradient, maxsteps=args.maxsteps, assert_convergence=True,
+                callback=callback, **settings['optimizer_thresholds'])
+    state['optimizer_converged'] = bool(converged)
+    require(converged, 'Optimizer did not converge within bounded maxsteps')
+    xyz = mol.atom_coords(unit='Angstrom')
+    geom = output / 'optimized_geometry.json'
+    save(geom, {'atom_symbols': symbols, 'coordinates_angstrom': xyz.tolist(), 'optimizer_converged': True}, exclusive=True)
+    (output / 'optimized.xyz').write_text(xyz_text(symbols, xyz, 'Local optimized geometry, inspect fresh gradient/frequencies'))
+    state['optimized_geometry'] = artifact(geom)
+    # A genuinely fresh final SCF/gradient; no optimizer-last-gradient shortcut.
+    final = make_scf(mol, settings, output / 'fresh_final_scf.chk', args.threads, emit)
+    state['energy_hartree'] = float(final.kernel()); state['scf_converged'] = bool(final.converged)
+    require(final.converged and np.isfinite(final.e_tot), 'Fresh final SCF failed')
+    gradient = np.asarray(gradient_of(final, settings, emit)); save_array(output / 'fresh_gradient.npy', gradient, np)
+    state.update(gradient_checks(np, gradient, settings))
+    require(state['fresh_gradient_thresholds_passed'], 'Fresh final gradient failed; no frequency eligibility')
+    state.update(status='OPTIMIZATION_CONVERGED', geometry_optimized=True, stationary_minimum_verified=False,
+                 frequency_validation_passed=False, frequencies_status='NOT_RUN', numerical_DFT_operations=1)
+    emit('optimization_and_fresh_gradient_complete')
+
+
+def frequency(args, state, output, case, settings, emit, log):
+    import numpy as np
+    from pyscf.hessian import thermo
+    source, symbols, coords = optimized_geometry(args, case)
+    state.update(preceding_result=artifact(args.source_result), optimizer_converged=True)
+    mol = molecule(case, symbols, coords, settings, log)
+    mf = make_scf(mol, settings, output / 'fresh_frequency_scf.chk', args.threads, emit)
+    state['quantum_payload_entered'] = True
+    state['energy_hartree'] = float(mf.kernel()); state['scf_converged'] = bool(mf.converged)
+    require(mf.converged and np.isfinite(mf.e_tot), 'Fresh frequency SCF failed')
+    grad = np.asarray(gradient_of(mf, settings, emit)); save_array(output / 'fresh_gradient.npy', grad, np)
+    state.update(gradient_checks(np, grad, settings)); require(state['fresh_gradient_thresholds_passed'], 'Fresh frequency gradient failed')
+    state['optimized_geometry'] = source['optimized_geometry']
+    hessian = mf.Hessian(); hessian.max_cycle = settings['CPHF_max_cycle']; hessian.level_shift = 0
+    hessian.max_memory = 2000
+    require(getattr(mf, 'with_df', None) is None and mf.disp is None and mf._eri is None, 'Non-DF explicit noD3 direct required')
+    emit('stock_complete_Hessian_started')
+    raw = np.asarray(hessian.kernel(atmlst=list(range(case['atoms']))))
+    require(raw.shape == (case['atoms'], case['atoms'], 3, 3) and np.isfinite(raw).all(), 'Incomplete full Hessian')
+    save_array(output / 'hessian_raw.npy', raw, np)
+    asymmetry = float(np.max(np.abs(raw - raw.transpose(1, 0, 3, 2))))
+    state['raw_Hessian_max_asymmetry_Eh_per_Bohr2'] = asymmetry
+    require(asymmetry <= 1e-5, 'Hessian asymmetry too large; do not hide with symmetrization')
+    used = (raw + raw.transpose(1, 0, 3, 2)) * .5; save_array(output / 'hessian_used.npy', used, np)
+    result = thermo.harmonic_analysis(mol, used, exclude_trans=True, exclude_rot=True, imaginary_freq=False)
+    cm = np.asarray(result['freq_wavenumber']); modes = np.asarray(result['norm_mode'])
+    require(not np.iscomplexobj(cm) and not np.iscomplexobj(modes) and cm.shape == (case['expected_normal_modes'],)
+            and modes.shape == (case['expected_normal_modes'], case['atoms'], 3)
+            and np.isfinite(cm).all() and np.isfinite(modes).all(), 'Complete finite signed real representation required')
+    save_array(output / 'normal_modes.npy', modes, np)
+    save_array(output / 'geometry_bohr.npy', mol.atom_coords(unit='Bohr'), np)
+    save_array(output / 'frequencies_cm1.npy', cm, np)
+    save_array(output / 'masses_amu.npy', mol.atom_mass_list(isotope_avg=True), np)
+    with (output / 'frequencies.csv').open('x', newline='') as stream:
+        writer = csv.writer(stream, lineterminator='\n'); writer.writerow(['mode', 'frequency_cm1', 'frequency_THz', 'imaginary', 'IR_intensity_status'])
+        for index, value in enumerate(cm, 1):
+            writer.writerow([index, float(value), float(value * CM1_TO_THZ), bool(value < 0), 'NOT_COMPUTED'])
+    state.update(status='FREQUENCIES_COMPUTED', frequencies_status='DONE', normal_modes_complete=True,
+                 **signed_mode_flags(cm, case['expected_normal_modes'], state['fresh_gradient_thresholds_passed']),
+                 complete_global_Hessian=True,
+                 frequencies_cm1=cm.tolist(), measured_CPHF_residual_norm='NOT_COMPUTED',
+                 stock_CPHF_normal_return_not_independent_residual_verification=True, numerical_DFT_operations=1)
+    state['arrays'] = {p.name: artifact(p) for p in output.glob('*.npy')}
+    emit('signed_modes_complete', normal_mode_count=len(cm), imaginary_frequency_count=int(np.sum(cm < 0)))
+
+
+def analyze(args, state, output, case, settings, emit):
+    import numpy as np
+    source = source_result(args, 'frequency', ('FREQUENCIES_COMPUTED',))
+    require(source.get('normal_mode_count') == case['expected_normal_modes'], 'All signed modes required')
+    def array(name, shape):
+        value = np.load(checked_record(source['arrays'][name]), allow_pickle=False)
+        require(value.shape == shape and np.isfinite(value).all(), 'Analysis array shape/finiteness differs: ' + name)
+        return value
+    n = case['atoms']; k = case['expected_normal_modes']
+    raw = array('hessian_raw.npy', (n, n, 3, 3)); used = array('hessian_used.npy', (n, n, 3, 3))
+    xyz = array('geometry_bohr.npy', (n, 3)); cm = array('frequencies_cm1.npy', (k,))
+    mass = array('masses_amu.npy', (n,)); modes = array('normal_modes.npy', (k, n, 3))
+    require(np.max(np.abs(used - (raw + raw.transpose(1, 0, 3, 2)) * .5)) < 1e-14, 'Hessian symmetrization differs')
+    geometry = read_json(checked_record(source['optimized_geometry'])); symbols = geometry['atom_symbols']
+    validate_coordinates(symbols, geometry['coordinates_angstrom'], case)
+    geometry_delta = float(np.max(np.abs(xyz * BOHR_TO_ANGSTROM - np.asarray(geometry['coordinates_angstrom']))))
+    require(geometry_delta <= 1e-10, 'Mode geometry and exact optimized atom-order coordinates differ')
+    require(np.allclose(mass, [MASSES[s] for s in symbols], atol=1e-12, rtol=0), 'Mass convention differs')
+    center = np.einsum('i,ij->j', mass, xyz) / np.sum(mass); centered = xyz - center
+    ext = []
+    for axis in np.eye(3):
+        ext.append((np.sqrt(mass)[:, None] * np.broadcast_to(axis, (n, 3))).ravel())
+        ext.append((np.sqrt(mass)[:, None] * np.cross(centered, axis)).ravel())
+    u, singular, _ = np.linalg.svd(np.asarray(ext).T, full_matrices=True)
+    require(int(np.sum(singular > 1e-10)) == 6, 'Expected nonlinear six-dimensional external space')
+    vib = u[:, 6:]; weights = np.repeat(np.sqrt(mass), 3)
+    cart = used.transpose(0, 2, 1, 3).reshape(3 * n, 3 * n)
+    weighted = cart / weights[:, None] / weights[None, :]
+    reduced = vib.T @ weighted @ vib
+    eig, vec = np.linalg.eigh((reduced + reduced.T) * .5)
+    replay = np.sign(eig) * np.sqrt(np.abs(eig)) * FREQUENCY_FACTOR_CM1
+    error = float(np.max(np.abs(replay - cm)))
+    mw_modes = modes.reshape(k, 3 * n) * weights[None, :]
+    orthogonality = float(np.max(np.abs(mw_modes @ mw_modes.T - np.eye(k))))
+    external_error = float(np.max(np.abs(mw_modes @ u[:, :6])))
+    eig_residual = float(np.max(np.abs(reduced @ vec - vec * eig[None, :])))
+    saved_coords = vib.T @ mw_modes.T
+    saved_eigenvalues = np.sign(cm) * (np.abs(cm) / FREQUENCY_FACTOR_CM1) ** 2
+    saved_residual = float(np.max(np.abs(reduced @ saved_coords - saved_coords * saved_eigenvalues[None, :])))
+    passed = (error <= 1e-6 and orthogonality <= 1e-6 and external_error <= 1e-6
+              and eig_residual <= 1e-9 and saved_residual <= 1e-8)
+    require(passed, 'Independent NumPy signed-frequency/TR replay failed')
+    with (output / 'independent_frequencies.csv').open('x', newline='') as stream:
+        writer = csv.writer(stream, lineterminator='\n'); writer.writerow(['mode', 'frequency_cm1', 'frequency_THz', 'imaginary', 'IR_intensity_status'])
+        for index, value in enumerate(replay, 1):
+            writer.writerow([index, float(value), float(value * CM1_TO_THZ), bool(value < 0), 'NOT_COMPUTED'])
+    state.update(status='MODES_ANALYZED', preceding_result=artifact(args.source_result),
+                 **signed_mode_flags(replay, k, source['fresh_gradient_thresholds_passed']),
+                 optimizer_converged=source['optimizer_converged'], scf_converged=source['scf_converged'],
+                 fresh_gradient_thresholds_passed=source['fresh_gradient_thresholds_passed'],
+                 final_gradient_thresholds_passed=source['final_gradient_thresholds_passed'],
+                 independent_mode_replay_passed=True, independent_replay_new_quantum_evaluations=0,
+                 max_frequency_difference_cm1=error, mass_weighted_orthogonality_error=orthogonality,
+                 external_projection_error=external_error, projected_eigen_equation_residual=eig_residual,
+                 saved_mode_eigen_equation_residual=saved_residual,
+                 mode_geometry_max_difference_angstrom=geometry_delta,
+                 projected_eigen_residual_units='Eh/(amu Bohr^2)', residual_is_not_a_CPHF_residual=True,
+                 signed_frequencies_cm1=replay.tolist(), numerical_DFT_operations=0)
+    emit('independent_numpy_replay_complete', imaginary_frequency_count=int(np.sum(replay < 0)))
+
+
+def run(args):
+    manifest, case = input_case(args.case)
+    require(1 <= args.conformers <= 16, 'Bounded1..16 ETKDG candidates required')
+    if not args.execute:
+        return {'schema': SCHEMA, 'status': 'NOT_RUN', 'case': args.case, 'operation': args.operation,
+                'input_manifest_sha256': INPUT_SHA, 'source_worker': artifact(__file__),
+                'expected_modes_not_actual_frequencies': case['expected_normal_modes'], 'new_quantum_evaluations': 0,
+                'IR_intensities_status': 'NOT_COMPUTED', 'default_preflight_only': True}
+    supervision = supervise(args)  # FIRST: no RDKit/NumPy/PySCF imports before realB-parent verification.
+    output = new_output(args.output); start = time.perf_counter(); cpu = time.process_time()
+    state = {'schema': SCHEMA, 'status': 'PARTIAL', 'case': args.case, 'operation': args.operation,
+             'source_worker': artifact(__file__), 'input_manifest_sha256': INPUT_SHA,
+             'resource_supervision': supervision, 'output_directory': str(output), 'started_at_utc': utc(),
+             'chemical_identity': case, 'settings': manifest['method'], 'atoms': case['atoms'],
+             'electrons': case['electrons'], 'basis_functions': case['basis_functions'],
+             'IR_intensities_status': 'NOT_COMPUTED', 'chemical_peak_assignment_verified': False,
+             'theory_enters_classifier': False, 'independent_plant_samples_added': 0,
+             'is_software_control': case['is_software_control'], 'numerical_DFT_operations': 0,
+             'A_state_ledger_data_or_models_modified': False, 'global_minimum_search_performed': False}
+    state.update(quantum_payload_entered=False, optimizer_maxsteps_actual=args.maxsteps,
+                 new_quantum_evaluations_scope='BOOLEAN_QUANTUM_STAGE_ENTERED_NOT_SCF_CYCLE_COUNT')
+    save(output / 'input.json', state, exclusive=True)
+    def emit(event, **data):
+        row = {'utc': utc(), 'event': event, 'wall_seconds': time.perf_counter() - start,
+               'process_cpu_seconds': time.process_time() - cpu, **data}
+        with (output / 'events.jsonl').open('a') as stream:
+            stream.write(json.dumps(row, allow_nan=False) + '\n'); stream.flush()
+        save(output / 'progress.json', {**state, **row})
+    def stopped(signum, _frame):
+        raise RuntimeError('ActualBsupervisor resource/termination signal ' + str(signum))
+    handlers = {sig: signal.signal(sig, stopped) for sig in (signal.SIGTERM, signal.SIGINT, signal.SIGXCPU)}
+    log = (output / 'pyscf.log').open('x', buffering=1)
+    try:
+        state['versions'] = versions()
+        if args.operation == 'prepare':
+            prepare(args, state, output, case, emit)
+        elif args.operation == 'optimize':
+            optimize(args, state, output, case, manifest['method'], emit, log)
+        elif args.operation == 'frequency':
+            frequency(args, state, output, case, manifest['method'], emit, log)
+        else:
+            analyze(args, state, output, case, manifest['method'], emit)
+    except BaseException as error:
+        state.update(status='PARTIAL', exception_type=type(error).__name__, stop_reason=str(error))
+        (output / 'exception_traceback.txt').write_text(traceback.format_exc())
+    finally:
+        for sig, old in handlers.items():
+            signal.signal(sig, old)
+        state.update(completed_at_utc=utc(), wall_seconds=time.perf_counter() - start,
+                     process_cpu_seconds=time.process_time() - cpu,
+                     peak_rss_kib=resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
+        state['checkpoint_files'] = [artifact(p) for p in output.glob('*.chk')]
+        # Actual count describes operations entered, not SCF cycle or force-field counts.
+        state['new_quantum_evaluations'] = int(state['quantum_payload_entered'])
+        log.flush(); log.close(); save(output / 'result.json', state, exclusive=True)
+    return state
+
+
+def parser():
+    p = argparse.ArgumentParser(description=__doc__)
+    p.add_argument('--case', choices=CASE_NAMES, required=True)
+    p.add_argument('--operation', choices=OPERATIONS, required=True)
+    p.add_argument('--output', type=Path, required=True)
+    p.add_argument('--execute', action='store_true')
+    p.add_argument('--source-result', type=Path); p.add_argument('--source-result-sha256')
+    p.add_argument('--threads', type=int, choices=(1, 2), default=2)
+    p.add_argument('--maxsteps', type=int, default=25)
+    p.add_argument('--conformers', type=int, default=8); p.add_argument('--seed', type=int, default=20261106)
+    return p
+
+
+def main():
+    args = parser().parse_args(); result = run(args)
+    print(json.dumps({k: result.get(k) for k in ('status', 'case', 'operation', 'normal_mode_count',
+          'imaginary_frequency_count', 'stationary_minimum_verified', 'stop_reason')}, ensure_ascii=False), flush=True)
+    if args.execute and result['status'] == 'PARTIAL':
+        raise SystemExit(2)
+
+
+if __name__ == '__main__':
+    main()
+#INFO: ******************** input file end ********************
+
+
+System: uname_result(system='Linux', node='595ff14d6639', release='6.18.57', version='#1 SMP Tue Oct 20 21:56:04 UTC 2026', machine='x86_64')  Threads 2
+Python 3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]
+numpy 2.3.5  scipy 1.17.0  h5py 3.16.0
+Date: Fri Nov  6 12:51:11 2026
+PySCF version 2.14.0
+PySCF path  /workspace/research4-worker-b/.runtime/worker-b-20261106/venv/lib/python3.12/site-packages/pyscf
+
+[CONFIG] conf_file None
+[INPUT] verbose = 4
+[INPUT] num. atoms = 33
+[INPUT] num. electrons = 148
+[INPUT] charge = 0
+[INPUT] spin (= nelec alpha-beta = 2S) = 0
+[INPUT] symmetry False subgroup None
+[INPUT] Mole.unit = Angstrom
+[INPUT] Symbol           X                Y                Z      unit          X                Y                Z       unit  Magmom
+[INPUT]  1 C      5.928925284631   1.219867799122   0.716076796053 AA   11.204045000961   2.305216048516   1.353189028696 Bohr   0.0
+[INPUT]  2 O      5.267029827568   0.082556435296   0.193556226293 AA    9.953243864019   0.156009052530   0.365768257399 Bohr   0.0
+[INPUT]  3 C      3.901151627193   0.122264012211   0.064206928773 AA    7.372108145796   0.231045497969   0.121333510680 Bohr   0.0
+[INPUT]  4 C      3.064739520393   1.206333493633   0.356925417801 AA    5.791518336674   2.279639917857   0.674491286540 Bohr   0.0
+[INPUT]  5 C      1.674192639435   1.091764246813   0.182728441351 AA    3.163765568295   2.063135419068   0.345306709323 Bohr   0.0
+[INPUT]  6 C      1.101521415415  -0.109246247543  -0.290379561314 AA    2.081573795478  -0.206445487993  -0.548737843054 Bohr   0.0
+[INPUT]  7 C     -0.359144018749  -0.234604621985  -0.508857559024 AA   -0.678683834711  -0.443338483109  -0.961601422970 Bohr   0.0
+[INPUT]  8 C     -0.833604306204  -1.043266118759  -1.511472216066 AA   -1.575283834984  -1.971487239492  -2.856268533253 Bohr   0.0
+[INPUT]  9 O     -2.134981827078  -1.303268806759  -1.780345200165 AA   -4.034530934102  -2.462821111463  -3.364364835496 Bohr   0.0
+[INPUT] 10 C     -3.103257827431  -0.729414135749  -1.002757574111 AA   -5.864307387756  -1.378392947952  -1.894937184403 Bohr   0.0
+[INPUT] 11 C     -4.434548204569  -1.057661288795  -1.299482631677 AA   -8.380081592816  -1.998690168376  -2.455666277499 Bohr   0.0
+[INPUT] 12 C     -5.457303996074  -0.488431633305  -0.525554507759 AA  -10.312809931075  -0.923002017521  -0.993154083195 Bohr   0.0
+[INPUT] 13 O     -6.736808172884  -0.826013448410  -0.825819734647 AA  -12.730722400482  -1.560939192703  -1.560573126743 Bohr   0.0
+[INPUT] 14 C     -5.137602596194   0.406528809001   0.530155575288 AA   -9.708661843661   0.768228110757   1.001848840705 Bohr   0.0
+[INPUT] 15 C     -3.809213091921   0.719404804667   0.799924887385 AA   -7.198369493838   1.359478053517   1.511638957382 Bohr   0.0
+[INPUT] 16 C     -2.757842144794   0.156976400524   0.041705215162 AA   -5.211566348444   0.296642405011   0.078811434622 Bohr   0.0
+[INPUT] 17 C     -1.344573460445   0.490442802975   0.337647766540 AA   -2.540875594601   0.926802577386   0.638061805331 Bohr   0.0
+[INPUT] 18 O     -1.038513318583   1.301792199695   1.219507870676 AA   -1.962505748835   2.460030728519   2.304535882330 Bohr   0.0
+[INPUT] 19 C      1.959276669422  -1.204889764515  -0.566446719956 AA    3.702496307458  -2.276911665224  -1.070429164874 Bohr   0.0
+[INPUT] 20 C      3.342403188047  -1.099626452824  -0.401780481940 AA    6.316226623282  -2.077992835165  -0.759255073062 Bohr   0.0
+[INPUT] 21 O      4.158623742838  -2.154639454375  -0.659115775202 AA    7.858659929077  -4.071678465952  -1.245548299513 Bohr   0.0
+[INPUT] 22 H      5.570519395348   1.467868732166   1.740143115041 AA   10.526756028785   2.773869890606   3.288393904975 Bohr   0.0
+[INPUT] 23 H      7.005199053104   0.969348998398   0.759429971012 AA   13.237907658429   1.831804126093   1.435114655999 Bohr   0.0
+[INPUT] 24 H      5.790035173117   2.110941463787   0.063846001399 AA   10.941580728789   3.989101231546   0.120651456793 Bohr   0.0
+[INPUT] 25 H      3.484634465943   2.152360007105   0.726406983764 AA    6.585004784852   4.067370934895   1.372710254285 Bohr   0.0
+[INPUT] 26 H      1.022333079790   1.936853792181   0.432061518720 AA    1.931929528887   3.660123210548   0.816477939345 Bohr   0.0
+[INPUT] 27 H     -0.181541910460  -1.567990988283  -2.224763719522 AA   -0.343064490900  -2.963073533640  -4.204194121765 Bohr   0.0
+[INPUT] 28 H     -4.670730908441  -1.748631271801  -2.119515152532 AA   -8.826402218495  -3.304434196554  -4.005303155152 Bohr   0.0
+[INPUT] 29 H     -7.334331502986  -0.359321237674  -0.211983255126 AA  -13.859877847413  -0.679018729943  -0.400590295182 Bohr   0.0
+[INPUT] 30 H     -5.949483217423   0.848688067584   1.131288510900 AA  -11.242893863625   1.603788012919   2.137825453469 Bohr   0.0
+[INPUT] 31 H     -3.527947531191   1.410635543850   1.608715800216 AA   -6.666854615786   2.665714839453   3.040032274669 Bohr   0.0
+[INPUT] 32 H      1.560022307584  -2.179090763220  -0.884416026483 AA    2.948014909547  -4.117884743056  -1.671304070229 Bohr   0.0
+[INPUT] 33 H      5.065890106373  -1.846314767005  -0.449780502862 AA    9.573144878189  -3.489029249379  -0.849961966579 Bohr   0.0
+
+nuclear repulsion = 1528.39956693154
+number of shells = 162
+number of NR pGTOs = 588
+number of NR cGTOs = 354
+basis = def2-svp
+ecp = {}
+CPU time:         0.80
+
+
+******** <class '__main__.make_scf.<locals>.ScreenedDirectRKS'> ********
+method = ScreenedDirectRKS
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-08
+SCF conv_tol_grad = None
+SCF max_cycles = 80
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /workspace/research4-worker-b/reports/parallel-cloud-20261106/worker-b/B20261106-01/science/calycosin-frequency-attempt001/fresh_frequency_scf.chk
+max_memory 3000 MB (current use 112 MB)
+XC library pyscf.dft.libxc version 7.0.0
+    S. Lehtola, C. Steigemann, M. J.T. Oliveira, and M. A.L. Marques.,  SoftwareX 7, 1–5 (2018)
+XC functionals = PBE
+    J. P. Perdew, K. Burke, and M. Ernzerhof.,  Phys. Rev. Lett. 77, 3865 (1996)
+    J. P. Perdew, K. Burke, and M. Ernzerhof.,  Phys. Rev. Lett. 78, 1396 (1997)
+    J. P. Perdew, K. Burke, and M. Ernzerhof.,  Phys. Rev. Lett. 77, 3865 (1996)
+    J. P. Perdew, K. Burke, and M. Ernzerhof.,  Phys. Rev. Lett. 78, 1396 (1997)
+radial grids: 
+    Treutler-Ahlrichs [JCP 102, 346 (1995); DOI:10.1063/1.469408] (M4) radial grids
+    
+becke partition: Becke, JCP 88, 2547 (1988); DOI:10.1063/1.454033
+pruning grids: <function nwchem_prune at 0x7fd525e6ad40>
+grids dens level: 1
+symmetrized grids: False
+atomic radii adjust function: <function treutler_atomic_radii_adjust at 0x7fd525e6ac00>
+small_rho_cutoff = 0
+Set gradient conv threshold to 0.0001
+Initial guess from minao.
+tot grids = 138448
+init E= -994.142199098409
+  HOMO = -0.257302622792549  LUMO = -0.150033693604951  gap/eV = 2.91894
+cycle= 1 E= -990.770801277072  delta_E= 3.37  |g|=  1.4  |ddm|= 7.68
+  HOMO = -0.0492195379545199  LUMO = -0.0166068376854449  gap/eV = 0.88744
+cycle= 2 E= -986.714617392414  delta_E= 4.06  |g|= 3.64  |ddm|= 6.05
+  HOMO = -0.142012607504535  LUMO = -0.0688711466446303  gap/eV = 1.99028
+cycle= 3 E= -990.512852092688  delta_E= -3.8  |g|= 1.56  |ddm|= 5.64
+  HOMO = -0.162753062039592  LUMO = -0.0710666424086783  gap/eV = 2.49491
+cycle= 4 E= -991.129834604323  delta_E= -0.617  |g|= 0.434  |ddm|= 1.73
+  HOMO = -0.181741214079793  LUMO = -0.0937602736609136  gap/eV = 2.39408
+cycle= 5 E= -991.080976446904  delta_E= 0.0489  |g|= 0.59  |ddm|=    1
+  HOMO = -0.174877221513046  LUMO = -0.087520403732495  gap/eV = 2.37710
+cycle= 6 E= -991.173115878016  delta_E= -0.0921  |g|= 0.139  |ddm|= 0.753
+  HOMO = -0.173010329652505  LUMO = -0.0802802264984104  gap/eV = 2.52331
+cycle= 7 E= -991.176661876373  delta_E= -0.00355  |g|= 0.0618  |ddm|= 0.217
+  HOMO = -0.17397726356116  LUMO = -0.0792103951188827  gap/eV = 2.57874
+cycle= 8 E= -991.177102572072  delta_E= -0.000441  |g|= 0.0444  |ddm|= 0.119
+  HOMO = -0.174130359175039  LUMO = -0.0811986270747878  gap/eV = 2.52880
+cycle= 9 E= -991.177654832492  delta_E= -0.000552  |g|= 0.0112  |ddm|= 0.0697
+  HOMO = -0.174070772934513  LUMO = -0.0810024162198304  gap/eV = 2.53252
+cycle= 10 E= -991.177673584182  delta_E= -1.88e-05  |g|= 0.00817  |ddm|= 0.0185
+  HOMO = -0.173939598128563  LUMO = -0.0808803592073319  gap/eV = 2.53227
+cycle= 11 E= -991.177689850297  delta_E= -1.63e-05  |g|= 0.00173  |ddm|= 0.0124
+  HOMO = -0.174012170228255  LUMO = -0.0808639128995292  gap/eV = 2.53469
+cycle= 12 E= -991.177690383981  delta_E= -5.34e-07  |g|= 0.00094  |ddm|= 0.00305
+  HOMO = -0.174058249184137  LUMO = -0.0809299334163462  gap/eV = 2.53415
+cycle= 13 E= -991.177690507255  delta_E= -1.23e-07  |g|= 0.000744  |ddm|= 0.00198
+  HOMO = -0.174026002611236  LUMO = -0.0809046913822522  gap/eV = 2.53396
+cycle= 14 E= -991.177690627327  delta_E= -1.2e-07  |g|= 0.000214  |ddm|= 0.000909
+  HOMO = -0.174022193053933  LUMO = -0.0808983964225107  gap/eV = 2.53403
+cycle= 15 E= -991.177690637534  delta_E= -1.02e-08  |g|= 3.58e-05  |ddm|= 0.000264
+  HOMO = -0.174022025055278  LUMO = -0.0808979593844086  gap/eV = 2.53403
+cycle= 16 E= -991.177690637455  delta_E= 7.91e-11  |g|= 3.91e-05  |ddm|= 8.41e-05
+  HOMO = -0.174022509607532  LUMO = -0.0809000165671563  gap/eV = 2.53399
+Extra cycle  E= -991.177690633774  delta_E= 3.68e-09  |g|= 0.000117  |ddm|= 0.00019
+converged SCF energy = -991.177690633774
+
+
+******** <class 'pyscf.grad.rks.Gradients'> for <class '__main__.make_scf.<locals>.ScreenedDirectRKS'> ********
+unit = Eh/Bohr
+max_memory 3000 MB (current use 149 MB)
+grid_response = False
+--------------- ScreenedDirectRKS gradients ---------------
+         x                y                z
+0 C    -0.0000273130    -0.0000373148     0.0000550571
+1 O    -0.0000127313    -0.0000009057     0.0000017462
+2 C    -0.0000252647    -0.0000270412     0.0000461163
+3 C     0.0000008264    -0.0000158641     0.0000239865
+4 C    -0.0000225827    -0.0000097403     0.0000413301
+5 C    -0.0000014486    -0.0000111163     0.0000067143
+6 C    -0.0000367449     0.0000286885     0.0000168279
+7 C    -0.0000134441    -0.0000227591    -0.0000031932
+8 O     0.0000008661     0.0000225535     0.0000144833
+9 C    -0.0000249478     0.0000188106     0.0000080254
+10 C    -0.0000168514     0.0000164494    -0.0000101417
+11 C    -0.0000076831     0.0000171290    -0.0000104861
+12 O    -0.0000072943     0.0000235395    -0.0000208001
+13 C    -0.0000143312     0.0000145409     0.0000127896
+14 C    -0.0000342429     0.0000067847    -0.0000017557
+15 C    -0.0000026334    -0.0000013282    -0.0000121238
+16 C    -0.0000184247     0.0000139126    -0.0000008885
+17 O    -0.0000148180    -0.0000061672     0.0000511121
+18 C     0.0000119820    -0.0000279056    -0.0000135414
+19 C    -0.0000290703     0.0000101877     0.0000288575
+20 O    -0.0000177427    -0.0000026247     0.0000119100
+21 H    -0.0000152398     0.0000028075     0.0000097066
+22 H    -0.0000126000    -0.0000022482     0.0000188070
+23 H    -0.0000094964    -0.0000028225     0.0000078500
+24 H    -0.0000168609    -0.0000005226     0.0000119759
+25 H    -0.0000155910     0.0000051202     0.0000128534
+26 H    -0.0000171226     0.0000014336     0.0000106701
+27 H    -0.0000140993     0.0000031995     0.0000134580
+28 H    -0.0000160832     0.0000063018     0.0000111519
+29 H    -0.0000192674     0.0000056506     0.0000128759
+30 H    -0.0000095521     0.0000040170     0.0000165619
+31 H    -0.0000206370    -0.0000042400     0.0000153397
+32 H    -0.0000171324    -0.0000035987     0.0000147525
+----------------------------------------------
