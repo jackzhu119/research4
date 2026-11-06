@@ -1,0 +1,731 @@
+{
+  "schema": "research4-independent-baseline-curvature-review-v1",
+  "created_at_utc": "2026-11-06T16:18:37.198995+00:00",
+  "new_quantum_evaluations": 0,
+  "original_or_frozen_files_modified": false,
+  "input_aggregate_refs": [
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-diagnostics-v1/science/water-control-comparison-attempt001/result.json",
+      "sha256": "9368bc98c88a4c9660cb628919fb114a50dbe928d3c665aa4620149babf9fdc3",
+      "bytes": 27633
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-diagnostics-v1/science/acid-baseline-comparison-attempt001/result.json",
+      "sha256": "bf2e04787ff6496a165f8ca42594df934883bf6ff94cbcad4084f2e6a49df14c",
+      "bytes": 38689
+    }
+  ],
+  "method": "Independent hash check of saved result/array files, exact Cartesian displacement verification, paired-point gradient/energy curvature reconstruction without importing the diagnostic worker or running PySCF.",
+  "formulae": {
+    "normalization": "q is the original saved Cartesian mode normalized to Euclidean Frobenius norm 1; translation q moves each atom by 1/sqrt(N) on one axis.",
+    "analytic_curvature": "q dot predicted_Hq",
+    "gradient_curvature": "sum(q*(gradient_plus-gradient_minus))/(2*h)",
+    "energy_curvature": "(E_plus-2*E_center+E_minus)/h**2",
+    "energy_slope": "(E_plus-E_minus)/(2*h)",
+    "units": "Curvature Eh/Bohr^2; slope Eh/Bohr; h Bohr."
+  },
+  "independent_recomputed_comparisons": [
+    {
+      "case": "water",
+      "direction": {
+        "type": "mode",
+        "index": 1
+      },
+      "step_bohr": 0.005,
+      "analytic_directional_curvature_Eh_per_Bohr2": 0.10560278365138372,
+      "gradient_FD_curvature_Eh_per_Bohr2": 0.10582983986570063,
+      "energy_FD_curvature_Eh_per_Bohr2": 0.10524828780944517,
+      "gradient_energy_curvature_absolute_gap": 0.0005815520562554577,
+      "energy_FD_slope_Eh_per_Bohr": -0.00015044932411001355,
+      "full_Hq_FD_relative_error": 0.02330113091669151,
+      "energy_minus_center_plus_hartree": [
+        -76.27253235200561,
+        -76.27253441985583,
+        -76.27253385649885
+      ],
+      "matching_method_settings": {
+        "xc": "PBE",
+        "basis": "def2-svp",
+        "grid_level": 1,
+        "density_fitting": false,
+        "dispersion": "NONE_EXPLICIT_PBE_PILOT_NOT_D3",
+        "direct_scf": true,
+        "direct_scf_tol": 1e-13,
+        "scf_conv_tol": 1e-10,
+        "scf_max_cycle": 80,
+        "CPHF_conv_tol": 1e-08,
+        "CPHF_max_cycle": 50,
+        "gradient_grid_response": false,
+        "IR_intensities_status": "NOT_COMPUTED",
+        "max_memory_mb": 3000,
+        "max_optimizer_steps": 35,
+        "optimizer_thresholds": {
+          "convergence_energy": 1e-06,
+          "convergence_grms": 0.0003,
+          "convergence_gmax": 0.00045,
+          "convergence_drms": 0.0012,
+          "convergence_dmax": 0.0018
+        }
+      },
+      "grid_prune": "default",
+      "coordinate_displacement_max_error_bohr": 9.6710833785707e-17,
+      "point_result_refs": {
+        "aggregate": {
+          "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-diagnostics-v1/science/water-control-comparison-attempt001/result.json",
+          "sha256": "9368bc98c88a4c9660cb628919fb114a50dbe928d3c665aa4620149babf9fdc3",
+          "bytes": 27633
+        },
+        "minus": {
+          "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-diagnostics-v1/science/water-control-mode01-h0050-minus-attempt001/result.json",
+          "sha256": "18a8ab16dfd81e2e9fec2431a0eefee2d098b677ee1a93fff96e5a3782439c49",
+          "bytes": 10914
+        },
+        "center": {
+          "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-diagnostics-v1/science/water-control-center-attempt001/result.json",
+          "sha256": "4861eb064ba736c1b98e8987d5d1f4af551765d6603809e14d9466083982822e",
+          "bytes": 10686
+        },
+        "plus": {
+          "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-diagnostics-v1/science/water-control-mode01-h0050-plus-attempt001/result.json",
+          "sha256": "98f4edfb06df4130bba4e5349285ce419ee23b29e2f9a2881766c07f70b193c1",
+          "bytes": 10895
+        }
+      }
+    },
+    {
+      "case": "water",
+      "direction": {
+        "type": "mode",
+        "index": 1
+      },
+      "step_bohr": 0.01,
+      "analytic_directional_curvature_Eh_per_Bohr2": 0.10560278365138372,
+      "gradient_FD_curvature_Eh_per_Bohr2": 0.1058293045587482,
+      "energy_FD_curvature_Eh_per_Bohr2": 0.10524820794444167,
+      "gradient_energy_curvature_absolute_gap": 0.0005810966143065255,
+      "energy_FD_slope_Eh_per_Bohr": -0.00015143331921763092,
+      "full_Hq_FD_relative_error": 0.023286513382334378,
+      "energy_minus_center_plus_hartree": [
+        -76.27252764311224,
+        -76.27253441985583,
+        -76.27253067177863
+      ],
+      "matching_method_settings": {
+        "xc": "PBE",
+        "basis": "def2-svp",
+        "grid_level": 1,
+        "density_fitting": false,
+        "dispersion": "NONE_EXPLICIT_PBE_PILOT_NOT_D3",
+        "direct_scf": true,
+        "direct_scf_tol": 1e-13,
+        "scf_conv_tol": 1e-10,
+        "scf_max_cycle": 80,
+        "CPHF_conv_tol": 1e-08,
+        "CPHF_max_cycle": 50,
+        "gradient_grid_response": false,
+        "IR_intensities_status": "NOT_COMPUTED",
+        "max_memory_mb": 3000,
+        "max_optimizer_steps": 35,
+        "optimizer_thresholds": {
+          "convergence_energy": 1e-06,
+          "convergence_grms": 0.0003,
+          "convergence_gmax": 0.00045,
+          "convergence_drms": 0.0012,
+          "convergence_dmax": 0.0018
+        }
+      },
+      "grid_prune": "default",
+      "coordinate_displacement_max_error_bohr": 9.454242944073599e-17,
+      "point_result_refs": {
+        "aggregate": {
+          "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-diagnostics-v1/science/water-control-comparison-attempt001/result.json",
+          "sha256": "9368bc98c88a4c9660cb628919fb114a50dbe928d3c665aa4620149babf9fdc3",
+          "bytes": 27633
+        },
+        "minus": {
+          "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-diagnostics-v1/science/water-control-mode01-h0100-minus-attempt001/result.json",
+          "sha256": "bd887f28ce23faf82fb7ca125f5d2b32141d7ba0d409cb7a9cd48422a1747464",
+          "bytes": 10905
+        },
+        "center": {
+          "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-diagnostics-v1/science/water-control-center-attempt001/result.json",
+          "sha256": "4861eb064ba736c1b98e8987d5d1f4af551765d6603809e14d9466083982822e",
+          "bytes": 10686
+        },
+        "plus": {
+          "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-diagnostics-v1/science/water-control-mode01-h0100-plus-attempt001/result.json",
+          "sha256": "9778cbf5c4d8b197f1162294eed6b9d27f16caebe3f8bc5a0db5bd5694e3c708",
+          "bytes": 10885
+        }
+      }
+    },
+    {
+      "case": "water",
+      "direction": {
+        "type": "translation",
+        "axis": 0
+      },
+      "step_bohr": 0.005,
+      "analytic_directional_curvature_Eh_per_Bohr2": -0.022132923633604355,
+      "gradient_FD_curvature_Eh_per_Bohr2": -3.360302178725342e-13,
+      "energy_FD_curvature_Eh_per_Bohr2": 4.547473508864641e-09,
+      "gradient_energy_curvature_absolute_gap": 4.547809539082514e-09,
+      "energy_FD_slope_Eh_per_Bohr": 8.526512829121202e-12,
+      "full_Hq_FD_relative_error": 0.9999999999987194,
+      "energy_minus_center_plus_hartree": [
+        -76.27253441985582,
+        -76.27253441985583,
+        -76.27253441985573
+      ],
+      "matching_method_settings": {
+        "xc": "PBE",
+        "basis": "def2-svp",
+        "grid_level": 1,
+        "density_fitting": false,
+        "dispersion": "NONE_EXPLICIT_PBE_PILOT_NOT_D3",
+        "direct_scf": true,
+        "direct_scf_tol": 1e-13,
+        "scf_conv_tol": 1e-10,
+        "scf_max_cycle": 80,
+        "CPHF_conv_tol": 1e-08,
+        "CPHF_max_cycle": 50,
+        "gradient_grid_response": false,
+        "IR_intensities_status": "NOT_COMPUTED",
+        "max_memory_mb": 3000,
+        "max_optimizer_steps": 35,
+        "optimizer_thresholds": {
+          "convergence_energy": 1e-06,
+          "convergence_grms": 0.0003,
+          "convergence_gmax": 0.00045,
+          "convergence_drms": 0.0012,
+          "convergence_dmax": 0.0018
+        }
+      },
+      "grid_prune": "default",
+      "coordinate_displacement_max_error_bohr": 6.071532165918825e-17,
+      "point_result_refs": {
+        "aggregate": {
+          "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-diagnostics-v1/science/water-control-comparison-attempt001/result.json",
+          "sha256": "9368bc98c88a4c9660cb628919fb114a50dbe928d3c665aa4620149babf9fdc3",
+          "bytes": 27633
+        },
+        "minus": {
+          "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-diagnostics-v1/science/water-control-translate0-h0050-minus-attempt001/result.json",
+          "sha256": "73e453db35a5ef247c19ea0e1af603071faa3057a10d96bc8854676da061e876",
+          "bytes": 10987
+        },
+        "center": {
+          "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-diagnostics-v1/science/water-control-center-attempt001/result.json",
+          "sha256": "4861eb064ba736c1b98e8987d5d1f4af551765d6603809e14d9466083982822e",
+          "bytes": 10686
+        },
+        "plus": {
+          "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-diagnostics-v1/science/water-control-translate0-h0050-plus-attempt001/result.json",
+          "sha256": "44deb84ae6662034f9f6a8bc38e2e4a82367a69fb0f6a75943614ad09a60f769",
+          "bytes": 10969
+        }
+      }
+    },
+    {
+      "case": "water",
+      "direction": {
+        "type": "translation",
+        "axis": 0
+      },
+      "step_bohr": 0.01,
+      "analytic_directional_curvature_Eh_per_Bohr2": -0.022132923633604355,
+      "gradient_FD_curvature_Eh_per_Bohr2": 7.704370033857066e-14,
+      "energy_FD_curvature_Eh_per_Bohr2": 1.1368683772161603e-09,
+      "gradient_energy_curvature_absolute_gap": 1.1367913335158217e-09,
+      "energy_FD_slope_Eh_per_Bohr": 4.263256414560601e-12,
+      "full_Hq_FD_relative_error": 1.0000000000000067,
+      "energy_minus_center_plus_hartree": [
+        -76.27253441985582,
+        -76.27253441985583,
+        -76.27253441985573
+      ],
+      "matching_method_settings": {
+        "xc": "PBE",
+        "basis": "def2-svp",
+        "grid_level": 1,
+        "density_fitting": false,
+        "dispersion": "NONE_EXPLICIT_PBE_PILOT_NOT_D3",
+        "direct_scf": true,
+        "direct_scf_tol": 1e-13,
+        "scf_conv_tol": 1e-10,
+        "scf_max_cycle": 80,
+        "CPHF_conv_tol": 1e-08,
+        "CPHF_max_cycle": 50,
+        "gradient_grid_response": false,
+        "IR_intensities_status": "NOT_COMPUTED",
+        "max_memory_mb": 3000,
+        "max_optimizer_steps": 35,
+        "optimizer_thresholds": {
+          "convergence_energy": 1e-06,
+          "convergence_grms": 0.0003,
+          "convergence_gmax": 0.00045,
+          "convergence_drms": 0.0012,
+          "convergence_dmax": 0.0018
+        }
+      },
+      "grid_prune": "default",
+      "coordinate_displacement_max_error_bohr": 1.0061396160665481e-16,
+      "point_result_refs": {
+        "aggregate": {
+          "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-diagnostics-v1/science/water-control-comparison-attempt001/result.json",
+          "sha256": "9368bc98c88a4c9660cb628919fb114a50dbe928d3c665aa4620149babf9fdc3",
+          "bytes": 27633
+        },
+        "minus": {
+          "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-diagnostics-v1/science/water-control-translate0-h0100-minus-attempt001/result.json",
+          "sha256": "04be203c7a1f1b2824f052033676d18091b738034c5342b295fe3f63c03c297f",
+          "bytes": 10988
+        },
+        "center": {
+          "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-diagnostics-v1/science/water-control-center-attempt001/result.json",
+          "sha256": "4861eb064ba736c1b98e8987d5d1f4af551765d6603809e14d9466083982822e",
+          "bytes": 10686
+        },
+        "plus": {
+          "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-diagnostics-v1/science/water-control-translate0-h0100-plus-attempt001/result.json",
+          "sha256": "e9c67a2c6154824e54307fb1db358deddb22ba48a7650c1a7d325a8917aaf2d8",
+          "bytes": 10968
+        }
+      }
+    },
+    {
+      "case": "protocatechuic_acid",
+      "direction": {
+        "type": "mode",
+        "index": 1
+      },
+      "step_bohr": 0.005,
+      "analytic_directional_curvature_Eh_per_Bohr2": -0.05331466368862823,
+      "gradient_FD_curvature_Eh_per_Bohr2": 0.003934640255329308,
+      "energy_FD_curvature_Eh_per_Bohr2": 0.003958871275244746,
+      "gradient_energy_curvature_absolute_gap": 2.4231019915438648e-05,
+      "energy_FD_slope_Eh_per_Bohr": -0.0001133582259171817,
+      "full_Hq_FD_relative_error": 1.093530413550149,
+      "energy_minus_center_plus_hartree": [
+        -570.2260323349537,
+        -570.2260329512308,
+        -570.226033468536
+      ],
+      "matching_method_settings": {
+        "xc": "PBE",
+        "basis": "def2-svp",
+        "grid_level": 1,
+        "density_fitting": false,
+        "dispersion": "NONE_EXPLICIT_PBE_PILOT_NOT_D3",
+        "direct_scf": true,
+        "direct_scf_tol": 1e-13,
+        "scf_conv_tol": 1e-10,
+        "scf_max_cycle": 80,
+        "CPHF_conv_tol": 1e-08,
+        "CPHF_max_cycle": 50,
+        "gradient_grid_response": false,
+        "IR_intensities_status": "NOT_COMPUTED",
+        "max_memory_mb": 3000,
+        "max_optimizer_steps": 35,
+        "optimizer_thresholds": {
+          "convergence_energy": 1e-06,
+          "convergence_grms": 0.0003,
+          "convergence_gmax": 0.00045,
+          "convergence_drms": 0.0012,
+          "convergence_dmax": 0.0018
+        }
+      },
+      "grid_prune": "default",
+      "coordinate_displacement_max_error_bohr": 4.0741607136574043e-16,
+      "point_result_refs": {
+        "aggregate": {
+          "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-diagnostics-v1/science/acid-baseline-comparison-attempt001/result.json",
+          "sha256": "bf2e04787ff6496a165f8ca42594df934883bf6ff94cbcad4084f2e6a49df14c",
+          "bytes": 38689
+        },
+        "minus": {
+          "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-diagnostics-v1/science/acid-baseline-mode01-h0050-minus-attempt001/result.json",
+          "sha256": "2394c50c855b10378ba7b77444b6f0774399ad723eedb8cd2e3e1e9976414528",
+          "bytes": 10944
+        },
+        "center": {
+          "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-diagnostics-v1/science/acid-baseline-center-attempt001/result.json",
+          "sha256": "98016cf1fd3d5d4a9765d61f94c7f62ea6004a2ee70c9a2cbf42e93f4d598891",
+          "bytes": 10724
+        },
+        "plus": {
+          "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-diagnostics-v1/science/acid-baseline-mode01-h0050-plus-attempt001/result.json",
+          "sha256": "3f15fc88a7336d59c055536771d05168b17cc1cd31c82f4b3c9a94d72a4833f3",
+          "bytes": 10926
+        }
+      }
+    },
+    {
+      "case": "protocatechuic_acid",
+      "direction": {
+        "type": "mode",
+        "index": 1
+      },
+      "step_bohr": 0.01,
+      "analytic_directional_curvature_Eh_per_Bohr2": -0.05331466368862823,
+      "gradient_FD_curvature_Eh_per_Bohr2": 0.003935574848822825,
+      "energy_FD_curvature_Eh_per_Bohr2": 0.00395957613363862,
+      "gradient_energy_curvature_absolute_gap": 2.4001284815795138e-05,
+      "energy_FD_slope_Eh_per_Bohr": -0.00011332366511851433,
+      "full_Hq_FD_relative_error": 1.0935495769177197,
+      "energy_minus_center_plus_hartree": [
+        -570.2260316200153,
+        -570.2260329512308,
+        -570.2260338864886
+      ],
+      "matching_method_settings": {
+        "xc": "PBE",
+        "basis": "def2-svp",
+        "grid_level": 1,
+        "density_fitting": false,
+        "dispersion": "NONE_EXPLICIT_PBE_PILOT_NOT_D3",
+        "direct_scf": true,
+        "direct_scf_tol": 1e-13,
+        "scf_conv_tol": 1e-10,
+        "scf_max_cycle": 80,
+        "CPHF_conv_tol": 1e-08,
+        "CPHF_max_cycle": 50,
+        "gradient_grid_response": false,
+        "IR_intensities_status": "NOT_COMPUTED",
+        "max_memory_mb": 3000,
+        "max_optimizer_steps": 35,
+        "optimizer_thresholds": {
+          "convergence_energy": 1e-06,
+          "convergence_grms": 0.0003,
+          "convergence_gmax": 0.00045,
+          "convergence_drms": 0.0012,
+          "convergence_dmax": 0.0018
+        }
+      },
+      "grid_prune": "default",
+      "coordinate_displacement_max_error_bohr": 3.698484660891177e-16,
+      "point_result_refs": {
+        "aggregate": {
+          "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-diagnostics-v1/science/acid-baseline-comparison-attempt001/result.json",
+          "sha256": "bf2e04787ff6496a165f8ca42594df934883bf6ff94cbcad4084f2e6a49df14c",
+          "bytes": 38689
+        },
+        "minus": {
+          "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-diagnostics-v1/science/acid-baseline-mode01-h0100-minus-attempt001/result.json",
+          "sha256": "d720963d45d4f861ba44912e2b2c7917ed9f0f028c964dfb74e9c89386e21858",
+          "bytes": 10945
+        },
+        "center": {
+          "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-diagnostics-v1/science/acid-baseline-center-attempt001/result.json",
+          "sha256": "98016cf1fd3d5d4a9765d61f94c7f62ea6004a2ee70c9a2cbf42e93f4d598891",
+          "bytes": 10724
+        },
+        "plus": {
+          "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-diagnostics-v1/science/acid-baseline-mode01-h0100-plus-attempt001/result.json",
+          "sha256": "d5647446f1355fc07f4d42c02c57f415b761f5e695db2a9968c0dcaa104d0cb7",
+          "bytes": 10930
+        }
+      }
+    },
+    {
+      "case": "protocatechuic_acid",
+      "direction": {
+        "type": "mode",
+        "index": 4
+      },
+      "step_bohr": 0.005,
+      "analytic_directional_curvature_Eh_per_Bohr2": -0.002731546082086464,
+      "gradient_FD_curvature_Eh_per_Bohr2": 0.019226447235376816,
+      "energy_FD_curvature_Eh_per_Bohr2": 0.019201966097170953,
+      "gradient_energy_curvature_absolute_gap": 2.448113820586323e-05,
+      "energy_FD_slope_Eh_per_Bohr": 1.2719476671918528e-05,
+      "full_Hq_FD_relative_error": 7.283108821311726,
+      "energy_minus_center_plus_hartree": [
+        -570.2260327748036,
+        -570.2260329512308,
+        -570.2260326476088
+      ],
+      "matching_method_settings": {
+        "xc": "PBE",
+        "basis": "def2-svp",
+        "grid_level": 1,
+        "density_fitting": false,
+        "dispersion": "NONE_EXPLICIT_PBE_PILOT_NOT_D3",
+        "direct_scf": true,
+        "direct_scf_tol": 1e-13,
+        "scf_conv_tol": 1e-10,
+        "scf_max_cycle": 80,
+        "CPHF_conv_tol": 1e-08,
+        "CPHF_max_cycle": 50,
+        "gradient_grid_response": false,
+        "IR_intensities_status": "NOT_COMPUTED",
+        "max_memory_mb": 3000,
+        "max_optimizer_steps": 35,
+        "optimizer_thresholds": {
+          "convergence_energy": 1e-06,
+          "convergence_grms": 0.0003,
+          "convergence_gmax": 0.00045,
+          "convergence_drms": 0.0012,
+          "convergence_dmax": 0.0018
+        }
+      },
+      "grid_prune": "default",
+      "coordinate_displacement_max_error_bohr": 4.0722633598555547e-16,
+      "point_result_refs": {
+        "aggregate": {
+          "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-diagnostics-v1/science/acid-baseline-comparison-attempt001/result.json",
+          "sha256": "bf2e04787ff6496a165f8ca42594df934883bf6ff94cbcad4084f2e6a49df14c",
+          "bytes": 38689
+        },
+        "minus": {
+          "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-diagnostics-v1/science/acid-baseline-mode04-h0050-minus-attempt001/result.json",
+          "sha256": "af58bc81c9e6ae3914fa1d40c13b635bdc132326ea4a5a69469ba88ea4955a91",
+          "bytes": 10946
+        },
+        "center": {
+          "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-diagnostics-v1/science/acid-baseline-center-attempt001/result.json",
+          "sha256": "98016cf1fd3d5d4a9765d61f94c7f62ea6004a2ee70c9a2cbf42e93f4d598891",
+          "bytes": 10724
+        },
+        "plus": {
+          "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-diagnostics-v1/science/acid-baseline-mode04-h0050-plus-attempt001/result.json",
+          "sha256": "90781d517e439627fad480aa8662a8f2133525cfe504aac815782f257a175404",
+          "bytes": 10932
+        }
+      }
+    },
+    {
+      "case": "protocatechuic_acid",
+      "direction": {
+        "type": "mode",
+        "index": 4
+      },
+      "step_bohr": 0.01,
+      "analytic_directional_curvature_Eh_per_Bohr2": -0.002731546082086464,
+      "gradient_FD_curvature_Eh_per_Bohr2": 0.01922708760426739,
+      "energy_FD_curvature_Eh_per_Bohr2": 0.019202549310648465,
+      "gradient_energy_curvature_absolute_gap": 2.4538293618925344e-05,
+      "energy_FD_slope_Eh_per_Bohr": 1.2915364777654759e-05,
+      "full_Hq_FD_relative_error": 7.2832397447452175,
+      "energy_minus_center_plus_hartree": [
+        -570.226032120257,
+        -570.2260329512308,
+        -570.2260318619497
+      ],
+      "matching_method_settings": {
+        "xc": "PBE",
+        "basis": "def2-svp",
+        "grid_level": 1,
+        "density_fitting": false,
+        "dispersion": "NONE_EXPLICIT_PBE_PILOT_NOT_D3",
+        "direct_scf": true,
+        "direct_scf_tol": 1e-13,
+        "scf_conv_tol": 1e-10,
+        "scf_max_cycle": 80,
+        "CPHF_conv_tol": 1e-08,
+        "CPHF_max_cycle": 50,
+        "gradient_grid_response": false,
+        "IR_intensities_status": "NOT_COMPUTED",
+        "max_memory_mb": 3000,
+        "max_optimizer_steps": 35,
+        "optimizer_thresholds": {
+          "convergence_energy": 1e-06,
+          "convergence_grms": 0.0003,
+          "convergence_gmax": 0.00045,
+          "convergence_drms": 0.0012,
+          "convergence_dmax": 0.0018
+        }
+      },
+      "grid_prune": "default",
+      "coordinate_displacement_max_error_bohr": 3.944327503502265e-16,
+      "point_result_refs": {
+        "aggregate": {
+          "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-diagnostics-v1/science/acid-baseline-comparison-attempt001/result.json",
+          "sha256": "bf2e04787ff6496a165f8ca42594df934883bf6ff94cbcad4084f2e6a49df14c",
+          "bytes": 38689
+        },
+        "minus": {
+          "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-diagnostics-v1/science/acid-baseline-mode04-h0100-minus-attempt001/result.json",
+          "sha256": "848b4411ec82bcb8a5b89b8b6990c492397c67317eb5dace5e98a49072b7e40d",
+          "bytes": 10945
+        },
+        "center": {
+          "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-diagnostics-v1/science/acid-baseline-center-attempt001/result.json",
+          "sha256": "98016cf1fd3d5d4a9765d61f94c7f62ea6004a2ee70c9a2cbf42e93f4d598891",
+          "bytes": 10724
+        },
+        "plus": {
+          "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-diagnostics-v1/science/acid-baseline-mode04-h0100-plus-attempt001/result.json",
+          "sha256": "56dbf7a6e5817bd17abe11b3cc399f4e047cfa0708c877ffbb263d4a77ef2346",
+          "bytes": 10927
+        }
+      }
+    },
+    {
+      "case": "protocatechuic_acid",
+      "direction": {
+        "type": "mode",
+        "index": 5
+      },
+      "step_bohr": 0.005,
+      "analytic_directional_curvature_Eh_per_Bohr2": 0.001660940459602113,
+      "gradient_FD_curvature_Eh_per_Bohr2": 0.00928896707026356,
+      "energy_FD_curvature_Eh_per_Bohr2": 0.009047835192177445,
+      "gradient_energy_curvature_absolute_gap": 0.00024113187808611457,
+      "energy_FD_slope_Eh_per_Bohr": -9.905766091833357e-05,
+      "full_Hq_FD_relative_error": 1.3982819314351012,
+      "energy_minus_center_plus_hartree": [
+        -570.2260323428445,
+        -570.2260329512308,
+        -570.2260333334211
+      ],
+      "matching_method_settings": {
+        "xc": "PBE",
+        "basis": "def2-svp",
+        "grid_level": 1,
+        "density_fitting": false,
+        "dispersion": "NONE_EXPLICIT_PBE_PILOT_NOT_D3",
+        "direct_scf": true,
+        "direct_scf_tol": 1e-13,
+        "scf_conv_tol": 1e-10,
+        "scf_max_cycle": 80,
+        "CPHF_conv_tol": 1e-08,
+        "CPHF_max_cycle": 50,
+        "gradient_grid_response": false,
+        "IR_intensities_status": "NOT_COMPUTED",
+        "max_memory_mb": 3000,
+        "max_optimizer_steps": 35,
+        "optimizer_thresholds": {
+          "convergence_energy": 1e-06,
+          "convergence_grms": 0.0003,
+          "convergence_gmax": 0.00045,
+          "convergence_drms": 0.0012,
+          "convergence_dmax": 0.0018
+        }
+      },
+      "grid_prune": "default",
+      "coordinate_displacement_max_error_bohr": 4.3977950621443274e-16,
+      "point_result_refs": {
+        "aggregate": {
+          "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-diagnostics-v1/science/acid-baseline-comparison-attempt001/result.json",
+          "sha256": "bf2e04787ff6496a165f8ca42594df934883bf6ff94cbcad4084f2e6a49df14c",
+          "bytes": 38689
+        },
+        "minus": {
+          "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-diagnostics-v1/science/acid-baseline-mode05-h0050-minus-attempt001/result.json",
+          "sha256": "a4712bd6d05b35cbe507a545d727a6ce21dfcfbdbe15fb6e35cdaff5c8080955",
+          "bytes": 10945
+        },
+        "center": {
+          "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-diagnostics-v1/science/acid-baseline-center-attempt001/result.json",
+          "sha256": "98016cf1fd3d5d4a9765d61f94c7f62ea6004a2ee70c9a2cbf42e93f4d598891",
+          "bytes": 10724
+        },
+        "plus": {
+          "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-diagnostics-v1/science/acid-baseline-mode05-h0050-plus-attempt001/result.json",
+          "sha256": "ea97372eaffa68ba335b97b7d95e91efa8c20abd07fd2d8b1dbea6c7bf0bb8fb",
+          "bytes": 10930
+        }
+      }
+    },
+    {
+      "case": "protocatechuic_acid",
+      "direction": {
+        "type": "mode",
+        "index": 5
+      },
+      "step_bohr": 0.01,
+      "analytic_directional_curvature_Eh_per_Bohr2": 0.001660940459602113,
+      "gradient_FD_curvature_Eh_per_Bohr2": 0.009289824647400287,
+      "energy_FD_curvature_Eh_per_Bohr2": 0.00904859234651667,
+      "gradient_energy_curvature_absolute_gap": 0.00024123230088361584,
+      "energy_FD_slope_Eh_per_Bohr": -9.905377282848349e-05,
+      "full_Hq_FD_relative_error": 1.3983355692916275,
+      "energy_minus_center_plus_hartree": [
+        -570.2260315082634,
+        -570.2260329512308,
+        -570.2260334893389
+      ],
+      "matching_method_settings": {
+        "xc": "PBE",
+        "basis": "def2-svp",
+        "grid_level": 1,
+        "density_fitting": false,
+        "dispersion": "NONE_EXPLICIT_PBE_PILOT_NOT_D3",
+        "direct_scf": true,
+        "direct_scf_tol": 1e-13,
+        "scf_conv_tol": 1e-10,
+        "scf_max_cycle": 80,
+        "CPHF_conv_tol": 1e-08,
+        "CPHF_max_cycle": 50,
+        "gradient_grid_response": false,
+        "IR_intensities_status": "NOT_COMPUTED",
+        "max_memory_mb": 3000,
+        "max_optimizer_steps": 35,
+        "optimizer_thresholds": {
+          "convergence_energy": 1e-06,
+          "convergence_grms": 0.0003,
+          "convergence_gmax": 0.00045,
+          "convergence_drms": 0.0012,
+          "convergence_dmax": 0.0018
+        }
+      },
+      "grid_prune": "default",
+      "coordinate_displacement_max_error_bohr": 2.7919561194217346e-16,
+      "point_result_refs": {
+        "aggregate": {
+          "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-diagnostics-v1/science/acid-baseline-comparison-attempt001/result.json",
+          "sha256": "bf2e04787ff6496a165f8ca42594df934883bf6ff94cbcad4084f2e6a49df14c",
+          "bytes": 38689
+        },
+        "minus": {
+          "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-diagnostics-v1/science/acid-baseline-mode05-h0100-minus-attempt001/result.json",
+          "sha256": "3c92eee10123f52fb36ff9fd777398996748678e220a489d35368e6d8c3fc436",
+          "bytes": 10951
+        },
+        "center": {
+          "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-diagnostics-v1/science/acid-baseline-center-attempt001/result.json",
+          "sha256": "98016cf1fd3d5d4a9765d61f94c7f62ea6004a2ee70c9a2cbf42e93f4d598891",
+          "bytes": 10724
+        },
+        "plus": {
+          "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-diagnostics-v1/science/acid-baseline-mode05-h0100-plus-attempt001/result.json",
+          "sha256": "3049170216207e6a745a74f94121d58350f7917ada93aa18f154d444baf23f8d",
+          "bytes": 10930
+        }
+      }
+    }
+  ],
+  "findings": [
+    {
+      "id": "acid_selected_negative_modes_not_confirmed",
+      "statement": "At the two selected original imaginary-mode directions (1 and 4), independent central energy and gradient differences are positive for both 0.005 and 0.01 Bohr. These observations do not support interpreting those two saved negative analytic curvatures as actual local negative energy curvatures.",
+      "analytic_negative_modes": [
+        1,
+        4
+      ],
+      "scope": "Original exact geometry; PBE/def2-SVP/grid1; numerical SCF tolerance tightened to 1e-10; no claim about all vibrational directions."
+    },
+    {
+      "id": "acid_positive_control_magnitude_inconsistent",
+      "statement": "Original positive mode 5 remains positive but its actual finite-difference curvature is substantially larger than the saved analytic prediction; the discrepancy is not confined to classifying near-zero signs."
+    },
+    {
+      "id": "water_translation_inconsistency_confirmed",
+      "statement": "The saved analytic water Hessian predicts negative uniform-translation curvature −0.0221329 Eh/Bohr^2, while independent paired energies and gradients remain translation invariant to numerical noise at both step sizes. Projecting six external directions away can mask this consistency failure."
+    },
+    {
+      "id": "one_sided_lower_energy_is_not_negative_curvature",
+      "statement": "Acid modes 1 and 5 can have a displaced energy below the center despite positive symmetric curvature because the reference geometry has a small nonzero first derivative. Use paired central curvature, not one-sided energy changes, to distinguish curvature from residual slope."
+    }
+  ],
+  "limitations": [
+    "Original Hessian SCF energy tolerance is 1e-8; point calculations use 1e-10. This is explicitly a numerical sensitivity comparison, not identical recorded settings.",
+    "Each displaced geometry rebuilds the atom-centered grid; baseline gradients use grid_response=False, so finite quadrature response differences remain a possible explanation.",
+    "These data identify a reproducible derivative inconsistency but do not isolate its implementation or numerical cause. Grid/response variants are still pending.",
+    "Only selected acid modes 1,4,5 and water mode1/translation-axis0 have been tested here. This does not establish full Hessian positivity or a stable minimum.",
+    "No finite-difference completion claim is made here for calycosin; its matching diagnostic stages are still running."
+  ],
+  "original_classification_accuracy_changed": false,
+  "IR_intensities_status": "NOT_COMPUTED"
+}

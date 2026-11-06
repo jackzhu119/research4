@@ -1,0 +1,794 @@
+#INFO: **** input file is /workspace/research4-worker-b/scripts/research4_b_diagnostic_worker_20261106.py ****
+"""Source-bound Worker B Hessian diagnostics, executed only under live supervision.
+
+This creates independent observations; it never repairs or rewrites the original
+Hessian, geometry, normal modes, results, or cumulative resource ledger.
+"""
+from __future__ import annotations
+
+import argparse
+from collections import defaultdict
+import csv
+from datetime import datetime, timezone
+import hashlib
+import importlib.util
+import json
+import math
+import os
+from pathlib import Path
+import resource
+import signal
+import sys
+import time
+import traceback
+
+ROOT = Path(__file__).resolve().parents[1]
+ORIGINAL = ROOT / "scripts/research4_parallel_b_quantum_20261106.py"
+ORIGINAL_SHA = "a95d7cf972ba2b95da3f14a44bcfdf094d5ceb1db23bad2de559a123ee8bc9df"
+INPUT = ROOT / "data/research/parallel_cloud_20261106/worker_b/cases.json"
+INPUT_SHA = "84f306a6e09a6b162650988d8ba81a34529f58a21accd53626d87e923613d893"
+SUPERVISOR = ROOT / "scripts/research4_b_diagnostic_supervisor_20261106.py"
+REQUEST_SCHEMA = "research4-b-diagnostic-request-v1"
+SCHEMA = "research4-b-diagnostic-result-v1"
+ORIGINAL_SCHEMA = "research4-parallel-b-quantum-result-v1"
+CASES = ("water", "protocatechuic_acid", "calycosin")
+BOHR_TO_ANGSTROM = .52917721092
+FREQUENCY_FACTOR_CM1 = 5140.487138493369
+CM1_TO_THZ = .0299792458
+GRID_CAVEAT = (
+    "Each displaced point rebuilds its atom-centered quadrature grid. With "
+    "grid_response=False the stock gradient is not the exact derivative of "
+    "one common fixed-quadrature energy. A discrepancy alone does not identify "
+    "a Hessian implementation defect or prove a physical saddle."
+)
+
+
+def require(condition, message):
+    if not condition:
+        raise ValueError(message)
+
+
+def utc():
+    return datetime.now(timezone.utc).isoformat()
+
+
+def sha(path):
+    digest = hashlib.sha256()
+    with Path(path).open("rb") as handle:
+        for block in iter(lambda: handle.read(1024 ** 2), b""):
+            digest.update(block)
+    return digest.hexdigest()
+
+
+def local_path(value):
+    original = Path(value)
+    original = original if original.is_absolute() else ROOT / original
+    resolved = original.resolve()
+    require(resolved.is_relative_to(ROOT), "Source/output must remain in this checkout")
+    require(not any(p.is_symlink() for p in (original, *original.parents) if p != ROOT.parent),
+            "Symlink source/output is not accepted")
+    return resolved
+
+
+def ref(path):
+    p = local_path(path)
+    return {"path": p.relative_to(ROOT).as_posix(), "sha256": sha(p), "bytes": p.stat().st_size}
+
+
+def checked(record, max_bytes=32 * 1024 ** 2):
+    require(isinstance(record, dict) and isinstance(record.get("path"), str)
+            and isinstance(record.get("sha256"), str) and len(record["sha256"]) == 64,
+            "Explicit path/SHA256 source binding is required")
+    p = local_path(record["path"])
+    require(p.is_file() and p.stat().st_size <= max_bytes, "Missing or oversized bounded source")
+    require(sha(p) == record["sha256"], "Source hash changed: " + str(p))
+    if "bytes" in record:
+        require(p.stat().st_size == record["bytes"], "Source size changed")
+    return p
+
+
+def read(path):
+    p = local_path(path)
+    require(p.is_file() and p.stat().st_size <= 4 * 1024 ** 2, "Small existing JSON required")
+    return json.loads(p.read_text())
+
+
+def save(path, value, exclusive=False):
+    p = local_path(path)
+    temporary = p if exclusive else p.with_name(p.name + ".writing-" + str(os.getpid()))
+    with temporary.open("x") as handle:
+        json.dump(value, handle, ensure_ascii=False, indent=2, allow_nan=False)
+        handle.write("\n"); handle.flush(); os.fsync(handle.fileno())
+    if not exclusive:
+        os.replace(temporary, p)
+
+
+def save_array(path, array, np):
+    require(np.isfinite(array).all(), "Finite array required")
+    with Path(path).open("xb") as handle:
+        np.save(handle, array, allow_pickle=False)
+
+
+def load_module(path, name):
+    spec = importlib.util.spec_from_file_location(name, path)
+    require(spec is not None and spec.loader is not None, "Required source module unavailable")
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
+def validate_request(request):
+    require(request.get("schema") == REQUEST_SCHEMA, "Wrong diagnostic request schema")
+    require(request.get("operation") in ("point", "postprocess", "aggregate"), "Unsupported operation")
+    require(request.get("threads", 2) == 2, "Released diagnostic allocation uses two numerical threads")
+    if request["operation"] == "point":
+        require(request.get("case") in CASES, "Registered Worker B case required")
+        direction = request.get("direction", {})
+        require(direction.get("type") in ("mode", "translation"), "Mode or translation direction required")
+        if direction["type"] == "mode":
+            require(type(direction.get("index")) is int and direction["index"] >= 1,
+                    "Mode index is positive and one based")
+        else:
+            require(type(direction.get("axis")) is int and direction["axis"] in (0, 1, 2),
+                    "Translation axis must be 0, 1, or 2")
+        h, sign = request.get("step_bohr"), request.get("sign")
+        require(type(h) in (int, float) and math.isfinite(h), "Finite displacement required")
+        require(type(sign) is int and sign in (-1, 0, 1), "Signed displacement must be -1, 0, or 1")
+        require((h == 0 and sign == 0) or (1e-4 <= h <= .02 and sign in (-1, 1)),
+                "Use center h=0/sign=0 or 0.0001..0.02 Bohr with sign +/-1")
+        require(request.get("grid_level", 1) in (1, 3), "Only explicit grid levels 1 and 3 are released")
+        require(type(request.get("gradient_grid_response", False)) is bool, "Grid response must be boolean")
+        require(request.get("grid_prune", "default") in ("default", "none"), "Unknown quadrature pruning")
+        tolerance = request.get("scf_conv_tol", 1e-8)
+        require(type(tolerance) in (int, float) and math.isfinite(tolerance) and 1e-12 <= tolerance <= 1e-8,
+                "SCF energy tolerance must be 1e-12..1e-8 Hartree")
+
+
+def supervise(request):
+    # No NumPy, RDKit or PySCF import is permitted before this live proof check.
+    module = load_module(SUPERVISOR, "research4_b_diagnostic_live_supervision")
+    return module.verify_resource_supervision(
+        expected_worker_path=Path(__file__).resolve(), expected_threads=request.get("threads", 2))
+
+
+def original_worker(request):
+    binding = request.get("source_worker")
+    require(binding is not None, "Frozen original worker source reference required")
+    p = checked(binding)
+    require(p == ORIGINAL and sha(p) == ORIGINAL_SHA, "Original Worker B implementation changed")
+    return load_module(p, "research4_b_diagnostic_original_worker")
+
+
+def load_case(case_name, frequency_ref, np):
+    require(case_name in CASES, "Unknown case")
+    source_path = checked(frequency_ref)
+    source = read(source_path)
+    require(source.get("schema") == ORIGINAL_SCHEMA and source.get("case") == case_name
+            and source.get("operation") == "frequency" and source.get("status") == "FREQUENCIES_COMPUTED",
+            "Original complete case frequency result required")
+    require(source.get("input_manifest_sha256") == INPUT_SHA
+            and source.get("source_worker", {}).get("sha256") == ORIGINAL_SHA,
+            "Original chemical/source lineage changed")
+    require(source.get("complete_global_Hessian") is True and source.get("normal_modes_complete") is True,
+            "Complete original Hessian and mode set required")
+    require(sha(INPUT) == INPUT_SHA, "Frozen chemical manifest changed")
+    original_input = read(INPUT)
+    case = original_input["cases"][case_name]
+    require(source["settings"] == original_input["method"], "Original physical settings changed")
+    n, k = case["atoms"], case["expected_normal_modes"]
+    shapes = {"hessian_raw.npy": (n, n, 3, 3), "hessian_used.npy": (n, n, 3, 3),
+              "normal_modes.npy": (k, n, 3), "geometry_bohr.npy": (n, 3),
+              "frequencies_cm1.npy": (k,), "masses_amu.npy": (n,), "fresh_gradient.npy": (n, 3)}
+    arrays = {}
+    for name, shape in shapes.items():
+        p = checked(source["arrays"][name])
+        a = np.load(p, allow_pickle=False)
+        require(a.shape == shape and np.issubdtype(a.dtype, np.floating) and np.isfinite(a).all(),
+                "Array shape, dtype or finiteness differs: " + name)
+        arrays[name] = a
+    geometry = read(checked(source["optimized_geometry"]))
+    require(len(geometry["atom_symbols"]) == n, "Original atom order incomplete")
+    delta = np.max(np.abs(arrays["geometry_bohr.npy"] * BOHR_TO_ANGSTROM
+                          - np.asarray(geometry["coordinates_angstrom"])))
+    require(delta <= 1e-10, "Frequency and optimized geometry differ")
+    require(np.max(np.abs(arrays["hessian_used.npy"]
+                         - .5 * (arrays["hessian_raw.npy"]
+                                 + arrays["hessian_raw.npy"].transpose(1, 0, 3, 2)))) <= 1e-13,
+            "Original Hessian symmetrization differs")
+    cart = arrays["hessian_used.npy"].transpose(0, 2, 1, 3).reshape(3 * n, 3 * n)
+    return {"source": source, "source_ref": ref(source_path), "case": case, "arrays": arrays,
+            "geometry": geometry, "cartesian_hessian": cart}
+
+
+def unit_direction(direction, modes, np):
+    n = modes.shape[1]
+    if direction["type"] == "mode":
+        index = direction["index"]
+        require(1 <= index <= modes.shape[0], "Mode index outside complete original mode set")
+        q = modes[index - 1].copy()
+    else:
+        q = np.zeros((n, 3), dtype=float)
+        q[:, direction["axis"]] = 1.
+    norm = float(np.linalg.norm(q))
+    require(math.isfinite(norm) and norm > 1e-12, "Nonzero finite Cartesian direction required")
+    return q / norm
+
+
+def point(request, state, output, emit):
+    import numpy as np
+    from pyscf import lib
+    original = original_worker(request)
+    source = load_case(request["case"], request["frequency_result"], np)
+    q = unit_direction(request["direction"], source["arrays"]["normal_modes.npy"], np)
+    xyz = source["arrays"]["geometry_bohr.npy"]
+    point_xyz = xyz + request["sign"] * request["step_bohr"] * q
+    predicted = (source["cartesian_hessian"] @ q.ravel()).reshape(q.shape)
+    curvature = float(np.dot(q.ravel(), predicted.ravel()))
+    settings = dict(source["source"]["settings"])
+    settings["grid_level"] = request.get("grid_level", settings["grid_level"])
+    settings["gradient_grid_response"] = request.get("gradient_grid_response", settings["gradient_grid_response"])
+    settings["scf_conv_tol"] = request.get("scf_conv_tol", settings["scf_conv_tol"])
+    prune = request.get("grid_prune", "default")
+    state.update(case=request["case"], direction=request["direction"], step_bohr=request["step_bohr"],
+                 sign=request["sign"], settings=settings, grid_prune=prune,
+                 original_source_worker=request["source_worker"],
+                 original_frequency_result=source["source_ref"],
+                 original_settings=source["source"]["settings"],
+                 original_center_energy_hartree=source["source"]["energy_hartree"],
+                 analytic_directional_curvature_Eh_per_Bohr2=curvature,
+                 analytic_Hessian_settings=source["source"]["settings"],
+                 coordinate_normalization="Euclidean Cartesian Frobenius norm = 1; displacement is in Bohr",
+                 grid_rebuilt_at_each_geometry=True, grid_consistency_limitation=GRID_CAVEAT,
+                 initial_density="FRESH_DEFAULT_MINAO_NO_CHECKPOINT_REUSE", numerical_DFT_operations=1)
+    for name, value in (("direction.npy", q), ("geometry_bohr.npy", point_xyz), ("predicted_Hq.npy", predicted)):
+        save_array(output / name, value, np)
+    state["arrays"] = {name: ref(output / name) for name in ("direction.npy", "geometry_bohr.npy", "predicted_Hq.npy")}
+    symbols = source["geometry"]["atom_symbols"]
+    with (output / "pyscf.log").open("x", buffering=1) as log:
+        molecule = original.molecule(source["case"], symbols, source["geometry"]["coordinates_angstrom"], settings, log)
+        molecule.set_geom_(point_xyz, unit="Bohr")
+        lib.num_threads(2)
+        mf = original.make_scf(molecule, settings, output / "fresh_point_scf.chk", 2, emit)
+        if prune == "none":
+            mf.grids.prune = None
+        emit("fresh_point_scf_started", displaced_geometry_sha256=sha(output / "geometry_bohr.npy"))
+        state["quantum_payload_entered"] = True
+        state["energy_hartree"] = float(mf.kernel())
+        state["scf_converged"] = bool(mf.converged)
+        require(mf.converged and math.isfinite(mf.e_tot), "Displaced-point fresh SCF did not converge")
+        gradient = np.asarray(original.gradient_of(mf, settings, emit))
+        require(gradient.shape == q.shape and np.isfinite(gradient).all(), "Finite full point gradient required")
+        save_array(output / "gradient.npy", gradient, np)
+        state["arrays"]["gradient.npy"] = ref(output / "gradient.npy")
+        state.update(projected_gradient_Eh_per_Bohr=float(np.dot(q.ravel(), gradient.ravel())),
+                     max_abs_gradient_Eh_per_Bohr=float(np.max(np.abs(gradient))),
+                     actual_grid_points=int(mf.grids.weights.size), status="POINT_COMPUTED")
+        emit("fresh_point_gradient_complete", energy_hartree=state["energy_hartree"],
+             projected_gradient_Eh_per_Bohr=state["projected_gradient_Eh_per_Bohr"])
+    state["checkpoint_files"] = [ref(p) for p in output.glob("*.chk")]
+
+
+def external_bases(xyz, mass, np):
+    n = len(mass)
+    centered = xyz - np.einsum("i,ij->j", mass, xyz) / mass.sum()
+    translations, rotations, weighted = [], [], []
+    for axis in np.eye(3):
+        t = np.broadcast_to(axis, (n, 3)).copy()
+        translations.append(t.ravel() / np.linalg.norm(t))
+        r = np.cross(centered, axis)
+        rotations.append(r.ravel() / np.linalg.norm(r))
+        weighted.append((np.sqrt(mass)[:, None] * t).ravel())
+        weighted.append((np.sqrt(mass)[:, None] * r).ravel())
+    u, singular, _ = np.linalg.svd(np.asarray(weighted).T, full_matrices=True)
+    require(int(np.sum(singular > 1e-10)) == 6, "Nonlinear six-dimensional external space required")
+    return np.asarray(translations), np.asarray(rotations), u
+
+
+def case_postprocess(source, output, np):
+    case_name = source["source"]["case"]
+    arrays, h = source["arrays"], source["cartesian_hessian"]
+    mass, xyz = arrays["masses_amu.npy"], arrays["geometry_bohr.npy"]
+    trans, rot, u = external_bases(xyz, mass, np)
+    weights = np.repeat(np.sqrt(mass), 3)
+    mw_h = h / weights[:, None] / weights[None, :]
+    vib = u[:, 6:]
+    eigen = np.linalg.eigvalsh(vib.T @ mw_h @ vib)
+    replay = np.sign(eigen) * np.sqrt(np.abs(eigen)) * FREQUENCY_FACTOR_CM1
+    frequencies = arrays["frequencies_cm1.npy"]
+    require(np.max(np.abs(replay - frequencies)) < 1e-6, "Independent mode replay differs")
+    symbols = source["geometry"]["atom_symbols"]
+    mode_rows, negative = [], []
+    for i, freq in enumerate(frequencies):
+        q = unit_direction({"type": "mode", "index": i + 1}, arrays["normal_modes.npy"], np)
+        atom_power = np.sum(q ** 2, axis=1)
+        element = defaultdict(float)
+        for symbol, contribution in zip(symbols, atom_power):
+            element[symbol] += float(contribution)
+        row = {"case": case_name, "mode": i + 1, "frequency_cm1": float(freq),
+               "frequency_THz": float(freq * CM1_TO_THZ), "imaginary": bool(freq < 0),
+               "unit_cartesian_curvature_Eh_per_Bohr2": float(q.ravel() @ h @ q.ravel()),
+               "oxygen_cartesian_fraction": element.get("O", 0.),
+               "carbon_cartesian_fraction": element.get("C", 0.),
+               "hydrogen_cartesian_fraction": element.get("H", 0.)}
+        mode_rows.append(row)
+        if freq < 0:
+            indices = np.argsort(atom_power)[::-1][:min(6, len(symbols))]
+            negative.append({**row, "element_cartesian_fractions": dict(element),
+                             "atom_cartesian_fractions": atom_power.tolist(),
+                             "largest_atom_contributions": [{"atom_1based": int(j + 1), "symbol": symbols[j],
+                                                             "fraction": float(atom_power[j])} for j in indices]})
+    csv_path = output / (case_name + "_modes.csv")
+    with csv_path.open("x", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=list(mode_rows[0]), lineterminator="\n")
+        writer.writeheader(); writer.writerows(mode_rows)
+    trajectory = []
+    original_opt = read(checked(source["source"]["preceding_result"]))
+    opt_path = checked(source["source"]["preceding_result"]).parent
+    for path in sorted((opt_path / "geometry_steps").glob("step_*.json")):
+        record = read(path)
+        trajectory.append({"cycle": record["cycle"], "energy_hartree": record["energy_hartree"],
+                           "scf_converged": record["scf_converged"], "source": ref(path)})
+    raw = arrays["hessian_raw.npy"]
+    t_products = np.asarray([h @ q for q in trans])
+    r_products = np.asarray([h @ q for q in rot])
+    full_eigen = np.linalg.eigvalsh(h)
+    ext_eigen = np.linalg.eigvalsh(u[:, :6].T @ mw_h @ u[:, :6])
+    return {"case": case_name, "source_frequency_result": source["source_ref"],
+            "source_array_refs": source["source"]["arrays"], "modes_csv": ref(csv_path),
+            "normal_mode_count": len(frequencies), "imaginary_frequency_count": int(np.sum(frequencies < 0)),
+            "stationary_minimum_verified_original": source["source"]["stationary_minimum_verified"],
+            "independent_replay_max_frequency_error_cm1": float(np.max(np.abs(replay - frequencies))),
+            "raw_Hessian_max_asymmetry_Eh_per_Bohr2": float(np.max(np.abs(raw - raw.transpose(1, 0, 3, 2)))),
+            "translation_Hq_max_abs_Eh_per_Bohr2": float(np.max(np.abs(t_products))),
+            "translation_axis_Hq_norms_Eh_per_Bohr2": np.linalg.norm(t_products, axis=1).tolist(),
+            "translation_axis_curvatures_Eh_per_Bohr2": [float(q @ h @ q) for q in trans],
+            "rotation_Hq_max_abs_Eh_per_Bohr2": float(np.max(np.abs(r_products))),
+            "rotation_residual_limitation": "At nonzero gradient, rotational Hessian products need not vanish; examine the gradient-coupling identity before interpretation.",
+            "full_cartesian_min_eigenvalue_Eh_per_Bohr2": float(full_eigen[0]),
+            "external_mass_weighted_block_eigenvalues": ext_eigen.tolist(),
+            "negative_modes": negative, "optimizer_trajectory": trajectory,
+            "optimizer_converged_original": original_opt["optimizer_converged"],
+            "fresh_gradient_thresholds_passed_original": source["source"]["fresh_gradient_thresholds_passed"],
+            "Hessian_derivative_correctness": "NOT_VERIFIED_BY_EIGEN_REPLAY",
+            "translation_interpretation": "A complete continuum molecular Hessian annihilates uniform Cartesian translations. Finite quadrature and response approximations require explicit displaced derivative controls before causal diagnosis."}
+
+
+def postprocess(request, state, output, emit):
+    import numpy as np
+    original_worker(request)
+    refs = request.get("frequency_results")
+    if refs is None:
+        refs = {request["case"]: request["frequency_result"]}
+    require(isinstance(refs, dict) and refs, "Explicit original frequency references required")
+    summaries = {}
+    for case_name, binding in refs.items():
+        source = load_case(case_name, binding, np)
+        summaries[case_name] = case_postprocess(source, output, np)
+        emit("original_case_postprocessed", case=case_name,
+             translation_Hq_max_abs=summaries[case_name]["translation_Hq_max_abs_Eh_per_Bohr2"])
+    state.update(status="POSTPROCESS_COMPLETE", cases=summaries, numerical_DFT_operations=0,
+                 interpretation="Original frequency replay validates eigenanalysis, not the underlying analytic second derivative. Follow-up displaced SCF/gradient/energy observations are required.")
+
+
+def central_difference(q, g_minus, g_plus, h, predicted_hq, np, *, e_minus=None, e_plus=None, e_center=None):
+    require(h > 0 and math.isfinite(h), "Positive finite central step required")
+    require(q.shape == g_minus.shape == g_plus.shape == predicted_hq.shape, "Full directional arrays must share shape")
+    require(all(np.isfinite(a).all() for a in (q, g_minus, g_plus, predicted_hq)), "Finite derivative arrays required")
+    require(abs(float(np.linalg.norm(q)) - 1.) <= 1e-10, "Cartesian direction must have unit Euclidean norm")
+    fd = (g_plus - g_minus) / (2 * h)
+    analytic = float(np.dot(q.ravel(), predicted_hq.ravel()))
+    measured = float(np.dot(q.ravel(), fd.ravel()))
+    residual = float(np.linalg.norm(fd - predicted_hq))
+    result = {"step_bohr": h, "analytic_directional_curvature_Eh_per_Bohr2": analytic,
+              "gradient_FD_curvature_Eh_per_Bohr2": measured,
+              "gradient_FD_Hq_error_norm_Eh_per_Bohr2": residual,
+              "gradient_FD_Hq_relative_error": residual / max(float(np.linalg.norm(predicted_hq)), 1e-12),
+              "gradient_FD_Hq_max_abs_error_Eh_per_Bohr2": float(np.max(np.abs(fd - predicted_hq))),
+              "curvature_absolute_error_Eh_per_Bohr2": abs(measured - analytic),
+              "curvature_sign_agrees": bool(analytic * measured > 0) if abs(analytic) > 1e-9 and abs(measured) > 1e-9 else None}
+    if all(v is not None for v in (e_minus, e_plus, e_center)):
+        require(all(math.isfinite(v) for v in (e_minus, e_plus, e_center)), "Finite point energies required")
+        result.update(energy_FD_curvature_Eh_per_Bohr2=(e_plus - 2 * e_center + e_minus) / h ** 2,
+                      energy_FD_slope_Eh_per_Bohr=(e_plus - e_minus) / (2 * h),
+                      energy_center_hartree=e_center)
+    return result
+
+
+def point_group_key(point, include_direction=True):
+    value = {"case": point["case"], "settings": point["settings"], "grid_prune": point.get("grid_prune", "default"),
+             "source_frequency_sha256": point["original_frequency_result"]["sha256"]}
+    if include_direction:
+        value["direction"] = point["direction"]
+    return json.dumps(value, sort_keys=True, separators=(",", ":"))
+
+
+def aggregate(request, state, output, emit, extra_points):
+    import numpy as np
+    bindings = list(request.get("points", [])) + list(extra_points)
+    require(bindings, "Actual hash-bound point result references required")
+    groups, centers, seen = defaultdict(list), defaultdict(list), set()
+    source_refs, excluded = [], []
+    for binding in bindings:
+        path = checked(binding)
+        require(str(path) not in seen, "Duplicate point reference would change pairing")
+        seen.add(str(path)); p = read(path); source_refs.append(ref(path))
+        p["point_result_ref"] = ref(path)
+        require(p.get("schema") == SCHEMA and p.get("operation") == "point", "Diagnostic point result required")
+        if p.get("status") != "POINT_COMPUTED" or p.get("scf_converged") is not True:
+            excluded.append({"source": ref(path), "status": p.get("status"), "reason": "Point not successfully computed"})
+            continue
+        if p["step_bohr"] == 0 and p["sign"] == 0:
+            centers[point_group_key(p, False)].append(p)
+        else:
+            groups[point_group_key(p)].append(p)
+    rows, missing, double_steps = [], [], []
+    for group_key, points in groups.items():
+        by_step = defaultdict(dict)
+        for p in points:
+            h, sign = p["step_bohr"], p["sign"]
+            require(sign in (-1, 1) and sign not in by_step[h], "Ambiguous duplicate signed point")
+            by_step[h][sign] = p
+        group_rows = []
+        for h, pair in sorted(by_step.items()):
+            meta = {"case": points[0]["case"], "direction": points[0]["direction"],
+                    "direction_type": points[0]["direction"]["type"],
+                    "mode_index": points[0]["direction"].get("index"),
+                    "translation_axis": points[0]["direction"].get("axis"),
+                    "grid_level": points[0]["settings"]["grid_level"],
+                    "gradient_grid_response": points[0]["settings"]["gradient_grid_response"],
+                    "scf_conv_tol": points[0]["settings"]["scf_conv_tol"],
+                    "grid_prune": points[0].get("grid_prune", "default"), "step_bohr": h}
+            if set(pair) != {-1, 1}:
+                missing.append({**meta, "status": "NOT_RUN_MISSING_SIGNED_POINT", "available_signs": sorted(pair)})
+                continue
+            minus, plus = pair[-1], pair[1]
+            def array(p, name):
+                a = np.load(checked(p["arrays"][name]), allow_pickle=False)
+                require(np.isfinite(a).all(), "Finite point array required")
+                return a
+            q = array(plus, "direction.npy")
+            require(np.max(np.abs(q - array(minus, "direction.npy"))) <= 1e-12, "Signed point directions differ")
+            prediction = array(plus, "predicted_Hq.npy")
+            require(np.max(np.abs(prediction - array(minus, "predicted_Hq.npy"))) <= 1e-12,
+                    "Signed point Hessian predictions differ")
+            center_records = centers.get(point_group_key(plus, False), [])
+            center_energy, center_source = None, None
+            if center_records:
+                require(len(center_records) == 1, "Multiple equivalent center points require explicit resolution")
+                center_energy = center_records[0]["energy_hartree"]
+                center_source = "NEW_MATCHING_METHOD_CENTER_POINT"
+            elif plus["settings"] == plus["original_settings"] and plus.get("grid_prune", "default") == "default":
+                center_energy = plus["original_center_energy_hartree"]
+                center_source = "ORIGINAL_FREQUENCY_SCF_SAME_RECORDED_SETTINGS"
+            measurement = central_difference(q, array(minus, "gradient.npy"), array(plus, "gradient.npy"),
+                                             h, prediction, np, e_minus=minus["energy_hartree"],
+                                             e_plus=plus["energy_hartree"], e_center=center_energy)
+            row = {**meta, **measurement, "center_energy_source": center_source,
+                   "minus_point_result": minus["point_result_ref"],
+                   "plus_point_result": plus["point_result_ref"],
+                   "center_point_result": center_records[0]["point_result_ref"] if center_records else None,
+                   "original_frequency_result": plus["original_frequency_result"],
+                   "same_settings_as_original_Hessian": plus["settings"] == plus["original_settings"],
+                   "point_method_settings": plus["settings"], "Hessian_method_settings": plus["original_settings"],
+                   "grid_consistency_limitation": GRID_CAVEAT,
+                   "new_center_available": bool(center_records)}
+            rows.append(row); group_rows.append(row)
+            emit("directional_pair_analyzed", case=row["case"], direction=row["direction"], step_bohr=h,
+                 gradient_curvature=row["gradient_FD_curvature_Eh_per_Bohr2"])
+        if len(group_rows) >= 2:
+            first, last = group_rows[0], group_rows[-1]
+            entry = {"case": first["case"], "direction": first["direction"],
+                     "direction_type": first["direction_type"], "mode_index": first["mode_index"],
+                     "translation_axis": first["translation_axis"], "grid_prune": first["grid_prune"],
+                     "point_method_settings": first["point_method_settings"],
+                     "small_step_bohr": first["step_bohr"], "large_step_bohr": last["step_bohr"],
+                     "gradient_curvature_step_difference_Eh_per_Bohr2": abs(first["gradient_FD_curvature_Eh_per_Bohr2"] - last["gradient_FD_curvature_Eh_per_Bohr2"]),
+                     "both_steps_curvature_sign_agrees": [first["curvature_sign_agrees"], last["curvature_sign_agrees"]]}
+            if "energy_FD_curvature_Eh_per_Bohr2" in first and "energy_FD_curvature_Eh_per_Bohr2" in last:
+                entry["energy_curvature_step_difference_Eh_per_Bohr2"] = abs(first["energy_FD_curvature_Eh_per_Bohr2"] - last["energy_FD_curvature_Eh_per_Bohr2"])
+            double_steps.append(entry)
+    csv_rows = [{k: v for k, v in row.items() if not isinstance(v, (dict, list)) and k != "grid_consistency_limitation"} for row in rows]
+    if csv_rows:
+        fields = list(dict.fromkeys(k for row in csv_rows for k in row))
+        with (output / "directional_comparisons.csv").open("x", newline="") as handle:
+            writer = csv.DictWriter(handle, fieldnames=fields, lineterminator="\n")
+            writer.writeheader(); writer.writerows(csv_rows)
+    state.update(status="AGGREGATE_COMPLETE", point_result_refs=source_refs, paired_comparisons=rows,
+                 double_step_comparisons=double_steps, missing_pairs=missing, excluded_points=excluded,
+                 expected_points=request.get("expected_points"), numerical_DFT_operations=0,
+                 causal_conclusion="DIAGNOSTIC_OBSERVATIONS_ONLY; do not infer an implementation bug or stable molecular minimum from signed-frequency replay alone.",
+                 grid_consistency_limitation=GRID_CAVEAT)
+
+
+def run(args):
+    request_path = checked({"path": str(args.request), "sha256": args.request_sha256})
+    request = read(request_path); validate_request(request)
+    if not args.execute:
+        return {"schema": SCHEMA, "status": "NOT_RUN", "operation": request["operation"],
+                "request": ref(request_path), "new_quantum_evaluations": 0}
+    supervision = supervise(request)
+    output = local_path(args.output)
+    require(output.is_relative_to(ROOT / "reports") and not output.exists(), "Fresh independent report output required")
+    output.mkdir(parents=True)
+    started = time.perf_counter(); cpu = time.process_time()
+    state = {"schema": SCHEMA, "status": "PARTIAL", "operation": request["operation"],
+             "request": ref(request_path), "source_worker": ref(__file__), "resource_supervision": supervision,
+             "output_directory": str(output),
+             "started_at_utc": utc(), "quantum_payload_entered": False,
+             "IR_intensities_status": "NOT_COMPUTED", "original_science_modified": False,
+             "classifier_modified": False, "chemical_peak_assignment_verified": False}
+    save(output / "input.json", state, exclusive=True)
+    def emit(event, **data):
+        row = {"utc": utc(), "event": event, "wall_seconds": time.perf_counter() - started,
+               "process_cpu_seconds": time.process_time() - cpu, **data}
+        with (output / "events.jsonl").open("a") as handle:
+            handle.write(json.dumps(row, ensure_ascii=False, allow_nan=False) + "\n"); handle.flush()
+        save(output / "progress.json", {**state, **row})
+    def interrupted(signum, _):
+        raise RuntimeError("Diagnostic resource/termination signal " + str(signum))
+    handlers = {sig: signal.signal(sig, interrupted) for sig in (signal.SIGTERM, signal.SIGINT, signal.SIGXCPU)}
+    try:
+        emit("diagnostic_operation_started")
+        if request["operation"] == "point":
+            point(request, state, output, emit)
+        elif request["operation"] == "postprocess":
+            postprocess(request, state, output, emit)
+        else:
+            require(len(args.point_result) == len(args.point_result_sha256), "Each point result needs exactly one hash")
+            extra = [{"path": str(path), "sha256": digest} for path, digest in zip(args.point_result, args.point_result_sha256)]
+            aggregate(request, state, output, emit, extra)
+    except BaseException as error:
+        state.update(status="PARTIAL", exception_type=type(error).__name__, stop_reason=str(error))
+        (output / "exception_traceback.txt").write_text(traceback.format_exc())
+    finally:
+        for sig, previous in handlers.items():
+            signal.signal(sig, previous)
+        state.update(completed_at_utc=utc(), wall_seconds=time.perf_counter() - started,
+                     process_cpu_seconds=time.process_time() - cpu,
+                     peak_rss_kib=resource.getrusage(resource.RUSAGE_SELF).ru_maxrss,
+                     new_quantum_evaluations=int(state["quantum_payload_entered"]))
+        state["output_artifacts"] = [ref(p) for p in sorted(output.rglob("*"))
+                                     if p.is_file() and p.suffix != ".chk" and p.name != "result.json"]
+        save(output / "result.json", state, exclusive=True)
+    return state
+
+
+def parser():
+    p = argparse.ArgumentParser(description=__doc__)
+    p.add_argument("--request", type=Path, required=True)
+    p.add_argument("--request-sha256", required=True)
+    p.add_argument("--output", type=Path, required=True)
+    p.add_argument("--execute", action="store_true")
+    p.add_argument("--point-result", type=Path, action="append", default=[])
+    p.add_argument("--point-result-sha256", action="append", default=[])
+    return p
+
+
+def main():
+    args = parser().parse_args(); result = run(args)
+    print(json.dumps({k: result.get(k) for k in ("schema", "status", "operation", "case", "stop_reason")}, ensure_ascii=False), flush=True)
+    if args.execute and result["status"] == "PARTIAL":
+        raise SystemExit(2)
+
+
+if __name__ == "__main__":
+    main()
+#INFO: ******************** input file end ********************
+
+
+System: uname_result(system='Linux', node='595ff14d6639', release='6.18.57', version='#1 SMP Tue Oct 20 21:56:04 UTC 2026', machine='x86_64')  Threads 2
+Python 3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]
+numpy 2.3.5  scipy 1.17.0  h5py 3.16.0
+Date: Fri Nov  6 16:02:48 2026
+PySCF version 2.14.0
+PySCF path  /workspace/research4-worker-b/.runtime/worker-b-20261106/venv/lib/python3.12/site-packages/pyscf
+
+[CONFIG] conf_file None
+[INPUT] verbose = 4
+[INPUT] num. atoms = 33
+[INPUT] num. electrons = 148
+[INPUT] charge = 0
+[INPUT] spin (= nelec alpha-beta = 2S) = 0
+[INPUT] symmetry False subgroup None
+[INPUT] Mole.unit = Angstrom
+[INPUT] Symbol           X                Y                Z      unit          X                Y                Z       unit  Magmom
+[INPUT]  1 C      5.928925284631   1.219867799122   0.716076796053 AA   11.204045000961   2.305216048516   1.353189028696 Bohr   0.0
+[INPUT]  2 O      5.267029827568   0.082556435296   0.193556226293 AA    9.953243864019   0.156009052530   0.365768257399 Bohr   0.0
+[INPUT]  3 C      3.901151627193   0.122264012211   0.064206928773 AA    7.372108145796   0.231045497969   0.121333510680 Bohr   0.0
+[INPUT]  4 C      3.064739520393   1.206333493633   0.356925417801 AA    5.791518336674   2.279639917857   0.674491286540 Bohr   0.0
+[INPUT]  5 C      1.674192639435   1.091764246813   0.182728441351 AA    3.163765568295   2.063135419068   0.345306709323 Bohr   0.0
+[INPUT]  6 C      1.101521415415  -0.109246247543  -0.290379561314 AA    2.081573795478  -0.206445487993  -0.548737843054 Bohr   0.0
+[INPUT]  7 C     -0.359144018749  -0.234604621985  -0.508857559024 AA   -0.678683834711  -0.443338483109  -0.961601422970 Bohr   0.0
+[INPUT]  8 C     -0.833604306204  -1.043266118759  -1.511472216066 AA   -1.575283834984  -1.971487239492  -2.856268533253 Bohr   0.0
+[INPUT]  9 O     -2.134981827078  -1.303268806759  -1.780345200165 AA   -4.034530934102  -2.462821111463  -3.364364835496 Bohr   0.0
+[INPUT] 10 C     -3.103257827431  -0.729414135749  -1.002757574111 AA   -5.864307387756  -1.378392947952  -1.894937184403 Bohr   0.0
+[INPUT] 11 C     -4.434548204569  -1.057661288795  -1.299482631677 AA   -8.380081592816  -1.998690168376  -2.455666277499 Bohr   0.0
+[INPUT] 12 C     -5.457303996074  -0.488431633305  -0.525554507759 AA  -10.312809931075  -0.923002017521  -0.993154083195 Bohr   0.0
+[INPUT] 13 O     -6.736808172884  -0.826013448410  -0.825819734647 AA  -12.730722400482  -1.560939192703  -1.560573126743 Bohr   0.0
+[INPUT] 14 C     -5.137602596194   0.406528809001   0.530155575288 AA   -9.708661843661   0.768228110757   1.001848840705 Bohr   0.0
+[INPUT] 15 C     -3.809213091921   0.719404804667   0.799924887385 AA   -7.198369493838   1.359478053517   1.511638957382 Bohr   0.0
+[INPUT] 16 C     -2.757842144794   0.156976400524   0.041705215162 AA   -5.211566348444   0.296642405011   0.078811434622 Bohr   0.0
+[INPUT] 17 C     -1.344573460445   0.490442802975   0.337647766540 AA   -2.540875594601   0.926802577386   0.638061805331 Bohr   0.0
+[INPUT] 18 O     -1.038513318583   1.301792199695   1.219507870676 AA   -1.962505748835   2.460030728519   2.304535882330 Bohr   0.0
+[INPUT] 19 C      1.959276669422  -1.204889764515  -0.566446719956 AA    3.702496307458  -2.276911665224  -1.070429164874 Bohr   0.0
+[INPUT] 20 C      3.342403188047  -1.099626452824  -0.401780481940 AA    6.316226623282  -2.077992835165  -0.759255073062 Bohr   0.0
+[INPUT] 21 O      4.158623742838  -2.154639454375  -0.659115775202 AA    7.858659929077  -4.071678465952  -1.245548299513 Bohr   0.0
+[INPUT] 22 H      5.570519395348   1.467868732166   1.740143115041 AA   10.526756028785   2.773869890606   3.288393904975 Bohr   0.0
+[INPUT] 23 H      7.005199053104   0.969348998398   0.759429971012 AA   13.237907658429   1.831804126093   1.435114655999 Bohr   0.0
+[INPUT] 24 H      5.790035173117   2.110941463787   0.063846001399 AA   10.941580728789   3.989101231546   0.120651456793 Bohr   0.0
+[INPUT] 25 H      3.484634465943   2.152360007105   0.726406983764 AA    6.585004784852   4.067370934895   1.372710254285 Bohr   0.0
+[INPUT] 26 H      1.022333079790   1.936853792181   0.432061518720 AA    1.931929528887   3.660123210548   0.816477939345 Bohr   0.0
+[INPUT] 27 H     -0.181541910460  -1.567990988283  -2.224763719522 AA   -0.343064490900  -2.963073533640  -4.204194121765 Bohr   0.0
+[INPUT] 28 H     -4.670730908441  -1.748631271801  -2.119515152532 AA   -8.826402218495  -3.304434196554  -4.005303155152 Bohr   0.0
+[INPUT] 29 H     -7.334331502986  -0.359321237674  -0.211983255126 AA  -13.859877847413  -0.679018729943  -0.400590295182 Bohr   0.0
+[INPUT] 30 H     -5.949483217423   0.848688067584   1.131288510900 AA  -11.242893863625   1.603788012919   2.137825453469 Bohr   0.0
+[INPUT] 31 H     -3.527947531191   1.410635543850   1.608715800216 AA   -6.666854615786   2.665714839453   3.040032274669 Bohr   0.0
+[INPUT] 32 H      1.560022307584  -2.179090763220  -0.884416026483 AA    2.948014909547  -4.117884743056  -1.671304070229 Bohr   0.0
+[INPUT] 33 H      5.065890106373  -1.846314767005  -0.449780502862 AA    9.573144878189  -3.489029249379  -0.849961966579 Bohr   0.0
+
+nuclear repulsion = 1528.39956693154
+number of shells = 162
+number of NR pGTOs = 588
+number of NR cGTOs = 354
+basis = def2-svp
+ecp = {}
+CPU time:         0.78
+
+WARN: Mole.unit (Angstrom) is changed to Bohr
+
+New geometry
+   1 C      5.928911983370   1.219716283926   0.716283068002 AA   11.204019865220   2.304929726292   1.353578826186 Bohr
+   2 O      5.266923958435   0.082048385281   0.194639496545 AA    9.953043800352   0.155048977143   0.367815341493 Bohr
+   3 C      3.901132614158   0.122097637663   0.064505775354 AA    7.372072216368   0.230731095639   0.121898248872 Bohr
+   4 C      3.064753989788   1.206221327256   0.357121174292 AA    5.791545679868   2.279427954122   0.674861212696 Bohr
+   5 C      1.674219800993   1.091729435459   0.182768888125 AA    3.163816896200   2.063069635144   0.345383142648 Bohr
+   6 C      1.101529656444  -0.109266808849  -0.290363257760 AA    2.081589368765  -0.206484343230  -0.548707033803 Bohr
+   7 C     -0.359135955964  -0.234616747907  -0.508850588931 AA   -0.678668598255  -0.443361397780  -0.961588251403 Bohr
+   8 C     -0.833609328111  -1.043258642394  -1.511477043118 AA   -1.575293325013  -1.971473111210  -2.856277655060 Bohr
+   9 O     -2.134994867170  -1.303138180004  -1.780432183922 AA   -4.034555576303  -2.462574262672  -3.364529210974 Bohr
+  10 C     -3.103266361842  -0.729394626015  -1.002759459312 AA   -5.864323515457  -1.378356079898  -1.894940746916 Bohr
+  11 C     -4.434559734717  -1.057679703119  -1.299448783384 AA   -8.380103381639  -1.998724966406  -2.455602313496 Bohr
+  12 C     -5.457303029342  -0.488579823108  -0.525403556811 AA  -10.312808104215  -0.923282055662  -0.992868827245 Bohr
+  13 O     -6.736796745813  -0.826552774774  -0.825289053040 AA  -12.730700806447  -1.561958371821  -1.559570283847 Bohr
+  14 C     -5.137591593962   0.406471006095   0.530226551806 AA   -9.708641052456   0.768118879095   1.001982966886 Bohr
+  15 C     -3.809205708401   0.719409754226   0.799938433735 AA   -7.198355541008   1.359487406827   1.511664556273 Bohr
+  16 C     -2.757839196191   0.156978999100   0.041713263773 AA   -5.211560776391   0.296647315607   0.078826644292 Bohr
+  17 C     -1.344578699326   0.490720076093   0.337382936088 AA   -2.540885494650   0.927326547642   0.637561348308 Bohr
+  18 O     -1.038535003820   1.302811423584   1.218563976045 AA   -1.962546727993   2.461956782528   2.302752179986 Bohr
+  19 C      1.959284456439  -1.204883752753  -0.566558114774 AA    3.702511022786  -2.276900304641  -1.070639670573 Bohr
+  20 C      3.342417503877  -1.099620360772  -0.401969098240 AA    6.316253676281  -2.077981322855  -0.759611506213 Bohr
+  21 O      4.158714595102  -2.154400399021  -0.660056708540 AA    7.858831614975  -4.071226716804  -1.247326405823 Bohr
+  22 H      5.570668969117   1.468345482448   1.740255363426 AA   10.527038682244   2.774770818069   3.288606023680 Bohr
+  23 H      7.005189062493   0.969215843565   0.759642917742 AA   13.237888778911   1.831552499927   1.435517066998 Bohr
+  24 H      5.789911157449   2.110386541946   0.063526601422 AA   10.941346373141   3.988052581247   0.120047878313 Bohr
+  25 H      3.484642753880   2.152181999248   0.726777748059 AA    6.585020446784   4.067034548799   1.373410897259 Bohr
+  26 H      1.022364662143   1.936829987372   0.432062970802 AA    1.931989210883   3.660078225977   0.816480683381 Bohr
+  27 H     -0.181558782425  -1.567985789358  -2.224776988137 AA   -0.343096374292  -2.963063709097  -4.204219195813 Bohr
+  28 H     -4.670740625885  -1.748676264504  -2.119459638812 AA   -8.826420581802  -3.304519220441  -4.005198249425 Bohr
+  29 H     -7.334304237662  -0.359656095838  -0.211594005076 AA  -13.859826323418  -0.679651520164  -0.399854719194 Bohr
+  30 H     -5.949463330156   0.848570514271   1.131415702560 AA  -11.242856282138   1.603565869354   2.138065810871 Bohr
+  31 H     -3.527947927312   1.410710974368   1.608671646398 AA   -6.666855364347   2.665857382473   3.039948836045 Bohr
+  32 H      1.560041288773  -2.179017393734  -0.884747802451 AA    2.948050778794  -4.117746094821  -1.671931035943 Bohr
+  33 H      5.065930617881  -1.846235947840  -0.450266591422 AA    9.573221433845  -3.488880302744  -0.850880540828 Bohr
+
+
+******** <class 'research4_b_diagnostic_original_worker.make_scf.<locals>.ScreenedDirectRKS'> ********
+method = ScreenedDirectRKS
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-10
+SCF conv_tol_grad = None
+SCF max_cycles = 80
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /workspace/research4-worker-b/reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-diagnostics-v1/science/calycosin-baseline-mode01-h0050-plus-attempt001/fresh_point_scf.chk
+max_memory 3000 MB (current use 107 MB)
+XC library pyscf.dft.libxc version 7.0.0
+    S. Lehtola, C. Steigemann, M. J.T. Oliveira, and M. A.L. Marques.,  SoftwareX 7, 1–5 (2018)
+XC functionals = PBE
+    J. P. Perdew, K. Burke, and M. Ernzerhof.,  Phys. Rev. Lett. 77, 3865 (1996)
+    J. P. Perdew, K. Burke, and M. Ernzerhof.,  Phys. Rev. Lett. 78, 1396 (1997)
+    J. P. Perdew, K. Burke, and M. Ernzerhof.,  Phys. Rev. Lett. 77, 3865 (1996)
+    J. P. Perdew, K. Burke, and M. Ernzerhof.,  Phys. Rev. Lett. 78, 1396 (1997)
+radial grids: 
+    Treutler-Ahlrichs [JCP 102, 346 (1995); DOI:10.1063/1.469408] (M4) radial grids
+    
+becke partition: Becke, JCP 88, 2547 (1988); DOI:10.1063/1.454033
+pruning grids: <function nwchem_prune at 0x7f7eb4b0d8a0>
+grids dens level: 1
+symmetrized grids: False
+atomic radii adjust function: <function treutler_atomic_radii_adjust at 0x7f7eb4b0d760>
+small_rho_cutoff = 0
+Set gradient conv threshold to 1e-05
+Initial guess from minao.
+tot grids = 138448
+init E= -994.142196550528
+  HOMO = -0.257300118532477  LUMO = -0.150031850690185  gap/eV = 2.91892
+cycle= 1 E= -990.770811273733  delta_E= 3.37  |g|=  1.4  |ddm|= 7.68
+  HOMO = -0.0492241448367086  LUMO = -0.0166086459763659  gap/eV = 0.88751
+cycle= 2 E= -986.714807954759  delta_E= 4.06  |g|= 3.64  |ddm|= 6.05
+  HOMO = -0.142010245031142  LUMO = -0.0688731497249133  gap/eV = 1.99016
+cycle= 3 E= -990.512893958921  delta_E= -3.8  |g|= 1.56  |ddm|= 5.64
+  HOMO = -0.162751044418973  LUMO = -0.0710661890344899  gap/eV = 2.49487
+cycle= 4 E= -991.129846227244  delta_E= -0.617  |g|= 0.434  |ddm|= 1.73
+  HOMO = -0.181739987231406  LUMO = -0.093759964582615  gap/eV = 2.39406
+cycle= 5 E= -991.080986773208  delta_E= 0.0489  |g|= 0.59  |ddm|=    1
+  HOMO = -0.174875734362703  LUMO = -0.0875203132340125  gap/eV = 2.37706
+cycle= 6 E= -991.173116434971  delta_E= -0.0921  |g|= 0.139  |ddm|= 0.753
+  HOMO = -0.173010033697276  LUMO = -0.0802807069916245  gap/eV = 2.52329
+cycle= 7 E= -991.176661767427  delta_E= -0.00355  |g|= 0.0618  |ddm|= 0.217
+  HOMO = -0.173976977226745  LUMO = -0.0792110078302177  gap/eV = 2.57871
+cycle= 8 E= -991.177102224262  delta_E= -0.00044  |g|= 0.0444  |ddm|= 0.119
+  HOMO = -0.17412984307872  LUMO = -0.0811989420394603  gap/eV = 2.52878
+cycle= 9 E= -991.177654328134  delta_E= -0.000552  |g|= 0.0112  |ddm|= 0.0697
+  HOMO = -0.174070335108038  LUMO = -0.0810026782999413  gap/eV = 2.53250
+cycle= 10 E= -991.177673075938  delta_E= -1.87e-05  |g|= 0.00817  |ddm|= 0.0185
+  HOMO = -0.173939209371428  LUMO = -0.0808806321287356  gap/eV = 2.53225
+cycle= 11 E= -991.177689339163  delta_E= -1.63e-05  |g|= 0.00173  |ddm|= 0.0124
+  HOMO = -0.174011775648447  LUMO = -0.0808641975634141  gap/eV = 2.53467
+cycle= 12 E= -991.177689872818  delta_E= -5.34e-07  |g|= 0.00094  |ddm|= 0.00305
+  HOMO = -0.174057853717239  LUMO = -0.0809302099585669  gap/eV = 2.53413
+cycle= 13 E= -991.177689996068  delta_E= -1.23e-07  |g|= 0.000743  |ddm|= 0.00198
+  HOMO = -0.174025608164314  LUMO = -0.0809049672799795  gap/eV = 2.53394
+cycle= 14 E= -991.177690116128  delta_E= -1.2e-07  |g|= 0.000214  |ddm|= 0.000909
+  HOMO = -0.174021798520893  LUMO = -0.0808986736802906  gap/eV = 2.53401
+cycle= 15 E= -991.177690126334  delta_E= -1.02e-08  |g|= 3.58e-05  |ddm|= 0.000264
+  HOMO = -0.174021630181111  LUMO = -0.0808982375642393  gap/eV = 2.53402
+cycle= 16 E= -991.17769012625  delta_E= 8.41e-11  |g|= 3.91e-05  |ddm|= 8.41e-05
+  HOMO = -0.174022496888938  LUMO = -0.0808994548948863  gap/eV = 2.53401
+cycle= 17 E= -991.177690126446  delta_E= -1.96e-10  |g|= 2.95e-05  |ddm|= 6.79e-05
+  HOMO = -0.174022207114196  LUMO = -0.0809001114536292  gap/eV = 2.53398
+cycle= 18 E= -991.177690126622  delta_E= -1.76e-10  |g|= 1.46e-05  |ddm|= 5.11e-05
+  HOMO = -0.174022103637725  LUMO = -0.0808994188314398  gap/eV = 2.53400
+cycle= 19 E= -991.177690126684  delta_E= -6.18e-11  |g|= 4e-06  |ddm|= 2.19e-05
+  HOMO = -0.174022074484938  LUMO = -0.0808993990210856  gap/eV = 2.53400
+Extra cycle  E= -991.177690126662  delta_E= 2.18e-11  |g|= 9.26e-06  |ddm|= 1.47e-05
+converged SCF energy = -991.177690126662
+
+
+******** <class 'pyscf.grad.rks.Gradients'> for <class 'research4_b_diagnostic_original_worker.make_scf.<locals>.ScreenedDirectRKS'> ********
+unit = Eh/Bohr
+max_memory 3000 MB (current use 175 MB)
+grid_response = False
+--------------- ScreenedDirectRKS gradients ---------------
+         x                y                z
+0 C    -0.0000271422    -0.0000294546     0.0000442050
+1 O    -0.0000170024    -0.0000246201     0.0000384568
+2 C    -0.0000233001    -0.0000121039     0.0000246812
+3 C    -0.0000044684    -0.0000082434     0.0000131352
+4 C    -0.0000292252    -0.0000086585     0.0000439649
+5 C    -0.0000009717    -0.0000077220     0.0000090874
+6 C    -0.0000307427     0.0000307527     0.0000221737
+7 C    -0.0000032199    -0.0000157793     0.0000048785
+8 O    -0.0000092734     0.0000215660     0.0000007352
+9 C    -0.0000230386     0.0000238654     0.0000158007
+10 C    -0.0000145075     0.0000187671    -0.0000151883
+11 C    -0.0000100235     0.0000320615    -0.0000213912
+12 O    -0.0000147267     0.0000067618    -0.0000079658
+13 C    -0.0000136111     0.0000185643     0.0000112302
+14 C    -0.0000280423     0.0000047809     0.0000030489
+15 C    -0.0000066435    -0.0000029408    -0.0000084584
+16 C    -0.0000128003    -0.0000013577     0.0000413592
+17 O    -0.0000162333    -0.0000009073     0.0000113295
+18 C     0.0000062073    -0.0000253784    -0.0000020359
+19 C    -0.0000303953     0.0000083906     0.0000471615
+20 O    -0.0000106782    -0.0000016164    -0.0000187811
+21 H    -0.0000161103    -0.0000010646     0.0000095598
+22 H    -0.0000125852    -0.0000018195     0.0000180138
+23 H    -0.0000086636     0.0000004466     0.0000108019
+24 H    -0.0000172407    -0.0000015622     0.0000096890
+25 H    -0.0000123151     0.0000002687     0.0000123026
+26 H    -0.0000131573    -0.0000017152     0.0000060036
+27 H    -0.0000151026     0.0000014091     0.0000100357
+28 H    -0.0000172859     0.0000092795     0.0000097774
+29 H    -0.0000197808     0.0000059755     0.0000123039
+30 H    -0.0000105592     0.0000000138     0.0000137518
+31 H    -0.0000209864    -0.0000060297     0.0000170230
+32 H    -0.0000160754    -0.0000036120     0.0000181486
+----------------------------------------------
