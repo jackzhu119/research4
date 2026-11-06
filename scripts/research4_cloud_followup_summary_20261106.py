@@ -318,8 +318,10 @@ def verify_job(job, saved, ledger, evidence):
         require(command.count("--output") == 1
                 and location(command[command.index("--output")+1]) == output,
                 "Actual closed producer command does not bind the output")
-        if result.get("output_directory") is not None:
-            require(location(result["output_directory"]) == output, "Actual scientific output declaration differs")
+        if "output_directory" in result:
+            require(isinstance(result["output_directory"], str)
+                    and location(result["output_directory"]) == output,
+                    "Actual scientific output declaration differs")
         else:
             # Fixed 6ff is a known, frozen legacy producer. Its input JSON
             # binds the actual output even though result.json lacks the field.
@@ -332,6 +334,9 @@ def verify_job(job, saved, ledger, evidence):
             original_input = metadata(source_input, result["input_json_sha256"])
             require(location(original_input["arguments"]["output"]) == output,
                     "Frozen legacy producer input output differs from actual command")
+            require(original_input.get("source_worker") == result.get("source_worker")
+                    and original_input.get("resource_supervision") == result.get("resource_supervision"),
+                    "Frozen legacy input source or resource proof differs from its actual result")
     else:
         require(result.get("new_quantum_evaluations") == 0 and seal.get("new_quantum_evaluations") == 0,
                 "Analysis-only source must declare no new quantum evaluations")
