@@ -1,0 +1,70 @@
+{
+  "schema": "research4-postrun-summary-implementation-validation-v1",
+  "created_at_utc": "2026-11-06T15:47:45.248393+00:00",
+  "scope": "Implementation author validation; independent review is separate",
+  "status": "DONE",
+  "script": {
+    "path": "scripts/research4_cloud_followup_summary_20261106.py",
+    "sha256": "dbf804a6385a97aa3acce12664c27021db6fb61bdb3bcc690b73afc64783cf27"
+  },
+  "tests": {
+    "path": "tests/test_cloud_followup_summary_stdlib_20261106.py",
+    "sha256": "316f50a1e4ddb7e2fe5274206790c4cf3f83be69ab154c8ba49ebcdb63ea8467",
+    "command": "python -B -m unittest discover -s tests -p test_cloud_followup_summary_stdlib_20261106.py",
+    "actual_tests_run": 15,
+    "actual_exit_code": 0,
+    "actual_outcome": "OK"
+  },
+  "actual_read_only_check": {
+    "command": "python -B scripts/research4_cloud_followup_summary_20261106.py --check-only",
+    "exit_code": 0,
+    "status": "PENDING_READ_ONLY",
+    "ready_by_metadata": false,
+    "planned_jobs_total": 20,
+    "current_config_jobs": 10,
+    "ROOT_audited_reused_inventory_count": 10,
+    "registry_SHA_verified": true,
+    "full_provenance_rechecked_in_inventory": false,
+    "actual_current_job_status_counts": {
+      "RUNNING": 1,
+      "NOT_RUN": 9
+    },
+    "correctly_blocking_reasons": [
+      "QUEUE_INVOCATION_NOT_TERMINAL:host-a-parallel-004-q1",
+      "SCIENCE_JOB_PENDING_OR_UNKNOWN",
+      "LEDGER_PHASE_OPEN_OR_UNKNOWN:cloudhosta20261106v4-spinosin-residual-block01-attempt001"
+    ],
+    "report_writes": 0
+  },
+  "earlier_actual_read_only_full_reused_check": {
+    "records_verified": 10,
+    "legacy_block00_original_queue_status_preserved": "RUNNING",
+    "checkpoint_contents_not_read": true,
+    "new_report_writes": 0
+  },
+  "new_quantum_evaluations": 0,
+  "models_fitted": 0,
+  "git_operations": 0,
+  "execute_report_status": "NOT_RUN_WHILE_A004_ACTIVE",
+  "scientific_scope": {
+    "historical_modes": 219,
+    "historical_positive_modes": 194,
+    "historical_imaginary_modes": 25,
+    "IR_intensity": "NOT_COMPUTED",
+    "chemical_attribution_confirmed": false,
+    "classification_accuracy_recomputed": false
+  },
+  "output_contract": {
+    "success_exit_code": 0,
+    "pending_exit_code": 3,
+    "evidence_error_exit_code": 2,
+    "result_schema": "research4-cloud-followup-postrun-analysis-v1",
+    "result_status": "POSTRUN_ANALYSIS_COMPLETED",
+    "science_status_may_be_PARTIAL_or_BLOCKED": true
+  },
+  "notes": [
+    "No A004 execute run performed; actual queue and active ledger were left unchanged.",
+    "Hash validation of forbidden checkpoint contents is explicitly not performed; current size and producer-declared digest are retained.",
+    "No numerical FD or residual PASS threshold is invented."
+  ]
+}
