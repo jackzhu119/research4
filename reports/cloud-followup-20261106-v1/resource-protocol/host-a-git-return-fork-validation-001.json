@@ -1,0 +1,53 @@
+{
+  "schema": "research4-host-a-git-return-precise-preexec-fork-validation-v1",
+  "status": "PASS_ACTUAL_CLOSED_LEDGER_AND_PROCESS_GATE_METADATA_ONLY_NO_GIT_NO_Q",
+  "observed_at_utc": "2026-11-06T10:08:00.169966+00:00",
+  "A_helper": {
+    "path": "/workspace/research4/scripts/research4_host_a_git_return_20261106.py",
+    "sha256": "a0291362cbd1567d8b4abd503e6813c62cf40723e880c84a6da2c942029f46ee"
+  },
+  "frozen_B_source_helper": {
+    "path": "/workspace/research4/scripts/research4_parallel_b_git_return_20261106.py",
+    "sha256": "3f118f7cbae979e67c1e219ca447e1d8193dc170bff60e0c4b70a237fb5c6a07",
+    "unchanged": true
+  },
+  "tests": {
+    "command": "PYTHONDONTWRITEBYTECODE=1 python -m unittest discover -s tests -p 'test_host_a_git_return_stdlib.py' -v",
+    "actual_tests_run": 5,
+    "failed": 0,
+    "unknown_or_altered_row_missing_proof_rejected": true,
+    "exact_historical_fullrow_only_accepted": true,
+    "B_roles_and_claim_API_rejected": true
+  },
+  "actual_metadata_preflight": {
+    "call": "require_no_active_quantum(actual_repo,actual_A_manifest); collect_return_files(actual_repo,actual_A_manifest)",
+    "closure": {
+      "frozen_native_V8_ledger_validator_sha256": "7bc773076ecc5e0f90fb58b81bf0641948dd09c14b2816138a0469f16e511c65",
+      "actual_A_ledger_sha256": "4e813698fa888b302e56e19274b3dc16e9357b81f6b2951b3316d8f4a1391579",
+      "native_ledger_validation": "PASS_READ_ONLY",
+      "historical_preexec_exceptions": [
+        {
+          "phase": "v8-control-water-response-000-001",
+          "canonical_row_sha256": "03a2bdade1ba879cb0e6c4ec0167c9b921432599016004f3b996c144a3e66517",
+          "status": "KNOWN_PREEXEC_FAILURE_WITHOUT_SCIENTIFIC_PAYLOAD_OR_PROOF",
+          "actual_cpu_seconds_recorded_in_unchanged_ledger": 0.0,
+          "missing_proof_expected_before_exec": true,
+          "verified_scientific_payload": false,
+          "not_a_newly_waived_failure_or_refund": true
+        }
+      ],
+      "source_budget_or_rows_modified": false,
+      "no_active_quantum_observed": true
+    },
+    "files_selected": 1,
+    "bytes_selected": 12958,
+    "Git_invoked": false,
+    "Q_invoked": false
+  },
+  "A_ledger_sha256_before": "4e813698fa888b302e56e19274b3dc16e9357b81f6b2951b3316d8f4a1391579",
+  "A_ledger_sha256_after": "4e813698fa888b302e56e19274b3dc16e9357b81f6b2951b3316d8f4a1391579",
+  "A_ledger_not_modified": true,
+  "historical_missing_proof_scope": "Exact immutable FAILED_TO_START/preexec row only; no scientific payload was executed or verified; original0CPUrecord retained, no refund/relabel/new exemption",
+  "fork_scope": "A-only helper; original B helper/source release/branch not modified",
+  "no_actual_upload": "NOT_RUN"
+}

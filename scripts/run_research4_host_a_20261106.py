@@ -23,7 +23,7 @@ CONFIG_SHA = "6c696c1e185782ac9b3535d0e19bd881ca6b954580b306e65324654bcb9ddd66"
 GRANT_SHA = "f4fde8590d07a703f1d3e820d9325a903cd1684c9e57927847c362bb6f836341"
 DRIVER = ROOT / "scripts/research4_cloud_followup_queue_20261106.py"
 DRIVER_SHA = "6c1c716878107bb4ef69a7f5e57d9831d42f1ac07be50d33f847fd8ccda37e70"
-UPLOADER = ROOT / "scripts/research4_parallel_b_git_return_20261106.py"
+UPLOADER = ROOT / "scripts/research4_host_a_git_return_20261106.py"
 PYTHON = ROOT / ".runtime/bin/python"
 
 
