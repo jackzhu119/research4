@@ -1,0 +1,697 @@
+{
+  "schema": "research4-independent-hessian-postprocessing-audit-v1",
+  "created_at_utc": "2026-11-06T15:25:39.258241+00:00",
+  "new_quantum_evaluations": 0,
+  "original_source_or_results_modified": false,
+  "scope": "Recompute rigid-body consistency and saved negative-mode characters from sealed complete Hessians; not an independent quantum derivative test.",
+  "formulas": {
+    "cartesian_matrix": "H = hessian_raw.transpose(0,2,1,3).reshape(3*N,3*N)",
+    "translation_vectors": "T[:,axis] = tile(unit_axis,N)/sqrt(N); each column has Euclidean norm 1",
+    "translation_residual": "max(abs(H @ T)); units Eh/Bohr^2; exact translationally invariant potential requires zero",
+    "mass_weighted_matrix": "Hw = H / sqrt(repeat(masses,3))[:,None] / sqrt(repeat(masses,3))[None,:]",
+    "external_basis": "SVD orthonormalization of mass-weighted uniform translations and infinitesimal rotations about mass center; six columns",
+    "external_block": "eigvalsh(Qexternal.T @ Hw @ Qexternal)",
+    "external_vibration_coupling": "max(abs(Qvib.T @ Hw @ Qexternal))",
+    "mode_unit_cartesian_direction": "q = normal_mode.flatten() / norm(normal_mode.flatten())",
+    "mode_cartesian_curvature": "q.T @ H @ q; units Eh/Bohr^2; q normalization differs from mass-weighted eigenvalue",
+    "hydrogen_mode_fraction": "sum(displacement^2 over H atoms)/sum(displacement^2 over all atoms)"
+  },
+  "cases": [
+    {
+      "case": "water",
+      "atom_count": 3,
+      "sources": [
+        {
+          "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/science/water-frequency-attempt001/result.json",
+          "sha256": "b983be620ec94eba7b5884d7dc99978616456677a56c0f0cdd07afb105b8046a"
+        },
+        {
+          "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/science/water-optimize-attempt001/optimized_geometry.json",
+          "sha256": "c5552d3cc1a7bba9da3d33bfc09519226be240a4abb8384e94fd862bbff69899"
+        },
+        {
+          "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/science/water-frequency-attempt001/hessian_raw.npy",
+          "sha256": "f5397fe287c1673f85f2237478453af6fd68d0966e7433fc0bdad155ccff394e"
+        },
+        {
+          "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/science/water-frequency-attempt001/hessian_used.npy",
+          "sha256": "d01bdf6508b24124d9f9d734d1285c7eab22cd3f368a280bc0cbe8dff0e19f0d"
+        },
+        {
+          "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/science/water-frequency-attempt001/geometry_bohr.npy",
+          "sha256": "562db3bb97cabee71d8ee484ff4699a9b2795fc5672effb9c3fd4e5cdf3146fe"
+        },
+        {
+          "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/science/water-frequency-attempt001/masses_amu.npy",
+          "sha256": "6977a11300ac0d40b6b24bb46fa76e5097ec1278294210b0b5a228425e871b20"
+        },
+        {
+          "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/science/water-frequency-attempt001/frequencies_cm1.npy",
+          "sha256": "697a047399ef189a9ce03f884256986a9d23116086cae21f0f201764810a0586"
+        },
+        {
+          "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/science/water-frequency-attempt001/normal_modes.npy",
+          "sha256": "0a8a7f7e3c8bb7389ed40831c2d43c7d97b72080e59c502d58df4a78002988bf"
+        }
+      ],
+      "energy_hartree": -76.27253441985111,
+      "gradient_summary": {
+        "atom_gradient_rms_hartree_per_bohr": 0.0002623010550792495,
+        "atom_gradient_max_hartree_per_bohr": 0.00041603948613601745
+      },
+      "max_abs_H_Eh_per_Bohr2": 0.5484506794973307,
+      "raw_symmetry_max_error_Eh_per_Bohr2": 1.6311006589830868e-07,
+      "translation_H_residual_max_Eh_per_Bohr2": 0.04256945628625402,
+      "translation_H_residual_by_axis": [
+        0.038355928167997766,
+        0.04188396835798499,
+        0.04256945628625402
+      ],
+      "external_block_eigenvalues_Eh_per_amu_Bohr2": [
+        -0.004597233805882079,
+        -0.004030138055255587,
+        -0.0038519408920219523,
+        6.303926431309267e-05,
+        6.753004247261787e-05,
+        7.039480323593704e-05
+      ],
+      "external_vib_coupling_max_Eh_per_amu_Bohr2": 0.0011737087539336437,
+      "cartesian_min_eigenvalue_Eh_per_Bohr2": -0.07354773461682806,
+      "imaginary_modes": [],
+      "unweighted_geometry_principal_extents_bohr": [
+        2.0251637306275034,
+        1.4611853706676927,
+        8.787336428708122e-27
+      ],
+      "independent_nuclear_translation_residual_max_Eh_per_Bohr2": 8.845674133568954e-17,
+      "independent_nuclear_hessian_max_asymmetry": 0.0
+    },
+    {
+      "case": "protocatechuic_acid",
+      "atom_count": 17,
+      "sources": [
+        {
+          "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/science/protocatechuic_acid-frequency-attempt001/result.json",
+          "sha256": "91366afdfe663abb607d33c970e7b00d0a3d5cbc48df0b220e4c892b102b923c"
+        },
+        {
+          "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/science/protocatechuic_acid-optimize-attempt001/optimized_geometry.json",
+          "sha256": "5899917276101687df3484c7610499c11d9ff8881f041210fc2571c1e5a76f0d"
+        },
+        {
+          "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/science/protocatechuic_acid-frequency-attempt001/hessian_raw.npy",
+          "sha256": "bcc4ec04a55b30a5f5a42dbfc7f9afe2094d51ed10becce05f41cf277d179831"
+        },
+        {
+          "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/science/protocatechuic_acid-frequency-attempt001/hessian_used.npy",
+          "sha256": "87127dd2d80714e9372929ff956ba7cba88e88b0cc6ac890513d048b4ecd84e3"
+        },
+        {
+          "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/science/protocatechuic_acid-frequency-attempt001/geometry_bohr.npy",
+          "sha256": "651f9abec3c4b3ac47d2f9ce4d16ac9347e5f90606c2567e9ebc3edc7ba31fc1"
+        },
+        {
+          "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/science/protocatechuic_acid-frequency-attempt001/masses_amu.npy",
+          "sha256": "0e9c7dfd1a88d496e87e303cbb7324a1c3ddb29c92e1c39688280436af22544b"
+        },
+        {
+          "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/science/protocatechuic_acid-frequency-attempt001/frequencies_cm1.npy",
+          "sha256": "d0ce405ec943d57cd13ba87e32ce5eea8964d73b1bd910726fcb705c97ee0368"
+        },
+        {
+          "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/science/protocatechuic_acid-frequency-attempt001/normal_modes.npy",
+          "sha256": "38476e1a189b7ed5f34cbe5be5c939f5a5bbb145ec1644b689225d1bd0fcad95"
+        }
+      ],
+      "energy_hartree": -570.226032943453,
+      "gradient_summary": {
+        "atom_gradient_rms_hartree_per_bohr": 8.675022962823302e-05,
+        "atom_gradient_max_hartree_per_bohr": 0.00018362426907038136
+      },
+      "max_abs_H_Eh_per_Bohr2": 0.7390803698927542,
+      "raw_symmetry_max_error_Eh_per_Bohr2": 2.6946746922718035e-07,
+      "translation_H_residual_max_Eh_per_Bohr2": 0.019068054273585683,
+      "translation_H_residual_by_axis": [
+        0.017454819279119946,
+        0.019068054273585683,
+        0.017836986330326335
+      ],
+      "external_block_eigenvalues_Eh_per_amu_Bohr2": [
+        -0.0032291170819591835,
+        -0.002997224074205611,
+        -0.0023642046251927664,
+        -0.0015767224693962669,
+        -0.0013693665396552585,
+        -0.0011344643043568554
+      ],
+      "external_vib_coupling_max_Eh_per_amu_Bohr2": 0.0010613719371170157,
+      "cartesian_min_eigenvalue_Eh_per_Bohr2": -0.06691830947371293,
+      "imaginary_modes": [
+        {
+          "one_based_mode": 1,
+          "frequency_cm1": -324.03433142965326,
+          "unit_cartesian_curvature_Eh_per_Bohr2": -0.05331466368862823,
+          "top_atoms_zero_based": [
+            {
+              "index": 0,
+              "symbol": "O",
+              "fraction_cart_displacement_squared": 0.3166614017637358
+            },
+            {
+              "index": 2,
+              "symbol": "O",
+              "fraction_cart_displacement_squared": 0.2639703891622569
+            },
+            {
+              "index": 9,
+              "symbol": "O",
+              "fraction_cart_displacement_squared": 0.15671967488892788
+            },
+            {
+              "index": 7,
+              "symbol": "O",
+              "fraction_cart_displacement_squared": 0.07016247428885497
+            },
+            {
+              "index": 11,
+              "symbol": "H",
+              "fraction_cart_displacement_squared": 0.06553220637432594
+            }
+          ],
+          "hydrogen_cart_displacement_squared_fraction": 0.16484749981830035
+        },
+        {
+          "one_based_mode": 2,
+          "frequency_cm1": -222.53161690002588,
+          "unit_cartesian_curvature_Eh_per_Bohr2": -0.014083466235587873,
+          "top_atoms_zero_based": [
+            {
+              "index": 7,
+              "symbol": "O",
+              "fraction_cart_displacement_squared": 0.18433336826476743
+            },
+            {
+              "index": 12,
+              "symbol": "H",
+              "fraction_cart_displacement_squared": 0.16781726098571018
+            },
+            {
+              "index": 14,
+              "symbol": "H",
+              "fraction_cart_displacement_squared": 0.14307521431365064
+            },
+            {
+              "index": 11,
+              "symbol": "H",
+              "fraction_cart_displacement_squared": 0.11263608271947048
+            },
+            {
+              "index": 4,
+              "symbol": "C",
+              "fraction_cart_displacement_squared": 0.09440857261776742
+            }
+          ],
+          "hydrogen_cart_displacement_squared_fraction": 0.5095328303041583
+        },
+        {
+          "one_based_mode": 3,
+          "frequency_cm1": -214.06237043404946,
+          "unit_cartesian_curvature_Eh_per_Bohr2": -0.013273521929369023,
+          "top_atoms_zero_based": [
+            {
+              "index": 11,
+              "symbol": "H",
+              "fraction_cart_displacement_squared": 0.18902623993018194
+            },
+            {
+              "index": 15,
+              "symbol": "H",
+              "fraction_cart_displacement_squared": 0.1696270710671491
+            },
+            {
+              "index": 0,
+              "symbol": "O",
+              "fraction_cart_displacement_squared": 0.16199919185546044
+            },
+            {
+              "index": 2,
+              "symbol": "O",
+              "fraction_cart_displacement_squared": 0.09442534364523315
+            },
+            {
+              "index": 9,
+              "symbol": "O",
+              "fraction_cart_displacement_squared": 0.07541565969049813
+            }
+          ],
+          "hydrogen_cart_displacement_squared_fraction": 0.5230273739864919
+        },
+        {
+          "one_based_mode": 4,
+          "frequency_cm1": -112.11858640077052,
+          "unit_cartesian_curvature_Eh_per_Bohr2": -0.0027315460820864466,
+          "top_atoms_zero_based": [
+            {
+              "index": 14,
+              "symbol": "H",
+              "fraction_cart_displacement_squared": 0.3637760928750135
+            },
+            {
+              "index": 15,
+              "symbol": "H",
+              "fraction_cart_displacement_squared": 0.28510855934211915
+            },
+            {
+              "index": 7,
+              "symbol": "O",
+              "fraction_cart_displacement_squared": 0.14370161683027252
+            },
+            {
+              "index": 9,
+              "symbol": "O",
+              "fraction_cart_displacement_squared": 0.14035289897792322
+            },
+            {
+              "index": 11,
+              "symbol": "H",
+              "fraction_cart_displacement_squared": 0.026296335087160776
+            }
+          ],
+          "hydrogen_cart_displacement_squared_fraction": 0.6804425224675252
+        }
+      ],
+      "unweighted_geometry_principal_extents_bohr": [
+        17.28964194448496,
+        11.313678949628557,
+        0.05161355412062137
+      ],
+      "independent_nuclear_translation_residual_max_Eh_per_Bohr2": 5.551115123125783e-16,
+      "independent_nuclear_hessian_max_asymmetry": 0.0
+    },
+    {
+      "case": "calycosin",
+      "atom_count": 33,
+      "sources": [
+        {
+          "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/science/calycosin-frequency-attempt001/result.json",
+          "sha256": "19a8e0309381e5a4dcf0bf2a6adf7bab05e7678c244f54afde4b4e52b1515cb9"
+        },
+        {
+          "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/science/calycosin-optimize-attempt001/optimized_geometry.json",
+          "sha256": "4e615524c8b6418c1ae33e840657ab8f740376cd80eadfffeb51c3133d282e9b"
+        },
+        {
+          "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/science/calycosin-frequency-attempt001/hessian_raw.npy",
+          "sha256": "31039a749ad495f7692c4b76b5ea662248f02999f67478b5d4680721ae67ae53"
+        },
+        {
+          "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/science/calycosin-frequency-attempt001/hessian_used.npy",
+          "sha256": "ecebf55c192add86ab8031d41c5274f823843fcb723cca713fba4a409b246b5a"
+        },
+        {
+          "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/science/calycosin-frequency-attempt001/geometry_bohr.npy",
+          "sha256": "32b66200059e5e0b296e7ca2b8f8f54615d55ef5435c579cff3ab76f49e236e1"
+        },
+        {
+          "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/science/calycosin-frequency-attempt001/masses_amu.npy",
+          "sha256": "48315cf9dddb8940f0a5273532d44a5e2422f0d51bec019afeb7e8caf345ffd1"
+        },
+        {
+          "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/science/calycosin-frequency-attempt001/frequencies_cm1.npy",
+          "sha256": "1e99e36421f69df78a79709f2e335a29c00081f7342352e10fcf1116ff176efa"
+        },
+        {
+          "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/science/calycosin-frequency-attempt001/normal_modes.npy",
+          "sha256": "b6c98d0a63c7e0e9765a94ce745ba8bed156b6998d3dd9f27c5a877bcec99f3f"
+        }
+      ],
+      "energy_hartree": -991.1776906337739,
+      "gradient_summary": {
+        "atom_gradient_rms_hartree_per_bohr": 3.1714035394782545e-05,
+        "atom_gradient_max_hartree_per_bohr": 7.190048580257979e-05
+      },
+      "max_abs_H_Eh_per_Bohr2": 0.7605760684924823,
+      "raw_symmetry_max_error_Eh_per_Bohr2": 5.8660381441200116e-08,
+      "translation_H_residual_max_Eh_per_Bohr2": 0.013262704328206747,
+      "translation_H_residual_by_axis": [
+        0.012742254768288601,
+        0.012627257402426338,
+        0.013262704328206747
+      ],
+      "external_block_eigenvalues_Eh_per_amu_Bohr2": [
+        -0.0020161936397925283,
+        -0.0014149372103572757,
+        -0.001296124718514147,
+        -0.0008630086454365729,
+        -0.0007717622125340017,
+        -0.0006709898048869854
+      ],
+      "external_vib_coupling_max_Eh_per_amu_Bohr2": 0.0011150398890051553,
+      "cartesian_min_eigenvalue_Eh_per_Bohr2": -0.058094833629398344,
+      "imaginary_modes": [
+        {
+          "one_based_mode": 1,
+          "frequency_cm1": -300.68915947993884,
+          "unit_cartesian_curvature_Eh_per_Bohr2": -0.04214016299103467,
+          "top_atoms_zero_based": [
+            {
+              "index": 17,
+              "symbol": "O",
+              "fraction_cart_displacement_squared": 0.2757182954574682
+            },
+            {
+              "index": 1,
+              "symbol": "O",
+              "fraction_cart_displacement_squared": 0.20609294037265402
+            },
+            {
+              "index": 20,
+              "symbol": "O",
+              "fraction_cart_displacement_squared": 0.13580861556935256
+            },
+            {
+              "index": 12,
+              "symbol": "O",
+              "fraction_cart_displacement_squared": 0.08179545006745333
+            },
+            {
+              "index": 23,
+              "symbol": "H",
+              "fraction_cart_displacement_squared": 0.060755880070541286
+            }
+          ],
+          "hydrogen_cart_displacement_squared_fraction": 0.22706611175610983
+        },
+        {
+          "one_based_mode": 2,
+          "frequency_cm1": -287.39172833281896,
+          "unit_cartesian_curvature_Eh_per_Bohr2": -0.035885135307546195,
+          "top_atoms_zero_based": [
+            {
+              "index": 8,
+              "symbol": "O",
+              "fraction_cart_displacement_squared": 0.2352831133156684
+            },
+            {
+              "index": 12,
+              "symbol": "O",
+              "fraction_cart_displacement_squared": 0.2224036835819439
+            },
+            {
+              "index": 20,
+              "symbol": "O",
+              "fraction_cart_displacement_squared": 0.1594661840293872
+            },
+            {
+              "index": 28,
+              "symbol": "H",
+              "fraction_cart_displacement_squared": 0.1158294545281465
+            },
+            {
+              "index": 32,
+              "symbol": "H",
+              "fraction_cart_displacement_squared": 0.07394409428270782
+            }
+          ],
+          "hydrogen_cart_displacement_squared_fraction": 0.27339193768329134
+        },
+        {
+          "one_based_mode": 3,
+          "frequency_cm1": -248.7475840395508,
+          "unit_cartesian_curvature_Eh_per_Bohr2": -0.01770131292853065,
+          "top_atoms_zero_based": [
+            {
+              "index": 21,
+              "symbol": "H",
+              "fraction_cart_displacement_squared": 0.19320546962316518
+            },
+            {
+              "index": 17,
+              "symbol": "O",
+              "fraction_cart_displacement_squared": 0.1457839543066325
+            },
+            {
+              "index": 1,
+              "symbol": "O",
+              "fraction_cart_displacement_squared": 0.1442885799854634
+            },
+            {
+              "index": 23,
+              "symbol": "H",
+              "fraction_cart_displacement_squared": 0.13743093658331165
+            },
+            {
+              "index": 25,
+              "symbol": "H",
+              "fraction_cart_displacement_squared": 0.05207068017314625
+            }
+          ],
+          "hydrogen_cart_displacement_squared_fraction": 0.5268152233294242
+        },
+        {
+          "one_based_mode": 4,
+          "frequency_cm1": -218.8859038800788,
+          "unit_cartesian_curvature_Eh_per_Bohr2": -0.01393655607256253,
+          "top_atoms_zero_based": [
+            {
+              "index": 32,
+              "symbol": "H",
+              "fraction_cart_displacement_squared": 0.14417746222615843
+            },
+            {
+              "index": 28,
+              "symbol": "H",
+              "fraction_cart_displacement_squared": 0.126623772389519
+            },
+            {
+              "index": 12,
+              "symbol": "O",
+              "fraction_cart_displacement_squared": 0.1113055930090532
+            },
+            {
+              "index": 20,
+              "symbol": "O",
+              "fraction_cart_displacement_squared": 0.10226148361239318
+            },
+            {
+              "index": 17,
+              "symbol": "O",
+              "fraction_cart_displacement_squared": 0.060072466701746555
+            }
+          ],
+          "hydrogen_cart_displacement_squared_fraction": 0.5066756685725633
+        },
+        {
+          "one_based_mode": 5,
+          "frequency_cm1": -177.90466253680174,
+          "unit_cartesian_curvature_Eh_per_Bohr2": -0.007525113926532013,
+          "top_atoms_zero_based": [
+            {
+              "index": 21,
+              "symbol": "H",
+              "fraction_cart_displacement_squared": 0.12648365824961025
+            },
+            {
+              "index": 23,
+              "symbol": "H",
+              "fraction_cart_displacement_squared": 0.1259923190328641
+            },
+            {
+              "index": 30,
+              "symbol": "H",
+              "fraction_cart_displacement_squared": 0.09035512292653936
+            },
+            {
+              "index": 12,
+              "symbol": "O",
+              "fraction_cart_displacement_squared": 0.0701398030913985
+            },
+            {
+              "index": 32,
+              "symbol": "H",
+              "fraction_cart_displacement_squared": 0.0691272561662136
+            }
+          ],
+          "hydrogen_cart_displacement_squared_fraction": 0.5924313036509498
+        },
+        {
+          "one_based_mode": 6,
+          "frequency_cm1": -130.0755945463772,
+          "unit_cartesian_curvature_Eh_per_Bohr2": -0.0038173211013542963,
+          "top_atoms_zero_based": [
+            {
+              "index": 23,
+              "symbol": "H",
+              "fraction_cart_displacement_squared": 0.2284970410091921
+            },
+            {
+              "index": 21,
+              "symbol": "H",
+              "fraction_cart_displacement_squared": 0.14678203623891034
+            },
+            {
+              "index": 32,
+              "symbol": "H",
+              "fraction_cart_displacement_squared": 0.11496542837813901
+            },
+            {
+              "index": 17,
+              "symbol": "O",
+              "fraction_cart_displacement_squared": 0.08727410696894793
+            },
+            {
+              "index": 20,
+              "symbol": "O",
+              "fraction_cart_displacement_squared": 0.07495343205862373
+            }
+          ],
+          "hydrogen_cart_displacement_squared_fraction": 0.6296397440136293
+        },
+        {
+          "one_based_mode": 7,
+          "frequency_cm1": -79.69968619829066,
+          "unit_cartesian_curvature_Eh_per_Bohr2": -0.0019172227150267486,
+          "top_atoms_zero_based": [
+            {
+              "index": 28,
+              "symbol": "H",
+              "fraction_cart_displacement_squared": 0.2149069641888692
+            },
+            {
+              "index": 17,
+              "symbol": "O",
+              "fraction_cart_displacement_squared": 0.16831729880593893
+            },
+            {
+              "index": 12,
+              "symbol": "O",
+              "fraction_cart_displacement_squared": 0.09372318471410471
+            },
+            {
+              "index": 32,
+              "symbol": "H",
+              "fraction_cart_displacement_squared": 0.09060067456564523
+            },
+            {
+              "index": 30,
+              "symbol": "H",
+              "fraction_cart_displacement_squared": 0.053252753646627196
+            }
+          ],
+          "hydrogen_cart_displacement_squared_fraction": 0.4912247323625771
+        }
+      ],
+      "unweighted_geometry_principal_extents_bohr": [
+        45.16049595523879,
+        16.105228973780967,
+        5.182263108182848
+      ],
+      "independent_nuclear_translation_residual_max_Eh_per_Bohr2": 8.881784197001252e-16,
+      "independent_nuclear_hessian_max_asymmetry": 0.0
+    }
+  ],
+  "interpretation": [
+    "All three saved Hessians show large nonzero uniform-translation residuals; the projected positive water modes do not validate quantum derivative correctness.",
+    "These algebraic anomalies prioritize independent finite-difference energy and gradient curvature tests before interpreting negative modes as real molecular saddle directions.",
+    "The independent NumPy replay checks diagonalization, atom order, masses and projection for the same supplied Hessian, not the physical correctness of that Hessian.",
+    "Possible hypotheses include integration-grid derivative inconsistency, response implementation/numerical issues or another derivative backend defect; the postprocessing alone does not identify a cause."
+  ],
+  "recommended_tests": {
+    "displacements_bohr": [
+      0.005,
+      0.01
+    ],
+    "directions": [
+      "water rigid translation plus positive vibrational control",
+      "protocatechuic_acid modes 1 and 4",
+      "calycosin modes 1 and 7"
+    ],
+    "comparison": "q.T H q versus q dot (g(+h)-g(-h))/(2h) and (E(+h)-2E(0)+E(-h))/h^2; fresh center and paired points; preserve settings/SCF thresholds and report grid/gradient-response sensitivity separately",
+    "interpretation_guard": "Two step sizes should agree before claiming curvature sign; sign conflict or >10% mismatch is a diagnostic trigger, not a complete universal numerical error bound."
+  },
+  "backend_source_audit": {
+    "new_quantum_evaluations": 0,
+    "dispatch_verified_without_kernel": {
+      "custom_class_base": "pyscf.dft.rks.RKS",
+      "Hessian_class": "pyscf.hessian.rks.Hessian",
+      "Hessian_kernel_source": "pyscf/hessian/rhf.py",
+      "Hessian_partial_source": "pyscf/hessian/rks.py",
+      "Gradient_class": "pyscf.grad.rks.Gradients",
+      "is_RKS_and_KohnShamDFT": true,
+      "checkpoint_created": false
+    },
+    "findings": [
+      {
+        "hypothesis": "Wrong Hessian dispatch caused by ScreenedDirectRKS subclass",
+        "observation": "Direct no-kernel instance inspection resolves RKS Hessian partial and RKS gradient, with both RKS and KohnShamDFT isinstance true. RHF.gen_response explicitly routes KohnShamDFT into XC response.",
+        "verdict": "No evidence of this dispatch defect."
+      },
+      {
+        "hypothesis": "Wrong atom/cartesian transpose or double/missing nuclear Hessian",
+        "observation": "Worker normal-mode replay uses hessian.transpose(0,2,1,3), consistent with PySCF (atom,atom,xyz,xyz). HessianBase.kernel calls hess_elec and adds hess_nuc once. Independently reconstructed pairwise nuclear Hessian obeys translation sum rule to roundoff, so a nuclear-only term cannot explain observed nonzero full-H translation residual.",
+        "verdict": "No observed transpose/nuclear assembly defect; physical electronic derivative consistency still requires finite differences."
+      },
+      {
+        "hypothesis": "Custom get_jk cached in-core tensors corrupt derivatives",
+        "observation": "Override delegates to hf.SCF.get_jk with identical parameters and requires _eri=None/direct_scf=True; Hessian nuclear derivative integral contractions use rhf_hess._get_jk separately. No wrapper algebra or in-core tensor is introduced by this override.",
+        "verdict": "No obvious code defect; stock-RKS versus screened-direct directional controls can test actual equivalence if needed."
+      },
+      {
+        "hypothesis": "Changing hessian.grid_response alone repairs PBE derivatives",
+        "observation": "Installed RKS Hessian initializes grid_response=False but PBE _get_vxc_diag/_get_vxc_deriv1/_get_vxc_deriv2 do not branch on hessobj.grid_response. Many grid_response symbols belong to VV10/NLC helpers with local grid_response=True. PBE has no NLC in this run.",
+        "verdict": "Do not assume this flag is a functional correction for the present PBE route. Compare actual finite-difference gradients with gradient.grid_response false/true and grid density."
+      }
+    ],
+    "source_refs": [
+      {
+        "path": "scripts/research4_parallel_b_quantum_20261106.py",
+        "sha256": "a95d7cf972ba2b95da3f14a44bcfdf094d5ceb1db23bad2de559a123ee8bc9df",
+        "relevant_one_based_lines": [
+          221,
+          228,
+          347,
+          360,
+          410
+        ]
+      },
+      {
+        "path": ".runtime/worker-b-20261106/venv/lib/python3.12/site-packages/pyscf/hessian/rks.py",
+        "sha256": "d61dbd1727b286845737853b92e1812a3e6a966dca29a9a8a79ff5e9a7725c03",
+        "relevant_one_based_lines": [
+          45,
+          123,
+          184,
+          335,
+          1292,
+          2108
+        ]
+      },
+      {
+        "path": ".runtime/worker-b-20261106/venv/lib/python3.12/site-packages/pyscf/hessian/rhf.py",
+        "sha256": "2d986bfc01aac98447034a207df639b3d6897f67ce1ab2a013fe2d0853c85de5",
+        "relevant_one_based_lines": [
+          35,
+          297,
+          337,
+          362,
+          556
+        ]
+      },
+      {
+        "path": ".runtime/worker-b-20261106/venv/lib/python3.12/site-packages/pyscf/scf/_response_functions.py",
+        "sha256": "806b3bbf00f1127bfbb15c74f5c7b022bb8f58ca01945f502d6082dd0b35f411",
+        "relevant_one_based_lines": [
+          30,
+          46
+        ]
+      },
+      {
+        "path": ".runtime/worker-b-20261106/venv/lib/python3.12/site-packages/pyscf/scf/hf.py",
+        "sha256": "34ea1a9057da3a2d5aa37fe51d4e7305580bcb8e0118a5f17ba95ba5bb36c22f",
+        "relevant_one_based_lines": [
+          2136
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "schema": "research4-b-diagnostic-user-authorization-v1",
+  "observed_at_utc": "2026-11-06T15:33:51.702097+00:00",
+  "user_instruction": "对于结果进行处理，探究一些深度问题和反常问题。设置后台自动执行运行不要中断",
+  "scope": "Analyze and independently test the completed Worker B anomalous Hessians; bounded diagnostic continuation of the same allocation.",
+  "run_id": "B20261106-01",
+  "cpu_cap_seconds": 58800,
+  "initial_consumed_cpu_seconds": 23291.367197000003,
+  "available_cpu_seconds_before_followup": 35508.632803,
+  "deadline_utc": "2026-11-09T08:25:17.730193+00:00",
+  "new_allocation_or_budget_reset": false,
+  "same_result_branch": "research/parallel-worker-b-20261106-B20261106-01",
+  "independent_question": "Do the saved imaginary modes represent actual local potential-energy curvature or numerical derivative/response inconsistency?",
+  "hypotheses": [
+    "True negative potential curvature",
+    "Incomplete or inaccurate electronic response in analytic Hessian",
+    "Quadrature/grid-response sensitivity",
+    "Postprocessing or rigid-body invariance error"
+  ],
+  "predeclared_diagnostics": [
+    "Independent array, atom-order, rigid-body and mode-localization audit.",
+    "Double-step central differences of full fresh gradients and energies along saved Cartesian-normalized modes.",
+    "Water vibration and whole-molecule translation software controls.",
+    "Grid-level and gradient-grid-response sensitivities on the same original geometries."
+  ],
+  "decision_rules": {
+    "derivative_consistency": "Compare analytic Hq and qTHq with central full-gradient derivative and energy curvature at h=0.005 and 0.01 Bohr.",
+    "followup_flag": "Opposite signs or >10% relative curvature difference trigger further investigation, not an automatic bug declaration.",
+    "true_negative_curvature": "Requires reproducible negative finite-gradient and energy curvatures across both step sizes; this does not certify a full stationary minimum.",
+    "quadrature_limitation": "Every displaced geometry rebuilds atom-centered grids. gradient_grid_response=False is not the exact derivative of a common fixed quadrature functional; disagreement alone does not identify a Hessian bug.",
+    "electronic_tolerance": "Followup SCF tolerance=1e-10; original SCF tolerance=1e-8. This is a recorded numerical sensitivity, not a relabeling of the historical result."
+  },
+  "preservation": "Original outputs, science source, manifests, costs and checkpoints remain unchanged.",
+  "not_claimed": [
+    "Experimental chemical peak assignment",
+    "IR intensities",
+    "Global minimum",
+    "New classifier performance",
+    "New independent plant or batch data"
+  ]
+}
