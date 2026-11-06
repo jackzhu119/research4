@@ -1,0 +1,2370 @@
+{
+  "schema": "research4-v8-finite-response-pipeline-state-v1",
+  "config_sha256": "ddcc50114b42a55ee3bc098f95c383caa71a3bff64b377927e115d35333d4b6e",
+  "grant_sha256": "72ef896d688e23ecd0981ea88f3d2f6e2900d7c53dceb825b9ab909d3dc6355e",
+  "invocations": [
+    {
+      "id": "root-v8-background-001",
+      "status": "BLOCKED_REQUIRES_ROOT_REVIEW_NO_AUTOMATIC_RETRY",
+      "identity": {
+        "pid": 42012,
+        "start_ticks": 10999266,
+        "uid": 1000,
+        "pgrp": 42012,
+        "session": 42012,
+        "state": "R",
+        "comm": "python",
+        "boot_id": "50ca0010-b743-43c7-bc0f-b6bcbc47c68d"
+      },
+      "started_at_utc": "2026-11-05T13:09:12.637255+00:00",
+      "self_CPU_observed_seconds": 33.214244355,
+      "error_type": "ValueError",
+      "reason": "Guardian failed; retain actual failed cost and stop without automatic retry",
+      "ended_observed_at_utc": "2026-11-06T04:53:27.579278+00:00"
+    }
+  ],
+  "stages": {
+    "response-00": {
+      "status": "HEALTHY_CLOSED",
+      "materialized_job": {
+        "id": "response-00",
+        "phase": "v8-spinosin-C001-response-pipeline-001-response-00",
+        "stage": "response-block",
+        "worker": {
+          "path": "/workspace/research4/scripts/pyscf_staged_consumer_20261105_v8.py",
+          "sha256": "3a107671d9c8a5a47c25f631fd09ed70148dc82b529448d9bafc67179801a585"
+        },
+        "payload_argv": [
+          "/workspace/research4/.runtime/bin/python",
+          "/workspace/research4/scripts/pyscf_staged_consumer_20261105_v8.py",
+          "--execute",
+          "--stage",
+          "response-block",
+          "--threads",
+          "2",
+          "--snapshot",
+          "/workspace/research4/reports/pyscf-spinosin-resumable-20261104-v5/v5-spinosin-C001-prepare-001/exact-mf-snapshot",
+          "--snapshot-manifest-sha256",
+          "3089d6014ba2d2283540eb13cc7dbcdbbf284721042e7250b624197fc15c3311",
+          "--gradient-check-result",
+          "/workspace/research4/reports/pyscf-spinosin-resumable-20261104-v5/v5-spinosin-C001-restore-gradient-001/result.json",
+          "--gradient-check-result-sha256",
+          "6b143defc238471bc815857df08fc4034a9d8454a00567f3b084907a54a5c403",
+          "--control-release",
+          "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/resource-protocol/actual-v8-water-ethanol-control-release-001.json",
+          "--control-release-sha256",
+          "2093c4e5952ce30c97a71978aa963f855d2205ef634af151ed11bdda161a5efa",
+          "--partial-result",
+          "/workspace/research4/reports/pyscf-spinosin-grid-checkpoint-20261105-v7/spinosin-C001-rks-partial-001/result.json",
+          "--partial-result-sha256",
+          "7bbcfc8b62ad81d53a65b09f0b8809d9646a62130e759a69f8d794e8f29ee8d9",
+          "--h1-result",
+          "/workspace/research4/reports/pyscf-spinosin-grid-checkpoint-20261105-v7/post-xc-pipeline-001/science/h1ao/result.json",
+          "--h1-result-sha256",
+          "f406700cc02b880292e92ed7cde9734170a115503445abb8c8b57dfe565643fa",
+          "--output",
+          "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-00",
+          "--block-index",
+          "0"
+        ],
+        "result_schema": "research4-staged-full-rks-hessian-result-v8",
+        "success_status": "STAGE_COMPLETE",
+        "result": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-00/result.json",
+        "log": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/execution/response-00.log",
+        "threads": 2,
+        "memory_gib": 24,
+        "cpu_seconds": 21600,
+        "wall_seconds": 14400
+      },
+      "actual_guardian_argv": [
+        "/workspace/research4/.runtime/bin/python",
+        "/workspace/research4/scripts/run_pyscf_continuation_budget_20261105_v8.py",
+        "run",
+        "--ledger",
+        "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/cpu_budget.json",
+        "--phase",
+        "v8-spinosin-C001-response-pipeline-001-response-00",
+        "--cpu-seconds",
+        "21600",
+        "--wall-seconds",
+        "14400",
+        "--threads",
+        "2",
+        "--memory-gib",
+        "24",
+        "--log",
+        "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/execution/response-00.log",
+        "--",
+        "/workspace/research4/.runtime/bin/python",
+        "/workspace/research4/scripts/pyscf_staged_consumer_20261105_v8.py",
+        "--execute",
+        "--stage",
+        "response-block",
+        "--threads",
+        "2",
+        "--snapshot",
+        "/workspace/research4/reports/pyscf-spinosin-resumable-20261104-v5/v5-spinosin-C001-prepare-001/exact-mf-snapshot",
+        "--snapshot-manifest-sha256",
+        "3089d6014ba2d2283540eb13cc7dbcdbbf284721042e7250b624197fc15c3311",
+        "--gradient-check-result",
+        "/workspace/research4/reports/pyscf-spinosin-resumable-20261104-v5/v5-spinosin-C001-restore-gradient-001/result.json",
+        "--gradient-check-result-sha256",
+        "6b143defc238471bc815857df08fc4034a9d8454a00567f3b084907a54a5c403",
+        "--control-release",
+        "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/resource-protocol/actual-v8-water-ethanol-control-release-001.json",
+        "--control-release-sha256",
+        "2093c4e5952ce30c97a71978aa963f855d2205ef634af151ed11bdda161a5efa",
+        "--partial-result",
+        "/workspace/research4/reports/pyscf-spinosin-grid-checkpoint-20261105-v7/spinosin-C001-rks-partial-001/result.json",
+        "--partial-result-sha256",
+        "7bbcfc8b62ad81d53a65b09f0b8809d9646a62130e759a69f8d794e8f29ee8d9",
+        "--h1-result",
+        "/workspace/research4/reports/pyscf-spinosin-grid-checkpoint-20261105-v7/post-xc-pipeline-001/science/h1ao/result.json",
+        "--h1-result-sha256",
+        "f406700cc02b880292e92ed7cde9734170a115503445abb8c8b57dfe565643fa",
+        "--output",
+        "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-00",
+        "--block-index",
+        "0"
+      ],
+      "guardian_identity": {
+        "pid": 42013,
+        "start_ticks": 10999537,
+        "uid": 1000,
+        "pgrp": 42013,
+        "session": 42013,
+        "state": "R",
+        "comm": "python",
+        "boot_id": "50ca0010-b743-43c7-bc0f-b6bcbc47c68d"
+      },
+      "actual_guardian_returncode": 0,
+      "seal": [
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/execution/response-00.log",
+          "sha256": "c6e9d47cb2b3f2384a53d9b4dce49a8506b50a9f4e18eca3aa6335659fea22d4",
+          "bytes": 123
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/execution/response-00.log.supervisor-proof.json",
+          "sha256": "0d09d4f748d26bfe80deeeb18868cd46a27d990f98f9caa42058ff0e542963e8",
+          "bytes": 1841
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-00/input.json",
+          "sha256": "18009387790b0f7ca0a089bbc7ec17c32c40c6048bb2b96b000b30e39d7af476",
+          "bytes": 5782
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-00/result.json",
+          "sha256": "641336012967fdf96c3b944aa526b6d6393257ef8672108052339a7e0fa1b669",
+          "bytes": 119437
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-00/stage-cache/MO1_atom_000.npy",
+          "sha256": "65323d8eb535126328d289dde10fc379cd94907de76a2e99c5bd09e0c994d73e",
+          "bytes": 2926208
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-00/stage-cache/MO1_atom_001.npy",
+          "sha256": "8d532bb2c30e7a140f2bbdefbb194839b5951b038d3d0ef48e1524106f259667",
+          "bytes": 2926208
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-00/stage-cache/MO1_atom_002.npy",
+          "sha256": "a202a49c2ed0f956e63a13d9df48fb4209ac7ee5c9d503324b84891827d75ddc",
+          "bytes": 2926208
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-00/stage-cache/MO1_atom_003.npy",
+          "sha256": "2bc6c043214b87eafe953bba622c4d03c8d3411a5168a512bcaee5c2f9b47908",
+          "bytes": 2926208
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-00/stage-cache/MO1_atom_004.npy",
+          "sha256": "6944a164e36e9a6bb6e31b232ff9af8040b9cb9bbf6b522765e0e017fbb5c2ab",
+          "bytes": 2926208
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-00/stage-cache/MO1_atom_005.npy",
+          "sha256": "679e94d0ab0a55abf71856d7b81250dce288b87e6afc3ee637848a1acffbdb36",
+          "bytes": 2926208
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-00/stage-cache/MO1_atom_006.npy",
+          "sha256": "7d6f6814a624a0b46e0603917939ebd945ed0391b8baa0d3872dc98bbb987e39",
+          "bytes": 2926208
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-00/stage-cache/MO1_atom_007.npy",
+          "sha256": "fd52c9171d97ae5b4426ebd369da545a2cd7f6ca2c25ef8a6a7caadc76d9f904",
+          "bytes": 2926208
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-00/stage-cache/MO_E1_atom_000.npy",
+          "sha256": "bea9b12cceda370aee59251b6ab13600d8a0cf065f3a5e246ae15cf23ad8efcd",
+          "bytes": 614528
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-00/stage-cache/MO_E1_atom_001.npy",
+          "sha256": "d4e2bd61fdd96e623480722d8d8d1bfb1dcb0bf8c0dc5a8a28219278e57552a0",
+          "bytes": 614528
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-00/stage-cache/MO_E1_atom_002.npy",
+          "sha256": "8cff33ba0bf1e2472828714920995b5c54e0b2287f7daea0e79eaa85fd304838",
+          "bytes": 614528
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-00/stage-cache/MO_E1_atom_003.npy",
+          "sha256": "510dfed58fbcca61696ab78be49eeaa2a1c645f2d805499e65dc04b38001796a",
+          "bytes": 614528
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-00/stage-cache/MO_E1_atom_004.npy",
+          "sha256": "eac53d82e6645d6565848aa2ae12809048dd8fc9ead80918fa35539364ff9652",
+          "bytes": 614528
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-00/stage-cache/MO_E1_atom_005.npy",
+          "sha256": "4847b1d23a8f9c79ecce6f0f388efe1dba4ed9be28653f5ab391b9f1c2e26fbb",
+          "bytes": 614528
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-00/stage-cache/MO_E1_atom_006.npy",
+          "sha256": "c2c08d39c59093cc6c45b06a04bffc8c9002f1e2794760d47de3c520a3f610b8",
+          "bytes": 614528
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-00/stage-cache/MO_E1_atom_007.npy",
+          "sha256": "a3f246fa0a344eebe8f7a6964e87431bad2341c1525e9867fe88e99941e6b7d9",
+          "bytes": 614528
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-00/stage-cache/manifest.json",
+          "sha256": "44bdc2a8e537c8c06377b2a3f7576e8a3c2741edf25e4119db4f2a2b701d9154",
+          "bytes": 36084
+        }
+      ]
+    },
+    "response-01": {
+      "status": "HEALTHY_CLOSED",
+      "materialized_job": {
+        "id": "response-01",
+        "phase": "v8-spinosin-C001-response-pipeline-001-response-01",
+        "stage": "response-block",
+        "worker": {
+          "path": "/workspace/research4/scripts/pyscf_staged_consumer_20261105_v8.py",
+          "sha256": "3a107671d9c8a5a47c25f631fd09ed70148dc82b529448d9bafc67179801a585"
+        },
+        "payload_argv": [
+          "/workspace/research4/.runtime/bin/python",
+          "/workspace/research4/scripts/pyscf_staged_consumer_20261105_v8.py",
+          "--execute",
+          "--stage",
+          "response-block",
+          "--threads",
+          "2",
+          "--snapshot",
+          "/workspace/research4/reports/pyscf-spinosin-resumable-20261104-v5/v5-spinosin-C001-prepare-001/exact-mf-snapshot",
+          "--snapshot-manifest-sha256",
+          "3089d6014ba2d2283540eb13cc7dbcdbbf284721042e7250b624197fc15c3311",
+          "--gradient-check-result",
+          "/workspace/research4/reports/pyscf-spinosin-resumable-20261104-v5/v5-spinosin-C001-restore-gradient-001/result.json",
+          "--gradient-check-result-sha256",
+          "6b143defc238471bc815857df08fc4034a9d8454a00567f3b084907a54a5c403",
+          "--control-release",
+          "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/resource-protocol/actual-v8-water-ethanol-control-release-001.json",
+          "--control-release-sha256",
+          "2093c4e5952ce30c97a71978aa963f855d2205ef634af151ed11bdda161a5efa",
+          "--partial-result",
+          "/workspace/research4/reports/pyscf-spinosin-grid-checkpoint-20261105-v7/spinosin-C001-rks-partial-001/result.json",
+          "--partial-result-sha256",
+          "7bbcfc8b62ad81d53a65b09f0b8809d9646a62130e759a69f8d794e8f29ee8d9",
+          "--h1-result",
+          "/workspace/research4/reports/pyscf-spinosin-grid-checkpoint-20261105-v7/post-xc-pipeline-001/science/h1ao/result.json",
+          "--h1-result-sha256",
+          "f406700cc02b880292e92ed7cde9734170a115503445abb8c8b57dfe565643fa",
+          "--output",
+          "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-01",
+          "--block-index",
+          "1"
+        ],
+        "result_schema": "research4-staged-full-rks-hessian-result-v8",
+        "success_status": "STAGE_COMPLETE",
+        "result": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-01/result.json",
+        "log": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/execution/response-01.log",
+        "threads": 2,
+        "memory_gib": 24,
+        "cpu_seconds": 21600,
+        "wall_seconds": 14400
+      },
+      "actual_guardian_argv": [
+        "/workspace/research4/.runtime/bin/python",
+        "/workspace/research4/scripts/run_pyscf_continuation_budget_20261105_v8.py",
+        "run",
+        "--ledger",
+        "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/cpu_budget.json",
+        "--phase",
+        "v8-spinosin-C001-response-pipeline-001-response-01",
+        "--cpu-seconds",
+        "21600",
+        "--wall-seconds",
+        "14400",
+        "--threads",
+        "2",
+        "--memory-gib",
+        "24",
+        "--log",
+        "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/execution/response-01.log",
+        "--",
+        "/workspace/research4/.runtime/bin/python",
+        "/workspace/research4/scripts/pyscf_staged_consumer_20261105_v8.py",
+        "--execute",
+        "--stage",
+        "response-block",
+        "--threads",
+        "2",
+        "--snapshot",
+        "/workspace/research4/reports/pyscf-spinosin-resumable-20261104-v5/v5-spinosin-C001-prepare-001/exact-mf-snapshot",
+        "--snapshot-manifest-sha256",
+        "3089d6014ba2d2283540eb13cc7dbcdbbf284721042e7250b624197fc15c3311",
+        "--gradient-check-result",
+        "/workspace/research4/reports/pyscf-spinosin-resumable-20261104-v5/v5-spinosin-C001-restore-gradient-001/result.json",
+        "--gradient-check-result-sha256",
+        "6b143defc238471bc815857df08fc4034a9d8454a00567f3b084907a54a5c403",
+        "--control-release",
+        "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/resource-protocol/actual-v8-water-ethanol-control-release-001.json",
+        "--control-release-sha256",
+        "2093c4e5952ce30c97a71978aa963f855d2205ef634af151ed11bdda161a5efa",
+        "--partial-result",
+        "/workspace/research4/reports/pyscf-spinosin-grid-checkpoint-20261105-v7/spinosin-C001-rks-partial-001/result.json",
+        "--partial-result-sha256",
+        "7bbcfc8b62ad81d53a65b09f0b8809d9646a62130e759a69f8d794e8f29ee8d9",
+        "--h1-result",
+        "/workspace/research4/reports/pyscf-spinosin-grid-checkpoint-20261105-v7/post-xc-pipeline-001/science/h1ao/result.json",
+        "--h1-result-sha256",
+        "f406700cc02b880292e92ed7cde9734170a115503445abb8c8b57dfe565643fa",
+        "--output",
+        "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-01",
+        "--block-index",
+        "1"
+      ],
+      "guardian_identity": {
+        "pid": 43637,
+        "start_ticks": 11652430,
+        "uid": 1000,
+        "pgrp": 43637,
+        "session": 43637,
+        "state": "R",
+        "comm": "python",
+        "boot_id": "50ca0010-b743-43c7-bc0f-b6bcbc47c68d"
+      },
+      "actual_guardian_returncode": 0,
+      "seal": [
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/execution/response-01.log",
+          "sha256": "c6e9d47cb2b3f2384a53d9b4dce49a8506b50a9f4e18eca3aa6335659fea22d4",
+          "bytes": 123
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/execution/response-01.log.supervisor-proof.json",
+          "sha256": "89b76a852dafb3069b0c5a24e765d64fa14a1e19a6825d5645224fea4afe168c",
+          "bytes": 1840
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-01/input.json",
+          "sha256": "28fc2f32978a360a46c1d0d7153f0151bf1e62d634ec685d54a662b4e9d8d5b9",
+          "bytes": 5781
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-01/result.json",
+          "sha256": "9f0c0f54c37ae463e334cf9db5629656177f8ab1b0b33d50bf569270427004fb",
+          "bytes": 119480
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-01/stage-cache/MO1_atom_008.npy",
+          "sha256": "f6d1b3a3308b0e32e38c247513c7c6a030794d531563c4dbb072b353f7077e31",
+          "bytes": 2926208
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-01/stage-cache/MO1_atom_009.npy",
+          "sha256": "83f0c22c6e0a6bb9c8939704f2e616ca894133f1962e57019b8eb0b9e35fad4b",
+          "bytes": 2926208
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-01/stage-cache/MO1_atom_010.npy",
+          "sha256": "3717b1a744ff3c9e3938c9e7b1029de516f73df1131b7fd2aac7b4efe8622cc1",
+          "bytes": 2926208
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-01/stage-cache/MO1_atom_011.npy",
+          "sha256": "eeee90d091ecf1630ace411224749c9c022220929e37955926eefc2a7e008e2c",
+          "bytes": 2926208
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-01/stage-cache/MO1_atom_012.npy",
+          "sha256": "b210706dcdb9668ee8f2de1c33ca94fa5f8e1bd29599923c6fd025b70f4e51cb",
+          "bytes": 2926208
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-01/stage-cache/MO1_atom_013.npy",
+          "sha256": "38f318d8c7102c0db22ad8453a1946d615ba16985bba22bb1268a83931f1a8ea",
+          "bytes": 2926208
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-01/stage-cache/MO1_atom_014.npy",
+          "sha256": "94401280274a57f834c4bee1bbeda8387cbf1a17c5f66134a5f280b34590903d",
+          "bytes": 2926208
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-01/stage-cache/MO1_atom_015.npy",
+          "sha256": "567f1e878d5d485bd8aaacbdb74da2ede846d01855c90f111cd2686ad8183feb",
+          "bytes": 2926208
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-01/stage-cache/MO_E1_atom_008.npy",
+          "sha256": "7ddf04ab19dbd820b7576ee1d3ea0f7a20c85ac44e8addc6fcb0ad861d98fdf7",
+          "bytes": 614528
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-01/stage-cache/MO_E1_atom_009.npy",
+          "sha256": "a14643ef84ebc10a1977d64c0199159905d91802ec77109122c509b24237481d",
+          "bytes": 614528
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-01/stage-cache/MO_E1_atom_010.npy",
+          "sha256": "abd8b1334cf2b638f7d41c816778648de9895e54a6835697eb393f1fd1e47809",
+          "bytes": 614528
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-01/stage-cache/MO_E1_atom_011.npy",
+          "sha256": "a563746170d2b29a801bb519e59c92d81725fd5f53f49332b905828f6b2baa76",
+          "bytes": 614528
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-01/stage-cache/MO_E1_atom_012.npy",
+          "sha256": "707041727f464d964e0461f253d04fff5398c2c5ee5946aaa49a9b124df309be",
+          "bytes": 614528
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-01/stage-cache/MO_E1_atom_013.npy",
+          "sha256": "65bc5d4aaeccaff7900b29f948912ead19358b04d886965650916b75752071b8",
+          "bytes": 614528
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-01/stage-cache/MO_E1_atom_014.npy",
+          "sha256": "911d81abd7d910ab3090129e5c9df60048b11118d3b346cd5ff5a44add698df6",
+          "bytes": 614528
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-01/stage-cache/MO_E1_atom_015.npy",
+          "sha256": "7ca055b9a4a303f934e5ea3b9ac13d09571e170aedddd8dbf2bdd492772b75a0",
+          "bytes": 614528
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-01/stage-cache/manifest.json",
+          "sha256": "425b4094e799637f4060c0217bef9a45da1d5d44a47121b68b92c960aa221aa0",
+          "bytes": 36102
+        }
+      ]
+    },
+    "response-02": {
+      "status": "HEALTHY_CLOSED",
+      "materialized_job": {
+        "id": "response-02",
+        "phase": "v8-spinosin-C001-response-pipeline-001-response-02",
+        "stage": "response-block",
+        "worker": {
+          "path": "/workspace/research4/scripts/pyscf_staged_consumer_20261105_v8.py",
+          "sha256": "3a107671d9c8a5a47c25f631fd09ed70148dc82b529448d9bafc67179801a585"
+        },
+        "payload_argv": [
+          "/workspace/research4/.runtime/bin/python",
+          "/workspace/research4/scripts/pyscf_staged_consumer_20261105_v8.py",
+          "--execute",
+          "--stage",
+          "response-block",
+          "--threads",
+          "2",
+          "--snapshot",
+          "/workspace/research4/reports/pyscf-spinosin-resumable-20261104-v5/v5-spinosin-C001-prepare-001/exact-mf-snapshot",
+          "--snapshot-manifest-sha256",
+          "3089d6014ba2d2283540eb13cc7dbcdbbf284721042e7250b624197fc15c3311",
+          "--gradient-check-result",
+          "/workspace/research4/reports/pyscf-spinosin-resumable-20261104-v5/v5-spinosin-C001-restore-gradient-001/result.json",
+          "--gradient-check-result-sha256",
+          "6b143defc238471bc815857df08fc4034a9d8454a00567f3b084907a54a5c403",
+          "--control-release",
+          "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/resource-protocol/actual-v8-water-ethanol-control-release-001.json",
+          "--control-release-sha256",
+          "2093c4e5952ce30c97a71978aa963f855d2205ef634af151ed11bdda161a5efa",
+          "--partial-result",
+          "/workspace/research4/reports/pyscf-spinosin-grid-checkpoint-20261105-v7/spinosin-C001-rks-partial-001/result.json",
+          "--partial-result-sha256",
+          "7bbcfc8b62ad81d53a65b09f0b8809d9646a62130e759a69f8d794e8f29ee8d9",
+          "--h1-result",
+          "/workspace/research4/reports/pyscf-spinosin-grid-checkpoint-20261105-v7/post-xc-pipeline-001/science/h1ao/result.json",
+          "--h1-result-sha256",
+          "f406700cc02b880292e92ed7cde9734170a115503445abb8c8b57dfe565643fa",
+          "--output",
+          "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-02",
+          "--block-index",
+          "2"
+        ],
+        "result_schema": "research4-staged-full-rks-hessian-result-v8",
+        "success_status": "STAGE_COMPLETE",
+        "result": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-02/result.json",
+        "log": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/execution/response-02.log",
+        "threads": 2,
+        "memory_gib": 24,
+        "cpu_seconds": 21600,
+        "wall_seconds": 14400
+      },
+      "actual_guardian_argv": [
+        "/workspace/research4/.runtime/bin/python",
+        "/workspace/research4/scripts/run_pyscf_continuation_budget_20261105_v8.py",
+        "run",
+        "--ledger",
+        "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/cpu_budget.json",
+        "--phase",
+        "v8-spinosin-C001-response-pipeline-001-response-02",
+        "--cpu-seconds",
+        "21600",
+        "--wall-seconds",
+        "14400",
+        "--threads",
+        "2",
+        "--memory-gib",
+        "24",
+        "--log",
+        "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/execution/response-02.log",
+        "--",
+        "/workspace/research4/.runtime/bin/python",
+        "/workspace/research4/scripts/pyscf_staged_consumer_20261105_v8.py",
+        "--execute",
+        "--stage",
+        "response-block",
+        "--threads",
+        "2",
+        "--snapshot",
+        "/workspace/research4/reports/pyscf-spinosin-resumable-20261104-v5/v5-spinosin-C001-prepare-001/exact-mf-snapshot",
+        "--snapshot-manifest-sha256",
+        "3089d6014ba2d2283540eb13cc7dbcdbbf284721042e7250b624197fc15c3311",
+        "--gradient-check-result",
+        "/workspace/research4/reports/pyscf-spinosin-resumable-20261104-v5/v5-spinosin-C001-restore-gradient-001/result.json",
+        "--gradient-check-result-sha256",
+        "6b143defc238471bc815857df08fc4034a9d8454a00567f3b084907a54a5c403",
+        "--control-release",
+        "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/resource-protocol/actual-v8-water-ethanol-control-release-001.json",
+        "--control-release-sha256",
+        "2093c4e5952ce30c97a71978aa963f855d2205ef634af151ed11bdda161a5efa",
+        "--partial-result",
+        "/workspace/research4/reports/pyscf-spinosin-grid-checkpoint-20261105-v7/spinosin-C001-rks-partial-001/result.json",
+        "--partial-result-sha256",
+        "7bbcfc8b62ad81d53a65b09f0b8809d9646a62130e759a69f8d794e8f29ee8d9",
+        "--h1-result",
+        "/workspace/research4/reports/pyscf-spinosin-grid-checkpoint-20261105-v7/post-xc-pipeline-001/science/h1ao/result.json",
+        "--h1-result-sha256",
+        "f406700cc02b880292e92ed7cde9734170a115503445abb8c8b57dfe565643fa",
+        "--output",
+        "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-02",
+        "--block-index",
+        "2"
+      ],
+      "guardian_identity": {
+        "pid": 43914,
+        "start_ticks": 12233004,
+        "uid": 1000,
+        "pgrp": 43914,
+        "session": 43914,
+        "state": "R",
+        "comm": "python",
+        "boot_id": "50ca0010-b743-43c7-bc0f-b6bcbc47c68d"
+      },
+      "actual_guardian_returncode": 0,
+      "seal": [
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/execution/response-02.log",
+          "sha256": "c6e9d47cb2b3f2384a53d9b4dce49a8506b50a9f4e18eca3aa6335659fea22d4",
+          "bytes": 123
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/execution/response-02.log.supervisor-proof.json",
+          "sha256": "382cd8a06f19d02f46eb9cee26e5648f0ed02f9a7723a27f668b3c35cd7b1b59",
+          "bytes": 1840
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-02/input.json",
+          "sha256": "865d96b9e827a4a1c78f0bd93eb9df641fa1c45dd65afa0a01ba4c0a0eae2ede",
+          "bytes": 5781
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-02/result.json",
+          "sha256": "8ac3bf26e6647709cdbacfab6df978079903e112ac0ba3ad3d9b2f5e3c4cdb26",
+          "bytes": 119484
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-02/stage-cache/MO1_atom_016.npy",
+          "sha256": "560fe9d915797cc504d8d26e66a75a661475ffab00255692daad433873c4d6dd",
+          "bytes": 2926208
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-02/stage-cache/MO1_atom_017.npy",
+          "sha256": "8e2fcc746c8f3cac865206bf5d5f28f186febf6ff28814b9ecaf4ddd4e15aa65",
+          "bytes": 2926208
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-02/stage-cache/MO1_atom_018.npy",
+          "sha256": "fa66ca5e4180614b10dee5cfff672a014b758633ff89e1a28421cca62ac2a201",
+          "bytes": 2926208
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-02/stage-cache/MO1_atom_019.npy",
+          "sha256": "a1ac2f72db035b6ac9fa1a7b6dd32ed16645aa9d08051a77a44e958a06a96aed",
+          "bytes": 2926208
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-02/stage-cache/MO1_atom_020.npy",
+          "sha256": "6d3568fd271b6f1f434adc40a508738f97a9f525ddb93306f1d070e846646d65",
+          "bytes": 2926208
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-02/stage-cache/MO1_atom_021.npy",
+          "sha256": "e14aa6e65f524d29db66489c1ad39e9606a2407500db941107459d669830eb8a",
+          "bytes": 2926208
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-02/stage-cache/MO1_atom_022.npy",
+          "sha256": "b6f6c00cd592d427b3da640a31443b644cd04a42d0c1d26b859642aab5901f94",
+          "bytes": 2926208
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-02/stage-cache/MO1_atom_023.npy",
+          "sha256": "d12766c5cadf1d0d7f2445b672956f4517937707eb067199d80951b95571c6a3",
+          "bytes": 2926208
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-02/stage-cache/MO_E1_atom_016.npy",
+          "sha256": "4417093ac381ea7f18a18a03c66399d6e29ae8f9db4eb1aca18a3e01a797cb37",
+          "bytes": 614528
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-02/stage-cache/MO_E1_atom_017.npy",
+          "sha256": "c404d4b4e36bc920b3922ff11bba64d5ae000ce0a42b8a0e0124643146765281",
+          "bytes": 614528
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-02/stage-cache/MO_E1_atom_018.npy",
+          "sha256": "c79611edd6fb1e262c7dcda76b54f8da649824ae450c95caab800e91c5a8da3d",
+          "bytes": 614528
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-02/stage-cache/MO_E1_atom_019.npy",
+          "sha256": "be137e58463eb7ff2eba56bdf6c744233ed86d2f2dab0c1c078b81b0e64e0d19",
+          "bytes": 614528
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-02/stage-cache/MO_E1_atom_020.npy",
+          "sha256": "83eac5c44fd3336e9433575360638bb50162d626431fcd17de887791cf1a7166",
+          "bytes": 614528
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-02/stage-cache/MO_E1_atom_021.npy",
+          "sha256": "f1041c4fb3d5384473d1ced6cedfbfb8d801d7df0a56add26cd9e0bb2c5d57fb",
+          "bytes": 614528
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-02/stage-cache/MO_E1_atom_022.npy",
+          "sha256": "0263dfff5af17d2d1779f9276970186fb7eccd3ef240b91d74e555ab26d016fc",
+          "bytes": 614528
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-02/stage-cache/MO_E1_atom_023.npy",
+          "sha256": "6063538e3a15538e25b2c70e0425779bdd4ec5e40ce4871787c0b30ddb47664f",
+          "bytes": 614528
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-02/stage-cache/manifest.json",
+          "sha256": "3b384dc05b502c176fba39ef6190e177fcd91b0c20ecce346ee694a0a5a9fb20",
+          "bytes": 36108
+        }
+      ]
+    },
+    "response-03": {
+      "status": "HEALTHY_CLOSED",
+      "materialized_job": {
+        "id": "response-03",
+        "phase": "v8-spinosin-C001-response-pipeline-001-response-03",
+        "stage": "response-block",
+        "worker": {
+          "path": "/workspace/research4/scripts/pyscf_staged_consumer_20261105_v8.py",
+          "sha256": "3a107671d9c8a5a47c25f631fd09ed70148dc82b529448d9bafc67179801a585"
+        },
+        "payload_argv": [
+          "/workspace/research4/.runtime/bin/python",
+          "/workspace/research4/scripts/pyscf_staged_consumer_20261105_v8.py",
+          "--execute",
+          "--stage",
+          "response-block",
+          "--threads",
+          "2",
+          "--snapshot",
+          "/workspace/research4/reports/pyscf-spinosin-resumable-20261104-v5/v5-spinosin-C001-prepare-001/exact-mf-snapshot",
+          "--snapshot-manifest-sha256",
+          "3089d6014ba2d2283540eb13cc7dbcdbbf284721042e7250b624197fc15c3311",
+          "--gradient-check-result",
+          "/workspace/research4/reports/pyscf-spinosin-resumable-20261104-v5/v5-spinosin-C001-restore-gradient-001/result.json",
+          "--gradient-check-result-sha256",
+          "6b143defc238471bc815857df08fc4034a9d8454a00567f3b084907a54a5c403",
+          "--control-release",
+          "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/resource-protocol/actual-v8-water-ethanol-control-release-001.json",
+          "--control-release-sha256",
+          "2093c4e5952ce30c97a71978aa963f855d2205ef634af151ed11bdda161a5efa",
+          "--partial-result",
+          "/workspace/research4/reports/pyscf-spinosin-grid-checkpoint-20261105-v7/spinosin-C001-rks-partial-001/result.json",
+          "--partial-result-sha256",
+          "7bbcfc8b62ad81d53a65b09f0b8809d9646a62130e759a69f8d794e8f29ee8d9",
+          "--h1-result",
+          "/workspace/research4/reports/pyscf-spinosin-grid-checkpoint-20261105-v7/post-xc-pipeline-001/science/h1ao/result.json",
+          "--h1-result-sha256",
+          "f406700cc02b880292e92ed7cde9734170a115503445abb8c8b57dfe565643fa",
+          "--output",
+          "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-03",
+          "--block-index",
+          "3"
+        ],
+        "result_schema": "research4-staged-full-rks-hessian-result-v8",
+        "success_status": "STAGE_COMPLETE",
+        "result": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-03/result.json",
+        "log": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/execution/response-03.log",
+        "threads": 2,
+        "memory_gib": 24,
+        "cpu_seconds": 21600,
+        "wall_seconds": 14400
+      },
+      "actual_guardian_argv": [
+        "/workspace/research4/.runtime/bin/python",
+        "/workspace/research4/scripts/run_pyscf_continuation_budget_20261105_v8.py",
+        "run",
+        "--ledger",
+        "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/cpu_budget.json",
+        "--phase",
+        "v8-spinosin-C001-response-pipeline-001-response-03",
+        "--cpu-seconds",
+        "21600",
+        "--wall-seconds",
+        "14400",
+        "--threads",
+        "2",
+        "--memory-gib",
+        "24",
+        "--log",
+        "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/execution/response-03.log",
+        "--",
+        "/workspace/research4/.runtime/bin/python",
+        "/workspace/research4/scripts/pyscf_staged_consumer_20261105_v8.py",
+        "--execute",
+        "--stage",
+        "response-block",
+        "--threads",
+        "2",
+        "--snapshot",
+        "/workspace/research4/reports/pyscf-spinosin-resumable-20261104-v5/v5-spinosin-C001-prepare-001/exact-mf-snapshot",
+        "--snapshot-manifest-sha256",
+        "3089d6014ba2d2283540eb13cc7dbcdbbf284721042e7250b624197fc15c3311",
+        "--gradient-check-result",
+        "/workspace/research4/reports/pyscf-spinosin-resumable-20261104-v5/v5-spinosin-C001-restore-gradient-001/result.json",
+        "--gradient-check-result-sha256",
+        "6b143defc238471bc815857df08fc4034a9d8454a00567f3b084907a54a5c403",
+        "--control-release",
+        "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/resource-protocol/actual-v8-water-ethanol-control-release-001.json",
+        "--control-release-sha256",
+        "2093c4e5952ce30c97a71978aa963f855d2205ef634af151ed11bdda161a5efa",
+        "--partial-result",
+        "/workspace/research4/reports/pyscf-spinosin-grid-checkpoint-20261105-v7/spinosin-C001-rks-partial-001/result.json",
+        "--partial-result-sha256",
+        "7bbcfc8b62ad81d53a65b09f0b8809d9646a62130e759a69f8d794e8f29ee8d9",
+        "--h1-result",
+        "/workspace/research4/reports/pyscf-spinosin-grid-checkpoint-20261105-v7/post-xc-pipeline-001/science/h1ao/result.json",
+        "--h1-result-sha256",
+        "f406700cc02b880292e92ed7cde9734170a115503445abb8c8b57dfe565643fa",
+        "--output",
+        "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-03",
+        "--block-index",
+        "3"
+      ],
+      "guardian_identity": {
+        "pid": 44011,
+        "start_ticks": 12856066,
+        "uid": 1000,
+        "pgrp": 44011,
+        "session": 44011,
+        "state": "R",
+        "comm": "python",
+        "boot_id": "50ca0010-b743-43c7-bc0f-b6bcbc47c68d"
+      },
+      "actual_guardian_returncode": 0,
+      "seal": [
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/execution/response-03.log",
+          "sha256": "c6e9d47cb2b3f2384a53d9b4dce49a8506b50a9f4e18eca3aa6335659fea22d4",
+          "bytes": 123
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/execution/response-03.log.supervisor-proof.json",
+          "sha256": "441d47732a6cbcd27b2b83cf919b6f4d28bb9a7efbf4a77cf0eb5efdc989eeb8",
+          "bytes": 1841
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-03/input.json",
+          "sha256": "29280fcea2af68d9e83ed69a626d490db7d921376a8d7e2d4f5b223dbcec8cbe",
+          "bytes": 5782
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-03/result.json",
+          "sha256": "aef51c334e764ec79def94b1c6717bd2874c3a27dea5a06b1c119abee0a5b2d2",
+          "bytes": 119442
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-03/stage-cache/MO1_atom_024.npy",
+          "sha256": "fc1d1b496a3f9ec5768c00d03b4d3dd634149304c6af1d6c78f7ef8e7ffbe852",
+          "bytes": 2926208
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-03/stage-cache/MO1_atom_025.npy",
+          "sha256": "40523e81aa496338caf14d761a89bd85cb1f4a20d5ced77191383bd1441bcb47",
+          "bytes": 2926208
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-03/stage-cache/MO1_atom_026.npy",
+          "sha256": "001c7ae74597611c3dd911ada3ad96515a9f865af6fb6038c7461e577d8f6195",
+          "bytes": 2926208
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-03/stage-cache/MO1_atom_027.npy",
+          "sha256": "ec3feda40309ad4faca291568e9db8cf2b07314da702240f80b9e1f24225d3b8",
+          "bytes": 2926208
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-03/stage-cache/MO1_atom_028.npy",
+          "sha256": "dd629343b05440f0fbe28c9603b284f51175ad28d52f688557ded961bc607fe0",
+          "bytes": 2926208
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-03/stage-cache/MO1_atom_029.npy",
+          "sha256": "300a79e63f5290e187b55cc1e21998bd3169f22ad5309f69ab75df37a124874e",
+          "bytes": 2926208
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-03/stage-cache/MO1_atom_030.npy",
+          "sha256": "f16c44fad0cdd4652191f5313b436cccfd42dd71eff82ce5e97673c42a6a37a4",
+          "bytes": 2926208
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-03/stage-cache/MO1_atom_031.npy",
+          "sha256": "7bf27019dd048ad08690bc4842b639b2b9f8fdfe3c6a49c2fffddf5e67ca3452",
+          "bytes": 2926208
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-03/stage-cache/MO_E1_atom_024.npy",
+          "sha256": "0dbb6084f483280c33d2fcd5dba4b1964735df0bee51b9d603ca7019aed47fde",
+          "bytes": 614528
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-03/stage-cache/MO_E1_atom_025.npy",
+          "sha256": "c8e83fb16f211005ac25043bcf9f89c94253196a0eb099cd8f64638bbd2c511c",
+          "bytes": 614528
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-03/stage-cache/MO_E1_atom_026.npy",
+          "sha256": "cfb8273d0b5c1cf09770e0f2f017d533ebcf4fd1e87d3e696c6161c7c6ede524",
+          "bytes": 614528
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-03/stage-cache/MO_E1_atom_027.npy",
+          "sha256": "a9a05ccb1619c0fbd7af539e99222b0857f59363e40080226da26aa2139fdac7",
+          "bytes": 614528
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-03/stage-cache/MO_E1_atom_028.npy",
+          "sha256": "2f02b902a3064d381bdf3853d64a1304f42b106c20f0184c62b9509909be335f",
+          "bytes": 614528
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-03/stage-cache/MO_E1_atom_029.npy",
+          "sha256": "1b9cc4a89aa9441293979c81f17009c1189d01c1b24f56aa24c421dfadbfa057",
+          "bytes": 614528
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-03/stage-cache/MO_E1_atom_030.npy",
+          "sha256": "8b7b5dae25b2f4e536d2b3c2e3aec61d40299848d1dabd8afb6c17c4a9bdb127",
+          "bytes": 614528
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-03/stage-cache/MO_E1_atom_031.npy",
+          "sha256": "be7b73998b5957c980f6a64a73cb32a9ce1f13ac94400c6e2e2be3b38fb045f9",
+          "bytes": 614528
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-03/stage-cache/manifest.json",
+          "sha256": "0fb66a7bfb5908d89388c7468788ffb8888b03ebc13ff78e0c61412b51e829a7",
+          "bytes": 36108
+        }
+      ]
+    },
+    "response-04": {
+      "status": "HEALTHY_CLOSED",
+      "materialized_job": {
+        "id": "response-04",
+        "phase": "v8-spinosin-C001-response-pipeline-001-response-04",
+        "stage": "response-block",
+        "worker": {
+          "path": "/workspace/research4/scripts/pyscf_staged_consumer_20261105_v8.py",
+          "sha256": "3a107671d9c8a5a47c25f631fd09ed70148dc82b529448d9bafc67179801a585"
+        },
+        "payload_argv": [
+          "/workspace/research4/.runtime/bin/python",
+          "/workspace/research4/scripts/pyscf_staged_consumer_20261105_v8.py",
+          "--execute",
+          "--stage",
+          "response-block",
+          "--threads",
+          "2",
+          "--snapshot",
+          "/workspace/research4/reports/pyscf-spinosin-resumable-20261104-v5/v5-spinosin-C001-prepare-001/exact-mf-snapshot",
+          "--snapshot-manifest-sha256",
+          "3089d6014ba2d2283540eb13cc7dbcdbbf284721042e7250b624197fc15c3311",
+          "--gradient-check-result",
+          "/workspace/research4/reports/pyscf-spinosin-resumable-20261104-v5/v5-spinosin-C001-restore-gradient-001/result.json",
+          "--gradient-check-result-sha256",
+          "6b143defc238471bc815857df08fc4034a9d8454a00567f3b084907a54a5c403",
+          "--control-release",
+          "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/resource-protocol/actual-v8-water-ethanol-control-release-001.json",
+          "--control-release-sha256",
+          "2093c4e5952ce30c97a71978aa963f855d2205ef634af151ed11bdda161a5efa",
+          "--partial-result",
+          "/workspace/research4/reports/pyscf-spinosin-grid-checkpoint-20261105-v7/spinosin-C001-rks-partial-001/result.json",
+          "--partial-result-sha256",
+          "7bbcfc8b62ad81d53a65b09f0b8809d9646a62130e759a69f8d794e8f29ee8d9",
+          "--h1-result",
+          "/workspace/research4/reports/pyscf-spinosin-grid-checkpoint-20261105-v7/post-xc-pipeline-001/science/h1ao/result.json",
+          "--h1-result-sha256",
+          "f406700cc02b880292e92ed7cde9734170a115503445abb8c8b57dfe565643fa",
+          "--output",
+          "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-04",
+          "--block-index",
+          "4"
+        ],
+        "result_schema": "research4-staged-full-rks-hessian-result-v8",
+        "success_status": "STAGE_COMPLETE",
+        "result": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-04/result.json",
+        "log": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/execution/response-04.log",
+        "threads": 2,
+        "memory_gib": 24,
+        "cpu_seconds": 21600,
+        "wall_seconds": 14400
+      },
+      "actual_guardian_argv": [
+        "/workspace/research4/.runtime/bin/python",
+        "/workspace/research4/scripts/run_pyscf_continuation_budget_20261105_v8.py",
+        "run",
+        "--ledger",
+        "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/cpu_budget.json",
+        "--phase",
+        "v8-spinosin-C001-response-pipeline-001-response-04",
+        "--cpu-seconds",
+        "21600",
+        "--wall-seconds",
+        "14400",
+        "--threads",
+        "2",
+        "--memory-gib",
+        "24",
+        "--log",
+        "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/execution/response-04.log",
+        "--",
+        "/workspace/research4/.runtime/bin/python",
+        "/workspace/research4/scripts/pyscf_staged_consumer_20261105_v8.py",
+        "--execute",
+        "--stage",
+        "response-block",
+        "--threads",
+        "2",
+        "--snapshot",
+        "/workspace/research4/reports/pyscf-spinosin-resumable-20261104-v5/v5-spinosin-C001-prepare-001/exact-mf-snapshot",
+        "--snapshot-manifest-sha256",
+        "3089d6014ba2d2283540eb13cc7dbcdbbf284721042e7250b624197fc15c3311",
+        "--gradient-check-result",
+        "/workspace/research4/reports/pyscf-spinosin-resumable-20261104-v5/v5-spinosin-C001-restore-gradient-001/result.json",
+        "--gradient-check-result-sha256",
+        "6b143defc238471bc815857df08fc4034a9d8454a00567f3b084907a54a5c403",
+        "--control-release",
+        "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/resource-protocol/actual-v8-water-ethanol-control-release-001.json",
+        "--control-release-sha256",
+        "2093c4e5952ce30c97a71978aa963f855d2205ef634af151ed11bdda161a5efa",
+        "--partial-result",
+        "/workspace/research4/reports/pyscf-spinosin-grid-checkpoint-20261105-v7/spinosin-C001-rks-partial-001/result.json",
+        "--partial-result-sha256",
+        "7bbcfc8b62ad81d53a65b09f0b8809d9646a62130e759a69f8d794e8f29ee8d9",
+        "--h1-result",
+        "/workspace/research4/reports/pyscf-spinosin-grid-checkpoint-20261105-v7/post-xc-pipeline-001/science/h1ao/result.json",
+        "--h1-result-sha256",
+        "f406700cc02b880292e92ed7cde9734170a115503445abb8c8b57dfe565643fa",
+        "--output",
+        "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-04",
+        "--block-index",
+        "4"
+      ],
+      "guardian_identity": {
+        "pid": 44126,
+        "start_ticks": 13438551,
+        "uid": 1000,
+        "pgrp": 44126,
+        "session": 44126,
+        "state": "R",
+        "comm": "python",
+        "boot_id": "50ca0010-b743-43c7-bc0f-b6bcbc47c68d"
+      },
+      "actual_guardian_returncode": 0,
+      "seal": [
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/execution/response-04.log",
+          "sha256": "c6e9d47cb2b3f2384a53d9b4dce49a8506b50a9f4e18eca3aa6335659fea22d4",
+          "bytes": 123
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/execution/response-04.log.supervisor-proof.json",
+          "sha256": "a41aac7337318eb791a954d24c40f2f7d175d5bdc32b2e3a870ccef02663dfe4",
+          "bytes": 1840
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-04/input.json",
+          "sha256": "633a21b50a60a589e4105d7e0dca14f5239250cc1faa8620009866ce4601ca19",
+          "bytes": 5781
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-04/result.json",
+          "sha256": "6a3c1a2e67b3146f1533e857bffd0326497171cbfe6388dd1b9d81a45b372721",
+          "bytes": 119440
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-04/stage-cache/MO1_atom_032.npy",
+          "sha256": "63c2c24620d20310099fc6af133a69e91a8cb5eecf12e28c9072ef1aa111fac2",
+          "bytes": 2926208
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-04/stage-cache/MO1_atom_033.npy",
+          "sha256": "4148e24b9340256e7777903a3ab0261566b7e76a0d062580a9720018730f600b",
+          "bytes": 2926208
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-04/stage-cache/MO1_atom_034.npy",
+          "sha256": "6b05eb7a670f55208444d06409745ef390a5d3531824f1028ca88af83a2d93d8",
+          "bytes": 2926208
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-04/stage-cache/MO1_atom_035.npy",
+          "sha256": "e2337d8e4022506ba6d930310860d1fcdd178e19d30b40b8ffdba27484cafec9",
+          "bytes": 2926208
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-04/stage-cache/MO1_atom_036.npy",
+          "sha256": "240b97f470907acfc0a865f3fe88562b9831f7e2b5bf47d7239b96a9276e6cad",
+          "bytes": 2926208
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-04/stage-cache/MO1_atom_037.npy",
+          "sha256": "8421be295ed0b68a5373052fcb53683615c7b8f3087146ac2a800d3050d0840e",
+          "bytes": 2926208
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-04/stage-cache/MO1_atom_038.npy",
+          "sha256": "1a2c4ccc85284f45d5dfcfdd341cffa296599ea550e88c05b7769190ac5abc8f",
+          "bytes": 2926208
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-04/stage-cache/MO1_atom_039.npy",
+          "sha256": "75b688707619af2b5bb3c783ab11220357a785f9cb02107c9f4d29347a5ef75a",
+          "bytes": 2926208
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-04/stage-cache/MO_E1_atom_032.npy",
+          "sha256": "f97340c8378bf5f64eb8827ec3a05614d678596ae0cd78bdb8f5a6a86f01635d",
+          "bytes": 614528
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-04/stage-cache/MO_E1_atom_033.npy",
+          "sha256": "6e3cb95d53e5d8c049d66376cf74a25f862f8cb187918635e3d9386afaac5230",
+          "bytes": 614528
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-04/stage-cache/MO_E1_atom_034.npy",
+          "sha256": "8483ec368ad1e4748057127c6f97195b4ae569eca59fe3a70a0c725f0e09a9cd",
+          "bytes": 614528
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-04/stage-cache/MO_E1_atom_035.npy",
+          "sha256": "ba566624e44fb1f6d868a2acc12a9a0d6a3c1933aa4d96e6eea9d00f6ea162f3",
+          "bytes": 614528
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-04/stage-cache/MO_E1_atom_036.npy",
+          "sha256": "9b4bbe04c2e80d4e381f348c96eacb3513d7b63b07a7b31b830f8bc54c6b8a42",
+          "bytes": 614528
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-04/stage-cache/MO_E1_atom_037.npy",
+          "sha256": "575e2f31fadf2d5582944bae2ee7f623dd9243ca5b3784d010f72ca7aa92f959",
+          "bytes": 614528
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-04/stage-cache/MO_E1_atom_038.npy",
+          "sha256": "57ee5e65675043ba041a940310d2a2875104897390739abbc4731663e4479611",
+          "bytes": 614528
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-04/stage-cache/MO_E1_atom_039.npy",
+          "sha256": "7a12d623bcfe965d79e972c5197688e085a7e4f763fc994df9c29e6e27cf5701",
+          "bytes": 614528
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-04/stage-cache/manifest.json",
+          "sha256": "6ab76594183b77a08b459efdcbdfb2fbd0ff34ca9e83910b44fe2e69e1af3120",
+          "bytes": 36108
+        }
+      ]
+    },
+    "response-05": {
+      "status": "HEALTHY_CLOSED",
+      "materialized_job": {
+        "id": "response-05",
+        "phase": "v8-spinosin-C001-response-pipeline-001-response-05",
+        "stage": "response-block",
+        "worker": {
+          "path": "/workspace/research4/scripts/pyscf_staged_consumer_20261105_v8.py",
+          "sha256": "3a107671d9c8a5a47c25f631fd09ed70148dc82b529448d9bafc67179801a585"
+        },
+        "payload_argv": [
+          "/workspace/research4/.runtime/bin/python",
+          "/workspace/research4/scripts/pyscf_staged_consumer_20261105_v8.py",
+          "--execute",
+          "--stage",
+          "response-block",
+          "--threads",
+          "2",
+          "--snapshot",
+          "/workspace/research4/reports/pyscf-spinosin-resumable-20261104-v5/v5-spinosin-C001-prepare-001/exact-mf-snapshot",
+          "--snapshot-manifest-sha256",
+          "3089d6014ba2d2283540eb13cc7dbcdbbf284721042e7250b624197fc15c3311",
+          "--gradient-check-result",
+          "/workspace/research4/reports/pyscf-spinosin-resumable-20261104-v5/v5-spinosin-C001-restore-gradient-001/result.json",
+          "--gradient-check-result-sha256",
+          "6b143defc238471bc815857df08fc4034a9d8454a00567f3b084907a54a5c403",
+          "--control-release",
+          "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/resource-protocol/actual-v8-water-ethanol-control-release-001.json",
+          "--control-release-sha256",
+          "2093c4e5952ce30c97a71978aa963f855d2205ef634af151ed11bdda161a5efa",
+          "--partial-result",
+          "/workspace/research4/reports/pyscf-spinosin-grid-checkpoint-20261105-v7/spinosin-C001-rks-partial-001/result.json",
+          "--partial-result-sha256",
+          "7bbcfc8b62ad81d53a65b09f0b8809d9646a62130e759a69f8d794e8f29ee8d9",
+          "--h1-result",
+          "/workspace/research4/reports/pyscf-spinosin-grid-checkpoint-20261105-v7/post-xc-pipeline-001/science/h1ao/result.json",
+          "--h1-result-sha256",
+          "f406700cc02b880292e92ed7cde9734170a115503445abb8c8b57dfe565643fa",
+          "--output",
+          "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-05",
+          "--block-index",
+          "5"
+        ],
+        "result_schema": "research4-staged-full-rks-hessian-result-v8",
+        "success_status": "STAGE_COMPLETE",
+        "result": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-05/result.json",
+        "log": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/execution/response-05.log",
+        "threads": 2,
+        "memory_gib": 24,
+        "cpu_seconds": 21600,
+        "wall_seconds": 14400
+      },
+      "actual_guardian_argv": [
+        "/workspace/research4/.runtime/bin/python",
+        "/workspace/research4/scripts/run_pyscf_continuation_budget_20261105_v8.py",
+        "run",
+        "--ledger",
+        "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/cpu_budget.json",
+        "--phase",
+        "v8-spinosin-C001-response-pipeline-001-response-05",
+        "--cpu-seconds",
+        "21600",
+        "--wall-seconds",
+        "14400",
+        "--threads",
+        "2",
+        "--memory-gib",
+        "24",
+        "--log",
+        "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/execution/response-05.log",
+        "--",
+        "/workspace/research4/.runtime/bin/python",
+        "/workspace/research4/scripts/pyscf_staged_consumer_20261105_v8.py",
+        "--execute",
+        "--stage",
+        "response-block",
+        "--threads",
+        "2",
+        "--snapshot",
+        "/workspace/research4/reports/pyscf-spinosin-resumable-20261104-v5/v5-spinosin-C001-prepare-001/exact-mf-snapshot",
+        "--snapshot-manifest-sha256",
+        "3089d6014ba2d2283540eb13cc7dbcdbbf284721042e7250b624197fc15c3311",
+        "--gradient-check-result",
+        "/workspace/research4/reports/pyscf-spinosin-resumable-20261104-v5/v5-spinosin-C001-restore-gradient-001/result.json",
+        "--gradient-check-result-sha256",
+        "6b143defc238471bc815857df08fc4034a9d8454a00567f3b084907a54a5c403",
+        "--control-release",
+        "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/resource-protocol/actual-v8-water-ethanol-control-release-001.json",
+        "--control-release-sha256",
+        "2093c4e5952ce30c97a71978aa963f855d2205ef634af151ed11bdda161a5efa",
+        "--partial-result",
+        "/workspace/research4/reports/pyscf-spinosin-grid-checkpoint-20261105-v7/spinosin-C001-rks-partial-001/result.json",
+        "--partial-result-sha256",
+        "7bbcfc8b62ad81d53a65b09f0b8809d9646a62130e759a69f8d794e8f29ee8d9",
+        "--h1-result",
+        "/workspace/research4/reports/pyscf-spinosin-grid-checkpoint-20261105-v7/post-xc-pipeline-001/science/h1ao/result.json",
+        "--h1-result-sha256",
+        "f406700cc02b880292e92ed7cde9734170a115503445abb8c8b57dfe565643fa",
+        "--output",
+        "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-05",
+        "--block-index",
+        "5"
+      ],
+      "guardian_identity": {
+        "pid": 44245,
+        "start_ticks": 14007897,
+        "uid": 1000,
+        "pgrp": 44245,
+        "session": 44245,
+        "state": "R",
+        "comm": "python",
+        "boot_id": "50ca0010-b743-43c7-bc0f-b6bcbc47c68d"
+      },
+      "actual_guardian_returncode": 0,
+      "seal": [
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/execution/response-05.log",
+          "sha256": "c6e9d47cb2b3f2384a53d9b4dce49a8506b50a9f4e18eca3aa6335659fea22d4",
+          "bytes": 123
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/execution/response-05.log.supervisor-proof.json",
+          "sha256": "87bad94d6f64ec4de362fc469bd13fa4f71826ddc3417eaf1f82e36289a8629f",
+          "bytes": 1840
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-05/input.json",
+          "sha256": "071e4c866af268d34741c71840b9181c750d4e47845fab509506118b33c01895",
+          "bytes": 5781
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-05/result.json",
+          "sha256": "da6453b7b7c42a65f160dd22b1f9a2c52912c39c4cb58ecd85dfd1f7a1be75e5",
+          "bytes": 119485
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-05/stage-cache/MO1_atom_040.npy",
+          "sha256": "1c1923ae964cb20db662019f5277a31850ac3a844e0300f5162543af5ce2271d",
+          "bytes": 2926208
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-05/stage-cache/MO1_atom_041.npy",
+          "sha256": "40181e61f84d4cae81237a1d21ee4ac7676d92e0af3c897eea38dfeb45c71853",
+          "bytes": 2926208
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-05/stage-cache/MO1_atom_042.npy",
+          "sha256": "63c81b74a31286372997720a5da88f4586f446500da43989b5a47e486f2df64b",
+          "bytes": 2926208
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-05/stage-cache/MO1_atom_043.npy",
+          "sha256": "11da360090b1b4298a820f586960ca34476fb0fa3af0941f7e155aeb5e420462",
+          "bytes": 2926208
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-05/stage-cache/MO1_atom_044.npy",
+          "sha256": "75e4815e21c9a4c06c47b52b468768608bbce056102c418ae81f3e850d8a9232",
+          "bytes": 2926208
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-05/stage-cache/MO1_atom_045.npy",
+          "sha256": "413e0b59e3d909a0535b7aa9cc5004e81f64af8e22d422be5a55473d86b9c3bc",
+          "bytes": 2926208
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-05/stage-cache/MO1_atom_046.npy",
+          "sha256": "28cbcf3960b40d959cabdea9c3d16153679c428cdc8a9e0e8d98480941410d70",
+          "bytes": 2926208
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-05/stage-cache/MO1_atom_047.npy",
+          "sha256": "0ce151a3f00e87a526ba9ccff74ec4de437f5b708c61ba3f1aca82c5cb1ed065",
+          "bytes": 2926208
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-05/stage-cache/MO_E1_atom_040.npy",
+          "sha256": "6fd0846c10309e44f277628266904487a7448dc0414320ef52966456a9b42118",
+          "bytes": 614528
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-05/stage-cache/MO_E1_atom_041.npy",
+          "sha256": "d516d11010db5ee510e0d428906c85264f9644bd893e7745ca1ff54b86a80e3f",
+          "bytes": 614528
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-05/stage-cache/MO_E1_atom_042.npy",
+          "sha256": "14fddb5893e96dba85fc71019a208a5c8ed51cf569b8d6252e4a4f7e1503e6f1",
+          "bytes": 614528
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-05/stage-cache/MO_E1_atom_043.npy",
+          "sha256": "eae21614ed80398a08b4c2196bb063c354da13d98e61776973fc8987427ea241",
+          "bytes": 614528
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-05/stage-cache/MO_E1_atom_044.npy",
+          "sha256": "10efb1e5238cd3ef7ca4573bd42dc65bf990d34c8fbae2171169965d7862863a",
+          "bytes": 614528
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-05/stage-cache/MO_E1_atom_045.npy",
+          "sha256": "4e8a59e5c4a898578c1bed58cac2af1b4172b099205c81b0f6855d3145814dbf",
+          "bytes": 614528
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-05/stage-cache/MO_E1_atom_046.npy",
+          "sha256": "259e21010aafc7a63508a039ed46eef03e30f549936e891eb3be57c9a4fd8244",
+          "bytes": 614528
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-05/stage-cache/MO_E1_atom_047.npy",
+          "sha256": "b84138404ebcf5acce457d654ec6edc108e9f881afc28814b7d3aa0c2433a665",
+          "bytes": 614528
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-05/stage-cache/manifest.json",
+          "sha256": "e9c4aabb04d3824c62fa02da98e7d4fe3a6cd34912701a1e9b1534def4e519e3",
+          "bytes": 36108
+        }
+      ]
+    },
+    "response-06": {
+      "status": "HEALTHY_CLOSED",
+      "materialized_job": {
+        "id": "response-06",
+        "phase": "v8-spinosin-C001-response-pipeline-001-response-06",
+        "stage": "response-block",
+        "worker": {
+          "path": "/workspace/research4/scripts/pyscf_staged_consumer_20261105_v8.py",
+          "sha256": "3a107671d9c8a5a47c25f631fd09ed70148dc82b529448d9bafc67179801a585"
+        },
+        "payload_argv": [
+          "/workspace/research4/.runtime/bin/python",
+          "/workspace/research4/scripts/pyscf_staged_consumer_20261105_v8.py",
+          "--execute",
+          "--stage",
+          "response-block",
+          "--threads",
+          "2",
+          "--snapshot",
+          "/workspace/research4/reports/pyscf-spinosin-resumable-20261104-v5/v5-spinosin-C001-prepare-001/exact-mf-snapshot",
+          "--snapshot-manifest-sha256",
+          "3089d6014ba2d2283540eb13cc7dbcdbbf284721042e7250b624197fc15c3311",
+          "--gradient-check-result",
+          "/workspace/research4/reports/pyscf-spinosin-resumable-20261104-v5/v5-spinosin-C001-restore-gradient-001/result.json",
+          "--gradient-check-result-sha256",
+          "6b143defc238471bc815857df08fc4034a9d8454a00567f3b084907a54a5c403",
+          "--control-release",
+          "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/resource-protocol/actual-v8-water-ethanol-control-release-001.json",
+          "--control-release-sha256",
+          "2093c4e5952ce30c97a71978aa963f855d2205ef634af151ed11bdda161a5efa",
+          "--partial-result",
+          "/workspace/research4/reports/pyscf-spinosin-grid-checkpoint-20261105-v7/spinosin-C001-rks-partial-001/result.json",
+          "--partial-result-sha256",
+          "7bbcfc8b62ad81d53a65b09f0b8809d9646a62130e759a69f8d794e8f29ee8d9",
+          "--h1-result",
+          "/workspace/research4/reports/pyscf-spinosin-grid-checkpoint-20261105-v7/post-xc-pipeline-001/science/h1ao/result.json",
+          "--h1-result-sha256",
+          "f406700cc02b880292e92ed7cde9734170a115503445abb8c8b57dfe565643fa",
+          "--output",
+          "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-06",
+          "--block-index",
+          "6"
+        ],
+        "result_schema": "research4-staged-full-rks-hessian-result-v8",
+        "success_status": "STAGE_COMPLETE",
+        "result": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-06/result.json",
+        "log": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/execution/response-06.log",
+        "threads": 2,
+        "memory_gib": 24,
+        "cpu_seconds": 21600,
+        "wall_seconds": 14400
+      },
+      "actual_guardian_argv": [
+        "/workspace/research4/.runtime/bin/python",
+        "/workspace/research4/scripts/run_pyscf_continuation_budget_20261105_v8.py",
+        "run",
+        "--ledger",
+        "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/cpu_budget.json",
+        "--phase",
+        "v8-spinosin-C001-response-pipeline-001-response-06",
+        "--cpu-seconds",
+        "21600",
+        "--wall-seconds",
+        "14400",
+        "--threads",
+        "2",
+        "--memory-gib",
+        "24",
+        "--log",
+        "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/execution/response-06.log",
+        "--",
+        "/workspace/research4/.runtime/bin/python",
+        "/workspace/research4/scripts/pyscf_staged_consumer_20261105_v8.py",
+        "--execute",
+        "--stage",
+        "response-block",
+        "--threads",
+        "2",
+        "--snapshot",
+        "/workspace/research4/reports/pyscf-spinosin-resumable-20261104-v5/v5-spinosin-C001-prepare-001/exact-mf-snapshot",
+        "--snapshot-manifest-sha256",
+        "3089d6014ba2d2283540eb13cc7dbcdbbf284721042e7250b624197fc15c3311",
+        "--gradient-check-result",
+        "/workspace/research4/reports/pyscf-spinosin-resumable-20261104-v5/v5-spinosin-C001-restore-gradient-001/result.json",
+        "--gradient-check-result-sha256",
+        "6b143defc238471bc815857df08fc4034a9d8454a00567f3b084907a54a5c403",
+        "--control-release",
+        "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/resource-protocol/actual-v8-water-ethanol-control-release-001.json",
+        "--control-release-sha256",
+        "2093c4e5952ce30c97a71978aa963f855d2205ef634af151ed11bdda161a5efa",
+        "--partial-result",
+        "/workspace/research4/reports/pyscf-spinosin-grid-checkpoint-20261105-v7/spinosin-C001-rks-partial-001/result.json",
+        "--partial-result-sha256",
+        "7bbcfc8b62ad81d53a65b09f0b8809d9646a62130e759a69f8d794e8f29ee8d9",
+        "--h1-result",
+        "/workspace/research4/reports/pyscf-spinosin-grid-checkpoint-20261105-v7/post-xc-pipeline-001/science/h1ao/result.json",
+        "--h1-result-sha256",
+        "f406700cc02b880292e92ed7cde9734170a115503445abb8c8b57dfe565643fa",
+        "--output",
+        "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-06",
+        "--block-index",
+        "6"
+      ],
+      "guardian_identity": {
+        "pid": 44460,
+        "start_ticks": 14530101,
+        "uid": 1000,
+        "pgrp": 44460,
+        "session": 44460,
+        "state": "R",
+        "comm": "python",
+        "boot_id": "50ca0010-b743-43c7-bc0f-b6bcbc47c68d"
+      },
+      "actual_guardian_returncode": 0,
+      "seal": [
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/execution/response-06.log",
+          "sha256": "c6e9d47cb2b3f2384a53d9b4dce49a8506b50a9f4e18eca3aa6335659fea22d4",
+          "bytes": 123
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/execution/response-06.log.supervisor-proof.json",
+          "sha256": "b35fe401d79a600c05b5c61275503937146abe15665a871adb8209958a2f91fb",
+          "bytes": 1840
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-06/input.json",
+          "sha256": "773d273a5dd92e60cf70bd15bfb602066e5092ca5cb30f6d1b7926ddfc1450d3",
+          "bytes": 5781
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-06/result.json",
+          "sha256": "370ae06bbc8d4a67a99a8057ff93153ead53543043ebdc74776d6ea56f3e6aa3",
+          "bytes": 119482
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-06/stage-cache/MO1_atom_048.npy",
+          "sha256": "7ab9408fabbc2d68a21260dd0df8dbc51554257273a4c9cf9696254b9f392153",
+          "bytes": 2926208
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-06/stage-cache/MO1_atom_049.npy",
+          "sha256": "e3766477c53af73f50ebc88c26d580ddcc9cf71ae95750c9d0a538b6b8e4e36d",
+          "bytes": 2926208
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-06/stage-cache/MO1_atom_050.npy",
+          "sha256": "7562d7298cfc2781bb3fd49b002b337a88087169716e6722c72a23bb700ae514",
+          "bytes": 2926208
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-06/stage-cache/MO1_atom_051.npy",
+          "sha256": "e86918716ab8d66f30ab488c3bb26f590e44cab4dfe672506945fb0e4ed554be",
+          "bytes": 2926208
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-06/stage-cache/MO1_atom_052.npy",
+          "sha256": "32fc4e39a018fc130aabe4252dd0b1e8eaca0419a2727bbcd7565a3ec59fa082",
+          "bytes": 2926208
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-06/stage-cache/MO1_atom_053.npy",
+          "sha256": "10220ddeacf8f85385f891830b8178b4efd80d743744c51e6e1d08265b9e0002",
+          "bytes": 2926208
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-06/stage-cache/MO1_atom_054.npy",
+          "sha256": "023c65c1610aef39fa5c0ee7961f7f51ff28dc03a1d54fe62ab51df236ce7239",
+          "bytes": 2926208
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-06/stage-cache/MO1_atom_055.npy",
+          "sha256": "a658f3ef8b3beb784dc982106a28b48cc4db22e29c4d1207b3486a27061ecd6c",
+          "bytes": 2926208
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-06/stage-cache/MO_E1_atom_048.npy",
+          "sha256": "8237caee68a7cdca528a73ce67ddc0ec5000361351e25b517dc5b1b9717ff950",
+          "bytes": 614528
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-06/stage-cache/MO_E1_atom_049.npy",
+          "sha256": "d60f4a818d7b19836c7595673fbf6284739d5381a2b7a48960e51fd72ab2d280",
+          "bytes": 614528
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-06/stage-cache/MO_E1_atom_050.npy",
+          "sha256": "0f6380e74c34dd5983512eaa0bb9a4b0a16ba2030ef4c43faa6b7e4cf4a1e3e8",
+          "bytes": 614528
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-06/stage-cache/MO_E1_atom_051.npy",
+          "sha256": "d5378079fc48241a8fb89a9da1446b2e4fdf7c5650431c47c3f2e1a5c714b517",
+          "bytes": 614528
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-06/stage-cache/MO_E1_atom_052.npy",
+          "sha256": "6f3a00fcd16082d7e35fe419c4a66887b42b97608b2bc56245042b36dc31e4f5",
+          "bytes": 614528
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-06/stage-cache/MO_E1_atom_053.npy",
+          "sha256": "b952b87f174d6b6d66356da060918c0d76c1cea0cd31ccf992161eee982cfea4",
+          "bytes": 614528
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-06/stage-cache/MO_E1_atom_054.npy",
+          "sha256": "4a276376fc78a8d066149e7d593176007a9449aeab04aa48318e3c5d101fcdcf",
+          "bytes": 614528
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-06/stage-cache/MO_E1_atom_055.npy",
+          "sha256": "91837512c280cf7cc5c2665cff3ae286db348d68aed49b0cbfb9fdbd5cd5fc5c",
+          "bytes": 614528
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-06/stage-cache/manifest.json",
+          "sha256": "ab55d4b75cce52a681bf1d6cf9b534e8417e903a34e6970b107149be2b574938",
+          "bytes": 36108
+        }
+      ]
+    },
+    "response-07": {
+      "status": "HEALTHY_CLOSED",
+      "materialized_job": {
+        "id": "response-07",
+        "phase": "v8-spinosin-C001-response-pipeline-001-response-07",
+        "stage": "response-block",
+        "worker": {
+          "path": "/workspace/research4/scripts/pyscf_staged_consumer_20261105_v8.py",
+          "sha256": "3a107671d9c8a5a47c25f631fd09ed70148dc82b529448d9bafc67179801a585"
+        },
+        "payload_argv": [
+          "/workspace/research4/.runtime/bin/python",
+          "/workspace/research4/scripts/pyscf_staged_consumer_20261105_v8.py",
+          "--execute",
+          "--stage",
+          "response-block",
+          "--threads",
+          "2",
+          "--snapshot",
+          "/workspace/research4/reports/pyscf-spinosin-resumable-20261104-v5/v5-spinosin-C001-prepare-001/exact-mf-snapshot",
+          "--snapshot-manifest-sha256",
+          "3089d6014ba2d2283540eb13cc7dbcdbbf284721042e7250b624197fc15c3311",
+          "--gradient-check-result",
+          "/workspace/research4/reports/pyscf-spinosin-resumable-20261104-v5/v5-spinosin-C001-restore-gradient-001/result.json",
+          "--gradient-check-result-sha256",
+          "6b143defc238471bc815857df08fc4034a9d8454a00567f3b084907a54a5c403",
+          "--control-release",
+          "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/resource-protocol/actual-v8-water-ethanol-control-release-001.json",
+          "--control-release-sha256",
+          "2093c4e5952ce30c97a71978aa963f855d2205ef634af151ed11bdda161a5efa",
+          "--partial-result",
+          "/workspace/research4/reports/pyscf-spinosin-grid-checkpoint-20261105-v7/spinosin-C001-rks-partial-001/result.json",
+          "--partial-result-sha256",
+          "7bbcfc8b62ad81d53a65b09f0b8809d9646a62130e759a69f8d794e8f29ee8d9",
+          "--h1-result",
+          "/workspace/research4/reports/pyscf-spinosin-grid-checkpoint-20261105-v7/post-xc-pipeline-001/science/h1ao/result.json",
+          "--h1-result-sha256",
+          "f406700cc02b880292e92ed7cde9734170a115503445abb8c8b57dfe565643fa",
+          "--output",
+          "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-07",
+          "--block-index",
+          "7"
+        ],
+        "result_schema": "research4-staged-full-rks-hessian-result-v8",
+        "success_status": "STAGE_COMPLETE",
+        "result": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-07/result.json",
+        "log": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/execution/response-07.log",
+        "threads": 2,
+        "memory_gib": 24,
+        "cpu_seconds": 21600,
+        "wall_seconds": 14400
+      },
+      "actual_guardian_argv": [
+        "/workspace/research4/.runtime/bin/python",
+        "/workspace/research4/scripts/run_pyscf_continuation_budget_20261105_v8.py",
+        "run",
+        "--ledger",
+        "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/cpu_budget.json",
+        "--phase",
+        "v8-spinosin-C001-response-pipeline-001-response-07",
+        "--cpu-seconds",
+        "21600",
+        "--wall-seconds",
+        "14400",
+        "--threads",
+        "2",
+        "--memory-gib",
+        "24",
+        "--log",
+        "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/execution/response-07.log",
+        "--",
+        "/workspace/research4/.runtime/bin/python",
+        "/workspace/research4/scripts/pyscf_staged_consumer_20261105_v8.py",
+        "--execute",
+        "--stage",
+        "response-block",
+        "--threads",
+        "2",
+        "--snapshot",
+        "/workspace/research4/reports/pyscf-spinosin-resumable-20261104-v5/v5-spinosin-C001-prepare-001/exact-mf-snapshot",
+        "--snapshot-manifest-sha256",
+        "3089d6014ba2d2283540eb13cc7dbcdbbf284721042e7250b624197fc15c3311",
+        "--gradient-check-result",
+        "/workspace/research4/reports/pyscf-spinosin-resumable-20261104-v5/v5-spinosin-C001-restore-gradient-001/result.json",
+        "--gradient-check-result-sha256",
+        "6b143defc238471bc815857df08fc4034a9d8454a00567f3b084907a54a5c403",
+        "--control-release",
+        "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/resource-protocol/actual-v8-water-ethanol-control-release-001.json",
+        "--control-release-sha256",
+        "2093c4e5952ce30c97a71978aa963f855d2205ef634af151ed11bdda161a5efa",
+        "--partial-result",
+        "/workspace/research4/reports/pyscf-spinosin-grid-checkpoint-20261105-v7/spinosin-C001-rks-partial-001/result.json",
+        "--partial-result-sha256",
+        "7bbcfc8b62ad81d53a65b09f0b8809d9646a62130e759a69f8d794e8f29ee8d9",
+        "--h1-result",
+        "/workspace/research4/reports/pyscf-spinosin-grid-checkpoint-20261105-v7/post-xc-pipeline-001/science/h1ao/result.json",
+        "--h1-result-sha256",
+        "f406700cc02b880292e92ed7cde9734170a115503445abb8c8b57dfe565643fa",
+        "--output",
+        "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-07",
+        "--block-index",
+        "7"
+      ],
+      "guardian_identity": {
+        "pid": 44570,
+        "start_ticks": 15063309,
+        "uid": 1000,
+        "pgrp": 44570,
+        "session": 44570,
+        "state": "R",
+        "comm": "python",
+        "boot_id": "50ca0010-b743-43c7-bc0f-b6bcbc47c68d"
+      },
+      "actual_guardian_returncode": 0,
+      "seal": [
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/execution/response-07.log",
+          "sha256": "c6e9d47cb2b3f2384a53d9b4dce49a8506b50a9f4e18eca3aa6335659fea22d4",
+          "bytes": 123
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/execution/response-07.log.supervisor-proof.json",
+          "sha256": "96c537da537dd474bc0911d84013f163a3afccfa6c4d4dec29ad94b2a7550e57",
+          "bytes": 1840
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-07/input.json",
+          "sha256": "b5856eb066e29ca8b0f4bb8bea19be194fd7dac730660c087a68f0b9987fad01",
+          "bytes": 5781
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-07/result.json",
+          "sha256": "4b31b402e29676aa627f85783af7141fc587d87c8b92b0364e57575f26895bec",
+          "bytes": 119482
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-07/stage-cache/MO1_atom_056.npy",
+          "sha256": "7622732e202f2d6aa871b1931137279dc2f6ef7afd01ea0805d169a5dda79d19",
+          "bytes": 2926208
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-07/stage-cache/MO1_atom_057.npy",
+          "sha256": "bf5c5e978a956abaa422c4c9c1f42b0b430ade3177a26e11c25aa58ada5f211c",
+          "bytes": 2926208
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-07/stage-cache/MO1_atom_058.npy",
+          "sha256": "c54c4fe84b025d1439089ac830fa47c5deba62c9e88d27e2b80788590c0609c4",
+          "bytes": 2926208
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-07/stage-cache/MO1_atom_059.npy",
+          "sha256": "49dabeede49a81a592e18c945ed551132165fa679209fbafba936a654233de9d",
+          "bytes": 2926208
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-07/stage-cache/MO1_atom_060.npy",
+          "sha256": "a5d079f1f07887ddcd29d56cfd0431baaa4a56e892f19018e122916ea4c19b2d",
+          "bytes": 2926208
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-07/stage-cache/MO1_atom_061.npy",
+          "sha256": "e417f0d259df6a7fdeefaa937336eb6070316897e1681bf374df9f7fa5d111f9",
+          "bytes": 2926208
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-07/stage-cache/MO1_atom_062.npy",
+          "sha256": "93cabadb4550260d0af2efc8c9d0021e6dc5a6d005d57bb74936a4f8584a7f10",
+          "bytes": 2926208
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-07/stage-cache/MO1_atom_063.npy",
+          "sha256": "f015831ec43a33b06386dda9c4fa18e0a04d8d17723ceb0b2c12bad57e578150",
+          "bytes": 2926208
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-07/stage-cache/MO_E1_atom_056.npy",
+          "sha256": "2ed8ef4fa3acccd90ae411f7bed108d50228897d06e2c4789fa71892a3c2b9d1",
+          "bytes": 614528
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-07/stage-cache/MO_E1_atom_057.npy",
+          "sha256": "f32d919bab94dfb7dd8f7d0d112ba55c7d6d7874c86ea49add90deb485227b70",
+          "bytes": 614528
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-07/stage-cache/MO_E1_atom_058.npy",
+          "sha256": "4a6f00949af07c264d63ede289687cc6c32558a66fea90c42d93a3c46ff999c8",
+          "bytes": 614528
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-07/stage-cache/MO_E1_atom_059.npy",
+          "sha256": "13ba7623a183e162d2457a225c7cbb79cb89a0d04811e95bdd674fa4306d5bc1",
+          "bytes": 614528
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-07/stage-cache/MO_E1_atom_060.npy",
+          "sha256": "55d17a6dc3219160f7b11eeef58c7d54600591a04fce5142f07d87dbc24978e9",
+          "bytes": 614528
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-07/stage-cache/MO_E1_atom_061.npy",
+          "sha256": "c0b0611705611ec83fe52926b550813627d2d1949097997bd98ee560da06a3ef",
+          "bytes": 614528
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-07/stage-cache/MO_E1_atom_062.npy",
+          "sha256": "4bcf0fd66ad7d00561a4cee76aa6dd57fcbd36373b6a27356b86b5dd767c607b",
+          "bytes": 614528
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-07/stage-cache/MO_E1_atom_063.npy",
+          "sha256": "054652efe9d4e4b30344c0a5b5973243aabab14dcb6ed7cbc20e3a85a01d944e",
+          "bytes": 614528
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-07/stage-cache/manifest.json",
+          "sha256": "a673d75ef583e791b965c7050101986d5c1296c5ce75f56d326e6d48edf5f9b3",
+          "bytes": 36108
+        }
+      ]
+    },
+    "response-08": {
+      "status": "HEALTHY_CLOSED",
+      "materialized_job": {
+        "id": "response-08",
+        "phase": "v8-spinosin-C001-response-pipeline-001-response-08",
+        "stage": "response-block",
+        "worker": {
+          "path": "/workspace/research4/scripts/pyscf_staged_consumer_20261105_v8.py",
+          "sha256": "3a107671d9c8a5a47c25f631fd09ed70148dc82b529448d9bafc67179801a585"
+        },
+        "payload_argv": [
+          "/workspace/research4/.runtime/bin/python",
+          "/workspace/research4/scripts/pyscf_staged_consumer_20261105_v8.py",
+          "--execute",
+          "--stage",
+          "response-block",
+          "--threads",
+          "2",
+          "--snapshot",
+          "/workspace/research4/reports/pyscf-spinosin-resumable-20261104-v5/v5-spinosin-C001-prepare-001/exact-mf-snapshot",
+          "--snapshot-manifest-sha256",
+          "3089d6014ba2d2283540eb13cc7dbcdbbf284721042e7250b624197fc15c3311",
+          "--gradient-check-result",
+          "/workspace/research4/reports/pyscf-spinosin-resumable-20261104-v5/v5-spinosin-C001-restore-gradient-001/result.json",
+          "--gradient-check-result-sha256",
+          "6b143defc238471bc815857df08fc4034a9d8454a00567f3b084907a54a5c403",
+          "--control-release",
+          "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/resource-protocol/actual-v8-water-ethanol-control-release-001.json",
+          "--control-release-sha256",
+          "2093c4e5952ce30c97a71978aa963f855d2205ef634af151ed11bdda161a5efa",
+          "--partial-result",
+          "/workspace/research4/reports/pyscf-spinosin-grid-checkpoint-20261105-v7/spinosin-C001-rks-partial-001/result.json",
+          "--partial-result-sha256",
+          "7bbcfc8b62ad81d53a65b09f0b8809d9646a62130e759a69f8d794e8f29ee8d9",
+          "--h1-result",
+          "/workspace/research4/reports/pyscf-spinosin-grid-checkpoint-20261105-v7/post-xc-pipeline-001/science/h1ao/result.json",
+          "--h1-result-sha256",
+          "f406700cc02b880292e92ed7cde9734170a115503445abb8c8b57dfe565643fa",
+          "--output",
+          "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-08",
+          "--block-index",
+          "8"
+        ],
+        "result_schema": "research4-staged-full-rks-hessian-result-v8",
+        "success_status": "STAGE_COMPLETE",
+        "result": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-08/result.json",
+        "log": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/execution/response-08.log",
+        "threads": 2,
+        "memory_gib": 24,
+        "cpu_seconds": 21600,
+        "wall_seconds": 14400
+      },
+      "actual_guardian_argv": [
+        "/workspace/research4/.runtime/bin/python",
+        "/workspace/research4/scripts/run_pyscf_continuation_budget_20261105_v8.py",
+        "run",
+        "--ledger",
+        "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/cpu_budget.json",
+        "--phase",
+        "v8-spinosin-C001-response-pipeline-001-response-08",
+        "--cpu-seconds",
+        "21600",
+        "--wall-seconds",
+        "14400",
+        "--threads",
+        "2",
+        "--memory-gib",
+        "24",
+        "--log",
+        "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/execution/response-08.log",
+        "--",
+        "/workspace/research4/.runtime/bin/python",
+        "/workspace/research4/scripts/pyscf_staged_consumer_20261105_v8.py",
+        "--execute",
+        "--stage",
+        "response-block",
+        "--threads",
+        "2",
+        "--snapshot",
+        "/workspace/research4/reports/pyscf-spinosin-resumable-20261104-v5/v5-spinosin-C001-prepare-001/exact-mf-snapshot",
+        "--snapshot-manifest-sha256",
+        "3089d6014ba2d2283540eb13cc7dbcdbbf284721042e7250b624197fc15c3311",
+        "--gradient-check-result",
+        "/workspace/research4/reports/pyscf-spinosin-resumable-20261104-v5/v5-spinosin-C001-restore-gradient-001/result.json",
+        "--gradient-check-result-sha256",
+        "6b143defc238471bc815857df08fc4034a9d8454a00567f3b084907a54a5c403",
+        "--control-release",
+        "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/resource-protocol/actual-v8-water-ethanol-control-release-001.json",
+        "--control-release-sha256",
+        "2093c4e5952ce30c97a71978aa963f855d2205ef634af151ed11bdda161a5efa",
+        "--partial-result",
+        "/workspace/research4/reports/pyscf-spinosin-grid-checkpoint-20261105-v7/spinosin-C001-rks-partial-001/result.json",
+        "--partial-result-sha256",
+        "7bbcfc8b62ad81d53a65b09f0b8809d9646a62130e759a69f8d794e8f29ee8d9",
+        "--h1-result",
+        "/workspace/research4/reports/pyscf-spinosin-grid-checkpoint-20261105-v7/post-xc-pipeline-001/science/h1ao/result.json",
+        "--h1-result-sha256",
+        "f406700cc02b880292e92ed7cde9734170a115503445abb8c8b57dfe565643fa",
+        "--output",
+        "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-08",
+        "--block-index",
+        "8"
+      ],
+      "guardian_identity": {
+        "pid": 45432,
+        "start_ticks": 15564815,
+        "uid": 1000,
+        "pgrp": 45432,
+        "session": 45432,
+        "state": "R",
+        "comm": "python",
+        "boot_id": "50ca0010-b743-43c7-bc0f-b6bcbc47c68d"
+      },
+      "actual_guardian_returncode": 0,
+      "seal": [
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/execution/response-08.log",
+          "sha256": "c6e9d47cb2b3f2384a53d9b4dce49a8506b50a9f4e18eca3aa6335659fea22d4",
+          "bytes": 123
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/execution/response-08.log.supervisor-proof.json",
+          "sha256": "0a10248fab497934dcc312eff886670ec1c9c67bd4975bda8cae892745f11b8d",
+          "bytes": 1841
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-08/input.json",
+          "sha256": "5ac9d92cbdfb187e9aa7a42b9358ad41fe34f2162cd6b5c150898690ad6029bc",
+          "bytes": 5782
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-08/result.json",
+          "sha256": "3f9299052b205a4ae97d3e19ba7b6aa6e3fdb44e47ac6c3380b9a07a44545f21",
+          "bytes": 119481
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-08/stage-cache/MO1_atom_064.npy",
+          "sha256": "83f7dcdb91b2b76a06bb3e4c5c62afc8271e92d6d44fcc98efe24ded1eeeed23",
+          "bytes": 2926208
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-08/stage-cache/MO1_atom_065.npy",
+          "sha256": "ee6bc12af2fa0274ac126626aa29351264c6039de1508b558adc715b1688066a",
+          "bytes": 2926208
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-08/stage-cache/MO1_atom_066.npy",
+          "sha256": "d5c7d3789af38589a475bd8fdae8b67c951bc2ca0a0e3b02731418f0e7822dc5",
+          "bytes": 2926208
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-08/stage-cache/MO1_atom_067.npy",
+          "sha256": "9c16cad65e8b34ac6427ee92ffa6a1a6deba80839ab8185d28c5855f168a894d",
+          "bytes": 2926208
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-08/stage-cache/MO1_atom_068.npy",
+          "sha256": "a1895242a8874b8d23b5ee7e1340dc22984f687313a2534d0a277c7df67f242a",
+          "bytes": 2926208
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-08/stage-cache/MO1_atom_069.npy",
+          "sha256": "5b6f874155cc2caa7295329d128512c78e06933446c0548b40db1f7d6c216b88",
+          "bytes": 2926208
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-08/stage-cache/MO1_atom_070.npy",
+          "sha256": "b5c447d64def896f3bdc99cc07085462b05c69996033df56c91b1c0f49800566",
+          "bytes": 2926208
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-08/stage-cache/MO1_atom_071.npy",
+          "sha256": "839f7a65d07299a404183b4e2a9afde72199ebc50ed5b2f0dde2f91bed981a8a",
+          "bytes": 2926208
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-08/stage-cache/MO_E1_atom_064.npy",
+          "sha256": "481f5abf4be24af80238d1be826b4d874a4933d922cceae7a630c3556ebb64b4",
+          "bytes": 614528
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-08/stage-cache/MO_E1_atom_065.npy",
+          "sha256": "199108189a6428e0cdc3adac4c07f8d4b357ac7f9a45d886a0c23d032839dd7b",
+          "bytes": 614528
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-08/stage-cache/MO_E1_atom_066.npy",
+          "sha256": "aa26760e87bc4c9142a4f97a468a225360f017ea3deaff4e3b36b1cba7e38324",
+          "bytes": 614528
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-08/stage-cache/MO_E1_atom_067.npy",
+          "sha256": "db4553cec40544e5a189a5acab9a37f8b856c44092cdf31ce97c2c5a5b2bc639",
+          "bytes": 614528
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-08/stage-cache/MO_E1_atom_068.npy",
+          "sha256": "7fd6e52a0056a9699ba9c34b67a972b92dc492f66429d6caf1ee44169d98d901",
+          "bytes": 614528
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-08/stage-cache/MO_E1_atom_069.npy",
+          "sha256": "aa52b6ec88abac714d71e6a86c9dcdfa061058dc41843eab62ff7a1f0496d8b4",
+          "bytes": 614528
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-08/stage-cache/MO_E1_atom_070.npy",
+          "sha256": "ad0a31c3c4fbf0ce6fb6f839d65f6b2be93d56a0d178842ddaaaca3ecfd530f1",
+          "bytes": 614528
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-08/stage-cache/MO_E1_atom_071.npy",
+          "sha256": "8268d5e21f45fe81e396f7f8a5d4894921dddf944054d7ba779de7e1d16b3eec",
+          "bytes": 614528
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-08/stage-cache/manifest.json",
+          "sha256": "54d2f0508b33095b5fd4be4feca51fe2a07e8a3685137dbca909db523bcab50b",
+          "bytes": 36108
+        }
+      ]
+    },
+    "response-09": {
+      "status": "HEALTHY_CLOSED",
+      "materialized_job": {
+        "id": "response-09",
+        "phase": "v8-spinosin-C001-response-pipeline-001-response-09",
+        "stage": "response-block",
+        "worker": {
+          "path": "/workspace/research4/scripts/pyscf_staged_consumer_20261105_v8.py",
+          "sha256": "3a107671d9c8a5a47c25f631fd09ed70148dc82b529448d9bafc67179801a585"
+        },
+        "payload_argv": [
+          "/workspace/research4/.runtime/bin/python",
+          "/workspace/research4/scripts/pyscf_staged_consumer_20261105_v8.py",
+          "--execute",
+          "--stage",
+          "response-block",
+          "--threads",
+          "2",
+          "--snapshot",
+          "/workspace/research4/reports/pyscf-spinosin-resumable-20261104-v5/v5-spinosin-C001-prepare-001/exact-mf-snapshot",
+          "--snapshot-manifest-sha256",
+          "3089d6014ba2d2283540eb13cc7dbcdbbf284721042e7250b624197fc15c3311",
+          "--gradient-check-result",
+          "/workspace/research4/reports/pyscf-spinosin-resumable-20261104-v5/v5-spinosin-C001-restore-gradient-001/result.json",
+          "--gradient-check-result-sha256",
+          "6b143defc238471bc815857df08fc4034a9d8454a00567f3b084907a54a5c403",
+          "--control-release",
+          "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/resource-protocol/actual-v8-water-ethanol-control-release-001.json",
+          "--control-release-sha256",
+          "2093c4e5952ce30c97a71978aa963f855d2205ef634af151ed11bdda161a5efa",
+          "--partial-result",
+          "/workspace/research4/reports/pyscf-spinosin-grid-checkpoint-20261105-v7/spinosin-C001-rks-partial-001/result.json",
+          "--partial-result-sha256",
+          "7bbcfc8b62ad81d53a65b09f0b8809d9646a62130e759a69f8d794e8f29ee8d9",
+          "--h1-result",
+          "/workspace/research4/reports/pyscf-spinosin-grid-checkpoint-20261105-v7/post-xc-pipeline-001/science/h1ao/result.json",
+          "--h1-result-sha256",
+          "f406700cc02b880292e92ed7cde9734170a115503445abb8c8b57dfe565643fa",
+          "--output",
+          "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-09",
+          "--block-index",
+          "9"
+        ],
+        "result_schema": "research4-staged-full-rks-hessian-result-v8",
+        "success_status": "STAGE_COMPLETE",
+        "result": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-09/result.json",
+        "log": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/execution/response-09.log",
+        "threads": 2,
+        "memory_gib": 24,
+        "cpu_seconds": 21600,
+        "wall_seconds": 14400
+      },
+      "actual_guardian_argv": [
+        "/workspace/research4/.runtime/bin/python",
+        "/workspace/research4/scripts/run_pyscf_continuation_budget_20261105_v8.py",
+        "run",
+        "--ledger",
+        "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/cpu_budget.json",
+        "--phase",
+        "v8-spinosin-C001-response-pipeline-001-response-09",
+        "--cpu-seconds",
+        "21600",
+        "--wall-seconds",
+        "14400",
+        "--threads",
+        "2",
+        "--memory-gib",
+        "24",
+        "--log",
+        "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/execution/response-09.log",
+        "--",
+        "/workspace/research4/.runtime/bin/python",
+        "/workspace/research4/scripts/pyscf_staged_consumer_20261105_v8.py",
+        "--execute",
+        "--stage",
+        "response-block",
+        "--threads",
+        "2",
+        "--snapshot",
+        "/workspace/research4/reports/pyscf-spinosin-resumable-20261104-v5/v5-spinosin-C001-prepare-001/exact-mf-snapshot",
+        "--snapshot-manifest-sha256",
+        "3089d6014ba2d2283540eb13cc7dbcdbbf284721042e7250b624197fc15c3311",
+        "--gradient-check-result",
+        "/workspace/research4/reports/pyscf-spinosin-resumable-20261104-v5/v5-spinosin-C001-restore-gradient-001/result.json",
+        "--gradient-check-result-sha256",
+        "6b143defc238471bc815857df08fc4034a9d8454a00567f3b084907a54a5c403",
+        "--control-release",
+        "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/resource-protocol/actual-v8-water-ethanol-control-release-001.json",
+        "--control-release-sha256",
+        "2093c4e5952ce30c97a71978aa963f855d2205ef634af151ed11bdda161a5efa",
+        "--partial-result",
+        "/workspace/research4/reports/pyscf-spinosin-grid-checkpoint-20261105-v7/spinosin-C001-rks-partial-001/result.json",
+        "--partial-result-sha256",
+        "7bbcfc8b62ad81d53a65b09f0b8809d9646a62130e759a69f8d794e8f29ee8d9",
+        "--h1-result",
+        "/workspace/research4/reports/pyscf-spinosin-grid-checkpoint-20261105-v7/post-xc-pipeline-001/science/h1ao/result.json",
+        "--h1-result-sha256",
+        "f406700cc02b880292e92ed7cde9734170a115503445abb8c8b57dfe565643fa",
+        "--output",
+        "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-09",
+        "--block-index",
+        "9"
+      ],
+      "guardian_identity": {
+        "pid": 45662,
+        "start_ticks": 16119684,
+        "uid": 1000,
+        "pgrp": 45662,
+        "session": 45662,
+        "state": "R",
+        "comm": "python",
+        "boot_id": "50ca0010-b743-43c7-bc0f-b6bcbc47c68d"
+      },
+      "actual_guardian_returncode": 0,
+      "seal": [
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/execution/response-09.log",
+          "sha256": "c6e9d47cb2b3f2384a53d9b4dce49a8506b50a9f4e18eca3aa6335659fea22d4",
+          "bytes": 123
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/execution/response-09.log.supervisor-proof.json",
+          "sha256": "6797806a7194662312477edbc73d40fcb7f0412159d1af9eb8808c0c4f1759b5",
+          "bytes": 1841
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-09/input.json",
+          "sha256": "c5c8ffe6b2c43c3ddf3658e2e62a2735f521bbaf4af4839750f288adc617ad46",
+          "bytes": 5782
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-09/result.json",
+          "sha256": "5d3a9bd9f427ed0f8497b33a09a51d09aa227dd974a86130b38e231ae556b79b",
+          "bytes": 119416
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-09/stage-cache/MO1_atom_072.npy",
+          "sha256": "fbccfbd9cd02a8ee4c28e85c6ca7d176c20639b667a7921fffe1d6559f5bdf89",
+          "bytes": 2926208
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-09/stage-cache/MO1_atom_073.npy",
+          "sha256": "d84e62007b96500430ea0d02bf01d4968b5febf72cb72926b75d896999dfd1f6",
+          "bytes": 2926208
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-09/stage-cache/MO1_atom_074.npy",
+          "sha256": "95f857b0d4639cb9dc37a87fcc93adfff563830b83446f2919c976cc9d35b95e",
+          "bytes": 2926208
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-09/stage-cache/MO_E1_atom_072.npy",
+          "sha256": "be91633ceb6e4a85269ec6045e509bc5485074b6ef1e4cc88c1c1896b2463ee2",
+          "bytes": 614528
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-09/stage-cache/MO_E1_atom_073.npy",
+          "sha256": "71a53e621e64f0f26b6461d15d4aef76274c2e12ce95e0b2290b07e9829ec71c",
+          "bytes": 614528
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-09/stage-cache/MO_E1_atom_074.npy",
+          "sha256": "6f6b05ad9182b050551bfc92a2fe24fa2032597b3534dd446382530af92591ce",
+          "bytes": 614528
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-09/stage-cache/manifest.json",
+          "sha256": "037f6df00254148985ed6142a6117ee78874813672a04b46b976ca0b33fdcde8",
+          "bytes": 30473
+        }
+      ]
+    },
+    "global-assemble": {
+      "status": "BLOCKED_REQUIRES_ROOT_REVIEW",
+      "materialized_job": {
+        "id": "global-assemble",
+        "phase": "v8-spinosin-C001-response-pipeline-001-global-assemble",
+        "stage": "global-assemble",
+        "worker": {
+          "path": "/workspace/research4/scripts/pyscf_staged_consumer_20261105_v8.py",
+          "sha256": "3a107671d9c8a5a47c25f631fd09ed70148dc82b529448d9bafc67179801a585"
+        },
+        "payload_argv": [
+          "/workspace/research4/.runtime/bin/python",
+          "/workspace/research4/scripts/pyscf_staged_consumer_20261105_v8.py",
+          "--execute",
+          "--stage",
+          "global-assemble",
+          "--threads",
+          "2",
+          "--snapshot",
+          "/workspace/research4/reports/pyscf-spinosin-resumable-20261104-v5/v5-spinosin-C001-prepare-001/exact-mf-snapshot",
+          "--snapshot-manifest-sha256",
+          "3089d6014ba2d2283540eb13cc7dbcdbbf284721042e7250b624197fc15c3311",
+          "--gradient-check-result",
+          "/workspace/research4/reports/pyscf-spinosin-resumable-20261104-v5/v5-spinosin-C001-restore-gradient-001/result.json",
+          "--gradient-check-result-sha256",
+          "6b143defc238471bc815857df08fc4034a9d8454a00567f3b084907a54a5c403",
+          "--control-release",
+          "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/resource-protocol/actual-v8-water-ethanol-control-release-001.json",
+          "--control-release-sha256",
+          "2093c4e5952ce30c97a71978aa963f855d2205ef634af151ed11bdda161a5efa",
+          "--partial-result",
+          "/workspace/research4/reports/pyscf-spinosin-grid-checkpoint-20261105-v7/spinosin-C001-rks-partial-001/result.json",
+          "--partial-result-sha256",
+          "7bbcfc8b62ad81d53a65b09f0b8809d9646a62130e759a69f8d794e8f29ee8d9",
+          "--h1-result",
+          "/workspace/research4/reports/pyscf-spinosin-grid-checkpoint-20261105-v7/post-xc-pipeline-001/science/h1ao/result.json",
+          "--h1-result-sha256",
+          "f406700cc02b880292e92ed7cde9734170a115503445abb8c8b57dfe565643fa",
+          "--output",
+          "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/global-assemble",
+          "--response-index",
+          "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/metadata/response_results.json",
+          "--response-index-sha256",
+          "90921db1ba1dc4783888bb10b25c5cd2e7802f02fbc6a42d7e68063f74c0ad1e"
+        ],
+        "result_schema": "research4-staged-full-rks-hessian-result-v8",
+        "success_status": "FREQUENCIES_COMPUTED",
+        "result": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/global-assemble/result.json",
+        "log": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/execution/global-assemble.log",
+        "threads": 2,
+        "memory_gib": 24,
+        "cpu_seconds": 1800,
+        "wall_seconds": 3600
+      },
+      "actual_guardian_argv": [
+        "/workspace/research4/.runtime/bin/python",
+        "/workspace/research4/scripts/run_pyscf_continuation_budget_20261105_v8.py",
+        "run",
+        "--ledger",
+        "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/cpu_budget.json",
+        "--phase",
+        "v8-spinosin-C001-response-pipeline-001-global-assemble",
+        "--cpu-seconds",
+        "1800",
+        "--wall-seconds",
+        "3600",
+        "--threads",
+        "2",
+        "--memory-gib",
+        "24",
+        "--log",
+        "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/execution/global-assemble.log",
+        "--",
+        "/workspace/research4/.runtime/bin/python",
+        "/workspace/research4/scripts/pyscf_staged_consumer_20261105_v8.py",
+        "--execute",
+        "--stage",
+        "global-assemble",
+        "--threads",
+        "2",
+        "--snapshot",
+        "/workspace/research4/reports/pyscf-spinosin-resumable-20261104-v5/v5-spinosin-C001-prepare-001/exact-mf-snapshot",
+        "--snapshot-manifest-sha256",
+        "3089d6014ba2d2283540eb13cc7dbcdbbf284721042e7250b624197fc15c3311",
+        "--gradient-check-result",
+        "/workspace/research4/reports/pyscf-spinosin-resumable-20261104-v5/v5-spinosin-C001-restore-gradient-001/result.json",
+        "--gradient-check-result-sha256",
+        "6b143defc238471bc815857df08fc4034a9d8454a00567f3b084907a54a5c403",
+        "--control-release",
+        "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/resource-protocol/actual-v8-water-ethanol-control-release-001.json",
+        "--control-release-sha256",
+        "2093c4e5952ce30c97a71978aa963f855d2205ef634af151ed11bdda161a5efa",
+        "--partial-result",
+        "/workspace/research4/reports/pyscf-spinosin-grid-checkpoint-20261105-v7/spinosin-C001-rks-partial-001/result.json",
+        "--partial-result-sha256",
+        "7bbcfc8b62ad81d53a65b09f0b8809d9646a62130e759a69f8d794e8f29ee8d9",
+        "--h1-result",
+        "/workspace/research4/reports/pyscf-spinosin-grid-checkpoint-20261105-v7/post-xc-pipeline-001/science/h1ao/result.json",
+        "--h1-result-sha256",
+        "f406700cc02b880292e92ed7cde9734170a115503445abb8c8b57dfe565643fa",
+        "--output",
+        "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/global-assemble",
+        "--response-index",
+        "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/metadata/response_results.json",
+        "--response-index-sha256",
+        "90921db1ba1dc4783888bb10b25c5cd2e7802f02fbc6a42d7e68063f74c0ad1e"
+      ],
+      "guardian_identity": {
+        "pid": 46408,
+        "start_ticks": 16496587,
+        "uid": 1000,
+        "pgrp": 46408,
+        "session": 46408,
+        "state": "R",
+        "comm": "python",
+        "boot_id": "50ca0010-b743-43c7-bc0f-b6bcbc47c68d"
+      },
+      "actual_guardian_returncode": 1,
+      "guardian_exit_origin": "UNKNOWN_EXTERNAL_TO_LAUNCHER",
+      "error_type": "ValueError"
+    }
+  },
+  "results": {
+    "response-00": {
+      "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-00/result.json",
+      "sha256": "641336012967fdf96c3b944aa526b6d6393257ef8672108052339a7e0fa1b669"
+    },
+    "response-01": {
+      "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-01/result.json",
+      "sha256": "9f0c0f54c37ae463e334cf9db5629656177f8ab1b0b33d50bf569270427004fb"
+    },
+    "response-02": {
+      "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-02/result.json",
+      "sha256": "8ac3bf26e6647709cdbacfab6df978079903e112ac0ba3ad3d9b2f5e3c4cdb26"
+    },
+    "response-03": {
+      "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-03/result.json",
+      "sha256": "aef51c334e764ec79def94b1c6717bd2874c3a27dea5a06b1c119abee0a5b2d2"
+    },
+    "response-04": {
+      "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-04/result.json",
+      "sha256": "6a3c1a2e67b3146f1533e857bffd0326497171cbfe6388dd1b9d81a45b372721"
+    },
+    "response-05": {
+      "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-05/result.json",
+      "sha256": "da6453b7b7c42a65f160dd22b1f9a2c52912c39c4cb58ecd85dfd1f7a1be75e5"
+    },
+    "response-06": {
+      "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-06/result.json",
+      "sha256": "370ae06bbc8d4a67a99a8057ff93153ead53543043ebdc74776d6ea56f3e6aa3"
+    },
+    "response-07": {
+      "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-07/result.json",
+      "sha256": "4b31b402e29676aa627f85783af7141fc587d87c8b92b0364e57575f26895bec"
+    },
+    "response-08": {
+      "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-08/result.json",
+      "sha256": "3f9299052b205a4ae97d3e19ba7b6aa6e3fdb44e47ac6c3380b9a07a44545f21"
+    },
+    "response-09": {
+      "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-09/result.json",
+      "sha256": "5d3a9bd9f427ed0f8497b33a09a51d09aa227dd974a86130b38e231ae556b79b"
+    }
+  },
+  "last_event": "PIPELINE_INVOCATION_CLOSED_OR_BLOCKED",
+  "latest_cost_forecast": {
+    "measured_reference_CPU_seconds": 13002.035315,
+    "pending_response_blocks": 1,
+    "forecast_CPU_seconds": 17402.442378,
+    "actual_remaining_CPU_seconds": 77991.62008500006,
+    "feasible": true,
+    "forecast_is_not_completion_or_budget_increase": true
+  }
+}
