@@ -1,5 +1,32 @@
 # Research data conventions
 
+## New prospective 72h authorization (2026-11-07)
+
+The latest actual user message authorizes expanded cloud computation for72h.
+It supersedes earlier prospective CPU/deadline restrictions for NEW explicitly
+registered jobs only. Read `reports/research72h-20261107-v1/resource-protocol/
+user_authorization_observed-001.json`: observed02:50:37.289380Z Nov7, deadline
+02:50:37.289380Z Nov10. First additional guarded CPU allocation is900000s on
+the existing host; the historical388677.5337949999s costs and failed phases
+are carried unchanged. The old V8 ledger/hash and unused allocation are frozen,
+not reset, refunded, or recredited. Use the new72h guard/ledger after independent
+review; root alone launches real calculations. Keep finite job/solver limits,
+PID/birth/UID/boot and actual CPU monitoring, resource cleanup, source hashes,
+checkpoints and truthful failed costs. No paid external provisioning or main
+merge; no hourly reporting or recurring task. A cloud shutdown is not an uptime
+guarantee. Unknown orphan/unfinished ledger identity blocks automatic recovery.
+
+A006's106-cycle zero failed under the former phase cap. A key new hypothesis
+is accumulated incremental-J screening drift: native versus full energy differed
+by about1.97e-8Eh and true-Fock residual was larger. Test a separately declared
+full-native-VEFF-every-cycle driver using original direct full AO/MO spaces and
+fixed quadrature, first on water/ethanol, then use the authenticated A006
+checkpoint as an unconverged initial guess. Preserve all old25 imaginary modes,
+219-mode results, false flags and IR NOT_COMPUTED. Require a certified freshzero
+before multi-step directional energies; no chemical assignment or full-Hessian
+claim from a local test. Existing855 strong baseline stays primary. New ML
+studies must preserve train-only data access and describe exposed-data limits.
+
 ## Fixed-quadrature diagnosis (2026-11-07)
 
 ### A006 convergence follow-up

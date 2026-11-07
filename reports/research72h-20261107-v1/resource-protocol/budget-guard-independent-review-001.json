@@ -1,0 +1,121 @@
+{
+  "schema": "research4-research72h-budget-guard-independent-review-v1",
+  "status": "SOURCE_REVIEW_AND_21_STDLIB_TESTS_PASS_NO_BLOCKER_FOUND",
+  "created_at_utc": "2026-11-07T03:03:29.221721+00:00",
+  "scope": "Independent source/AST review, actual authorization+immutable-old-ledger validation, and temporary synthetic stdlib fixtures only. Not a launch, live proof, or future-monitor-health receipt.",
+  "source": {
+    "path": "scripts/run_research4_research72h_budget_20261107.py",
+    "sha256": "65d33bcb5fae03bcdead7b6b5327923a36e009375d2a8d1e9ad0892a6502edfd",
+    "lines": 1128
+  },
+  "test_source": {
+    "path": "tests/test_research72h_budget_guard_stdlib_20261107.py",
+    "sha256": "111f8444e2f5d811d8d4228d4ae8754d279e0d3f6969befa4f334893178b9182"
+  },
+  "test_run": {
+    "command": "python -B -m unittest discover -s tests -p 'test_research72h_budget_guard_stdlib_20261107.py' -v",
+    "passed": 21,
+    "failed": 0,
+    "elapsed_seconds": 0.063,
+    "real_payload_processes_launched": 0,
+    "quantum_evaluations": 0,
+    "Git_commands": 0,
+    "real_ledger_mutations": 0,
+    "signals_sent": 0
+  },
+  "authenticated_inputs": [
+    {
+      "path": "reports/research72h-20261107-v1/resource-protocol/user_authorization_observed-001.json",
+      "sha256": "058c24d076567b14054f78467c001a7858ef2601a070f3c5b97c8b074bc9981d",
+      "bytes": 2129
+    },
+    {
+      "path": "reports/pyscf-spinosin-96h-continuation-20261105-v8/cpu_budget.json",
+      "sha256": "55b27cad9f90d2cc1af0091668f0e889d2fb7d0c60833c0d1825b5c3d0723713",
+      "bytes": 789433
+    },
+    {
+      "path": "scripts/run_pyscf_continuation_budget_20261105_v8.py",
+      "sha256": "7bc773076ecc5e0f90fb58b81bf0641948dd09c14b2816138a0469f16e511c65",
+      "bytes": 72861
+    }
+  ],
+  "allocation": {
+    "actual_old_closed_CPU_seconds": 388677.5337949999,
+    "new_additional_CPU_seconds": 900000.0,
+    "new_cumulative_cap_CPU_seconds": 1288677.5337949998,
+    "old_unused_CPU_seconds_retired_not_recredited": 1483.2970410000416,
+    "deadline_utc": "2026-11-10T02:50:37.289380+00:00",
+    "observed_start_utc": "2026-11-07T02:50:37.289380+00:00",
+    "clock_reset_at_init": false
+  },
+  "reviewed_checks": [
+    "Authorization exact SHA is pinned in source; actual authorization and legacy ledger bytes validated read-only.",
+    "Old V8 source exact SHA is pinned, all old closed rows retained as exact full prefix, costs summed including failures; old unused credit not added.",
+    "One authorization claim is published exclusively using hard-link creation and fsync, preventing a deleted-ledger reset or duplicate initialization.",
+    "New ledger and claim bind exact executing guard source SHA; later source changes block validation.",
+    "New launches accept only the newly registered schema and sole new ledger path; old schema dispatch is read-only.",
+    "Local new-ledger, global native-work, source-ledger and inherited lineage locks serialize launches and block old-lineage overlap.",
+    "Duplicate phase names and existing logs/proofs are rejected; fresh immutable child proof uses O_EXCL.",
+    "New proof binds boot, supervisor PID/birth, child PID/birth/UID/session/process group, own source SHA, actual CPU cap/cost/reserve and exact running ledger row.",
+    "Live old-boot/old-schema proofs are rejected; old closed proofs delegate to pinned old V8 verifier instead of relabelling.",
+    "Actual CPU reads cumulative process-birth ticks with child CPU, high-water accounting, finite cleanup reserve and identity-checked containment; unknown extra process members fail closed.",
+    "Workspace free bytes checked before launch and each monitor poll; CPU/cgroup/disk heartbeat persisted at least once per elapsed second subject to OS/I/O scheduling.",
+    "Native V8 exit/reap/identity/signal/CPU helpers retain exact AST; execution-loop diff adds observations and fail-closed bookkeeping without altering stop calculations.",
+    "Unknown startup CPU or failed post-exit process ownership blocks budget reuse; failed actual costs are charged, no unknown-orphan closure inferred.",
+    "Generic closure allows an explicitly requested known failed independent job only with authenticated proof/log/worker/output, finite actual cost and owned-process closure; it does not label science success."
+  ],
+  "V8_AST_identical_shared_functions": [
+    "actual_cpu_observation",
+    "aware_time",
+    "bounded_owned_reap",
+    "closed_costs",
+    "healthy_closed_row",
+    "identity_matches",
+    "owned_identity_matches",
+    "parse_proc_stat",
+    "phase_limits",
+    "process_group_snapshot",
+    "read",
+    "read_cgroup_memory",
+    "read_process_identity",
+    "resource_runtime_snapshot",
+    "root_path",
+    "run_phase",
+    "save",
+    "save_new_ledger",
+    "sha",
+    "signal_bound_group",
+    "signal_group",
+    "terminal_reap_observation",
+    "utc"
+  ],
+  "execution_loop_diff_reviewed": [
+    "disk preflight",
+    "log restricted to new namespace",
+    "boot and legacy-monitor hash in proof",
+    "boot/supervisor identity in row",
+    "unknown startup CPU fails closed rather than zero cost",
+    "child identity persisted in row",
+    "disk poll guard",
+    "one-second CPU/cgroup/disk heartbeat",
+    "explicit post-wait4 owned closure field"
+  ],
+  "limits_verified": {
+    "max_worker_threads": 2,
+    "max_phase_CPU_seconds": 60000,
+    "max_phase_wall_seconds": 28800,
+    "CPU_cleanup_reserve_seconds": 120,
+    "monitor_interval_seconds": 0.1,
+    "workspace_free_minimum_bytes": 67108864,
+    "RSS_soft_stop_GiB": 10,
+    "cgroup_kill_GiB": 12,
+    "expected_host_cgroup_GiB": 16
+  },
+  "material_limits": [
+    "RSS and sampled actual CPU stops remain best effort under OS scheduling; proof labels that scope.",
+    "Static+fixture review does not assert that a future launched process is live or that its monitor remains healthy.",
+    "The guard enforces resources and closure; the separate driver must enforce the finite scientific stage schedule and checkpoint/source qualification."
+  ],
+  "blocking_findings": []
+}
