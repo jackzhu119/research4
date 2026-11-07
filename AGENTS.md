@@ -2,6 +2,23 @@
 
 ## Fixed-quadrature diagnosis (2026-11-07)
 
+### A006 convergence follow-up
+
+A005 actually completed13 water calculations, but oxygen-coordinate central
+differences were step-dependent; its proposed Spinosin point was NOT_RUN.
+Retain that failed gate and its4.357029CPU cost. The next separately declared
+protocol, `reports/fixed-quadrature-convergence-20261107-v2/`, uses31 fresh tight
+water SCF/gradient evaluations (500CPU grant) to examine five smaller steps.
+Only if its predeclared fine-pair and same-step energy gates pass may root
+attempt three Spinosin SCFs(E0,Eplus,Eminus) in one7500CPU phase, no nuclear
+gradients or full Hessian. Fresh E0 is mandatory; h=.0003125Bohr, SCF energy
+and orbital criteria must both pass, and finite energies use full-precision
+fsum. This supersedes the unexecuted A005 large-point proposal; it is not an
+automatic retry or a permission to relax its failed threshold. All costs use
+the same remaining pool/cap and stricter deadline below, with no report timers.
+
+### A005 initial experiment (preserved)
+
 The user authorized further cloud diagnosis of curvature disagreement and
 imaginary modes, without scheduled reports. Preserve the completed A003/A004
 results and the 219 signed modes, including all25 imaginary frequencies.
