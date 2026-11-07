@@ -1,0 +1,40 @@
+{
+  "schema": "research4-b-rootcause-user-authorization-v3",
+  "observed_at_utc": "2026-11-07T00:48:22.121075+00:00",
+  "user_instruction": "继续寻找原因以及相关的测试，后台自主运行",
+  "run_id": "B20261106-01",
+  "new_allocation_or_refund": false,
+  "cpu_cap_seconds": 58800,
+  "previous_actual_closed_cpu_seconds": 39559.10966399998,
+  "permanent_conservative_debit_cpu_seconds": 1000,
+  "previous_budget_charged_cpu_seconds": 40559.10966399998,
+  "remaining_cpu_seconds": 18240.89033600002,
+  "deadline_utc": "2026-11-09T08:25:17.730193+00:00",
+  "scientific_question": "Does fixed versus rebuilt numerical quadrature explain the stored analytic Hessian discrepancy, or are explicit Fock derivatives or the CPHF response inconsistent?",
+  "predeclared_tests": [
+    "Freeze actual center Cartesian grid coordinates and weights; verify their hashes before and after every displaced SCF/gradient.",
+    "Water translation and vibrational direction finite differences at0.01/0.005/0.001/0.0005Bohr.",
+    "Protocatechuic acid and Calycosin original mode1 fixed-grid differences at0.005/0.001Bohr.",
+    "Single-direction CPHF equation residuals, occupied constraints and coefficient-density derivative versus fixed-grid SCF density differences.",
+    "Explicit Fock derivative finite differences and a stock-direct/wrapped-direct control where supported."
+  ],
+  "decision_rules": {
+    "quadrature_semantics": "Consistent fixed-grid analytic/FD agreement and disagreement with rebuilt-grid FD supports the missing grid-response/quadrature-semantics mechanism; do not assume agreement in advance.",
+    "response_solver": "Measure independent virtual equation and occupied-constraint residuals; normal solver return alone is insufficient.",
+    "explicit_derivative": "If explicit Fock derivative differs from fixed-density finite differences, investigate H1/XC/J construction separately from iterative solve convergence.",
+    "density_comparison": "Compare AO-label coefficient density derivatives; do not describe these as complete real-space density derivatives."
+  },
+  "method_qualifiers": [
+    "PBE/def2-SVP, noD3 and original molecular geometries retained.",
+    "New point SCF tolerance1e-12 versus prior independent1e-10 and original1e-8.",
+    "Fixed quadrature is a diagnostic discretization; overall translation need not be invariant relative to a stationary external numerical grid.",
+    "No full molecular Hessian recomputation or frequency relabeling."
+  ],
+  "preserve": "All previous science, negative results, source snapshots, ledgers, failed artifacts and allocation claims remain unchanged.",
+  "local_only_grid_snapshots": [
+    "grids_coords.npy",
+    "grids_weights.npy",
+    "grid_non0tab.npy"
+  ],
+  "grid_backup_policy": "Exact large quadrature arrays and AO screening masks remain local with published hashes/counts; selected density/response/gradient arrays and metadata are returned within the20MiB return limit."
+}

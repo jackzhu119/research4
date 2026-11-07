@@ -1,0 +1,72 @@
+{
+  "schema": "research4-b-independent-worker-science-review-v1",
+  "reviewed_at_utc": "2026-11-07T00:48:24.672358+00:00",
+  "reviewed_worker": {
+    "path": "scripts/research4_b_rootcause_worker_20261107.py",
+    "sha256": "17678ea49adf24990f1d9ac352992811e1af880880e1edafc6294e6de9f0022a",
+    "bytes": 64460
+  },
+  "test_source": {
+    "path": "scripts/test_research4_b_rootcause_worker_20261107.py",
+    "sha256": "006f26bc599c220b6a4ccdacd261d64052be5453db577dba67938187cb7745b9",
+    "bytes": 13483
+  },
+  "verdict": "PASS_SCIENTIFIC_IMPLEMENTATION_NO_BLOCKER_FOUND",
+  "new_quantum_evaluations": 0,
+  "original_results_modified": false,
+  "checks": [
+    {
+      "item": "Frozen quadrature",
+      "result": "PASS",
+      "details": "Center archives actual post-SCF coords/weights; point sets all grid construction options first, injects copies, rebuilds non0tab/screen_index on current molecule, and checks unchanged content before/after SCF and gradient. grad.grids explicitly shares mf.grids; responseFalse. Installed APIs only build/prune if coords is None."
+    },
+    {
+      "item": "Center pairing and aggregate semantics",
+      "result": "PASS",
+      "details": "Group keys include numerical settings, grid semantics, actual coords/weights content SHA, original source SHA, and fixed center result SHA. Fixed-grid groups do not fall back to original SCF E0. Center and signed points cannot mix different center bindings or grid content."
+    },
+    {
+      "item": "Direction and geometry",
+      "result": "PASS",
+      "details": "Euclidean Cartesian-normalized original mode or uniform translation. All displacements in Bohr with exact molecule set_geom_ check. H1q=sum(q_ax*H1_ax); S1q uses -int1e_ipovlp and bra/ket atomic slices."
+    },
+    {
+      "item": "Single-RHS CPHF",
+      "result": "PASS",
+      "details": "H1/S1 transform C.T@AO@Cocc yields [nmo,nocc]; explicit tol/maxcycle/levelshift0; returned U is freshly passed to fx(U). Virtual residual (eps_a-eps_i)U+V+H1-S1 eps_i and occupied Uoo+S1oo/2 have correct signs and indices."
+    },
+    {
+      "item": "AO density response",
+      "result": "PASS",
+      "details": "D1=2[(C U)Cocc.T+Cocc(C U).T] is derivative of AO coefficient density with fixed ordering of moving AO labels. It compares to the same coefficient-density FD; it is not a complete real-space density derivative. Added Tr(D1S0)+Tr(D0S1q) and symmetry checks are correct."
+    },
+    {
+      "item": "Explicit H1 vs frozen-D0 Fock FD",
+      "result": "PASS",
+      "details": "PySCF make_h1 contains hcore, all J center derivatives, and GGA density/bra/ket AO derivatives at fixed AO density coefficients and fixed quadrature. Current FockFD uses same D0 and fixed absolute grid on +/- moving AO labels; definitions agree. Do not add a second Pulay correction."
+    },
+    {
+      "item": "Wrapper vs stock direct control",
+      "result": "PASS",
+      "details": "Fresh dft.RKS uses same molecule, MO/occupations/density/d1, grid level/prune and injected actual grids; instance MethodType(hf.SCF.get_jk,stock) prevents automatic incore ERI. Both _eri None asserted. Fock and induced response compared at identical inputs without SCF."
+    }
+  ],
+  "independent_nonquantum_algebra_evidence": {
+    "method": "Read-only module import; no PySCF import. Independent random orthonormal MO fixture, explicit Cocc(+/-h)=Cocc+/-h C U finite differences and constructed exact/injected response equations.",
+    "density_derivative_explicit_orbital_FD_max_abs": 1.1782574915741861e-11,
+    "electron_number_derivative_abs": 8.881784197001252e-16,
+    "exact_virtual_residual_max_abs_Eh": 8.881784197001252e-16,
+    "injected_defect_detected_Eh": 0.125,
+    "PySCF_imported": false
+  },
+  "author_test_report": {
+    "nonquantum_tests_passed": 30,
+    "source": "Author /root/diagnostic_worker message; reviewer read test source and confirmed tests do not call quantum kernels; no redundant rerun after author PASS."
+  },
+  "limitations": [
+    "Review establishes implementation definitions, not numerical runtime correctness or a causal scientific verdict. Results must still be independently reconstructed.",
+    "When translation density derivative is close to zero, relative errors alone are poorly conditioned; interpret absolute residuals and norms.",
+    "Stock control narrows wrapper/dispatch/cache explanations for tested inputs, not every possible cached path.",
+    "Original analytic Hessian reference uses SCF1e-8 whereas new diagnostic groups may use tighter tolerance. Comparison metadata must retain this difference."
+  ]
+}
