@@ -1,0 +1,13 @@
+有限方向数值验证：实际观测汇总
+
+cG 为 q·(g+−g−)/(2h)，cE 为 (E+−2E0+E−)/h²，单位均为 Eh/Bohr²；q 为单位欧氏笛卡尔方向。
+E0 仅取本轮设置完全匹配的新中心；没有匹配中心时不报告能量曲率。False/True 梯度控制共享同一最终 SCF 状态的能量和密度，不为梯度控制重复求解。
+固定绝对网格与随几何重建的原子网格分组报告。True 梯度内部再生成的网格集合一致性及实际 SCF 轨道梯度验收见各点 result.json。
+
+设置 protocatechuic_acid: 新网格级别=5，SCF能量容差=1e-12，显式轨道梯度容差=1e-09，small_rho_cutoff=0，direct_scf_tol=1e-15，梯度grid_response=False；原Hessian网格级别=1，SCF能量容差=1e-08，direct_scf_tol=1e-13，梯度grid_response=False。记录设置完全相同=False。
+恢复求解 protocatechuic_acid: 使用hash绑定checkpoint的移动AO密度初猜；HASH_BOUND_CHECKPOINT_DM_CDIIS_THEN_STOCK_NEWTON_AH_IF_NEEDED，CDIIS最大8周期，Newton最大12周期、AH最大20；仅接受求解器真实收敛且最终独立fresh Fock轨道梯度范数达1e-8的点。原失败状态和耗时保持不变。
+观测 protocatechuic_acid / 模式1 / grid=5 / FIXED_CENTER_CARTESIAN_QUADRATURE / grid_response=False / h=0.0005 Bohr: cG=0.00408911597272，cE=0.00406816980103。
+观测 protocatechuic_acid / 模式1 / grid=5 / FIXED_CENTER_CARTESIAN_QUADRATURE / grid_response=False / h=0.001 Bohr: cG=0.0040891270851，cE=0.00408874711866。
+
+缺失配对或梯度控制记录数=0；排除的未成功或未达SCF资格点数=0。缺失项详见 result.json 的 missing_pairs/excluded_points。
+这些是有限方向、有限步长和指定数值网格下的观测，不是完整 Hessian 重算，不证明分子为极小值或完成化学峰归属。旧原始结果和设置保持不变；IR 强度未计算，历史分类结果未改变。

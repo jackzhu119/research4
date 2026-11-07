@@ -1,0 +1,65 @@
+有限方向数值验证：实际观测汇总
+
+cG 为 q·(g+−g−)/(2h)，cE 为 (E+−2E0+E−)/h²，单位均为 Eh/Bohr²；q 为单位欧氏笛卡尔方向。
+E0 仅取本轮设置完全匹配的新中心；没有匹配中心时不报告能量曲率。False/True 梯度控制共享同一最终 SCF 状态的能量和密度，不为梯度控制重复求解。
+固定绝对网格与随几何重建的原子网格分组报告。True 梯度内部再生成的网格集合一致性及实际 SCF 轨道梯度验收见各点 result.json。
+
+设置 water: 新网格级别=3，SCF能量容差=1e-12，显式轨道梯度容差=1e-09，small_rho_cutoff=0，direct_scf_tol=1e-13，梯度grid_response=False；原Hessian网格级别=1，SCF能量容差=1e-08，direct_scf_tol=1e-13，梯度grid_response=False。记录设置完全相同=False。
+观测 water / 整体平移轴0 / grid=3 / FIXED_CENTER_CARTESIAN_QUADRATURE / grid_response=False / h=0.0005 Bohr: cG=0.00011485988314，cE=0.000114937392937。
+观测 water / 整体平移轴0 / grid=3 / FIXED_CENTER_CARTESIAN_QUADRATURE / grid_response=False / h=0.001 Bohr: cG=0.000114855672199，cE=0.00011476686268。
+观测 water / 模式1 / grid=3 / FIXED_CENTER_CARTESIAN_QUADRATURE / grid_response=False / h=0.0005 Bohr: cG=0.105951115666，cE=0.105951301066。
+观测 water / 模式1 / grid=3 / FIXED_CENTER_CARTESIAN_QUADRATURE / grid_response=False / h=0.001 Bohr: cG=0.105951109824，cE=0.105951301066。
+观测 water / 整体平移轴0 / grid=3 / REBUILT_ATOM_CENTERED_QUADRATURE / grid_response=False / h=0.0005 Bohr: cG=1.41780940256e-12，cE=0。
+设置 water: 新网格级别=3，SCF能量容差=1e-12，显式轨道梯度容差=1e-09，small_rho_cutoff=0，direct_scf_tol=1e-13，梯度grid_response=True；原Hessian网格级别=1，SCF能量容差=1e-08，direct_scf_tol=1e-13，梯度grid_response=False。记录设置完全相同=False。
+观测 water / 整体平移轴0 / grid=3 / REBUILT_ATOM_CENTERED_QUADRATURE / grid_response=True / h=0.0005 Bohr: cG=1.83445131794e-12，cE=0。
+观测 water / 整体平移轴0 / grid=3 / REBUILT_ATOM_CENTERED_QUADRATURE / grid_response=False / h=0.001 Bohr: cG=-1.86662588893e-13，cE=0。
+观测 water / 整体平移轴0 / grid=3 / REBUILT_ATOM_CENTERED_QUADRATURE / grid_response=True / h=0.001 Bohr: cG=1.17806503118e-13，cE=0。
+观测 water / 模式1 / grid=3 / REBUILT_ATOM_CENTERED_QUADRATURE / grid_response=False / h=0.0005 Bohr: cG=0.105950680732，cE=0.105971253106。
+观测 water / 模式1 / grid=3 / REBUILT_ATOM_CENTERED_QUADRATURE / grid_response=True / h=0.0005 Bohr: cG=0.105970775452，cE=0.105971253106。
+观测 water / 模式1 / grid=3 / REBUILT_ATOM_CENTERED_QUADRATURE / grid_response=False / h=0.001 Bohr: cG=0.105950675026，cE=0.105970812569。
+观测 water / 模式1 / grid=3 / REBUILT_ATOM_CENTERED_QUADRATURE / grid_response=True / h=0.001 Bohr: cG=0.105970769289，cE=0.105970812569。
+设置 water: 新网格级别=5，SCF能量容差=1e-12，显式轨道梯度容差=1e-09，small_rho_cutoff=0，direct_scf_tol=1e-13，梯度grid_response=False；原Hessian网格级别=1，SCF能量容差=1e-08，direct_scf_tol=1e-13，梯度grid_response=False。记录设置完全相同=False。
+观测 water / 整体平移轴0 / grid=5 / FIXED_CENTER_CARTESIAN_QUADRATURE / grid_response=False / h=0.0005 Bohr: cG=-4.57541138656e-07，cE=4.54747350886e-07。
+观测 water / 整体平移轴0 / grid=5 / FIXED_CENTER_CARTESIAN_QUADRATURE / grid_response=False / h=0.001 Bohr: cG=-4.56406147551e-07，cE=-2.13162820728e-07。
+观测 water / 模式1 / grid=5 / FIXED_CENTER_CARTESIAN_QUADRATURE / grid_response=False / h=0.0005 Bohr: cG=0.105956663494，cE=0.105957553842。
+观测 water / 模式1 / grid=5 / FIXED_CENTER_CARTESIAN_QUADRATURE / grid_response=False / h=0.001 Bohr: cG=0.105956657671，cE=0.10595701383。
+观测 water / 整体平移轴0 / grid=5 / REBUILT_ATOM_CENTERED_QUADRATURE / grid_response=False / h=0.0005 Bohr: cG=-2.83511803358e-12，cE=-7.38964445191e-07。
+设置 water: 新网格级别=5，SCF能量容差=1e-12，显式轨道梯度容差=1e-09，small_rho_cutoff=0，direct_scf_tol=1e-13，梯度grid_response=True；原Hessian网格级别=1，SCF能量容差=1e-08，direct_scf_tol=1e-13，梯度grid_response=False。记录设置完全相同=False。
+观测 water / 整体平移轴0 / grid=5 / REBUILT_ATOM_CENTERED_QUADRATURE / grid_response=True / h=0.0005 Bohr: cG=-2.06593295903e-12，cE=-7.38964445191e-07。
+观测 water / 整体平移轴0 / grid=5 / REBUILT_ATOM_CENTERED_QUADRATURE / grid_response=False / h=0.001 Bohr: cG=3.48411794024e-12，cE=-2.41584530158e-07。
+观测 water / 整体平移轴0 / grid=5 / REBUILT_ATOM_CENTERED_QUADRATURE / grid_response=True / h=0.001 Bohr: cG=3.5642413855e-12，cE=-2.41584530158e-07。
+观测 water / 模式1 / grid=5 / REBUILT_ATOM_CENTERED_QUADRATURE / grid_response=False / h=0.0005 Bohr: cG=0.105956672421，cE=0.105956303287。
+观测 water / 模式1 / grid=5 / REBUILT_ATOM_CENTERED_QUADRATURE / grid_response=True / h=0.0005 Bohr: cG=0.105955702447，cE=0.105956303287。
+观测 water / 模式1 / grid=5 / REBUILT_ATOM_CENTERED_QUADRATURE / grid_response=False / h=0.001 Bohr: cG=0.105956666659，cE=0.105955805907。
+观测 water / 模式1 / grid=5 / REBUILT_ATOM_CENTERED_QUADRATURE / grid_response=True / h=0.001 Bohr: cG=0.105955696766，cE=0.105955805907。
+设置 protocatechuic_acid: 新网格级别=3，SCF能量容差=1e-12，显式轨道梯度容差=1e-09，small_rho_cutoff=0，direct_scf_tol=1e-15，梯度grid_response=False；原Hessian网格级别=1，SCF能量容差=1e-08，direct_scf_tol=1e-13，梯度grid_response=False。记录设置完全相同=False。
+恢复求解 protocatechuic_acid: 使用hash绑定checkpoint的移动AO密度初猜；HASH_BOUND_CHECKPOINT_DM_CDIIS_THEN_STOCK_NEWTON_AH_IF_NEEDED，CDIIS最大8周期，Newton最大12周期、AH最大20；仅接受求解器真实收敛且最终独立fresh Fock轨道梯度范数达1e-8的点。原失败状态和耗时保持不变。
+观测 protocatechuic_acid / 模式1 / grid=3 / FIXED_CENTER_CARTESIAN_QUADRATURE / grid_response=False / h=0.0005 Bohr: cG=0.00378598366656，cE=0.00376712705474。
+观测 protocatechuic_acid / 模式1 / grid=3 / FIXED_CENTER_CARTESIAN_QUADRATURE / grid_response=False / h=0.001 Bohr: cG=0.00378598539093，cE=0.00378497588827。
+观测 protocatechuic_acid / 模式1 / grid=3 / REBUILT_ATOM_CENTERED_QUADRATURE / grid_response=False / h=0.0005 Bohr: cG=0.00398525358762，cE=0.00406998879043。
+设置 protocatechuic_acid: 新网格级别=3，SCF能量容差=1e-12，显式轨道梯度容差=1e-09，small_rho_cutoff=0，direct_scf_tol=1e-15，梯度grid_response=True；原Hessian网格级别=1，SCF能量容差=1e-08，direct_scf_tol=1e-13，梯度grid_response=False。记录设置完全相同=False。
+恢复求解 protocatechuic_acid: 使用hash绑定checkpoint的移动AO密度初猜；HASH_BOUND_CHECKPOINT_DM_CDIIS_THEN_STOCK_NEWTON_AH_IF_NEEDED，CDIIS最大8周期，Newton最大12周期、AH最大20；仅接受求解器真实收敛且最终独立fresh Fock轨道梯度范数达1e-8的点。原失败状态和耗时保持不变。
+观测 protocatechuic_acid / 模式1 / grid=3 / REBUILT_ATOM_CENTERED_QUADRATURE / grid_response=True / h=0.0005 Bohr: cG=0.0040849797137，cE=0.00406998879043。
+观测 protocatechuic_acid / 模式1 / grid=3 / REBUILT_ATOM_CENTERED_QUADRATURE / grid_response=False / h=0.001 Bohr: cG=0.0039852628918，cE=0.0040828354031。
+观测 protocatechuic_acid / 模式1 / grid=3 / REBUILT_ATOM_CENTERED_QUADRATURE / grid_response=True / h=0.001 Bohr: cG=0.00408498840223，cE=0.0040828354031。
+设置 protocatechuic_acid: 新网格级别=5，SCF能量容差=1e-12，显式轨道梯度容差=1e-09，small_rho_cutoff=0，direct_scf_tol=1e-15，梯度grid_response=False；原Hessian网格级别=1，SCF能量容差=1e-08，direct_scf_tol=1e-13，梯度grid_response=False。记录设置完全相同=False。
+恢复求解 protocatechuic_acid: 使用hash绑定checkpoint的移动AO密度初猜；HASH_BOUND_CHECKPOINT_DM_CDIIS_THEN_STOCK_NEWTON_AH_IF_NEEDED，CDIIS最大8周期，Newton最大12周期、AH最大20；仅接受求解器真实收敛且最终独立fresh Fock轨道梯度范数达1e-8的点。原失败状态和耗时保持不变。
+观测 protocatechuic_acid / 模式1 / grid=5 / FIXED_CENTER_CARTESIAN_QUADRATURE / grid_response=False / h=0.0005 Bohr: cG=0.00408911597272，cE=0.00406816980103。
+观测 protocatechuic_acid / 模式1 / grid=5 / FIXED_CENTER_CARTESIAN_QUADRATURE / grid_response=False / h=0.001 Bohr: cG=0.0040891270851，cE=0.00408874711866。
+观测 protocatechuic_acid / 模式1 / grid=5 / REBUILT_ATOM_CENTERED_QUADRATURE / grid_response=False / h=0.0005 Bohr: cG=0.00410732713565，cE=0.00411637302022。
+设置 protocatechuic_acid: 新网格级别=5，SCF能量容差=1e-12，显式轨道梯度容差=1e-09，small_rho_cutoff=0，direct_scf_tol=1e-15，梯度grid_response=True；原Hessian网格级别=1，SCF能量容差=1e-08，direct_scf_tol=1e-13，梯度grid_response=False。记录设置完全相同=False。
+恢复求解 protocatechuic_acid: 使用hash绑定checkpoint的移动AO密度初猜；HASH_BOUND_CHECKPOINT_DM_CDIIS_THEN_STOCK_NEWTON_AH_IF_NEEDED，CDIIS最大8周期，Newton最大12周期、AH最大20；仅接受求解器真实收敛且最终独立fresh Fock轨道梯度范数达1e-8的点。原失败状态和耗时保持不变。
+观测 protocatechuic_acid / 模式1 / grid=5 / REBUILT_ATOM_CENTERED_QUADRATURE / grid_response=True / h=0.0005 Bohr: cG=0.00411422266859，cE=0.00411637302022。
+观测 protocatechuic_acid / 模式1 / grid=5 / REBUILT_ATOM_CENTERED_QUADRATURE / grid_response=False / h=0.001 Bohr: cG=0.00410733525825，cE=0.00411534983868。
+观测 protocatechuic_acid / 模式1 / grid=5 / REBUILT_ATOM_CENTERED_QUADRATURE / grid_response=True / h=0.001 Bohr: cG=0.00411423069451，cE=0.00411534983868。
+设置 calycosin: 新网格级别=3，SCF能量容差=1e-12，显式轨道梯度容差=1e-09，small_rho_cutoff=0，direct_scf_tol=1e-15，梯度grid_response=False；原Hessian网格级别=1，SCF能量容差=1e-08，direct_scf_tol=1e-13，梯度grid_response=False。记录设置完全相同=False。
+恢复求解 calycosin: 使用hash绑定checkpoint的移动AO密度初猜；HASH_BOUND_CHECKPOINT_DM_CDIIS_THEN_STOCK_NEWTON_AH_IF_NEEDED，CDIIS最大8周期，Newton最大12周期、AH最大20；仅接受求解器真实收敛且最终独立fresh Fock轨道梯度范数达1e-8的点。原失败状态和耗时保持不变。
+观测 calycosin / 模式1 / grid=3 / REBUILT_ATOM_CENTERED_QUADRATURE / grid_response=False / h=0.0005 Bohr: cG=0.00669430488943，cE=0.00665204424877。
+设置 calycosin: 新网格级别=3，SCF能量容差=1e-12，显式轨道梯度容差=1e-09，small_rho_cutoff=0，direct_scf_tol=1e-15，梯度grid_response=True；原Hessian网格级别=1，SCF能量容差=1e-08，direct_scf_tol=1e-13，梯度grid_response=False。记录设置完全相同=False。
+恢复求解 calycosin: 使用hash绑定checkpoint的移动AO密度初猜；HASH_BOUND_CHECKPOINT_DM_CDIIS_THEN_STOCK_NEWTON_AH_IF_NEEDED，CDIIS最大8周期，Newton最大12周期、AH最大20；仅接受求解器真实收敛且最终独立fresh Fock轨道梯度范数达1e-8的点。原失败状态和耗时保持不变。
+观测 calycosin / 模式1 / grid=3 / REBUILT_ATOM_CENTERED_QUADRATURE / grid_response=True / h=0.0005 Bohr: cG=0.00671103563666，cE=0.00665204424877。
+观测 calycosin / 模式1 / grid=3 / REBUILT_ATOM_CENTERED_QUADRATURE / grid_response=False / h=0.001 Bohr: cG=0.00669430646087，cE=0.00670388544677。
+观测 calycosin / 模式1 / grid=3 / REBUILT_ATOM_CENTERED_QUADRATURE / grid_response=True / h=0.001 Bohr: cG=0.00671103721537，cE=0.00670388544677。
+
+缺失配对或梯度控制记录数=0；排除的未成功或未达SCF资格点数=0。缺失项详见 result.json 的 missing_pairs/excluded_points。
+这些是有限方向、有限步长和指定数值网格下的观测，不是完整 Hessian 重算，不证明分子为极小值或完成化学峰归属。旧原始结果和设置保持不变；IR 强度未计算，历史分类结果未改变。
