@@ -53,3 +53,32 @@
 量子化学结果用于解释可靠性探索。孤立分子局部曲率、固态药材THz吸收、
 标准品化学归属和分类准确率分别报告。IR强度仍为NOT_COMPUTED；没有
 新的真实219个有符号模式及独立复核，就不能宣布虚频问题已全部解决。
+
+
+## 2026-11-07追加：已完成状态与最终有限队列
+
+已完成的ML阶段为[固定OOF电池](../reports/research72h-20261107-v1/initial-ml-evidence-001/summary.json)（11方法、11预设配对、2000次条件bootstrap）与[18组冻结模型扰动](../reports/research72h-20261107-v1/frozen-robustness/results-v1/summary.json)。原855预测和分数精确重放，R2仍821／855、96.0234%、Macro-F1 0.9196846；−0.002／＋0.002 THz分别769／855、89.9415%、F1 0.7890389及788／855、92.1637%、F1 0.8323538。噪声／增益／基线／频轴扰动复用相同样品，不是新独立数据或真实仪器验证。区间只以固定OOF预测为条件，不覆盖训练及选择不确定性。
+
+[独立审计回执](../reports/research72h-20261107-v1/independent-ML-results-review-001.json)完成22,566项检查，SHA-256为`0656a435035bc6982361e49612f6e2bfc4480192d1386e9bfe6f23fc809cf629`。两任务实际闭合成本0.349637／3.381265 CPU秒，原数据、模型和历史账本未改。
+
+[最终扩展配置](../reports/research72h-20261107-v1/queue-configs/main-001/config_ROOT_APPROVED_EXPANDED.json)SHA-256为`d9dad53ef4715b1bf4222d19a1d0f3eeb706c66a41ec9d63224d0436f5dc0bde`，列入以下11个有限阶段，依赖与失败门禁以冻结配置为准：
+
+1. 水分子full-native控制。
+2. 乙醇full-native控制。
+3. 斯皮诺素完整native零点pilot。
+4. 合格依赖下的零点继续。
+5. mode 1的固定方向能量曲率。
+6. mode 26的固定方向能量曲率。
+7. moving-grid／重建随核网格控制。
+8. 斯皮诺素重建网格grid level 1诊断。
+9. 斯皮诺素重建网格grid level 3诊断。
+10. 两种固定源内频轴增强，10个新SVC、6组评价。
+11. 真实已完成ML证据的论文图表归档。
+
+此前mode 13／25保留历史记录并延后，不当作本轮已经运行或通过。mode 1／26及网格诊断只有实际合格产物才可进入结论；局部方向计算不替代219模式Hessian。
+
+[水full-native实际结果](../reports/research72h-20261107-v1/autonomous-main-001/jobs/control-water/attempt-001/result.json)已为FULL_NATIVE_CONTROL_PARITY_PASSED；它只证明该水分子控制范围的数值一致性，不能推导斯皮诺素25个虚频已解决。其余阶段的排队／冻结状态不是完成证据，后续须查各结果和guardian闭合记录。
+
+[源增强协议](../reports/research72h-20261107-v1/source-shift-augmentation/freeze/protocol.json)已冻结，h为0.0011444092159109964／0.002288818431821993 THz；三变体权重各1／3，只拟合新SVC，旧源内变换、特征、C、数值gamma和类别权重不变。本追加时为**FROZEN_NOT_RUN／实际拟合NOT_RUN**，没有改善结论；全部量子阶段后串行安排，不按query择优。增强假设由已观察的频轴敏感性启发，属于已曝光开发研究。
+
+截止时间仍为北京时间2026-11-10 10:50:37（UTC 02:50:37），不因新阶段自动延长预算或窗口。IR NOT_COMPUTED；独立新批次、标准品THz及HPLC／LC-MS实测NOT_RUN。所有未通过和未运行状态继续保留。
