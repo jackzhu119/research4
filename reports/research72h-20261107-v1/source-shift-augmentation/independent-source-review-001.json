@@ -1,0 +1,59 @@
+{
+  "execution_scope": {
+    "fit_free_synthetic_tests": true,
+    "git_actions": false,
+    "preparation_executed_by_reviewer": false,
+    "quantum_evaluations": 0,
+    "real_SVC_fits": 0,
+    "real_inference": false,
+    "real_model_loading": false,
+    "source_edits_by_reviewer": false,
+    "source_review": true
+  },
+  "frozen_files_sha256": {
+    "scripts/run_frozen_oof_robustness_20261107.py": "1b7f6b00ca26c1aae30c114d2eeb529531fb33c026d84b7514ec5f67feaa461a",
+    "scripts/run_source_shift_augmentation_20261107.py": "c8b716b48d997351b49914a6f649c479722ec5247579f4d83344cbe8cf3d672c",
+    "src/herb_spectra/leakage_guard.py": "9b5555be27fc634aae46f31e50a06f1950d238c83ff654df91a37c0cdd74748e",
+    "tests/test_source_shift_augmentation_20261107.py": "700b02fa8bdd78378b97536e349f29bf6e093f6ba2fdb284fd1ad3517542a20c"
+  },
+  "interpretation_limits": [
+    "684 original user-declared physical source records per fold;2052 dependent augmented rows are not2052 independent samples.",
+    "All855 records remain historically exposed; no new cohort, batch transfer, instrument-calibrated physical shift, named-origin or chemical-causal validation.",
+    "Origin and a single source lot cannot be separated.",
+    "Original R2 and its historical96.0234 percent remain unchanged regardless of new case scores.",
+    "Two fixed augmentation recipes are compared with the saved baseline; this is not a new algorithm or an independently confirmed improvement.",
+    "Preparation/source-label projection and post-lock scoring are logical phase boundaries, not an OS sandbox or never-exposed-truth claim."
+  ],
+  "remaining_runtime_prerequisites": [
+    "Root-authorized metadata/data-projection prepare must succeed in the fresh source-shift-augmentation/freeze directory and yield the actual protocol hash.",
+    "Root binds that protocol in its release and executes the actual fit phase only through the registered finite global guard.",
+    "Append/execute this non-Q phase only after the frozen QC schedule finishes, preserving the quantum source-qualification schedule.",
+    "Actual training, inference, prediction locks and scoring remain NOT_RUN by this reviewer; synthetic tests assert no empirical improvement."
+  ],
+  "resolved_review_detail": "Initial draft used only the custom parent guard. Final source additionally uses the library FitScope required by the leakage protocol, freezes leakage_guard.py in input hashes, and includes its actual fit log in locked evidence.",
+  "review_findings": {
+    "actual_fit_guard": "Custom source/query-parent, identity, label, variant and weight checks run before transformation. Unique computational variant IDs feed library FitScope wrapping the actual fresh SVC.fit; actual X/y proof and weight/provenance fingerprints are recorded. These variant IDs do not create independent specimens.",
+    "augmentation": "For each current physical source parent, raw full-axis variants at0,+h,-h are interpolated before the original612-point mask, with endpoint clamp and negative alpha retained. Each parent supplies exactly three dependent variants of weight1/3 each, total weight1.",
+    "exposure": "Design explicitly follows observed historical axis fragility and uses the same855 exposed development records. It is retrospective exploration, not fresh nested selection or unbiased/independent confirmation.",
+    "fixed_design": "Two fixed recipes h=0.5 or1 times median historical model-band axis spacing; five original outer folds; exactly ten new SVC fits. No search, recipe selection, ranking, query-guided magnitude or seed selection within this run.",
+    "frozen_baseline_chain": "Preparation requires the prior actually sealed821/855 native baseline, exact855 prediction/score replay and matching independent prior-result artifact hashes; all prior model/input/source hashes remain bound. Reviewer did not rerun that baseline.",
+    "frozen_learned_operations": "Historical preprocessor, scaler and MC selector transform only; fit entries blocked and learned bundle hash checked after inference. No query-side fit or learned operation. Exactly original C, numeric effective gamma and all seven explicit numeric class weights are used; no gamma=scale or class-weight recalculation.",
+    "new_estimator_scope": "Fresh RBF SVC only, standard vote with break_ties=False and OVR decision scores; no score-argmax replacement. Historical model files are hash-checked and never overwritten.",
+    "resource_bounds": "2000 CPU seconds,3600 wall seconds,two threads; new SVC weights capped at20,000,000 bytes by in-memory serialization before any oversized write; each completed fit is recorded immediately. Existing outputs are never overwritten.",
+    "scoring": "Same fixed855 specimens, all seven classes, independent confusion-count accuracy/macro-F1/balanced-accuracy arithmetic and per-class denominators. Report all six cases and paired differences against the same-case frozen baseline without ranking.",
+    "source_labels": "Preparation openly reads historically exposed candidate labels only to project five ordered684-ID source-label packs. Runtime loads only the current source pack, verifies its source IDs and original native training-label fingerprint, and does not index NPZ y.",
+    "truth_and_locks": "All six fixed recipe/case predictions plus ten new weight files, fit records, variant provenance and FitScope JSONL require exact protocol/status/hash coverage. Every case schema, finite score, class,855 unique IDs and original fold are checked before newly reading scoring truth."
+  },
+  "reviewed_at_utc": "2026-11-07T03:34:34.178983+00:00",
+  "reviewer": "/root/fixed_grid_design_audit",
+  "schema": "research4-source-shift-augmentation-independent-source-review-v1",
+  "status": "APPROVED_FROZEN_SOURCE_AND_FIT_FREE_SYNTHETIC_TESTS_ONLY",
+  "test_evidence": {
+    "command": "PYTHONPATH=src .runtime/bin/python -m unittest discover -s tests -p 'test_source_shift_augmentation_20261107.py' -v",
+    "exit_code": 0,
+    "test_fit_is_SpySVC_only_not_real_training": true,
+    "tests_failed": 0,
+    "tests_passed": 10,
+    "unittest_reported_seconds": 0.117
+  }
+}

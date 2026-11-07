@@ -1,0 +1,112 @@
+{
+  "schema": "research4-v7-XC-chunk-independent-static-review-v1",
+  "created_at_utc": "2026-11-05T00:53:43.824730+00:00",
+  "status": "PASS_STATIC_AND_STDLIB_PREPARATION_ONLY",
+  "sources": [
+    {
+      "path": "scripts/pyscf_xc_chunk_checkpoint_20261105_v7.py",
+      "sha256": "da1e2b0267c48e748a2bcb7d3f2ee3110d8e2288aa340d23dab7a12c994ddf8e",
+      "bytes": 18573
+    },
+    {
+      "path": "scripts/pyscf_xc_chunk_worker_20261105_v7.py",
+      "sha256": "00e710eb0d637dbd073939bea5d4496993cb68f29efad1439322df3972415f02",
+      "bytes": 46346
+    }
+  ],
+  "tests": [
+    {
+      "path": "tests/test_pyscf_xc_chunk_core_v7.py",
+      "sha256": "fd54d43f9682fedb5341dbf6ea2e1ae90491ea698f8b2e9b96e21e5f27451919",
+      "bytes": 10503
+    },
+    {
+      "path": "tests/test_pyscf_xc_runtime_binding_v7.py",
+      "sha256": "e22154edcdaaf0862ce8a4b4d942b0e881dd0d2bf33c4dfc5efc46353da3487b",
+      "bytes": 2918
+    },
+    {
+      "path": "tests/test_pyscf_xc_chunk_worker_v7.py",
+      "sha256": "75a61de87d072b6a88ae79463267752a729f245794d43794ed7d28c631b0f911",
+      "bytes": 9100
+    }
+  ],
+  "old_frozen_sources_preserved": [
+    {
+      "path": "scripts/pyscf_staged_hessian_worker_20261105_v6b.py",
+      "sha256": "f13701964cd8a5fbda25a19ca27ec91b4a414f6b5cb49c14abacf6c82eaa448d",
+      "bytes": 35143
+    },
+    {
+      "path": "scripts/analyze_pyscf_staged_modes_20261105_v6b_v2.py",
+      "sha256": "38dde5e185c4fc48d58732982e0164b3a2f5430a26bdfc1076b21103d1d75c6a",
+      "bytes": 50986
+    },
+    {
+      "path": "scripts/run_pyscf_continuation_budget_20261105_v6b.py",
+      "sha256": "b985d6d6e20f5e4a48387094461f19b133dae761338664e88836c62051f993a5",
+      "bytes": 77031
+    }
+  ],
+  "independent_test_command": "python -S -m unittest discover -s tests -p 'test_pyscf_xc*_v7.py' -v",
+  "independent_test_count": 27,
+  "independent_test_result": "PASS",
+  "reported_unittest_seconds": 0.118,
+  "numerical_control_or_Spinosin_executed": false,
+  "numerical_imports_or_array_reads_or_Q_ledger_reads_in_this_V7_review": false,
+  "Git_or_quantum_or_training_or_ledger_changes_performed": false,
+  "static_math_checks": {
+    "full_global_grid_and_weights_not_cropped": true,
+    "native_block_loop_AST_only_one_pre_AO_continue_guard": true,
+    "original_full_grid_sparse_decision_mask_offset_and_buffer_math_retained": true,
+    "native_original_blksize_formula_replayed_with_stdlib_scalar_AST": true,
+    "diagonal_and_deriv2_have_distinct_exact_coverage_plans": true,
+    "no_missing_duplicate_unknown_or_cross_physical_grid_blocks_accepted": true,
+    "same_PBE_DM_for_all_chunks_XC_grid_point_local_no_NLC_hybrid_range_exchange_or_dispersion": true,
+    "diag_contraction_matches_stock_RKS106": true,
+    "deriv2_lower_triangle_and_transpose_match_stock109_112": true,
+    "native_deriv2_ipip_finalized_inside_each_native_chunk_once_no_extra_ipip": true,
+    "target_native_RHF_e1_plus_ej_once_then_each_contracted_XC_once": true,
+    "nuclear_and_CPHF_not_in_A": true,
+    "full_AO_MO_space_and_original_atoms_retained": true,
+    "no_symmetry_averaging_or_negative_mode_clipping": true
+  },
+  "producer_and_failure_checks": {
+    "real_unmodified_V6b_budget_parent_proof_required_before_output_or_numerical_import": true,
+    "source_stage_own_schema_and_SHA_genuinely_V7": true,
+    "partial_MF_snapshot_gradient_boot_and_actual_grid_bindings_qualified": true,
+    "all_component_actual_argv_and_source_G_range_threads_plan_hashes_checked": true,
+    "actual_control_release_argv_and_artifact_exported_for_target": true,
+    "each_result_requires_healthy_closed_guard_phase_before_payload_loading": true,
+    "failed_parent_or_incomplete_block_never_certifies_cache": true,
+    "native_loop_restored_and_selected_block_complete_checks": true,
+    "full_A_coverage_precedes_one_time_assembly": true,
+    "RHF_oldhealthy149_only_new_namespace_one_new_unit_for_target": true,
+    "verified_artifacts_and_closed_ledger_rows_preserve_component_chain": true,
+    "new_consumer_five_tuple_contract_and_V7_schema_match_statically": true,
+    "no_fake_compatibility_with_old_f137_or_38dde": true
+  },
+  "runtime_module_binding_issue_found_and_resolved": {
+    "original_issue": "Hashing fixed installed files did not itself prove actual imported NumInt/gradient globals came from that installation.",
+    "resolved_by": "validate_runtime_sources checks actual four module file paths+SHAs, RKS/gradient NumInt aliases, actual ni.block_loop function/global dictionary/source path and BLKSIZE56; compiled AST globals come from the actual bound native function.",
+    "fake_module_positive_and_cross_site_negative_stdlib_tests_pass": true
+  },
+  "other_review_findings_resolved": [
+    "Selected V7 threads locked2/default2 to match downstream consumer and avoid unusable mismatched physical states.",
+    "Actual MF grid/molecule object identity and RHF/plan/chunk/assembly full-grid consistency explicitly checked.",
+    "Root target-control release preserved in result, actualargv checked and exported in immutable artifact chain."
+  ],
+  "boundaries": {
+    "fixed_target_XC_max_memory_MB": 2000,
+    "fixed_control_original_blocksize": 224,
+    "historical_V5_actual_dynamic_RSS_blocksize_equivalence_independently_proved": false,
+    "floating_reduction_order_can_change_and_requires_actual_controls": true,
+    "actual_multiblock_water_and_ethanol_control_status": "NOT_RUN_BY_THIS_REVIEW",
+    "actual_XC_AO_and_full_RKS_partial_differential_required": true,
+    "actual_new_V7_full_global_Hessian_independent_3_and21_positive_mode_comparisons_required": true,
+    "root_actual_control_release_required_before_Spinosin": true,
+    "static_review_is_not_numerical_validation_or_target_authorization": true,
+    "IR_intensity": "NOT_COMPUTED"
+  },
+  "release_decision": "No static blocker found for bounded root-run authenticated water/ethanol controls after final consumer/analyzer source pins. This review grants no Spinosin execution release, no new resources, no cap/deadline/72h reset and no numerical-success claim."
+}

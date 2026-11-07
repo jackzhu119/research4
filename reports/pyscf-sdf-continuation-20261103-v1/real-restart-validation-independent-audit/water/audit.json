@@ -1,0 +1,783 @@
+{
+  "schema": "research4-real-cross-process-restart-independent-audit-v1",
+  "status": "PASS_INDEPENDENT_NUMPY_REPLAY",
+  "created_at_utc": "2026-11-04T07:35:59.472350+00:00",
+  "molecule": "water",
+  "scope": "Small-molecule engineering control only, not Spinosin frequencies or proof of physical accuracy.",
+  "snapshot_manifest_sha256": "cd2fe125bad8dc797ad3d0bfa441267835b844c480e1f8f7bafb7014d8cc907a",
+  "source_prepare_result_sha256": "7d7cac4edf96f87e6f4d5a8764d7c4b36e34ab60ff73d5d02e871f948c7f079e",
+  "stock_result_sha256": "46f66a5e6bd89ce0fc820d5f8f2a36089f8626e374b1a864937df48a13216405",
+  "segmented_result_sha256": "77ea80322e803d9d6adce7ed3db765a0e46823cf8276ccec2ed715dbfaa12d71",
+  "all_raw_Hessian_elements_compared": 81,
+  "all_atom_pair_couplings_compared": true,
+  "max_abs_differences": {
+    "raw": 1.4876988529977098e-14,
+    "sym": 1.4876988529977098e-14,
+    "frequency": 5.275069270282984e-11,
+    "thz": 1.5774048733874224e-12
+  },
+  "fixed_tolerances": {
+    "raw_Eh_per_Bohr2": 1e-06,
+    "sym_Eh_per_Bohr2": 1e-06,
+    "frequency_cm1": 0.01,
+    "replay_cm1": 1e-07,
+    "gradient_Eh_per_Bohr": 1e-08
+  },
+  "stock": {
+    "modes": 3,
+    "all_positive": true,
+    "raw_max_asymmetry": 1.5952671161834076e-07,
+    "frequency_cm1": [
+      1605.6244283894653,
+      3689.9804849529028,
+      3789.043520204581
+    ],
+    "frequency_thz": [
+      48.135409401172275,
+      110.62283195560627,
+      113.5926670391104
+    ],
+    "independent_frequency_cm1": [
+      1605.624428389466,
+      3689.9804849529037,
+      3789.0435202045815
+    ],
+    "max_independent_frequency_difference_cm1": 9.094947017729282e-13,
+    "mass_weighted_orthogonality_error": 3.884691602655898e-16,
+    "external_projection_error": 4.0578884112016044e-16,
+    "projected_eigen_equation_residual": 3.885780586188048e-16,
+    "minimum_independent_mode_absolute_overlap": 0.9999999999999998,
+    "measured_CPHF_residual_norm": "NOT_COMPUTED"
+  },
+  "segmented": {
+    "modes": 3,
+    "all_positive": true,
+    "raw_max_asymmetry": 1.595267138387868e-07,
+    "frequency_cm1": [
+      1605.6244283894646,
+      3689.9804849528687,
+      3789.0435202046338
+    ],
+    "frequency_thz": [
+      48.135409401172254,
+      110.62283195560525,
+      113.59266703911197
+    ],
+    "independent_frequency_cm1": [
+      1605.624428389465,
+      3689.980484952868,
+      3789.043520204635
+    ],
+    "max_independent_frequency_difference_cm1": 1.3642420526593924e-12,
+    "mass_weighted_orthogonality_error": 6.661338147750939e-16,
+    "external_projection_error": 4.0578884112015965e-16,
+    "projected_eigen_equation_residual": 3.3306690738754696e-16,
+    "minimum_independent_mode_absolute_overlap": 0.9999999999999997,
+    "measured_CPHF_residual_norm": "NOT_COMPUTED"
+  },
+  "minimum_stock_segment_mode_absolute_overlap": 0.9999999999999998,
+  "mode_sign_is_arbitrary": true,
+  "mode_comparison_method": "Absolute mass-weighted vector overlaps; independent Cartesian TR-QR projection and NumPy eigh.",
+  "restore_gradient_difference_Eh_per_Bohr": 8.881784197001252e-16,
+  "same_exact_MF_snapshot_all_stages": true,
+  "no_new_SCF_recorded_in_consumers": true,
+  "segments": [
+    {
+      "phase": "validation-water-segment-001",
+      "pid": 3647,
+      "healthy_closed_parent": true,
+      "before": 0,
+      "after": 2,
+      "status": "CHECKPOINT_SEGMENT_COMPLETE",
+      "actual_wait4_CPU_seconds": 1.523598
+    },
+    {
+      "phase": "validation-water-segment-002",
+      "pid": 3659,
+      "healthy_closed_parent": true,
+      "before": 2,
+      "after": 4,
+      "status": "CHECKPOINT_SEGMENT_COMPLETE",
+      "actual_wait4_CPU_seconds": 1.720995
+    },
+    {
+      "phase": "validation-water-segment-003",
+      "pid": 3671,
+      "healthy_closed_parent": true,
+      "before": 4,
+      "after": 6,
+      "status": "FREQUENCIES_COMPUTED",
+      "actual_wait4_CPU_seconds": 3.273145
+    }
+  ],
+  "independent_payload_PIDs": [
+    3142,
+    3588,
+    3635,
+    3647,
+    3659,
+    3671
+  ],
+  "all_payload_PIDs_unique": true,
+  "actual_wait4_CPU_seconds_for_selected_lineage": 13.542441,
+  "parent_rows": [
+    {
+      "phase": "validation-water-prepare-001",
+      "started_at_utc": "2026-11-04T07:21:00.354407+00:00",
+      "status": "EXITED",
+      "command": [
+        ".runtime/bin/python",
+        "scripts/pyscf_molecular_state_worker_20261103.py",
+        "--phase",
+        "prepare-state",
+        "--input-manifest",
+        "reports/pyscf-sdf-continuation-20261103-v1/inputs/validation_water_prepare_input.json",
+        "--input-manifest-sha256",
+        "865877bc001ebca8a5a9fde48dbb16cd9a21504a14b435c23a276bfb6f5e9ded",
+        "--output",
+        "reports/pyscf-sdf-continuation-20261103-v1/validation-water-prepare-001",
+        "--threads",
+        "4",
+        "--maxsteps",
+        "35"
+      ],
+      "log": "/workspace/research4/reports/pyscf-sdf-continuation-20261103-v1/execution/validation-water-prepare-001.log",
+      "granted_cpu_seconds": 1200,
+      "cpu_soft_limit_seconds": 1080,
+      "cpu_hard_limit_seconds": 1200,
+      "cpu_cleanup_margin_seconds": 120,
+      "cpu_boundary_reserve_seconds": 10,
+      "wall_limit_seconds": 900,
+      "wall_cleanup_seconds": 60,
+      "wall_SIGTERM_after_seconds": 840,
+      "address_space_limit_gib": 24,
+      "threads": 4,
+      "rss_stop_bytes": 10737418240,
+      "cgroup_kill_bytes": 12884901888,
+      "monitor_interval_seconds": 0.1,
+      "memory_kill_grace_seconds": 1.0,
+      "expected_cgroup_memory_max_bytes": 17179869184,
+      "guard_semantics": "BEST_EFFORT_RSS_GUARD_NOT_HARD_RSS_LIMIT",
+      "not_a_hard_RSS_limit": true,
+      "actual_cpu_guard_enabled": true,
+      "actual_cpu_guard_source": "PROC_STAT_CUMULATIVE_FROM_PROCESS_BIRTH",
+      "actual_cpu_clock_ticks_per_second": 100,
+      "actual_cpu_cleanup_reserve_seconds": 120,
+      "actual_cpu_stop_threshold_seconds": 1080,
+      "actual_cpu_closed_batch_cost_seconds": 0.0,
+      "actual_cpu_batch_cap_seconds": 129600,
+      "cpu_guard_kill_grace_seconds": 1.0,
+      "profiling_RLIMIT_is_supplementary_not_exact_actual_CPU_guarantee": true,
+      "supervisor_proof_path": "/workspace/research4/reports/pyscf-sdf-continuation-20261103-v1/execution/validation-water-prepare-001.log.supervisor-proof.json",
+      "prior_V3_exclusive_lock_held": true,
+      "cgroup_memory_before_launch": {
+        "current_bytes": 1802170368,
+        "max_bytes": 17179869184,
+        "source": "/sys/fs/cgroup",
+        "observed_at_utc": "2026-11-04T07:21:00.354392+00:00"
+      },
+      "environment_thread_limits": {
+        "OMP_NUM_THREADS": "4",
+        "OPENBLAS_NUM_THREADS": "4",
+        "MKL_NUM_THREADS": "4",
+        "NUMEXPR_NUM_THREADS": "4"
+      },
+      "pid": 3142,
+      "supervisor_proof_sha256": "4a7e80375342e15d7e258cc5c6551a8196af01a8cd99c4f7c21d3610cb42518e",
+      "ended_at_utc": "2026-11-04T07:21:02.510845+00:00",
+      "actual_cpu_seconds": 2.947584,
+      "elapsed_wall_seconds": 2.1560852239999804,
+      "peak_rss_kib": 148144,
+      "exit_code": 0,
+      "wall_terminated": false,
+      "hard_killed": false,
+      "memory_terminated": false,
+      "monitor_failed": false,
+      "cpu_terminated": false,
+      "peak_actual_cpu_seconds_sampled": 2.84,
+      "memory_monitor_samples": 21,
+      "peak_group_rss_bytes_sampled": 151699456,
+      "peak_cgroup_memory_bytes_sampled": 1930891264,
+      "log_sha256": "1efecbebe45402adbc70a8a7a66e4289ca1b1ec5957cf2ddd81ec9cae1a8c413"
+    },
+    {
+      "phase": "validation-water-restore-gradient-001",
+      "started_at_utc": "2026-11-04T07:27:09.269642+00:00",
+      "status": "EXITED",
+      "command": [
+        ".runtime/bin/python",
+        "scripts/pyscf_resumable_hessian_worker_20261103.py",
+        "--phase",
+        "restore-gradient-check",
+        "--snapshot",
+        "reports/pyscf-sdf-continuation-20261103-v1/validation-water-prepare-001/exact-mf-snapshot",
+        "--snapshot-manifest-sha256",
+        "cd2fe125bad8dc797ad3d0bfa441267835b844c480e1f8f7bafb7014d8cc907a",
+        "--output",
+        "reports/pyscf-sdf-continuation-20261103-v1/validation-water-restore-gradient-001",
+        "--threads",
+        "4"
+      ],
+      "log": "/workspace/research4/reports/pyscf-sdf-continuation-20261103-v1/execution/validation-water-restore-gradient-001.log",
+      "granted_cpu_seconds": 1200,
+      "cpu_soft_limit_seconds": 1080,
+      "cpu_hard_limit_seconds": 1200,
+      "cpu_cleanup_margin_seconds": 120,
+      "cpu_boundary_reserve_seconds": 10,
+      "wall_limit_seconds": 900,
+      "wall_cleanup_seconds": 60,
+      "wall_SIGTERM_after_seconds": 840,
+      "address_space_limit_gib": 24,
+      "threads": 4,
+      "rss_stop_bytes": 10737418240,
+      "cgroup_kill_bytes": 12884901888,
+      "monitor_interval_seconds": 0.1,
+      "memory_kill_grace_seconds": 1.0,
+      "expected_cgroup_memory_max_bytes": 17179869184,
+      "guard_semantics": "BEST_EFFORT_RSS_GUARD_NOT_HARD_RSS_LIMIT",
+      "not_a_hard_RSS_limit": true,
+      "actual_cpu_guard_enabled": true,
+      "actual_cpu_guard_source": "PROC_STAT_CUMULATIVE_FROM_PROCESS_BIRTH",
+      "actual_cpu_clock_ticks_per_second": 100,
+      "actual_cpu_cleanup_reserve_seconds": 120,
+      "actual_cpu_stop_threshold_seconds": 1080,
+      "actual_cpu_closed_batch_cost_seconds": 11.539703,
+      "actual_cpu_batch_cap_seconds": 129600,
+      "cpu_guard_kill_grace_seconds": 1.0,
+      "profiling_RLIMIT_is_supplementary_not_exact_actual_CPU_guarantee": true,
+      "supervisor_proof_path": "/workspace/research4/reports/pyscf-sdf-continuation-20261103-v1/execution/validation-water-restore-gradient-001.log.supervisor-proof.json",
+      "prior_V3_exclusive_lock_held": true,
+      "cgroup_memory_before_launch": {
+        "current_bytes": 1833840640,
+        "max_bytes": 17179869184,
+        "source": "/sys/fs/cgroup",
+        "observed_at_utc": "2026-11-04T07:27:09.269628+00:00"
+      },
+      "environment_thread_limits": {
+        "OMP_NUM_THREADS": "4",
+        "OPENBLAS_NUM_THREADS": "4",
+        "MKL_NUM_THREADS": "4",
+        "NUMEXPR_NUM_THREADS": "4"
+      },
+      "pid": 3588,
+      "supervisor_proof_sha256": "323f86f62759070ec024797768833e83b6cb9ba9c6c91cbc80837d4890abd5f9",
+      "ended_at_utc": "2026-11-04T07:27:10.081735+00:00",
+      "actual_cpu_seconds": 0.866089,
+      "elapsed_wall_seconds": 0.8113963530004185,
+      "peak_rss_kib": 131888,
+      "exit_code": 0,
+      "wall_terminated": false,
+      "hard_killed": false,
+      "memory_terminated": false,
+      "monitor_failed": false,
+      "cpu_terminated": false,
+      "peak_actual_cpu_seconds_sampled": 0.79,
+      "memory_monitor_samples": 8,
+      "peak_group_rss_bytes_sampled": 108683264,
+      "peak_cgroup_memory_bytes_sampled": 1909518336,
+      "log_sha256": "84052c6530c8c7699cb42d745f664b50f36f12246eee926a733b632bad79bd59"
+    },
+    {
+      "phase": "validation-water-stock-hessian-001",
+      "started_at_utc": "2026-11-04T07:28:13.532062+00:00",
+      "status": "EXITED",
+      "command": [
+        "/workspace/research4/.runtime/python/bin/python",
+        "/workspace/research4/scripts/pyscf_resumable_hessian_worker_20261103.py",
+        "--phase",
+        "stock-hessian-reference",
+        "--snapshot",
+        "/workspace/research4/reports/pyscf-sdf-continuation-20261103-v1/validation-water-prepare-001/exact-mf-snapshot",
+        "--snapshot-manifest-sha256",
+        "cd2fe125bad8dc797ad3d0bfa441267835b844c480e1f8f7bafb7014d8cc907a",
+        "--output",
+        "/workspace/research4/reports/pyscf-sdf-continuation-20261103-v1/validation-water-stock-hessian-001",
+        "--threads",
+        "4",
+        "--max-new-units",
+        "2",
+        "--rhf-cache",
+        "/workspace/research4/outputs/pyscf-sdf-continuation-20261103-v1/water-restart-validation",
+        "--gradient-check-result",
+        "/workspace/research4/reports/pyscf-sdf-continuation-20261103-v1/validation-water-restore-gradient-001/result.json",
+        "--gradient-check-result-sha256",
+        "505761826a5bdc0bb08faa495612cafcd26269301075ba391d9580da6e686a8c"
+      ],
+      "log": "/workspace/research4/reports/pyscf-sdf-continuation-20261103-v1/execution/validation-water-stock-hessian-001.log",
+      "granted_cpu_seconds": 3600,
+      "cpu_soft_limit_seconds": 3480,
+      "cpu_hard_limit_seconds": 3600,
+      "cpu_cleanup_margin_seconds": 120,
+      "cpu_boundary_reserve_seconds": 10,
+      "wall_limit_seconds": 1800,
+      "wall_cleanup_seconds": 60,
+      "wall_SIGTERM_after_seconds": 1740,
+      "address_space_limit_gib": 24,
+      "threads": 4,
+      "rss_stop_bytes": 10737418240,
+      "cgroup_kill_bytes": 12884901888,
+      "monitor_interval_seconds": 0.1,
+      "memory_kill_grace_seconds": 1.0,
+      "expected_cgroup_memory_max_bytes": 17179869184,
+      "guard_semantics": "BEST_EFFORT_RSS_GUARD_NOT_HARD_RSS_LIMIT",
+      "not_a_hard_RSS_limit": true,
+      "actual_cpu_guard_enabled": true,
+      "actual_cpu_guard_source": "PROC_STAT_CUMULATIVE_FROM_PROCESS_BIRTH",
+      "actual_cpu_clock_ticks_per_second": 100,
+      "actual_cpu_cleanup_reserve_seconds": 120,
+      "actual_cpu_stop_threshold_seconds": 3480,
+      "actual_cpu_closed_batch_cost_seconds": 15.6634,
+      "actual_cpu_batch_cap_seconds": 129600,
+      "cpu_guard_kill_grace_seconds": 1.0,
+      "profiling_RLIMIT_is_supplementary_not_exact_actual_CPU_guarantee": true,
+      "supervisor_proof_path": "/workspace/research4/reports/pyscf-sdf-continuation-20261103-v1/execution/validation-water-stock-hessian-001.log.supervisor-proof.json",
+      "prior_V3_exclusive_lock_held": true,
+      "cgroup_memory_before_launch": {
+        "current_bytes": 1841385472,
+        "max_bytes": 17179869184,
+        "source": "/sys/fs/cgroup",
+        "observed_at_utc": "2026-11-04T07:28:13.532049+00:00"
+      },
+      "environment_thread_limits": {
+        "OMP_NUM_THREADS": "4",
+        "OPENBLAS_NUM_THREADS": "4",
+        "MKL_NUM_THREADS": "4",
+        "NUMEXPR_NUM_THREADS": "4"
+      },
+      "pid": 3635,
+      "supervisor_proof_sha256": "8c21a09779f873af2a3cca8c7c68d2418d9bd1fd55c4ca9a18a5e4b202add99a",
+      "ended_at_utc": "2026-11-04T07:28:15.061625+00:00",
+      "actual_cpu_seconds": 3.21103,
+      "elapsed_wall_seconds": 1.5289827759997934,
+      "peak_rss_kib": 150556,
+      "exit_code": 0,
+      "wall_terminated": false,
+      "hard_killed": false,
+      "memory_terminated": false,
+      "monitor_failed": false,
+      "cpu_terminated": false,
+      "peak_actual_cpu_seconds_sampled": 3.19,
+      "memory_monitor_samples": 15,
+      "peak_group_rss_bytes_sampled": 135340032,
+      "peak_cgroup_memory_bytes_sampled": 1946386432,
+      "log_sha256": "3ba7a047a560b05dbd2e458654b4d55d5ac7d81da1b6430a2c58d1b867b94ca1"
+    },
+    {
+      "phase": "validation-water-segment-001",
+      "started_at_utc": "2026-11-04T07:28:15.131056+00:00",
+      "status": "EXITED",
+      "command": [
+        "/workspace/research4/.runtime/python/bin/python",
+        "/workspace/research4/scripts/pyscf_resumable_hessian_worker_20261103.py",
+        "--phase",
+        "hessian-segment",
+        "--snapshot",
+        "/workspace/research4/reports/pyscf-sdf-continuation-20261103-v1/validation-water-prepare-001/exact-mf-snapshot",
+        "--snapshot-manifest-sha256",
+        "cd2fe125bad8dc797ad3d0bfa441267835b844c480e1f8f7bafb7014d8cc907a",
+        "--output",
+        "/workspace/research4/reports/pyscf-sdf-continuation-20261103-v1/validation-water-segment-001",
+        "--threads",
+        "4",
+        "--max-new-units",
+        "2",
+        "--rhf-cache",
+        "/workspace/research4/outputs/pyscf-sdf-continuation-20261103-v1/water-restart-validation",
+        "--gradient-check-result",
+        "/workspace/research4/reports/pyscf-sdf-continuation-20261103-v1/validation-water-restore-gradient-001/result.json",
+        "--gradient-check-result-sha256",
+        "505761826a5bdc0bb08faa495612cafcd26269301075ba391d9580da6e686a8c"
+      ],
+      "log": "/workspace/research4/reports/pyscf-sdf-continuation-20261103-v1/execution/validation-water-segment-001.log",
+      "granted_cpu_seconds": 3600,
+      "cpu_soft_limit_seconds": 3480,
+      "cpu_hard_limit_seconds": 3600,
+      "cpu_cleanup_margin_seconds": 120,
+      "cpu_boundary_reserve_seconds": 10,
+      "wall_limit_seconds": 1800,
+      "wall_cleanup_seconds": 60,
+      "wall_SIGTERM_after_seconds": 1740,
+      "address_space_limit_gib": 24,
+      "threads": 4,
+      "rss_stop_bytes": 10737418240,
+      "cgroup_kill_bytes": 12884901888,
+      "monitor_interval_seconds": 0.1,
+      "memory_kill_grace_seconds": 1.0,
+      "expected_cgroup_memory_max_bytes": 17179869184,
+      "guard_semantics": "BEST_EFFORT_RSS_GUARD_NOT_HARD_RSS_LIMIT",
+      "not_a_hard_RSS_limit": true,
+      "actual_cpu_guard_enabled": true,
+      "actual_cpu_guard_source": "PROC_STAT_CUMULATIVE_FROM_PROCESS_BIRTH",
+      "actual_cpu_clock_ticks_per_second": 100,
+      "actual_cpu_cleanup_reserve_seconds": 120,
+      "actual_cpu_stop_threshold_seconds": 3480,
+      "actual_cpu_closed_batch_cost_seconds": 18.87443,
+      "actual_cpu_batch_cap_seconds": 129600,
+      "cpu_guard_kill_grace_seconds": 1.0,
+      "profiling_RLIMIT_is_supplementary_not_exact_actual_CPU_guarantee": true,
+      "supervisor_proof_path": "/workspace/research4/reports/pyscf-sdf-continuation-20261103-v1/execution/validation-water-segment-001.log.supervisor-proof.json",
+      "prior_V3_exclusive_lock_held": true,
+      "cgroup_memory_before_launch": {
+        "current_bytes": 1842163712,
+        "max_bytes": 17179869184,
+        "source": "/sys/fs/cgroup",
+        "observed_at_utc": "2026-11-04T07:28:15.131044+00:00"
+      },
+      "environment_thread_limits": {
+        "OMP_NUM_THREADS": "4",
+        "OPENBLAS_NUM_THREADS": "4",
+        "MKL_NUM_THREADS": "4",
+        "NUMEXPR_NUM_THREADS": "4"
+      },
+      "pid": 3647,
+      "supervisor_proof_sha256": "a9b559399282f24c1a7a34c2295dd539099f706def09d3ee90e3233350ae7b04",
+      "ended_at_utc": "2026-11-04T07:28:16.050107+00:00",
+      "actual_cpu_seconds": 1.523598,
+      "elapsed_wall_seconds": 0.9182616060002147,
+      "peak_rss_kib": 103344,
+      "exit_code": 0,
+      "wall_terminated": false,
+      "hard_killed": false,
+      "memory_terminated": false,
+      "monitor_failed": false,
+      "cpu_terminated": false,
+      "peak_actual_cpu_seconds_sampled": 1.43,
+      "memory_monitor_samples": 9,
+      "peak_group_rss_bytes_sampled": 105693184,
+      "peak_cgroup_memory_bytes_sampled": 1916084224,
+      "log_sha256": "24302a39cccd32ad3e7a3ddeffca658572327fd93e2076419355b0c27efaa997"
+    },
+    {
+      "phase": "validation-water-segment-002",
+      "started_at_utc": "2026-11-04T07:28:16.121425+00:00",
+      "status": "EXITED",
+      "command": [
+        "/workspace/research4/.runtime/python/bin/python",
+        "/workspace/research4/scripts/pyscf_resumable_hessian_worker_20261103.py",
+        "--phase",
+        "hessian-segment",
+        "--snapshot",
+        "/workspace/research4/reports/pyscf-sdf-continuation-20261103-v1/validation-water-prepare-001/exact-mf-snapshot",
+        "--snapshot-manifest-sha256",
+        "cd2fe125bad8dc797ad3d0bfa441267835b844c480e1f8f7bafb7014d8cc907a",
+        "--output",
+        "/workspace/research4/reports/pyscf-sdf-continuation-20261103-v1/validation-water-segment-002",
+        "--threads",
+        "4",
+        "--max-new-units",
+        "2",
+        "--rhf-cache",
+        "/workspace/research4/outputs/pyscf-sdf-continuation-20261103-v1/water-restart-validation",
+        "--gradient-check-result",
+        "/workspace/research4/reports/pyscf-sdf-continuation-20261103-v1/validation-water-restore-gradient-001/result.json",
+        "--gradient-check-result-sha256",
+        "505761826a5bdc0bb08faa495612cafcd26269301075ba391d9580da6e686a8c"
+      ],
+      "log": "/workspace/research4/reports/pyscf-sdf-continuation-20261103-v1/execution/validation-water-segment-002.log",
+      "granted_cpu_seconds": 3600,
+      "cpu_soft_limit_seconds": 3480,
+      "cpu_hard_limit_seconds": 3600,
+      "cpu_cleanup_margin_seconds": 120,
+      "cpu_boundary_reserve_seconds": 10,
+      "wall_limit_seconds": 1800,
+      "wall_cleanup_seconds": 60,
+      "wall_SIGTERM_after_seconds": 1740,
+      "address_space_limit_gib": 24,
+      "threads": 4,
+      "rss_stop_bytes": 10737418240,
+      "cgroup_kill_bytes": 12884901888,
+      "monitor_interval_seconds": 0.1,
+      "memory_kill_grace_seconds": 1.0,
+      "expected_cgroup_memory_max_bytes": 17179869184,
+      "guard_semantics": "BEST_EFFORT_RSS_GUARD_NOT_HARD_RSS_LIMIT",
+      "not_a_hard_RSS_limit": true,
+      "actual_cpu_guard_enabled": true,
+      "actual_cpu_guard_source": "PROC_STAT_CUMULATIVE_FROM_PROCESS_BIRTH",
+      "actual_cpu_clock_ticks_per_second": 100,
+      "actual_cpu_cleanup_reserve_seconds": 120,
+      "actual_cpu_stop_threshold_seconds": 3480,
+      "actual_cpu_closed_batch_cost_seconds": 20.398028,
+      "actual_cpu_batch_cap_seconds": 129600,
+      "cpu_guard_kill_grace_seconds": 1.0,
+      "profiling_RLIMIT_is_supplementary_not_exact_actual_CPU_guarantee": true,
+      "supervisor_proof_path": "/workspace/research4/reports/pyscf-sdf-continuation-20261103-v1/execution/validation-water-segment-002.log.supervisor-proof.json",
+      "prior_V3_exclusive_lock_held": true,
+      "cgroup_memory_before_launch": {
+        "current_bytes": 1842327552,
+        "max_bytes": 17179869184,
+        "source": "/sys/fs/cgroup",
+        "observed_at_utc": "2026-11-04T07:28:16.121411+00:00"
+      },
+      "environment_thread_limits": {
+        "OMP_NUM_THREADS": "4",
+        "OPENBLAS_NUM_THREADS": "4",
+        "MKL_NUM_THREADS": "4",
+        "NUMEXPR_NUM_THREADS": "4"
+      },
+      "pid": 3659,
+      "supervisor_proof_sha256": "e14b6f7f06dee31ae909230f247f32f249478649d733a60e9cfb4e0cb2fcff07",
+      "ended_at_utc": "2026-11-04T07:28:17.246794+00:00",
+      "actual_cpu_seconds": 1.720995,
+      "elapsed_wall_seconds": 1.124169582000377,
+      "peak_rss_kib": 103324,
+      "exit_code": 0,
+      "wall_terminated": false,
+      "hard_killed": false,
+      "memory_terminated": false,
+      "monitor_failed": false,
+      "cpu_terminated": false,
+      "peak_actual_cpu_seconds_sampled": 1.66,
+      "memory_monitor_samples": 11,
+      "peak_group_rss_bytes_sampled": 105803776,
+      "peak_cgroup_memory_bytes_sampled": 1916735488,
+      "log_sha256": "24302a39cccd32ad3e7a3ddeffca658572327fd93e2076419355b0c27efaa997"
+    },
+    {
+      "phase": "validation-water-segment-003",
+      "started_at_utc": "2026-11-04T07:28:17.335402+00:00",
+      "status": "EXITED",
+      "command": [
+        "/workspace/research4/.runtime/python/bin/python",
+        "/workspace/research4/scripts/pyscf_resumable_hessian_worker_20261103.py",
+        "--phase",
+        "hessian-segment",
+        "--snapshot",
+        "/workspace/research4/reports/pyscf-sdf-continuation-20261103-v1/validation-water-prepare-001/exact-mf-snapshot",
+        "--snapshot-manifest-sha256",
+        "cd2fe125bad8dc797ad3d0bfa441267835b844c480e1f8f7bafb7014d8cc907a",
+        "--output",
+        "/workspace/research4/reports/pyscf-sdf-continuation-20261103-v1/validation-water-segment-003",
+        "--threads",
+        "4",
+        "--max-new-units",
+        "2",
+        "--rhf-cache",
+        "/workspace/research4/outputs/pyscf-sdf-continuation-20261103-v1/water-restart-validation",
+        "--gradient-check-result",
+        "/workspace/research4/reports/pyscf-sdf-continuation-20261103-v1/validation-water-restore-gradient-001/result.json",
+        "--gradient-check-result-sha256",
+        "505761826a5bdc0bb08faa495612cafcd26269301075ba391d9580da6e686a8c"
+      ],
+      "log": "/workspace/research4/reports/pyscf-sdf-continuation-20261103-v1/execution/validation-water-segment-003.log",
+      "granted_cpu_seconds": 3600,
+      "cpu_soft_limit_seconds": 3480,
+      "cpu_hard_limit_seconds": 3600,
+      "cpu_cleanup_margin_seconds": 120,
+      "cpu_boundary_reserve_seconds": 10,
+      "wall_limit_seconds": 1800,
+      "wall_cleanup_seconds": 60,
+      "wall_SIGTERM_after_seconds": 1740,
+      "address_space_limit_gib": 24,
+      "threads": 4,
+      "rss_stop_bytes": 10737418240,
+      "cgroup_kill_bytes": 12884901888,
+      "monitor_interval_seconds": 0.1,
+      "memory_kill_grace_seconds": 1.0,
+      "expected_cgroup_memory_max_bytes": 17179869184,
+      "guard_semantics": "BEST_EFFORT_RSS_GUARD_NOT_HARD_RSS_LIMIT",
+      "not_a_hard_RSS_limit": true,
+      "actual_cpu_guard_enabled": true,
+      "actual_cpu_guard_source": "PROC_STAT_CUMULATIVE_FROM_PROCESS_BIRTH",
+      "actual_cpu_clock_ticks_per_second": 100,
+      "actual_cpu_cleanup_reserve_seconds": 120,
+      "actual_cpu_stop_threshold_seconds": 3480,
+      "actual_cpu_closed_batch_cost_seconds": 22.119023,
+      "actual_cpu_batch_cap_seconds": 129600,
+      "cpu_guard_kill_grace_seconds": 1.0,
+      "profiling_RLIMIT_is_supplementary_not_exact_actual_CPU_guarantee": true,
+      "supervisor_proof_path": "/workspace/research4/reports/pyscf-sdf-continuation-20261103-v1/execution/validation-water-segment-003.log.supervisor-proof.json",
+      "prior_V3_exclusive_lock_held": true,
+      "cgroup_memory_before_launch": {
+        "current_bytes": 1842712576,
+        "max_bytes": 17179869184,
+        "source": "/sys/fs/cgroup",
+        "observed_at_utc": "2026-11-04T07:28:17.335388+00:00"
+      },
+      "environment_thread_limits": {
+        "OMP_NUM_THREADS": "4",
+        "OPENBLAS_NUM_THREADS": "4",
+        "MKL_NUM_THREADS": "4",
+        "NUMEXPR_NUM_THREADS": "4"
+      },
+      "pid": 3671,
+      "supervisor_proof_sha256": "c2460b2fa7e36d94c00c8d63fdbf6fa24b02291ef697c906008fed251ec9d268",
+      "ended_at_utc": "2026-11-04T07:28:18.870199+00:00",
+      "actual_cpu_seconds": 3.273145,
+      "elapsed_wall_seconds": 1.533918617999916,
+      "peak_rss_kib": 150084,
+      "exit_code": 0,
+      "wall_terminated": false,
+      "hard_killed": false,
+      "memory_terminated": false,
+      "monitor_failed": false,
+      "cpu_terminated": false,
+      "peak_actual_cpu_seconds_sampled": 3.21,
+      "memory_monitor_samples": 15,
+      "peak_group_rss_bytes_sampled": 136744960,
+      "peak_cgroup_memory_bytes_sampled": 1949945856,
+      "log_sha256": "b38f141de68f53e76fc6480989fe029a800ab8fc29a531656745c3473484c0a9"
+    }
+  ],
+  "forensically_released_failed_parents": [],
+  "failed_parent_never_relabelled_healthy": true,
+  "IR_intensities_status": "NOT_COMPUTED",
+  "masses_amu": {
+    "H": 1.008,
+    "C": 12.011,
+    "O": 15.999
+  },
+  "frequency_factor_cm1": 5140.487138493369,
+  "new_quantum_evaluations": 0,
+  "PySCF_imported": false,
+  "audit_source_sha256": "aad4cd3abbb7683a3912f2b58a873e7318f88a432e2109714d8c9138168e1f1f",
+  "input_files": {
+    "reports/pyscf-sdf-continuation-20261103-v1/execution/validation-water-prepare-001.log.supervisor-proof.json": {
+      "sha256": "4a7e80375342e15d7e258cc5c6551a8196af01a8cd99c4f7c21d3610cb42518e",
+      "bytes": 1624
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/execution/validation-water-prepare-001.log": {
+      "sha256": "1efecbebe45402adbc70a8a7a66e4289ca1b1ec5957cf2ddd81ec9cae1a8c413",
+      "bytes": 196
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/validation-water-prepare-001/result.json": {
+      "sha256": "7d7cac4edf96f87e6f4d5a8764d7c4b36e34ab60ff73d5d02e871f948c7f079e",
+      "bytes": 8573
+    },
+    "scripts/pyscf_molecular_state_worker_20261103.py": {
+      "sha256": "dcfffc4d0c68cd30c6d2c60597b77a4c3931516412b7f3308bb9d0b72ef45360",
+      "bytes": 41374
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/execution/validation-water-restore-gradient-001.log.supervisor-proof.json": {
+      "sha256": "323f86f62759070ec024797768833e83b6cb9ba9c6c91cbc80837d4890abd5f9",
+      "bytes": 1639
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/execution/validation-water-restore-gradient-001.log": {
+      "sha256": "84052c6530c8c7699cb42d745f664b50f36f12246eee926a733b632bad79bd59",
+      "bytes": 199
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/validation-water-restore-gradient-001/result.json": {
+      "sha256": "505761826a5bdc0bb08faa495612cafcd26269301075ba391d9580da6e686a8c",
+      "bytes": 22306
+    },
+    "scripts/pyscf_resumable_hessian_worker_20261103.py": {
+      "sha256": "d23c4a3185aa4f666e22d671034728c1ca2443676a05fc8bec0587d6c8d6bf03",
+      "bytes": 29389
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/execution/validation-water-stock-hessian-001.log.supervisor-proof.json": {
+      "sha256": "8c21a09779f873af2a3cca8c7c68d2418d9bd1fd55c4ca9a18a5e4b202add99a",
+      "bytes": 1635
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/execution/validation-water-stock-hessian-001.log": {
+      "sha256": "3ba7a047a560b05dbd2e458654b4d55d5ac7d81da1b6430a2c58d1b867b94ca1",
+      "bytes": 210
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/validation-water-stock-hessian-001/result.json": {
+      "sha256": "46f66a5e6bd89ce0fc820d5f8f2a36089f8626e374b1a864937df48a13216405",
+      "bytes": 23974
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/execution/validation-water-segment-003.log.supervisor-proof.json": {
+      "sha256": "c2460b2fa7e36d94c00c8d63fdbf6fa24b02291ef697c906008fed251ec9d268",
+      "bytes": 1631
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/execution/validation-water-segment-003.log": {
+      "sha256": "b38f141de68f53e76fc6480989fe029a800ab8fc29a531656745c3473484c0a9",
+      "bytes": 202
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/validation-water-segment-003/result.json": {
+      "sha256": "77ea80322e803d9d6adce7ed3db765a0e46823cf8276ccec2ed715dbfaa12d71",
+      "bytes": 27616
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/validation-water-prepare-001/exact-mf-snapshot/manifest.json": {
+      "sha256": "cd2fe125bad8dc797ad3d0bfa441267835b844c480e1f8f7bafb7014d8cc907a",
+      "bytes": 17163
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/validation-water-prepare-001/optimized.xyz": {
+      "sha256": "04820073ff19bd00d91ae440c622b50e3947ab02259c17c94216bf746b624323",
+      "bytes": 213
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/validation-water-restore-gradient-001/normal_mode_geometry_bohr.npy": {
+      "sha256": "179dd4459f012e80942a8879799e3cb333a1025ac57663ea139826618252d1c0",
+      "bytes": 200
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/validation-water-prepare-001/gradient_hartree_per_bohr.npy": {
+      "sha256": "80a868ff73dd233a66564a7b23707c618d92c97ee4f92db17df2e7425b030be9",
+      "bytes": 200
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/validation-water-restore-gradient-001/gradient_hartree_per_bohr.npy": {
+      "sha256": "56c4282460e1ea3f4912205e1457aff813a75ce32d1ff891bb778f34311e6c01",
+      "bytes": 200
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/execution/validation-water-segment-001.log.supervisor-proof.json": {
+      "sha256": "a9b559399282f24c1a7a34c2295dd539099f706def09d3ee90e3233350ae7b04",
+      "bytes": 1630
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/execution/validation-water-segment-001.log": {
+      "sha256": "24302a39cccd32ad3e7a3ddeffca658572327fd93e2076419355b0c27efaa997",
+      "bytes": 215
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/validation-water-segment-001/result.json": {
+      "sha256": "2d8d8db5be737eaec9bdd7d66d9d4136f0726c7675c3b1a8505c59a228a7772c",
+      "bytes": 23542
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/execution/validation-water-segment-002.log.supervisor-proof.json": {
+      "sha256": "e14b6f7f06dee31ae909230f247f32f249478649d733a60e9cfb4e0cb2fcff07",
+      "bytes": 1631
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/execution/validation-water-segment-002.log": {
+      "sha256": "24302a39cccd32ad3e7a3ddeffca658572327fd93e2076419355b0c27efaa997",
+      "bytes": 215
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/validation-water-segment-002/result.json": {
+      "sha256": "fd9ce0997a1ada541969a56a41713d4ebd94115558fd989aeda33456dbc46195",
+      "bytes": 24978
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/validation-water-stock-hessian-001/hessian_hartree_per_bohr2.npy": {
+      "sha256": "17bc2f6568f8d9368bb2ed3365827bfc7e93541c6bfcf2a28eda481cfe684ccd",
+      "bytes": 776
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/validation-water-stock-hessian-001/hessian_used_for_analysis.npy": {
+      "sha256": "f6eeea02bd7b1cfc66a1399c85a9e1fd220eae17724088bf79ed9c3812349ac9",
+      "bytes": 776
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/validation-water-stock-hessian-001/normal_mode_geometry_bohr.npy": {
+      "sha256": "179dd4459f012e80942a8879799e3cb333a1025ac57663ea139826618252d1c0",
+      "bytes": 200
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/validation-water-stock-hessian-001/normal_modes.npy": {
+      "sha256": "f706bec62a3b6882b41f6781faff9b39cc313ad0bd680ad02e999bcefe486335",
+      "bytes": 344
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/validation-water-stock-hessian-001/frequencies.csv": {
+      "sha256": "c49d25e9e9ca2579865e3ac90571cdf0725a47abba35ec76ad49cda8d3f01a36",
+      "bytes": 238
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/validation-water-stock-hessian-001/hessian_cache_manifest.json": {
+      "sha256": "af2bb9cca7308c568b28102fd5e2ca60f7c9a3e027c13e9df10691aef36897cb",
+      "bytes": 14317
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/validation-water-segment-003/hessian_hartree_per_bohr2.npy": {
+      "sha256": "2ac26cfc4a6670e61b2491707a173a8217c6aaf484564d2a5379ebae3a97923c",
+      "bytes": 776
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/validation-water-segment-003/hessian_used_for_analysis.npy": {
+      "sha256": "2dea6cd03ab63eb88b7c3fe0aae3f03b6ed99f31c52f4d1768acb6cd00205a63",
+      "bytes": 776
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/validation-water-segment-003/normal_mode_geometry_bohr.npy": {
+      "sha256": "179dd4459f012e80942a8879799e3cb333a1025ac57663ea139826618252d1c0",
+      "bytes": 200
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/validation-water-segment-003/normal_modes.npy": {
+      "sha256": "f56cd90c995ce1031b4fe5b2698dd6637832de4c899b19640eb62f2a77d370ee",
+      "bytes": 344
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/validation-water-segment-003/frequencies.csv": {
+      "sha256": "11bcf27bde09abf7f0f27721c242392965fa89cb1e04af2a40198dce64e9dfa4",
+      "bytes": 240
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/validation-water-segment-003/hessian_cache_manifest.json": {
+      "sha256": "81af8f70692a6f80e2accb587aec8a9f72e9ffe626a8067e717b657910f2d917",
+      "bytes": 14238
+    }
+  }
+}

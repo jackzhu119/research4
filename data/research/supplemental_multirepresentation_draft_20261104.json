@@ -1,0 +1,83 @@
+{
+  "schema": "research4-supplemental-multirepresentation-draft-v1",
+  "protocol_id": "supplemental-multirepresentation-20261104-draft-v1",
+  "status": "DRAFT_METADATA_ONLY_NOT_EXECUTABLE",
+  "confirmation_status": "EXPOSED_DEVELOPMENT_ONLY",
+  "quantum_priority": "No numerical imports, preparation, training or large array reads before root reviews the terminal quantum task and separately freezes this protocol.",
+  "scientific_question": "Does alpha+n+time improve the same fixed-query classification relative to both alpha-only and a three-branch alpha capacity control?",
+  "old_MCUVE_results_changed": false,
+  "new_HQ_TM_independent_samples": 0,
+  "newly_readable_existing_representations": {"huangqi_n": 100, "tianma_time": 203},
+  "metadata_references": {
+    "active_supplemental": "data/supplemental/ACTIVE_SUPPLEMENTAL.json",
+    "source_registry": "data/supplemental/teacher_20261104_v2/sources.json",
+    "merged_registry": "data/supplemental/teacher_20261104_v2/merged_registry.json",
+    "sample_metadata": "data/supplemental/teacher_20261104_v2/sample_metadata.csv",
+    "role_manifest": "data/splits/supplemental_spectra_20261104_v1/all_tasks_split_manifest.csv",
+    "incoming_role_map": "data/splits/supplemental_spectra_20261104_v1/incoming_role_map.csv",
+    "source_fold_manifest": "data/splits/supplemental_spectra_20261104_v1/task_drafts.json",
+    "modality_availability": "reports/supplemental-intake-summary-20261104-v2-modality-availability/availability_comparison.json"
+  },
+  "preparation_status": "NOT_RUN_NO_NUMERICAL_PACKS_BOUND",
+  "input_rules": [
+    "Existing role packs contain alpha only; prepare new, independent compact multimodality packs after quantum is terminal.",
+    "Preserve canonical alpha values and all original role IDs; do not substitute re-exported alpha values silently.",
+    "Incoming merged zaoren has only514 records: legacy505+new9; complete legacy855 must retain the legacy database and its missing-in-upload ZY01 group.",
+    "Resolve every artifact through v2 registry references. Some Tianma artifacts are stored under v1; do not guess paths from a version directory.",
+    "Use incoming sample_id -> canonical_model_record_id -> entity_id mapping, including HQ03 metadata overlay. ATOL_1E-12 formatting aliases are not new specimens.",
+    "Each modality has its own axis, quantity, units, raw source SHA and canonical ordered IDs. Do not align by row position, headers alone, or tensor lengths.",
+    "Verify source/support/query parent and alias separation before numerical preparation; a conflict blocks the run rather than deleting query records.",
+    "Keep references separate from specimen features. Query packs contain no labels, truth, origin codes or source_labels. Support packs are unused by this pilot."
+  ],
+  "seeds": [42, 43, 44],
+  "tasks": [
+    {"id": "zaoren_legacy7", "classes": 7, "expected_roles": {"source": 513, "support": 171, "query": 171}, "source_cv_folds": 3, "inherit_epoch_from": null},
+    {"id": "huangqi_legacy4", "classes": 4, "expected_roles": {"source": 241, "support": 80, "query": 82}, "source_cv_folds": 3, "inherit_epoch_from": null},
+    {"id": "tianma_legacy4", "classes": 4, "expected_roles": {"source": 242, "support": 80, "query": 83}, "source_cv_folds": 3, "inherit_epoch_from": null},
+    {"id": "zaoren_expanded10", "classes": 10, "expected_roles": {"source": 516, "support": 174, "query": 174}, "source_cv_folds": 0, "inherit_epoch_from": "zaoren_legacy7", "new_group_query_samples": 3, "new_class_source_records_each": 1}
+  ],
+  "arm_order": ["alpha_single", "alpha_capacity3", "alpha_n_time"],
+  "arms": {
+    "alpha_single": {"branch_inputs": ["alpha"], "branch_points": [128], "embedding_dimensions": 16, "encoders_share_weights": false},
+    "alpha_capacity3": {"branch_inputs": ["alpha", "alpha", "alpha_long"], "branch_points": [128, 128, 1024], "embedding_dimensions": 48, "encoders_share_weights": false},
+    "alpha_n_time": {"branch_inputs": ["alpha", "n", "time"], "branch_points": [128, 128, 1024], "embedding_dimensions": 48, "encoders_share_weights": false}
+  },
+  "architecture": {"source_class": "src/herb_spectra/upgrade_neural.py:Encoder", "width": 12, "blocks": 2, "dropout": 0.35, "residual": true, "attention": false, "branch_embedding": 16, "fusion": "concatenate_independent_embeddings_then_linear_head"},
+  "preprocessing": {
+    "points_by_prepared_feature": {"alpha": 128, "n": 128, "time": 1024, "alpha_long": 1024},
+    "alpha": {"axis_kind": "frequency_THz", "window": [0.21, 1.49], "interpolation": "pointwise_linear_no_extrapolation", "row_transform": "SNV_population_std", "value_unit": "absolute_length_unit_UNVERIFIED"},
+    "n": {"axis_kind": "frequency_THz", "window": [0.21, 1.49], "interpolation": "pointwise_linear_no_extrapolation", "row_transform": "identity_preserve_between_specimen_mean", "value_unit": "refractive_index_not_externally_certified"},
+    "time": {"axis_kind": "native_time_coordinate_UNIT_NOT_EXPLICITLY_DECLARED", "window": "FIX_AFTER_Q_FROM_REGISTERED_SOURCE_NATIVE_AXIS_ENDPOINTS_NO_QUERY_VALUES", "resampling": {"method": "scipy.signal.resample_poly", "input_points": 6750, "output_points": 1024, "up": 512, "down": 3375, "window": ["kaiser", 5.0], "padtype": "line", "uniform_native_axis_required": true, "uniform_axis_rtol": 1e-8, "uniform_axis_atol": 1e-12}, "row_transform": "divide_by_L2_norm_no_mean_subtraction_after_anti_alias_filter", "value_unit": "exported_amplitude_unit_UNVERIFIED"},
+    "alpha_long": {"axis_kind": "frequency_THz", "window": [0.21, 1.49], "interpolation": "direct_pointwise_linear_from_original_canonical612_alpha_not_from_alpha128", "row_transform": "SNV_population_std", "derived_feature_not_new_information": true},
+    "learned_transform": "Separate current-fit-source StandardScaler for each used modality after fixed pointwise preprocessing. n has no per-row centering or SNV.",
+    "unknown_units_scope": "exploratory_representation_engineering_not_physical_multisensor_or_crossinstrument_validation",
+    "zero_or_nonfinite_row": "BLOCK_NO_SILENT_DELETION_OR_QUERY_LABEL_DEPENDENT_REPAIR"
+  },
+  "training": {"optimizer": "Adam", "learning_rate": 0.0005, "weight_decay": 0.001, "batch_size": 64, "loss": "source_only_balanced_cross_entropy", "device": "cpu", "threads": 1, "pretraining": false, "calibration": false, "early_stopping_on_query": false, "pair_batch_order_across_arms": true, "capacity3_and_real3_same_initial_architecture_and_seed": true, "same_epochs_is_not_equal_FLOPs": true},
+  "epoch_selection": {
+    "candidates": [24, 48, 96],
+    "selection_arm": "alpha_single",
+    "source_folds": "reuse_registered_three_folds_without_new_split_search",
+    "rule": "For each of the three non-expanded tasks, train each source-fold alpha model to96 once, save validation predictions only at24/48/96; pool the three validation folds per seed, average all three seeds; maximize MacroF1, then BalancedAccuracy, then Accuracy, then earlier candidate epoch.",
+    "all_source_locks_before_any_real_query_prediction": true,
+    "final_all_arms_and_seeds_use_same_task_epoch": true,
+    "expanded10": "No singleton source CV; inherit the common zaoren_legacy7 epoch, including all10 classes in final supervised training.",
+    "expected_source_fits": 27,
+    "expected_final_fits": 36,
+    "incomplete_source_search": "NOT_RUN_REMAINING_NO_WINNER_FROM_INCOMPLETE_GRID"
+  },
+  "prediction_and_scoring": {
+    "stages": ["metadata_draft_only_now", "after_Q_prepare_and_numerically_audit_new_compact_packs", "root_freeze_code_inputs_budget_and_release", "source_alpha_OOF_selection_all_tasks", "freeze_all_source_epoch_locks", "final_source_training_all_arms_and_seeds", "freeze_models", "label_free_query_prediction", "freeze_all_predictions", "independent_truth_join_scoring"],
+    "primary_fusion_contrast": "alpha_n_time_minus_alpha_capacity3",
+    "other_contrasts": ["alpha_capacity3_minus_alpha_single", "alpha_n_time_minus_alpha_single"],
+    "metrics": ["Accuracy", "MacroF1", "BalancedAccuracy", "per_class_precision_recall_f1", "confusion_matrix", "corrected_harmed_counts", "source_fit_time", "actual_CPU", "peak_RSS", "parameter_count", "model_size"],
+    "seeds": "all three individually plus mean and sampleSD; no best-seed selection",
+    "expanded10_subsets": ["overall174", "legacy_exposed171", "new3_only_descriptive_one_query_per_new_class"],
+    "no_historical_96_02_gain_claim": true,
+    "pointwise_eval_and_BN_state_audit_required": true,
+    "API_separation_not_OS_truth_sandbox": true
+  },
+  "resource_proposal_not_authorization": {"actual_CPU_seconds_total": 2400, "wall_seconds_total": 7200, "threads": 1, "RSS_GiB": 1.5, "GPU_or_paid_service": false, "start_only_after_root_quantum_terminal_review": true, "external_actual_CPU_supervisor_required": true, "root_must_freeze_final_budget": true},
+  "binding": {"status": "NOT_RUN", "prepared_input_refs": null, "source_fold_refs": null, "fixed_time_axis_bounds_by_task": null, "code_sha256": null, "protocol_sha256": null, "execution_release": null},
+  "results": {"status": "NOT_RUN", "model_fits": 0, "accuracy": null, "macro_f1": null, "new_confirmation_samples": 0}
+}

@@ -1,0 +1,64 @@
+{
+  "status": "PASS_FINAL_STATIC_REVIEW_NOT_RUN",
+  "reviewed_at_utc": "2026-11-04T20:33:50.474085+00:00",
+  "source_refs": [
+    {
+      "path": "scripts/audit_supplemental_multirepresentation_historical_20261104_v3.py",
+      "bytes": 28048,
+      "sha256": "37d1fdc7ed3bbad2bc7b0da43f538a543d717271319fe6653d452e585966caca"
+    },
+    {
+      "path": "tests/test_supplemental_multirepresentation_historical_audit_v3.py",
+      "bytes": 8997,
+      "sha256": "309f0fca1d938c34ed6ba168b39e358aba2b8c9dbc265e7c79d02dae78381b41"
+    },
+    {
+      "path": "scripts/historical_supplemental_nn_numerical_20261104_v3.py",
+      "bytes": 22383,
+      "sha256": "9c1bb1acba525642086d050e53025cdcfbc492977e0574c06a3ee3e7e472cda6"
+    },
+    {
+      "path": "tests/test_historical_supplemental_nn_numerical_v3.py",
+      "bytes": 7702,
+      "sha256": "8cbfd1d3d2ed595154fde79fb1ba309f28fe500a2aa6d5d16740eac46f8132d0"
+    }
+  ],
+  "prior_review": {
+    "path": "reports/supplemental-multirepresentation-historical-audit-preparation-20261104-v3/standardlib_review.json",
+    "sha256": "e3fa504e498a2fdbf9ecc2b05f9c6474a9cde3c299a9f69c3c12a6be59fba3e5",
+    "unchanged": true
+  },
+  "mechanical_difference_proof": {
+    "method": "Reverse only the two documented pre-hash stat-limit guards in memory; SHA equals previously reviewed source exactly.",
+    "current_wrapper_sha256": "37d1fdc7ed3bbad2bc7b0da43f538a543d717271319fe6653d452e585966caca",
+    "reconstructed_prior_wrapper_sha256": "5be32da7cc28a6d705c397a89cb87ddc4ccf131bef84eaa98fb10795b42312e6",
+    "reconstructed_prior_matches_reviewed_5be": true,
+    "other_source_changes": false
+  },
+  "reviewed_changes": [
+    "checked() now verifies within-worktree regular metadata file size<=16MiB before any hash of that reference.",
+    "validate_current_grant() now verifies grant file size<=256KiB before hashing it.",
+    "Existing grant/provenance/Q-prefix/deadline/whole-invocation budget semantics remain unchanged."
+  ],
+  "new_pure_tests_inspected": [
+    "non-authorizing grant template rejected before execution",
+    "all historical graph/hash work inside entry-anchored fresh budget",
+    "original supervisor proof deadline cannot be rewritten"
+  ],
+  "parent_reported_total_pure_tests_passed": 19,
+  "parent_reported_pure_test_seconds": 0.039,
+  "tests_executed_by_this_final_review": false,
+  "blocking_findings": [],
+  "numerical_modules_loaded": [],
+  "actual_audit_or_plan_executions": 0,
+  "actual_array_or_label_reads": 0,
+  "actual_Q_or_current_ledger_reads": 0,
+  "actual_model_fits": 0,
+  "actual_model_replays": 0,
+  "Git_operations": 0,
+  "large_artifact_hashing": 0,
+  "limitations": [
+    "Source-only final review; no new historical numerical audit or current root grant is established by this receipt.",
+    "Future execution requires a new valid root grant and all runtime provenance/Q-lock/resource gates and healthy closure."
+  ]
+}

@@ -1,0 +1,128 @@
+{
+  "schema": "research4-water-full-VEFF-v3-independent-source-review-v1",
+  "status": "PASS_SCOPED_SOURCE_AND_FAKE_MF_TEST_REVIEW_NOT_SCIENTIFIC_EXECUTION",
+  "reviewed_at_utc": "2026-11-07T01:34:01.959238+00:00",
+  "reviewer_task": "derivative_assembly_audit",
+  "sources": {
+    "new_water_worker": {
+      "path": "scripts/research4_fixed_grid_water_convergence_20261107_v3.py",
+      "sha256": "fddef25ed41554ff59187837759a335901baeb8e08b9c847ba739c83909163d4",
+      "bytes": 72126
+    },
+    "new_metadata_tests": {
+      "path": "tests/test_fixed_grid_water_convergence_v3_stdlib_20261107.py",
+      "sha256": "75815cd4661a003814147f2753a63e91f6ea8e622575b8cdfdebddde713e5a91",
+      "bytes": 21101
+    },
+    "selected_new_protocol": {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/resource-protocol/protocol_FULL_VEFF_CERTIFICATION_SELECTED_NOT_RUN_001.json",
+      "sha256": "208c7f8d93efe103a83fbcee76807f12f6bca857c3f23f75634a9672e5ceb03f",
+      "bytes": 1943
+    },
+    "old_v2_worker": {
+      "path": "scripts/research4_fixed_grid_water_convergence_20261107_v2.py",
+      "sha256": "2b9de9ec029afffd5afc12a5214e714d99b9f74d050b1b020c7a2b8fc6aeb525",
+      "bytes": 69903
+    },
+    "old_original_worker": {
+      "path": "scripts/research4_fixed_grid_water_convergence_20261107.py",
+      "sha256": "f9658ae6146b3f6ef340771d2916dc8b9d41debc0af88a8c096ee804fcef5fc3",
+      "bytes": 60229
+    },
+    "old_fixed_quadrature_worker": {
+      "path": "scripts/research4_fixed_quadrature_worker_20261107.py",
+      "sha256": "cab1b47de0e1b2868acd5a1ac6ee8141a0e57c7f79f6a2755ca0139032157e2a",
+      "bytes": 63382
+    },
+    "native_RKS_get_veff_source": {
+      "path": ".runtime/quantum-upgrade-site/pyscf/dft/rks.py",
+      "sha256": "fcc8d3dbd03df368f3b70f3ce5999be6a19c608a6ff0bdc1890074616f0befa8",
+      "bytes": 20305
+    },
+    "native_SCF_kernel_source": {
+      "path": ".runtime/quantum-upgrade-site/pyscf/scf/hf.py",
+      "sha256": "34ea1a9057da3a2d5aa37fe51d4e7305580bcb8e0118a5f17ba95ba5bb36c22f",
+      "bytes": 94652
+    }
+  },
+  "validation": {
+    "command": "python -B tests/test_fixed_grid_water_convergence_v3_stdlib_20261107.py -v",
+    "tests_run": 15,
+    "tests_passed": 15,
+    "test_exit_code": 0,
+    "reported_elapsed_seconds": 0.033,
+    "scope": "Pure stdlib/fake-MF and fake-grid tests; no native quantum imports, no Git calls, no quantum execution"
+  },
+  "exact_source_comparison": {
+    "changed_functions_vs_v2": [
+      "audited_endpoint_qualification",
+      "bounded_polished_scf",
+      "execute_closed"
+    ],
+    "added_function": "finite_native_scf_check",
+    "ten_provenance_grid_and_original_scientific_gate_functions_AST_unchanged": [
+      "read_schedule",
+      "validate_appended_rows",
+      "canonical_proof_sha",
+      "closed_main",
+      "frozen_grid_type",
+      "attach_fixed_quadrature",
+      "verify_fixed_quadrature",
+      "original_mf_fingerprints",
+      "finest_pair_gate",
+      "same_spinosin_step_energy_gate"
+    ],
+    "historical_worker_hashes_unchanged": true
+  },
+  "certification_review": {
+    "accepted_main_cycle_required": true,
+    "main_numeric_energy_and_gradient_conditions_rechecked": true,
+    "same_kernel_call_identity_required_for_main_and_final_extra": true,
+    "call_index_bounded_1_to_3": true,
+    "finite_actual_final_extra_check_required": true,
+    "all_native_checks_in_selected_call_finite": true,
+    "two_actual_final_step_density_copies_from_native_env": true,
+    "copies_independent_and_actual_returned_MO_density_equal_current_copy": true,
+    "full_VEFF_recomputed_separately_for_previous_and_current_densities": true,
+    "both_calls_explicitly_dm_last_None_and_vhf_last_None": true,
+    "native_RKS_source_confirms_no_incremental_J_under_these_inputs": true,
+    "current_Fock_uses_no_DIIS_no_shift_no_damping": true,
+    "true_current_orbital_gradient_measured_on_unchanged_returned_MOs": true,
+    "full_energy_delta_required_below_hartree": 1e-13,
+    "true_current_orbital_gradient_required_below": 1e-09,
+    "native_kernel_boolean_and_incremental_last_check_preserved_even_false": true,
+    "custom_mf_converged_True_only_after_explicit_full_certificate": true,
+    "custom_convergence_policy_label": "FULL_NATIVE_VEFF_ENDPOINT_CERTIFICATION_NOT_NATIVE_KERNEL_FLAG",
+    "reported_energy_is_full_nonincremental_current_density_energy": true,
+    "MOs_and_density_not_rotated_to_fabricate_endpoint": true,
+    "refreshed_MO_energy_and_pre_refresh_checkpoint_scope_explicit": true,
+    "first_qualified_endpoint_selected_without_Hessian_or_FD_error_inputs": true,
+    "continuation_uses_immediately_previous_actual_density": true,
+    "maximum_calls_per_point": 3,
+    "maximum_cycles_per_call": 100
+  },
+  "scientific_gate_and_history": {
+    "water_only_all_31_fresh_points_including_zero": true,
+    "predetermined_coordinates_0based": [
+      0,
+      4,
+      8
+    ],
+    "predetermined_steps_bohr": [
+      0.00125,
+      0.000625,
+      0.0003125,
+      0.00015625,
+      7.8125e-05
+    ],
+    "original_full_Hq_max_error_tolerance_Eh_per_Bohr2": 0.0001,
+    "original_energy_curvature_error_tolerance_Eh_per_Bohr2": 0.0001,
+    "original_h_halving_Hq_max_difference_tolerance_Eh_per_Bohr2": 5e-05,
+    "all_points_and_finest_two_steps_still_required": true,
+    "failed_original_finest_energy_example_still_rejects_in_test": true,
+    "old_v1_v2_points_results_costs_and_native_flags_not_relabelled": true,
+    "no_Spinosin_calculation_or_release_in_this_water_worker": true,
+    "no_new_Hessian_minimum_IR_or_classification_claim": true
+  },
+  "conclusion": "No blocker found in the exact frozen v3 source for the separately selected full-native certification policy. This new certificate is physically independent of the native incremental convergence flag and is explicitly labelled. Runtime execution still must satisfy the original source qualification, resource supervision, all-31 completion and unchanged FD/energy/halving numerical gates; this source review does not assert those results."
+}

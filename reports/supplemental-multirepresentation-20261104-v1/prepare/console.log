@@ -1,0 +1,17 @@
+Traceback (most recent call last):
+  File "/workspace/research4-supplemental/scripts/run_supplemental_multirepresentation_20261104.py", line 965, in <module>
+    main()
+  File "/workspace/research4-supplemental/scripts/run_supplemental_multirepresentation_20261104.py", line 961, in main
+    else: worker(out, args.stage, args.proof, args.proof_sha256)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/research4-supplemental/scripts/run_supplemental_multirepresentation_20261104.py", line 816, in worker
+    result = function(out, proof)
+             ^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/research4-supplemental/scripts/run_supplemental_multirepresentation_20261104.py", line 375, in _prepare
+    time_values, time_grid = lf.prepare_time_rows(native_axes["time"], time_rows, preparation_release=prep_release)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/research4-supplemental/scripts/draft_supplemental_multirepresentation_20261104.py", line 217, in prepare_time_rows
+    require((delta > 0).all() and np.allclose(delta, delta[0], rtol=1e-8, atol=1e-12),
+  File "/workspace/research4-supplemental/scripts/draft_supplemental_multirepresentation_20261104.py", line 34, in require
+    raise ValueError(message)
+ValueError: Polyphase requires the verified uniform native time axis

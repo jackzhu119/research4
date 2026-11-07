@@ -1,0 +1,41 @@
+{
+  "schema": "research4-conservative-transfer-independent-review-v1",
+  "status": "PASS_IMPLEMENTATION_ONLY",
+  "created_at_utc": "2026-11-04T08:38:16.971278+00:00",
+  "reviewer": "/root/transfer_pilot_72h/pilot_protocol_review",
+  "source": {
+    "path": "scripts/run_conservative_cross_plant_pilot_20261104.py",
+    "sha256": "a0aed48133444a8b77abf79de3aca324efed5239914769ad5d033108c8af23c4"
+  },
+  "tests": {
+    "path": "tests/test_conservative_cross_plant_pilot_20261104.py",
+    "sha256": "f46ccf6e0325399b710cb81c182d1128f105a8ce3a8b45e02a981b315d885c18",
+    "actual_command": "OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 NUMEXPR_NUM_THREADS=1 .runtime/bin/python -m unittest discover -s tests -p test_conservative_cross_plant_pilot_20261104.py -v",
+    "passed": 8,
+    "failed": 0,
+    "reported_unittest_seconds": 1.265,
+    "full_stdout_saved": false,
+    "stdout_evidence": "Reviewer tool call returned eight PASS lines, Ran 8 tests in 1.265s, OK. Temporary registration test used a TemporaryDirectory; not the real research registration."
+  },
+  "checked": [
+    "original split SHA and exact source/query role order",
+    "source-fitted scaler and actual per-batch FitScope",
+    "all five outer source epoch choices locked before any outer fitting/prediction",
+    "source-only A two-inner three-seed pooled epoch choice",
+    "fresh paired target heads and target batch schedules",
+    "B/Aextra separate pretraining heads; target head untouched",
+    "L2-SP encoder parameters only; anchors detached, BN buffers excluded",
+    "BN statistics reset before target fitting",
+    "all 45 outer predictions locked before independent scoring child",
+    "truth SHA and registered protocol/dependency binding before scoring",
+    "single-thread environment/Torch/interop, 600 actual total child CPU, 1800 wall, 1.5GiB RSS target",
+    "exclusive attempt flock, bounded owned-child pidfd shutdown and unknown wait4 blocks scoring",
+    "actual environment and pretraining gradient coverage recorded"
+  ],
+  "study_scope": "DEVELOPMENT_NOT_NEW_CONFIRMATION; existing exposed 855, uncertain physical units/instruments/batches; no molecular records used as sample spectra",
+  "comparison_limits": "B-A is a recipe difference; B-Aextra compares external versus target-source supervised pretraining with same optimizer-step budget/L2-SP, not exact FLOP matching. Historical96.02 and87.21 are not direct same-protocol gains.",
+  "quantum_kernel_calls_by_reviewer": 0,
+  "research_model_fits_by_reviewer": 0,
+  "git_operations_by_reviewer": 0,
+  "proof_scope": "Static review and eight software tests only; scientific results and complete runs are not certified."
+}

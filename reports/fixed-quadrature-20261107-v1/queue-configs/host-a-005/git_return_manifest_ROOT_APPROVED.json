@@ -1,0 +1,37 @@
+{
+  "schema": "research4-root-host-a-result-return-v1",
+  "role": "A",
+  "run_id": "host-a-005",
+  "work_directory": "reports/fixed-quadrature-20261107-v1/queue-host-a-005",
+  "ledger": "reports/pyscf-spinosin-96h-continuation-20261105-v8/cpu_budget.json",
+  "upload": {
+    "enabled": true,
+    "branch": "research/pyscf-spinosin-mechanism-20261031",
+    "allowlist": [
+      "*.json",
+      "*.jsonl",
+      "*.log",
+      "execution/*.log",
+      "execution/*.json",
+      "science/**/*.json",
+      "science/**/*.jsonl",
+      "science/**/*.csv",
+      "science/**/*.xyz",
+      "science/**/*.npy",
+      "science/**/*.log",
+      "closed-budget-snapshots/*.json",
+      "git-return/**/*.json",
+      "science/**/*.md"
+    ],
+    "resource_protocol_files": [
+      "reports/fixed-quadrature-20261107-v1/resource-protocol/design-independent-review-001.json",
+      "reports/fixed-quadrature-20261107-v1/resource-protocol/implementation-independent-review-001.json",
+      "reports/fixed-quadrature-20261107-v1/resource-protocol/newboot-and-closed-budget-root-review-001.json",
+      "reports/fixed-quadrature-20261107-v1/resource-protocol/protocol_SELECTED_NOT_RUN_001.json",
+      "reports/fixed-quadrature-20261107-v1/resource-protocol/user_authorization_observed_001.json"
+    ]
+  },
+  "budget_copy_policy": "Copy actually closed ledger bytes into this run prefix after no Q; original ledger is not manually modified; raw CPU cost snapshots allow remote audit",
+  "excluded": "CHK,HDF,NPZ,venvs,unrelatedrawdata,models,secrets; preserve those local checkpoints",
+  "no_main_or_force_push": true
+}

@@ -1,0 +1,1549 @@
+{
+  "schema": "research4-fixed-original-grid-energy-point-v2",
+  "status": "PARTIAL",
+  "method": "FIXED_ORIGINAL_QUADRATURE",
+  "source_worker": {
+    "path": "/workspace/research4/scripts/research4_fixed_grid_energy_curvature_20261107_v2.py",
+    "sha256": "5f746f94a792b6d653c724774236410dbfea768a382462c6f6b375b79757b592",
+    "bytes": 94638
+  },
+  "output_directory": "/workspace/research4/reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/spino-mode1-energy-attempt001/fresh-zero",
+  "parent_output_directory": "/workspace/research4/reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/spino-mode1-energy-attempt001",
+  "nested_point_under_parent_guardian_phase": true,
+  "source_snapshot_manifest_sha256": "3089d6014ba2d2283540eb13cc7dbcdbbf284721042e7250b624197fc15c3311",
+  "displacement": {
+    "mode_index_1based": 1,
+    "coordinate_index_0based": null,
+    "step_bohr": 0.0,
+    "sign": 0,
+    "direction_normalization": "EUCLIDEAN_CARTESIAN_UNIT_NORM"
+  },
+  "SCF_performed": true,
+  "scf_converged": false,
+  "energy_completed": false,
+  "nuclear_gradient_performed": false,
+  "Hessian_performed": false,
+  "diagnostic_status": "ENERGY_ONLY_LOCAL_DIAGNOSTIC_NOT_FULL_HESSIAN_MINIMUM_FREQUENCY",
+  "IR_intensities_status": "NOT_COMPUTED",
+  "local_state_storage": {
+    "path": "/workspace/research4/reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/local-checkpoints/spino-mode1-energy-attempt001/fresh-zero",
+    "storage_policy": "LOCAL_ONLY_NOT_FOR_GIT_ADD_BY_DEFAULT",
+    "all_raw_states_retained": true,
+    "outside_recursive_scientific_job_artifact_collection": true
+  },
+  "settings": {
+    "xc": "PBE",
+    "basis": "def2-svp",
+    "grid_level": 1,
+    "dispersion": "NONE_EXPLICIT_PBE_PILOT_NOT_D3",
+    "density_fitting": false,
+    "auxbasis": null,
+    "density_fit_backend": "SCREENED_DIRECT_RKS_V4",
+    "direct_scf": true,
+    "direct_scf_tol": 1e-13,
+    "global_four_center_ERI_cache_allowed": false,
+    "scf_conv_tol_hartree": 1e-12,
+    "scf_max_cycle": 80,
+    "hessian_conv_tol_cpscf": 1e-08,
+    "max_memory_mb": 8000,
+    "threads": 2,
+    "native_direct_driver_threads": 2,
+    "charge": 0,
+    "spin_2S": 0,
+    "multiplicity": 1,
+    "optimizer_maxsteps": 35,
+    "optimizer_thresholds": {
+      "convergence_energy": 1e-06,
+      "convergence_grms": 0.0003,
+      "convergence_gmax": 0.00045,
+      "convergence_drms": 0.0012,
+      "convergence_dmax": 0.0018
+    },
+    "gradient_grid_response": false,
+    "engineering_worker_version": "EXACT_MOLECULAR_STATE_V1_NO_HESSIAN",
+    "scientific_quadrature_method": "FIXED_ORIGINAL_QUADRATURE",
+    "small_rho_cutoff": 0,
+    "actual_conv_tol_hartree": 1e-12,
+    "actual_conv_tol_grad": 1e-10,
+    "native_grid_cutoff": 1e-15,
+    "native_numint_cutoff": 1e-13,
+    "strict_energy_AND_orbital_gradient_check_including_extra_cycle": true,
+    "final_energy_tolerance_hartree": 1e-12,
+    "final_orbital_gradient_tolerance": 1e-09,
+    "SCF_main_orbital_gradient_trigger": 1e-10,
+    "maximum_SCF_kernel_calls_per_point": 3,
+    "maximum_SCF_cycles_per_call": 100,
+    "nuclear_gradient_performed": false
+  },
+  "atoms": 75,
+  "basis_functions": 762,
+  "occupied_orbitals": 160,
+  "initial_guess": "EXACT_ORIGINAL_SOURCE_MF_DENSITY_FRESH_ZERO_SCF",
+  "initial_density_fingerprint": {
+    "shape": [
+      762,
+      762
+    ],
+    "dtype": "float64",
+    "payload_bytes": 4645152,
+    "payload_sha256_C_order": "3028e0f74b5bf28adf1a5f48f3f184c5476cbf656ba678c29983fac2887d6179"
+  },
+  "fixed_quadrature_proof": {
+    "method": "FIXED_ORIGINAL_QUADRATURE",
+    "configuration": {
+      "level": {
+        "value": 1
+      },
+      "atom_grid": {
+        "value": {}
+      },
+      "alignment": {
+        "value": 8
+      },
+      "cutoff": {
+        "value": 1e-15
+      },
+      "radi_method": {
+        "callable": {
+          "module": "pyscf.dft.radi",
+          "qualname": "treutler_ahlrichs",
+          "source_sha256": "47d5a8fa1f466eaefd764acea044624a809743910204b7f57e45952d4df7c5cf"
+        }
+      },
+      "becke_scheme": {
+        "callable": {
+          "module": "pyscf.dft.gen_grid",
+          "qualname": "original_becke",
+          "source_sha256": "44aa665fb25efc544a42cb80fdad737767c787c20479d4df0ae4b1649028ff14"
+        }
+      },
+      "prune": {
+        "callable": {
+          "module": "pyscf.dft.gen_grid",
+          "qualname": "nwchem_prune",
+          "source_sha256": "44aa665fb25efc544a42cb80fdad737767c787c20479d4df0ae4b1649028ff14"
+        }
+      },
+      "radii_adjust": {
+        "callable": {
+          "module": "pyscf.dft.radi",
+          "qualname": "treutler_atomic_radii_adjust",
+          "source_sha256": "47d5a8fa1f466eaefd764acea044624a809743910204b7f57e45952d4df7c5cf"
+        }
+      },
+      "atomic_radii": {
+        "value": [
+          3.779450359403999,
+          0.6614041435977716,
+          2.645616574391086,
+          2.7401028806193395,
+          1.984212430793315,
+          1.6062672058803025,
+          1.322808287195543,
+          1.2283219809672903,
+          1.133835674739037,
+          0.9448630622825309,
+          2.8345891868475928,
+          3.4015070242171115,
+          2.8345891868475928,
+          2.3621576557063273,
+          2.0786987370215684,
+          1.8897261245650618,
+          1.8897261245650618,
+          1.8897261245650618,
+          3.4015070242171115,
+          4.157397474043137,
+          3.4015070242171115,
+          3.0235617993040993,
+          2.645616574391086,
+          2.551130268162834,
+          2.645616574391086,
+          2.645616574391086,
+          2.645616574391086,
+          2.551130268162834,
+          2.551130268162834,
+          2.551130268162834,
+          2.551130268162834,
+          2.4566439619345806,
+          2.3621576557063273,
+          2.1731850432498208,
+          2.1731850432498208,
+          2.1731850432498208,
+          3.590479636673617,
+          4.440856392727896,
+          3.7794522491301237,
+          3.4015070242171115,
+          2.929075493075846,
+          2.7401028806193395,
+          2.7401028806193395,
+          2.551130268162834,
+          2.4566439619345806,
+          2.551130268162834,
+          2.645616574391086,
+          3.0235617993040993,
+          2.929075493075846,
+          2.929075493075846,
+          2.7401028806193395,
+          2.7401028806193395,
+          2.645616574391086,
+          2.645616574391086,
+          3.96842486158663,
+          4.913287923869161,
+          4.062911167814883,
+          3.6849659429018704,
+          3.4959933304453648,
+          3.4959933304453648,
+          3.4959933304453648,
+          3.4959933304453648,
+          3.4959933304453648,
+          3.4959933304453648,
+          3.4015070242171115,
+          3.307020717988858,
+          3.307020717988858,
+          3.307020717988858,
+          3.307020717988858,
+          3.307020717988858,
+          3.307020717988858,
+          3.307020717988858,
+          2.929075493075846,
+          2.7401028806193395,
+          2.551130268162834,
+          2.551130268162834,
+          2.4566439619345806,
+          2.551130268162834,
+          2.551130268162834,
+          2.551130268162834,
+          2.8345891868475928,
+          3.590479636673617,
+          3.4015070242171115,
+          3.0235617993040993,
+          3.590479636673617,
+          2.7401028806193395,
+          3.96842486158663,
+          3.4015070242171115,
+          4.062911167814883,
+          3.6849659429018704,
+          3.4015070242171115,
+          3.4015070242171115,
+          3.307020717988858,
+          3.307020717988858,
+          3.307020717988858,
+          3.307020717988858,
+          3.307020717988858,
+          3.307020717988858,
+          3.307020717988858,
+          3.307020717988858,
+          3.307020717988858,
+          3.307020717988858,
+          3.307020717988858,
+          3.307020717988858,
+          3.307020717988858,
+          3.307020717988858,
+          3.307020717988858,
+          3.307020717988858,
+          3.307020717988858,
+          3.307020717988858,
+          3.307020717988858,
+          3.307020717988858,
+          3.307020717988858,
+          3.307020717988858,
+          3.307020717988858,
+          3.307020717988858,
+          3.307020717988858,
+          3.307020717988858,
+          3.307020717988858,
+          3.307020717988858,
+          3.307020717988858,
+          3.307020717988858,
+          3.307020717988858,
+          3.307020717988858,
+          3.307020717988858,
+          3.307020717988858,
+          3.307020717988858,
+          3.307020717988858,
+          3.307020717988858,
+          3.307020717988858,
+          3.307020717988858
+        ]
+      }
+    },
+    "arrays_before": {
+      "coords": {
+        "shape": [
+          301848,
+          3
+        ],
+        "dtype": "float64",
+        "payload_bytes": 7244352,
+        "payload_sha256_C_order": "ad760d292028443390302015bbcac04ef59cd04f3d58c4392cb105426f847317"
+      },
+      "weights": {
+        "shape": [
+          301848
+        ],
+        "dtype": "float64",
+        "payload_bytes": 2414784,
+        "payload_sha256_C_order": "d2d9c6e0e6998be11de37c7e818bedd062dfa35cab23882af4c21b509dd09c9c"
+      },
+      "non0tab": {
+        "shape": [
+          5391,
+          354
+        ],
+        "dtype": "uint8",
+        "payload_bytes": 1908414,
+        "payload_sha256_C_order": "6ad3063bd177b3bb4e1b6d82ddf7d818af01ddea425574cdfb6dcf1ec161e731"
+      },
+      "screen_index": {
+        "shape": [
+          5391,
+          354
+        ],
+        "dtype": "uint8",
+        "payload_bytes": 1908414,
+        "payload_sha256_C_order": "6ad3063bd177b3bb4e1b6d82ddf7d818af01ddea425574cdfb6dcf1ec161e731"
+      },
+      "atm_idx": {
+        "shape": [
+          301848
+        ],
+        "dtype": "int32",
+        "payload_bytes": 1207392,
+        "payload_sha256_C_order": "9de59f5eae0a04e27d16696f5fbb2e81d410cc23121a3b4b283f6e6f884cdf94"
+      },
+      "quadrature_weights": {
+        "shape": [
+          301848
+        ],
+        "dtype": "float64",
+        "payload_bytes": 2414784,
+        "payload_sha256_C_order": "99d8e2bbf944871ada63303f3c7963a855fbbf244896382fb96135b60db684c2"
+      }
+    },
+    "source_zero_mask_recomputed_and_equal_to_both_saved_masks": true,
+    "moved_mask_recomputed_at_actual_geometry_on_original_coordinates": true,
+    "non0tab_and_screen_index_share_actual_recomputed_mask": true,
+    "grid_owns_actual_MF_molecule": true,
+    "source_coordinates_and_weights_copied_without_reordering_or_padding_change": true,
+    "small_rho_cutoff": 0,
+    "grid_cutoff": 1e-15,
+    "numint_cutoff": 1e-13,
+    "numint_omega": null,
+    "grid_rebuild_repartition_pruning_and_settings_mutation_forbidden": true,
+    "all_attached_grid_arrays_readonly": true,
+    "gradient_grid_response": false
+  },
+  "archived_source_energy_hartree": -2210.445521964438,
+  "archived_source_energy_used_in_numerator": false,
+  "fresh_zero_energy_hartree": null,
+  "initial_full_density_local_file": {
+    "path": "/workspace/research4/reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/local-checkpoints/spino-mode1-energy-attempt001/fresh-zero/initial_full_density.npy",
+    "sha256": "ebc564c7df7724387a90ecc8089f231579e6abe863df008031e498a44667af37",
+    "bytes": 4645280,
+    "storage_policy": "LOCAL_ONLY_NOT_FOR_GIT_ADD_BY_DEFAULT"
+  },
+  "input_json_sha256": "cb1c5fa660f4a0648f121cabd12fc530140e70cf74171ab31454dfba948d7974",
+  "large_audit_state_directory": "/workspace/research4/reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/local-checkpoints/spino-mode1-energy-attempt001/fresh-zero",
+  "large_audit_states_storage_policy": "LOCAL_ONLY_NOT_FOR_GIT_ADD_BY_DEFAULT",
+  "SCF_polishing_attempts": [
+    {
+      "kernel_call_1based": 1,
+      "maximum_cycles": 100,
+      "start_density_fingerprint": {
+        "shape": [
+          762,
+          762
+        ],
+        "dtype": "float64",
+        "payload_bytes": 4645152,
+        "payload_sha256_C_order": "3028e0f74b5bf28adf1a5f48f3f184c5476cbf656ba678c29983fac2887d6179"
+      },
+      "initial_guess_policy": "PROJECTED_SOURCE_DENSITY",
+      "main_energy_tolerance_hartree": 1e-12,
+      "main_orbital_gradient_trigger": 1e-10,
+      "final_energy_tolerance_hartree": 1e-12,
+      "final_orbital_gradient_tolerance": 1e-09,
+      "qualified": false,
+      "VEFF_audit_policy": "TWO_FULL_NATIVE_EVALUATIONS_DM_LAST_NONE_VHF_LAST_NONE",
+      "native_kernel_converged": false,
+      "native_kernel_energy_hartree": -2210.445521950848,
+      "certification_policy": "FULL_NATIVE_VEFF_ENDPOINT_CERTIFICATION_NOT_NATIVE_KERNEL_FLAG",
+      "native_checks_finite": true,
+      "last_native_check": {
+        "phase": "SCF_MAIN_CYCLE",
+        "energy_delta_abs_hartree": 2.0372681319713593e-10,
+        "orbital_gradient_norm": 1.2447733711633484e-08,
+        "energy_tolerance_hartree": 1e-12,
+        "orbital_gradient_tolerance": 1e-10,
+        "accepted": false,
+        "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+        "kernel_call_1based": 1
+      },
+      "preceding_accepted_main_check": {
+        "phase": "SCF_MAIN_CYCLE",
+        "energy_delta_abs_hartree": 2.0372681319713593e-10,
+        "orbital_gradient_norm": 1.2447733711633484e-08,
+        "energy_tolerance_hartree": 1e-12,
+        "orbital_gradient_tolerance": 1e-10,
+        "accepted": false,
+        "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+        "kernel_call_1based": 1
+      },
+      "actual_native_final_extra_after_accepted_main_same_kernel": false,
+      "previous_full_energy_hartree": -2210.445521970534,
+      "current_full_energy_hartree": -2210.4455219705414,
+      "full_consecutive_density_energy_delta_abs_hartree": 7.275957614183426e-12,
+      "full_current_orbital_gradient_norm": 2.1796824516403672e-07,
+      "consecutive_density_Frobenius_difference": 6.057253085700772e-08,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-09,
+      "full_current_minus_kernel_energy_hartree": -1.9693288777489215e-08,
+      "previous_density_fingerprint": {
+        "shape": [
+          762,
+          762
+        ],
+        "dtype": "float64",
+        "payload_bytes": 4645152,
+        "payload_sha256_C_order": "b9c6775fa4f915f045a84fdff1caa4c15af3fbbd8b78e6e4f8b4c1cc4f234156"
+      },
+      "current_density_fingerprint": {
+        "shape": [
+          762,
+          762
+        ],
+        "dtype": "float64",
+        "payload_bytes": 4645152,
+        "payload_sha256_C_order": "44d7ceb7d9e384b71bbe4ec2552e74cbf49a05d7e792fe57b83b8f68bc505be4"
+      },
+      "density_change_Frobenius_norm": 6.057253085700772e-08,
+      "arrays": {
+        "start-density": {
+          "path": "/workspace/research4/reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/local-checkpoints/spino-mode1-energy-attempt001/fresh-zero/scf-call-1-start-density.npy",
+          "sha256": "ebc564c7df7724387a90ecc8089f231579e6abe863df008031e498a44667af37",
+          "bytes": 4645280
+        },
+        "previous-density": {
+          "path": "/workspace/research4/reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/local-checkpoints/spino-mode1-energy-attempt001/fresh-zero/scf-call-1-previous-density.npy",
+          "sha256": "a29c3f7000731a0957468bc7c1eced5d864e7132d869773db637532583345a36",
+          "bytes": 4645280
+        },
+        "current-density": {
+          "path": "/workspace/research4/reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/local-checkpoints/spino-mode1-energy-attempt001/fresh-zero/scf-call-1-current-density.npy",
+          "sha256": "9ccf0c8a2b973831abb87fde5cfd3db65a943ad238427dadfa30c0b7db5b4ff6",
+          "bytes": 4645280
+        },
+        "MO-coeff": {
+          "path": "/workspace/research4/reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/local-checkpoints/spino-mode1-energy-attempt001/fresh-zero/scf-call-1-MO-coeff.npy",
+          "sha256": "d84f0caa681273a18859b050454db2d99750b06af175bb9d9938438f67af8728",
+          "bytes": 4645280
+        },
+        "MO-energy": {
+          "path": "/workspace/research4/reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/local-checkpoints/spino-mode1-energy-attempt001/fresh-zero/scf-call-1-MO-energy.npy",
+          "sha256": "d8502fe548deaad7e4b7d05e09691a0ec1b4d035cc7d2b6acbac72c51a16e426",
+          "bytes": 6224
+        },
+        "MO-occ": {
+          "path": "/workspace/research4/reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/local-checkpoints/spino-mode1-energy-attempt001/fresh-zero/scf-call-1-MO-occ.npy",
+          "sha256": "e3fdc28512df2d5ff36292b833f2d9ec78ff824dd915a06d3a9c39a22f9cb9e6",
+          "bytes": 6224
+        }
+      },
+      "checkpoint": {
+        "path": "/workspace/research4/reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/local-checkpoints/spino-mode1-energy-attempt001/fresh-zero/scf-call-1.chk",
+        "sha256": "1e8b9d89880781b03a3dbd7898c30fa829af0d700cbf0f1ecb2e9e498b060320",
+        "bytes": 4696112,
+        "storage_policy": "LOCAL_ONLY_NOT_FOR_GIT_ADD_BY_DEFAULT"
+      }
+    },
+    {
+      "kernel_call_1based": 2,
+      "maximum_cycles": 100,
+      "start_density_fingerprint": {
+        "shape": [
+          762,
+          762
+        ],
+        "dtype": "float64",
+        "payload_bytes": 4645152,
+        "payload_sha256_C_order": "44d7ceb7d9e384b71bbe4ec2552e74cbf49a05d7e792fe57b83b8f68bc505be4"
+      },
+      "initial_guess_policy": "IMMEDIATELY_PRECEDING_ACTUAL_FINAL_DENSITY",
+      "main_energy_tolerance_hartree": 1e-12,
+      "main_orbital_gradient_trigger": 1e-10,
+      "final_energy_tolerance_hartree": 1e-12,
+      "final_orbital_gradient_tolerance": 1e-09,
+      "qualified": false,
+      "VEFF_audit_policy": "TWO_FULL_NATIVE_EVALUATIONS_DM_LAST_NONE_VHF_LAST_NONE"
+    }
+  ],
+  "strict_SCF_convergence_checks": [
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 5.061701813247055e-08,
+      "orbital_gradient_norm": 0.0004802613367078669,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 1
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 4.798366717295721e-07,
+      "orbital_gradient_norm": 0.0014807966304938712,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 1
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 5.352658263291232e-07,
+      "orbital_gradient_norm": 7.065728315583839e-05,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 1
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 1.2596501619555056e-09,
+      "orbital_gradient_norm": 9.323015604175714e-06,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 1
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 1.000444171950221e-11,
+      "orbital_gradient_norm": 1.266403954093325e-06,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 1
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 1.6370904631912708e-11,
+      "orbital_gradient_norm": 1.9154705324019797e-07,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 1
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 2.546585164964199e-11,
+      "orbital_gradient_norm": 3.0241316575525146e-08,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 1
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 1.0913936421275139e-11,
+      "orbital_gradient_norm": 1.6369066404075096e-08,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 1
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 2.637534635141492e-11,
+      "orbital_gradient_norm": 1.0479389863286374e-08,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 1
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 6.912159733474255e-11,
+      "orbital_gradient_norm": 2.654128366336841e-08,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 1
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 1.4551915228366852e-11,
+      "orbital_gradient_norm": 1.2241316427600369e-08,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 1
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 7.275957614183426e-12,
+      "orbital_gradient_norm": 5.381954130780832e-09,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 1
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 8.731149137020111e-11,
+      "orbital_gradient_norm": 3.999561961355512e-09,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 1
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 1.5825207810848951e-10,
+      "orbital_gradient_norm": 4.505299477406453e-09,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 1
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 1.7917045624926686e-10,
+      "orbital_gradient_norm": 8.384499555108277e-09,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 1
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 2.28283170145005e-10,
+      "orbital_gradient_norm": 8.564352845574947e-09,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 1
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 2.637534635141492e-10,
+      "orbital_gradient_norm": 1.0731866838257324e-08,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 1
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 2.473825588822365e-10,
+      "orbital_gradient_norm": 1.137661025556006e-08,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 1
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 2.964952727779746e-10,
+      "orbital_gradient_norm": 8.779391027834763e-09,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 1
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 2.7284841053187847e-10,
+      "orbital_gradient_norm": 9.845387820580503e-09,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 1
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 2.3101165425032377e-10,
+      "orbital_gradient_norm": 1.0311021830163866e-08,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 1
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 2.128217602148652e-10,
+      "orbital_gradient_norm": 1.0657520181922045e-08,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 1
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 2.3374013835564256e-10,
+      "orbital_gradient_norm": 1.1043770708327051e-08,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 1
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 2.5011104298755527e-10,
+      "orbital_gradient_norm": 1.1601242545630241e-08,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 1
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 2.582964953035116e-10,
+      "orbital_gradient_norm": 1.1707732719249622e-08,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 1
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 2.610249794088304e-10,
+      "orbital_gradient_norm": 1.2190325721170836e-08,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 1
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 2.810338628478348e-10,
+      "orbital_gradient_norm": 1.2768715449833265e-08,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 1
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 2.4920154828578234e-10,
+      "orbital_gradient_norm": 1.239490714567366e-08,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 1
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 2.610249794088304e-10,
+      "orbital_gradient_norm": 1.2173267171636344e-08,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 1
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 2.7557689463719726e-10,
+      "orbital_gradient_norm": 1.2300019189172067e-08,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 1
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 2.091837814077735e-10,
+      "orbital_gradient_norm": 1.2323223040034275e-08,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 1
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 2.3101165425032377e-10,
+      "orbital_gradient_norm": 1.2395744739932462e-08,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 1
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 2.346496330574155e-10,
+      "orbital_gradient_norm": 1.2479636091118055e-08,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 1
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 2.3646862246096134e-10,
+      "orbital_gradient_norm": 1.2432643430754913e-08,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 1
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 2.6557245291769505e-10,
+      "orbital_gradient_norm": 1.2442770910391975e-08,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 1
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 2.382876118645072e-10,
+      "orbital_gradient_norm": 1.2495742363109858e-08,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 1
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 2.219167072325945e-10,
+      "orbital_gradient_norm": 1.2619729546426607e-08,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 1
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 2.1827872842550278e-10,
+      "orbital_gradient_norm": 1.2350204138542587e-08,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 1
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 2.5647750589996576e-10,
+      "orbital_gradient_norm": 1.2363034798444653e-08,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 1
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 2.1464074961841106e-10,
+      "orbital_gradient_norm": 1.2309462585814866e-08,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 1
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 2.128217602148652e-10,
+      "orbital_gradient_norm": 1.2388582898875294e-08,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 1
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 2.2737367544323206e-10,
+      "orbital_gradient_norm": 1.2438965667840393e-08,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 1
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 2.3374013835564256e-10,
+      "orbital_gradient_norm": 1.247150414834704e-08,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 1
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 2.3737811716273427e-10,
+      "orbital_gradient_norm": 1.2411343599344075e-08,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 1
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 2.4283508537337184e-10,
+      "orbital_gradient_norm": 1.2458778742341673e-08,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 1
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 2.446540747769177e-10,
+      "orbital_gradient_norm": 1.2562634169212297e-08,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 1
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 2.0827428670600057e-10,
+      "orbital_gradient_norm": 1.2494913250173076e-08,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 1
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 2.1100277081131935e-10,
+      "orbital_gradient_norm": 1.2451934692304342e-08,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 1
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 2.0463630789890885e-10,
+      "orbital_gradient_norm": 1.2454997019091741e-08,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 1
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 2.2009771782904863e-10,
+      "orbital_gradient_norm": 1.2493961255694464e-08,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 1
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 2.455635694786906e-10,
+      "orbital_gradient_norm": 1.2516725714407575e-08,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 1
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 2.3283064365386963e-10,
+      "orbital_gradient_norm": 1.2522685129273402e-08,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 1
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 2.2919266484677792e-10,
+      "orbital_gradient_norm": 1.2527278327820762e-08,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 1
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 2.219167072325945e-10,
+      "orbital_gradient_norm": 1.2490898808719327e-08,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 1
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 2.2464519133791327e-10,
+      "orbital_gradient_norm": 1.2543631406194947e-08,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 1
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 2.02817318495363e-10,
+      "orbital_gradient_norm": 1.245474574465928e-08,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 1
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 2.2373569663614035e-10,
+      "orbital_gradient_norm": 1.2519961402905364e-08,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 1
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 1.8917489796876907e-10,
+      "orbital_gradient_norm": 1.2344972859346935e-08,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 1
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 2.255546860396862e-10,
+      "orbital_gradient_norm": 1.2343043901946924e-08,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 1
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 2.219167072325945e-10,
+      "orbital_gradient_norm": 1.2419339172882734e-08,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 1
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 2.2100721253082156e-10,
+      "orbital_gradient_norm": 1.2443600320980692e-08,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 1
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 2.3283064365386963e-10,
+      "orbital_gradient_norm": 1.244278669935342e-08,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 1
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 2.091837814077735e-10,
+      "orbital_gradient_norm": 1.2441523783422475e-08,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 1
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 2.2464519133791327e-10,
+      "orbital_gradient_norm": 1.2534186355698206e-08,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 1
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 2.191882231272757e-10,
+      "orbital_gradient_norm": 1.2443148323208256e-08,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 1
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 2.255546860396862e-10,
+      "orbital_gradient_norm": 1.25130768280849e-08,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 1
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 1.9826984498649836e-10,
+      "orbital_gradient_norm": 1.2412512039965005e-08,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 1
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 2.1191226551309228e-10,
+      "orbital_gradient_norm": 1.2442771236789403e-08,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 1
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 2.15550244320184e-10,
+      "orbital_gradient_norm": 1.2429486857982194e-08,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 1
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 2.1373125491663814e-10,
+      "orbital_gradient_norm": 1.2432187898941446e-08,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 1
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 2.255546860396862e-10,
+      "orbital_gradient_norm": 1.2378503950043704e-08,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 1
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 2.255546860396862e-10,
+      "orbital_gradient_norm": 1.2432489318385795e-08,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 1
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 2.1100277081131935e-10,
+      "orbital_gradient_norm": 1.24501795188478e-08,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 1
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 1.9463186617940664e-10,
+      "orbital_gradient_norm": 1.241168977816262e-08,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 1
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 2.0736479200422764e-10,
+      "orbital_gradient_norm": 1.2435257536320456e-08,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 1
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 2.0554580260068178e-10,
+      "orbital_gradient_norm": 1.235056789733238e-08,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 1
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 2.28283170145005e-10,
+      "orbital_gradient_norm": 1.2343628234140902e-08,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 1
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 1.9826984498649836e-10,
+      "orbital_gradient_norm": 1.2360213090660024e-08,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 1
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 2.1645973902195692e-10,
+      "orbital_gradient_norm": 1.2328294548261523e-08,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 1
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 2.2646418074145913e-10,
+      "orbital_gradient_norm": 1.2346846364123056e-08,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 1
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 2.0827428670600057e-10,
+      "orbital_gradient_norm": 1.2329289190274798e-08,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 1
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 2.000888343900442e-10,
+      "orbital_gradient_norm": 1.2405462380380134e-08,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 1
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 2.1736923372372985e-10,
+      "orbital_gradient_norm": 1.2318504672185291e-08,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 1
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 2.0463630789890885e-10,
+      "orbital_gradient_norm": 1.2376048212825348e-08,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 1
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 1.9736035028472543e-10,
+      "orbital_gradient_norm": 1.2307288225870194e-08,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 1
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 2.128217602148652e-10,
+      "orbital_gradient_norm": 1.2338085459550799e-08,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 1
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 2.064552973024547e-10,
+      "orbital_gradient_norm": 1.2339507779399014e-08,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 1
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 2.091837814077735e-10,
+      "orbital_gradient_norm": 1.2291431885168965e-08,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 1
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 2.191882231272757e-10,
+      "orbital_gradient_norm": 1.2348470847550782e-08,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 1
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 2.128217602148652e-10,
+      "orbital_gradient_norm": 1.2317263997005132e-08,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 1
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 2.0463630789890885e-10,
+      "orbital_gradient_norm": 1.238913588923319e-08,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 1
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 2.1736923372372985e-10,
+      "orbital_gradient_norm": 1.231063008121845e-08,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 1
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 2.0736479200422764e-10,
+      "orbital_gradient_norm": 1.237524903080059e-08,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 1
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 1.9281287677586079e-10,
+      "orbital_gradient_norm": 1.2314506977091946e-08,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 1
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 2.0372681319713593e-10,
+      "orbital_gradient_norm": 1.2346351811961129e-08,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 1
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 2.2464519133791327e-10,
+      "orbital_gradient_norm": 1.2357593016355127e-08,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 1
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 2.064552973024547e-10,
+      "orbital_gradient_norm": 1.2341162731393314e-08,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 1
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 2.1827872842550278e-10,
+      "orbital_gradient_norm": 1.238435686494455e-08,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 1
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 2.2009771782904863e-10,
+      "orbital_gradient_norm": 1.2363752110212684e-08,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 1
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 2.0372681319713593e-10,
+      "orbital_gradient_norm": 1.2447733711633484e-08,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 1
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 1.1550582712516189e-10,
+      "orbital_gradient_norm": 5.951226653863153e-09,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 2
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 4.547473508864641e-10,
+      "orbital_gradient_norm": 7.061328368115726e-09,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 2
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 2.000888343900442e-11,
+      "orbital_gradient_norm": 4.210565823212807e-09,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 2
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 1.3096723705530167e-10,
+      "orbital_gradient_norm": 2.0849326375394755e-09,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 2
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 2.1373125491663814e-10,
+      "orbital_gradient_norm": 2.9483970629429027e-09,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 2
+    },
+    {
+      "phase": "SCF_MAIN_CYCLE",
+      "energy_delta_abs_hartree": 2.091837814077735e-10,
+      "orbital_gradient_norm": 4.297446106067999e-09,
+      "energy_tolerance_hartree": 1e-12,
+      "orbital_gradient_tolerance": 1e-10,
+      "accepted": false,
+      "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+      "kernel_call_1based": 2
+    }
+  ],
+  "utc": "2026-11-07T02:43:14.818509+00:00",
+  "event": "SCF_cycle",
+  "CPU_seconds": 7340.862947295001,
+  "wall_seconds": 3683.200770341,
+  "kernel_call_1based": 2,
+  "cycle_0based": 5,
+  "energy_hartree": -2210.4455219696674
+}

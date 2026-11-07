@@ -1,0 +1,87 @@
+{
+  "schema": "research4-pyscf-orphan-reconciler-final-independent-review-v3",
+  "created_at_utc": "2026-11-05T00:30:27.676275+00:00",
+  "status": "PASS_STATIC_AND_SYNTHETIC_NO_BLOCKER",
+  "source": {
+    "path": "scripts/reconcile_pyscf_orphan_phase_20261105.py",
+    "sha256": "1fe7f40a3ee0e15e1ba206b66100a0404939591866e644634e919ea411a6e8d4",
+    "bytes": 31014
+  },
+  "tests": {
+    "path": "tests/test_reconcile_pyscf_orphan_phase_20261105.py",
+    "sha256": "935d560738bae956e2fb31befe29288b4e2fddc39366a5f3718fb2edbe9adb45",
+    "bytes": 18379
+  },
+  "frozen_guard": {
+    "path": "scripts/run_pyscf_continuation_budget_20261105_v6b.py",
+    "sha256": "b985d6d6e20f5e4a48387094461f19b133dae761338664e88836c62051f993a5",
+    "bytes": 77031
+  },
+  "real_canonical_ledger_at_review": {
+    "path": "reports/pyscf-spinosin-staged-20261105-v6b/cpu_budget.json",
+    "sha256": "fc79956be003d49c5c06417a3050322d35434186b1d10a7e804fe1d9f351d0c3",
+    "bytes": 258407
+  },
+  "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+  "independent_project_test_command": "python -S -m unittest discover -s tests -p test_reconcile_pyscf_orphan_phase_20261105.py -v",
+  "independent_project_test_count": 20,
+  "independent_project_test_result": "PASS;20tests in0.184seconds; all real process and ledgers untouched",
+  "additional_independent_fixture_checks": {
+    "count": 17,
+    "status": "PASS",
+    "source_sha256_at_run": "1fe7f40a3ee0e15e1ba206b66100a0404939591866e644634e919ea411a6e8d4",
+    "cases": [
+      "actual archived terminal identity",
+      "live state reject",
+      "reused start reject",
+      "nonzero childCPU reject",
+      "nonSIGKILL raw waitstatus reject",
+      "openFD reject",
+      "nonzeroRSS reject",
+      "finaltick charge plus all old costs",
+      "topheader and other phases unchanged",
+      "failed producer never healthy",
+      "no fabricated wait4 peak wall flags",
+      "zeroholdback reject",
+      "invalidclock reject",
+      "contradictory observation reject",
+      "synthetic double-read group closure",
+      "currentUID reject",
+      "residuallivegroup reject"
+    ]
+  },
+  "critical_review": {
+    "native_original_guard_unchanged": true,
+    "exact_original_ledger_snapshot_and_CAS": true,
+    "original_local_global_lineage_lock_order_preserved": true,
+    "root_addendum_source_proof_observation_rawproc_input_bound": true,
+    "root_addendum_and_result_receipt_in_FAILED_row": true,
+    "same_kernel_boot_bound_to_original_worker_input": true,
+    "same_PID_start_UID_terminal_Z_FD0_no_children_double_read": true,
+    "unresolved_live_group_or_unapproved_opaque_process_rejected": true,
+    "final_process_CPU_ticks_not_threads_multiplied": true,
+    "wait4_not_obtained_and_never_faked": true,
+    "exact_death_time_peakRSS_wall_and_resource_stop_reasons_unknown": true,
+    "failed_phase_and_cache_never_healthy": true,
+    "all_old64rows_header_cap_deadline_registry_72h_clock_preserved": true,
+    "only_target_failed_row_plus_cumulative_cost_fields_change": true,
+    "nominal_new_consumed_cpu_seconds": 154406.137675,
+    "nominal_new_remaining_cpu_seconds": 61593.862325,
+    "one_second_NOT_ACTUAL_holdback_covered_by_existing_selected2thread_boundary6": true,
+    "no_fake_CPU_reserve_phase_or_extra_doubledebit": true,
+    "existing_CPU_and_RSS_guards_remain_best_effort": true
+  },
+  "scope_correction_history": {
+    "original_review_preserved": "review.json",
+    "corrected_scope_receipt": "review_v2_SCOPE_CORRECTION.json",
+    "earlier_in_memory_full_validator_calls_indirectly_hashed_closed_historical_5_67MB_CHK": true,
+    "earlier_strict_scope_violation_not_retroactively_erased": true,
+    "parent_subsequently_explicitly_authorized_closed_payload_opaque_hash_for_future_full_chain_checks": true,
+    "no_numeric_import_or_array_decoding_or_quantum_run_performed": true
+  },
+  "real_dryrun_executed_by_this_reviewer": false,
+  "real_reconciliation_executed_by_this_reviewer": false,
+  "ledger_modified_by_this_reviewer": false,
+  "root_approval_or_new_Q_authority_granted_by_review": false,
+  "required_next": "Root may run real default dry-run under the same guard/locks and examine its output. Actual --execute still requires root-generated source-bound addendum SHA and rechecks; it does not authorize scientific cache reuse, extra CPU/deadline or a new quantum run."
+}

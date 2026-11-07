@@ -1,0 +1,112 @@
+{
+  "schema": "research4-v7-initial-spinosin-release-independent-metadata-review-v1",
+  "created_at_utc": "2026-11-05T01:45:01.591392+00:00",
+  "status": "PASS_METADATA_AND_CLOSED_HASH_CHAIN_ONLY",
+  "scope": "Record of completed independent read-only audit; no rehash of scientific payloads during receipt publication.",
+  "actual_audited_refs": {
+    "actual_control_release": {
+      "path": "/workspace/research4/reports/pyscf-spinosin-grid-checkpoint-20261105-v7/resource-protocol/actual-water-ethanol-numerical-control-release-001.json",
+      "sha256": "82d2138c8e7e514b20dd574b411a1093b8506f29f2698be0474c1c5aebe9b029"
+    },
+    "queue_config": {
+      "path": "/workspace/research4/reports/pyscf-spinosin-grid-checkpoint-20261105-v7/queue-configs/spinosin-initial-001/config.json",
+      "sha256": "a6b315aef78b809b55722b520ce9fc0e8dad1aec34a7f3e3bceefa5895da6249"
+    },
+    "root_grant": {
+      "path": "/workspace/research4/reports/pyscf-spinosin-grid-checkpoint-20261105-v7/queue-configs/spinosin-initial-001/root_grant.json",
+      "sha256": "b7adfda005eaf7d527da4ef178dcc1decdcde08754486c46926bbc0e3e21be73"
+    },
+    "queue_launcher": {
+      "path": "/workspace/research4/scripts/research4_quantum_queue_20261105.py",
+      "sha256": "815dca5a59706cf6a0fac67fc61e8abe77eb305ffcb0db385dfc32de6b7b1733"
+    },
+    "A_worker": {
+      "path": "/workspace/research4/scripts/pyscf_xc_chunk_worker_20261105_v7.py",
+      "sha256": "00e710eb0d637dbd073939bea5d4496993cb68f29efad1439322df3972415f02"
+    },
+    "consumer": {
+      "path": "/workspace/research4/scripts/pyscf_staged_consumer_20261105_v7.py",
+      "sha256": "6e9b835f4b49329cd52162b5862da14b3dcd87c80390c1e09b3cf62e14c07dbe"
+    },
+    "analyzer_v2": {
+      "path": "/workspace/research4/scripts/analyze_pyscf_staged_modes_20261105_v7_v2.py",
+      "sha256": "76e2eddebf681f9adf2ab7c5f9fa0bdc126b0c93f081cc93a606009f31c94705"
+    },
+    "snapshot_manifest_sha256": "3089d6014ba2d2283540eb13cc7dbcdbbf284721042e7250b624197fc15c3311",
+    "gradient_result_sha256": "6b143defc238471bc815857df08fc4034a9d8454a00567f3b084907a54a5c403",
+    "fresh149_seed_record_sha256": "4a9c7675281c958f3feb5d398ed01294a5d287ba01ba98be3d936fa8eba5c53b"
+  },
+  "completed_independent_checks": {
+    "frozen_A_require_control_release_actual_call": "PASS: metadata-only frozen source call; both distinct controls and real closed producers authenticated",
+    "queue_validate_config_execute_false_actual_call": "PASS: config/grant/source/argv/materialized finite queue validated without timers or execution",
+    "frozen_guard_validate_ledger_actual_call": "PASS: complete closed-ledger immutable history/source/authorization chain checked",
+    "unique_job_input_files_hashed": 389,
+    "all_389_hashes_matched": true,
+    "fresh_seed_regular_files_hashed": 373,
+    "all_seed_hashes_and_sizes_matched": true,
+    "fresh_seed_complete_units": 149,
+    "complete_unit_indices_exactly": "0..148",
+    "failed_V6b_unit150_not_copied": true,
+    "fresh_job_output_and_logs_absent_at_audit": true,
+    "actual_import_blocker": "Custom meta_path finder refused NumPy/PySCF/Torch/SciPy/RDKit/geomeTRIC/Matplotlib imports",
+    "scientific_arrays_hashed_opaquely_but_not_decoded": true
+  },
+  "actual_controls": [
+    {
+      "case": "water_software_control",
+      "status": "DONE_CONTROL_NUMERICAL_REPLAY",
+      "all_signed_modes": 3,
+      "raw_Hessian_max_difference_Eh_per_Bohr2": 5.069278330438465e-13,
+      "all_signed_frequency_max_difference_cm1": 4.092726157978177e-11,
+      "IR_intensities_status": "NOT_COMPUTED",
+      "qualified_for_mechanism": false
+    },
+    {
+      "case": "ethanol_software_control",
+      "status": "DONE_CONTROL_NUMERICAL_REPLAY",
+      "all_signed_modes": 21,
+      "raw_Hessian_max_difference_Eh_per_Bohr2": 1.1253220577600587e-12,
+      "all_signed_frequency_max_difference_cm1": 5.650235834764317e-10,
+      "IR_intensities_status": "NOT_COMPUTED",
+      "qualified_for_mechanism": false
+    }
+  ],
+  "queue_scope": {
+    "jobs": [
+      "xc-plan",
+      "rhf-partial"
+    ],
+    "number_of_jobs": 2,
+    "threads": 2,
+    "atoms": 75,
+    "AO_functions": 762,
+    "electrons": 320,
+    "method": "PBE/def2-SVP/grid1/fullAO/fullMO/noDF/noD3",
+    "full_Spinosin_Hessian_or_219_modes_complete": false
+  },
+  "ledger_at_completed_audit": {
+    "path": "/workspace/research4/reports/pyscf-spinosin-staged-20261105-v6b/cpu_budget.json",
+    "phases_total": 96,
+    "RUNNING_phases": 0,
+    "all_phases_closed": true,
+    "actual_quantum_CPU_seconds": 154511.14523999998,
+    "remaining_quantum_CPU_seconds": 61488.85476000002,
+    "cumulative_quantum_CPU_cap_seconds": 216000,
+    "deadline_at_utc": "2026-11-05T23:20:50.391742+00:00",
+    "budget_reset_or_increase": false,
+    "deadline_extended_by_queue": false,
+    "historical_ledger_SHA_not_rehashed_for_receipt": true
+  },
+  "remaining_launch_gate": "ROOT_REQUIRED: all Git closed, fresh closed-file-only cachehint and memory/disk/liveness gate; no concurrent ML or other Q. This review does not itself authorize bypassing that gate.",
+  "limits": {
+    "new_quantum_evaluations": 0,
+    "numerical_imports": false,
+    "scientific_array_decoding": false,
+    "new_training_or_fitting": false,
+    "Git_commands": false,
+    "source_config_ledger_mutations": false,
+    "scientific_runtime_controls_reexecuted_by_reviewer": false,
+    "audit_scope_expanded_during_receipt_publication": false
+  },
+  "remaining_blockers_in_audited_metadata": []
+}

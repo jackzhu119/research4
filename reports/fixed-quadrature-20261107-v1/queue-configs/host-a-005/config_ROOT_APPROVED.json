@@ -1,0 +1,192 @@
+{
+  "schema": "research4-cloud-followup-queue-config-v1",
+  "ledger": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/cpu_budget.json",
+  "quantum_cpu_cap_seconds": 390160.8308359999,
+  "deadline_utc": "2026-11-09T08:25:17.730193+00:00",
+  "phase_prefix": "fixedquad20261107a005",
+  "work_directory": "/workspace/research4/reports/fixed-quadrature-20261107-v1/queue-host-a-005",
+  "state": "/workspace/research4/reports/fixed-quadrature-20261107-v1/queue-host-a-005/state.json",
+  "monitor": "/workspace/research4/reports/fixed-quadrature-20261107-v1/queue-host-a-005/monitor.jsonl",
+  "python_executable": ".runtime/bin/python",
+  "pythonpath": [
+    ".runtime/quantum-pilot-site",
+    ".runtime/quantum-upgrade-site"
+  ],
+  "minimum_remaining_cpu_seconds": 500,
+  "CPU_reserve_seconds": 800,
+  "source_refs": [
+    {
+      "path": "/workspace/research4/scripts/run_pyscf_continuation_budget_20261105_v8.py",
+      "sha256": "7bc773076ecc5e0f90fb58b81bf0641948dd09c14b2816138a0469f16e511c65"
+    },
+    {
+      "path": "/workspace/research4/scripts/research4_quantum_queue_20261105_v2.py",
+      "sha256": "3af76bd231b4a6caa1bf70fe788c2ad2be1dd9cec8b84d181a17e53efeb79dad"
+    },
+    {
+      "path": "/workspace/research4/scripts/research4_fixed_quadrature_worker_20261107.py",
+      "sha256": "cab1b47de0e1b2868acd5a1ac6ee8141a0e57c7f79f6a2755ca0139032157e2a"
+    }
+  ],
+  "immutable_inputs": [
+    {
+      "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/global-assemble-recovery-002/state.json",
+      "sha256": "f2974458d23abeb320db736ce6c4cdb3f0b4d509f707a4dc67fd7d5ceaaa2578"
+    },
+    {
+      "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/controls/v8-control-water-global-003/result.json",
+      "sha256": "0c0095ba3de27abee012ffe6b8975908b127f2664a42b104a2a3830673f88165"
+    },
+    {
+      "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/global-assemble-recovery-002/science/global-assemble/result.json",
+      "sha256": "253c10a92c083f54aaeb3f1e407e095790649737f5f876bd3cecfd35bfb4f9b7"
+    },
+    {
+      "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/global-assemble-recovery-002/science/global-assemble/normal_modes.npy",
+      "sha256": "10440a6727b4360a685c7feac9d3179f38347ac4e4de375f6a183f047f38957c"
+    },
+    {
+      "path": "/workspace/research4/reports/fixed-quadrature-20261107-v1/queue-configs/host-a-005/phase_schedule_ROOT_APPROVED.json",
+      "sha256": "00c27d06a8d32372eb8b55faef5f3fdaae71833e423063867308dcc6b3dd0313"
+    },
+    {
+      "path": "/workspace/research4/reports/fixed-quadrature-20261107-v1/source-qualification/water/qualification.json",
+      "sha256": "9b38e3a08a26c3bb2ba761bb41aaafb8a6a7987e610e995b68726a628ab7f354"
+    },
+    {
+      "path": "/workspace/research4/reports/fixed-quadrature-20261107-v1/source-qualification/spinosin/qualification.json",
+      "sha256": "a5a9f00ad6e20f7a7e3cc8ad144232dc61d48442a6c10f5e5901a8dc39784d5d"
+    },
+    {
+      "path": "/workspace/research4/reports/fixed-quadrature-20261107-v1/resource-protocol/user_authorization_observed_001.json",
+      "sha256": "d94b1c936593e983c2b41dde91f62f9e7db6bce3b11ff3d7ee59f344a74ec0d3"
+    },
+    {
+      "path": "/workspace/research4/reports/fixed-quadrature-20261107-v1/resource-protocol/protocol_SELECTED_NOT_RUN_001.json",
+      "sha256": "e061846e88b4189bdd16eec6994ca28534f377a76d412c28a06c26e14652e9a1"
+    },
+    {
+      "path": "/workspace/research4/reports/fixed-quadrature-20261107-v1/resource-protocol/design-independent-review-001.json",
+      "sha256": "0b56e31fe0cddd554d79a17c80aad229f55587a5d2dbfecf3e1e75e2863a1be5"
+    },
+    {
+      "path": "/workspace/research4/reports/fixed-quadrature-20261107-v1/resource-protocol/implementation-independent-review-001.json",
+      "sha256": "e0d21e598f1564497437dde62e219e09a59314a875dad77014fa0eefbc3ab3ef"
+    },
+    {
+      "path": "/workspace/research4/reports/fixed-quadrature-20261107-v1/resource-protocol/newboot-and-closed-budget-root-review-001.json",
+      "sha256": "4bf7284b885e2117df4bb59668d0ff3f0ec460070513e119cd2c0bac71f4a08b"
+    }
+  ],
+  "jobs": [
+    {
+      "id": "water-fixed-grid-controls",
+      "kind": "quantum",
+      "worker": {
+        "path": "/workspace/research4/scripts/research4_fixed_quadrature_worker_20261107.py",
+        "sha256": "cab1b47de0e1b2868acd5a1ac6ee8141a0e57c7f79f6a2755ca0139032157e2a"
+      },
+      "payload_argv": [
+        "/workspace/research4/.runtime/bin/python",
+        "/workspace/research4/scripts/research4_fixed_quadrature_worker_20261107.py",
+        "--source-result",
+        "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/controls/v8-control-water-global-003/result.json",
+        "--source-result-sha256",
+        "0c0095ba3de27abee012ffe6b8975908b127f2664a42b104a2a3830673f88165",
+        "--main-pipeline-state",
+        "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/global-assemble-recovery-002/state.json",
+        "--main-pipeline-state-sha256",
+        "f2974458d23abeb320db736ce6c4cdb3f0b4d509f707a4dc67fd7d5ceaaa2578",
+        "--source-qualification",
+        "/workspace/research4/reports/fixed-quadrature-20261107-v1/source-qualification/water/qualification.json",
+        "--source-qualification-sha256",
+        "9b38e3a08a26c3bb2ba761bb41aaafb8a6a7987e610e995b68726a628ab7f354",
+        "--output",
+        "{output}",
+        "--control-suite",
+        "--control-validation"
+      ],
+      "result_schema": "research4-fixed-original-quadrature-water-controls-v1",
+      "success_statuses": [
+        "FIXED_ORIGINAL_QUADRATURE_WATER_CONTROLS_PASSED"
+      ],
+      "cpu_seconds": 300,
+      "wall_seconds": 900,
+      "optional": false,
+      "depends_on": [],
+      "required_result_fields": {
+        "control_passed": true,
+        "stable_MF_state_unchanged": true,
+        "all_13_prescribed_points_completed": true
+      },
+      "retry_closed_resource_failure": false,
+      "threads": 2,
+      "memory_gib": 24
+    },
+    {
+      "id": "spinosin-mode1-fixed-grid-plus",
+      "kind": "quantum",
+      "worker": {
+        "path": "/workspace/research4/scripts/research4_fixed_quadrature_worker_20261107.py",
+        "sha256": "cab1b47de0e1b2868acd5a1ac6ee8141a0e57c7f79f6a2755ca0139032157e2a"
+      },
+      "payload_argv": [
+        "/workspace/research4/.runtime/bin/python",
+        "/workspace/research4/scripts/research4_fixed_quadrature_worker_20261107.py",
+        "--source-result",
+        "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/global-assemble-recovery-002/science/global-assemble/result.json",
+        "--source-result-sha256",
+        "253c10a92c083f54aaeb3f1e407e095790649737f5f876bd3cecfd35bfb4f9b7",
+        "--main-pipeline-state",
+        "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/global-assemble-recovery-002/state.json",
+        "--main-pipeline-state-sha256",
+        "f2974458d23abeb320db736ce6c4cdb3f0b4d509f707a4dc67fd7d5ceaaa2578",
+        "--source-qualification",
+        "/workspace/research4/reports/fixed-quadrature-20261107-v1/source-qualification/spinosin/qualification.json",
+        "--source-qualification-sha256",
+        "a5a9f00ad6e20f7a7e3cc8ad144232dc61d48442a6c10f5e5901a8dc39784d5d",
+        "--output",
+        "{output}",
+        "--execute",
+        "--mode-index",
+        "1",
+        "--mode-array-sha256",
+        "10440a6727b4360a685c7feac9d3179f38347ac4e4de375f6a183f047f38957c",
+        "--step-bohr",
+        "0.005",
+        "--sign",
+        "1",
+        "--control-result",
+        "{result:water-fixed-grid-controls}",
+        "--control-result-sha256",
+        "{sha256:water-fixed-grid-controls}"
+      ],
+      "result_schema": "research4-fixed-original-quadrature-point-v1",
+      "success_statuses": [
+        "FIXED_ORIGINAL_QUADRATURE_SCF_GRADIENT_COMPUTED"
+      ],
+      "cpu_seconds": 7000,
+      "wall_seconds": 14400,
+      "optional": false,
+      "depends_on": [
+        "water-fixed-grid-controls"
+      ],
+      "required_result_fields": {
+        "scf_converged": true,
+        "gradient_completed": true,
+        "stable_MF_state_unchanged": true,
+        "fixed_quadrature_proof.fingerprints_unchanged_after_SCF_and_gradient": true
+      },
+      "retry_closed_resource_failure": false,
+      "threads": 2,
+      "memory_gib": 24
+    }
+  ],
+  "interpretation": "Fixed original quadrature diagnosis; cached actual old-boot g0 is not zero/fresh-new-boot; one-sided local result is not a new Hessian, minimum, IR or classifier improvement. Raw negative modes preserved. All budget caps unchanged.",
+  "assignment": {
+    "host": "A",
+    "plan": "Water300 CPU and conditional ONE Spinosin point7000 CPU; no retry or second point",
+    "new_boot": "bcc60ef9-a836-45c2-82a2-1766833e8991",
+    "no_scheduled_reports": true
+  }
+}

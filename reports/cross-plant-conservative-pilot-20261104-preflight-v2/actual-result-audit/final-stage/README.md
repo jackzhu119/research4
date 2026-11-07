@@ -1,0 +1,3 @@
+# Independent V2 final-stage replay
+
+The audit imports NumPy only for numerical calculations and performs no research fitting, Torch inference or quantum work. Source replays cover all96 epochs and all original folds/seeds. The additional prefix audit checks all first48 source logits/losses and scaler/identity bytes against the sealed V1 files. Final metrics are recomputed from all closed predictions; its V1/V2 metadata checks verify unchanged pretraining and target-loss/order prefixes. Neither result is a new confirmation cohort. Verbose assertions are losslessly gzip-compressed, with the original plaintext retained under the ignored local path. All V1 files are read-only.

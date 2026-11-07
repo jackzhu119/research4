@@ -1,0 +1,3 @@
+原9eaf后处理实际在水控制中因大小写键错误停止，尚未完成独立振型复算。原源文件、失败日志和所有健康DFT组件保留。
+V5保存并原名返回MO_occ/MO_coeff/MO_energy；V7v2只修正两处下标。21项纯stdlib测试从真实冻结state源码提取接口并用sentinel验证；本目录没有执行数值/Q，也未用wall估计未知CPU。
+请由root在独立审查后使用新的输出目录运行v2无Q重放；昂贵RHF/XC/H1/CPHF/global不需重算。

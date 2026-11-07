@@ -1,0 +1,126 @@
+{
+  "schema": "research4-closed-spinosin-frequency-audit-v1",
+  "created_at_utc": "2026-11-01T16:20:31.280743+00:00",
+  "audit_status": "DONE_READ_ONLY_CLOSED_PHASE_AUDIT",
+  "scientific_frequency_status": "PARTIAL_NO_SPINOSIN_FREQUENCIES_COMPUTED",
+  "phase": "spinosin-native4-frequency-001",
+  "started_at_utc": "2026-11-01T09:51:46.925146+00:00",
+  "ended_at_utc": "2026-11-01T16:12:14.745534+00:00",
+  "root_closed_release": {
+    "ledger_sha256": "19fbbc80b5e839dc645f10a467bb54f32fdebae14309a95d824520cd885d3d2c",
+    "pipeline_state_sha256": "a2346f01bb7997c0f5fdf84e23ee603cea8f1be8e484007791d76217bd23eca5",
+    "no_RUNNING_ledger_rows": true,
+    "pipeline_has_terminal_status_and_end_time": true
+  },
+  "parent_exit": {
+    "status": "PARTIAL_OR_FAILED",
+    "exit_code": 2,
+    "wall_terminated": false,
+    "hard_killed": false,
+    "memory_terminated": false,
+    "monitor_failed": false
+  },
+  "signal_evidence": {
+    "observed_handler_signal_number": 24,
+    "observed_handler_signal_name": "SIGXCPU",
+    "verbatim_stop_reason": "Worker interrupted by resource supervisor signal 24",
+    "exception_type": "BudgetStop",
+    "sender_identity": "NOT_RECORDED",
+    "exact_delivery_and_overshoot_cause": "UNPROVEN",
+    "generic_handler_word_supervisor_is_not_sender_proof": true,
+    "siginfo_or_sender_trace_saved": false
+  },
+  "CPU_accounting": {
+    "configured_phase_grant_seconds": 86400,
+    "configured_startup_soft_seconds": 86280,
+    "configured_startup_hard_seconds": 86400,
+    "actual_wait4_CPU_seconds": 89154.115469,
+    "worker_process_CPU_seconds": 89153.496542459,
+    "wait4_above_hard_seconds": 2754.115469,
+    "wait4_above_hard_percent": 3.187633644675926,
+    "wait4_above_soft_seconds": 2874.115469,
+    "parent_minus_worker_seconds": 0.618926541,
+    "strict_phase_wait4_bound_86400_achieved": false,
+    "actual_whole_closed_V3_CPU_seconds": 111023.488913,
+    "configured_whole_V3_budget_seconds": 172800,
+    "remaining_closed_V3_budget_seconds": 61776.511087,
+    "actual_usage_fully_charged_not_clipped_to_configured_limits": true,
+    "whole_closed_V3_cost_below_configured_budget": true,
+    "raw_ledger_wait4_decimal": "89154.11546900001",
+    "raw_ledger_total_decimal": "111023.48891300001",
+    "presentation_note": "wait4 costs are rounded to microseconds for presentation; archived JSON float serialization is retained above. No historical value was rewritten."
+  },
+  "wall_and_memory_observations": {
+    "elapsed_wall_seconds": 22827.819999310002,
+    "configured_wall_seconds": 43200,
+    "sampled_group_RSS_peak_bytes": 8098861056,
+    "sampled_cgroup_peak_bytes": 10688483328,
+    "AS_24_GiB_is_virtual_not_physical_RAM": true,
+    "RSS_guard_is_best_effort_not_hard_RSS": true,
+    "false_stop_flags_do_not_prove_all_possible_memory_pressure_absent": true
+  },
+  "completed_SCF_and_gradient_metadata": {
+    "scf_converged": true,
+    "energy_hartree": -2210.445521964444,
+    "fresh_gradient_thresholds_passed": true,
+    "atom_RMS_hartree_per_bohr": 6.264040860295175e-05,
+    "atom_max_hartree_per_bohr": 0.000203903454559022,
+    "this_is_not_a_positive_frequency_minimum_verification": true,
+    "gradient_arrays_reloaded_by_this_auditor": false
+  },
+  "Hessian_completion": {
+    "native_driver_calls_entered": 155,
+    "native_driver_calls_returned": 155,
+    "native_batch_signature_counts": {
+      "density_count=1;components=1": 3,
+      "density_count=1;components=3": 1,
+      "density_count=2;components=9": 76,
+      "density_count=3;components=9": 75
+    },
+    "native_calls_do_not_prove_full_partial_Hessian_returned": true,
+    "partial_hessian_manifest_record": null,
+    "completed_H1AO_atom_records": 0,
+    "completed_response_block_records": 0,
+    "cache_root_exists": true,
+    "cache_root_entries": [],
+    "expected_final_artifacts_absent": {
+      "frequencies.csv": true,
+      "normal_modes.npy": true,
+      "hessian_hartree_per_bohr2.npy": true,
+      "hessian_used_for_analysis.npy": true
+    },
+    "complete_or_resumable_Hessian_available": false,
+    "cross_process_Hessian_restore": "NOT_IMPLEMENTED_SAVE_ONLY",
+    "SCF_checkpoint": {
+      "sha256": "d647b182bf16269f1293ac629394e85a1216ee684da517a01188cef462cd07fc",
+      "bytes": 5704080,
+      "auditor_access": "BYTES_HASH_ONLY_NO_HDF5_OR_ORBITAL_PARSE",
+      "use": "Potential SCF initial guess only; requires future geometry/method/SCF/gradient checks. Not a vibration/Hessian restart."
+    }
+  },
+  "frequency_evidence": {
+    "computed_Spinosin_frequency_records": 0,
+    "validated_Spinosin_frequency_records": 0,
+    "validated_Spinosin_low_band_records": 0,
+    "physical_vibrational_or_low_frequency_peak_count_determined": false,
+    "expected_219_is_not_an_observed_count": true,
+    "empty_CSV_does_not_mean_zero_absorption_or_absent_low_frequency_modes": true,
+    "computed_main_table_water_validation_records": 3,
+    "water_and_ethanol_validation_only": true,
+    "experimental_candidate_pair_rows": 20,
+    "candidate_theory_fields_all_empty_and_BLOCKED": true,
+    "IR_intensity_status": "NOT_COMPUTED",
+    "chemical_assignment_confirmed": false
+  },
+  "scope": {
+    "new_quantum_or_integral_evaluations": 0,
+    "NPY_array_loads": 0,
+    "checkpoint_HDF5_parses": 0,
+    "active_process_signals": 0,
+    "frozen_sources_old_reports_results_or_ledger_modified": false,
+    "classification_or_raw_spectra_modified": false,
+    "Git_operations": 0
+  },
+  "builder_source_sha256": "78c073d73eeb694e1dc61f912a6ea8b8837ec389e46f816b7914f8eb08d5b7a9",
+  "source_hash_manifest": "source_sha256.json"
+}

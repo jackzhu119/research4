@@ -1,0 +1,1913 @@
+{
+  "schema": "research4-fixed-grid-water-step-convergence-v1",
+  "status": "WATER_FIXED_GRID_STEP_CONVERGENCE_INCOMPLETE",
+  "stage": "water-fixed-grid-step-convergence",
+  "method": "FIXED_ORIGINAL_QUADRATURE",
+  "diagnostic_status": "NOT_HESSIAN_OR_MINIMUM",
+  "started_at_utc": "2026-11-07T01:18:32.339570+00:00",
+  "source_worker": {
+    "path": "/workspace/research4/scripts/research4_fixed_grid_water_convergence_20261107.py",
+    "sha256": "f9658ae6146b3f6ef340771d2916dc8b9d41debc0af88a8c096ee804fcef5fc3",
+    "bytes": 60229
+  },
+  "resource_supervision": {
+    "verified_at_utc": "2026-11-07T01:18:31.731571+00:00",
+    "proof_path": "/workspace/research4/reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/execution/water-step-convergence-attempt001.log.supervisor-proof.json",
+    "proof_sha256": "35a172a9f23e0e31988edbcfb98e5ca820bd5f8f313ce2986a6b003b03ce57cd",
+    "proof": {
+      "schema": "research4-pyscf-continuation-supervisor-proof-v8",
+      "guard_semantics": "BEST_EFFORT_RSS_GUARD_NOT_HARD_RSS_LIMIT",
+      "supervisor_pid": 2929,
+      "supervisor_start_ticks": 272226,
+      "child_pid": 2933,
+      "child_start_ticks": 272247,
+      "supervisor_script_path": "/workspace/research4/scripts/run_pyscf_continuation_budget_20261105_v8.py",
+      "supervisor_script_sha256": "7bc773076ecc5e0f90fb58b81bf0641948dd09c14b2816138a0469f16e511c65",
+      "ledger_path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/cpu_budget.json",
+      "phase": "fixedquad20261107v2-water-step-convergence-attempt001",
+      "started_at_utc": "2026-11-07T01:18:31.635874+00:00",
+      "address_space_soft_limit_bytes": 25769803776,
+      "address_space_hard_limit_bytes": 25769803776,
+      "rss_stop_bytes": 10737418240,
+      "cgroup_kill_bytes": 12884901888,
+      "expected_cgroup_memory_max_bytes": 17179869184,
+      "monitor_interval_seconds": 0.1,
+      "memory_kill_grace_seconds": 1.0,
+      "cpu_soft_limit_seconds": 440,
+      "cpu_hard_limit_seconds": 500,
+      "wall_limit_seconds": 900,
+      "threads": 2,
+      "target_uid": 1000,
+      "target_pgid": 2933,
+      "target_session_id": 2933,
+      "cgroup_membership": "0::/",
+      "parent_death_signal": "SIGKILL",
+      "terminal_exit_reap_grace_seconds": 0.5,
+      "terminal_exit_reap_policy": "ONLY_CONFIRMED_OWNED_Z_X_OR_GONE_NO_LIVE_RSS_ZERO_SUBSTITUTION",
+      "proof_is_immutable_launch_contract_not_live_monitor_status": true,
+      "actual_cpu_guard_enabled": true,
+      "actual_cpu_guard_source": "PROC_STAT_CUMULATIVE_FROM_PROCESS_BIRTH",
+      "actual_cpu_clock_ticks_per_second": 100,
+      "actual_cpu_cleanup_reserve_seconds": 120,
+      "actual_cpu_stop_threshold_seconds": 380,
+      "actual_cpu_closed_batch_cost_seconds": 381232.2089579999,
+      "actual_cpu_batch_cap_seconds": 390160.8308359999,
+      "cpu_guard_kill_grace_seconds": 1.0
+    },
+    "observed_CPU_limits_seconds": [
+      440,
+      500
+    ],
+    "observed_address_space_limits_bytes": [
+      25769803776,
+      25769803776
+    ],
+    "observed_cgroup_memory_max_bytes": 17179869184,
+    "observed_cgroup_memory_current_bytes": 1910591488,
+    "observed_child_pid": 2933,
+    "observed_supervisor_pid": 2929,
+    "AS_is_virtual_address_cap_not_RSS_limit": true,
+    "RSS_guard_is_best_effort_not_a_hard_limit": true,
+    "live_parent_process_and_source_verified": true,
+    "actual_CPU_sampling_is_best_effort": true,
+    "profiling_RLIMIT_is_supplementary_not_exact_actual_CPU_guarantee": true,
+    "startup_proof_is_not_future_monitor_health_confirmation": true,
+    "closed_V8_lineage_and_new96h_explicit_increment_verified": true
+  },
+  "output_directory": "/workspace/research4/reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001",
+  "source_result": {
+    "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/controls/v8-control-water-global-003/result.json",
+    "sha256": "0c0095ba3de27abee012ffe6b8975908b127f2664a42b104a2a3830673f88165",
+    "bytes": 57890
+  },
+  "snapshot_manifest_sha256": "123e3e760111f349315703fd213d94aac26eda87e02d03caf98dc9ebbd0cfaf4",
+  "case": "water_software_control",
+  "v2_source_qualification": {
+    "seal": {
+      "path": "/workspace/research4/reports/fixed-quadrature-convergence-20261107-v2/source-qualification/water/qualification.json",
+      "sha256": "0f9a2cc3ba70a5dc65f009e196511c2c3a3842f959b8c0e1565898e4b3078a11"
+    },
+    "prefix_verification": {
+      "sealed_original_rows_verified": 183,
+      "scheduled_appended_rows_verified": 1,
+      "unique_running_phase": "fixedquad20261107v2-water-step-convergence-attempt001"
+    },
+    "whole_mutable_ledger_hash_exception_scope": "EXACT_SEALED_PREFIX_AND_EXPLICIT_SCHEDULE_ONLY"
+  },
+  "closed_main_pipeline_state": {
+    "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/global-assemble-recovery-002/state.json",
+    "sha256": "f2974458d23abeb320db736ce6c4cdb3f0b4d509f707a4dc67fd7d5ceaaa2578"
+  },
+  "source_boot_id": "50ca0010-b743-43c7-bc0f-b6bcbc47c68d",
+  "current_execution_boot_id": "bcc60ef9-a836-45c2-82a2-1766833e8991",
+  "historical_source_gate_validated_against_its_own_boot": true,
+  "stable_MF_state_unchanged": true,
+  "stationary_minimum_verified": false,
+  "chemical_assignment_verified": false,
+  "IR_intensities_status": "NOT_COMPUTED",
+  "new_full_Hessian": "NOT_COMPUTED",
+  "old_scientific_results_modified": false,
+  "new_classifier_training": false,
+  "automatic_retry_allowed": false,
+  "old_single_gradient_Spinosin_release": false,
+  "Spinosin_execution_in_this_worker": "FORBIDDEN",
+  "finest_pair_passed": false,
+  "same_spinosin_step_energy_passed": false,
+  "same_spinosin_energy_step_bohr": 0.0003125,
+  "all_31_prescribed_points_completed": false,
+  "thresholds": {
+    "FD_Hq_max_abs_error_Eh_per_Bohr2": 0.0001,
+    "h_halving_FD_Hq_max_abs_difference_Eh_per_Bohr2": 5e-05,
+    "central_energy_curvature_abs_error_Eh_per_Bohr2": 0.0001
+  },
+  "predetermined_coordinates_0based": [
+    0,
+    4,
+    8
+  ],
+  "predetermined_steps_bohr": [
+    0.00125,
+    0.000625,
+    0.0003125,
+    0.00015625,
+    7.8125e-05
+  ],
+  "predetermined_signs": [
+    -1,
+    1
+  ],
+  "finest_pair_selection": [
+    0.00015625,
+    7.8125e-05
+  ],
+  "expected_point_count": 31,
+  "software_control_SCF_conv_tol_hartree": 1e-13,
+  "software_control_SCF_conv_tol_grad": 1e-09,
+  "all_points_including_zero_perform_fresh_SCF": true,
+  "strict_SCF_energy_AND_orbital_gradient_required_including_extra_cycle": true,
+  "archived_gradient_comparison_scope": "MEASURED_ONLY_NO_ARCHIVED_ZERO_GRADIENT_ACCEPTANCE_GATE",
+  "acceptance_uses_absolute_full_vector_and_energy_errors": true,
+  "points": [
+    {
+      "path": "/workspace/research4/reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/fresh-zero-scf-gradient/native_result.json",
+      "sha256": "5017cb242b333ad8a2c0d5139ea9a9f03a749441e68fb8bdeac28d3410e6c3ac",
+      "bytes": 17706
+    },
+    {
+      "path": "/workspace/research4/reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00125000-minus/native_result.json",
+      "sha256": "02f63e32a1b9b2e927dc793098129e6cc39596f294ffa97554398acc6edad682",
+      "bytes": 21870
+    },
+    {
+      "path": "/workspace/research4/reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00125000-plus/native_result.json",
+      "sha256": "c133601fdfc02619a8a3c5c3e77c37178aafa798901181f2b1ab6b1f981f0a0a",
+      "bytes": 22516
+    },
+    {
+      "path": "/workspace/research4/reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00062500-minus/native_result.json",
+      "sha256": "4c5ded1f958238dba8e3ba2ba35ecabf50761f1f387600d240e8a2da01294010",
+      "bytes": 19940
+    },
+    {
+      "path": "/workspace/research4/reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00062500-plus/native_result.json",
+      "sha256": "783be73ee6503153fee4c4857b97cec99b4ea8039d76745c9e6737804d488721",
+      "bytes": 16140
+    },
+    {
+      "path": "/workspace/research4/reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00031250-minus/native_result.json",
+      "sha256": "63a80cc0dd7cc4ddd024e48eddd39b4bd1b3a16d6ab2072d4ee99b76561e8d1c",
+      "bytes": 18980
+    },
+    {
+      "path": "/workspace/research4/reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00031250-plus/native_result.json",
+      "sha256": "76df747e507d6241f28ad30a30632088d684b9db9fe1e9456f9247f2e3b42935",
+      "bytes": 15164
+    },
+    {
+      "path": "/workspace/research4/reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00015625-minus/native_result.json",
+      "sha256": "3cdafa4aa4f3c0337654045a3ac545da75e8c1cbc29b20d0def0797e376fd8ce",
+      "bytes": 15813
+    },
+    {
+      "path": "/workspace/research4/reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00015625-plus/native_result.json",
+      "sha256": "a16511ebbbe70fe1d7bbbd05d495f9efd830203bc6cfc55d644679309440aa3d",
+      "bytes": 19943
+    },
+    {
+      "path": "/workspace/research4/reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00007813-minus/native_result.json",
+      "sha256": "eedcba3a2920fef3860a52440dc447ace32229e3a197db23c39be815da98ee0c",
+      "bytes": 19965
+    },
+    {
+      "path": "/workspace/research4/reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00007813-plus/native_result.json",
+      "sha256": "a016380593706b85985f56cea8db8bacf46968a8526d2838a4fc3443d852fa45",
+      "bytes": 19948
+    },
+    {
+      "path": "/workspace/research4/reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00125000-minus/native_result.json",
+      "sha256": "0b09f82741d4df98d8b0a09de176c094040043452590cafe096c39315dca748a",
+      "bytes": 19348
+    },
+    {
+      "path": "/workspace/research4/reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00125000-plus/native_result.json",
+      "sha256": "a47276507684593d2f391e3e6eb91095f40cda9530e67596ab867515f80a9f79",
+      "bytes": 19358
+    },
+    {
+      "path": "/workspace/research4/reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00062500-minus/native_result.json",
+      "sha256": "63e7f43df9c25bf004daf4a2c2b3c22746b733b0b135ea05d3162f9b23e67dd9",
+      "bytes": 18723
+    },
+    {
+      "path": "/workspace/research4/reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00062500-plus/native_result.json",
+      "sha256": "032321447bdc25405d6b8f4aa3845e5efd2210bff852c4269f3dd72888f2531c",
+      "bytes": 18376
+    },
+    {
+      "path": "/workspace/research4/reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00031250-minus/native_result.json",
+      "sha256": "209e60074e7c48b9fb3a25c1c411d0d6ffcd3e8fb8b40c6a87f49227f6972ca5",
+      "bytes": 17427
+    },
+    {
+      "path": "/workspace/research4/reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00031250-plus/native_result.json",
+      "sha256": "bbe041cd007a0ba7aab6ed090e854d92b9eb802399ac433bc0e767cf74e3c67d",
+      "bytes": 18359
+    },
+    {
+      "path": "/workspace/research4/reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00015625-minus/native_result.json",
+      "sha256": "c81e29543eee55f872be8bd390d71bcf7b21fe9d1d3c3ea91686a92b53de8a13",
+      "bytes": 17728
+    },
+    {
+      "path": "/workspace/research4/reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00015625-plus/native_result.json",
+      "sha256": "731fa8e4509f35b0a7372fd2c3133434f3b5497a4229d1f361df7b1c14b87246",
+      "bytes": 18083
+    },
+    {
+      "path": "/workspace/research4/reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00007813-minus/native_result.json",
+      "sha256": "65db23249b8a0e0a452f8ae7ea70e2df96cb7a681ea997b9134bd37462d614c7",
+      "bytes": 21868
+    },
+    {
+      "path": "/workspace/research4/reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00007813-plus/native_result.json",
+      "sha256": "f5af9c67294dd92cd4f9844d759d8a15537555534b729019334969dc090b7aea",
+      "bytes": 17712
+    },
+    {
+      "path": "/workspace/research4/reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00125000-minus/native_result.json",
+      "sha256": "9cb148e0e2448325cec11097d92c022258279ec0d5f3d25a6f1990f904a0f442",
+      "bytes": 19305
+    },
+    {
+      "path": "/workspace/research4/reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00125000-plus/native_result.json",
+      "sha256": "ffffce47fdafb0da625374c94bd53e6e2fdc577795c0e53a354fc80efb1d3bf9",
+      "bytes": 18975
+    },
+    {
+      "path": "/workspace/research4/reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00062500-minus/native_result.json",
+      "sha256": "0fbf0fef466bbd457df5134c68921584a8948d8d2b14b404008825291da53caf",
+      "bytes": 14535
+    },
+    {
+      "path": "/workspace/research4/reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00062500-plus/native_result.json",
+      "sha256": "c1f9e849d4e0473d004e44072865a86ed69f0dadd7f56f2fc50b98ac27c8b631",
+      "bytes": 14527
+    },
+    {
+      "path": "/workspace/research4/reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00031250-minus/native_result.json",
+      "sha256": "442812c8e91d9182f1ed841c96e0b606bdf162c9045b16c9efd39a8eea8ea355",
+      "bytes": 18322
+    },
+    {
+      "path": "/workspace/research4/reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00031250-plus/native_result.json",
+      "sha256": "916924968a029038528c4c3b5519a9dd6cfa30a8aa05cd2d895e8cacb8d29938",
+      "bytes": 18634
+    },
+    {
+      "path": "/workspace/research4/reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00015625-minus/native_result.json",
+      "sha256": "edf52e10be137857a413fc3d881529824f7203784e1b1ddd8a3bb94a6bffd5ec",
+      "bytes": 14858
+    },
+    {
+      "path": "/workspace/research4/reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00015625-plus/native_result.json",
+      "sha256": "578ccf97eef51d0c8eb37d6b43396df8a5fb2039b8488dd4ed72c6a9355efa84",
+      "bytes": 18976
+    },
+    {
+      "path": "/workspace/research4/reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00007813-minus/native_result.json",
+      "sha256": "338a801ad9a173b0db78a682e7048a6f2c0e022fd39e9548c8fe73a7816d9758",
+      "bytes": 18990
+    },
+    {
+      "path": "/workspace/research4/reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00007813-plus/native_result.json",
+      "sha256": "ba39eb9c4ac9b0400d5504816b17e24f4a9b4817775304bc262668a9526e073e",
+      "bytes": 19956
+    }
+  ],
+  "comparisons": [
+    {
+      "coordinate_index_0based": 0,
+      "step_bohr": 0.00125,
+      "analytic_Hq_hartree_per_bohr2": [
+        [
+          0.5491843308693187,
+          1.0360214705376749e-09,
+          1.6772429850132728e-14
+        ],
+        [
+          -0.30780582134678336,
+          -0.24892668777103255,
+          -1.0593866351599275e-14
+        ],
+        [
+          -0.30780581983327193,
+          0.2489266867356752,
+          -5.979663230185984e-15
+        ]
+      ],
+      "analytic_directional_curvature_Eh_per_Bohr2": 0.5491843308693187,
+      "source_arrays": {
+        "raw_hessian": {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/controls/v8-control-water-global-003/hessian_hartree_per_bohr2.npy",
+          "sha256": "065a67a1f93877c84cc0d65f29b959a065c03bae0871925e604ff803147fcf2d",
+          "bytes": 776
+        }
+      },
+      "pair_completed": true,
+      "fresh_zero_completed": true,
+      "included_in_finest_pair_gate": false,
+      "plus_gradient_hartree_per_bohr": [
+        [
+          0.0006882652434759126,
+          -0.00022977963084747088,
+          -2.1131396731674165e-15
+        ],
+        [
+          -0.00034969687263353144,
+          -0.00032306582869945366,
+          -1.4871859927382044e-17
+        ],
+        [
+          -0.0004198127470298463,
+          0.000299250611943247,
+          7.594130807603606e-17
+        ]
+      ],
+      "minus_gradient_hartree_per_bohr": [
+        [
+          -0.000688265242706816,
+          -0.00022977960442682743,
+          9.054242102109647e-16
+        ],
+        [
+          0.0004198127219532388,
+          0.0002992505980541349,
+          -6.993136641574232e-17
+        ],
+        [
+          0.0003496968969474157,
+          -0.0003230658412438636,
+          2.1659430053846605e-17
+        ]
+      ],
+      "plus_energy_hartree": -76.27253411088375,
+      "minus_energy_hartree": -76.27253411088381,
+      "FD_Hq_hartree_per_bohr2": [
+        [
+          0.5506121944730914,
+          -1.056825738032785e-08,
+          -1.2074255533513524e-12
+        ],
+        [
+          -0.3078038378347081,
+          -0.24892657070143542,
+          2.2023802595344112e-14
+        ],
+        [
+          -0.3078038575909048,
+          0.24892658127484424,
+          2.1712751208875783e-14
+        ]
+      ],
+      "FD_minus_analytic_Hq_hartree_per_bohr2": [
+        [
+          0.0014278636037726722,
+          -1.1604278850865525e-08,
+          -1.224197983201485e-12
+        ],
+        [
+          1.983512075254268e-06,
+          1.1706959712753928e-07,
+          3.261766894694339e-14
+        ],
+        [
+          1.96224236714837e-06,
+          -1.0546083095697156e-07,
+          2.7692414439061767e-14
+        ]
+      ],
+      "FD_Hq_max_abs_error_Eh_per_Bohr2": 0.0014278636037726722,
+      "FD_Hq_absolute_error_check_passed": false,
+      "finite_gradient_directional_curvature_Eh_per_Bohr2": 0.5506121944730914,
+      "fresh_zero_energy_hartree": -76.27253454049124,
+      "central_energy_curvature_formula": "(E_plus+E_minus-2*FRESH_SCF_E0)/(h*h)",
+      "central_energy_curvature_Eh_per_Bohr2": 0.5498975406226236,
+      "central_energy_curvature_minus_analytic_Eh_per_Bohr2": 0.0007132097533049109,
+      "central_energy_curvature_abs_error_Eh_per_Bohr2": 0.0007132097533049109,
+      "central_energy_curvature_absolute_error_check_passed": false
+    },
+    {
+      "coordinate_index_0based": 0,
+      "step_bohr": 0.000625,
+      "analytic_Hq_hartree_per_bohr2": [
+        [
+          0.5491843308693187,
+          1.0360214705376749e-09,
+          1.6772429850132728e-14
+        ],
+        [
+          -0.30780582134678336,
+          -0.24892668777103255,
+          -1.0593866351599275e-14
+        ],
+        [
+          -0.30780581983327193,
+          0.2489266867356752,
+          -5.979663230185984e-15
+        ]
+      ],
+      "analytic_directional_curvature_Eh_per_Bohr2": 0.5491843308693187,
+      "source_arrays": {
+        "raw_hessian": {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/controls/v8-control-water-global-003/hessian_hartree_per_bohr2.npy",
+          "sha256": "065a67a1f93877c84cc0d65f29b959a065c03bae0871925e604ff803147fcf2d",
+          "bytes": 776
+        }
+      },
+      "pair_completed": false,
+      "fresh_zero_completed": true,
+      "included_in_finest_pair_gate": false
+    },
+    {
+      "coordinate_index_0based": 0,
+      "step_bohr": 0.0003125,
+      "analytic_Hq_hartree_per_bohr2": [
+        [
+          0.5491843308693187,
+          1.0360214705376749e-09,
+          1.6772429850132728e-14
+        ],
+        [
+          -0.30780582134678336,
+          -0.24892668777103255,
+          -1.0593866351599275e-14
+        ],
+        [
+          -0.30780581983327193,
+          0.2489266867356752,
+          -5.979663230185984e-15
+        ]
+      ],
+      "analytic_directional_curvature_Eh_per_Bohr2": 0.5491843308693187,
+      "source_arrays": {
+        "raw_hessian": {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/controls/v8-control-water-global-003/hessian_hartree_per_bohr2.npy",
+          "sha256": "065a67a1f93877c84cc0d65f29b959a065c03bae0871925e604ff803147fcf2d",
+          "bytes": 776
+        }
+      },
+      "pair_completed": false,
+      "fresh_zero_completed": true,
+      "included_in_finest_pair_gate": false
+    },
+    {
+      "coordinate_index_0based": 0,
+      "step_bohr": 0.00015625,
+      "analytic_Hq_hartree_per_bohr2": [
+        [
+          0.5491843308693187,
+          1.0360214705376749e-09,
+          1.6772429850132728e-14
+        ],
+        [
+          -0.30780582134678336,
+          -0.24892668777103255,
+          -1.0593866351599275e-14
+        ],
+        [
+          -0.30780581983327193,
+          0.2489266867356752,
+          -5.979663230185984e-15
+        ]
+      ],
+      "analytic_directional_curvature_Eh_per_Bohr2": 0.5491843308693187,
+      "source_arrays": {
+        "raw_hessian": {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/controls/v8-control-water-global-003/hessian_hartree_per_bohr2.npy",
+          "sha256": "065a67a1f93877c84cc0d65f29b959a065c03bae0871925e604ff803147fcf2d",
+          "bytes": 776
+        }
+      },
+      "pair_completed": false,
+      "fresh_zero_completed": true,
+      "included_in_finest_pair_gate": true
+    },
+    {
+      "coordinate_index_0based": 0,
+      "step_bohr": 7.8125e-05,
+      "analytic_Hq_hartree_per_bohr2": [
+        [
+          0.5491843308693187,
+          1.0360214705376749e-09,
+          1.6772429850132728e-14
+        ],
+        [
+          -0.30780582134678336,
+          -0.24892668777103255,
+          -1.0593866351599275e-14
+        ],
+        [
+          -0.30780581983327193,
+          0.2489266867356752,
+          -5.979663230185984e-15
+        ]
+      ],
+      "analytic_directional_curvature_Eh_per_Bohr2": 0.5491843308693187,
+      "source_arrays": {
+        "raw_hessian": {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/controls/v8-control-water-global-003/hessian_hartree_per_bohr2.npy",
+          "sha256": "065a67a1f93877c84cc0d65f29b959a065c03bae0871925e604ff803147fcf2d",
+          "bytes": 776
+        }
+      },
+      "pair_completed": true,
+      "fresh_zero_completed": true,
+      "included_in_finest_pair_gate": true,
+      "plus_gradient_hartree_per_bohr": [
+        [
+          4.290516591551143e-05,
+          -0.00023124545586306056,
+          1.4222315686690678e-16
+        ],
+        [
+          1.1512066491414785e-05,
+          -3.0702835873253065e-05,
+          -1.5176198948467618e-17
+        ],
+        [
+          -5.960641141933287e-05,
+          8.191866036844075e-06,
+          -4.3012256591789045e-17
+        ]
+      ],
+      "minus_gradient_hartree_per_bohr": [
+        [
+          -4.290516590827084e-05,
+          -0.00023124545586750145,
+          -8.295126860073405e-16
+        ],
+        [
+          5.9606411420443095e-05,
+          8.191866040174745e-06,
+          -2.508982858318985e-17
+        ],
+        [
+          -1.151206649407932e-05,
+          -3.070283587147671e-05,
+          -2.3082856104459552e-17
+        ]
+      ],
+      "plus_energy_hartree": -76.27253453881531,
+      "minus_energy_hartree": -76.27253453881538,
+      "FD_Hq_hartree_per_bohr2": [
+        [
+          0.5491861236722065,
+          2.8421709430404007e-11,
+          6.219109394395183e-12
+        ],
+        [
+          -0.3078038075457812,
+          -0.24892609224593798,
+          6.344722966222228e-14
+        ],
+        [
+          -0.30780380752162273,
+          0.24892609221325301,
+          -1.2754816311890876e-13
+        ]
+      ],
+      "FD_minus_analytic_Hq_hartree_per_bohr2": [
+        [
+          1.7928028878122504e-06,
+          -1.0075997611072709e-09,
+          6.20233696454505e-12
+        ],
+        [
+          2.0138010021764075e-06,
+          5.955250945710588e-07,
+          7.404109601382156e-14
+        ],
+        [
+          2.0123116492021254e-06,
+          -5.945224221814982e-07,
+          -1.2156849988872277e-13
+        ]
+      ],
+      "FD_Hq_max_abs_error_Eh_per_Bohr2": 2.0138010021764075e-06,
+      "FD_Hq_absolute_error_check_passed": true,
+      "finite_gradient_directional_curvature_Eh_per_Bohr2": 0.5491861236722065,
+      "fresh_zero_energy_hartree": -76.27253454049124,
+      "central_energy_curvature_formula": "(E_plus+E_minus-2*FRESH_SCF_E0)/(h*h)",
+      "central_energy_curvature_Eh_per_Bohr2": 0.5491566844284534,
+      "central_energy_curvature_minus_analytic_Eh_per_Bohr2": -2.7646440865281008e-05,
+      "central_energy_curvature_abs_error_Eh_per_Bohr2": 2.7646440865281008e-05,
+      "central_energy_curvature_absolute_error_check_passed": true
+    },
+    {
+      "coordinate_index_0based": 4,
+      "step_bohr": 0.00125,
+      "analytic_Hq_hartree_per_bohr2": [
+        [
+          -0.24892668777103277,
+          -0.2190492314396863,
+          -8.455596206480777e-15
+        ],
+        [
+          0.21916705776928946,
+          0.21019121813197922,
+          7.691028597281839e-15
+        ],
+        [
+          0.02978748896143027,
+          0.008829264358106943,
+          7.965202987533511e-16
+        ]
+      ],
+      "analytic_directional_curvature_Eh_per_Bohr2": 0.21019121813197922,
+      "source_arrays": {
+        "raw_hessian": {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/controls/v8-control-water-global-003/hessian_hartree_per_bohr2.npy",
+          "sha256": "065a67a1f93877c84cc0d65f29b959a065c03bae0871925e604ff803147fcf2d",
+          "bytes": 776
+        }
+      },
+      "pair_completed": false,
+      "fresh_zero_completed": true,
+      "included_in_finest_pair_gate": false
+    },
+    {
+      "coordinate_index_0based": 4,
+      "step_bohr": 0.000625,
+      "analytic_Hq_hartree_per_bohr2": [
+        [
+          -0.24892668777103277,
+          -0.2190492314396863,
+          -8.455596206480777e-15
+        ],
+        [
+          0.21916705776928946,
+          0.21019121813197922,
+          7.691028597281839e-15
+        ],
+        [
+          0.02978748896143027,
+          0.008829264358106943,
+          7.965202987533511e-16
+        ]
+      ],
+      "analytic_directional_curvature_Eh_per_Bohr2": 0.21019121813197922,
+      "source_arrays": {
+        "raw_hessian": {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/controls/v8-control-water-global-003/hessian_hartree_per_bohr2.npy",
+          "sha256": "065a67a1f93877c84cc0d65f29b959a065c03bae0871925e604ff803147fcf2d",
+          "bytes": 776
+        }
+      },
+      "pair_completed": false,
+      "fresh_zero_completed": true,
+      "included_in_finest_pair_gate": false
+    },
+    {
+      "coordinate_index_0based": 4,
+      "step_bohr": 0.0003125,
+      "analytic_Hq_hartree_per_bohr2": [
+        [
+          -0.24892668777103277,
+          -0.2190492314396863,
+          -8.455596206480777e-15
+        ],
+        [
+          0.21916705776928946,
+          0.21019121813197922,
+          7.691028597281839e-15
+        ],
+        [
+          0.02978748896143027,
+          0.008829264358106943,
+          7.965202987533511e-16
+        ]
+      ],
+      "analytic_directional_curvature_Eh_per_Bohr2": 0.21019121813197922,
+      "source_arrays": {
+        "raw_hessian": {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/controls/v8-control-water-global-003/hessian_hartree_per_bohr2.npy",
+          "sha256": "065a67a1f93877c84cc0d65f29b959a065c03bae0871925e604ff803147fcf2d",
+          "bytes": 776
+        }
+      },
+      "pair_completed": false,
+      "fresh_zero_completed": true,
+      "included_in_finest_pair_gate": false
+    },
+    {
+      "coordinate_index_0based": 4,
+      "step_bohr": 0.00015625,
+      "analytic_Hq_hartree_per_bohr2": [
+        [
+          -0.24892668777103277,
+          -0.2190492314396863,
+          -8.455596206480777e-15
+        ],
+        [
+          0.21916705776928946,
+          0.21019121813197922,
+          7.691028597281839e-15
+        ],
+        [
+          0.02978748896143027,
+          0.008829264358106943,
+          7.965202987533511e-16
+        ]
+      ],
+      "analytic_directional_curvature_Eh_per_Bohr2": 0.21019121813197922,
+      "source_arrays": {
+        "raw_hessian": {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/controls/v8-control-water-global-003/hessian_hartree_per_bohr2.npy",
+          "sha256": "065a67a1f93877c84cc0d65f29b959a065c03bae0871925e604ff803147fcf2d",
+          "bytes": 776
+        }
+      },
+      "pair_completed": false,
+      "fresh_zero_completed": true,
+      "included_in_finest_pair_gate": true
+    },
+    {
+      "coordinate_index_0based": 4,
+      "step_bohr": 7.8125e-05,
+      "analytic_Hq_hartree_per_bohr2": [
+        [
+          -0.24892668777103277,
+          -0.2190492314396863,
+          -8.455596206480777e-15
+        ],
+        [
+          0.21916705776928946,
+          0.21019121813197922,
+          7.691028597281839e-15
+        ],
+        [
+          0.02978748896143027,
+          0.008829264358106943,
+          7.965202987533511e-16
+        ]
+      ],
+      "analytic_directional_curvature_Eh_per_Bohr2": 0.21019121813197922,
+      "source_arrays": {
+        "raw_hessian": {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/controls/v8-control-water-global-003/hessian_hartree_per_bohr2.npy",
+          "sha256": "065a67a1f93877c84cc0d65f29b959a065c03bae0871925e604ff803147fcf2d",
+          "bytes": 776
+        }
+      },
+      "pair_completed": false,
+      "fresh_zero_completed": true,
+      "included_in_finest_pair_gate": true
+    },
+    {
+      "coordinate_index_0based": 8,
+      "step_bohr": 0.00125,
+      "analytic_Hq_hartree_per_bohr2": [
+        [
+          -5.979663230185978e-15,
+          3.0357420110045737e-15,
+          -1.497422366880663e-05
+        ],
+        [
+          -1.1042237449514505e-15,
+          7.965202987533511e-16,
+          -2.0995238797491544e-05
+        ],
+        [
+          7.092621808340039e-15,
+          -3.815074238336444e-15,
+          7.0273674568355204e-06
+        ]
+      ],
+      "analytic_directional_curvature_Eh_per_Bohr2": 7.0273674568355204e-06,
+      "source_arrays": {
+        "raw_hessian": {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/controls/v8-control-water-global-003/hessian_hartree_per_bohr2.npy",
+          "sha256": "065a67a1f93877c84cc0d65f29b959a065c03bae0871925e604ff803147fcf2d",
+          "bytes": 776
+        }
+      },
+      "pair_completed": true,
+      "fresh_zero_completed": true,
+      "included_in_finest_pair_gate": false,
+      "plus_gradient_hartree_per_bohr": [
+        [
+          1.6791948928993386e-07,
+          -0.00023137668608086415,
+          -1.496323212145552e-08
+        ],
+        [
+          3.555984381731214e-05,
+          -1.1258081199505554e-05,
+          -2.680666865300009e-08
+        ],
+        [
+          -3.572775446825105e-05,
+          -1.1122231371007985e-05,
+          5.594032154165873e-09
+        ]
+      ],
+      "minus_gradient_hartree_per_bohr": [
+        [
+          1.679162044839775e-07,
+          -0.0002313766859223243,
+          1.4969208969161513e-08
+        ],
+        [
+          3.555984531811163e-05,
+          -1.1258078811415828e-05,
+          2.680421965646203e-08
+        ],
+        [
+          -3.572775268212425e-05,
+          -1.112223391919187e-05,
+          -5.59757140140317e-09
+        ]
+      ],
+      "plus_energy_hartree": -76.27253454048777,
+      "minus_energy_hartree": -76.27253454048775,
+      "FD_Hq_hartree_per_bohr2": [
+        [
+          1.3139223825401854e-09,
+          -6.341593916658894e-11,
+          -1.1972976436246813e-05
+        ],
+        [
+          -6.003197938753146e-10,
+          -9.552358903874847e-10,
+          -2.1444355323784847e-05
+        ],
+        [
+          -7.144507208067807e-10,
+          1.0192735544478637e-09,
+          4.476641422227617e-06
+        ]
+      ],
+      "FD_minus_analytic_Hq_hartree_per_bohr2": [
+        [
+          1.3139283622034156e-09,
+          -6.341897490859995e-11,
+          3.001247232559817e-06
+        ],
+        [
+          -6.003186896515697e-10,
+          -9.552366869077834e-10,
+          -4.491165262933026e-07
+        ],
+        [
+          -7.144578134285891e-10,
+          1.019277369522102e-09,
+          -2.550726034607903e-06
+        ]
+      ],
+      "FD_Hq_max_abs_error_Eh_per_Bohr2": 3.001247232559817e-06,
+      "FD_Hq_absolute_error_check_passed": true,
+      "finite_gradient_directional_curvature_Eh_per_Bohr2": 4.476641422227617e-06,
+      "fresh_zero_energy_hartree": -76.27253454049124,
+      "central_energy_curvature_formula": "(E_plus+E_minus-2*FRESH_SCF_E0)/(h*h)",
+      "central_energy_curvature_Eh_per_Bohr2": 4.447429091669619e-06,
+      "central_energy_curvature_minus_analytic_Eh_per_Bohr2": -2.5799383651659014e-06,
+      "central_energy_curvature_abs_error_Eh_per_Bohr2": 2.5799383651659014e-06,
+      "central_energy_curvature_absolute_error_check_passed": true
+    },
+    {
+      "coordinate_index_0based": 8,
+      "step_bohr": 0.000625,
+      "analytic_Hq_hartree_per_bohr2": [
+        [
+          -5.979663230185978e-15,
+          3.0357420110045737e-15,
+          -1.497422366880663e-05
+        ],
+        [
+          -1.1042237449514505e-15,
+          7.965202987533511e-16,
+          -2.0995238797491544e-05
+        ],
+        [
+          7.092621808340039e-15,
+          -3.815074238336444e-15,
+          7.0273674568355204e-06
+        ]
+      ],
+      "analytic_directional_curvature_Eh_per_Bohr2": 7.0273674568355204e-06,
+      "source_arrays": {
+        "raw_hessian": {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/controls/v8-control-water-global-003/hessian_hartree_per_bohr2.npy",
+          "sha256": "065a67a1f93877c84cc0d65f29b959a065c03bae0871925e604ff803147fcf2d",
+          "bytes": 776
+        }
+      },
+      "pair_completed": false,
+      "fresh_zero_completed": true,
+      "included_in_finest_pair_gate": false
+    },
+    {
+      "coordinate_index_0based": 8,
+      "step_bohr": 0.0003125,
+      "analytic_Hq_hartree_per_bohr2": [
+        [
+          -5.979663230185978e-15,
+          3.0357420110045737e-15,
+          -1.497422366880663e-05
+        ],
+        [
+          -1.1042237449514505e-15,
+          7.965202987533511e-16,
+          -2.0995238797491544e-05
+        ],
+        [
+          7.092621808340039e-15,
+          -3.815074238336444e-15,
+          7.0273674568355204e-06
+        ]
+      ],
+      "analytic_directional_curvature_Eh_per_Bohr2": 7.0273674568355204e-06,
+      "source_arrays": {
+        "raw_hessian": {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/controls/v8-control-water-global-003/hessian_hartree_per_bohr2.npy",
+          "sha256": "065a67a1f93877c84cc0d65f29b959a065c03bae0871925e604ff803147fcf2d",
+          "bytes": 776
+        }
+      },
+      "pair_completed": true,
+      "fresh_zero_completed": true,
+      "included_in_finest_pair_gate": false,
+      "plus_gradient_hartree_per_bohr": [
+        [
+          1.0495580987920694e-08,
+          -0.0002312590394102365,
+          -3.704000252455382e-09
+        ],
+        [
+          3.556111249625182e-05,
+          -1.1253253829668353e-05,
+          -6.702814535401602e-09
+        ],
+        [
+          -3.557160752043487e-05,
+          -1.1244762296636068e-05,
+          1.363048681519638e-09
+        ]
+      ],
+      "minus_gradient_hartree_per_bohr": [
+        [
+          1.0500389136816351e-08,
+          -0.00023125903933962633,
+          3.6948530860868474e-09
+        ],
+        [
+          3.55611100504305e-05,
+          -1.1253257424792551e-05,
+          6.70631507462065e-09
+        ],
+        [
+          -3.5571609884543776e-05,
+          -1.1244758773454322e-05,
+          -1.3573899456157355e-09
+        ]
+      ],
+      "plus_energy_hartree": -76.27253454049114,
+      "minus_energy_hartree": -76.27253454049114,
+      "FD_Hq_hartree_per_bohr2": [
+        [
+          -7.69303823305211e-09,
+          -1.1297629498585593e-10,
+          -1.1838165341667567e-05
+        ],
+        [
+          3.913314117198752e-09,
+          5.752198717345891e-09,
+          -2.1454607376035603e-05
+        ],
+        [
+          3.782574253818893e-09,
+          -5.637090794152755e-09,
+          4.352701803416598e-06
+        ]
+      ],
+      "FD_minus_analytic_Hq_hartree_per_bohr2": [
+        [
+          -7.693032253388879e-09,
+          -1.1297933072786694e-10,
+          3.136058327139063e-06
+        ],
+        [
+          3.913315221422497e-09,
+          5.752197920825592e-09,
+          -4.5936857854405894e-07
+        ],
+        [
+          3.782567161197085e-09,
+          -5.637086979078517e-09,
+          -2.674665653418923e-06
+        ]
+      ],
+      "FD_Hq_max_abs_error_Eh_per_Bohr2": 3.136058327139063e-06,
+      "FD_Hq_absolute_error_check_passed": true,
+      "finite_gradient_directional_curvature_Eh_per_Bohr2": 4.352701803416598e-06,
+      "fresh_zero_energy_hartree": -76.27253454049124,
+      "central_energy_curvature_formula": "(E_plus+E_minus-2*FRESH_SCF_E0)/(h*h)",
+      "central_energy_curvature_Eh_per_Bohr2": 2.0372681319713593e-06,
+      "central_energy_curvature_minus_analytic_Eh_per_Bohr2": -4.990099324864161e-06,
+      "central_energy_curvature_abs_error_Eh_per_Bohr2": 4.990099324864161e-06,
+      "central_energy_curvature_absolute_error_check_passed": true
+    },
+    {
+      "coordinate_index_0based": 8,
+      "step_bohr": 0.00015625,
+      "analytic_Hq_hartree_per_bohr2": [
+        [
+          -5.979663230185978e-15,
+          3.0357420110045737e-15,
+          -1.497422366880663e-05
+        ],
+        [
+          -1.1042237449514505e-15,
+          7.965202987533511e-16,
+          -2.0995238797491544e-05
+        ],
+        [
+          7.092621808340039e-15,
+          -3.815074238336444e-15,
+          7.0273674568355204e-06
+        ]
+      ],
+      "analytic_directional_curvature_Eh_per_Bohr2": 7.0273674568355204e-06,
+      "source_arrays": {
+        "raw_hessian": {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/controls/v8-control-water-global-003/hessian_hartree_per_bohr2.npy",
+          "sha256": "065a67a1f93877c84cc0d65f29b959a065c03bae0871925e604ff803147fcf2d",
+          "bytes": 776
+        }
+      },
+      "pair_completed": false,
+      "fresh_zero_completed": true,
+      "included_in_finest_pair_gate": true
+    },
+    {
+      "coordinate_index_0based": 8,
+      "step_bohr": 7.8125e-05,
+      "analytic_Hq_hartree_per_bohr2": [
+        [
+          -5.979663230185978e-15,
+          3.0357420110045737e-15,
+          -1.497422366880663e-05
+        ],
+        [
+          -1.1042237449514505e-15,
+          7.965202987533511e-16,
+          -2.0995238797491544e-05
+        ],
+        [
+          7.092621808340039e-15,
+          -3.815074238336444e-15,
+          7.0273674568355204e-06
+        ]
+      ],
+      "analytic_directional_curvature_Eh_per_Bohr2": 7.0273674568355204e-06,
+      "source_arrays": {
+        "raw_hessian": {
+          "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/controls/v8-control-water-global-003/hessian_hartree_per_bohr2.npy",
+          "sha256": "065a67a1f93877c84cc0d65f29b959a065c03bae0871925e604ff803147fcf2d",
+          "bytes": 776
+        }
+      },
+      "pair_completed": true,
+      "fresh_zero_completed": true,
+      "included_in_finest_pair_gate": true,
+      "plus_gradient_hartree_per_bohr": [
+        [
+          6.559918984233715e-10,
+          -0.00023125169481508223,
+          -9.228480114689772e-10
+        ],
+        [
+          3.5561199326572535e-05,
+          -1.1252947506923405e-05,
+          -1.6776779889911592e-09
+        ],
+        [
+          -3.5561855289412136e-05,
+          -1.1252416762141948e-05,
+          3.395801958312912e-10
+        ]
+      ],
+      "minus_gradient_hartree_per_bohr": [
+        [
+          6.558511924046853e-10,
+          -0.0002312516854865443,
+          9.603618730336452e-10
+        ],
+        [
+          3.556119101966182e-05,
+          -1.1252952067053457e-05,
+          1.653644537737492e-09
+        ],
+        [
+          -3.556184683972674e-05,
+          -1.125242153587891e-05,
+          -3.5314743372703936e-10
+        ]
+      ],
+      "plus_energy_hartree": -76.27253454049072,
+      "minus_energy_hartree": -76.27253454049098,
+      "FD_Hq_hartree_per_bohr2": [
+        [
+          9.005185195920735e-10,
+          -5.970264282950666e-08,
+          -1.2052543260816784e-05
+        ],
+        [
+          5.3164228575042216e-08,
+          2.9184832328610355e-08,
+          -2.1320464171063367e-05
+        ],
+        [
+          -5.4077986533229705e-08,
+          3.055191655221279e-08,
+          4.433456829173316e-06
+        ]
+      ],
+      "FD_minus_analytic_Hq_hartree_per_bohr2": [
+        [
+          9.005244992553038e-10,
+          -5.970264586524867e-08,
+          2.921680407989846e-06
+        ],
+        [
+          5.316422967926596e-08,
+          2.9184831532090055e-08,
+          -3.2522537357182295e-07
+        ],
+        [
+          -5.407799362585151e-08,
+          3.055192036728703e-08,
+          -2.593910627662205e-06
+        ]
+      ],
+      "FD_Hq_max_abs_error_Eh_per_Bohr2": 2.921680407989846e-06,
+      "FD_Hq_absolute_error_check_passed": true,
+      "finite_gradient_directional_curvature_Eh_per_Bohr2": 4.433456829173316e-06,
+      "fresh_zero_energy_hartree": -76.27253454049124,
+      "central_energy_curvature_formula": "(E_plus+E_minus-2*FRESH_SCF_E0)/(h*h)",
+      "central_energy_curvature_Eh_per_Bohr2": 0.0001257285475730896,
+      "central_energy_curvature_minus_analytic_Eh_per_Bohr2": 0.00011870118011625408,
+      "central_energy_curvature_abs_error_Eh_per_Bohr2": 0.00011870118011625408,
+      "central_energy_curvature_absolute_error_check_passed": false
+    }
+  ],
+  "h_halving_comparisons": [
+    {
+      "coordinate_index_0based": 0,
+      "coarser_step_bohr": 0.00125,
+      "finer_step_bohr": 0.000625,
+      "pair_completed": false,
+      "included_in_finest_pair_gate": false,
+      "check_passed": false
+    },
+    {
+      "coordinate_index_0based": 0,
+      "coarser_step_bohr": 0.000625,
+      "finer_step_bohr": 0.0003125,
+      "pair_completed": false,
+      "included_in_finest_pair_gate": false,
+      "check_passed": false
+    },
+    {
+      "coordinate_index_0based": 0,
+      "coarser_step_bohr": 0.0003125,
+      "finer_step_bohr": 0.00015625,
+      "pair_completed": false,
+      "included_in_finest_pair_gate": false,
+      "check_passed": false
+    },
+    {
+      "coordinate_index_0based": 0,
+      "coarser_step_bohr": 0.00015625,
+      "finer_step_bohr": 7.8125e-05,
+      "pair_completed": false,
+      "included_in_finest_pair_gate": true,
+      "check_passed": false
+    },
+    {
+      "coordinate_index_0based": 4,
+      "coarser_step_bohr": 0.00125,
+      "finer_step_bohr": 0.000625,
+      "pair_completed": false,
+      "included_in_finest_pair_gate": false,
+      "check_passed": false
+    },
+    {
+      "coordinate_index_0based": 4,
+      "coarser_step_bohr": 0.000625,
+      "finer_step_bohr": 0.0003125,
+      "pair_completed": false,
+      "included_in_finest_pair_gate": false,
+      "check_passed": false
+    },
+    {
+      "coordinate_index_0based": 4,
+      "coarser_step_bohr": 0.0003125,
+      "finer_step_bohr": 0.00015625,
+      "pair_completed": false,
+      "included_in_finest_pair_gate": false,
+      "check_passed": false
+    },
+    {
+      "coordinate_index_0based": 4,
+      "coarser_step_bohr": 0.00015625,
+      "finer_step_bohr": 7.8125e-05,
+      "pair_completed": false,
+      "included_in_finest_pair_gate": true,
+      "check_passed": false
+    },
+    {
+      "coordinate_index_0based": 8,
+      "coarser_step_bohr": 0.00125,
+      "finer_step_bohr": 0.000625,
+      "pair_completed": false,
+      "included_in_finest_pair_gate": false,
+      "check_passed": false
+    },
+    {
+      "coordinate_index_0based": 8,
+      "coarser_step_bohr": 0.000625,
+      "finer_step_bohr": 0.0003125,
+      "pair_completed": false,
+      "included_in_finest_pair_gate": false,
+      "check_passed": false
+    },
+    {
+      "coordinate_index_0based": 8,
+      "coarser_step_bohr": 0.0003125,
+      "finer_step_bohr": 0.00015625,
+      "pair_completed": false,
+      "included_in_finest_pair_gate": false,
+      "check_passed": false
+    },
+    {
+      "coordinate_index_0based": 8,
+      "coarser_step_bohr": 0.00015625,
+      "finer_step_bohr": 7.8125e-05,
+      "pair_completed": false,
+      "included_in_finest_pair_gate": true,
+      "check_passed": false
+    }
+  ],
+  "input_json_sha256": "9cbff06bb2ab4bceeaef5100a15e236df5ac8972810d43231c268d28c7e768b6",
+  "atoms": 3,
+  "basis_functions": 24,
+  "symbols": [
+    "O",
+    "H",
+    "H"
+  ],
+  "occupied_orbitals": 5,
+  "reference_state_binding": {
+    "schema": "research4-exact-pbe-mf-snapshot-v1",
+    "snapshot_manifest_sha256": "123e3e760111f349315703fd213d94aac26eda87e02d03caf98dc9ebbd0cfaf4",
+    "snapshot_directory": "/workspace/research4/reports/pyscf-spinosin-resumable-20261104-v5/v5-validation-water-prepare-001/exact-mf-snapshot",
+    "producer": {
+      "result_path": "/workspace/research4/reports/pyscf-spinosin-resumable-20261104-v5/v5-validation-water-prepare-001/result.json",
+      "resource_supervision": {
+        "verified_at_utc": "2026-11-04T08:06:05.437708+00:00",
+        "proof_path": "/workspace/research4/reports/pyscf-spinosin-resumable-20261104-v5/execution/v5-validation-water-prepare-001.log.supervisor-proof.json",
+        "proof_sha256": "a01cca49a4e823ef07e22a3c67cb4ea7b5459f66401d09bc60d644a4c22e8b2e",
+        "proof": {
+          "schema": "research4-pyscf-actual-cpu-supervisor-proof-v5",
+          "guard_semantics": "BEST_EFFORT_RSS_GUARD_NOT_HARD_RSS_LIMIT",
+          "supervisor_pid": 5452,
+          "supervisor_start_ticks": 540532,
+          "child_pid": 5455,
+          "child_start_ticks": 540541,
+          "supervisor_script_path": "/workspace/research4/scripts/run_pyscf_actual_cpu_budget_20261104_v5.py",
+          "supervisor_script_sha256": "33f1dc3db5280f16c9898c561e345143614730dc052b171b4f11fbbb079cdeee",
+          "ledger_path": "/workspace/research4/reports/pyscf-spinosin-resumable-20261104-v5/cpu_budget.json",
+          "phase": "v5-validation-water-prepare-001",
+          "started_at_utc": "2026-11-04T08:06:05.317835+00:00",
+          "address_space_soft_limit_bytes": 25769803776,
+          "address_space_hard_limit_bytes": 25769803776,
+          "rss_stop_bytes": 10737418240,
+          "cgroup_kill_bytes": 12884901888,
+          "expected_cgroup_memory_max_bytes": 17179869184,
+          "monitor_interval_seconds": 0.1,
+          "memory_kill_grace_seconds": 1.0,
+          "cpu_soft_limit_seconds": 1080,
+          "cpu_hard_limit_seconds": 1200,
+          "wall_limit_seconds": 900,
+          "threads": 4,
+          "target_uid": 1000,
+          "target_pgid": 5455,
+          "target_session_id": 5455,
+          "cgroup_membership": "0::/",
+          "parent_death_signal": "SIGKILL",
+          "terminal_exit_reap_grace_seconds": 0.5,
+          "terminal_exit_reap_policy": "ONLY_CONFIRMED_OWNED_Z_X_OR_GONE_NO_LIVE_RSS_ZERO_SUBSTITUTION",
+          "proof_is_immutable_launch_contract_not_live_monitor_status": true,
+          "actual_cpu_guard_enabled": true,
+          "actual_cpu_guard_source": "PROC_STAT_CUMULATIVE_FROM_PROCESS_BIRTH",
+          "actual_cpu_clock_ticks_per_second": 100,
+          "actual_cpu_cleanup_reserve_seconds": 120,
+          "actual_cpu_stop_threshold_seconds": 1080,
+          "actual_cpu_closed_batch_cost_seconds": 3605.565813,
+          "actual_cpu_batch_cap_seconds": 129600,
+          "cpu_guard_kill_grace_seconds": 1.0
+        },
+        "observed_CPU_limits_seconds": [
+          1080,
+          1200
+        ],
+        "observed_address_space_limits_bytes": [
+          25769803776,
+          25769803776
+        ],
+        "observed_cgroup_memory_max_bytes": 17179869184,
+        "observed_cgroup_memory_current_bytes": 1916624896,
+        "observed_child_pid": 5455,
+        "observed_supervisor_pid": 5452,
+        "AS_is_virtual_address_cap_not_RSS_limit": true,
+        "RSS_guard_is_best_effort_not_a_hard_limit": true,
+        "live_parent_process_and_source_verified": true,
+        "actual_CPU_sampling_is_best_effort": true,
+        "profiling_RLIMIT_is_supplementary_not_exact_actual_CPU_guarantee": true,
+        "startup_proof_is_not_future_monitor_health_confirmation": true
+      },
+      "input_manifest": {
+        "path": "/workspace/research4/reports/pyscf-sdf-continuation-20261103-v1/inputs/validation_water_prepare_input.json",
+        "sha256": "865877bc001ebca8a5a9fde48dbb16cd9a21504a14b435c23a276bfb6f5e9ded",
+        "bytes": 2044
+      },
+      "identity": "validation_water_verified_old_optimized_geometry",
+      "fresh_gradient_checks": {
+        "component_rms_hartree_per_bohr": 7.804480411089934e-05,
+        "component_max_hartree_per_bohr": 0.00022870416229014978,
+        "atom_rms_hartree_per_bohr": 0.00013517756598683801,
+        "atom_max_hartree_per_bohr": 0.00022870416229014978,
+        "gradient_norm_hartree_per_bohr": 0.000234134412332698,
+        "final_gradient_thresholds_passed": true
+      },
+      "geometry_optimized": true,
+      "scf_converged": true
+    },
+    "molecule_fingerprint": {
+      "atm": {
+        "shape": [
+          3,
+          6
+        ],
+        "dtype": "int32",
+        "payload_bytes": 72,
+        "payload_sha256_C_order": "fd0d43c95b74beabeb9c5a862fa00611ea14549b499b8dd67ffaaa9b07631c3d"
+      },
+      "bas": {
+        "shape": [
+          12,
+          8
+        ],
+        "dtype": "int32",
+        "payload_bytes": 384,
+        "payload_sha256_C_order": "9805dfe70e370ab5f27895d0059454cafb0b645e55eb04d339fb2952dc5f679f"
+      },
+      "env_except_transient17": {
+        "shape": [
+          66
+        ],
+        "dtype": "float64",
+        "payload_bytes": 528,
+        "payload_sha256_C_order": "2863a71516206fae7a73a8967bc658fc2b0b98561aab9ec457645e99472022ad"
+      },
+      "coordinates_bohr": {
+        "shape": [
+          3,
+          3
+        ],
+        "dtype": "float64",
+        "payload_bytes": 72,
+        "payload_sha256_C_order": "99e1b213a5a3a23d87fc65ee3107a9cb7f5a7dac5d700aa026074909dfbff52e"
+      },
+      "charges": {
+        "shape": [
+          3
+        ],
+        "dtype": "int32",
+        "payload_bytes": 12,
+        "payload_sha256_C_order": "aec2b0f19fba29cefac27eda8d9aaa10db54cc91e38186b43613840583d1e7a3"
+      },
+      "natm": 3,
+      "nao": 24,
+      "nbas": 12,
+      "charge": 0,
+      "spin": 0,
+      "nelectron": 10,
+      "cart": false,
+      "excluded_transient_env_indices": [
+        17
+      ]
+    },
+    "arrays": {
+      "MO_coeff": {
+        "file": "MO_coeff.npy",
+        "sha256": "13601809815211d7771f2984f04673e81c93c8be2fef25863d78a86782b940a0",
+        "shape": [
+          24,
+          24
+        ],
+        "dtype": "float64",
+        "payload_bytes": 4608,
+        "payload_sha256_C_order": "0acaa7268d7660af753468183c5411c19ac96823317ccfeb992350001e47ddb9"
+      },
+      "MO_energy": {
+        "file": "MO_energy.npy",
+        "sha256": "13503d3131b066f0fbd7d66e94c40ef1d7df14361fd34d8b36ba3ec450de5ddf",
+        "shape": [
+          24
+        ],
+        "dtype": "float64",
+        "payload_bytes": 192,
+        "payload_sha256_C_order": "24ef524a98667c42d04bb56397ff48fe9ea5b5449f139beacaf4f7c2689f037f"
+      },
+      "MO_occ": {
+        "file": "MO_occ.npy",
+        "sha256": "f1e18ef073a7432cbc7e26fb4a26b7267cab1ed68abe14ac82141ca714a747f4",
+        "shape": [
+          24
+        ],
+        "dtype": "float64",
+        "payload_bytes": 192,
+        "payload_sha256_C_order": "4082ca3a54d1d4dd3d400cbe5832c3d1673a4ea3dd88f79a5d0c7db0aba1657f"
+      },
+      "grid_coordinates": {
+        "file": "grid_coordinates.npy",
+        "sha256": "cfc5149e3eac309765ed6fa79364b828ae3e2a42a7775d367384419e15ed9e05",
+        "shape": [
+          10128,
+          3
+        ],
+        "dtype": "float64",
+        "payload_bytes": 243072,
+        "payload_sha256_C_order": "30e69fd29ef1f39df44a4d7b16a59997f935d94495d088511ec8b6c44c52bc91"
+      },
+      "grid_weights": {
+        "file": "grid_weights.npy",
+        "sha256": "ab16e001ad7d0618fda6d09d3ecc17881df63205e9abf975d3b189f9465cd76d",
+        "shape": [
+          10128
+        ],
+        "dtype": "float64",
+        "payload_bytes": 81024,
+        "payload_sha256_C_order": "1ba3bb11c39d18ba595d5a545f3e954fbcc10f4b412931bb2143a9f95e1dda6b"
+      },
+      "coordinates_angstrom": {
+        "file": "coordinates_angstrom.npy",
+        "sha256": "a703e3b1903e0c5e2e72639860c87be947f6b8c22c56ca98be2875a0ea5bb6a5",
+        "shape": [
+          3,
+          3
+        ],
+        "dtype": "float64",
+        "payload_bytes": 72,
+        "payload_sha256_C_order": "f4c1c3b4791bd603badfb40b127c90cc5ef2ecf401d3edc95df7477a0ac0bf8d"
+      },
+      "gradient": {
+        "file": "gradient.npy",
+        "sha256": "440b54d9497eae1d1daef08ef510f0c56ae8cb20358797cf2b5cc711e556c3c9",
+        "shape": [
+          3,
+          3
+        ],
+        "dtype": "float64",
+        "payload_bytes": 72,
+        "payload_sha256_C_order": "490e9952affec95485356715235f197e63d37a86a131abf012e7af49b0af5b55"
+      },
+      "grid_non0tab": {
+        "file": "grid_non0tab.npy",
+        "sha256": "637c4fa753740c7654363b1c7ea772312ce26d9dff192176c1e7adeec8ba9afd",
+        "shape": [
+          181,
+          12
+        ],
+        "dtype": "uint8",
+        "payload_bytes": 2172,
+        "payload_sha256_C_order": "7188b5cb9c74038b844849a025285e70dbc07a28b0e4fa668143ad17bee32ff6"
+      },
+      "grid_screen_index": {
+        "file": "grid_screen_index.npy",
+        "sha256": "637c4fa753740c7654363b1c7ea772312ce26d9dff192176c1e7adeec8ba9afd",
+        "shape": [
+          181,
+          12
+        ],
+        "dtype": "uint8",
+        "payload_bytes": 2172,
+        "payload_sha256_C_order": "7188b5cb9c74038b844849a025285e70dbc07a28b0e4fa668143ad17bee32ff6"
+      },
+      "grid_atm_idx": {
+        "file": "grid_atm_idx.npy",
+        "sha256": "a1c1af29ac732565c0257bd0e8784d7e45fac41c4cf148536fe76902eec133a2",
+        "shape": [
+          10128
+        ],
+        "dtype": "int32",
+        "payload_bytes": 40512,
+        "payload_sha256_C_order": "0fd74c174ca0677d8fae6af60f8ac4fb11b20ed90e5754917b5e5674f32ce53d"
+      },
+      "grid_quadrature_weights": {
+        "file": "grid_quadrature_weights.npy",
+        "sha256": "5c75427d1a195680480f4d1b8c65d118f38bb9c5a88654947105bfaad25c0559",
+        "shape": [
+          10128
+        ],
+        "dtype": "float64",
+        "payload_bytes": 81024,
+        "payload_sha256_C_order": "080c674b60cde21a189e3392fb29d7d87771b0a26f0d8d6bef7266b492bc6e2d"
+      }
+    },
+    "environment": {
+      "python": "3.12.14",
+      "numpy": "2.3.5",
+      "pyscf": "2.14.0",
+      "scipy": "1.17.0",
+      "geometric": "1.1.1",
+      "sources": {
+        "pyscf.gto.mole": "005bd63c5fa100a20cc264a995c38f44f2e05c7c82d37bd36eba2355dc651392",
+        "pyscf.dft.gen_grid": "44aa665fb25efc544a42cb80fdad737767c787c20479d4df0ae4b1649028ff14",
+        "pyscf.dft.numint": "ff7384551c7a6b80ff8a5ffcd915eb8bfbf6ca4b8f987f912aa82a1d6edda7e8",
+        "pyscf.dft.rks": "fcc8d3dbd03df368f3b70f3ce5999be6a19c608a6ff0bdc1890074616f0befa8",
+        "pyscf.grad.rks": "cffc3e9efa10cf1b547d757e9d165c1000377e9159c794f87464a79c8c93ab46",
+        "pyscf.scf.hf": "34ea1a9057da3a2d5aa37fe51d4e7305580bcb8e0118a5f17ba95ba5bb36c22f",
+        "pyscf.scf._vhf": "ef0a04f43338780a7f57d9268f9634c1079ae989ba3030d6154c8612798f82ba",
+        "libcvhf_binary": "5d7461e3976fd40fce7c9ba571e45b01830dd018d75927e389c32a6f4d09df0c",
+        "libcgto_binary": "337d956486a156f1aa7ca636ac5a91c6277058ffedb6db2efe714fee65f726e0",
+        "libdft_binary": "f955b2fd7b6fb2d66d0786145f5bb910cf859c49a940f5268bf718c87d34e05e",
+        "libxc_itrf_binary": "5f09c9ad1296e1ab106ca00a2ad9a4f1a29e102c9e06c23511d6ba9710a69613",
+        "numpy_multiarray_binary": "ba96467ae494babaf7c3458b09cc03c4200c2e10010860d80e452ffb8b01c8cd",
+        "scipy_fblas_binary": "0e03bbae64d3a3a947a21db865aff984afa8867fa292273faf56dfc887fa71ac",
+        "libcint.so": "950bb0a297507369dce95b9013ef2c5b64b0fa36a0018c303c98e95efce7db7e",
+        "libxc.so": "d120371b37f4729dfc21f3b0575e563ef9b0254839926c41c0c02f5082143548"
+      }
+    },
+    "method_settings": {
+      "xc": "PBE",
+      "basis": "def2-svp",
+      "grid_level": 1,
+      "dispersion": "NONE_EXPLICIT_PBE_PILOT_NOT_D3",
+      "density_fitting": false,
+      "auxbasis": null,
+      "density_fit_backend": "SCREENED_DIRECT_RKS_V4",
+      "direct_scf": true,
+      "direct_scf_tol": 1e-13,
+      "global_four_center_ERI_cache_allowed": false,
+      "scf_conv_tol_hartree": 1e-08,
+      "scf_max_cycle": 80,
+      "hessian_conv_tol_cpscf": 1e-08,
+      "max_memory_mb": 8000,
+      "threads": 4,
+      "native_direct_driver_threads": 4,
+      "charge": 0,
+      "spin_2S": 0,
+      "multiplicity": 1,
+      "optimizer_maxsteps": 35,
+      "optimizer_thresholds": {
+        "convergence_energy": 1e-06,
+        "convergence_grms": 0.0003,
+        "convergence_gmax": 0.00045,
+        "convergence_drms": 0.0012,
+        "convergence_dmax": 0.0018
+      },
+      "gradient_grid_response": false,
+      "engineering_worker_version": "EXACT_MOLECULAR_STATE_V1_NO_HESSIAN"
+    },
+    "source_worker": {
+      "path": "/workspace/research4/scripts/pyscf_molecular_state_worker_20261104_v5.py",
+      "sha256": "be4727b76d59a0b0dd3defba249ef833ee8ef0ea89473e390dcef389728415c8",
+      "bytes": 41377
+    },
+    "closed_producer": {
+      "phase": "v5-validation-water-prepare-001",
+      "closed_result_sha256": "e6d54f0e5f6ef1d77506b92e9bf42f019ecd46ab19b5bf1b0a41a4c49ad037cf",
+      "proof_sha256": "a01cca49a4e823ef07e22a3c67cb4ea7b5459f66401d09bc60d644a4c22e8b2e",
+      "log_sha256": "d8ebd5bde63ff9adb9964f972c86da8f17b95a5c81631c9164204642c281f8b5",
+      "actual_cpu_seconds": 1.4185029999999998,
+      "closed_row_sha256": "cc72f5c995123ccb5b01bc7ca18a7674c48683220290052200c4de65b6be8c2b"
+    }
+  },
+  "source_geometry_fingerprint": {
+    "atm": {
+      "shape": [
+        3,
+        6
+      ],
+      "dtype": "int32",
+      "payload_bytes": 72,
+      "payload_sha256_C_order": "fd0d43c95b74beabeb9c5a862fa00611ea14549b499b8dd67ffaaa9b07631c3d"
+    },
+    "bas": {
+      "shape": [
+        12,
+        8
+      ],
+      "dtype": "int32",
+      "payload_bytes": 384,
+      "payload_sha256_C_order": "9805dfe70e370ab5f27895d0059454cafb0b645e55eb04d339fb2952dc5f679f"
+    },
+    "env_except_transient17": {
+      "shape": [
+        66
+      ],
+      "dtype": "float64",
+      "payload_bytes": 528,
+      "payload_sha256_C_order": "2863a71516206fae7a73a8967bc658fc2b0b98561aab9ec457645e99472022ad"
+    },
+    "coordinates_bohr": {
+      "shape": [
+        3,
+        3
+      ],
+      "dtype": "float64",
+      "payload_bytes": 72,
+      "payload_sha256_C_order": "99e1b213a5a3a23d87fc65ee3107a9cb7f5a7dac5d700aa026074909dfbff52e"
+    },
+    "charges": {
+      "shape": [
+        3
+      ],
+      "dtype": "int32",
+      "payload_bytes": 12,
+      "payload_sha256_C_order": "aec2b0f19fba29cefac27eda8d9aaa10db54cc91e38186b43613840583d1e7a3"
+    },
+    "natm": 3,
+    "nao": 24,
+    "nbas": 12,
+    "charge": 0,
+    "spin": 0,
+    "nelectron": 10,
+    "cart": false,
+    "excluded_transient_env_indices": [
+      17
+    ]
+  },
+  "original_MF_payload_fingerprints": {
+    "MOs": {
+      "mo_coeff": {
+        "shape": [
+          24,
+          24
+        ],
+        "dtype": "float64",
+        "payload_bytes": 4608,
+        "payload_sha256_C_order": "0acaa7268d7660af753468183c5411c19ac96823317ccfeb992350001e47ddb9"
+      },
+      "mo_energy": {
+        "shape": [
+          24
+        ],
+        "dtype": "float64",
+        "payload_bytes": 192,
+        "payload_sha256_C_order": "24ef524a98667c42d04bb56397ff48fe9ea5b5449f139beacaf4f7c2689f037f"
+      },
+      "mo_occ": {
+        "shape": [
+          24
+        ],
+        "dtype": "float64",
+        "payload_bytes": 192,
+        "payload_sha256_C_order": "4082ca3a54d1d4dd3d400cbe5832c3d1673a4ea3dd88f79a5d0c7db0aba1657f"
+      }
+    },
+    "grids": {
+      "coords": {
+        "shape": [
+          10128,
+          3
+        ],
+        "dtype": "float64",
+        "payload_bytes": 243072,
+        "payload_sha256_C_order": "30e69fd29ef1f39df44a4d7b16a59997f935d94495d088511ec8b6c44c52bc91"
+      },
+      "weights": {
+        "shape": [
+          10128
+        ],
+        "dtype": "float64",
+        "payload_bytes": 81024,
+        "payload_sha256_C_order": "1ba3bb11c39d18ba595d5a545f3e954fbcc10f4b412931bb2143a9f95e1dda6b"
+      },
+      "non0tab": {
+        "shape": [
+          181,
+          12
+        ],
+        "dtype": "uint8",
+        "payload_bytes": 2172,
+        "payload_sha256_C_order": "7188b5cb9c74038b844849a025285e70dbc07a28b0e4fa668143ad17bee32ff6"
+      },
+      "screen_index": {
+        "shape": [
+          181,
+          12
+        ],
+        "dtype": "uint8",
+        "payload_bytes": 2172,
+        "payload_sha256_C_order": "7188b5cb9c74038b844849a025285e70dbc07a28b0e4fa668143ad17bee32ff6"
+      },
+      "atm_idx": {
+        "shape": [
+          10128
+        ],
+        "dtype": "int32",
+        "payload_bytes": 40512,
+        "payload_sha256_C_order": "0fd74c174ca0677d8fae6af60f8ac4fb11b20ed90e5754917b5e5674f32ce53d"
+      },
+      "quadrature_weights": {
+        "shape": [
+          10128
+        ],
+        "dtype": "float64",
+        "payload_bytes": 81024,
+        "payload_sha256_C_order": "080c674b60cde21a189e3392fb29d7d87771b0a26f0d8d6bef7266b492bc6e2d"
+      }
+    }
+  },
+  "historical_gradient_reference": {
+    "path": "/workspace/research4/reports/pyscf-spinosin-resumable-20261104-v5/v5-validation-water-restore-gradient-001/gradient_hartree_per_bohr.npy",
+    "sha256": "4c179a60019d5025fb2b4335437c80530ea197e52a210233b0910c9b121e398d",
+    "bytes": 200,
+    "gradient_gate_result": {
+      "path": "/workspace/research4/reports/pyscf-spinosin-resumable-20261104-v5/v5-validation-water-restore-gradient-001/result.json",
+      "sha256": "517de6a69fc64ff96abac6d6ca5b1482c6e429ade82cf4328d36b596548f6397",
+      "bytes": 22686
+    },
+    "reference_scope": "HISTORICAL_OLD_BOOT_RESTORED_GRADIENT_NOT_NEW_BOOT_FRESH_ZERO_OR_MINIMUM",
+    "historical_boot_id": "50ca0010-b743-43c7-bc0f-b6bcbc47c68d",
+    "zero_gradient_assumed": false
+  },
+  "historical_gradient_local_copy": {
+    "path": "/workspace/research4/reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/historical_gradient_hartree_per_bohr.npy",
+    "sha256": "4c179a60019d5025fb2b4335437c80530ea197e52a210233b0910c9b121e398d",
+    "bytes": 200
+  },
+  "fresh_zero_completed": true,
+  "fresh_zero_energy_hartree": -76.27253454049124,
+  "fresh_zero_gradient_hartree_per_bohr": [
+    [
+      -6.195494419505506e-16,
+      -0.00023125121169265128,
+      -5.201057510966007e-16
+    ],
+    [
+      3.556121251224731e-05,
+      -1.1252923800553205e-05,
+      -2.8104480338514833e-16
+    ],
+    [
+      -3.5561212514467755e-05,
+      -1.1252923799665027e-05,
+      3.667622042163149e-16
+    ]
+  ],
+  "fresh_zero_minus_archived_gradient_hartree_per_bohr": [
+    [
+      3.1576800097689668e-15,
+      -2.5470494025015e-06,
+      -4.988840500452633e-16
+    ],
+    [
+      2.399381719531135e-06,
+      1.2753471607673816e-06,
+      -6.695473017228356e-16
+    ],
+    [
+      -2.3993817237499826e-06,
+      1.2753471640980507e-06,
+      6.13501880350927e-16
+    ]
+  ],
+  "fresh_zero_minus_archived_gradient_max_abs_Eh_per_Bohr": 2.5470494025015e-06,
+  "original_MF_payload_after": {
+    "MOs": {
+      "mo_coeff": {
+        "shape": [
+          24,
+          24
+        ],
+        "dtype": "float64",
+        "payload_bytes": 4608,
+        "payload_sha256_C_order": "0acaa7268d7660af753468183c5411c19ac96823317ccfeb992350001e47ddb9"
+      },
+      "mo_energy": {
+        "shape": [
+          24
+        ],
+        "dtype": "float64",
+        "payload_bytes": 192,
+        "payload_sha256_C_order": "24ef524a98667c42d04bb56397ff48fe9ea5b5449f139beacaf4f7c2689f037f"
+      },
+      "mo_occ": {
+        "shape": [
+          24
+        ],
+        "dtype": "float64",
+        "payload_bytes": 192,
+        "payload_sha256_C_order": "4082ca3a54d1d4dd3d400cbe5832c3d1673a4ea3dd88f79a5d0c7db0aba1657f"
+      }
+    },
+    "grids": {
+      "coords": {
+        "shape": [
+          10128,
+          3
+        ],
+        "dtype": "float64",
+        "payload_bytes": 243072,
+        "payload_sha256_C_order": "30e69fd29ef1f39df44a4d7b16a59997f935d94495d088511ec8b6c44c52bc91"
+      },
+      "weights": {
+        "shape": [
+          10128
+        ],
+        "dtype": "float64",
+        "payload_bytes": 81024,
+        "payload_sha256_C_order": "1ba3bb11c39d18ba595d5a545f3e954fbcc10f4b412931bb2143a9f95e1dda6b"
+      },
+      "non0tab": {
+        "shape": [
+          181,
+          12
+        ],
+        "dtype": "uint8",
+        "payload_bytes": 2172,
+        "payload_sha256_C_order": "7188b5cb9c74038b844849a025285e70dbc07a28b0e4fa668143ad17bee32ff6"
+      },
+      "screen_index": {
+        "shape": [
+          181,
+          12
+        ],
+        "dtype": "uint8",
+        "payload_bytes": 2172,
+        "payload_sha256_C_order": "7188b5cb9c74038b844849a025285e70dbc07a28b0e4fa668143ad17bee32ff6"
+      },
+      "atm_idx": {
+        "shape": [
+          10128
+        ],
+        "dtype": "int32",
+        "payload_bytes": 40512,
+        "payload_sha256_C_order": "0fd74c174ca0677d8fae6af60f8ac4fb11b20ed90e5754917b5e5674f32ce53d"
+      },
+      "quadrature_weights": {
+        "shape": [
+          10128
+        ],
+        "dtype": "float64",
+        "payload_bytes": 81024,
+        "payload_sha256_C_order": "080c674b60cde21a189e3392fb29d7d87771b0a26f0d8d6bef7266b492bc6e2d"
+      }
+    }
+  },
+  "native_direct_driver_control": {
+    "strategy": "SCOPED_NATIVE_OMP_LIMIT_OUTER_XC_UNCHANGED",
+    "native_thread_observation_kind": "OMP_CONFIGURED_MAX_BEFORE_PARALLEL_REGION_NOT_ACTIVE_WORKER_COUNT",
+    "native_thread_limit": 2,
+    "outer_threads_at_install": 2,
+    "native_calls_entered": 453,
+    "native_calls_returned": 453,
+    "max_observed_native_threads": 2,
+    "restoration_failures": 0,
+    "original_driver_restored": true,
+    "density_or_operator_arguments_modified": false,
+    "native_source_files_modified": false,
+    "density_batch_signature_counts": {
+      "density_count=1;components=1": 437,
+      "density_count=1;components=3": 16
+    }
+  },
+  "ended_at_utc": "2026-11-07T01:18:39.042343+00:00",
+  "worker_CPU_seconds": 12.927620242,
+  "worker_wall_seconds": 6.702231758999915
+}

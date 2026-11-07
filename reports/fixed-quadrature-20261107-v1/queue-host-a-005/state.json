@@ -1,0 +1,289 @@
+{
+  "schema": "research4-cloud-followup-state-v1",
+  "config_sha256": "892a7ba73ac9920a9fafaa7031f6510e6ab02314bbd46ae3767d6ac2f9228e3d",
+  "grant_sha256": "902e4eee2316fd2eb150bbcb02a2f6e53c7c82690f9c9427840290f73066d31a",
+  "invocations": [
+    {
+      "id": "host-a-fixedgrid-005-q1",
+      "status": "BLOCKED_REQUIRES_ROOT_REVIEW",
+      "identity": {
+        "pid": 1783,
+        "start_ticks": 162502,
+        "uid": 1000,
+        "pgrp": 1781,
+        "session": 1781,
+        "state": "R",
+        "comm": "python",
+        "boot_id": "bcc60ef9-a836-45c2-82a2-1766833e8991"
+      },
+      "started_at_utc": "2026-11-07T01:00:14.225199+00:00",
+      "own_CPU_seconds": 0.203056173,
+      "error_type": "RuntimeError",
+      "reason": "Closed quantum failure requires root review: water-fixed-grid-controls",
+      "ended_at_utc": "2026-11-07T01:00:18.391834+00:00"
+    }
+  ],
+  "jobs": {
+    "water-fixed-grid-controls": {
+      "status": "FAILED_CLOSED",
+      "attempt": 1,
+      "output": "/workspace/research4/reports/fixed-quadrature-20261107-v1/queue-host-a-005/science/water-fixed-grid-controls-attempt001",
+      "log": "/workspace/research4/reports/fixed-quadrature-20261107-v1/queue-host-a-005/execution/water-fixed-grid-controls-attempt001.log",
+      "phase": "fixedquad20261107a005-water-fixed-grid-controls-attempt001",
+      "prelaunch_process_observation": {
+        "observed_at_utc": "2026-11-07T01:00:14.336329+00:00",
+        "redacted_process_scan": {
+          "observed_at_utc": "2026-11-07T01:00:14.334541+00:00",
+          "records": [
+            {
+              "pid": 117,
+              "start_ticks": 506,
+              "uid": 0,
+              "pgrp": 117,
+              "session": 117,
+              "state": "S",
+              "comm": "dockerd",
+              "boot_id": "bcc60ef9-a836-45c2-82a2-1766833e8991",
+              "category": "ROOT_ACKNOWLEDGED_OPAQUE_DAEMON",
+              "error_type": "PermissionError",
+              "full_argv_logged": false,
+              "visibility_exception_root_grant_bound": true,
+              "identity_double_read_stable": true
+            },
+            {
+              "pid": 174,
+              "start_ticks": 518,
+              "uid": 0,
+              "pgrp": 174,
+              "session": 174,
+              "state": "S",
+              "comm": "containerd",
+              "boot_id": "bcc60ef9-a836-45c2-82a2-1766833e8991",
+              "category": "ROOT_ACKNOWLEDGED_OPAQUE_DAEMON",
+              "error_type": "PermissionError",
+              "full_argv_logged": false,
+              "visibility_exception_root_grant_bound": true,
+              "identity_double_read_stable": true
+            }
+          ],
+          "conflicts": [],
+          "read_only_git": [],
+          "visibility_errors": [
+            {
+              "pid": 117,
+              "start_ticks": 506,
+              "uid": 0,
+              "pgrp": 117,
+              "session": 117,
+              "state": "S",
+              "comm": "dockerd",
+              "boot_id": "bcc60ef9-a836-45c2-82a2-1766833e8991",
+              "category": "ROOT_ACKNOWLEDGED_OPAQUE_DAEMON",
+              "error_type": "PermissionError",
+              "full_argv_logged": false,
+              "visibility_exception_root_grant_bound": true,
+              "identity_double_read_stable": true
+            },
+            {
+              "pid": 174,
+              "start_ticks": 518,
+              "uid": 0,
+              "pgrp": 174,
+              "session": 174,
+              "state": "S",
+              "comm": "containerd",
+              "boot_id": "bcc60ef9-a836-45c2-82a2-1766833e8991",
+              "category": "ROOT_ACKNOWLEDGED_OPAQUE_DAEMON",
+              "error_type": "PermissionError",
+              "full_argv_logged": false,
+              "visibility_exception_root_grant_bound": true,
+              "identity_double_read_stable": true
+            }
+          ],
+          "records_truncated": false
+        },
+        "active_quantum": []
+      },
+      "payload_argv": [
+        "/workspace/research4/.runtime/bin/python",
+        "/workspace/research4/scripts/research4_fixed_quadrature_worker_20261107.py",
+        "--source-result",
+        "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/controls/v8-control-water-global-003/result.json",
+        "--source-result-sha256",
+        "0c0095ba3de27abee012ffe6b8975908b127f2664a42b104a2a3830673f88165",
+        "--main-pipeline-state",
+        "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/global-assemble-recovery-002/state.json",
+        "--main-pipeline-state-sha256",
+        "f2974458d23abeb320db736ce6c4cdb3f0b4d509f707a4dc67fd7d5ceaaa2578",
+        "--source-qualification",
+        "/workspace/research4/reports/fixed-quadrature-20261107-v1/source-qualification/water/qualification.json",
+        "--source-qualification-sha256",
+        "9b38e3a08a26c3bb2ba761bb41aaafb8a6a7987e610e995b68726a628ab7f354",
+        "--output",
+        "/workspace/research4/reports/fixed-quadrature-20261107-v1/queue-host-a-005/science/water-fixed-grid-controls-attempt001",
+        "--control-suite",
+        "--control-validation"
+      ],
+      "started_at_utc": "2026-11-07T01:00:14.336410+00:00",
+      "guardian_identity": {
+        "pid": 1784,
+        "start_ticks": 162517,
+        "uid": 1000,
+        "pgrp": 1784,
+        "session": 1784,
+        "state": "R",
+        "comm": "python",
+        "boot_id": "bcc60ef9-a836-45c2-82a2-1766833e8991"
+      },
+      "_last_sample": 1625.181744023,
+      "latest_guard_identity": {
+        "pid": 1784,
+        "start_ticks": 162517,
+        "uid": 1000,
+        "pgrp": 1784,
+        "session": 1784,
+        "state": "R",
+        "comm": "python",
+        "boot_id": "bcc60ef9-a836-45c2-82a2-1766833e8991"
+      },
+      "guard_returncode": 1,
+      "ended_at_utc": "2026-11-07T01:00:18.388337+00:00",
+      "actual_cpu_seconds": 4.357029,
+      "resource_stop_reason": null,
+      "scientific_release": false
+    }
+  },
+  "results": {},
+  "last_event": "FOLLOWUP_INVOCATION_ENDED",
+  "updated_at_utc": "2026-11-07T01:00:18.391840+00:00",
+  "failed_attempts": [
+    {
+      "status": "FAILED_CLOSED",
+      "attempt": 1,
+      "output": "/workspace/research4/reports/fixed-quadrature-20261107-v1/queue-host-a-005/science/water-fixed-grid-controls-attempt001",
+      "log": "/workspace/research4/reports/fixed-quadrature-20261107-v1/queue-host-a-005/execution/water-fixed-grid-controls-attempt001.log",
+      "phase": "fixedquad20261107a005-water-fixed-grid-controls-attempt001",
+      "prelaunch_process_observation": {
+        "observed_at_utc": "2026-11-07T01:00:14.336329+00:00",
+        "redacted_process_scan": {
+          "observed_at_utc": "2026-11-07T01:00:14.334541+00:00",
+          "records": [
+            {
+              "pid": 117,
+              "start_ticks": 506,
+              "uid": 0,
+              "pgrp": 117,
+              "session": 117,
+              "state": "S",
+              "comm": "dockerd",
+              "boot_id": "bcc60ef9-a836-45c2-82a2-1766833e8991",
+              "category": "ROOT_ACKNOWLEDGED_OPAQUE_DAEMON",
+              "error_type": "PermissionError",
+              "full_argv_logged": false,
+              "visibility_exception_root_grant_bound": true,
+              "identity_double_read_stable": true
+            },
+            {
+              "pid": 174,
+              "start_ticks": 518,
+              "uid": 0,
+              "pgrp": 174,
+              "session": 174,
+              "state": "S",
+              "comm": "containerd",
+              "boot_id": "bcc60ef9-a836-45c2-82a2-1766833e8991",
+              "category": "ROOT_ACKNOWLEDGED_OPAQUE_DAEMON",
+              "error_type": "PermissionError",
+              "full_argv_logged": false,
+              "visibility_exception_root_grant_bound": true,
+              "identity_double_read_stable": true
+            }
+          ],
+          "conflicts": [],
+          "read_only_git": [],
+          "visibility_errors": [
+            {
+              "pid": 117,
+              "start_ticks": 506,
+              "uid": 0,
+              "pgrp": 117,
+              "session": 117,
+              "state": "S",
+              "comm": "dockerd",
+              "boot_id": "bcc60ef9-a836-45c2-82a2-1766833e8991",
+              "category": "ROOT_ACKNOWLEDGED_OPAQUE_DAEMON",
+              "error_type": "PermissionError",
+              "full_argv_logged": false,
+              "visibility_exception_root_grant_bound": true,
+              "identity_double_read_stable": true
+            },
+            {
+              "pid": 174,
+              "start_ticks": 518,
+              "uid": 0,
+              "pgrp": 174,
+              "session": 174,
+              "state": "S",
+              "comm": "containerd",
+              "boot_id": "bcc60ef9-a836-45c2-82a2-1766833e8991",
+              "category": "ROOT_ACKNOWLEDGED_OPAQUE_DAEMON",
+              "error_type": "PermissionError",
+              "full_argv_logged": false,
+              "visibility_exception_root_grant_bound": true,
+              "identity_double_read_stable": true
+            }
+          ],
+          "records_truncated": false
+        },
+        "active_quantum": []
+      },
+      "payload_argv": [
+        "/workspace/research4/.runtime/bin/python",
+        "/workspace/research4/scripts/research4_fixed_quadrature_worker_20261107.py",
+        "--source-result",
+        "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/controls/v8-control-water-global-003/result.json",
+        "--source-result-sha256",
+        "0c0095ba3de27abee012ffe6b8975908b127f2664a42b104a2a3830673f88165",
+        "--main-pipeline-state",
+        "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/global-assemble-recovery-002/state.json",
+        "--main-pipeline-state-sha256",
+        "f2974458d23abeb320db736ce6c4cdb3f0b4d509f707a4dc67fd7d5ceaaa2578",
+        "--source-qualification",
+        "/workspace/research4/reports/fixed-quadrature-20261107-v1/source-qualification/water/qualification.json",
+        "--source-qualification-sha256",
+        "9b38e3a08a26c3bb2ba761bb41aaafb8a6a7987e610e995b68726a628ab7f354",
+        "--output",
+        "/workspace/research4/reports/fixed-quadrature-20261107-v1/queue-host-a-005/science/water-fixed-grid-controls-attempt001",
+        "--control-suite",
+        "--control-validation"
+      ],
+      "started_at_utc": "2026-11-07T01:00:14.336410+00:00",
+      "guardian_identity": {
+        "pid": 1784,
+        "start_ticks": 162517,
+        "uid": 1000,
+        "pgrp": 1784,
+        "session": 1784,
+        "state": "R",
+        "comm": "python",
+        "boot_id": "bcc60ef9-a836-45c2-82a2-1766833e8991"
+      },
+      "_last_sample": 1625.181744023,
+      "latest_guard_identity": {
+        "pid": 1784,
+        "start_ticks": 162517,
+        "uid": 1000,
+        "pgrp": 1784,
+        "session": 1784,
+        "state": "R",
+        "comm": "python",
+        "boot_id": "bcc60ef9-a836-45c2-82a2-1766833e8991"
+      },
+      "guard_returncode": 1,
+      "ended_at_utc": "2026-11-07T01:00:18.388337+00:00",
+      "actual_cpu_seconds": 4.357029,
+      "resource_stop_reason": null,
+      "scientific_release": false
+    }
+  ]
+}

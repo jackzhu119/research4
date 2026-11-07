@@ -1,0 +1,18 @@
+Traceback (most recent call last):
+  File "/workspace/research4/scripts/research4_cloud_orbital_stability_20261106.py", line 342, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "/workspace/research4/scripts/research4_cloud_orbital_stability_20261106.py", line 332, in main
+    value = execute(args)
+            ^^^^^^^^^^^^^
+  File "/workspace/research4/scripts/research4_cloud_orbital_stability_20261106.py", line 160, in execute
+    gate = audit.metadata_gate(args, consumer, guard)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/research4/scripts/audit_pyscf_saved_cphf_residual_20261105.py", line 133, in metadata_gate
+    selected = select_atoms(value["global_atom_ids"], args.atom_index, args.whole_block)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/research4/scripts/audit_pyscf_saved_cphf_residual_20261105.py", line 66, in select_atoms
+    require(type(atom_index) is int and atom_index in available, "Selected atom is not in the completed response")
+  File "/workspace/research4/scripts/audit_pyscf_saved_cphf_residual_20261105.py", line 39, in require
+    raise ValueError(message)
+ValueError: Selected atom is not in the completed response

@@ -1,0 +1,77 @@
+{
+  "schema": "research4-libcvhf-symbol-resolution-audit-v1",
+  "created_at_utc": "2026-11-01T14:59:38.606100+00:00",
+  "status": "DONE_ABI_SYMBOL_LOOKUP_ONLY",
+  "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+  "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
+  "loader": "ctypes.CDLL on exact installed libcvhf.so; hasattr only, including its dependency scope",
+  "symbols": [
+    {
+      "requested_guard_symbol": "int2e_ipip1ipip2",
+      "unsuffixed_hasattr": false,
+      "sph_hasattr": true,
+      "cart_hasattr": true
+    },
+    {
+      "requested_guard_symbol": "int2e_ip1ip2",
+      "unsuffixed_hasattr": false,
+      "sph_hasattr": true,
+      "cart_hasattr": true
+    },
+    {
+      "requested_guard_symbol": "int2e_ipvip1ipvip2",
+      "unsuffixed_hasattr": false,
+      "sph_hasattr": true,
+      "cart_hasattr": true
+    }
+  ],
+  "current_make_vhfopt_guards_all_return_None_before_construction": true,
+  "scope_of_conclusion": "Current exact library/source hashes only; no claim about other PySCF builds.",
+  "source_control_flow": "hessian/rhf.py:180-183 returns None when hasattr(libcvhf, vhf_intor) is False; its dms argument is not used before this return.",
+  "current_partial_hessian_dm_cond_branch": "NOT_ENTERED_FOR_THESE_THREE_HELPERS",
+  "candidate_implication": "Dropping unused exchange contractions still requires separate new-code whole-Hessian validation. This ABI evidence is not a speed, memory or numerical-equivalence result.",
+  "screening_limits": "Do not silently enable screening, change thresholds, or generalize the None result to a build exposing bare symbols.",
+  "direct_driver_cost_limit": "J/K outputs share integral generation; native thread scratch reservation and AO traversal need not fall in proportion to removed outputs.",
+  "explicit_library_numerical_function_calls": 0,
+  "integral_evaluations": 0,
+  "new_SCF_gradient_Hessian_evaluations": 0,
+  "PySCF_imported_modules": [],
+  "Mole_instances_created": 0,
+  "make_vhfopt_calls": 0,
+  "shared_library_initializers_may_run_on_dlopen": true,
+  "active_calculation_files_read": 0,
+  "active_process_signals": 0,
+  "files_or_limits_modified_outside_this_new_evidence_directory": false,
+  "isolated_probe_environment": {
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1"
+  },
+  "source_evidence": {
+    ".runtime/quantum-upgrade-site/pyscf/lib/libcvhf.so": {
+      "sha256": "5d7461e3976fd40fce7c9ba571e45b01830dd018d75927e389c32a6f4d09df0c",
+      "bytes": 1724273
+    },
+    ".runtime/quantum-upgrade-site/pyscf/lib/deps/lib/libcint.so": {
+      "sha256": "950bb0a297507369dce95b9013ef2c5b64b0fa36a0018c303c98e95efce7db7e",
+      "bytes": 2402833
+    },
+    ".runtime/quantum-upgrade-site/pyscf/hessian/rhf.py": {
+      "sha256": "2d986bfc01aac98447034a207df639b3d6897f67ce1ab2a013fe2d0853c85de5",
+      "bytes": 22881
+    },
+    ".runtime/quantum-upgrade-site/pyscf/hessian/rks.py": {
+      "sha256": "d61dbd1727b286845737853b92e1812a3e6a966dca29a9a8a79ff5e9a7725c03",
+      "bytes": 96532
+    },
+    ".runtime/quantum-upgrade-site/pyscf/scf/_vhf.py": {
+      "sha256": "ef0a04f43338780a7f57d9268f9634c1079ae989ba3030d6154c8612798f82ba",
+      "bytes": 28821
+    },
+    ".runtime/quantum-upgrade-site/pyscf/lib/libcgto.so": {
+      "sha256": "337d956486a156f1aa7ca636ac5a91c6277058ffedb6db2efe714fee65f726e0",
+      "bytes": 1409729
+    }
+  },
+  "probe_source_sha256": "ca6ca1d5068bf8e9d4acacec78a07f9e1f36fb8cd544307b5cd8b0dd4974cb95"
+}

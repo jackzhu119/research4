@@ -1,0 +1,38 @@
+{
+  "completed_at_utc": "2026-11-01T04:26:42.920396+00:00",
+  "status": "READ_ONLY_WORKER_METHOD_SOURCE_REVIEW_PASS_FOR_CURRENT_DECLARED_PILOT",
+  "new_quantum_jobs": 0,
+  "worker_sha256": {
+    "scripts/pyscf_pilot_worker_20261031.py": "6bb168d04d37131e9e178b2adc40c36e5f38ada09880d00884ef3d49be80772f",
+    "scripts/pyscf_pilot_cached_df_worker_20261031.py": "68cd43525230541b00c3d79e06514a37a581ef167311f167b81106fce1961682"
+  },
+  "checks": [
+    "Mole.build stdout handled as object property",
+    "PBE set before density fitting; explicit noD3",
+    "Separate direct and cached execution paths; original direct artifact unchanged",
+    "Optimizer success boolean retained; final same-methodSCF and atom-vector gradient checked",
+    "Analytic DF-RKS Hessian, auxiliary response2, finite block shape/symmetry checked",
+    "Translations/rotations projected; signed imaginary modes retained; expected nonlinear3N-6 count required",
+    "IR intensity explicitly NOT_COMPUTED",
+    "Cachedold integrals released before freshfinalSCF; memory budget8GB and external12GiBAS supervisor needed"
+  ],
+  "CPHF_source_evidence_sha256": {
+    "hessian/rhf.py": "2d986bfc01aac98447034a207df639b3d6897f67ce1ab2a013fe2d0853c85de5",
+    "scf/hf.py": "34ea1a9057da3a2d5aa37fe51d4e7305580bcb8e0118a5f17ba95ba5bb36c22f",
+    "scf/cphf.py": "e39e3a06fc33e23307a8558d2410bc1137e08ef9c27d48b4ce95fd20a22a63e3",
+    "lib/linalg_helper.py": "9dcd5d4582c3695818e05fa72217c7764f87d5491ed29acb7b64d2725ee130e0"
+  },
+  "CPHF_convergence": {
+    "Hessian_max_cycle_default": 50,
+    "SCF_conv_tol_cpscf_default": 1e-08,
+    "block_tolerance": "mf.conv_tol_cpscf multiplied by numberofatomsinresponseblock",
+    "iteration_limit_behavior": "RuntimeError(Krylov solver failed to converge) propagates to workerPARTIAL before frequency completion",
+    "actual_residual_numeric_recomputation": "NOT_PERFORMED; completed Hessian returnedwithoutsolverexception"
+  },
+  "root_interpretation_gates": [
+    "DONE status can mean successfulfrequencygeneration, not necessarilypositive definite minimum; also require optimizer_converged/scf_converged/final_gradient_thresholds_passed/all_frequencies_real_positive",
+    "Worker stationary_minimum_verified usesimaginary_count==0 andwouldnotexcludeexactzero alone; currentactualwaterhasallstrictpositive, so no observedfailure",
+    "Coarsegrid1 is an explicit pilot; no grid-convergence or experimentalassignment claim",
+    "Frozen originalworker andcachedV2 are separate implementations; any laterchange needsnewsource/protocol record"
+  ]
+}

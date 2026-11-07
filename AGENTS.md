@@ -1,5 +1,141 @@
 # Research data conventions
 
+## New prospective 72h authorization (2026-11-07)
+
+The latest actual user message authorizes expanded cloud computation for72h.
+It supersedes earlier prospective CPU/deadline restrictions for NEW explicitly
+registered jobs only. Read `reports/research72h-20261107-v1/resource-protocol/
+user_authorization_observed-001.json`: observed02:50:37.289380Z Nov7, deadline
+02:50:37.289380Z Nov10. First additional guarded CPU allocation is900000s on
+the existing host; the historical388677.5337949999s costs and failed phases
+are carried unchanged. The old V8 ledger/hash and unused allocation are frozen,
+not reset, refunded, or recredited. Use the new72h guard/ledger after independent
+review; root alone launches real calculations. Keep finite job/solver limits,
+PID/birth/UID/boot and actual CPU monitoring, resource cleanup, source hashes,
+checkpoints and truthful failed costs. No paid external provisioning or main
+merge; no hourly reporting or recurring task. A cloud shutdown is not an uptime
+guarantee. Unknown orphan/unfinished ledger identity blocks automatic recovery.
+
+A006's106-cycle zero failed under the former phase cap. A key new hypothesis
+is accumulated incremental-J screening drift: native versus full energy differed
+by about1.97e-8Eh and true-Fock residual was larger. Test a separately declared
+full-native-VEFF-every-cycle driver using original direct full AO/MO spaces and
+fixed quadrature, first on water/ethanol, then use the authenticated A006
+checkpoint as an unconverged initial guess. Preserve all old25 imaginary modes,
+219-mode results, false flags and IR NOT_COMPUTED. Require a certified freshzero
+before multi-step directional energies; no chemical assignment or full-Hessian
+claim from a local test. Existing855 strong baseline stays primary. New ML
+studies must preserve train-only data access and describe exposed-data limits.
+
+## Fixed-quadrature diagnosis (2026-11-07)
+
+### A006 convergence follow-up
+
+The fresh v2 suite closed with29/31 qualified points and25.342708CPU seconds.
+The two remaining endpoints passed the independent full-VEFF energy/Fock
+checks, but native incremental-energy flags failed. A separately reviewed v3
+solver may certify the full-energy criterion after an actual accepted normal
+iteration and its actual extra-cycle pair, at the unchanged1e-13/1e-9 bounds.
+Retain native false flags verbatim and label runtime convergence as explicit
+full-VEFF certification; never relabel old v2 failures. All31 fresh points and
+the original finite-difference/energy/step-halving gates remain mandatory.
+
+The initial A00631-point suite actually attempted every point:16 strict
+successes and15 final-extra-cycle failures,13.712143CPU seconds, no resource
+kill. Preserve those failed results. A separately reviewed v2 water solver may
+use at most3 deterministic SCF calls of100cycles per point, with a tighter
+normal-loop orbital trigger and the same1e-13/1e-9 final AND checks. Audit
+two actual consecutive kernel density states with full nonincremental native
+VEFF and an unshifted full Fock; independently copied consecutive states may
+coincide numerically at a true fixed point. The new water grant is300CPU,
+with all original numerical control gates retained. Keep large Spinosin
+DM/MO/checkpoint audit states local with hashes; only small results return.
+No Spinosin launch until actual controls and the new source review pass.
+
+A005 actually completed13 water calculations, but oxygen-coordinate central
+differences were step-dependent; its proposed Spinosin point was NOT_RUN.
+Retain that failed gate and its4.357029CPU cost. The next separately declared
+protocol, `reports/fixed-quadrature-convergence-20261107-v2/`, uses31 fresh tight
+water SCF/gradient evaluations (500CPU grant) to examine five smaller steps.
+Only if its predeclared fine-pair and same-step energy gates pass may root
+attempt three Spinosin SCFs(E0,Eplus,Eminus) in one7500CPU phase, no nuclear
+gradients or full Hessian. Fresh E0 is mandatory; h=.0003125Bohr, SCF energy
+and orbital criteria must both pass, and finite energies use full-precision
+fsum. This supersedes the unexecuted A005 large-point proposal; it is not an
+automatic retry or a permission to relax its failed threshold. All costs use
+the same remaining pool/cap and stricter deadline below, with no report timers.
+
+### A005 initial experiment (preserved)
+
+The user authorized further cloud diagnosis of curvature disagreement and
+imaginary modes, without scheduled reports. Preserve the completed A003/A004
+results and the 219 signed modes, including all25 imaginary frequencies.
+Use a new isolated protocol under `reports/fixed-quadrature-20261107-v1/`.
+Do not edit any frozen scientific producer, historical gradient or budget row.
+The current V8 pool has8932.978907 CPU seconds remaining; its cumulative cap
+390160.8308359999 and the stricter2026-11-09T08:25:17.730193Z cutoff remain fixed.
+Only root starts Q through the original V8 guardian. The selected finite plan
+is one water control suite capped at300CPU seconds, followed only if its
+predeclared controls pass by one Spinosin mode1,+0.005Bohr fixed-grid SCF/gradient
+point capped at7000CPU seconds. No automatic retry, second Spinosin point or
+full Hessian. A failed control blocks the large point and preserves results.
+Freeze original grid coordinates/weights/order/padding, recompute AO masks for
+each actual molecule, preserve PBE/def2-SVP/fullAO/fullMO/explicit noD3 and
+grid_response=False. A one-sided comparison must subtract the authenticated
+nonzero historical zero-gradient, disclose its old boot, and never label it a
+new-boot fresh gradient or minimum verification. Live proof/PID/birth/UID/boot
+must be new; archived source closure evidence stays historical. No timers or
+hourly chat reports. Continue to report IR intensity as NOT_COMPUTED and leave
+the existing96.0234% classifier result unchanged.
+
+## Two-account cloud continuation (2026-11-06)
+
+The user explicitly authorized a second independent Codex cloud host, with
+prepared runnable inputs and GitHub return. Read
+`docs/RESEARCH4_PARALLEL_CLOUD_PLAN_20261106.md` and
+`docs/RESEARCH4_WORKER_B_QUICKSTART_20261106.md` for the current assignment.
+Host A retains its original exact-state Spinosin caches, registered v8 ledger,
+and research branch. Host B runs only the portable water, protocatechuic-acid
+and Calycosin package through its own reviewed supervisor and root release.
+The old pilot3300CPU and A host-bound producer proofs are historical/scoped
+records, not a substitute for the explicitly authorized B budget.
+
+The new B envelope is60000CPU seconds:1200 reserved for local package
+validation and58800 for the actual second host. The exact root-released
+remote run ID is `B20261106-01`; changing IDs does not create another grant.
+Use the atomic remote branch claim and actual local ledger/checkpoints to
+prevent duplicate deployment. The B result branch is distinct from A and main.
+The earlier72h cutoff is2026-11-09T08:25:17.730193Z. Preserve actual failed
+costs; no budget reset, unknown-orphan restart, force push or automatic main
+merge. Each account must use its own authorized GitHub connection.
+
+The prior Spinosin219-mode run is computationally complete with25 substantial
+imaginary modes; minimum and chemical-mechanism qualification remain false.
+IR intensities are NOT_COMPUTED. No theoretical result changes the historical
+96.0234% internal-CV classifier result. No further laboratory data are expected:
+standard THz/HPLC/LC-MS and independent-batch gaps remain explicit limitations.
+
+## PySCF Spinosin pilot (2026-10-31 client date)
+
+The user explicitly authorizes actual cloud quantum calculations on branch
+`research/pyscf-spinosin-mechanism-20261031`, with no main merge or changes to
+spectra/classifiers. Use `reports/pyscf-spinosin-pilot-20261031/` and preserve
+all earlier quantum NOT_RUN snapshots. Structures require trusted connectivity,
+resolved stereo, formula/charge/radical checks and coordinate hashes. Verified
+ChEBI/PubChem stereo SMILES may generate documented ETKDG/MMFF model conformers;
+these are not downloaded experimental/database3D coordinates.
+Only root launches quantum workers through the cumulative CPU ledger: <=3300
+quantum CPU seconds plus <=300 reserved for preparation/tests, one worker/thread,
+bounded wall/memory and checkpoints. PBE/def2-SVP/grid1 without dispersion is
+the explicit pilot; do not label it D3 or silently add/suppress dispersion.
+The cached DF-J backend is tested against direct-J water before Spinosin use;
+do not save giant in-core integral tensors. Require optimizer convergence and
+fresh same-method gradient checks before Hessian. Completed frequency calculation
+and a positive-frequency minimum are distinct statuses; also require complete
+3N-6 modes and all-real-positive checks. IR intensity is NOT_COMPUTED.
+Theory–experiment proximity is exploratory, not chemical assignment, and no
+theoretical frequency enters the existing classifiers or changes96.0234%.
+
 ## External pretraining experiment (2026-10-31)
 
 The user now explicitly asks whether adding the external plant data to deep

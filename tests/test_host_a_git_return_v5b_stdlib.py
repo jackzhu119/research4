@@ -1,0 +1,77 @@
+"""A-only exceptional failed-start guard tests, without Git or Q execution."""
+from copy import deepcopy
+import hashlib
+import importlib.util
+import json
+from pathlib import Path
+import unittest
+
+ROOT = Path(__file__).resolve().parents[1]
+SCRIPT = ROOT / 'scripts/research4_host_a_git_return_20261107_v5b.py'
+spec = importlib.util.spec_from_file_location('host_a_return_v3_stdlib', SCRIPT)
+M = importlib.util.module_from_spec(spec);spec.loader.exec_module(M)
+LEDGER = ROOT / M.A_LEDGER_RELATIVE
+ACTUAL = json.loads(LEDGER.read_text())
+KNOWN = next(x for x in ACTUAL['phases'] if x.get('phase') == M.KNOWN_PREEXEC_PHASE)
+
+
+class HistoricalPreexecException(unittest.TestCase):
+    def test_exact_real_complete_row_and_log_without_proof_is_accepted_only_as_failed_start(self):
+        self.assertEqual(M.canonical_row_sha256(KNOWN), M.KNOWN_PREEXEC_ROW_SHA256)
+        self.assertTrue(M.known_historical_preexec_failure(KNOWN, LEDGER))
+        self.assertFalse(Path(KNOWN['supervisor_proof_path']).exists())
+
+    def test_any_altered_or_unknown_failure_is_not_exempt_and_still_requires_proof(self):
+        for field,value in [('phase','unknown-preexec-attempt'),('failure','other failure'),
+                            ('actual_cpu_seconds',0.1),('actual_cpu_seconds',0),('threads',1),
+                            ('elapsed_wall_seconds',0.5)]:
+            changed=deepcopy(KNOWN);changed[field]=value
+            with self.subTest(field=field,value=value):
+                self.assertFalse(M.known_historical_preexec_failure(changed, LEDGER))
+                with self.assertRaises(M.SafetyError):M.strict_failed_start_proof(changed, LEDGER)
+
+    def test_known_row_cannot_exempt_a_different_or_copied_ledger(self):
+        with self.assertRaises(M.SafetyError):
+            M.known_historical_preexec_failure(KNOWN,ROOT/'reports/copied-ledger.json')
+
+    def test_only_exact_host_A_manifest_and_branch_are_accepted(self):
+        original={'schema':'research4-root-host-a-result-return-v1','role':'A','run_id':'host-a-005',
+                  'upload':{'enabled':True,'branch':M.BRANCH_A}}
+        self.assertEqual(M.expected_branch(original),M.BRANCH_A)
+        for change in [{'role':'B'},{'run_id':'other-run'},{'run_id':'host-a-001'},{'run_id':'host-a-002'},{'schema':'research4-remote-b-manifest-v1'},
+                       {'upload':{'enabled':True,'branch':'main'}}]:
+            with self.assertRaises(M.SafetyError):M.expected_branch({**original,**change})
+        self.assertFalse(hasattr(M,'claim_result_branch'))
+
+    def test_live_fixed_quadrature_worker_is_rejected_before_upload(self):
+        from types import SimpleNamespace
+        from unittest.mock import patch
+        class Node:
+            def __init__(self, name):self.name=name
+            def read_text(self):return "999999 (python3) S " + "0 "*30
+            def read_bytes(self):return b"python3\0research4_fixed_quadrature_worker_20261107.py\0--execute\0"
+        class Proc:
+            name="999999"
+            def __truediv__(self,name):return Node(name)
+        def fake_path(value):
+            if value=="/proc":return SimpleNamespace(iterdir=lambda:[Proc()])
+            return Path(value)
+        with patch.object(M,"Path",side_effect=fake_path):
+            with self.assertRaises(M.SafetyError):M.require_no_live_quantum_processes()
+
+    def test_native_log_bytes_with_trailing_spaces_are_collected_verbatim(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as folder:
+            root=Path(folder);work=root/"reports/fixed-quadrature-20261107-v1/queue-host-a-005"
+            work.mkdir(parents=True);native=work/"pyscf.log";raw=b"radial grids: \n    \n";native.write_bytes(raw)
+            manifest={"schema":"research4-root-host-a-result-return-v1","role":"A","run_id":"host-a-005",
+                "work_directory":str(work.relative_to(root)),"upload":{"enabled":True,"branch":M.BRANCH_A,"allowlist":["*.log"]}}
+            self.assertEqual(M.collect_return_files(root,manifest),[native]);self.assertEqual(native.read_bytes(),raw)
+
+    def test_frozen_B_helper_and_A_ledger_remain_unmodified(self):
+        source=ROOT/'scripts/research4_parallel_b_git_return_20261106.py'
+        self.assertEqual(hashlib.sha256(source.read_bytes()).hexdigest(),M.FORKED_B_HELPER_SHA256)
+        self.assertEqual(M.KNOWN_PREEXEC_ROW_SHA256,'03a2bdade1ba879cb0e6c4ec0167c9b921432599016004f3b996c144a3e66517')
+
+
+if __name__=='__main__':unittest.main()

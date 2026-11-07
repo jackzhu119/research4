@@ -1,0 +1,139 @@
+{
+  "schema": "research4-postrun-anomaly-independent-scientific-scope-review-v1",
+  "status": "PARTIAL_ANOMALY_EVIDENCE_REVIEW_CURRENT_Q_CONTINUES_POSTRUN_SUMMARY_NOT_YET_REVIEWED",
+  "observed_at_utc": "2026-11-06T15:27:58.057543+00:00",
+  "reviewer_agent": "negative_mode_diagnostic_design",
+  "reporting_directive": "LATEST_USER_NO_HOURLY_AUTOMATION;local_bounded_post_completion_waiter_only",
+  "actual_FD_results": [
+    {
+      "path": "/workspace/research4/reports/cloud-followup-20261106-v1/queue-host-a-003/science/spinosin-m001-h010-fd-attempt001/result.json",
+      "sha256": "8f77c2c9ff4cc2dbcda29f43867cc9130030abb01f2eaa128c1786d7b6dd4616",
+      "mode_1based": 1,
+      "step_bohr": 0.01,
+      "analytic_curvature_Eh_per_Bohr2": -0.03752230302254284,
+      "finite_gradient_curvature_Eh_per_Bohr2": 0.0048937875912490325,
+      "finite_energy_curvature_Eh_per_Bohr2": 0.005779957064078189,
+      "relative_directional_difference": 1.1304234334526033,
+      "grid_caveat": "REBUILT_ATOM_CENTERED_GRID_WITH_GRID_RESPONSE_FALSE_NOT_EXACT_COMMON_FIXED_QUADRATURE_FINITE_DIFFERENCE; difference alone cannot diagnose a bug"
+    },
+    {
+      "path": "/workspace/research4/reports/cloud-followup-20261106-v1/queue-host-a-003/science/spinosin-m001-h005-fd-attempt001/result.json",
+      "sha256": "8dfecc8bae9353eebf21fd4ac4292e0e1d6e9a924b4f708358e791d1ff383a5e",
+      "mode_1based": 1,
+      "step_bohr": 0.005,
+      "analytic_curvature_Eh_per_Bohr2": -0.03752230302254284,
+      "finite_gradient_curvature_Eh_per_Bohr2": 0.004894477625153416,
+      "finite_energy_curvature_Eh_per_Bohr2": 0.005355468601919711,
+      "relative_directional_difference": 1.1304418234193379,
+      "grid_caveat": "REBUILT_ATOM_CENTERED_GRID_WITH_GRID_RESPONSE_FALSE_NOT_EXACT_COMMON_FIXED_QUADRATURE_FINITE_DIFFERENCE; difference alone cannot diagnose a bug"
+    },
+    {
+      "path": "/workspace/research4/reports/cloud-followup-20261106-v1/queue-host-a-003/science/spinosin-m026-h010-fd-attempt001/result.json",
+      "sha256": "4e91fcded6451f37ddcb0bdc97958df1fd83363c51e098fbec91dc61721647fe",
+      "mode_1based": 26,
+      "step_bohr": 0.01,
+      "analytic_curvature_Eh_per_Bohr2": 0.00018240826188813185,
+      "finite_gradient_curvature_Eh_per_Bohr2": 0.003254517879734611,
+      "finite_energy_curvature_Eh_per_Bohr2": 0.003263385224272497,
+      "relative_directional_difference": 16.841943374969254,
+      "grid_caveat": "REBUILT_ATOM_CENTERED_GRID_WITH_GRID_RESPONSE_FALSE_NOT_EXACT_COMMON_FIXED_QUADRATURE_FINITE_DIFFERENCE; difference alone cannot diagnose a bug"
+    }
+  ],
+  "mode1_halfstep_check": {
+    "finite_gradient_curvature_difference_Eh_per_Bohr2": 6.900339043838799e-07,
+    "relative_to_h010": 0.00014100201357692432,
+    "both_FD_curvatures_positive_analytic_negative": true,
+    "interpretation": "Stable step-size behavior for this rebuilt-grid directional probe, not a qualified full Hessian or proof of implementation bug."
+  },
+  "water_FD_controls": [
+    {
+      "path": "/workspace/research4/reports/cloud-followup-20261106-v1/queue-host-a-002/science/water-c0-fd-attempt001/result.json",
+      "sha256": "523e7af4ea222d7ed4a183991f1e5acfb459a800edf0732ed592d13904f92d8a",
+      "analytic_curvature_Eh_per_Bohr2": 0.5491843308693187,
+      "finite_gradient_curvature_Eh_per_Bohr2": 0.6150376486738088,
+      "relative_directional_difference": 0.11991113748684182,
+      "numeric_pass_threshold": "NOT_SET"
+    },
+    {
+      "path": "/workspace/research4/reports/cloud-followup-20261106-v1/queue-host-a-002/science/water-c4-fd-attempt001/result.json",
+      "sha256": "60ab0d484291e9bd657eec95b0b6a031024d90c794ab38c731cd712f4ef0618d",
+      "analytic_curvature_Eh_per_Bohr2": 0.21019121813197922,
+      "finite_gradient_curvature_Eh_per_Bohr2": 0.20993747319284495,
+      "relative_directional_difference": 0.0012072099937826322,
+      "numeric_pass_threshold": "NOT_SET"
+    },
+    {
+      "path": "/workspace/research4/reports/cloud-followup-20261106-v1/queue-host-a-002/science/water-c8-fd-attempt001/result.json",
+      "sha256": "66c0662cef7912b93c1a3104a7540296b4881bc8bda48b394347426e1b480da0",
+      "analytic_curvature_Eh_per_Bohr2": 7.0273674568355204e-06,
+      "finite_gradient_curvature_Eh_per_Bohr2": -4.904799068136331e-05,
+      "relative_directional_difference": 7.979568235563708,
+      "numeric_pass_threshold": "NOT_SET"
+    }
+  ],
+  "water_scope": "DONE transport/analysis is not numericPASS. Stock complete-Hessian/mode comparison PASS is distinct. Waterc0 shows~12% FD discrepancy; nearzero waterc8 has small absolute sign difference and an inflated relative error.",
+  "fresh_saved_CPHF_residual_scope": {
+    "source_script": {
+      "path": "/workspace/research4/scripts/audit_pyscf_saved_cphf_residual_20261105.py",
+      "sha256": "6ff1df9930257f33637a34cfc58ba01b0fe38c246458ab704891663efbef800c"
+    },
+    "actual_formula": "R_ai=(eps_a-eps_i)U_ai+H_ai-eps_i Q_ai+freshV_ai(U); U=C^T S W",
+    "does_test": "Saved full-space response solves its recorded same-operator, same-H1 linear equations; freshE1 and occupied gauge/reconstruction are also measured.",
+    "does_not_test": [
+      "Independent correctness of H1 as a true derivative",
+      "Correctness of partialA/XC Hessian contributions or nuclear/global contractions",
+      "Grid response consistency or SCF electronic-state branch",
+      "All225 RHS unless all ten fresh blocks have actual closed qualified results"
+    ],
+    "new_A003_residual_blocks_currently_DONE_SEALED": [],
+    "full_A003_residual_results_interpretation": "PENDING_REAL_CLOSURE_DO_NOT_INFER_FROM_RUNNING_CONFIG",
+    "new_convergence_PASS_threshold": "NOT_SET"
+  },
+  "scientific_conclusion": {
+    "derivative_consistency_anomaly": "OBSERVED",
+    "cause": "NOT_ESTABLISHED",
+    "original_signed219_modes_25imag_still_unqualified": true,
+    "IR": "NOT_COMPUTED",
+    "peak_assignment": "BLOCKED",
+    "classification_accuracy_improvement": "NOT_COMPUTED"
+  },
+  "conditional_next_steps_after_all_Q_closed": [
+    {
+      "priority": 1,
+      "action": "Finish existing bounded residual blocks and optional internal-stability task; verify actual closed guardians and resource costs; no interference while running."
+    },
+    {
+      "priority": 2,
+      "condition": "Residuals cover all225 or explicitly report partial coverage; remaining originalCPU/wall/deadline supports new reviewed probes.",
+      "action": "Prioritize same-source fixed-global-quadrature +/-most-negative-direction SCF/gradient pair, using original grid coords/weights and a correct new-AO screening mask; verify actual grid fingerprints unchanged through SCF. First qualify new fixed-grid implementation on water.",
+      "scope": "New independently versioned diagnostic, not silent modification of frozen original sources. Same full762AO/PBE/def2SVP/noD3; no AO truncation."
+    },
+    {
+      "priority": 3,
+      "condition": "A response equation inconsistency is actually observed.",
+      "action": "Inspect worst measured RHS/gauge/freshE1; consider a separately budgeted independent native response solve for a targeted atom, preserving old response caches unchanged."
+    },
+    {
+      "priority": 4,
+      "condition": "Fixed-quadrature probe disagreement persists despite sufficiently small measured response residuals.",
+      "action": "Investigate H1 derivative or partialA/XC/global assembly using targeted independently derived checks; do not declare a software bug or manufacture corrected frequencies."
+    },
+    {
+      "priority": 5,
+      "condition": "Originalcap/deadline or evidence is insufficient.",
+      "action": "Save checkpoint/results and mark further quantum work BLOCKED; no automatic resource extension, full75atom re-Opt/Freq promise, or claimed laboratory completion."
+    }
+  ],
+  "prohibited_remediation": [
+    "Taking absolute frequency values",
+    "Deleting imaginary modes",
+    "Replacing frequencies with FD directional values",
+    "Silently changing functional/dispersion/AO space",
+    "Using unqualified theoretical peaks to alter classifier",
+    "Claiming IR intensities, chemical assignments, or stable minimum"
+  ],
+  "energy_FD_caveat": "Central energy second differences amplify SCF energy errors by1/h^2. h005 versush010 energycurvature disagreement is larger than gradientcurvature disagreement; record SCF tolerance and do not use energy sign alone as derivative proof.",
+  "source_and_ledger_not_modified": true,
+  "no_Q_Git_training_or_large_cache_reads_by_reviewer": true,
+  "postrun_summary_and_waiter_review": "PENDING_SCRIPT_FROM_MODE_AGENT"
+}

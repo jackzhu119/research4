@@ -1,0 +1,48 @@
+{
+  "schema": "research4-real-independent-postprocessing-failure-v1",
+  "recorded_at_utc": "2026-11-05T01:29:25.693537+00:00",
+  "status": "FAILED_KEY_INTERFACE_BEFORE_MODE_REPLAY_COMPLETE",
+  "actual_command": [
+    "OMP_NUM_THREADS=1",
+    "OPENBLAS_NUM_THREADS=1",
+    "MKL_NUM_THREADS=1",
+    "NUMEXPR_NUM_THREADS=1",
+    "PYTHONPATH=.runtime/quantum-pilot-site:.runtime/quantum-upgrade-site",
+    ".runtime/bin/python",
+    "-B",
+    "scripts/analyze_pyscf_staged_modes_20261105_v7.py",
+    "--result",
+    "reports/pyscf-spinosin-grid-checkpoint-20261105-v7/control-water-global-assemble-001/result.json",
+    "--result-sha256",
+    "6c3e6c895abb0e797466e51e7b1d550e4149ec055a2957e6c85ee0346ecf735f",
+    "--output",
+    "reports/pyscf-spinosin-grid-checkpoint-20261105-v7/control-water-independent-analysis-001",
+    "--control-validation",
+    "--cpu-seconds",
+    "300",
+    "--wall-seconds",
+    "900"
+  ],
+  "tool_exit_code": 1,
+  "tool_observed_wall_seconds": 0.413241061,
+  "actual_CPU_seconds": null,
+  "actual_CPU_status": "NOT_RECORDED_DO_NOT_INVENT_FROM_WALL",
+  "configured_CPU_soft_limit_seconds": 300,
+  "configured_CPU_hard_limit_seconds": 305,
+  "conservative_postprocessing_charge_CPU_not_measured_actual": 305,
+  "resource_charge_is_not_quantum_ledger_cost": true,
+  "source_sha256": "9eaf4a08b7073b39aca7ce5b91dd483ba3119ab83d8064b5f98aea2901067b23",
+  "expected_actual_snapshot_keys": [
+    "MO_occ",
+    "MO_coeff",
+    "MO_energy"
+  ],
+  "incorrect_new_check_keys": [
+    "mo_occ",
+    "mo_coeff"
+  ],
+  "output_directory_exists": false,
+  "full_DFT_or_Hessian_or_modes_recomputed": false,
+  "expensive_healthy_DFT_inputs_preserved": true,
+  "correction_plan": "Newv7_v2 sourcefile with onlytwo key fixes, realhelper-interface regression tests, independent source review and new actual no-Q replay; preserve9eaf unchanged."
+}

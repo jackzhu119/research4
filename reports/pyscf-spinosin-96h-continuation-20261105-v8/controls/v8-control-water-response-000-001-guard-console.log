@@ -1,0 +1,18 @@
+Traceback (most recent call last):
+  File "/workspace/research4/scripts/run_pyscf_continuation_budget_20261105_v8.py", line 1148, in <module>
+    if __name__=="__main__":main()
+                            ^^^^^^
+  File "/workspace/research4/scripts/run_pyscf_continuation_budget_20261105_v8.py", line 1144, in main
+    row=run_phase(args,read(args.ledger));print(json.dumps(row),flush=True)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/research4/scripts/run_pyscf_continuation_budget_20261105_v8.py", line 787, in run_phase
+    return _run_phase_with_prior_lock(args,ledger)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/research4/scripts/run_pyscf_continuation_budget_20261105_v8.py", line 921, in _run_phase_with_prior_lock
+    child = subprocess.Popen(command, stdout=handle, stderr=subprocess.STDOUT, env=env,
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 1026, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 1958, in _execute_child
+    raise child_exception_type(err_msg)
+subprocess.SubprocessError: Exception occurred in preexec_fn.

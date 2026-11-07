@@ -1,0 +1,69 @@
+{
+  "schema": "research4-water-polish-v2-independent-source-review-v1",
+  "status": "SOURCE_REVIEW_PASS_READY_FOR_ROOT_BOUNDED_WATER_LAUNCH_NOT_NUMERICAL_PASS",
+  "created_at_utc": "2026-11-07T01:28:34.880344+00:00",
+  "worker": {
+    "path": "/workspace/research4/scripts/research4_fixed_grid_water_convergence_20261107_v2.py",
+    "sha256": "2b9de9ec029afffd5afc12a5214e714d99b9f74d050b1b020c7a2b8fc6aeb525",
+    "bytes": 69903
+  },
+  "tests": {
+    "path": "/workspace/research4/tests/test_fixed_grid_water_convergence_v2_stdlib_20261107.py",
+    "sha256": "eacc3c602d436ef58769a036f0e40edcfded84e51dda6f7e4bf8c05d9176bea8",
+    "bytes": 18182
+  },
+  "preserved_functions_AST_equivalent_to_failed_v1": {
+    "qualify_source": true,
+    "source_gate": true,
+    "read_schedule": true,
+    "validate_appended_rows": true,
+    "attach_fixed_quadrature": true,
+    "finest_pair_gate": true,
+    "same_spinosin_step_energy_gate": true
+  },
+  "checks": {
+    "fresh_all31_SCF_gradient_points_and_existing_step_gates_retained": true,
+    "full_original_source_qualification_and_ledger_prefix_proofs_preserved": true,
+    "bounded_calls_per_point": 3,
+    "max_cycles_per_call": 100,
+    "main_orbital_trigger": 1e-10,
+    "final_energy_tolerance_Eh": 1e-13,
+    "final_orbital_tolerance": 1e-09,
+    "requires_native_final_extra_cycle_AND_acceptance": true,
+    "continues_only_from_immediately_preceding_actual_final_density": true,
+    "new_native_DIIS_object_each_call": true,
+    "captures_actual_native_dm_last_and_dm_independent_copies": true,
+    "returned_MO_density_equals_captured_current_density": true,
+    "equal_values_at_fixed_point_allowed_by_explicit_root_decision": true,
+    "two_full_native_VEFF_calls_explicit_dm_last_and_vhf_last_None": true,
+    "current_Fock_unshifted_no_DIIS_no_damping": true,
+    "full_consecutive_energy_and_current_orbital_residual_must_both_pass": true,
+    "first_qualified_endpoint_only_no_Hessian_or_FD_error_selection": true,
+    "accepted_MOs_density_and_full_current_energy_consistent": true,
+    "full_current_Fock_diagonal_MO_energies_without_orbital_rotation": true,
+    "qualified_tuple_arrays_and_native_checkpoint_scope_saved": true,
+    "phase_CPU_hard_cap_seconds": 300,
+    "two_threads_unchanged_guard_and_earlier_deadline_required": true,
+    "no_new_Spinosin_work_by_this_water_worker": true
+  },
+  "validation": {
+    "independent_source_and_test_inspection": "PASS",
+    "syntax_and_preserved_guard_gate_AST_checks": "PASS",
+    "13_meaningful_stdlib_tests": "PASS_REPORTED_BY_IMPLEMENTATION_AGENT_AND_ROOT_NOT_DUPLICATED",
+    "actual_new_water_result": "NOT_RUN_BY_REVIEW"
+  },
+  "interpretation": {
+    "old_A005_A006_failed_results_unchanged": true,
+    "no_guarantee_new_finest_energy_gate_passes": true,
+    "remaining_SCF_or_energy_evaluation_noise_must_be_reported_if_present": true,
+    "no_minimum_Hessian_frequency_IR_or_mechanism_qualification": true
+  },
+  "metadata_semantics": "Root explicitly selected actual consecutive independently copied native states; values may coincide at a fixed point. This overrides the earlier draft word distinct and must be reflected transparently in selected metadata before execution.",
+  "side_effects": {
+    "new_quantum_evaluations": 0,
+    "numerical_imports": false,
+    "Git_or_network": false,
+    "ledger_or_source_edits": false
+  },
+  "approval": "Exact source hash is approved for the already selected root-only guarded300CPU water phase; this receipt grants no extra CPU and does not classify any numerical result as PASS."
+}

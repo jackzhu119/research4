@@ -1,0 +1,152 @@
+{
+  "run_id": "cross-plant-conservative-pilot-20261104-v1",
+  "status": "REGISTERED_BEFORE_TRAINING",
+  "study_status": "DEVELOPMENT_NOT_NEW_CONFIRMATION",
+  "physical_status": "EXPLORATORY_SPECTRAL_SHAPE_UNITS_INSTRUMENT_BATCH_ANCESTRY_NOT_FULLY_VERIFIED",
+  "target_N": 855,
+  "classes": [
+    "ZY01",
+    "ZY02",
+    "ZY03",
+    "ZY04",
+    "ZY05",
+    "ZY06",
+    "ZY07"
+  ],
+  "seeds": [
+    42,
+    43,
+    44
+  ],
+  "arms": [
+    "A",
+    "Aextra_L2SP",
+    "B_HQ_TM_L2SP"
+  ],
+  "external_observations": {
+    "huangqi": 403,
+    "tianma": 405
+  },
+  "external_label_spaces_separate": true,
+  "ginseng_excluded": "upstream biological ancestry uncertain",
+  "molecular_or_literature_records_are_training_samples": false,
+  "axis": {
+    "min_THz": 0.21,
+    "max_THz": 1.49,
+    "points": 128,
+    "interpolation": "existing fixed pointwise linear, no extrapolation"
+  },
+  "preprocessing": "pointwise SNV; independently source-fitted target/external StandardScaler",
+  "architecture": {
+    "width": 12,
+    "blocks": 2,
+    "dropout": 0.35,
+    "residual": true,
+    "attention": false
+  },
+  "optimizer": {
+    "learning_rate": 0.0005,
+    "weight_decay": 0.001,
+    "batch": 64
+  },
+  "pretraining": {
+    "steps": 120,
+    "batch": 32,
+    "A": [],
+    "Aextra_L2SP": [
+      "target"
+    ],
+    "B_HQ_TM_L2SP": [
+      "huangqi",
+      "tianma"
+    ]
+  },
+  "L2SP": {
+    "lambda": 0.001,
+    "arms": [
+      "Aextra_L2SP",
+      "B_HQ_TM_L2SP"
+    ],
+    "parameters": "encoder named_parameters only",
+    "anchor": "actual pretrained weights; BN buffers reset before target fitting",
+    "penalty": "lambda * sum of squared parameter deviations"
+  },
+  "epoch_selection": {
+    "candidates": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      39,
+      40,
+      41,
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      48
+    ],
+    "selection_arm": "A",
+    "source_rule": "within each original outer: pool original two inner queries per seed, average all three seeds; MacroF1 then BA then Accuracy then earliest epoch",
+    "all_source_epoch_locks_before_any_outer_prediction": true,
+    "same_target_epochs_for_all_arms_and_seeds": true
+  },
+  "extra_compute_control": "B-Aextra compares external vs target-source supervised pretraining under same steps and L2SP; heads differ so not exact FLOP matching",
+  "historical_96_02_and_87_21_are_not_direct_same_protocol_baselines": true,
+  "resource_limits": {
+    "total_actual_child_cpu_seconds": 600.0,
+    "wall_seconds": 1800.0,
+    "threads": 1,
+    "best_effort_RSS_bytes": 1610612736,
+    "virtual_AS_GiB": 10,
+    "concurrent_root_DFT": true,
+    "wall_speedup_comparison_allowed": false
+  },
+  "prepared_root": "reports/cross-plant-deep-transfer-20261031-v1/neural",
+  "preparation_sha256": "478573e170e4873cff4b69983b61f8b0a926a0d7513d40c186ff01271e3f10ea",
+  "split_path": "reports/staged-nested-optimization/2026-10-31/core/splits.json",
+  "split_sha256": "fcf14231b4dc1a1e15af8c46310ee6f39e71520b76a7b62fe0e176485f6f5cfe",
+  "source_sha256": {
+    "src/herb_spectra/cross_plant_transfer.py": "79f15d8fa8d08a1744740dd4892a963546403bf60212222e9a1b8897f87d6e01",
+    "src/herb_spectra/upgrade_neural.py": "4ec65e407c197d9f666c72e9f4a5d79eee0045f823787df9e5b22f57dc43e773",
+    "src/herb_spectra/leakage_guard.py": "9b5555be27fc634aae46f31e50a06f1950d238c83ff654df91a37c0cdd74748e",
+    "src/herb_spectra/classification.py": "793a550f46522bc2e69acf922b39e104a0e94b5eb058905f987a91d0f16a08b2",
+    "scripts/run_conservative_cross_plant_pilot_20261104.py": "a0aed48133444a8b77abf79de3aca324efed5239914769ad5d033108c8af23c4"
+  }
+}

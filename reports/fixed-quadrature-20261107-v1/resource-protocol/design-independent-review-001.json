@@ -1,0 +1,196 @@
+{
+  "schema": "research4-fixed-quadrature-independent-design-review-v1",
+  "status": "DESIGN_REVIEW_COMPLETE_IMPLEMENTATION_REVIEW_AND_QUANTUM_EXECUTION_NOT_RUN",
+  "created_at_utc": "2026-11-07T00:49:26.102888+00:00",
+  "review_scope": "Independent read-only source/method/provenance and boot-transition design review; this record does not approve an unfinished worker source or launch a quantum phase.",
+  "new_quantum_evaluations": 0,
+  "new_numerical_packages_imported": false,
+  "large_arrays_or_checkpoints_loaded": false,
+  "old_frozen_sources": {
+    "rebuilt_grid_worker": {
+      "path": "/workspace/research4/scripts/research4_cloud_followup_worker_20261106_v2.py",
+      "sha256": "d1755eb103eb5c6bd4100771500fb969e19d0a05c69fe88257ef63668025b1fb",
+      "bytes": 43690
+    },
+    "v8_guard": {
+      "path": "/workspace/research4/scripts/run_pyscf_continuation_budget_20261105_v8.py",
+      "sha256": "7bc773076ecc5e0f90fb58b81bf0641948dd09c14b2816138a0469f16e511c65",
+      "bytes": 72861
+    },
+    "original_analyzer": {
+      "path": "/workspace/research4/scripts/analyze_pyscf_staged_modes_20261105_v8.py",
+      "sha256": "da2a53d85015e0ced6445e7766e18ae4fbe58e098e0eb077719759be7b18cab6",
+      "bytes": 66937
+    },
+    "state_worker": {
+      "path": "/workspace/research4/scripts/pyscf_molecular_state_worker_20261104_v5.py",
+      "sha256": "be4727b76d59a0b0dd3defba249ef833ee8ef0ea89473e390dcef389728415c8",
+      "bytes": 41377
+    },
+    "gradient_qualifier": {
+      "path": "/workspace/research4/scripts/pyscf_resumable_hessian_worker_20261104_v5.py",
+      "sha256": "b40188f747c01e9efa97672af6eedfd281a9e9697d20bc7d57f125bb131fa190",
+      "bytes": 29399
+    }
+  },
+  "implementation": {
+    "path": "/workspace/research4/scripts/research4_fixed_quadrature_worker_20261107.py",
+    "status": "DRAFT_NOT_YET_INDEPENDENTLY_APPROVED",
+    "requires_separate_final_source_hash_review": true
+  },
+  "historical_reference_gradient": {
+    "scope": "AUTHENTICATED_HISTORICAL_SAME_STATE_FIXED_QUADRATURE_GRADIENT_NOT_CURRENT_BOOT_FRESH_GRADIENT",
+    "receipt": {
+      "path": "/workspace/research4/reports/pyscf-spinosin-resumable-20261104-v5/v5-spinosin-C001-restore-gradient-001/result.json",
+      "sha256": "6b143defc238471bc815857df08fc4034a9d8454a00567f3b084907a54a5c403",
+      "bytes": 22755
+    },
+    "gradient": {
+      "path": "/workspace/research4/reports/pyscf-spinosin-resumable-20261104-v5/v5-spinosin-C001-restore-gradient-001/gradient_hartree_per_bohr.npy",
+      "sha256": "9418727d662aaada4548cf27bbfdec365627126eb1836703096f737a5ad94ad4",
+      "bytes": 1928
+    },
+    "snapshot_gradient": {
+      "path": "/workspace/research4/reports/pyscf-spinosin-resumable-20261104-v5/v5-spinosin-C001-prepare-001/exact-mf-snapshot/gradient.npy",
+      "sha256": "c83e5beacd5d7c61298dcd15fb66919269867de73c6975ea0e76713a975e244f",
+      "bytes": 1928
+    },
+    "shape": [
+      75,
+      3
+    ],
+    "gradient_grid_response": false,
+    "historical_boot_id": "50ca0010-b743-43c7-bc0f-b6bcbc47c68d",
+    "max_abs_restored_minus_snapshot_Eh_per_Bohr": 9.947598300641403e-14,
+    "mode1_q_dot_restored_gradient_Eh_per_Bohr": -5.9130191916826626e-05,
+    "must_subtract_actual_gradient_not_zero": true,
+    "bias_from_assuming_zero_at_h005_Eh_per_Bohr2": -0.011826038383365324,
+    "all_original_closed_producer_array_molecule_source_and_environment_checks_required": true,
+    "original_same_boot_receipt_qualification_remains_historical_unchanged": true
+  },
+  "chosen_method": {
+    "name": "FIXED_ORIGINAL_QUADRATURE",
+    "same_functional_definition": "Retain original Cartesian integration coordinates and weights while nuclei and AO basis move; use stock PBE RKS gradient with grid_response=False.",
+    "model": {
+      "xc": "PBE",
+      "basis": "def2-svp",
+      "dispersion": null,
+      "density_fitting": false,
+      "charge": 0,
+      "spin": 0,
+      "all_atoms": 75,
+      "all_AO_functions": 762
+    },
+    "grid_invariants": [
+      "New Grids object owns displaced Mole; grids.mol is mf.mol.",
+      "Copy all grid settings before assigning fixed arrays; PySCF setters can reset arrays.",
+      "Original coordinates/weights/order/padding remain byte-identical before and after SCF and gradient.",
+      "Fresh mask computed with moved Mole and fixed coordinates; both non0tab and screen_index reference the new mask.",
+      "No grid build/reset/repartition/pruning/scanner geometry reset after attachment.",
+      "Source MF, molecule, MOs and original grid payload remain unchanged.",
+      "Use grid_response=False; full grid response would introduce moving-grid/partition terms."
+    ],
+    "source_grid_points": 301848,
+    "grid_cutoff": 1e-15,
+    "numint_cutoff": 1e-13,
+    "small_rho_cutoff": 0.0,
+    "nlc": "",
+    "mask_discreteness_limitation": "Fresh screening masks can vary discretely; cutoff and water controls must bound resulting numerical error. No stale original mask may be reused at the displaced geometry."
+  },
+  "chosen_control_suite": {
+    "status": "NOT_RUN",
+    "case": "water_software_control",
+    "fresh_zero_gradient_required": true,
+    "zero_gradient_max_abs_tolerance_Eh_per_Bohr": 1e-08,
+    "coordinate_indices_zero_based": [
+      0,
+      4,
+      8
+    ],
+    "central_steps_bohr": [
+      0.005,
+      0.0025
+    ],
+    "signs": [
+      -1,
+      1
+    ],
+    "new_displaced_points": 12,
+    "comparison": "Complete 3x3 finite-gradient Hq vectors against corresponding original full Hessian columns, including near-zero c8.",
+    "FD_Hq_max_abs_error_tolerance_Eh_per_Bohr2": 0.0001,
+    "halving_FD_Hq_max_abs_difference_tolerance_Eh_per_Bohr2": 5e-05,
+    "thresholds_fixed_before_new_live_control_results": true,
+    "failure_policy": "Fail closed; no Spinosin point, threshold relaxation, retry or automatic repair.",
+    "additional_required_checks": [
+      "At reference geometry, fresh mask reproduces original saved mask fingerprint.",
+      "Fresh zero gradient reproduces authenticated saved zero gradient.",
+      "All fixed-array and source-MF invariants hold for every point."
+    ]
+  },
+  "chosen_spinosin_diagnostic": {
+    "status": "NOT_RUN",
+    "conditional_on_healthy_closed_water_parent_and_all_controls_passed": true,
+    "mode_index_one_based": 1,
+    "step_bohr": 0.005,
+    "sign": 1,
+    "new_points": 1,
+    "full_vector_estimator": "(g(R + h*q) - actual_historical_g0) / h",
+    "projected_curvature_estimator": "sum(q * full_vector_estimator)",
+    "reference_comparison": "Original unsymmetrized complete Hessian Hq and q.Hq; report full vector and scalar discrepancies.",
+    "order_and_scope": "First-order one-sided local directional diagnostic; no new Hessian or minimum verification.",
+    "energy_estimator_if_reported": "2*(E(R+h*q)-E0-h*sum(q*g0))/h**2; supporting first-order diagnostic with explicit SCF energy-cancellation limitation.",
+    "analytic_mode1_curvature_Eh_per_Bohr2": -0.03752230302254284,
+    "expected_linearized_projected_gradient_at_plus_h_Eh_per_Bohr": -0.00024674170702954085,
+    "no_retry_or_second_point": true
+  },
+  "budget": {
+    "observed_registered_ledger": {
+      "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/cpu_budget.json",
+      "sha256": "f80927e847e2f9ae61ec42b979a5f35c0689d983ff33e247f90056ff5a460415",
+      "bytes": 765381
+    },
+    "fixed_cap_CPU_seconds": 390160.8308359999,
+    "observed_used_CPU_seconds": 381227.8519289999,
+    "observed_remaining_CPU_seconds": 8932.97890700004,
+    "water_guard_grant_CPU_seconds": 300,
+    "water_actual_stop_threshold_CPU_seconds": 180,
+    "Spinosin_guard_grant_CPU_seconds": 7000,
+    "Spinosin_actual_stop_threshold_CPU_seconds": 6880,
+    "frozen_cleanup_reserve_per_phase_CPU_seconds": 120,
+    "combined_grant_ceiling_CPU_seconds": 7300,
+    "unallocated_remainder_at_observation_CPU_seconds": 1632.9789070000406,
+    "historical_max_displaced_point_actual_CPU_seconds": 5628.118890000001,
+    "historical_max_times_1point2_CPU_seconds": 6753.742668000001,
+    "admissibility": "One point only, conditional on actual remaining ledger balance and elapsed stricter deadline at root launch; method-change cost remains uncertain and resource stop is allowed.",
+    "no_budget_reset_or_failed_cost_refund": true
+  },
+  "boot_transition": {
+    "current_boot_id": "bcc60ef9-a836-45c2-82a2-1766833e8991",
+    "historical_boot_id": "50ca0010-b743-43c7-bc0f-b6bcbc47c68d",
+    "frozen_v8_guard_has_no_boot_id_binding": true,
+    "frozen_v8_ledger_closed_validation": "PASS_BY_NARROW_INDEPENDENT_SUBREVIEW_182_CLOSED_PHASES",
+    "new_live_proof_required": [
+      "Fresh supervisor/child PID and birth ticks",
+      "Current UID, process group/session, parent command/source",
+      "Current RLIMIT/cgroup/CPU bounds",
+      "Exactly one current RUNNING registered ledger phase"
+    ],
+    "historical_proof_reuse_as_live_identity_forbidden": true,
+    "same_boot_qualification_exemption_introduced": false,
+    "historical_analyzer_behavior": "Original gradient receipt is checked against original source-result boot; its historical SAME_BOOT scope is not relabelled as current-boot validation.",
+    "registered_ledger_deadline_utc": "2026-11-09T12:30:00+00:00",
+    "stricter_task_deadline_utc": "2026-11-09T08:25:17.730193Z",
+    "earlier_task_deadline_must_be_enforced_separately_without_modifying_old_ledger": true
+  },
+  "unchanged_scientific_limits": {
+    "original_signed_modes": 219,
+    "original_positive_modes": 194,
+    "original_imaginary_modes": 25,
+    "stationary_minimum_verified": false,
+    "chemical_mechanism_qualified": false,
+    "IR_intensities_status": "NOT_COMPUTED",
+    "historical_classifier_accuracy_percent": 96.0234,
+    "new_classifier_training": false
+  },
+  "authorization_boundary": "Only root launches through unchanged cumulative V8 guardian and chosen exact queue; this review creates no new grant, timer, Git operation or Q phase."
+}

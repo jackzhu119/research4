@@ -1,0 +1,232 @@
+{
+  "schema": "research4-root-global-CPU-stop-forensics-v1",
+  "observed_at_utc": "2026-11-06T04:56:27.670185+00:00",
+  "status": "DONE_FORENSICS_ONLY_RECOVERY_NOT_RUN",
+  "boot_id": "50ca0010-b743-43c7-bc0f-b6bcbc47c68d",
+  "closed_old_invocation": {
+    "id": "root-v8-background-001",
+    "status": "BLOCKED_REQUIRES_ROOT_REVIEW_NO_AUTOMATIC_RETRY",
+    "identity": {
+      "pid": 42012,
+      "start_ticks": 10999266,
+      "uid": 1000,
+      "pgrp": 42012,
+      "session": 42012,
+      "state": "R",
+      "comm": "python",
+      "boot_id": "50ca0010-b743-43c7-bc0f-b6bcbc47c68d"
+    },
+    "started_at_utc": "2026-11-05T13:09:12.637255+00:00",
+    "self_CPU_observed_seconds": 33.214244355,
+    "error_type": "ValueError",
+    "reason": "Guardian failed; retain actual failed cost and stop without automatic retry",
+    "ended_observed_at_utc": "2026-11-06T04:53:27.579278+00:00"
+  },
+  "failed_phase_preserved": {
+    "phase": "v8-spinosin-C001-response-pipeline-001-global-assemble",
+    "started_at_utc": "2026-11-06T04:25:25.919859+00:00",
+    "status": "PARTIAL_OR_FAILED",
+    "command": [
+      "/workspace/research4/.runtime/bin/python",
+      "/workspace/research4/scripts/pyscf_staged_consumer_20261105_v8.py",
+      "--execute",
+      "--stage",
+      "global-assemble",
+      "--threads",
+      "2",
+      "--snapshot",
+      "/workspace/research4/reports/pyscf-spinosin-resumable-20261104-v5/v5-spinosin-C001-prepare-001/exact-mf-snapshot",
+      "--snapshot-manifest-sha256",
+      "3089d6014ba2d2283540eb13cc7dbcdbbf284721042e7250b624197fc15c3311",
+      "--gradient-check-result",
+      "/workspace/research4/reports/pyscf-spinosin-resumable-20261104-v5/v5-spinosin-C001-restore-gradient-001/result.json",
+      "--gradient-check-result-sha256",
+      "6b143defc238471bc815857df08fc4034a9d8454a00567f3b084907a54a5c403",
+      "--control-release",
+      "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/resource-protocol/actual-v8-water-ethanol-control-release-001.json",
+      "--control-release-sha256",
+      "2093c4e5952ce30c97a71978aa963f855d2205ef634af151ed11bdda161a5efa",
+      "--partial-result",
+      "/workspace/research4/reports/pyscf-spinosin-grid-checkpoint-20261105-v7/spinosin-C001-rks-partial-001/result.json",
+      "--partial-result-sha256",
+      "7bbcfc8b62ad81d53a65b09f0b8809d9646a62130e759a69f8d794e8f29ee8d9",
+      "--h1-result",
+      "/workspace/research4/reports/pyscf-spinosin-grid-checkpoint-20261105-v7/post-xc-pipeline-001/science/h1ao/result.json",
+      "--h1-result-sha256",
+      "f406700cc02b880292e92ed7cde9734170a115503445abb8c8b57dfe565643fa",
+      "--output",
+      "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/global-assemble",
+      "--response-index",
+      "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/metadata/response_results.json",
+      "--response-index-sha256",
+      "90921db1ba1dc4783888bb10b25c5cd2e7802f02fbc6a42d7e68063f74c0ad1e"
+    ],
+    "log": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/execution/global-assemble.log",
+    "granted_cpu_seconds": 1800,
+    "cpu_soft_limit_seconds": 1680,
+    "cpu_hard_limit_seconds": 1800,
+    "cpu_cleanup_margin_seconds": 120,
+    "cpu_boundary_reserve_seconds": 6,
+    "wall_limit_seconds": 3600,
+    "wall_cleanup_seconds": 60,
+    "wall_SIGTERM_after_seconds": 3540,
+    "address_space_limit_gib": 24,
+    "threads": 2,
+    "rss_stop_bytes": 10737418240,
+    "cgroup_kill_bytes": 12884901888,
+    "monitor_interval_seconds": 0.1,
+    "memory_kill_grace_seconds": 1.0,
+    "expected_cgroup_memory_max_bytes": 17179869184,
+    "guard_semantics": "BEST_EFFORT_RSS_GUARD_NOT_HARD_RSS_LIMIT",
+    "not_a_hard_RSS_limit": true,
+    "actual_cpu_guard_enabled": true,
+    "actual_cpu_guard_source": "PROC_STAT_CUMULATIVE_FROM_PROCESS_BIRTH",
+    "actual_cpu_clock_ticks_per_second": 100,
+    "actual_cpu_cleanup_reserve_seconds": 120,
+    "actual_cpu_stop_threshold_seconds": 1680,
+    "actual_cpu_closed_batch_cost_seconds": 319678.9875689999,
+    "actual_cpu_batch_cap_seconds": 390160.8308359999,
+    "cpu_guard_kill_grace_seconds": 1.0,
+    "profiling_RLIMIT_is_supplementary_not_exact_actual_CPU_guarantee": true,
+    "supervisor_proof_path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/execution/global-assemble.log.supervisor-proof.json",
+    "prior_V3_exclusive_lock_held": true,
+    "cgroup_memory_before_launch": {
+      "current_bytes": 4837810176,
+      "max_bytes": 17179869184,
+      "source": "/sys/fs/cgroup",
+      "observed_at_utc": "2026-11-06T04:25:25.919853+00:00"
+    },
+    "environment_thread_limits": {
+      "OMP_NUM_THREADS": "2",
+      "OPENBLAS_NUM_THREADS": "2",
+      "MKL_NUM_THREADS": "2",
+      "NUMEXPR_NUM_THREADS": "2"
+    },
+    "pid": 46409,
+    "supervisor_proof_sha256": "8074afadc2188e1d42404b2cf345328a9a9d7eaae60a1febf153aebceb83a4e5",
+    "identity_checked_signal_attempts": [
+      {
+        "utc": "2026-11-06T04:53:26.050721+00:00",
+        "signal": 15,
+        "sent": true,
+        "reason": "IDENTITY_RECHECKED_GROUP_SIGNAL_SENT"
+      },
+      {
+        "utc": "2026-11-06T04:53:26.882535+00:00",
+        "signal": 9,
+        "sent": true,
+        "reason": "IDENTITY_RECHECKED_GROUP_SIGNAL_SENT"
+      }
+    ],
+    "resource_stop_reason": "ACTUAL_CPU_GUARD",
+    "actual_cpu_stop_observation": {
+      "clock_ticks_per_second": 100,
+      "cumulative_phase_cpu_seconds_sampled": 1680.03,
+      "closed_batch_actual_cpu_seconds": 319678.9875689999,
+      "batch_cpu_seconds_sampled": 321359.0175689999,
+      "stop_threshold_phase_cpu_seconds": 1680,
+      "cleanup_reserve_seconds": 120,
+      "phase_boundary_near": true,
+      "batch_boundary_near": false,
+      "should_stop": true,
+      "clock_source": "PROC_STAT_CUMULATIVE_FROM_PROCESS_BIRTH",
+      "no_initial_sample_subtracted": true,
+      "scope": "Single TGID self plus waited-child CPU; native threads not enumerated; unexpected live group members rejected",
+      "cumulative_phase_cpu_high_water_seconds": 1680.03
+    },
+    "SIGTERM_requested_at_utc": "2026-11-06T04:53:26.050731+00:00",
+    "actual_cpu_guard_TERM_sent": true,
+    "resource_stop_events": [
+      {
+        "utc": "2026-11-06T04:53:26.050759+00:00",
+        "reason": "ACTUAL_CPU_GUARD",
+        "observation": {
+          "clock_ticks_per_second": 100,
+          "cumulative_phase_cpu_seconds_sampled": 1680.03,
+          "closed_batch_actual_cpu_seconds": 319678.9875689999,
+          "batch_cpu_seconds_sampled": 321359.0175689999,
+          "stop_threshold_phase_cpu_seconds": 1680,
+          "cleanup_reserve_seconds": 120,
+          "phase_boundary_near": true,
+          "batch_boundary_near": false,
+          "should_stop": true,
+          "clock_source": "PROC_STAT_CUMULATIVE_FROM_PROCESS_BIRTH",
+          "no_initial_sample_subtracted": true,
+          "scope": "Single TGID self plus waited-child CPU; native threads not enumerated; unexpected live group members rejected",
+          "cumulative_phase_cpu_high_water_seconds": 1680.03
+        },
+        "TERM_sent": true,
+        "KILL_after_elapsed_seconds": 1680.920948946016
+      }
+    ],
+    "SIGKILL_requested_at_utc": "2026-11-06T04:53:26.882541+00:00",
+    "ended_at_utc": "2026-11-06T04:53:26.984299+00:00",
+    "actual_cpu_seconds": 1680.9012950000001,
+    "elapsed_wall_seconds": 1681.057994591014,
+    "peak_rss_kib": 1481596,
+    "exit_code": -9,
+    "wall_terminated": false,
+    "hard_killed": true,
+    "memory_terminated": false,
+    "monitor_failed": false,
+    "cpu_terminated": true,
+    "peak_actual_cpu_seconds_sampled": 1680.87,
+    "memory_monitor_samples": 16442,
+    "peak_group_rss_bytes_sampled": 1517154304,
+    "peak_cgroup_memory_bytes_sampled": 6328176640,
+    "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "old_state": {
+    "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/state.json",
+    "sha256": "ce85d4866ba3de0499adac0ba0e1fe9bfcc0ad40800f14e48d11fc2e45cd1877"
+  },
+  "old_console": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/execution/driver-root-v8-background-001.console.log",
+  "actual_remaining_CPU_seconds": 68800.94197200006,
+  "live_ledger_read_only_at_this_step": true,
+  "no_cost_refund_or_cap_change": true,
+  "all10_response_JSON_hashes_match": {
+    "response-00": {
+      "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-00/result.json",
+      "sha256": "641336012967fdf96c3b944aa526b6d6393257ef8672108052339a7e0fa1b669"
+    },
+    "response-01": {
+      "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-01/result.json",
+      "sha256": "9f0c0f54c37ae463e334cf9db5629656177f8ab1b0b33d50bf569270427004fb"
+    },
+    "response-02": {
+      "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-02/result.json",
+      "sha256": "8ac3bf26e6647709cdbacfab6df978079903e112ac0ba3ad3d9b2f5e3c4cdb26"
+    },
+    "response-03": {
+      "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-03/result.json",
+      "sha256": "aef51c334e764ec79def94b1c6717bd2874c3a27dea5a06b1c119abee0a5b2d2"
+    },
+    "response-04": {
+      "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-04/result.json",
+      "sha256": "6a3c1a2e67b3146f1533e857bffd0326497171cbfe6388dd1b9d81a45b372721"
+    },
+    "response-05": {
+      "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-05/result.json",
+      "sha256": "da6453b7b7c42a65f160dd22b1f9a2c52912c39c4cb58ecd85dfd1f7a1be75e5"
+    },
+    "response-06": {
+      "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-06/result.json",
+      "sha256": "370ae06bbc8d4a67a99a8057ff93153ead53543043ebdc74776d6ea56f3e6aa3"
+    },
+    "response-07": {
+      "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-07/result.json",
+      "sha256": "4b31b402e29676aa627f85783af7141fc587d87c8b92b0364e57575f26895bec"
+    },
+    "response-08": {
+      "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-08/result.json",
+      "sha256": "3f9299052b205a4ae97d3e19ba7b6aa6e3fdb44e47ac6c3380b9a07a44545f21"
+    },
+    "response-09": {
+      "path": "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/response-pipeline-001/science/response-09/result.json",
+      "sha256": "5d3a9bd9f427ed0f8497b33a09a51d09aa227dd974a86130b38e231ae556b79b"
+    }
+  },
+  "old_guard_worker_absent_parent_Z": true,
+  "full_global_and_signed219": "NOT_RUN_NO_COMPLETE_RESULT",
+  "recovery": "Fresh independent work/config/grant/state/attempt, import all10 genuine response seals, retry frozen global only with21600CPU/28800wall within unchanged68800.941972 remaining fixed pool. No changes toAO/MO,method,basis,grid,dispersion,solver or scientific source. One finite invocation; no automatic Q retries."
+}

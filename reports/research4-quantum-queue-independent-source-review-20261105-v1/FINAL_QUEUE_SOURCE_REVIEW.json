@@ -1,0 +1,72 @@
+{
+  "schema": "research4-materialized-quantum-queue-independent-final-review-v1",
+  "created_at_utc": "2026-11-05T01:20:05.243568+00:00",
+  "status": "PASS_SOURCE_AND_ACTUAL_STDLIB_TESTS_NO_STATIC_BLOCKER",
+  "source": {
+    "path": "scripts/research4_quantum_queue_20261105.py",
+    "sha256": "815dca5a59706cf6a0fac67fc61e8abe77eb305ffcb0db385dfc32de6b7b1733",
+    "bytes": 27419
+  },
+  "tests": {
+    "path": "tests/test_research4_quantum_queue_20261105.py",
+    "sha256": "35fd3bdfdf254b2c3772bcd55e582ecd422e20444296b0dbbd8af75bdd0f6579",
+    "bytes": 14692
+  },
+  "frozen_budget_guard_source": {
+    "path": "scripts/run_pyscf_continuation_budget_20261105_v6b.py",
+    "sha256": "b985d6d6e20f5e4a48387094461f19b133dae761338664e88836c62051f993a5",
+    "bytes": 77031
+  },
+  "initial_findings_preserved": {
+    "path": "reports/research4-quantum-queue-independent-source-review-20261105-v1/initial_findings.json",
+    "sha256": "ea9800b05803139fce12a61b36c88eb37bf467ae6d4ca90e22b18f203ad7e180",
+    "bytes": 2923
+  },
+  "independent_test_command": "python -S -m unittest discover -s tests -p test_research4_quantum_queue_20261105.py -v",
+  "actual_final_tests": {
+    "count": 17,
+    "passed": 17,
+    "unittest_reported_seconds": 0.074,
+    "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+    "real_child_probe": "One tiny Python-S stdlib process queried getitimer/getrlimit, confirming no timer inheritance and unchanged CPU RLIMIT. No Q guardian/worker spawned.",
+    "other_processes_and_ledgers": "Synthetic temporary fixtures with mocked scientific guardian/guard only"
+  },
+  "final_pin_change_review": {
+    "previous_provisional_SHA": "150ba448f6ed5ecd7c868002c854d8a806c3b81c815f14682346b7e203dee422",
+    "change": "457bytes: import ast and rejection of top-level *_SHA=NOT_FROZEN in referenced downstream .py sources",
+    "removing_only_known_delta_restores_previous_SHA_exactly": true,
+    "final_changed_source_independently_retested": true,
+    "no_provisional_final_report_published": true
+  },
+  "resolved_findings": {
+    "CPU_INHERITANCE": "No RLIMIT_CPU lowering; launcher-only PROF/REAL timers validated by a real stdlib forked-child probe. Source validation enclosed by self timers.",
+    "PRELAUNCH_PINS": "Pending launches rehash source_refs, job inputs, config, grant and launcher; two threads and Python site order fixed.",
+    "RESUME_RESULT_SEAL": "Persisted/root-bound result,input,proof,log,manifest,payload/Hessian/mode seals compared; changed or missing seals block rather than reseal.",
+    "MONOTONIC_OUTER_WALL": "UTC expiry and monotonic deadline enforced; actual owned Popen wait plus healthy frozen guard closure required.",
+    "PROTECTED_WRITES_AND_UNIQUE_OUTPUTS": "Dedicated queue-directory state.json/monitor.jsonl, protected ledger/scientific/source artifacts and config/grant; duplicate outputs/logs rejected."
+  },
+  "confirmed_limits": {
+    "default_preflight_only": true,
+    "actual_root_source_config_bound_grant_required": true,
+    "finite_jobs_max128_and_recorded_invocations_max3": true,
+    "FAILED_RUNNING_or_orphan_Q_blocks": true,
+    "blocked_launcher_requires_forensic_review_and_fresh_approved_config": true,
+    "PID_absence_or_zero_guardian_exit_never_proves_scientific_success": true,
+    "exception_cleanup_bounded_with_unresolved_state_preserved": true,
+    "launcher_second_timer_expiry_default_terminates_if_cleanup_stalls": true,
+    "own_RSS_guard_best_effort_not_hard": true,
+    "monitor_interval_seconds": 1800,
+    "no_budget_or_deadline_allocation_or_reset": true,
+    "no_OS_startup_hook_or_platform_push_service_promised": true
+  },
+  "scope": {
+    "real_quantum_ledger_or_payload_read": false,
+    "Q_or_scientific_worker_launched": false,
+    "numerical_packages_imported_or_arrays_decoded": false,
+    "Git_executed": false,
+    "source_or_historical_artifacts_modified_by_reviewer": false,
+    "real_queue_config_or_root_execution_grant_created": false
+  },
+  "scientific_status": "NOT_RUN_BY_THIS_REVIEW; these software tests do not replace actual V7 water/ethanol or Spinosin calculations",
+  "next_step": "Root may separately materialize an immutable queue configuration, run its preflight and explicitly grant actual serial execution. This review grants no new Q or resource authority."
+}

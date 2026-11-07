@@ -1,0 +1,1025 @@
+STATUS: SOURCE_ANALYSIS_NOT_NEW_QUANTUM_RESULTS
+Selected static source excerpts, not an execution log. No PySCF import or quantum call.
+PySCF source is Apache-2.0 (source credits original PySCF authors); V8 code is repository-local.
+No active output arrays, HDF, checkpoints, progress logs or process state were read.
+
+## rhf_hessian: .runtime/quantum-upgrade-site/pyscf/hessian/rhf.py
+SHA256: 2d986bfc01aac98447034a207df639b3d6897f67ce1ab2a013fe2d0853c85de5
+### Lines39–60
+L39: def hess_elec(hessobj, mo_energy=None, mo_coeff=None, mo_occ=None,
+L40:               mo1=None, mo_e1=None, h1ao=None,
+L41:               atmlst=None, max_memory=4000, verbose=None):
+L42:     log = logger.new_logger(hessobj, verbose)
+L43:     time0 = t1 = (logger.process_clock(), logger.perf_counter())
+L44: 
+L45:     mol = hessobj.mol
+L46:     mf = hessobj.base
+L47:     if mo_energy is None: mo_energy = mf.mo_energy
+L48:     if mo_occ is None:    mo_occ = mf.mo_occ
+L49:     if mo_coeff is None:  mo_coeff = mf.mo_coeff
+L50:     if atmlst is None: atmlst = range(mol.natm)
+L51: 
+L52:     de2 = hessobj.partial_hess_elec(mo_energy, mo_coeff, mo_occ, atmlst,
+L53:                                     max_memory, log)
+L54: 
+L55:     if h1ao is None:
+L56:         h1ao = hessobj.make_h1(mo_coeff, mo_occ, None, atmlst, log)
+L57:         t1 = log.timer_debug1('making H1', *time0)
+L58:     if mo1 is None or mo_e1 is None:
+L59:         mo1, mo_e1 = hessobj.solve_mo1(mo_energy, mo_coeff, mo_occ, h1ao,
+L60:                                        None, atmlst, max_memory, log)
+### Lines99–156
+L99: def _partial_hess_ejk(hessobj, mo_energy=None, mo_coeff=None, mo_occ=None,
+L100:                       atmlst=None, max_memory=4000, verbose=None, with_k=True):
+L101:     log = logger.new_logger(hessobj, verbose)
+L102:     time0 = t1 = (logger.process_clock(), logger.perf_counter())
+L103: 
+L104:     mol = hessobj.mol
+L105:     mf = hessobj.base
+L106:     if mo_energy is None: mo_energy = mf.mo_energy
+L107:     if mo_occ is None:    mo_occ = mf.mo_occ
+L108:     if mo_coeff is None:  mo_coeff = mf.mo_coeff
+L109:     if atmlst is None: atmlst = range(mol.natm)
+L110: 
+L111:     nao, nmo = mo_coeff.shape
+L112:     mocc = mo_coeff[:,mo_occ>0]
+L113:     dm0 = numpy.dot(mocc, mocc.T) * 2
+L114:     # Energy weighted density matrix
+L115:     dme0 = numpy.einsum('pi,qi,i->pq', mocc, mocc, mo_energy[mo_occ>0]) * 2
+L116: 
+L117:     hcore_deriv = hessobj.hcore_generator(mol)
+L118:     s1aa, s1ab, s1a = get_ovlp(mol)
+L119: 
+L120:     vj1_diag, vk1_diag = \
+L121:             _get_jk(mol, 'int2e_ipip1', 9, 's2kl',
+L122:                     ['lk->s1ij', dm0,   # vj1
+L123:                      'jk->s1il', dm0],  # vk1
+L124:                     vhfopt=_make_vhfopt(mol, dm0, 'ipip1', 'int2e_ipip1ipip2'))
+L125:     vj1_diag = vj1_diag.reshape(3,3,nao,nao)
+L126:     vk1_diag = vk1_diag.reshape(3,3,nao,nao)
+L127:     t1 = log.timer_debug1('contracting int2e_ipip1', *t1)
+L128: 
+L129:     ip1ip2_opt = _make_vhfopt(mol, dm0, 'ip1ip2', 'int2e_ip1ip2')
+L130:     ipvip1_opt = _make_vhfopt(mol, dm0, 'ipvip1', 'int2e_ipvip1ipvip2')
+L131:     aoslices = mol.aoslice_by_atom()
+L132: 
+L133:     natm = len(atmlst)
+L134:     e1 = numpy.zeros((natm, natm, 3, 3))
+L135:     ej = numpy.zeros((natm, natm, 3, 3))
+L136:     ek = numpy.zeros((natm, natm, 3, 3))
+L137: 
+L138:     for i0, ia in enumerate(atmlst):
+L139:         shl0, shl1, p0, p1 = aoslices[ia]
+L140:         shls_slice = (shl0, shl1) + (0, mol.nbas)*3
+L141:         vj1, vk1, vk2 = _get_jk(mol, 'int2e_ip1ip2', 9, 's1',
+L142:                                 ['ji->s1kl', dm0[:,p0:p1],  # vj1
+L143:                                  'li->s1kj', dm0[:,p0:p1],  # vk1
+L144:                                  'lj->s1ki', dm0         ], # vk2
+L145:                                 shls_slice=shls_slice, vhfopt=ip1ip2_opt)
+L146:         vk1[:,:,p0:p1] += vk2
+L147:         t1 = log.timer_debug1('contracting int2e_ip1ip2 for atom %d'%ia, *t1)
+L148:         vj2, vk2 = _get_jk(mol, 'int2e_ipvip1', 9, 's2kl',
+L149:                            ['lk->s1ij', dm0         ,  # vj1
+L150:                             'li->s1kj', dm0[:,p0:p1]], # vk1
+L151:                            shls_slice=shls_slice, vhfopt=ipvip1_opt)
+L152:         vj1[:,:,p0:p1] += vj2.transpose(0,2,1) * .5
+L153:         vk1 += vk2.transpose(0,2,1)
+L154:         vj1 = vj1.reshape(3,3,nao,nao)
+L155:         vk1 = vk1.reshape(3,3,nao,nao)
+L156:         t1 = log.timer_debug1('contracting int2e_ipvip1 for atom %d'%ia, *t1)
+### Lines158–178
+L158:         ej[i0, i0] += numpy.einsum('xypq,pq->xy', vj1_diag[:,:,p0:p1], dm0[p0:p1])*2
+L159:         ek[i0, i0] += numpy.einsum('xypq,pq->xy', vk1_diag[:,:,p0:p1], dm0[p0:p1])
+L160:         e1[i0, i0] -= numpy.einsum('xypq,pq->xy', s1aa[:,:,p0:p1], dme0[p0:p1])*2
+L161: 
+L162:         for j0, ja in enumerate(atmlst[:i0+1]):
+L163:             q0, q1 = aoslices[ja][2:]
+L164:             # *2 for +c.c.
+L165:             ej[i0, j0] += numpy.einsum('xypq,pq->xy', vj1[:,:,q0:q1], dm0[q0:q1])*4
+L166:             ek[i0, j0] += numpy.einsum('xypq,pq->xy', vk1[:,:,q0:q1], dm0[q0:q1])
+L167:             e1[i0, j0] -= numpy.einsum('xypq,pq->xy', s1ab[:,:,p0:p1,q0:q1], dme0[p0:p1,q0:q1])*2
+L168: 
+L169:             h1ao = hcore_deriv(ia, ja)
+L170:             e1[i0, j0] += numpy.einsum('xypq,pq->xy', h1ao, dm0)
+L171: 
+L172:         for j0 in range(i0):
+L173:             e1[j0, i0] = e1[i0, j0].T
+L174:             ej[j0, i0] = ej[i0, j0].T
+L175:             ek[j0, i0] = ek[i0, j0].T
+L176: 
+L177:     log.timer('RHF partial hessian', *time0)
+L178:     return e1, ej, ek
+### Lines180–208
+L180: def _make_vhfopt(mol, dms, key, vhf_intor):
+L181:     libcvhf = _vhf.libcvhf
+L182:     if not hasattr(libcvhf, vhf_intor):
+L183:         return None
+L184: 
+L185:     vhfopt = _vhf._VHFOpt(mol, 'int2e_'+key, 'CVHF'+key+'_prescreen',
+L186:                           dmcondname='CVHFnr_dm_cond1')
+L187:     ao_loc = mol.ao_loc_nr()
+L188:     nbas = mol.nbas
+L189:     q_cond = numpy.empty((2, nbas, nbas))
+L190:     with mol.with_integral_screen(vhfopt.direct_scf_tol**2):
+L191:         if vhf_intor == 'int2e_ip1ip2':
+L192:             fqcond = libcvhf.CVHFnr_int2e_pp_q_cond
+L193:         elif vhf_intor in ('int2e_ipip1ipip2', 'int2e_ipvip1ipvip2'):
+L194:             fqcond = libcvhf.CVHFnr_int2e_pppp_q_cond
+L195:         else:
+L196:             raise NotImplementedError(vhf_intor)
+L197:         fqcond(
+L198:             getattr(libcvhf, mol._add_suffix(vhf_intor)),
+L199:             lib.c_null_ptr(), q_cond[0].ctypes,
+L200:             ao_loc.ctypes, mol._atm.ctypes, ctypes.c_int(mol.natm),
+L201:             mol._bas.ctypes, ctypes.c_int(nbas), mol._env.ctypes)
+L202:         libcvhf.CVHFnr_int2e_q_cond(
+L203:             getattr(libcvhf, mol._add_suffix('int2e')),
+L204:             lib.c_null_ptr(), q_cond[1].ctypes,
+L205:             ao_loc.ctypes, mol._atm.ctypes, ctypes.c_int(mol.natm),
+L206:             mol._bas.ctypes, ctypes.c_int(nbas), mol._env.ctypes)
+L207:     vhfopt.q_cond = q_cond
+L208:     return vhfopt
+### Lines239–283
+L239: def get_hcore(mol):
+L240:     '''Part of the second derivatives of core Hamiltonian'''
+L241:     h1aa = mol.intor('int1e_ipipkin', comp=9)
+L242:     h1ab = mol.intor('int1e_ipkinip', comp=9)
+L243:     if mol._pseudo:
+L244:         raise NotImplementedError('Nuclear hessian for GTH PP')
+L245:     else:
+L246:         h1aa+= mol.intor('int1e_ipipnuc', comp=9)
+L247:         h1ab+= mol.intor('int1e_ipnucip', comp=9)
+L248:     if mol.has_ecp():
+L249:         h1aa += mol.intor('ECPscalar_ipipnuc', comp=9)
+L250:         h1ab += mol.intor('ECPscalar_ipnucip', comp=9)
+L251:     nao = h1aa.shape[-1]
+L252:     return h1aa.reshape(3,3,nao,nao), h1ab.reshape(3,3,nao,nao)
+L253: 
+L254: def get_ovlp(mol):
+L255:     s1a =-mol.intor('int1e_ipovlp', comp=3)
+L256:     nao = s1a.shape[-1]
+L257:     s1aa = mol.intor('int1e_ipipovlp', comp=9).reshape(3,3,nao,nao)
+L258:     s1ab = mol.intor('int1e_ipovlpip', comp=9).reshape(3,3,nao,nao)
+L259:     return s1aa, s1ab, s1a
+L260: 
+L261: def _get_jk(mol, intor, comp, aosym, script_dms,
+L262:             shls_slice=None, cintopt=None, vhfopt=None):
+L263:     intor = mol._add_suffix(intor)
+L264:     scripts = script_dms[::2]
+L265:     dms = script_dms[1::2]
+L266:     vs = _vhf.direct_bindm(intor, aosym, scripts, dms, comp,
+L267:                            mol._atm, mol._bas, mol._env, vhfopt=vhfopt,
+L268:                            cintopt=cintopt, shls_slice=shls_slice)
+L269:     for k, script in enumerate(scripts):
+L270:         if 's2' in script:
+L271:             hermi = 1
+L272:         elif 'a2' in script:
+L273:             hermi = 2
+L274:         else:
+L275:             continue
+L276: 
+L277:         shape = vs[k].shape
+L278:         if shape[-2] == shape[-1]:
+L279:             if comp > 1:
+L280:                 for i in range(comp):
+L281:                     lib.hermi_triu(vs[k][i], hermi=hermi, inplace=True)
+L282:             else:
+L283:                 lib.hermi_triu(vs[k], hermi=hermi, inplace=True)
+### Lines286–359
+L286: def solve_mo1(mf, mo_energy, mo_coeff, mo_occ, h1ao,
+L287:               fx=None, atmlst=None, max_memory=4000, verbose=None,
+L288:               max_cycle=50, level_shift=0):
+L289:     '''Solve the first order equation
+L290: 
+L291:     Kwargs:
+L292:         fx : function(dm_mo) => v1_mo
+L293:             A function to generate the induced potential.
+L294:             See also the function gen_vind.
+L295:     '''
+L296:     mol = mf.mol
+L297:     if atmlst is None: atmlst = range(mol.natm)
+L298: 
+L299:     nao, nmo = mo_coeff.shape
+L300:     mocc = mo_coeff[:,mo_occ>0]
+L301:     nocc = mocc.shape[1]
+L302: 
+L303:     if fx is None:
+L304:         fx = gen_vind(mf, mo_coeff, mo_occ)
+L305:     s1a = -mol.intor('int1e_ipovlp', comp=3)
+L306: 
+L307:     def _ao2mo(mat):
+L308:         return numpy.asarray([reduce(numpy.dot, (mo_coeff.T, x, mocc)) for x in mat])
+L309: 
+L310:     mem_now = lib.current_memory()[0]
+L311:     max_memory = max(2000, max_memory*.9-mem_now)
+L312:     blksize = max(2, int(max_memory*1e6/8 / (nmo*nocc*3*6)))
+L313:     mo1s = [None] * mol.natm
+L314:     e1s = [None] * mol.natm
+L315:     aoslices = mol.aoslice_by_atom()
+L316:     for ia0, ia1 in lib.prange(0, len(atmlst), blksize):
+L317:         s1vo = []
+L318:         h1vo = []
+L319:         for i0 in range(ia0, ia1):
+L320:             ia = atmlst[i0]
+L321:             shl0, shl1, p0, p1 = aoslices[ia]
+L322:             s1ao = numpy.zeros((3,nao,nao))
+L323:             s1ao[:,p0:p1] += s1a[:,p0:p1]
+L324:             s1ao[:,:,p0:p1] += s1a[:,p0:p1].transpose(0,2,1)
+L325:             s1vo.append(_ao2mo(s1ao))
+L326:             h1vo.append(_ao2mo(h1ao[ia]))
+L327: 
+L328:         h1vo = numpy.vstack(h1vo)
+L329:         s1vo = numpy.vstack(s1vo)
+L330:         tol = mf.conv_tol_cpscf * (ia1 - ia0)
+L331:         mo1, e1 = cphf.solve(fx, mo_energy, mo_occ, h1vo, s1vo,
+L332:                              max_cycle=max_cycle, level_shift=level_shift, tol=tol)
+L333:         mo1 = numpy.einsum('pq,xqi->xpi', mo_coeff, mo1).reshape(-1,3,nao,nocc)
+L334:         e1 = e1.reshape(-1,3,nocc,nocc)
+L335: 
+L336:         for k in range(ia1-ia0):
+L337:             ia = atmlst[k+ia0]
+L338:             mo1s[ia] = mo1[k]
+L339:             e1s[ia] = e1[k].reshape(3,nocc,nocc)
+L340:         mo1 = e1 = None
+L341:     return mo1s, e1s
+L342: 
+L343: def gen_vind(mf, mo_coeff, mo_occ):
+L344:     nao, nmo = mo_coeff.shape
+L345:     mocc = mo_coeff[:,mo_occ>0]
+L346:     nocc = mocc.shape[1]
+L347:     vresp = mf.gen_response(mo_coeff, mo_occ, hermi=1)
+L348:     def fx(mo1):
+L349:         mo1 = mo1.reshape(-1,nmo,nocc)
+L350:         nset = len(mo1)
+L351:         dm1 = numpy.empty((nset,nao,nao))
+L352:         for i, x in enumerate(mo1):
+L353:             dm = reduce(numpy.dot, (mo_coeff, x*2, mocc.T)) # *2 for double occupancy
+L354:             dm1[i] = dm + dm.T
+L355:         v1 = vresp(dm1)
+L356:         v1vo = numpy.empty_like(mo1)
+L357:         for i, x in enumerate(v1):
+L358:             v1vo[i] = reduce(numpy.dot, (mo_coeff.T, x, mocc))
+L359:         return v1vo
+### Lines560–573
+L560:             mo_energy = self.base.mo_energy
+L561:         if mo_coeff is None: mo_coeff = self.base.mo_coeff
+L562:         if mo_occ is None: mo_occ = self.base.mo_occ
+L563:         if atmlst is None:
+L564:             atmlst = self.atmlst
+L565:         else:
+L566:             self.atmlst = atmlst
+L567: 
+L568:         de = self.hess_elec(mo_energy, mo_coeff, mo_occ, atmlst=atmlst)
+L569:         self.de = de + self.hess_nuc(self.mol, atmlst=atmlst)
+L570:         if self.base.do_disp():
+L571:             self.de += self.get_dispersion()
+L572:         return self.de
+L573:     hess = kernel
+
+## rks_hessian: .runtime/quantum-upgrade-site/pyscf/hessian/rks.py
+SHA256: d61dbd1727b286845737853b92e1812a3e6a966dca29a9a8a79ff5e9a7725c03
+### Lines60–80
+L60:     mocc = mo_coeff[:,mo_occ>0]
+L61:     dm0 = numpy.dot(mocc, mocc.T) * 2
+L62: 
+L63:     omega, alpha, hyb = ni.rsh_and_hybrid_coeff(mf.xc, spin=mol.spin)
+L64:     hybrid = ni.libxc.is_hybrid_xc(mf.xc)
+L65: 
+L66:     de2, ej, ek = rhf_hess._partial_hess_ejk(hessobj, mo_energy, mo_coeff, mo_occ,
+L67:                                              atmlst, max_memory, verbose,
+L68:                                              with_k=hybrid)
+L69:     de2 += ej - hyb * ek  # (A,B,dR_A,dR_B)
+L70: 
+L71:     mem_now = lib.current_memory()[0]
+L72:     max_memory = max(2000, mf.max_memory*.9-mem_now)
+L73:     veff_diag = _get_vxc_diag(hessobj, mo_coeff, mo_occ, max_memory)
+L74:     if hybrid and omega != 0:
+L75:         with mol.with_range_coulomb(omega):
+L76:             vk1 = rhf_hess._get_jk(mol, 'int2e_ipip1', 9, 's2kl',
+L77:                                    ['jk->s1il', dm0])[0]
+L78:         veff_diag -= (alpha-hyb)*.5 * vk1.reshape(3,3,nao,nao)
+L79:     vk1 = None
+L80:     t1 = log.timer_debug1('contracting int2e_ipip1', *t1)
+### Lines84–104
+L84:     for i0, ia in enumerate(atmlst):
+L85:         shl0, shl1, p0, p1 = aoslices[ia]
+L86: 
+L87:         shls_slice = (shl0, shl1) + (0, mol.nbas)*3
+L88:         veff = vxc[ia]
+L89:         if hybrid and omega != 0:
+L90:             with mol.with_range_coulomb(omega):
+L91:                 vk1, vk2 = rhf_hess._get_jk(mol, 'int2e_ip1ip2', 9, 's1',
+L92:                                             ['li->s1kj', dm0[:,p0:p1],  # vk1
+L93:                                              'lj->s1ki', dm0         ], # vk2
+L94:                                             shls_slice=shls_slice)
+L95:             veff -= (alpha-hyb)*.5 * vk1.reshape(3,3,nao,nao)
+L96:             veff[:,:,:,p0:p1] -= (alpha-hyb)*.5 * vk2.reshape(3,3,nao,p1-p0)
+L97:             t1 = log.timer_debug1('range-separated int2e_ip1ip2 for atom %d'%ia, *t1)
+L98:             with mol.with_range_coulomb(omega):
+L99:                 vk1 = rhf_hess._get_jk(mol, 'int2e_ipvip1', 9, 's2kl',
+L100:                                        ['li->s1kj', dm0[:,p0:p1]], # vk1
+L101:                                        shls_slice=shls_slice)[0]
+L102:             veff -= (alpha-hyb)*.5 * vk1.transpose(0,2,1).reshape(3,3,nao,nao)
+L103:             t1 = log.timer_debug1('range-separated int2e_ipvip1 for atom %d'%ia, *t1)
+L104:             vk1 = vk2 = None
+### Lines132–178
+L132:     ni.libxc.test_deriv_order(mf.xc, 2, raise_error=True)
+L133:     omega, alpha, hyb = ni.rsh_and_hybrid_coeff(mf.xc, spin=mol.spin)
+L134:     hybrid = ni.libxc.is_hybrid_xc(mf.xc)
+L135: 
+L136:     mem_now = lib.current_memory()[0]
+L137:     max_memory = max(2000, mf.max_memory*.9-mem_now)
+L138:     h1ao = _get_vxc_deriv1(hessobj, mo_coeff, mo_occ, max_memory)
+L139:     if mf.do_nlc():
+L140:         h1ao += _get_vnlc_deriv1(hessobj, mo_coeff, mo_occ, max_memory)
+L141: 
+L142:     aoslices = mol.aoslice_by_atom()
+L143:     for i0, ia in enumerate(atmlst):
+L144:         shl0, shl1, p0, p1 = aoslices[ia]
+L145:         shls_slice = (shl0, shl1) + (0, mol.nbas)*3
+L146:         if hybrid:
+L147:             vj1, vj2, vk1, vk2 = \
+L148:                     rhf_hess._get_jk(mol, 'int2e_ip1', 3, 's2kl',
+L149:                                      ['ji->s2kl', -dm0[:,p0:p1],  # vj1
+L150:                                       'lk->s1ij', -dm0         ,  # vj2
+L151:                                       'li->s1kj', -dm0[:,p0:p1],  # vk1
+L152:                                       'jk->s1il', -dm0         ], # vk2
+L153:                                      shls_slice=shls_slice)
+L154:             veff = vj1 - hyb * .5 * vk1
+L155:             veff[:,p0:p1] += vj2 - hyb * .5 * vk2
+L156:             if omega != 0:
+L157:                 with mol.with_range_coulomb(omega):
+L158:                     vk1, vk2 = \
+L159:                         rhf_hess._get_jk(mol, 'int2e_ip1', 3, 's2kl',
+L160:                                          ['li->s1kj', -dm0[:,p0:p1],  # vk1
+L161:                                           'jk->s1il', -dm0         ], # vk2
+L162:                                          shls_slice=shls_slice)
+L163:                 veff -= (alpha-hyb) * .5 * vk1
+L164:                 veff[:,p0:p1] -= (alpha-hyb) * .5 * vk2
+L165:         else:
+L166:             vj1, vj2 = rhf_hess._get_jk(mol, 'int2e_ip1', 3, 's2kl',
+L167:                                         ['ji->s2kl', -dm0[:,p0:p1],  # vj1
+L168:                                          'lk->s1ij', -dm0         ], # vj2
+L169:                                         shls_slice=shls_slice)
+L170:             veff = vj1
+L171:             veff[:,p0:p1] += vj2
+L172: 
+L173:         h1ao[ia] += veff + veff.transpose(0,2,1)
+L174:         h1ao[ia] += hcore_deriv(ia)
+L175: 
+L176:     return h1ao
+L177: 
+L178: XX, XY, XZ = 4, 5, 6
+### Lines212–238
+L212: 
+L213:     elif xctype == 'GGA':
+L214:         def contract_(mat, ao, aoidx, wv, mask):
+L215:             aow = numint._scale_ao(ao[aoidx[0]], wv[1])
+L216:             aow+= numint._scale_ao(ao[aoidx[1]], wv[2])
+L217:             aow+= numint._scale_ao(ao[aoidx[2]], wv[3])
+L218:             mat += numint._dot_ao_ao(mol, aow, ao[0], mask, shls_slice, ao_loc)
+L219: 
+L220:         ao_deriv = 3
+L221:         for ao, mask, weight, coords \
+L222:                 in ni.block_loop(mol, grids, nao, ao_deriv, max_memory):
+L223:             rho = ni.eval_rho2(mol, ao[:4], mo_coeff, mo_occ, mask, xctype)
+L224:             vxc = ni.eval_xc_eff(mf.xc, rho, 1, xctype=xctype)[1]
+L225:             wv = weight * vxc
+L226:             #:aow = numpy.einsum('npi,np->pi', ao[:4], wv[:4])
+L227:             aow = numint._scale_ao(ao[:4], wv[:4])
+L228:             for i in range(6):
+L229:                 vmat[i] += numint._dot_ao_ao(mol, ao[i+4], aow, mask, shls_slice, ao_loc)
+L230: 
+L231:             contract_(vmat[0], ao, [XXX,XXY,XXZ], wv, mask)
+L232:             contract_(vmat[1], ao, [XXY,XYY,XYZ], wv, mask)
+L233:             contract_(vmat[2], ao, [XXZ,XYZ,XZZ], wv, mask)
+L234:             contract_(vmat[3], ao, [XYY,YYY,YYZ], wv, mask)
+L235:             contract_(vmat[4], ao, [XYZ,YYZ,YZZ], wv, mask)
+L236:             contract_(vmat[5], ao, [XZZ,YZZ,ZZZ], wv, mask)
+L237:             rho = vxc = wv = aow = None
+L238: 
+### Lines350–356
+L350:     ao_loc = mol.ao_loc_nr()
+L351:     dm0 = mf.make_rdm1(mo_coeff, mo_occ)
+L352: 
+L353:     vmat = numpy.zeros((mol.natm,3,3,nao,nao))
+L354:     ipip = numpy.zeros((3,3,nao,nao))
+L355:     if xctype == 'LDA':
+L356:         ao_deriv = 1
+### Lines379–410
+L379:             vmat[ia,:,:,:,p0:p1] += ipip[:,:,:,p0:p1]
+L380: 
+L381:     elif xctype == 'GGA':
+L382:         ao_deriv = 2
+L383:         for ao, mask, weight, coords \
+L384:                 in ni.block_loop(mol, grids, nao, ao_deriv, max_memory):
+L385:             rho = ni.eval_rho2(mol, ao[:4], mo_coeff, mo_occ, mask, xctype)
+L386:             vxc, fxc = ni.eval_xc_eff(mf.xc, rho, 2, xctype=xctype)[1:3]
+L387:             wv = weight * vxc
+L388:             wv[0] *= .5
+L389:             aow = rks_grad._make_dR_dao_w(ao, wv)
+L390:             _d1d2_dot_(ipip, mol, aow, ao[1:4], mask, ao_loc, False)
+L391: 
+L392:             ao_dm0 = [numint._dot_ao_dm(mol, ao[i], dm0, mask, shls_slice, ao_loc) for i in range(4)]
+L393:             wf = weight * fxc
+L394:             for ia in range(mol.natm):
+L395:                 dR_rho1 = _make_dR_rho1(ao, ao_dm0, ia, aoslices, xctype)
+L396:                 wv = numpy.einsum('xyg,sxg->syg', wf, dR_rho1)
+L397:                 wv[:,0] *= .5
+L398:                 for i in range(3):
+L399:                     aow = rks_grad._make_dR_dao_w(ao, wv[i])
+L400:                     rks_grad._d1_dot_(vmat[ia,i], mol, aow, ao[0], mask, ao_loc, True)
+L401: 
+L402:                 aow = [numint._scale_ao(ao[:4], wv[i,:4]) for i in range(3)]
+L403:                 _d1d2_dot_(vmat[ia], mol, ao[1:4], aow, mask, ao_loc, False)
+L404:             ao_dm0 = aow = None
+L405: 
+L406:         for ia in range(mol.natm):
+L407:             p0, p1 = aoslices[ia][2:]
+L408:             vmat[ia,:,:,:,p0:p1] += ipip[:,:,:,p0:p1]
+L409:             vmat[ia,:,:,:,p0:p1] += ipip[:,:,p0:p1].transpose(1,0,3,2)
+L410: 
+### Lines1140–1165
+L1140:     elif xctype == 'GGA':
+L1141:         ao_deriv = 2
+L1142:         for ao, mask, weight, coords \
+L1143:                 in ni.block_loop(mol, grids, nao, ao_deriv, max_memory):
+L1144:             rho = ni.eval_rho2(mol, ao[:4], mo_coeff, mo_occ, mask, xctype)
+L1145:             vxc, fxc = ni.eval_xc_eff(mf.xc, rho, 2, xctype=xctype)[1:3]
+L1146:             wv = weight * vxc
+L1147:             wv[0] *= .5
+L1148:             rks_grad._gga_grad_sum_(v_ip, mol, ao, wv, mask, ao_loc)
+L1149: 
+L1150:             ao_dm0 = [numint._dot_ao_dm(mol, ao[i], dm0, mask, shls_slice, ao_loc)
+L1151:                       for i in range(4)]
+L1152:             wf = weight * fxc
+L1153:             for ia in range(mol.natm):
+L1154:                 dR_rho1 = _make_dR_rho1(ao, ao_dm0, ia, aoslices, xctype)
+L1155:                 wv = numpy.einsum('xyg,sxg->syg', wf, dR_rho1)
+L1156:                 wv[:,0] *= .5
+L1157:                 aow = [numint._scale_ao(ao[:4], wv[i,:4]) for i in range(3)]
+L1158:                 rks_grad._d1_dot_(vmat[ia], mol, aow, ao[0], mask, ao_loc, True)
+L1159:             ao_dm0 = aow = None
+L1160: 
+L1161:     elif xctype == 'MGGA':
+L1162:         _check_mgga_grids(grids)
+L1163:         ao_deriv = 2
+L1164:         for ao, mask, weight, coords \
+L1165:                 in ni.block_loop(mol, grids, nao, ao_deriv, max_memory):
+### Lines2110–2122
+L2110: 
+L2111:     _keys = {'grids', 'grid_response'}
+L2112: 
+L2113:     def __init__(self, mf):
+L2114:         rhf_hess.Hessian.__init__(self, mf)
+L2115:         self.grids = None
+L2116:         self.grid_response = False
+L2117: 
+L2118:     partial_hess_elec = partial_hess_elec
+L2119:     hess_elec = rhf_hess.hess_elec
+L2120:     make_h1 = make_h1
+L2121: 
+L2122: from pyscf import dft
+
+## response_functions: .runtime/quantum-upgrade-site/pyscf/scf/_response_functions.py
+SHA256: 806b3bbf00f1127bfbb15c74f5c7b022bb8f58ca01945f502d6082dd0b35f411
+### Lines44–101
+L44:     if mo_occ is None: mo_occ = mf.mo_occ
+L45:     mol = mf.mol
+L46:     if isinstance(mf, hf.KohnShamDFT):
+L47:         ni = mf._numint
+L48:         ni.libxc.test_deriv_order(mf.xc, 2, raise_error=True)
+L49:         omega, alpha, hyb = ni.rsh_and_hybrid_coeff(mf.xc, mol.spin)
+L50:         hybrid = ni.libxc.is_hybrid_xc(mf.xc)
+L51: 
+L52:         if singlet is None: # for ground state orbital hessian
+L53:             spin = 0
+L54:         else:
+L55:             spin = 1
+L56:         rho0, vxc, fxc = ni.cache_xc_kernel(mol, mf.grids, mf.xc,
+L57:                                             mo_coeff, mo_occ, spin)
+L58:         dm0 = None
+L59: 
+L60:         if max_memory is None:
+L61:             mem_now = lib.current_memory()[0]
+L62:             max_memory = max(2000, mf.max_memory*.8-mem_now)
+L63: 
+L64:         if not with_nlc and mf.do_nlc():
+L65:             logger.warn(mf, "NLC contribution in gen_response is NOT included")
+L66: 
+L67:         if singlet is None:
+L68:             # Without specify singlet, used in ground state orbital hessian
+L69:             def vind(dm1):
+L70:                 # The singlet hessian
+L71:                 if hermi == 2:
+L72:                     v1 = numpy.zeros_like(dm1)
+L73:                 else:
+L74:                     v1 = ni.nr_rks_fxc(mol, mf.grids, mf.xc, dm0, dm1, 0, hermi,
+L75:                                        rho0, vxc, fxc, max_memory=max_memory)
+L76:                     if with_nlc and mf.do_nlc():
+L77:                         from pyscf.hessian.rks import get_vnlc_resp # Cannot import at top due to circular dependency
+L78:                         v1 += get_vnlc_resp(mf, mol, mo_coeff, mo_occ, dm1, max_memory)
+L79:                 if hybrid:
+L80:                     if omega == 0:
+L81:                         vj, vk = mf.get_jk(mol, dm1, hermi)
+L82:                         vk *= hyb
+L83:                     elif alpha == 0: # LR=0, only SR exchange
+L84:                         vj = mf.get_j(mol, dm1, hermi)
+L85:                         vk = mf.get_k(mol, dm1, hermi, omega=-omega)
+L86:                         vk *= hyb
+L87:                     elif hyb == 0: # SR=0, only LR exchange
+L88:                         vj = mf.get_j(mol, dm1, hermi)
+L89:                         vk = mf.get_k(mol, dm1, hermi, omega=omega)
+L90:                         vk *= alpha
+L91:                     else: # SR and LR exchange with different ratios
+L92:                         vj, vk = mf.get_jk(mol, dm1, hermi)
+L93:                         vk *= hyb
+L94:                         vk += mf.get_k(mol, dm1, hermi, omega=omega) * (alpha-hyb)
+L95:                     if hermi != 2:
+L96:                         v1 += vj - .5 * vk
+L97:                     else:
+L98:                         v1 += -.5 * vk
+L99:                 elif hermi != 2:
+L100:                     v1 += mf.get_j(mol, dm1, hermi=hermi)
+L101:                 return v1
+
+## hf_scf: .runtime/quantum-upgrade-site/pyscf/scf/hf.py
+SHA256: 34ea1a9057da3a2d5aa37fe51d4e7305580bcb8e0118a5f17ba95ba5bb36c22f
+### Lines1019–1024
+L1019:         hermi = 0
+L1020: 
+L1021:     with mol.with_range_coulomb(omega):
+L1022:         vj, vk = _vhf.direct(dm, mol._atm, mol._bas, mol._env,
+L1023:                              vhfopt, hermi, mol.cart, with_j, with_k)
+L1024: 
+### Lines2124–2164
+L2124:     def init_direct_scf(self, mol=None):
+L2125:         if mol is None: mol = self.mol
+L2126:         # Integrals < direct_scf_tol may be set to 0 in int2e.
+L2127:         # Higher accuracy is required for Schwartz inequality prescreening.
+L2128:         cpu0 = (logger.process_clock(), logger.perf_counter())
+L2129:         opt = _vhf._VHFOpt(mol, 'int2e', 'CVHFnrs8_prescreen',
+L2130:                           'CVHFnr_int2e_q_cond', 'CVHFnr_dm_cond',
+L2131:                            self.direct_scf_tol)
+L2132:         logger.timer(self, 'init_direct_scf', *cpu0)
+L2133:         return opt
+L2134: 
+L2135:     @lib.with_doc(get_jk.__doc__)
+L2136:     def get_jk(self, mol=None, dm=None, hermi=1, with_j=True, with_k=True,
+L2137:                omega=None):
+L2138:         if mol is None: mol = self.mol
+L2139:         if dm is None: dm = self.make_rdm1()
+L2140:         cpu0 = (logger.process_clock(), logger.perf_counter())
+L2141:         if self.direct_scf and self._opt.get(omega) is None:
+L2142:             # Be careful that opt has to be initialized with a proper setting of
+L2143:             # omega. opt of regular ERI and SR ERI are incompatible since cint 5.4.0
+L2144:             with mol.with_range_coulomb(omega):
+L2145:                 self._opt[omega] = self.init_direct_scf(mol)
+L2146:         vhfopt = self._opt.get(omega)
+L2147: 
+L2148:         if with_j and with_k:
+L2149:             vj, vk = get_jk(mol, dm, hermi, vhfopt, with_j, with_k, omega)
+L2150:         else:
+L2151:             if with_j:
+L2152:                 prescreen = 'CVHFnrs8_vj_prescreen'
+L2153:             else:
+L2154:                 prescreen = 'CVHFnrs8_vk_prescreen'
+L2155:             with lib.temporary_env(vhfopt, prescreen=prescreen):
+L2156:                 vj, vk = get_jk(mol, dm, hermi, vhfopt, with_j, with_k, omega)
+L2157: 
+L2158:         logger.timer(self, 'vj and vk', *cpu0)
+L2159:         return vj, vk
+L2160: 
+L2161:     def get_j(self, mol=None, dm=None, hermi=1, omega=None):
+L2162:         '''Compute J matrices for all input density matrices
+L2163:         '''
+L2164:         return self.get_jk(mol, dm, hermi, with_k=False, omega=omega)[0]
+
+## vhf: .runtime/quantum-upgrade-site/pyscf/scf/_vhf.py
+SHA256: ef0a04f43338780a7f57d9268f9634c1079ae989ba3030d6154c8612798f82ba
+### Lines151–160
+L151: class _VHFOpt:
+L152:     def __init__(self, mol, intor=None, prescreen='CVHFnoscreen',
+L153:                  qcondname=None, dmcondname=None, direct_scf_tol=1e-14):
+L154:         '''New version of VHFOpt (under development).
+L155: 
+L156:         If function "qcondname" is presented, the qcond (sqrt(integrals))
+L157:         and will be initialized in __init__.
+L158: 
+L159:         prescreen, qcondname, dmcondname can be either function pointers or
+L160:         names of C functions defined in libcvhf module
+### Lines370–410
+L370: def direct(dms, atm, bas, env, vhfopt=None, hermi=0, cart=False,
+L371:            with_j=True, with_k=True, out=None, optimize_sr=False):
+L372:     dms = numpy.asarray(dms, order='C', dtype=numpy.double)
+L373:     dms_shape = dms.shape
+L374:     nao = dms_shape[-1]
+L375:     dms = dms.reshape(-1,nao,nao)
+L376:     n_dm = dms.shape[0]
+L377: 
+L378:     if vhfopt is None:
+L379:         cvhfopt = None
+L380:         cintopt = None
+L381:         if cart:
+L382:             intor = 'int2e_cart'
+L383:         else:
+L384:             intor = 'int2e_sph'
+L385:     else:
+L386:         vhfopt.set_dm(dms, atm, bas, env)
+L387:         cvhfopt = vhfopt._this
+L388:         cintopt = vhfopt._cintopt
+L389:         intor = vhfopt._intor
+L390: 
+L391:     vj = vk = None
+L392:     jkscripts = []
+L393:     n_jk = 0
+L394:     if with_j:
+L395:         jkscripts.extend(['ji->s2kl']*n_dm)
+L396:         n_jk += 1
+L397:     if with_k:
+L398:         if hermi == 1:
+L399:             jkscripts.extend(['li->s2kj']*n_dm)
+L400:         else:
+L401:             jkscripts.extend(['li->s1kj']*n_dm)
+L402:         n_jk += 1
+L403:     if n_jk == 0:
+L404:         return vj, vk
+L405: 
+L406:     dms = list(dms) * n_jk # make n_jk copies of dms
+L407:     if out is None:
+L408:         out = numpy.empty((n_jk*n_dm, nao, nao))
+L409:     nr_direct_drv(intor, 's8', jkscripts, dms, 1, atm, bas, env,
+L410:                   cvhfopt, cintopt, out=out, optimize_sr=optimize_sr)
+### Lines482–516
+L482: def direct_bindm(intor, aosym, jkdescript,
+L483:                  dms, ncomp, atm, bas, env, vhfopt=None, cintopt=None,
+L484:                  shls_slice=None, shls_excludes=None, out=None,
+L485:                  optimize_sr=False):
+L486:     intor = ascint3(intor)
+L487:     if vhfopt is None:
+L488:         cvhfopt = lib.c_null_ptr()
+L489:         cintopt = None
+L490:     else:
+L491:         vhfopt.set_dm(dms, atm, bas, env)
+L492:         cvhfopt = vhfopt._this
+L493:         cintopt = vhfopt._cintopt
+L494: 
+L495:     vjk = nr_direct_drv(intor, aosym, jkdescript, dms, ncomp, atm, bas, env,
+L496:                         cvhfopt, cintopt, shls_slice, shls_excludes, out,
+L497:                         optimize_sr=optimize_sr)
+L498:     if ncomp == 1:
+L499:         if isinstance(jkdescript, str):
+L500:             vjk = vjk[0]
+L501:         else:
+L502:             vjk = [v[0] for v in vjk]
+L503:     return vjk
+L504: 
+L505: def nr_direct_drv(intor, aosym, jkscript,
+L506:                   dms, ncomp, atm, bas, env, cvhfopt=None, cintopt=None,
+L507:                   shls_slice=None, shls_excludes=None, out=None,
+L508:                   optimize_sr=True):
+L509:     if cvhfopt is None:
+L510:         optimize_sr = False
+L511: 
+L512:     if optimize_sr:
+L513:         assert aosym in ('s8', 's4', 's2ij', 's2kl', 's1')
+L514:     else:
+L515:         assert aosym in ('s8', 's4', 's2ij', 's2kl', 's1',
+L516:                          'aa4', 'a4ij', 'a4kl', 'a2ij', 'a2kl')
+### Lines535–550
+L535:     if cvhfopt is None:
+L536:         cvhfopt = lib.c_null_ptr()
+L537:     elif isinstance(cvhfopt, ctypes.Structure):
+L538:         # To make cvhfopt _VHFOpt comparable
+L539:         assert cvhfopt.dm_cond and cvhfopt.q_cond
+L540:         cvhfopt = ctypes.byref(cvhfopt)
+L541:     if cintopt is None:
+L542:         cintopt = make_cintopt(c_atm, c_bas, c_env, intor)
+L543: 
+L544:     if shls_slice is None:
+L545:         shls_slice = [0, c_bas.shape[0]] * 4
+L546:     if shls_excludes is not None:
+L547:         shls_excludes = _check_shls_excludes(shls_slice, shls_excludes)
+L548: 
+L549:     ao_loc = make_loc(bas, intor)
+L550: 
+
+## cphf: .runtime/quantum-upgrade-site/pyscf/scf/cphf.py
+SHA256: e39e3a06fc33e23307a8558d2410bc1137e08ef9c27d48b4ce95fd20a22a63e3
+### Lines43–49
+L43:     '''
+L44:     if s1 is None:
+L45:         return solve_nos1(fvind, mo_energy, mo_occ, h1,
+L46:                           max_cycle, tol, hermi, verbose, level_shift)
+L47:     else:
+L48:         return solve_withs1(fvind, mo_energy, mo_occ, h1, s1,
+L49:                             max_cycle, tol, hermi, verbose, level_shift)
+### Lines122–137
+L122:     def vind_vo(mo1):
+L123:         mo1 = mo1.reshape(-1, nmo, nocc)
+L124:         v = fvind(mo1).reshape(-1, nmo, nocc)
+L125:         if level_shift != 0:
+L126:             v -= mo1 * level_shift
+L127:         v[:,viridx,:] *= e_ai
+L128:         v[:,occidx,:] = 0
+L129:         return v.reshape(-1, nmo*nocc)
+L130:     mo1 = lib.krylov(vind_vo, mo1base.reshape(-1, nmo*nocc),
+L131:                      tol=tol, max_cycle=max_cycle, hermi=hermi, verbose=log)
+L132:     mo1 = mo1.reshape(-1, nmo, nocc)
+L133:     mo1[:,occidx] = mo1base[:,occidx]
+L134:     log.timer('krylov solver in CPHF', *t0)
+L135: 
+L136:     hs += fvind(mo1).reshape(-1, nmo, nocc)
+L137:     mo1[:,viridx] = hs[:,viridx] / (e_i - e_a[:,None])
+
+## v8_worker: scripts/pyscf_spinosin_parallel_hessian_worker_20261031.py
+SHA256: acfe7708748ac237c9912aa9b1d98e047d842794fd0c6f08b1a67b993f5b277d
+### Lines159–182
+L159:     if getattr(mf, "with_df", None) is not None:
+L160:         raise RuntimeError("Direct RKS control must not carry a density-fitting object")
+L161:     if getattr(mf, "_eri", None) is not None:
+L162:         raise RuntimeError("Global four-center ERI cache is forbidden in this control")
+L163:     if getattr(mf.mol, "incore_anyway", None) is not False or mf.direct_scf is not True:
+L164:         raise RuntimeError("Screened direct SCF and incore_anyway=False are required")
+L165:     if mf.direct_scf_tol != 1e-13:
+L166:         raise RuntimeError("Direct SCF screening tolerance changed from reviewed setting")
+L167:     return {"storage": "SCREENED_DIRECT_NO_GLOBAL_ERI", "density_fitting": False,
+L168:             "global_four_center_ERI_cached": False, "array_saved_to_output": False}
+L169: 
+L170: 
+L171: def screened_direct_rks_type(parent_type, direct_get_jk):
+L172:     """Bypass RHF's small-molecule incore heuristic, including for water tests.
+L173: 
+L174:     Delegate precisely to the normal SCF screened-direct contraction. This is not
+L175:     a new electronic-structure approximation and does not loosen screening.
+L176:     """
+L177:     class ScreenedDirectRKS(parent_type):
+L178:         def get_jk(self, mol=None, dm=None, hermi=1, with_j=True, with_k=True, omega=None):
+L179:             direct_integral_policy(self)
+L180:             return direct_get_jk(self, mol=mol, dm=dm, hermi=hermi,
+L181:                                  with_j=with_j, with_k=with_k, omega=omega)
+L182:     return ScreenedDirectRKS
+### Lines213–236
+L213:     validate_hessian_resource_policy(args.hessian_block_atoms, args.native_direct_driver_threads)
+L214:     if args.native_direct_driver_threads > args.threads:
+L215:         raise ValueError("Native threads must not exceed the supervised outer allocation")
+L216:     return {"xc": "PBE", "basis": "def2-svp", "grid_level": args.grid_level,
+L217:             "dispersion": "NONE_EXPLICIT_PBE_PILOT_NOT_D3", "density_fitting": False,
+L218:             "auxbasis": None, "hessian_auxbasis_response": None,
+L219:             "scf_conv_tol_hartree": 1e-8, "scf_max_cycle": 80, "threads": args.threads,
+L220:             "max_memory_mb": 8000, "density_fit_backend": "SCREENED_DIRECT_RKS_V4",
+L221:             "direct_scf": True, "direct_scf_tol": 1e-13,
+L222:             "global_four_center_ERI_cache_allowed": False,
+L223:             "charge": 0, "spin_2S": 0, "multiplicity": 1,
+L224:             "optimizer_maxsteps": args.maxsteps, "optimizer_thresholds": THRESHOLDS,
+L225:             "engineering_worker_version": "SUPERVISED_PARALLEL_DIRECT_V8_SAVE_ONLY",
+L226:             "hessian_response_block_atoms": args.hessian_block_atoms,
+L227:             "hessian_max_memory_mb": 3000,
+L228:             "hessian_memory_strategy": "SCOPED_MF_AND_HESSIAN_MEMORY_NO_GRID_CHANGE",
+L229:             "hessian_conv_tol_cpscf": 1e-8, "hessian_max_cycle": 50, "hessian_level_shift": 0,
+L230:             "native_direct_driver_threads": args.native_direct_driver_threads,
+L231:             "native_direct_driver_strategy": "SCOPED_NATIVE_OMP_LIMIT_OUTER_XC_UNCHANGED",
+L232:             "resource_supervision_required": True,
+L233:             "address_space_cap_bytes": 24*1024**3,
+L234:             "rss_guard_bytes": 10*1024**3,
+L235:             "cgroup_memory_kill_bytes": 12*1024**3,
+L236:             "rss_guard_semantics": "BEST_EFFORT_RSS_GUARD_NOT_HARD_RSS_LIMIT"}
+### Lines353–388
+L353: def hessian_memory_context(hobj, settings, emit=None):
+L354:     """Bound only numerical block memory; restore both resource attributes exactly.
+L355: 
+L356:     PySCF RKS.partial_hess_elec derives its block budget from base.max_memory,
+L357:     not just Hessian.max_memory. This context covers the complete original global
+L358:     kernel, including partial Hessian, H1 and response, without changing grids.
+L359:     """
+L360:     if settings.get("max_memory_mb") != 8000 or settings.get("hessian_max_memory_mb") != 3000:
+L361:         raise ValueError("Reviewed SCF8000/Hessian3000 MB memory policy required")
+L362:     base = hobj.base
+L363:     if base.grids.coords is None or base.grids.weights is None:
+L364:         raise ValueError("Hessian memory context requires the actual initialized grid")
+L365:     before_mf, before_hessian = base.max_memory, hobj.max_memory
+L366:     if before_mf != 8000 or before_hessian != 8000:
+L367:         raise ValueError("Hessian context must begin at original8000MB resource settings")
+L368:     missing = object()
+L369:     previous_hessian_own = hobj.__dict__.get("max_memory", missing)
+L370:     quadrature_before = {
+L371:         "coordinates": array_fingerprint(base.grids.coords),
+L372:         "weights": array_fingerprint(base.grids.weights)}
+L373:     metadata = {
+L374:         "strategy": "SCOPED_MF_AND_HESSIAN_MEMORY_NO_GRID_CHANGE",
+L375:         "SCF_and_gradient_max_memory_mb": 8000,
+L376:         "MF_max_memory_mb_before": before_mf,
+L377:         "Hessian_max_memory_mb_before": before_hessian,
+L378:         "MF_max_memory_mb_during_Hessian": 3000,
+L379:         "Hessian_max_memory_mb_during_Hessian": 3000,
+L380:         "PySCF_RKS_partial_grid_memory_policy": "max(2000,MF.max_memory*.9-current_RSS_MB)",
+L381:         "native_grid_memory_floor_MB": 2000,
+L382:         "same_grid_coordinates_and_weights": quadrature_before,
+L383:         "changes_to_functional_basis_screening_or_CPHF": False,
+L384:         "restoration_status": "NOT_YET_EXITED"}
+L385:     base.max_memory = hobj.max_memory = 3000
+L386:     try:
+L387:         if emit is not None:
+L388:             emit("hessian_memory_context_entered", metadata)
+### Lines576–606
+L576:     def partial_hook(self, original):
+L577:         def wrapped(_hobj, *args, **kwargs):
+L578:             require_full_atoms(kwargs.get("atmlst", args[3] if len(args) > 3 else None), self.natom)
+L579:             self.check_binding()
+L580:             cpu, wall = time.process_time(), time.perf_counter()
+L581:             value = original(*args, **kwargs)
+L582:             self.check_binding()
+L583:             record = self.save_array("partial_hessian.npy", value, (self.natom, self.natom, 3, 3))
+L584:             self.manifest["partial_hessian"] = {"native_function_returned_normally": True,
+L585:                 "cpu_seconds_including_capture": time.process_time()-cpu,
+L586:                 "wall_seconds_including_capture": time.perf_counter()-wall, "array": record}
+L587:             self.save_manifest()
+L588:             return value
+L589:         return wrapped
+L590: 
+L591:     def h1_hook(self, original):
+L592:         def wrapped(_hobj, mo_coeff, mo_occ, chkfile=None, atmlst=None, verbose=None):
+L593:             atoms = require_full_atoms(atmlst, self.natom)
+L594:             self.check_binding()
+L595:             cpu, wall = time.process_time(), time.perf_counter()
+L596:             values = original(mo_coeff, mo_occ, chkfile, atmlst, verbose)
+L597:             self.check_binding()
+L598:             if len(values) != self.natom:
+L599:                 raise RuntimeError("Full global H1AO atom indexing is required")
+L600:             for atom in atoms:
+L601:                 record = self.save_array(f"H1AO/atom_{atom:03d}.npy", values[atom], (3, self.nao, self.nao))
+L602:                 self.manifest["H1AO_atoms"].append({"atom_id": atom, "array": record})
+L603:                 self.save_manifest()
+L604:             self.manifest["H1AO_complete"] = True
+L605:             self.manifest["H1AO_cpu_seconds_including_capture"] = time.process_time()-cpu
+L606:             self.manifest["H1AO_wall_seconds_including_capture"] = time.perf_counter()-wall
+### Lines611–652
+L611:     def response_hook(self, original):
+L612:         def wrapped(_hobj, mo_energy, mo_coeff, mo_occ, h1ao,
+L613:                     fx=None, atmlst=None, max_memory=4000, verbose=None):
+L614:             atoms = require_full_atoms(atmlst, self.natom)
+L615:             if len(h1ao) != self.natom or not self.manifest.get("H1AO_complete"):
+L616:                 raise RuntimeError("Native solver requires full completed global H1AO")
+L617:             self.check_binding()
+L618:             if fx is None:
+L619:                 if self.response_operator_factory is None:
+L620:                     raise RuntimeError("A reviewed full-system response operator factory is required")
+L621:                 cpu, wall = time.process_time(), time.perf_counter()
+L622:                 shared_fx = self.response_operator_factory(self.hobj.base, mo_coeff, mo_occ)
+L623:                 if not callable(shared_fx):
+L624:                     raise RuntimeError("The full-system response operator must be callable")
+L625:                 factory_path = inspect.getsourcefile(self.response_operator_factory)
+L626:                 self.manifest["response_operator"] = {"shared_fx_created_once": True,
+L627:                     "caller_supplied_fx_reused": False,
+L628:                     "factory_module": self.response_operator_factory.__module__,
+L629:                     "factory_name": self.response_operator_factory.__qualname__,
+L630:                     "factory_source_sha256": sha(factory_path) if factory_path and Path(factory_path).is_file() else None,
+L631:                     "creation_cpu_seconds": time.process_time()-cpu,
+L632:                     "creation_wall_seconds": time.perf_counter()-wall,
+L633:                     "scope": "FULL_AO_MO_ELECTRON_RESPONSE_NOT_AN_ATOM_TRUNCATION"}
+L634:             else:
+L635:                 if not callable(fx):
+L636:                     raise RuntimeError("Caller supplied response operator must be callable")
+L637:                 shared_fx = fx
+L638:                 self.manifest["response_operator"] = {"shared_fx_created_once": False,
+L639:                     "caller_supplied_fx_reused": True,
+L640:                     "scope": "CALLER_OPERATOR_UNCHANGED_FOR_EVERY_ATOM_RESPONSE_BLOCK"}
+L641:             self.check_binding()
+L642:             self.save_manifest()
+L643:             all_mo1, all_moe1 = [None]*self.natom, [None]*self.natom
+L644:             covered = set()
+L645:             for offset in range(0, len(atoms), self.block_atoms):
+L646:                 chunk = atoms[offset:offset+self.block_atoms]
+L647:                 self.check_binding()
+L648:                 cpu, wall = time.process_time(), time.perf_counter()
+L649:                 mo1, moe1 = original(mo_energy, mo_coeff, mo_occ, h1ao,
+L650:                     fx=shared_fx, atmlst=chunk, max_memory=max_memory, verbose=verbose)
+L651:                 native_cpu, native_wall = time.process_time()-cpu, time.perf_counter()-wall
+L652:                 self.check_binding()
+### Lines678–702
+L678: def _run_checkpointed_hessian_in_memory_context(hobj, cache_root, manifest_path, settings, block_atoms=4,
+L679:                              versions=None, native_lindep=1e-13, input_evidence=None,
+L680:                              response_operator_factory=None):
+L681:     """Call original global kernel with SAVE-ONLY public-method wrappers."""
+L682:     capture = HessianIntermediateCapture(hobj, cache_root, manifest_path, settings, block_atoms,
+L683:                                         versions or {}, native_lindep, input_evidence or {}, response_operator_factory)
+L684:     names = ("partial_hess_elec", "make_h1", "solve_mo1")
+L685:     missing = object()
+L686:     previous = {name: hobj.__dict__.get(name, missing) for name in names}
+L687:     originals = {name: getattr(hobj, name) for name in names}
+L688:     wrappers = {"partial_hess_elec": capture.partial_hook(originals["partial_hess_elec"]),
+L689:                 "make_h1": capture.h1_hook(originals["make_h1"]),
+L690:                 "solve_mo1": capture.response_hook(originals["solve_mo1"])}
+L691:     try:
+L692:         for name, method in wrappers.items():
+L693:             setattr(hobj, name, types.MethodType(method, hobj))
+L694:         result = hobj.kernel()
+L695:         capture.check_binding()
+L696:         if np.asarray(result).shape != (capture.natom, capture.natom, 3, 3) or not np.isfinite(result).all():
+L697:             raise RuntimeError("Native global Hessian is incomplete or nonfinite")
+L698:         if capture.manifest.get("response_complete_global_atom_ids") != list(range(capture.natom)):
+L699:             raise RuntimeError("Global kernel returned without captured full response coverage")
+L700:         capture.manifest.update(status="DONE_INTERMEDIATE_CAPTURE_ONLY", completed_at_utc=utc(),
+L701:                                 native_global_kernel_returned_normally=True,
+L702:                                 frequency_validation_performed_by_this_capture=False)
+### Lines745–753
+L745: class NativeDirectDriverThreadGuard:
+L746:     """Scope all Python VHF direct-driver entries to one through four OMP threads.
+L747: 
+L748:     PySCF2.14 nr_direct.c reserves approximately3.2GB of JK scratch per
+L749:     OpenMP thread independently of mf.max_memory. At four threads its virtual
+L750:     allocations exhausted the old12GiB address cap. V8 requires a verified new
+L751:     24GiB virtual cap plus best-effort parent RSS/cgroup monitoring. This proxy
+L752:     does not change any density, operator, screening cutoff, integral or C file.
+L753:     Calls outside this driver keep their existing XC/BLAS thread configuration.
+### Lines767–817
+L767:             "original_driver_restored": False, "density_or_operator_arguments_modified": False,
+L768:             "native_source_files_modified": False, "density_batch_signature_counts": {}}
+L769: 
+L770:     def summary(self):
+L771:         return json.loads(json.dumps(self.statistics, allow_nan=False))
+L772: 
+L773:     def install(self):
+L774:         if self.installed:
+L775:             raise RuntimeError("Do not install the native driver guard twice")
+L776:         original = self.module.nr_direct_drv
+L777:         if not callable(original) or getattr(original, "_research4_native_thread_guard", False):
+L778:             raise RuntimeError("Native direct driver is missing or already guarded")
+L779:         self.original = original
+L780:         self.statistics["outer_threads_at_install"] = int(self.get_threads())
+L781:         if self.statistics["outer_threads_at_install"] < self.native_threads:
+L782:             raise ValueError("Native guard cannot increase the current thread allocation")
+L783: 
+L784:         def guarded(*args, **kwargs):
+L785:             outer = int(self.get_threads())
+L786:             densities = kwargs.get("dms", args[3] if len(args) > 3 else None)
+L787:             components = kwargs.get("ncomp", args[4] if len(args) > 4 else None)
+L788:             if isinstance(densities, np.ndarray) and densities.ndim == 2:
+L789:                 count = 1
+L790:             else:
+L791:                 try:
+L792:                     count = len(densities)
+L793:                 except TypeError:
+L794:                     count = None
+L795:             signature = f"density_count={count};components={components}"
+L796:             try:
+L797:                 with self.omp_context(self.native_threads):
+L798:                     actual = int(self.get_threads())
+L799:                     if actual != self.native_threads:
+L800:                         raise RuntimeError("Native OMP limit did not take effect; refuse unsafe allocation")
+L801:                     self.statistics["native_calls_entered"] += 1
+L802:                     self.statistics["max_observed_native_threads"] = max(actual, self.statistics["max_observed_native_threads"])
+L803:                     counts = self.statistics["density_batch_signature_counts"]
+L804:                     counts[signature] = counts.get(signature, 0) + 1
+L805:                     if signature not in self.observed_signatures and len(self.observed_signatures) < 32:
+L806:                         self.observed_signatures.add(signature)
+L807:                         if self.emit is not None:
+L808:                             self.emit({"native_threads_observed": actual, "outer_threads_before_call": outer,
+L809:                                        "density_batch_signature": signature,
+L810:                                        "process_resources_before_native_allocation": process_address_space_snapshot(),
+L811:                                        "guard_statistics": self.summary()})
+L812:                     # Preserve all positional/keyword objects, including complete
+L813:                     # density batches and derivative scripts, without slicing.
+L814:                     result = original(*args, **kwargs)
+L815:                     self.statistics["native_calls_returned"] += 1
+L816:                     return result
+L817:             finally:
+### Lines930–944
+L930: 
+L931:     def scf_method(mol):
+L932:         state["scf_converged"] = False
+L933:         Type = screened_direct_rks_type(dft.rks.RKS, DirectSCF.get_jk)
+L934:         mf = Type(mol)
+L935:         mf.xc = settings["xc"]
+L936:         mf.max_memory = settings["max_memory_mb"]
+L937:         mf.direct_scf = settings["direct_scf"]
+L938:         mf.direct_scf_tol = settings["direct_scf_tol"]
+L939:         mf.conv_tol_cpscf = settings["hessian_conv_tol_cpscf"]
+L940:         mf._eri = None
+L941:         mf.mol.incore_anyway = False
+L942:         direct_integral_policy(mf)
+L943:         mf.grids.level = settings["grid_level"]
+L944:         mf.conv_tol = settings["scf_conv_tol_hartree"]
+### Lines1000–1020
+L1000:         hobj = mf.Hessian()
+L1001:         if type(hobj).__module__ != "pyscf.hessian.rks":
+L1002:             raise RuntimeError("Reviewed standard non-DF RKS Hessian is required")
+L1003:         hobj.max_cycle = settings["hessian_max_cycle"]
+L1004:         hobj.level_shift = settings["hessian_level_shift"]
+L1005:         state.update(hessian_backend=type(hobj).__module__, hessian_density_fitting=False,
+L1006:                      hessian_numerical_response_backend="SUPERVISED_PARALLEL_ATOM_BLOCK_SAVE_ONLY_V8",
+L1007:                      Hessian_cross_process_restore="NOT_IMPLEMENTED_SAVE_ONLY")
+L1008:         cache_root = args.hessian_cache_dir or (ROOT / "outputs/pyscf-spinosin-continuation-20261031-v2/hessian-cache" / out.name)
+L1009:         manifest_path = out / "hessian_cache_manifest.json"
+L1010:         state["hessian_cache_manifest_path"] = str(manifest_path)
+L1011: 
+L1012:         def hessian_memory_event(event, details):
+L1013:             state["hessian_memory_control"] = dict(details)
+L1014:             progress(event, hessian_memory_control=details)
+L1015: 
+L1016:         hessian = np.asarray(run_checkpointed_hessian(hobj, cache_root, manifest_path, settings,
+L1017:             block_atoms=args.hessian_block_atoms, versions=state["versions"],
+L1018:             response_operator_factory=rhf_hessian.gen_vind,
+L1019:             memory_event=hessian_memory_event,
+L1020:             native_lindep=float(inspect.signature(linalg_helper.krylov).parameters["lindep"].default),
+

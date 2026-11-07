@@ -1,0 +1,843 @@
+{
+  "schema": "research4-staged-full-rks-hessian-result-v6b",
+  "stage": "rks-partial",
+  "phase": "rks-partial",
+  "status": "STAGE_COMPLETE",
+  "started_at_utc": "2026-11-04T20:23:09.571089+00:00",
+  "source_worker": {
+    "path": "/workspace/research4/scripts/pyscf_staged_hessian_worker_20261105_v6b.py",
+    "sha256": "f13701964cd8a5fbda25a19ca27ec91b4a414f6b5cb49c14abacf6c82eaa448d",
+    "bytes": 35143
+  },
+  "resource_supervision": {
+    "verified_at_utc": "2026-11-04T20:23:09.097046+00:00",
+    "proof_path": "/workspace/research4/reports/pyscf-spinosin-staged-20261105-v6b/execution/v6b-control-ethanol-t2-A-001.log.supervisor-proof.json",
+    "proof_sha256": "0b5b3790fd5187dac3df2478e1a7536ec8509e3dd29cc5fb898af752bd21f39f",
+    "proof": {
+      "schema": "research4-pyscf-continuation-supervisor-proof-v6b",
+      "guard_semantics": "BEST_EFFORT_RSS_GUARD_NOT_HARD_RSS_LIMIT",
+      "supervisor_pid": 22078,
+      "supervisor_start_ticks": 4962904,
+      "child_pid": 22079,
+      "child_start_ticks": 4962912,
+      "supervisor_script_path": "/workspace/research4/scripts/run_pyscf_continuation_budget_20261105_v6b.py",
+      "supervisor_script_sha256": "b985d6d6e20f5e4a48387094461f19b133dae761338664e88836c62051f993a5",
+      "ledger_path": "/workspace/research4/reports/pyscf-spinosin-staged-20261105-v6b/cpu_budget.json",
+      "phase": "v6b-control-ethanol-t2-A-001",
+      "started_at_utc": "2026-11-04T20:23:09.033193+00:00",
+      "address_space_soft_limit_bytes": 25769803776,
+      "address_space_hard_limit_bytes": 25769803776,
+      "rss_stop_bytes": 10737418240,
+      "cgroup_kill_bytes": 12884901888,
+      "expected_cgroup_memory_max_bytes": 17179869184,
+      "monitor_interval_seconds": 0.1,
+      "memory_kill_grace_seconds": 1.0,
+      "cpu_soft_limit_seconds": 1680,
+      "cpu_hard_limit_seconds": 1800,
+      "wall_limit_seconds": 1200,
+      "threads": 2,
+      "target_uid": 1000,
+      "target_pgid": 22079,
+      "target_session_id": 22079,
+      "cgroup_membership": "0::/",
+      "parent_death_signal": "SIGKILL",
+      "terminal_exit_reap_grace_seconds": 0.5,
+      "terminal_exit_reap_policy": "ONLY_CONFIRMED_OWNED_Z_X_OR_GONE_NO_LIVE_RSS_ZERO_SUBSTITUTION",
+      "proof_is_immutable_launch_contract_not_live_monitor_status": true,
+      "actual_cpu_guard_enabled": true,
+      "actual_cpu_guard_source": "PROC_STAT_CUMULATIVE_FROM_PROCESS_BIRTH",
+      "actual_cpu_clock_ticks_per_second": 100,
+      "actual_cpu_cleanup_reserve_seconds": 120,
+      "actual_cpu_stop_threshold_seconds": 1680,
+      "actual_cpu_closed_batch_cost_seconds": 129510.815893,
+      "actual_cpu_batch_cap_seconds": 216000,
+      "cpu_guard_kill_grace_seconds": 1.0
+    },
+    "observed_CPU_limits_seconds": [
+      1680,
+      1800
+    ],
+    "observed_address_space_limits_bytes": [
+      25769803776,
+      25769803776
+    ],
+    "observed_cgroup_memory_max_bytes": 17179869184,
+    "observed_cgroup_memory_current_bytes": 2333995008,
+    "observed_child_pid": 22079,
+    "observed_supervisor_pid": 22078,
+    "AS_is_virtual_address_cap_not_RSS_limit": true,
+    "RSS_guard_is_best_effort_not_a_hard_limit": true,
+    "live_parent_process_and_source_verified": true,
+    "actual_CPU_sampling_is_best_effort": true,
+    "profiling_RLIMIT_is_supplementary_not_exact_actual_CPU_guarantee": true,
+    "startup_proof_is_not_future_monitor_health_confirmation": true,
+    "closed_V6b_lineage_and_explicit_increment_verified": true
+  },
+  "snapshot_manifest_sha256": "9966fbec6184b744e236471d3b38e0cac2d40cde7cb16b45cd444b1da1e35cba",
+  "snapshot_directory": "/workspace/research4/reports/pyscf-spinosin-resumable-20261104-v5/v5-validation-ethanol-prepare-001/exact-mf-snapshot",
+  "boot_id": "50ca0010-b743-43c7-bc0f-b6bcbc47c68d",
+  "no_new_SCF_performed": true,
+  "stable_MF_state_unchanged": false,
+  "source_MF_stability_status": "NOT_CHECKED",
+  "frequencies_status": "NOT_RUN",
+  "IR_intensities_status": "NOT_COMPUTED",
+  "complete_global_Hessian": false,
+  "complete_RHF_helper": true,
+  "complete_RKS_partial": true,
+  "complete_H1AO": false,
+  "physical_binding_separate_from_stage_producer": true,
+  "V5_analyzer_compatibility": "BLOCKED_V6B_PROOF_SCHEMA_REQUIRES_REVIEWED_V6B_POSTPROCESSOR",
+  "gradient_gate": {
+    "result": {
+      "path": "/workspace/research4/reports/pyscf-spinosin-resumable-20261104-v5/v5-validation-ethanol-restore-gradient-001/result.json",
+      "sha256": "205fa6d04c591bbac3a0397f184a5cf64673b6198cce7500592ba2cce29fe8bc",
+      "bytes": 22688
+    },
+    "producer": {
+      "proof_sha256": "773c019fc80a7ef890b221b6c60a51c3ff8e92269c7d1945d6f816c714bdbf33",
+      "producer_result_sha256": "205fa6d04c591bbac3a0397f184a5cf64673b6198cce7500592ba2cce29fe8bc",
+      "phase": "v5-validation-ethanol-restore-gradient-001",
+      "actual_cpu_seconds": 3.8237419999999998,
+      "closed_row_sha256": "2c1450e8fb64a7207a4fd2b6bedb6cf50de7f401e06527d1d633364ac58a51f4"
+    },
+    "scope": "SAME_BOOT_RESTORED_STATE_NO_NEW_SCF"
+  },
+  "final_gradient_thresholds_passed": true,
+  "case": "ethanol_software_control",
+  "atoms": 9,
+  "basis_functions": 72,
+  "source_state_binding": {
+    "schema": "research4-exact-pbe-mf-snapshot-v1",
+    "snapshot_manifest_sha256": "9966fbec6184b744e236471d3b38e0cac2d40cde7cb16b45cd444b1da1e35cba",
+    "snapshot_directory": "/workspace/research4/reports/pyscf-spinosin-resumable-20261104-v5/v5-validation-ethanol-prepare-001/exact-mf-snapshot",
+    "producer": {
+      "result_path": "/workspace/research4/reports/pyscf-spinosin-resumable-20261104-v5/v5-validation-ethanol-prepare-001/result.json",
+      "resource_supervision": {
+        "verified_at_utc": "2026-11-04T08:07:39.013235+00:00",
+        "proof_path": "/workspace/research4/reports/pyscf-spinosin-resumable-20261104-v5/execution/v5-validation-ethanol-prepare-001.log.supervisor-proof.json",
+        "proof_sha256": "58e1e4711cf11f15dd6eee91100f9382a40aae422343876b61a55f5b3e38f772",
+        "proof": {
+          "schema": "research4-pyscf-actual-cpu-supervisor-proof-v5",
+          "guard_semantics": "BEST_EFFORT_RSS_GUARD_NOT_HARD_RSS_LIMIT",
+          "supervisor_pid": 5637,
+          "supervisor_start_ticks": 549882,
+          "child_pid": 5642,
+          "child_start_ticks": 549897,
+          "supervisor_script_path": "/workspace/research4/scripts/run_pyscf_actual_cpu_budget_20261104_v5.py",
+          "supervisor_script_sha256": "33f1dc3db5280f16c9898c561e345143614730dc052b171b4f11fbbb079cdeee",
+          "ledger_path": "/workspace/research4/reports/pyscf-spinosin-resumable-20261104-v5/cpu_budget.json",
+          "phase": "v5-validation-ethanol-prepare-001",
+          "started_at_utc": "2026-11-04T08:07:38.882374+00:00",
+          "address_space_soft_limit_bytes": 25769803776,
+          "address_space_hard_limit_bytes": 25769803776,
+          "rss_stop_bytes": 10737418240,
+          "cgroup_kill_bytes": 12884901888,
+          "expected_cgroup_memory_max_bytes": 17179869184,
+          "monitor_interval_seconds": 0.1,
+          "memory_kill_grace_seconds": 1.0,
+          "cpu_soft_limit_seconds": 1680,
+          "cpu_hard_limit_seconds": 1800,
+          "wall_limit_seconds": 900,
+          "threads": 4,
+          "target_uid": 1000,
+          "target_pgid": 5642,
+          "target_session_id": 5642,
+          "cgroup_membership": "0::/",
+          "parent_death_signal": "SIGKILL",
+          "terminal_exit_reap_grace_seconds": 0.5,
+          "terminal_exit_reap_policy": "ONLY_CONFIRMED_OWNED_Z_X_OR_GONE_NO_LIVE_RSS_ZERO_SUBSTITUTION",
+          "proof_is_immutable_launch_contract_not_live_monitor_status": true,
+          "actual_cpu_guard_enabled": true,
+          "actual_cpu_guard_source": "PROC_STAT_CUMULATIVE_FROM_PROCESS_BIRTH",
+          "actual_cpu_clock_ticks_per_second": 100,
+          "actual_cpu_cleanup_reserve_seconds": 120,
+          "actual_cpu_stop_threshold_seconds": 1680,
+          "actual_cpu_closed_batch_cost_seconds": 3606.984316,
+          "actual_cpu_batch_cap_seconds": 129600,
+          "cpu_guard_kill_grace_seconds": 1.0
+        },
+        "observed_CPU_limits_seconds": [
+          1680,
+          1800
+        ],
+        "observed_address_space_limits_bytes": [
+          25769803776,
+          25769803776
+        ],
+        "observed_cgroup_memory_max_bytes": 17179869184,
+        "observed_cgroup_memory_current_bytes": 1926205440,
+        "observed_child_pid": 5642,
+        "observed_supervisor_pid": 5637,
+        "AS_is_virtual_address_cap_not_RSS_limit": true,
+        "RSS_guard_is_best_effort_not_a_hard_limit": true,
+        "live_parent_process_and_source_verified": true,
+        "actual_CPU_sampling_is_best_effort": true,
+        "profiling_RLIMIT_is_supplementary_not_exact_actual_CPU_guarantee": true,
+        "startup_proof_is_not_future_monitor_health_confirmation": true
+      },
+      "input_manifest": {
+        "path": "/workspace/research4/reports/pyscf-sdf-continuation-20261103-v1/inputs/validation_ethanol_prepare_input_v2.json",
+        "sha256": "7c3ddf300ab6cb806a475a8e08c3a11944c3cc1e744332dab65ffbd52b638e07",
+        "bytes": 2605
+      },
+      "identity": "validation_ethanol_verified_old_optimized_geometry",
+      "fresh_gradient_checks": {
+        "component_rms_hartree_per_bohr": 4.3984372015695726e-05,
+        "component_max_hartree_per_bohr": 0.00014665216829445882,
+        "atom_rms_hartree_per_bohr": 7.61831670701957e-05,
+        "atom_max_hartree_per_bohr": 0.00015317757839475773,
+        "gradient_norm_hartree_per_bohr": 0.00022854950121058712,
+        "final_gradient_thresholds_passed": true
+      },
+      "geometry_optimized": true,
+      "scf_converged": true
+    },
+    "molecule_fingerprint": {
+      "atm": {
+        "shape": [
+          9,
+          6
+        ],
+        "dtype": "int32",
+        "payload_bytes": 216,
+        "payload_sha256_C_order": "f5d6c0d3a7e4bf236af97ee87f93c3bc7be65750390adb2a8af58a0adff0b455"
+      },
+      "bas": {
+        "shape": [
+          36,
+          8
+        ],
+        "dtype": "int32",
+        "payload_bytes": 1152,
+        "payload_sha256_C_order": "4eb18cd2c7a964b92202db2935c15e9c93f95462f75d8016f61394d0799a07fa"
+      },
+      "env_except_transient17": {
+        "shape": [
+          114
+        ],
+        "dtype": "float64",
+        "payload_bytes": 912,
+        "payload_sha256_C_order": "fbf326522f0220463f4e48f5e12a81349cdd9c965f20d0905813831db956eb32"
+      },
+      "coordinates_bohr": {
+        "shape": [
+          9,
+          3
+        ],
+        "dtype": "float64",
+        "payload_bytes": 216,
+        "payload_sha256_C_order": "b73b12ff9de59e4b3a61fdc3132320fde01b08d647079dae059dd59cc41e83af"
+      },
+      "charges": {
+        "shape": [
+          9
+        ],
+        "dtype": "int32",
+        "payload_bytes": 36,
+        "payload_sha256_C_order": "28606ffbbf640751a8c7e8db2bacde9ea729110e2201e7c00d694e7590196e1c"
+      },
+      "natm": 9,
+      "nao": 72,
+      "nbas": 36,
+      "charge": 0,
+      "spin": 0,
+      "nelectron": 26,
+      "cart": false,
+      "excluded_transient_env_indices": [
+        17
+      ]
+    },
+    "arrays": {
+      "MO_coeff": {
+        "file": "MO_coeff.npy",
+        "sha256": "5c02499ddbed2dbe328e8b73fabfd92f76f692ccfb216c5b4b6a08cb722770e3",
+        "shape": [
+          72,
+          72
+        ],
+        "dtype": "float64",
+        "payload_bytes": 41472,
+        "payload_sha256_C_order": "408a29a22a1280d59a26a91b2e12fce926ada2108196dabec00a99fa420eb1ce"
+      },
+      "MO_energy": {
+        "file": "MO_energy.npy",
+        "sha256": "0e83d1c03490f944f5d8d424e1ce868760f894740877105ac1c928985837c6ae",
+        "shape": [
+          72
+        ],
+        "dtype": "float64",
+        "payload_bytes": 576,
+        "payload_sha256_C_order": "8441b647c496205990f1610f30cb5fa4cfc211626fc6c935fe9bb8b5fa617cb6"
+      },
+      "MO_occ": {
+        "file": "MO_occ.npy",
+        "sha256": "d67656e6e7cad6a1dc0b07a62b144b70cd0977d6bcc4491358452b3e26df1b88",
+        "shape": [
+          72
+        ],
+        "dtype": "float64",
+        "payload_bytes": 576,
+        "payload_sha256_C_order": "16ca38ac4dde1d74e831992fd208c3fbe55d588462b4d4d5c4727a60a2493627"
+      },
+      "grid_coordinates": {
+        "file": "grid_coordinates.npy",
+        "sha256": "99f2f25e62d60165c988f9b53c49108c0de028d967c9d2ceefbd41108ac3f247",
+        "shape": [
+          30376,
+          3
+        ],
+        "dtype": "float64",
+        "payload_bytes": 729024,
+        "payload_sha256_C_order": "271ed0ada90fe9c369011a186137d89549761e62d770c277a2c1f4c6d1355704"
+      },
+      "grid_weights": {
+        "file": "grid_weights.npy",
+        "sha256": "80f84028b49713f38db62b2d898656d704ece961db0dbad8b173c5718ff9b34d",
+        "shape": [
+          30376
+        ],
+        "dtype": "float64",
+        "payload_bytes": 243008,
+        "payload_sha256_C_order": "95fc385156d3b8d9ef1d40ec86003f1d568d2de661a2412c8d48d3e7f1288de6"
+      },
+      "coordinates_angstrom": {
+        "file": "coordinates_angstrom.npy",
+        "sha256": "36ac4a3d11a8fa5d976bbf1645c468da76ddf8e8c2a26fc8ff002926dea5b0f4",
+        "shape": [
+          9,
+          3
+        ],
+        "dtype": "float64",
+        "payload_bytes": 216,
+        "payload_sha256_C_order": "8bc25a7609b6d790f654248721629684efefb7540b6ea969d3f1289f2cc206b6"
+      },
+      "gradient": {
+        "file": "gradient.npy",
+        "sha256": "e51836f477859e23ff13884690e7a2a0c4777101e1c93c0959ebb0d5f7297dab",
+        "shape": [
+          9,
+          3
+        ],
+        "dtype": "float64",
+        "payload_bytes": 216,
+        "payload_sha256_C_order": "88b0991b7e1df38b9bb6936d93f26552a353cbd10895f422f92f4c1675e0e85d"
+      },
+      "grid_non0tab": {
+        "file": "grid_non0tab.npy",
+        "sha256": "6ebc8ac643b9505a73aee9c5a95b11fb1dbebcef703f55ed900dbc0c3101849c",
+        "shape": [
+          543,
+          36
+        ],
+        "dtype": "uint8",
+        "payload_bytes": 19548,
+        "payload_sha256_C_order": "baceb77075217c0a683814096a17d2ac5f1b547f56688de42b4d2252d4b59549"
+      },
+      "grid_screen_index": {
+        "file": "grid_screen_index.npy",
+        "sha256": "6ebc8ac643b9505a73aee9c5a95b11fb1dbebcef703f55ed900dbc0c3101849c",
+        "shape": [
+          543,
+          36
+        ],
+        "dtype": "uint8",
+        "payload_bytes": 19548,
+        "payload_sha256_C_order": "baceb77075217c0a683814096a17d2ac5f1b547f56688de42b4d2252d4b59549"
+      },
+      "grid_atm_idx": {
+        "file": "grid_atm_idx.npy",
+        "sha256": "84657a3a2c753802a8fc6ed7baa388ab662df381ae4f963e3db90aa6e40a1098",
+        "shape": [
+          30376
+        ],
+        "dtype": "int32",
+        "payload_bytes": 121504,
+        "payload_sha256_C_order": "81698221b0c1349a12b970b034902a6fae8657f41648b2a6acf56f1b44bc45b9"
+      },
+      "grid_quadrature_weights": {
+        "file": "grid_quadrature_weights.npy",
+        "sha256": "e7be6b459f9d124f5e4faaf81a78391a82a569e3822c777e1397dc76ee888e6c",
+        "shape": [
+          30376
+        ],
+        "dtype": "float64",
+        "payload_bytes": 243008,
+        "payload_sha256_C_order": "bfd3e6e64f3f862d6eb7cb465c40b37896bd9dbfa7573c970734d3636316993f"
+      }
+    },
+    "environment": {
+      "python": "3.12.14",
+      "numpy": "2.3.5",
+      "pyscf": "2.14.0",
+      "scipy": "1.17.0",
+      "geometric": "1.1.1",
+      "sources": {
+        "pyscf.gto.mole": "005bd63c5fa100a20cc264a995c38f44f2e05c7c82d37bd36eba2355dc651392",
+        "pyscf.dft.gen_grid": "44aa665fb25efc544a42cb80fdad737767c787c20479d4df0ae4b1649028ff14",
+        "pyscf.dft.numint": "ff7384551c7a6b80ff8a5ffcd915eb8bfbf6ca4b8f987f912aa82a1d6edda7e8",
+        "pyscf.dft.rks": "fcc8d3dbd03df368f3b70f3ce5999be6a19c608a6ff0bdc1890074616f0befa8",
+        "pyscf.grad.rks": "cffc3e9efa10cf1b547d757e9d165c1000377e9159c794f87464a79c8c93ab46",
+        "pyscf.scf.hf": "34ea1a9057da3a2d5aa37fe51d4e7305580bcb8e0118a5f17ba95ba5bb36c22f",
+        "pyscf.scf._vhf": "ef0a04f43338780a7f57d9268f9634c1079ae989ba3030d6154c8612798f82ba",
+        "libcvhf_binary": "5d7461e3976fd40fce7c9ba571e45b01830dd018d75927e389c32a6f4d09df0c",
+        "libcgto_binary": "337d956486a156f1aa7ca636ac5a91c6277058ffedb6db2efe714fee65f726e0",
+        "libdft_binary": "f955b2fd7b6fb2d66d0786145f5bb910cf859c49a940f5268bf718c87d34e05e",
+        "libxc_itrf_binary": "5f09c9ad1296e1ab106ca00a2ad9a4f1a29e102c9e06c23511d6ba9710a69613",
+        "numpy_multiarray_binary": "ba96467ae494babaf7c3458b09cc03c4200c2e10010860d80e452ffb8b01c8cd",
+        "scipy_fblas_binary": "0e03bbae64d3a3a947a21db865aff984afa8867fa292273faf56dfc887fa71ac",
+        "libcint.so": "950bb0a297507369dce95b9013ef2c5b64b0fa36a0018c303c98e95efce7db7e",
+        "libxc.so": "d120371b37f4729dfc21f3b0575e563ef9b0254839926c41c0c02f5082143548"
+      }
+    },
+    "method_settings": {
+      "xc": "PBE",
+      "basis": "def2-svp",
+      "grid_level": 1,
+      "dispersion": "NONE_EXPLICIT_PBE_PILOT_NOT_D3",
+      "density_fitting": false,
+      "auxbasis": null,
+      "density_fit_backend": "SCREENED_DIRECT_RKS_V4",
+      "direct_scf": true,
+      "direct_scf_tol": 1e-13,
+      "global_four_center_ERI_cache_allowed": false,
+      "scf_conv_tol_hartree": 1e-08,
+      "scf_max_cycle": 80,
+      "hessian_conv_tol_cpscf": 1e-08,
+      "max_memory_mb": 8000,
+      "threads": 4,
+      "native_direct_driver_threads": 4,
+      "charge": 0,
+      "spin_2S": 0,
+      "multiplicity": 1,
+      "optimizer_maxsteps": 35,
+      "optimizer_thresholds": {
+        "convergence_energy": 1e-06,
+        "convergence_grms": 0.0003,
+        "convergence_gmax": 0.00045,
+        "convergence_drms": 0.0012,
+        "convergence_dmax": 0.0018
+      },
+      "gradient_grid_response": false,
+      "engineering_worker_version": "EXACT_MOLECULAR_STATE_V1_NO_HESSIAN"
+    },
+    "source_worker": {
+      "path": "/workspace/research4/scripts/pyscf_molecular_state_worker_20261104_v5.py",
+      "sha256": "be4727b76d59a0b0dd3defba249ef833ee8ef0ea89473e390dcef389728415c8",
+      "bytes": 41377
+    },
+    "closed_producer": {
+      "phase": "v5-validation-ethanol-prepare-001",
+      "closed_result_sha256": "043d881cfcf11c0815acd762d686ca2535b169d1dcc6b2fa44579a0883461070",
+      "proof_sha256": "58e1e4711cf11f15dd6eee91100f9382a40aae422343876b61a55f5b3e38f772",
+      "log_sha256": "6c4eca8bd5aff1271a940602706f8a8d9670212e0161934c1bf3a4f671f27b0f",
+      "actual_cpu_seconds": 9.342699,
+      "closed_row_sha256": "f4304cf33ad19a02ba5193c61adf8b599c77eea59731faec1a26701fc973f894"
+    }
+  },
+  "versions": {
+    "python": "3.12.14",
+    "numpy": "2.3.5",
+    "pyscf": "2.14.0",
+    "scipy": "1.17.0",
+    "geometric": "1.1.1",
+    "sources": {
+      "pyscf.gto.mole": "005bd63c5fa100a20cc264a995c38f44f2e05c7c82d37bd36eba2355dc651392",
+      "pyscf.dft.gen_grid": "44aa665fb25efc544a42cb80fdad737767c787c20479d4df0ae4b1649028ff14",
+      "pyscf.dft.numint": "ff7384551c7a6b80ff8a5ffcd915eb8bfbf6ca4b8f987f912aa82a1d6edda7e8",
+      "pyscf.dft.rks": "fcc8d3dbd03df368f3b70f3ce5999be6a19c608a6ff0bdc1890074616f0befa8",
+      "pyscf.grad.rks": "cffc3e9efa10cf1b547d757e9d165c1000377e9159c794f87464a79c8c93ab46",
+      "pyscf.scf.hf": "34ea1a9057da3a2d5aa37fe51d4e7305580bcb8e0118a5f17ba95ba5bb36c22f",
+      "pyscf.scf._vhf": "ef0a04f43338780a7f57d9268f9634c1079ae989ba3030d6154c8612798f82ba",
+      "libcvhf_binary": "5d7461e3976fd40fce7c9ba571e45b01830dd018d75927e389c32a6f4d09df0c",
+      "libcgto_binary": "337d956486a156f1aa7ca636ac5a91c6277058ffedb6db2efe714fee65f726e0",
+      "libdft_binary": "f955b2fd7b6fb2d66d0786145f5bb910cf859c49a940f5268bf718c87d34e05e",
+      "libxc_itrf_binary": "5f09c9ad1296e1ab106ca00a2ad9a4f1a29e102c9e06c23511d6ba9710a69613",
+      "numpy_multiarray_binary": "ba96467ae494babaf7c3458b09cc03c4200c2e10010860d80e452ffb8b01c8cd",
+      "scipy_fblas_binary": "0e03bbae64d3a3a947a21db865aff984afa8867fa292273faf56dfc887fa71ac",
+      "libcint.so": "950bb0a297507369dce95b9013ef2c5b64b0fa36a0018c303c98e95efce7db7e",
+      "libxc.so": "d120371b37f4729dfc21f3b0575e563ef9b0254839926c41c0c02f5082143548"
+    }
+  },
+  "energy_hartree": -154.72241684890858,
+  "settings": {
+    "xc": "PBE",
+    "basis": "def2-svp",
+    "grid_level": 1,
+    "dispersion": "NONE_EXPLICIT_PBE_PILOT_NOT_D3",
+    "density_fitting": false,
+    "auxbasis": null,
+    "density_fit_backend": "SCREENED_DIRECT_RKS_V4",
+    "direct_scf": true,
+    "direct_scf_tol": 1e-13,
+    "global_four_center_ERI_cache_allowed": false,
+    "scf_conv_tol_hartree": 1e-08,
+    "scf_max_cycle": 80,
+    "hessian_conv_tol_cpscf": 1e-08,
+    "max_memory_mb": 8000,
+    "threads": 2,
+    "native_direct_driver_threads": 2,
+    "charge": 0,
+    "spin_2S": 0,
+    "multiplicity": 1,
+    "optimizer_maxsteps": 35,
+    "optimizer_thresholds": {
+      "convergence_energy": 1e-06,
+      "convergence_grms": 0.0003,
+      "convergence_gmax": 0.00045,
+      "convergence_drms": 0.0012,
+      "convergence_dmax": 0.0018
+    },
+    "gradient_grid_response": false,
+    "engineering_worker_version": "STAGED_COMPLETE_FULL_RKS_V6B",
+    "hessian_max_memory_mb": 3000,
+    "hessian_max_cycle": 50,
+    "hessian_level_shift": 0,
+    "hessian_response_block_atoms": 8
+  },
+  "stock_hamiltonian_gate": {
+    "MF.get_hcore": {
+      "file": "/workspace/research4/.runtime/quantum-upgrade-site/pyscf/scf/hf.py",
+      "sha256": "34ea1a9057da3a2d5aa37fe51d4e7305580bcb8e0118a5f17ba95ba5bb36c22f",
+      "qualified_name": "SCF.get_hcore"
+    },
+    "Hessian.get_hcore": {
+      "file": "/workspace/research4/.runtime/quantum-upgrade-site/pyscf/hessian/rhf.py",
+      "sha256": "2d986bfc01aac98447034a207df639b3d6897f67ce1ab2a013fe2d0853c85de5",
+      "qualified_name": "HessianBase.get_hcore"
+    },
+    "Hessian.hcore_generator": {
+      "file": "/workspace/research4/.runtime/quantum-upgrade-site/pyscf/hessian/rhf.py",
+      "sha256": "2d986bfc01aac98447034a207df639b3d6897f67ce1ab2a013fe2d0853c85de5",
+      "qualified_name": "HessianBase.hcore_generator"
+    }
+  },
+  "physical_binding_sha256": "83f124279782f9d06f2b39fe5e02247b11d330fea4e815068b574f41fbbc0292",
+  "prior_RHF_unit_producer_checks": [
+    {
+      "record": {
+        "path": "/workspace/research4/outputs/pyscf-spinosin-resumable-20261104-v5/ethanol-restart-validation/units/000000-diag-0000/attempt-000001/complete.json",
+        "sha256": "783f39f5e4bc39d47afb953b95961659e6f2074e00c45c07dba77220d8de8c7f",
+        "bytes": 3645
+      },
+      "qualification": "CLOSED_HEALTHY_V5_PRODUCER",
+      "producer": {
+        "proof_sha256": "48a0eec343e1ced7469b8c923f1d42722f68674609b715f3a16b8be457a72849",
+        "producer_result_sha256": "0ca66dbfd6dee059ac4ca7ea9cdafbdf3863e8f60a68a9738f176c93f312cc2f",
+        "phase": "v5-validation-ethanol-segment-001",
+        "actual_cpu_seconds": 4.500097,
+        "closed_row_sha256": "8d7efcf57f31cce76d9cef4617416c168074d9626f3164e07a352a75909a244c"
+      }
+    },
+    {
+      "record": {
+        "path": "/workspace/research4/outputs/pyscf-spinosin-resumable-20261104-v5/ethanol-restart-validation/units/000001-diag-0001/attempt-000001/complete.json",
+        "sha256": "ce43870c626bd636d12ad9b7f870bbed0ae38a083efe8e6ce87b89d443d70d6b",
+        "bytes": 3645
+      },
+      "qualification": "CLOSED_HEALTHY_V5_PRODUCER",
+      "producer": {
+        "proof_sha256": "48a0eec343e1ced7469b8c923f1d42722f68674609b715f3a16b8be457a72849",
+        "producer_result_sha256": "0ca66dbfd6dee059ac4ca7ea9cdafbdf3863e8f60a68a9738f176c93f312cc2f",
+        "phase": "v5-validation-ethanol-segment-001",
+        "actual_cpu_seconds": 4.500097,
+        "closed_row_sha256": "8d7efcf57f31cce76d9cef4617416c168074d9626f3164e07a352a75909a244c"
+      }
+    },
+    {
+      "record": {
+        "path": "/workspace/research4/outputs/pyscf-spinosin-resumable-20261104-v5/ethanol-restart-validation/units/000002-diag-0002/attempt-000001/complete.json",
+        "sha256": "b1a81cfc73e79a23547b7933ef24ad9950064d236ff5b51b88b14c891c25eb98",
+        "bytes": 3645
+      },
+      "qualification": "CLOSED_HEALTHY_V5_PRODUCER",
+      "producer": {
+        "proof_sha256": "48a0eec343e1ced7469b8c923f1d42722f68674609b715f3a16b8be457a72849",
+        "producer_result_sha256": "0ca66dbfd6dee059ac4ca7ea9cdafbdf3863e8f60a68a9738f176c93f312cc2f",
+        "phase": "v5-validation-ethanol-segment-001",
+        "actual_cpu_seconds": 4.500097,
+        "closed_row_sha256": "8d7efcf57f31cce76d9cef4617416c168074d9626f3164e07a352a75909a244c"
+      }
+    },
+    {
+      "record": {
+        "path": "/workspace/research4/outputs/pyscf-spinosin-resumable-20261104-v5/ethanol-restart-validation/units/000003-diag-0003/attempt-000001/complete.json",
+        "sha256": "2bdbd67a76591f1a8795dda6e101c1543650fe251c17b1d92b345330d2399e48",
+        "bytes": 3645
+      },
+      "qualification": "CLOSED_HEALTHY_V5_PRODUCER",
+      "producer": {
+        "proof_sha256": "48a0eec343e1ced7469b8c923f1d42722f68674609b715f3a16b8be457a72849",
+        "producer_result_sha256": "0ca66dbfd6dee059ac4ca7ea9cdafbdf3863e8f60a68a9738f176c93f312cc2f",
+        "phase": "v5-validation-ethanol-segment-001",
+        "actual_cpu_seconds": 4.500097,
+        "closed_row_sha256": "8d7efcf57f31cce76d9cef4617416c168074d9626f3164e07a352a75909a244c"
+      }
+    },
+    {
+      "record": {
+        "path": "/workspace/research4/outputs/pyscf-spinosin-resumable-20261104-v5/ethanol-restart-validation/units/000004-diag-0004/attempt-000001/complete.json",
+        "sha256": "bef2fdb28baee7402cb218da5ae251e048d4e28f4d5c4724c8bc0b448ed78bb9",
+        "bytes": 3645
+      },
+      "qualification": "CLOSED_HEALTHY_V5_PRODUCER",
+      "producer": {
+        "proof_sha256": "48a0eec343e1ced7469b8c923f1d42722f68674609b715f3a16b8be457a72849",
+        "producer_result_sha256": "0ca66dbfd6dee059ac4ca7ea9cdafbdf3863e8f60a68a9738f176c93f312cc2f",
+        "phase": "v5-validation-ethanol-segment-001",
+        "actual_cpu_seconds": 4.500097,
+        "closed_row_sha256": "8d7efcf57f31cce76d9cef4617416c168074d9626f3164e07a352a75909a244c"
+      }
+    },
+    {
+      "record": {
+        "path": "/workspace/research4/outputs/pyscf-spinosin-resumable-20261104-v5/ethanol-restart-validation/units/000005-diag-0005/attempt-000001/complete.json",
+        "sha256": "c693a1f7505d1857d27ef15a9ddb93a099133e5204bdcab8f54756820421c733",
+        "bytes": 3652
+      },
+      "qualification": "CLOSED_HEALTHY_V5_PRODUCER",
+      "producer": {
+        "proof_sha256": "2e7e4bfa85b897b42a4ad8c0e9b3ad6ad5f0d72d0537271834c877ddc6372a78",
+        "producer_result_sha256": "4d1e8e559b847ce93c82db0a3f4fe990220a470dd7d138d81afdf9d0e2a69e8e",
+        "phase": "v5-validation-ethanol-segment-002",
+        "actual_cpu_seconds": 4.918942,
+        "closed_row_sha256": "8582e5bb1b6015ea4635b45589d85780cc2ef44e586b13fd8843be54ef46c876"
+      }
+    },
+    {
+      "record": {
+        "path": "/workspace/research4/outputs/pyscf-spinosin-resumable-20261104-v5/ethanol-restart-validation/units/000006-diag-0006/attempt-000001/complete.json",
+        "sha256": "ee1ac332eaea7cd3c5defddab090f46d85c7d184da03ca7b111273cad571b673",
+        "bytes": 3652
+      },
+      "qualification": "CLOSED_HEALTHY_V5_PRODUCER",
+      "producer": {
+        "proof_sha256": "2e7e4bfa85b897b42a4ad8c0e9b3ad6ad5f0d72d0537271834c877ddc6372a78",
+        "producer_result_sha256": "4d1e8e559b847ce93c82db0a3f4fe990220a470dd7d138d81afdf9d0e2a69e8e",
+        "phase": "v5-validation-ethanol-segment-002",
+        "actual_cpu_seconds": 4.918942,
+        "closed_row_sha256": "8582e5bb1b6015ea4635b45589d85780cc2ef44e586b13fd8843be54ef46c876"
+      }
+    },
+    {
+      "record": {
+        "path": "/workspace/research4/outputs/pyscf-spinosin-resumable-20261104-v5/ethanol-restart-validation/units/000007-diag-0007/attempt-000001/complete.json",
+        "sha256": "6ebde45bfe105aa56455819610cf6cd150ce706c106d6ee82f27fcc0137bc2fc",
+        "bytes": 3652
+      },
+      "qualification": "CLOSED_HEALTHY_V5_PRODUCER",
+      "producer": {
+        "proof_sha256": "2e7e4bfa85b897b42a4ad8c0e9b3ad6ad5f0d72d0537271834c877ddc6372a78",
+        "producer_result_sha256": "4d1e8e559b847ce93c82db0a3f4fe990220a470dd7d138d81afdf9d0e2a69e8e",
+        "phase": "v5-validation-ethanol-segment-002",
+        "actual_cpu_seconds": 4.918942,
+        "closed_row_sha256": "8582e5bb1b6015ea4635b45589d85780cc2ef44e586b13fd8843be54ef46c876"
+      }
+    },
+    {
+      "record": {
+        "path": "/workspace/research4/outputs/pyscf-spinosin-resumable-20261104-v5/ethanol-restart-validation/units/000008-diag-0008/attempt-000001/complete.json",
+        "sha256": "dddc06b6553c18b7f935e51c3a304d491f735226c4666f8fc938341094b45d96",
+        "bytes": 3652
+      },
+      "qualification": "CLOSED_HEALTHY_V5_PRODUCER",
+      "producer": {
+        "proof_sha256": "2e7e4bfa85b897b42a4ad8c0e9b3ad6ad5f0d72d0537271834c877ddc6372a78",
+        "producer_result_sha256": "4d1e8e559b847ce93c82db0a3f4fe990220a470dd7d138d81afdf9d0e2a69e8e",
+        "phase": "v5-validation-ethanol-segment-002",
+        "actual_cpu_seconds": 4.918942,
+        "closed_row_sha256": "8582e5bb1b6015ea4635b45589d85780cc2ef44e586b13fd8843be54ef46c876"
+      }
+    },
+    {
+      "record": {
+        "path": "/workspace/research4/outputs/pyscf-spinosin-resumable-20261104-v5/ethanol-restart-validation/units/000009-row-0000/attempt-000001/complete.json",
+        "sha256": "b4703cfe783d996d6976cf6393b5f7c9ce87c69c1c6d4f54c077bb45b87e130a",
+        "bytes": 3884
+      },
+      "qualification": "CLOSED_HEALTHY_V5_PRODUCER",
+      "producer": {
+        "proof_sha256": "2e7e4bfa85b897b42a4ad8c0e9b3ad6ad5f0d72d0537271834c877ddc6372a78",
+        "producer_result_sha256": "4d1e8e559b847ce93c82db0a3f4fe990220a470dd7d138d81afdf9d0e2a69e8e",
+        "phase": "v5-validation-ethanol-segment-002",
+        "actual_cpu_seconds": 4.918942,
+        "closed_row_sha256": "8582e5bb1b6015ea4635b45589d85780cc2ef44e586b13fd8843be54ef46c876"
+      }
+    },
+    {
+      "record": {
+        "path": "/workspace/research4/outputs/pyscf-spinosin-resumable-20261104-v5/ethanol-restart-validation/units/000010-row-0001/attempt-000001/complete.json",
+        "sha256": "ed0dd7e1ad194a354975f2de53cdefec4a211959ba79deb0e5913db471d532aa",
+        "bytes": 3880
+      },
+      "qualification": "CLOSED_HEALTHY_V5_PRODUCER",
+      "producer": {
+        "proof_sha256": "34c88e98f073cb3b0fc80a36d7b616ac7e4112318c77de598082402761c4e7c6",
+        "producer_result_sha256": "07100f8536e01347f725fd3e97418e68e1a55e3cb59bfb298589360217db5b90",
+        "phase": "v5-validation-ethanol-segment-003",
+        "actual_cpu_seconds": 8.530341,
+        "closed_row_sha256": "b4185168a3c824801f768134a9f5000d41733e726c5ae0988a193ee94d8e47ad"
+      }
+    },
+    {
+      "record": {
+        "path": "/workspace/research4/outputs/pyscf-spinosin-resumable-20261104-v5/ethanol-restart-validation/units/000011-row-0002/attempt-000001/complete.json",
+        "sha256": "6050cb71aa92648983f17e733416367e94df174948a3ae96ae6946dea8074b04",
+        "bytes": 3880
+      },
+      "qualification": "CLOSED_HEALTHY_V5_PRODUCER",
+      "producer": {
+        "proof_sha256": "34c88e98f073cb3b0fc80a36d7b616ac7e4112318c77de598082402761c4e7c6",
+        "producer_result_sha256": "07100f8536e01347f725fd3e97418e68e1a55e3cb59bfb298589360217db5b90",
+        "phase": "v5-validation-ethanol-segment-003",
+        "actual_cpu_seconds": 8.530341,
+        "closed_row_sha256": "b4185168a3c824801f768134a9f5000d41733e726c5ae0988a193ee94d8e47ad"
+      }
+    },
+    {
+      "record": {
+        "path": "/workspace/research4/outputs/pyscf-spinosin-resumable-20261104-v5/ethanol-restart-validation/units/000012-row-0003/attempt-000001/complete.json",
+        "sha256": "7df429b3c65c787a7284c4f6f57395528eb791a99107763aec27ba02a217c79a",
+        "bytes": 3880
+      },
+      "qualification": "CLOSED_HEALTHY_V5_PRODUCER",
+      "producer": {
+        "proof_sha256": "34c88e98f073cb3b0fc80a36d7b616ac7e4112318c77de598082402761c4e7c6",
+        "producer_result_sha256": "07100f8536e01347f725fd3e97418e68e1a55e3cb59bfb298589360217db5b90",
+        "phase": "v5-validation-ethanol-segment-003",
+        "actual_cpu_seconds": 8.530341,
+        "closed_row_sha256": "b4185168a3c824801f768134a9f5000d41733e726c5ae0988a193ee94d8e47ad"
+      }
+    },
+    {
+      "record": {
+        "path": "/workspace/research4/outputs/pyscf-spinosin-resumable-20261104-v5/ethanol-restart-validation/units/000013-row-0004/attempt-000001/complete.json",
+        "sha256": "e5d29a4213e7d5ab224829bffb64a42b7555999ea8b7aea1088d002b74be6247",
+        "bytes": 3880
+      },
+      "qualification": "CLOSED_HEALTHY_V5_PRODUCER",
+      "producer": {
+        "proof_sha256": "34c88e98f073cb3b0fc80a36d7b616ac7e4112318c77de598082402761c4e7c6",
+        "producer_result_sha256": "07100f8536e01347f725fd3e97418e68e1a55e3cb59bfb298589360217db5b90",
+        "phase": "v5-validation-ethanol-segment-003",
+        "actual_cpu_seconds": 8.530341,
+        "closed_row_sha256": "b4185168a3c824801f768134a9f5000d41733e726c5ae0988a193ee94d8e47ad"
+      }
+    },
+    {
+      "record": {
+        "path": "/workspace/research4/outputs/pyscf-spinosin-resumable-20261104-v5/ethanol-restart-validation/units/000014-row-0005/attempt-000001/complete.json",
+        "sha256": "27ee598a24c0bff0ebb9d4e37972a19b27d481259928f8dddcf237ce258cd3fa",
+        "bytes": 3880
+      },
+      "qualification": "CLOSED_HEALTHY_V5_PRODUCER",
+      "producer": {
+        "proof_sha256": "34c88e98f073cb3b0fc80a36d7b616ac7e4112318c77de598082402761c4e7c6",
+        "producer_result_sha256": "07100f8536e01347f725fd3e97418e68e1a55e3cb59bfb298589360217db5b90",
+        "phase": "v5-validation-ethanol-segment-003",
+        "actual_cpu_seconds": 8.530341,
+        "closed_row_sha256": "b4185168a3c824801f768134a9f5000d41733e726c5ae0988a193ee94d8e47ad"
+      }
+    },
+    {
+      "record": {
+        "path": "/workspace/research4/outputs/pyscf-spinosin-resumable-20261104-v5/ethanol-restart-validation/units/000015-row-0006/attempt-000001/complete.json",
+        "sha256": "164f9426272d518db69b28bb70810a1215c0e770a0756023693d674218373559",
+        "bytes": 3880
+      },
+      "qualification": "CLOSED_HEALTHY_V5_PRODUCER",
+      "producer": {
+        "proof_sha256": "1339927cbe2412a4efea212c48acb06792d587b475b9317a6b8f2901ad3de2fa",
+        "producer_result_sha256": "6dcbc8c60484dde9813ed02488bc440c3207a6332c35fcb00fc931e290ad042a",
+        "phase": "v5-validation-ethanol-segment-004",
+        "actual_cpu_seconds": 38.101565,
+        "closed_row_sha256": "03dad0c353bcdae220bcbe2b2c4e057ed8f051d9e99cb6f6ba735c132fdd3d52"
+      }
+    },
+    {
+      "record": {
+        "path": "/workspace/research4/outputs/pyscf-spinosin-resumable-20261104-v5/ethanol-restart-validation/units/000016-row-0007/attempt-000001/complete.json",
+        "sha256": "4caee6c2e8b4cd8790b8fb0418804f8fd455cb1a2130ae883ab4914e0fc0d0f5",
+        "bytes": 3880
+      },
+      "qualification": "CLOSED_HEALTHY_V5_PRODUCER",
+      "producer": {
+        "proof_sha256": "1339927cbe2412a4efea212c48acb06792d587b475b9317a6b8f2901ad3de2fa",
+        "producer_result_sha256": "6dcbc8c60484dde9813ed02488bc440c3207a6332c35fcb00fc931e290ad042a",
+        "phase": "v5-validation-ethanol-segment-004",
+        "actual_cpu_seconds": 38.101565,
+        "closed_row_sha256": "03dad0c353bcdae220bcbe2b2c4e057ed8f051d9e99cb6f6ba735c132fdd3d52"
+      }
+    },
+    {
+      "record": {
+        "path": "/workspace/research4/outputs/pyscf-spinosin-resumable-20261104-v5/ethanol-restart-validation/units/000017-row-0008/attempt-000001/complete.json",
+        "sha256": "3a33eff5c57e6d5615ce59c7ceaa7cca49b795fbb1f94aa2409262d97fbfd7de",
+        "bytes": 3880
+      },
+      "qualification": "CLOSED_HEALTHY_V5_PRODUCER",
+      "producer": {
+        "proof_sha256": "1339927cbe2412a4efea212c48acb06792d587b475b9317a6b8f2901ad3de2fa",
+        "producer_result_sha256": "6dcbc8c60484dde9813ed02488bc440c3207a6332c35fcb00fc931e290ad042a",
+        "phase": "v5-validation-ethanol-segment-004",
+        "actual_cpu_seconds": 38.101565,
+        "closed_row_sha256": "03dad0c353bcdae220bcbe2b2c4e057ed8f051d9e99cb6f6ba735c132fdd3d52"
+      }
+    }
+  ],
+  "incremental_before": {
+    "diag_completed": 9,
+    "row_completed": 9,
+    "total_units_completed": 18,
+    "total_units": 18,
+    "new_units_this_context": 0,
+    "complete_RHF_helper": true,
+    "cache_dir": "/workspace/research4/outputs/pyscf-spinosin-resumable-20261104-v5/ethanol-restart-validation",
+    "binding_sha256": "4bcd75441aef3cab501ec16a00b0e25ec31695ace5219e1ca6fd253fc9b27e6b"
+  },
+  "incremental_after": {
+    "diag_completed": 9,
+    "row_completed": 9,
+    "total_units_completed": 18,
+    "total_units": 18,
+    "new_units_this_context": 0,
+    "complete_RHF_helper": true,
+    "cache_dir": "/workspace/research4/outputs/pyscf-spinosin-resumable-20261104-v5/ethanol-restart-validation",
+    "binding_sha256": "4bcd75441aef3cab501ec16a00b0e25ec31695ace5219e1ca6fd253fc9b27e6b"
+  },
+  "utc": "2026-11-04T20:23:13.340789+00:00",
+  "event": "hessian_memory_context_exited",
+  "CPU_seconds": 7.2795758290000006,
+  "wall_seconds": 3.7697223750001285,
+  "strategy": "SCOPED_MF_AND_HESSIAN_MEMORY_NO_GRID_CHANGE",
+  "SCF_and_gradient_max_memory_mb": 8000,
+  "MF_max_memory_mb_before": 8000,
+  "Hessian_max_memory_mb_before": 8000,
+  "MF_max_memory_mb_during_Hessian": 3000,
+  "Hessian_max_memory_mb_during_Hessian": 3000,
+  "PySCF_RKS_partial_grid_memory_policy": "max(2000,MF.max_memory*.9-current_RSS_MB)",
+  "native_grid_memory_floor_MB": 2000,
+  "same_grid_coordinates_and_weights": {
+    "coordinates": {
+      "shape": [
+        30376,
+        3
+      ],
+      "dtype": "float64",
+      "payload_bytes": 729024,
+      "payload_sha256_C_order": "271ed0ada90fe9c369011a186137d89549761e62d770c277a2c1f4c6d1355704"
+    },
+    "weights": {
+      "shape": [
+        30376
+      ],
+      "dtype": "float64",
+      "payload_bytes": 243008,
+      "payload_sha256_C_order": "95fc385156d3b8d9ef1d40ec86003f1d568d2de661a2412c8d48d3e7f1288de6"
+    }
+  },
+  "changes_to_functional_basis_screening_or_CPHF": false,
+  "restoration_status": "RESTORED",
+  "same_grid_verified_after_Hessian": true,
+  "MF_max_memory_mb_after": 8000,
+  "Hessian_max_memory_mb_after": 8000
+}

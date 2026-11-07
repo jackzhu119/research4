@@ -1,0 +1,40 @@
+{
+  "schema": "research4-pyscf-conditional-finisher-permit-v1",
+  "status": "ROOT_GO_CONDITIONAL_ON_ACTUAL_PIPELINE_END",
+  "created_at_utc": "2026-11-01T08:57:26.582166+00:00",
+  "allow_conditional_finalization": true,
+  "run_root": "reports/pyscf-spinosin-continuation-20261031-v3",
+  "pipeline_state_path": "reports/pyscf-spinosin-continuation-20261031-v3/pipeline-native4-001/state.json",
+  "ledger_path": "reports/pyscf-spinosin-continuation-20261031-v3/cpu_budget.json",
+  "analysis_output_path": "reports/pyscf-spinosin-continuation-20261031-v3/final-analysis",
+  "documentation_path": "docs/PYSCF_SPINOSIN_MONITORED_RESULTS_20261031.md",
+  "authorization_sha256": "4d2a665bfeab6b1a7fb13d0fac8525640a228e74713b014596511b8d34276763",
+  "run_deadline_at_utc": "2026-11-02T08:12:20.068743+00:00",
+  "pipeline_plan_sha256": "f5412ae2396474c741a7bde7fdc4b72df91e91076fc23207a5b7d675d004a636",
+  "source_sha256": {
+    "scripts/finalize_pyscf_monitored_pipeline_20261031.py": "d75d468896d4c14a2a482cbb86872aca8725fae58c536bb2a2c490f3c0d24e3c",
+    "scripts/analyze_pyscf_monitored_results_20261031.py": "92ef86dedcbef4a8879fd53a15fa2a209ea19c761c203b1a91177d60e2908a08",
+    "scripts/run_pyscf_monitored_budget_20261031.py": "f03c6720f4e4999cf0fcaeec67b9ae80f2a2666a9bf7167f21066ad268624d9f",
+    "scripts/run_pyscf_v3_pipeline_20261031.py": "671939b058658d3b4799b8ab063759fc6ccdc01bd71639a1203116829aa0b0d4",
+    "scripts/pyscf_spinosin_parallel_hessian_worker_20261031.py": "acfe7708748ac237c9912aa9b1d98e047d842794fd0c6f08b1a67b993f5b277d",
+    "scripts/analyze_pyscf_continuation_v2_20261031.py": "31ebde796b057e82444bede277ccb1c1af926cefd742101620eff983b74f6bd8",
+    "scripts/prepare_pyscf_geometry_transfer_20261031.py": "b7eeaa5e5f9b50fc1cef78a8a8756a109df0a4f647cb0bff81881a631a8043fa",
+    "docs/PYSCF_MONITORED_DIRECT_PROTOCOL_20261031.md": "952c08e74bdda2338b7493c52426f32f03e47cf2d218643d22bd23f00b3ea863"
+  },
+  "poll_interval_seconds": 15,
+  "max_poll_iterations": 5580,
+  "expected_branch": "research/pyscf-spinosin-mechanism-20261031",
+  "allow_git_push": true,
+  "no_new_quantum_computation_or_budget": true,
+  "conditions": [
+    "Root explicitly reviews and completes this permit, then hashes the exact new permit file in the actual V3 run directory.",
+    "Starting the finisher requires both --permit and --permit-sha256; this template does not authorize execution.",
+    "Only a controller with DONE/PARTIAL and ended_at_utc plus a ledger with no RUNNING phase can trigger final analysis.",
+    "The final release will bind this permit SHA, final analyzer/finisher source SHA, final closed ledger SHA and closed controller-state SHA.",
+    "Polling, analysis and optional Git delivery stop at the existing V3 deadline, with no retry or additional compute budget.",
+    "Git commit/push requires both allow_git_push=true here and explicit --push at launch; otherwise only actual science evidence and the new document are produced.",
+    "Only new closed V3 artifacts and the designated new document can enter the Git commit; all shared-index, branch, size and source guards must pass.",
+    "Actual commit/push SHA and status are saved only under ignored outputs/ delivery records, not backfilled into the scientific report."
+  ],
+  "user_authorization_context": "用户要求继续完成后续任务并授权长运行；原任务明确要求合理大小科研结果提交并推送独立研究分支。此许可仅用于既有有界计算的实际结果分析与正常研究分支交付，不开启额外量子任务。"
+}

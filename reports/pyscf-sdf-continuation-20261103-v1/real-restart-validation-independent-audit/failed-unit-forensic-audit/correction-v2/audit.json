@@ -1,0 +1,328 @@
+{
+  "schema": "research4-independent-failed-unit-forensic-audit-v2",
+  "created_at_utc": "2026-11-04T07:32:52.862695+00:00",
+  "status": "COMPLETE_SAVED_UNITS_VERIFIED_NOT_HEALTHY_PARENT",
+  "parent_phase": "validation-ethanol-segment-002",
+  "parent_row": {
+    "phase": "validation-ethanol-segment-002",
+    "started_at_utc": "2026-11-04T07:30:03.800929+00:00",
+    "status": "PARTIAL_OR_FAILED",
+    "command": [
+      "/workspace/research4/.runtime/python/bin/python",
+      "/workspace/research4/scripts/pyscf_resumable_hessian_worker_20261103.py",
+      "--phase",
+      "hessian-segment",
+      "--snapshot",
+      "/workspace/research4/reports/pyscf-sdf-continuation-20261103-v1/validation-ethanol-prepare-001/exact-mf-snapshot",
+      "--snapshot-manifest-sha256",
+      "a0617e2f3c9a204c7b2475cdf9db03efdaf4595545fe9caaa75c7f0ca83460b5",
+      "--output",
+      "/workspace/research4/reports/pyscf-sdf-continuation-20261103-v1/validation-ethanol-segment-002",
+      "--threads",
+      "4",
+      "--max-new-units",
+      "5",
+      "--rhf-cache",
+      "/workspace/research4/outputs/pyscf-sdf-continuation-20261103-v1/ethanol-restart-validation",
+      "--gradient-check-result",
+      "/workspace/research4/reports/pyscf-sdf-continuation-20261103-v1/validation-ethanol-restore-gradient-001/result.json",
+      "--gradient-check-result-sha256",
+      "4cc46936818acdbeb1895d232c357a72b34bfb81a75d44a1b74f1ac712243e8c"
+    ],
+    "log": "/workspace/research4/reports/pyscf-sdf-continuation-20261103-v1/execution/validation-ethanol-segment-002.log",
+    "granted_cpu_seconds": 3600,
+    "cpu_soft_limit_seconds": 3480,
+    "cpu_hard_limit_seconds": 3600,
+    "cpu_cleanup_margin_seconds": 120,
+    "cpu_boundary_reserve_seconds": 10,
+    "wall_limit_seconds": 1800,
+    "wall_cleanup_seconds": 60,
+    "wall_SIGTERM_after_seconds": 1740,
+    "address_space_limit_gib": 24,
+    "threads": 4,
+    "rss_stop_bytes": 10737418240,
+    "cgroup_kill_bytes": 12884901888,
+    "monitor_interval_seconds": 0.1,
+    "memory_kill_grace_seconds": 1.0,
+    "expected_cgroup_memory_max_bytes": 17179869184,
+    "guard_semantics": "BEST_EFFORT_RSS_GUARD_NOT_HARD_RSS_LIMIT",
+    "not_a_hard_RSS_limit": true,
+    "actual_cpu_guard_enabled": true,
+    "actual_cpu_guard_source": "PROC_STAT_CUMULATIVE_FROM_PROCESS_BIRTH",
+    "actual_cpu_clock_ticks_per_second": 100,
+    "actual_cpu_cleanup_reserve_seconds": 120,
+    "actual_cpu_stop_threshold_seconds": 3480,
+    "actual_cpu_closed_batch_cost_seconds": 135.505098,
+    "actual_cpu_batch_cap_seconds": 129600,
+    "cpu_guard_kill_grace_seconds": 1.0,
+    "profiling_RLIMIT_is_supplementary_not_exact_actual_CPU_guarantee": true,
+    "supervisor_proof_path": "/workspace/research4/reports/pyscf-sdf-continuation-20261103-v1/execution/validation-ethanol-segment-002.log.supervisor-proof.json",
+    "prior_V3_exclusive_lock_held": true,
+    "cgroup_memory_before_launch": {
+      "current_bytes": 1845776384,
+      "max_bytes": 17179869184,
+      "source": "/sys/fs/cgroup",
+      "observed_at_utc": "2026-11-04T07:30:03.800915+00:00"
+    },
+    "environment_thread_limits": {
+      "OMP_NUM_THREADS": "4",
+      "OPENBLAS_NUM_THREADS": "4",
+      "MKL_NUM_THREADS": "4",
+      "NUMEXPR_NUM_THREADS": "4"
+    },
+    "pid": 3780,
+    "supervisor_proof_sha256": "56e839c2c096a9ad64d3970d3c243b565e4873da3aaf308d7d74f36ebdf91681",
+    "identity_checked_signal_attempts": [
+      {
+        "utc": "2026-11-04T07:30:06.838389+00:00",
+        "signal": 9,
+        "sent": false,
+        "reason": "PROCESS_IDENTITY_CHANGED_OR_ENDED"
+      }
+    ],
+    "owned_child_pidfd_containment_requested": true,
+    "resource_stop_reason": "MONITOR_FAILED_CLOSED",
+    "monitor_exception": "RuntimeError('Live payload leader missing from RSS observation')",
+    "SIGKILL_requested_at_utc": "2026-11-04T07:30:06.838409+00:00",
+    "ended_at_utc": "2026-11-04T07:30:06.940709+00:00",
+    "actual_cpu_seconds": 4.7741180000000005,
+    "elapsed_wall_seconds": 3.138924970000062,
+    "peak_rss_kib": 107856,
+    "exit_code": 0,
+    "wall_terminated": false,
+    "hard_killed": true,
+    "memory_terminated": false,
+    "monitor_failed": true,
+    "cpu_terminated": false,
+    "peak_actual_cpu_seconds_sampled": 4.66,
+    "memory_monitor_samples": 30,
+    "peak_group_rss_bytes_sampled": 110313472,
+    "peak_cgroup_memory_bytes_sampled": 1924648960,
+    "log_sha256": "6802e0cea89ca704b6c0ea7e847c0eb129ce9ed7f65430d30b0995d83fee30e7"
+  },
+  "parent_status_remains": "PARTIAL_OR_FAILED",
+  "monitor_failure_remains": true,
+  "root_approval_issued_by_this_audit": false,
+  "recommendation": "Eligible for explicit root hash-bound forensic release of only these five complete saved units, conditional on full stock-vs-segment numerical verification. Parent remains failed; group KILL was not sent, but pidfd containment KILL was requested. Do not relabel healthy or assert no signal request.",
+  "snapshot_manifest_sha256": "a0617e2f3c9a204c7b2475cdf9db03efdaf4595545fe9caaa75c7f0ca83460b5",
+  "hessian_worker_sha256": "d23c4a3185aa4f666e22d671034728c1ca2443676a05fc8bec0587d6c8d6bf03",
+  "complete_prefix_indices": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+  ],
+  "allowed_records_for_root_review": [
+    {
+      "path": "/workspace/research4/outputs/pyscf-sdf-continuation-20261103-v1/ethanol-restart-validation/units/000005-diag-0005/attempt-000001/complete.json",
+      "sha256": "b536828b4752de73727efb69e44def7eb30036f87180fdf71969f6f3a6e5bf24",
+      "producer_proof_sha256": "56e839c2c096a9ad64d3970d3c243b565e4873da3aaf308d7d74f36ebdf91681"
+    },
+    {
+      "path": "/workspace/research4/outputs/pyscf-sdf-continuation-20261103-v1/ethanol-restart-validation/units/000006-diag-0006/attempt-000001/complete.json",
+      "sha256": "f7e189b9b633af81449f9138d4fd70c75e9fdeac65e39742e9c35abc4df73e7a",
+      "producer_proof_sha256": "56e839c2c096a9ad64d3970d3c243b565e4873da3aaf308d7d74f36ebdf91681"
+    },
+    {
+      "path": "/workspace/research4/outputs/pyscf-sdf-continuation-20261103-v1/ethanol-restart-validation/units/000007-diag-0007/attempt-000001/complete.json",
+      "sha256": "d9a2f16f32adec961a43bc777dcc0066d02f1a6c0e3139b392d9a06f9ce98b6d",
+      "producer_proof_sha256": "56e839c2c096a9ad64d3970d3c243b565e4873da3aaf308d7d74f36ebdf91681"
+    },
+    {
+      "path": "/workspace/research4/outputs/pyscf-sdf-continuation-20261103-v1/ethanol-restart-validation/units/000008-diag-0008/attempt-000001/complete.json",
+      "sha256": "f808159a06a1445a0240d6fb72275f47a37d4c9e4a19cbb0a7aed06c83a7c581",
+      "producer_proof_sha256": "56e839c2c096a9ad64d3970d3c243b565e4873da3aaf308d7d74f36ebdf91681"
+    },
+    {
+      "path": "/workspace/research4/outputs/pyscf-sdf-continuation-20261103-v1/ethanol-restart-validation/units/000009-row-0000/attempt-000001/complete.json",
+      "sha256": "f545fa2d140b940b19ff19f164f5ef406ee2b918042b068346e5933e69ba13da",
+      "producer_proof_sha256": "56e839c2c096a9ad64d3970d3c243b565e4873da3aaf308d7d74f36ebdf91681"
+    }
+  ],
+  "array_payloads": [
+    {
+      "unit_index": 5,
+      "array": "jdiag",
+      "path": "/workspace/research4/outputs/pyscf-sdf-continuation-20261103-v1/ethanol-restart-validation/units/000005-diag-0005/attempt-000001/jdiag.npy",
+      "shape": [
+        3,
+        3
+      ],
+      "sha256": "d32cd0045bb8b801f78eadd5afa7635ff5a8c8b7500524f4c4c0c3a36575431a",
+      "all_finite": true
+    },
+    {
+      "unit_index": 6,
+      "array": "jdiag",
+      "path": "/workspace/research4/outputs/pyscf-sdf-continuation-20261103-v1/ethanol-restart-validation/units/000006-diag-0006/attempt-000001/jdiag.npy",
+      "shape": [
+        3,
+        3
+      ],
+      "sha256": "5674eb0d788c402d38aa0ddc76e4b0a0f3870059d7092528f9a0aad19512386e",
+      "all_finite": true
+    },
+    {
+      "unit_index": 7,
+      "array": "jdiag",
+      "path": "/workspace/research4/outputs/pyscf-sdf-continuation-20261103-v1/ethanol-restart-validation/units/000007-diag-0007/attempt-000001/jdiag.npy",
+      "shape": [
+        3,
+        3
+      ],
+      "sha256": "c9b295d86c4f3bb1a028238e1d7b6177f409812361ec5a3b113a9a2919eb40d2",
+      "all_finite": true
+    },
+    {
+      "unit_index": 8,
+      "array": "jdiag",
+      "path": "/workspace/research4/outputs/pyscf-sdf-continuation-20261103-v1/ethanol-restart-validation/units/000008-diag-0008/attempt-000001/jdiag.npy",
+      "shape": [
+        3,
+        3
+      ],
+      "sha256": "33d7110a2d83cef8bde2c31706f01a1ecaf8e82f5e94673b0c44f2cc3003ea4c",
+      "all_finite": true
+    },
+    {
+      "unit_index": 9,
+      "array": "e1",
+      "path": "/workspace/research4/outputs/pyscf-sdf-continuation-20261103-v1/ethanol-restart-validation/units/000009-row-0000/attempt-000001/e1.npy",
+      "shape": [
+        1,
+        3,
+        3
+      ],
+      "sha256": "4b4ba9f779f0170bc37d1979b42a6851d54e56754fc867f8d0d5fdfa7b37331f",
+      "all_finite": true
+    },
+    {
+      "unit_index": 9,
+      "array": "ej",
+      "path": "/workspace/research4/outputs/pyscf-sdf-continuation-20261103-v1/ethanol-restart-validation/units/000009-row-0000/attempt-000001/ej.npy",
+      "shape": [
+        1,
+        3,
+        3
+      ],
+      "sha256": "af6e061bb850bde34f077882700f5a536e83d84b499075321eac92a862d75bdb",
+      "all_finite": true
+    }
+  ],
+  "native_calls_all_returned": true,
+  "state_unchanged": true,
+  "actual_parent_wait4_CPU_seconds": 4.7741180000000005,
+  "scientific_scope": "Five complete RHF helper units; no full Hessian or frequencies in this segment.",
+  "quantum_evaluations": 0,
+  "pyscf_imported": false,
+  "audit_source_sha256": "5cfb9d81045fa25ef9e1148bc92a74262f70289dd5c0f42534d3a1bf8f5b445e",
+  "input_files": {
+    "reports/pyscf-sdf-continuation-20261103-v1/cpu_budget.json": {
+      "sha256": "072e70fa71b4f3434412e35837b221e9bdded4b48c48f10ea2f870531eb1cc5a",
+      "bytes": 49919
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/execution/validation-ethanol-segment-002.log.supervisor-proof.json": {
+      "sha256": "56e839c2c096a9ad64d3970d3c243b565e4873da3aaf308d7d74f36ebdf91681",
+      "bytes": 1634
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/execution/validation-ethanol-segment-002.log": {
+      "sha256": "6802e0cea89ca704b6c0ea7e847c0eb129ce9ed7f65430d30b0995d83fee30e7",
+      "bytes": 217
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/validation-ethanol-segment-002/result.json": {
+      "sha256": "09983594071393963e07872a28ae2a2706a6fe7dc87f3899def4e0c88d74d725",
+      "bytes": 27251
+    },
+    "scripts/pyscf_resumable_hessian_worker_20261103.py": {
+      "sha256": "d23c4a3185aa4f666e22d671034728c1ca2443676a05fc8bec0587d6c8d6bf03",
+      "bytes": 29389
+    },
+    "reports/pyscf-sdf-continuation-20261103-v1/validation-ethanol-prepare-001/exact-mf-snapshot/manifest.json": {
+      "sha256": "a0617e2f3c9a204c7b2475cdf9db03efdaf4595545fe9caaa75c7f0ca83460b5",
+      "bytes": 17193
+    },
+    "outputs/pyscf-sdf-continuation-20261103-v1/ethanol-restart-validation/header.json": {
+      "sha256": "5564292df416130258a7ba2f54962c20dfde2a87a83e1138b108f15ba492c1d1",
+      "bytes": 13517
+    },
+    "outputs/pyscf-sdf-continuation-20261103-v1/ethanol-restart-validation/units/000000-diag-0000/attempt-000001/complete.json": {
+      "sha256": "3bbf201bbfe665c97da7c8f55ba66324b0859aa19323e3054f30eac1f10afff9",
+      "bytes": 3490
+    },
+    "outputs/pyscf-sdf-continuation-20261103-v1/ethanol-restart-validation/units/000001-diag-0001/attempt-000001/complete.json": {
+      "sha256": "2f0b3dfe58cb8a646ee8d4c9411333902de8b0f6bf72e923ad8f39b82fea4cf2",
+      "bytes": 3490
+    },
+    "outputs/pyscf-sdf-continuation-20261103-v1/ethanol-restart-validation/units/000002-diag-0002/attempt-000001/complete.json": {
+      "sha256": "40cb07fee151c540437194eb0a78c00434da5fb3a8fa2bd1f76416e9e0798744",
+      "bytes": 3490
+    },
+    "outputs/pyscf-sdf-continuation-20261103-v1/ethanol-restart-validation/units/000003-diag-0003/attempt-000001/complete.json": {
+      "sha256": "1cd15fb8282ed2b3a11f96021cf4877330e63a80461ccccf7c9c8ed7b3d1fbad",
+      "bytes": 3490
+    },
+    "outputs/pyscf-sdf-continuation-20261103-v1/ethanol-restart-validation/units/000004-diag-0004/attempt-000001/complete.json": {
+      "sha256": "b186d05ba19b4a1b13d3569acd3f08062155c9adf184000a751b72265852c78e",
+      "bytes": 3490
+    },
+    "outputs/pyscf-sdf-continuation-20261103-v1/ethanol-restart-validation/units/000005-diag-0005/attempt-000001/complete.json": {
+      "sha256": "b536828b4752de73727efb69e44def7eb30036f87180fdf71969f6f3a6e5bf24",
+      "bytes": 3491
+    },
+    "outputs/pyscf-sdf-continuation-20261103-v1/ethanol-restart-validation/units/000005-diag-0005/attempt-000001/jdiag.npy": {
+      "sha256": "d32cd0045bb8b801f78eadd5afa7635ff5a8c8b7500524f4c4c0c3a36575431a",
+      "bytes": 200
+    },
+    "outputs/pyscf-sdf-continuation-20261103-v1/ethanol-restart-validation/units/000006-diag-0006/attempt-000001/complete.json": {
+      "sha256": "f7e189b9b633af81449f9138d4fd70c75e9fdeac65e39742e9c35abc4df73e7a",
+      "bytes": 3491
+    },
+    "outputs/pyscf-sdf-continuation-20261103-v1/ethanol-restart-validation/units/000006-diag-0006/attempt-000001/jdiag.npy": {
+      "sha256": "5674eb0d788c402d38aa0ddc76e4b0a0f3870059d7092528f9a0aad19512386e",
+      "bytes": 200
+    },
+    "outputs/pyscf-sdf-continuation-20261103-v1/ethanol-restart-validation/units/000007-diag-0007/attempt-000001/complete.json": {
+      "sha256": "d9a2f16f32adec961a43bc777dcc0066d02f1a6c0e3139b392d9a06f9ce98b6d",
+      "bytes": 3491
+    },
+    "outputs/pyscf-sdf-continuation-20261103-v1/ethanol-restart-validation/units/000007-diag-0007/attempt-000001/jdiag.npy": {
+      "sha256": "c9b295d86c4f3bb1a028238e1d7b6177f409812361ec5a3b113a9a2919eb40d2",
+      "bytes": 200
+    },
+    "outputs/pyscf-sdf-continuation-20261103-v1/ethanol-restart-validation/units/000008-diag-0008/attempt-000001/complete.json": {
+      "sha256": "f808159a06a1445a0240d6fb72275f47a37d4c9e4a19cbb0a7aed06c83a7c581",
+      "bytes": 3491
+    },
+    "outputs/pyscf-sdf-continuation-20261103-v1/ethanol-restart-validation/units/000008-diag-0008/attempt-000001/jdiag.npy": {
+      "sha256": "33d7110a2d83cef8bde2c31706f01a1ecaf8e82f5e94673b0c44f2cc3003ea4c",
+      "bytes": 200
+    },
+    "outputs/pyscf-sdf-continuation-20261103-v1/ethanol-restart-validation/units/000009-row-0000/attempt-000001/complete.json": {
+      "sha256": "f545fa2d140b940b19ff19f164f5ef406ee2b918042b068346e5933e69ba13da",
+      "bytes": 3723
+    },
+    "outputs/pyscf-sdf-continuation-20261103-v1/ethanol-restart-validation/units/000009-row-0000/attempt-000001/e1.npy": {
+      "sha256": "4b4ba9f779f0170bc37d1979b42a6851d54e56754fc867f8d0d5fdfa7b37331f",
+      "bytes": 200
+    },
+    "outputs/pyscf-sdf-continuation-20261103-v1/ethanol-restart-validation/units/000009-row-0000/attempt-000001/ej.npy": {
+      "sha256": "af6e061bb850bde34f077882700f5a536e83d84b499075321eac92a862d75bdb",
+      "bytes": 200
+    }
+  },
+  "corrected_at_utc": "2026-11-04T07:33:47.341069+00:00",
+  "supersedes_signal_wording_in": {
+    "audit_sha256": "51108da86227654bc46645a9cec7a9aee60f1dc8d28ef987dcfcc9ed13e7b5f7",
+    "index_sha256": "3b965ab2d2f5ce81f4587d49a8cd7d562f0357b2b758cb66eb9a68b3464e95bc"
+  },
+  "correction_source_sha256": "b922114f6c5ea510ee1387579eddb4d12fe296aa581a4e05f7d6f7cba2841718",
+  "group_KILL_sent": false,
+  "owned_child_pidfd_containment_requested": true,
+  "pidfd_KILL_impact": "UNKNOWN; a request was recorded successful; actual wait4 exit0 shows the child was not reaped as SIGKILL-terminated. Do not infer that no signal request occurred."
+}

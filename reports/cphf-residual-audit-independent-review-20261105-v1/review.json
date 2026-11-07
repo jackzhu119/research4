@@ -1,0 +1,63 @@
+{
+  "schema": "research4-cphf-residual-audit-independent-static-review-v1",
+  "created_at_utc": "2026-11-05T15:30:17.095772+00:00",
+  "status": "STATIC_READY_FOR_ROOT_OPTIONAL_REAL_CONTROLS_NOT_NUMERICAL_VALIDATION",
+  "source": {
+    "path": "/workspace/research4/scripts/audit_pyscf_saved_cphf_residual_20261105.py",
+    "sha256": "6ff1df9930257f33637a34cfc58ba01b0fe38c246458ab704891663efbef800c",
+    "bytes": 22802
+  },
+  "tests": {
+    "path": "/workspace/research4/tests/test_saved_cphf_residual_audit_stdlib.py",
+    "sha256": "e7d0917113fe94ae120a3e371ed8b85f8178a230c8b5e23ad2033338df608b99",
+    "bytes": 8564
+  },
+  "actual_independent_tests": {
+    "command": "python -B -m unittest discover -s tests -p test_saved_cphf_residual_audit_stdlib.py -v",
+    "count": 10,
+    "failures": 0,
+    "errors": 0,
+    "reported_seconds": 0.034,
+    "scope": "stdlib/synthetic safety and AST only"
+  },
+  "mathematical_review": {
+    "real_float64_closed_shell_RKS_level_shift0": true,
+    "MO_reconstruction": "U=C.T @ S @ saved_AO_coefficient_response; native coefficient response, not full orbital field derivative",
+    "overlap_derivative": "Exact native -int1e_ipovlp plus both atom-AO row/column contributions",
+    "virtual_residual": "(eps_a-eps_i)U_ai+H_ai-eps_i*Q_ai+freshV_ai(U), Eh/Bohr",
+    "occupied_gauge": "U_ji+Q_ji/2, 1/Bohr",
+    "energy_matrix_comparison": "(H-Q*eps_i+freshV(U))oo+Uoo*(eps_j-eps_i)-saved_MO_E1, Eh/Bohr",
+    "preconditioner": "virtual residual divided by finite nonzero native energy denominators; 1/Bohr",
+    "normalization": "Uoo+Uoo.T+Qoo; 1/Bohr",
+    "metrics": "Per nuclear RHS maxabs/Frobenius/RMS plus term-scaled relative virtual residual; no invented convergence cutoff",
+    "fresh_operator_required": "Native final fixed-point correction changes saved U after its last potential; reuse of pre-correction potential would produce a falsely zero virtual residual by construction",
+    "native_stopping_scope": "Krylov trial-direction norm and linear-dependence cutoff are not measured final residual; runtime lindep explicitly retained"
+  },
+  "execution_safety": {
+    "default_NOT_RUN_no_input_arrays": true,
+    "requires_real_frozen_V8_guard": true,
+    "main_pipeline_closed_state_SHA_and_nonblocking_queue_lock": true,
+    "ledger_only_current_audit_RUNNING": true,
+    "healthy_original_A_H1_V8_response_qualified": true,
+    "native_sources_and_full_AO_MO_operator_retained": true,
+    "exactly_one_fresh_fx_U_call_in_AST": true,
+    "no_SCF_response_solver_gradient_Hessian_computation_call": true,
+    "source_MF_and_input_race_rechecks": true,
+    "new_results_only_no_original_residual_rewrite": true,
+    "selected_atom_is_three_RHS_not_all225": true
+  },
+  "resolved_static_checks": {
+    "current_3a_response_physical_binding_contains_native_krylov_lindep": true,
+    "fresh_end_event_statement_count": 1,
+    "no_source_change_requested_from_resolved_suspicions": true
+  },
+  "actual_residuals": "NOT_RUN",
+  "actual_water_ethanol_residual_controls": "NOT_RUN",
+  "quantum_calls": 0,
+  "numpy_pyscf_imports": false,
+  "large_NPY_CHK_HDF_payloads_read": false,
+  "Git_commands": false,
+  "signals_sent": false,
+  "frozen_sources_modified": false,
+  "scientific_claim": "Optional same-operator equation audit, not independent full Spinosin DFT/Hessian recomputation; root must choose execution only after all main Q closed and within remaining registered resource budget"
+}

@@ -1,0 +1,192 @@
+{
+  "status": "SOURCE_SUPPORTED_NATIVE_BUFFER_AS_INCOMPATIBILITY_V6_VALIDATION_REQUIRED",
+  "created_at_utc": "2026-11-01T07:11:47.143037+00:00",
+  "new_quantum_or_response_calls": 0,
+  "failed_source_phase": {
+    "phase": "water_direct_v5_block_validation",
+    "started_at_utc": "2026-11-01T07:00:23.344857+00:00",
+    "status": "PARTIAL_OR_FAILED",
+    "command": [
+      ".runtime/bin/python",
+      "scripts/pyscf_spinosin_checkpointed_direct_worker_20261031.py",
+      "--phase",
+      "water-optfreq",
+      "--input-xyz",
+      "examples/gaussian/water.xyz",
+      "--output",
+      "reports/pyscf-spinosin-continuation-20261031-v2/water-direct-v5-optfreq",
+      "--grid-level",
+      "1",
+      "--maxsteps",
+      "35",
+      "--threads",
+      "4",
+      "--hessian-block-atoms",
+      "2",
+      "--hessian-cache-dir",
+      "outputs/pyscf-spinosin-continuation-20261031-v2/hessian-cache/water-direct-v5-optfreq"
+    ],
+    "log": "/workspace/research4/reports/pyscf-spinosin-continuation-20261031-v2/execution/water_direct_v5_block_validation.log",
+    "granted_cpu_seconds": 300,
+    "cpu_soft_limit_seconds": 240,
+    "cpu_hard_limit_seconds": 300,
+    "cpu_cleanup_margin_seconds": 60,
+    "cpu_boundary_reserve_seconds": 10,
+    "wall_limit_seconds": 300,
+    "wall_cleanup_seconds": 60,
+    "wall_SIGTERM_after_seconds": 240,
+    "address_space_limit_gib": 12,
+    "threads": 4,
+    "environment_thread_limits": {
+      "OMP_NUM_THREADS": "4",
+      "OPENBLAS_NUM_THREADS": "4",
+      "MKL_NUM_THREADS": "4",
+      "NUMEXPR_NUM_THREADS": "4"
+    },
+    "pid": 2600,
+    "ended_at_utc": "2026-11-01T07:00:25.154369+00:00",
+    "actual_cpu_seconds": 4.322317,
+    "elapsed_wall_seconds": 1.8091108080002414,
+    "peak_rss_kib": 167632,
+    "exit_code": 1,
+    "wall_terminated": false,
+    "hard_killed": false,
+    "log_sha256": "bc835ec722f1720eb24025501c38077f5db4247cd568112eec18c5f2de16b255"
+  },
+  "batch_not_asserted_final": true,
+  "original_failure_scene_modified": false,
+  "synthetic_result_json_created_for_failed_source": false,
+  "observed_malloc_failure_bytes": [
+    533459336,
+    533459336
+  ],
+  "observed_partial_Hessian_and_all_H1_saves_valid": [
+    {
+      "path": "/workspace/research4/outputs/pyscf-spinosin-continuation-20261031-v2/hessian-cache/water-direct-v5-optfreq/partial_hessian.npy",
+      "file_sha256": "1c943991542258d9170281050bf1be500bd15e66a4aa4944153ccb208206498f",
+      "shape": [
+        3,
+        3,
+        3,
+        3
+      ],
+      "finite": true
+    },
+    {
+      "path": "/workspace/research4/outputs/pyscf-spinosin-continuation-20261031-v2/hessian-cache/water-direct-v5-optfreq/H1AO/atom_000.npy",
+      "file_sha256": "9784cb84662e60a69024686f555bb04af0f310b1cc95d312db592146a986ae84",
+      "shape": [
+        3,
+        24,
+        24
+      ],
+      "finite": true
+    },
+    {
+      "path": "/workspace/research4/outputs/pyscf-spinosin-continuation-20261031-v2/hessian-cache/water-direct-v5-optfreq/H1AO/atom_001.npy",
+      "file_sha256": "de831a039de249b904abba5b992bcdb61f05f92706bc852cb66a5a619f07d853",
+      "shape": [
+        3,
+        24,
+        24
+      ],
+      "finite": true
+    },
+    {
+      "path": "/workspace/research4/outputs/pyscf-spinosin-continuation-20261031-v2/hessian-cache/water-direct-v5-optfreq/H1AO/atom_002.npy",
+      "file_sha256": "c63d7f41f698929291e7b8d4606a90d5aa83dd30842a0ad6a12c29f52f893348",
+      "shape": [
+        3,
+        24,
+        24
+      ],
+      "finite": true
+    }
+  ],
+  "completed_response_blocks": 0,
+  "raw_manifest_status_left_unchanged": "RUNNING_CAPTURE_ONLY",
+  "why_no_Python_result_or_cleanup": "Official native allocation failure calls exit(1), bypassing Python exception/finally cleanup.",
+  "failed_closed_checkpoint_read_only": {
+    "path": "reports/pyscf-spinosin-continuation-20261031-v2/water-direct-v5-optfreq/calculation.chk",
+    "sha256": "8929c3d5117f36becf30b4dda089fc78dd471e9eb35b20df1e7072a18edea6c9",
+    "atoms": 3,
+    "electrons": 10,
+    "AO_MO_shape": [
+      24,
+      24
+    ],
+    "all_arrays_finite": true
+  },
+  "native_buffer_source_mechanism": {
+    "official_tag": "v2.14.0",
+    "per_thread_nominal_double_budget": 400000000,
+    "size_limit": "(400000000 - di**4*ncomp - cache_size) // n_dm",
+    "allocation_per_DM": "8 * (size_limit + 136**2)",
+    "allocated_in_each_OpenMP_thread_for_all_DM_scripts": true,
+    "mf_max_memory_controls_this_C_constant": false,
+    "Python_native_driver_has_max_memory_argument": false,
+    "C_exit_on_failure": true
+  },
+  "exact_arithmetic_under_expected_first_block_6_DM": {
+    "expected_requested_atom_directions": [
+      2,
+      3
+    ],
+    "n_dm_assumed": 6,
+    "C_call_DM_count_or_thread_count_instrumented_in_failed_process": false,
+    "inferred_size_limit_doubles": 66663921,
+    "allocation_bytes_for6arrays_per_thread": 3200756016,
+    "allocation_bytes_for4threads_if_simultaneously_live": 12803024064,
+    "address_space_cap_bytes": 12884901888,
+    "remaining_address_bytes_for_all_other_mappings": 81877824,
+    "recorded_peak_RSS_bytes_not_exact_failure_VmSize": 171655168,
+    "tiny_water_response_dm1_bytes_at6rhs": 27648,
+    "interpretation": "A normal6-RHS tiny-water density batch can invoke a per-thread hardcoded multi-GB native buffer budget. With4threads, almost the entire12GiB address cap is consumed before Python/libraries/stacks/other arrays."
+  },
+  "why_V4_success_does_not_establish_4thread_large_system_safety": {
+    "same_setting_4threads_V4_water_DONE": true,
+    "V4_frequency_result_sha256": "39ec0484e7f7c25a0fbee22130ebb64df45c163a965610758b0dc1c9c3599c96",
+    "source_AO_block_size": 64,
+    "water_AO": 24,
+    "source_has_nowait_work_loop_followed_by_perthread_free": true,
+    "hypothesis_not_measured": "For tiny water few integral work blocks, idle native threads may free their private buffers before all other threads finish allocations. Allocation scheduling/fragmentation or actual active-thread counts can differ. No failed-process VmSize/call-level thread trace was captured, so the exact V4/V5 difference is not proven."
+  },
+  "evidence_does_not_show": [
+    "No verified malformed MO/H1 shape or density-batch truncation was found.",
+    "Pure guard tests did not validate the numerical/native path; V5 water is a real failed gate.",
+    "The current audit has not measured a full runtime VmSize trace or run a repaired native wrapper."
+  ],
+  "bounded_repair_design_for_new_version_only": [
+    "Keep the12GiB address cap and exact screened-direct integral method/tolerance.",
+    "A process-local context wrapper around _vhf.nr_direct_drv can request one native OpenMP thread for SCF/CPHF and derivative direct_bindm/direct_mapdm calls, restoring prior thread state in finally.",
+    "Keep outer XC/other computation thread choices separately recorded; do not silently alter frozenV4/V5 or the installed library.",
+    "Actual V6 water Opt/Freq and native-thread instrumentation are required before treating the repaired route as validated.",
+    "Do not invent frequencies/results for this failed run or call saved partial/H1 arrays a resumable Hessian."
+  ],
+  "file_provenance": {
+    "reports/pyscf-spinosin-continuation-20261031-v2/v5-failure-audit/native_source_snapshots/nr_direct.c": "9c181daa8ce689e312e548694f47a2935105094fab1e685e82b4bf485e0639c4",
+    "reports/pyscf-spinosin-continuation-20261031-v2/v5-failure-audit/native_source_snapshots/nr_direct.h": "df7f96a170594e1d180a44cf2f0b1b5d1b00bbadd01e3ef288c23ecc15149a8f",
+    ".runtime/quantum-upgrade-site/pyscf/scf/_vhf.py": "ef0a04f43338780a7f57d9268f9634c1079ae989ba3030d6154c8612798f82ba",
+    ".runtime/quantum-upgrade-site/pyscf/lib/libcvhf.so": "5d7461e3976fd40fce7c9ba571e45b01830dd018d75927e389c32a6f4d09df0c",
+    "reports/pyscf-spinosin-continuation-20261031-v2/execution/water_direct_v5_block_validation.log": "bc835ec722f1720eb24025501c38077f5db4247cd568112eec18c5f2de16b255",
+    "reports/pyscf-spinosin-continuation-20261031-v2/water-direct-v5-optfreq/hessian_cache_manifest.json": "5aafbe037759de0793e6e600bc25f099f960bd328d8fe4fcf084a6e5f2e4a45e",
+    "ledger_snapshot_sha256": "c77ed50e6943698940fcca46188f34874f338fb87d2e20bd2220d8554e059345"
+  },
+  "official_source_provenance": [
+    {
+      "file": "nr_direct.c",
+      "repository": "pyscf/pyscf",
+      "ref": "v2.14.0",
+      "github_blob_sha": "c783583927aec15f624e0f38ec39e8762fe96452",
+      "url": "https://github.com/pyscf/pyscf/blob/v2.14.0/pyscf/lib/vhf/nr_direct.c"
+    },
+    {
+      "file": "nr_direct.h",
+      "repository": "pyscf/pyscf",
+      "ref": "v2.14.0",
+      "github_blob_sha": "4cce49d0c0f3e8a8631f3585796c33bca650c7ce",
+      "url": "https://github.com/pyscf/pyscf/blob/v2.14.0/pyscf/lib/vhf/nr_direct.h"
+    }
+  ],
+  "script_sha256": "1e127e8dc39507d0ad4300ed0e1b2229e6f2f0ff4376f19eca029760c499eb74"
+}

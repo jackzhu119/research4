@@ -1,0 +1,83 @@
+{
+  "status": "STATIC_REVIEW_SOURCE_ONLY_WITH_TWO_SMALL_INTEGRITY_GAPS",
+  "utc": "2026-11-04T17:47:51.494095+00:00",
+  "scope": "Read-only source/AST/schema review; future NN audit NOT_RUN",
+  "source_refs": [
+    {
+      "path": "scripts/audit_supplemental_multirepresentation_20261104.py",
+      "bytes": 30942,
+      "sha256": "3710e8124527f0f2816f141a1bb3d0a085b5eb90c3a6f9bfbc690b61cce33b1f"
+    },
+    {
+      "path": "scripts/run_supplemental_multirepresentation_20261104.py",
+      "bytes": 62371,
+      "sha256": "1b70e4c76df2ed9d840f5fdff3e9a982cba3f65fcd929b980cfe67ca1c292c38"
+    },
+    {
+      "path": "scripts/draft_supplemental_multirepresentation_20261104.py",
+      "bytes": 36996,
+      "sha256": "b27ca13dd18d7493ceaaa427167638b26a904921d34fff3802cb4e9b83907229"
+    },
+    {
+      "path": "tests/test_supplemental_multirepresentation_independent_audit.py",
+      "bytes": 3322,
+      "sha256": "68950eb82722be3f2c095ddaf2a4d9dbb56e3b1b56225a5c0779348329e1c9b9"
+    }
+  ],
+  "top_level_imports": [
+    "__future__",
+    "argparse",
+    "collections",
+    "csv",
+    "datetime",
+    "fcntl",
+    "hashlib",
+    "json",
+    "math",
+    "os",
+    "pathlib",
+    "resource",
+    "statistics",
+    "sys",
+    "time"
+  ],
+  "numerical_modules_loaded": [],
+  "arrays_read": 0,
+  "truth_files_read": 0,
+  "Q_files_or_ledger_read": 0,
+  "model_fits": 0,
+  "native_model_replays": 0,
+  "Git_operations": 0,
+  "large_artifact_hashing": 0,
+  "executed_audit_or_training": false,
+  "reviewed_behaviors": [
+    "registered terminal-Q authority plus actual local/global nonblocking flocks before numerical import",
+    "six healthy stage closures and cumulative resource ledger before numerical import",
+    "27 source fold/seed models and 24/48/96 epoch replay from source OOF predictions",
+    "36 final task/arm/seed models with source IDs and paired C/M initialization/order/parameter metadata",
+    "all36 frozen prediction ID/shape/class-column checks before first truth CSV read",
+    "54 per-seed and18 summary sampleSD groups;54 paired contrasts;9 same-old171 retention rows;27 new-three repeated prediction rows",
+    "manual metrics match executor true-present-stratum averaging definition"
+  ],
+  "findings": [
+    {
+      "id": "EXPANDED_STRATA_IDENTITY",
+      "severity": "small_scientific_integrity_gap",
+      "location": "audit(): expanded10 truth subset construction",
+      "issue": "Only171/3 stratum counts are checked; later same-old171 retention checks do not prove the legacy_exposed stratum itself equals original seven-class query IDs. An old/new stratum swap can pass.",
+      "minimal_repair": "Before metrics require legacy stratum IDs exactly equal task zaoren_legacy7 query IDs and new stratum IDs exactly equal expandedIDs minus originalIDs."
+    },
+    {
+      "id": "PREDICTION_METADATA_DIAGNOSTICS",
+      "severity": "small_audit_completeness_gap",
+      "location": "audit(): loop over locked predictions",
+      "issue": "Prediction metadata reference is hashed but its model_key/query_ids and actual pointwise/BN inference_audit fields are not independently checked. Actual frozen leaf already raises on failed audit.",
+      "minimal_repair": "Read the already small prediction metadata JSON and validate expected model_key, IDs and TECHNICAL_CHECK_PASS inference audit/unchanged state fields."
+    }
+  ],
+  "limitations": [
+    "This is code review, not numerical validation or a completed NN experiment.",
+    "No script was executed or imported; no numerical modules were loaded.",
+    "The two findings concern future audit completeness and are not evidence of changed labels or leakage in an executed experiment."
+  ]
+}

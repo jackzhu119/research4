@@ -1,0 +1,38 @@
+Traceback (most recent call last):
+  File "/workspace/research4/scripts/pyscf_resumable_hessian_worker_20261104_v5.py", line 414, in execute
+    raw = base._run_checkpointed_hessian_in_memory_context(hobj, saveonly,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/research4/scripts/pyscf_spinosin_parallel_hessian_worker_20261031.py", line 694, in _run_checkpointed_hessian_in_memory_context
+    result = hobj.kernel()
+             ^^^^^^^^^^^^^
+  File "/workspace/research4/.runtime/quantum-upgrade-site/pyscf/hessian/rhf.py", line 568, in kernel
+    de = self.hess_elec(mo_energy, mo_coeff, mo_occ, atmlst=atmlst)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/research4/.runtime/quantum-upgrade-site/pyscf/hessian/rhf.py", line 52, in hess_elec
+    de2 = hessobj.partial_hess_elec(mo_energy, mo_coeff, mo_occ, atmlst,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/research4/scripts/pyscf_spinosin_parallel_hessian_worker_20261031.py", line 581, in wrapped
+    value = original(*args, **kwargs)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/research4/.runtime/quantum-upgrade-site/pyscf/hessian/rks.py", line 83, in partial_hess_elec
+    vxc = _get_vxc_deriv2(hessobj, mo_coeff, mo_occ, max_memory)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/research4/.runtime/quantum-upgrade-site/pyscf/hessian/rks.py", line 403, in _get_vxc_deriv2
+    _d1d2_dot_(vmat[ia], mol, ao[1:4], aow, mask, ao_loc, False)
+  File "/workspace/research4/.runtime/quantum-upgrade-site/pyscf/hessian/rks.py", line 332, in _d1d2_dot_
+    vmat[d1,d2] += numint._dot_ao_ao(mol, ao1[d2], ao2[d1], mask,
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/research4/.runtime/quantum-upgrade-site/pyscf/dft/numint.py", line 682, in _dot_ao_ao
+    return lib.dot(ao1.conj().T, ao2)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/research4/.runtime/quantum-upgrade-site/pyscf/lib/numpy_helper.py", line 921, in dot
+    return ddot(a, b, alpha, c, beta)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/research4/.runtime/quantum-upgrade-site/pyscf/lib/numpy_helper.py", line 858, in ddot
+    return _dgemm(trans_a, trans_b, m, n, k, a, b, c, alpha, beta)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/research4/.runtime/quantum-upgrade-site/pyscf/lib/numpy_helper.py", line 993, in _dgemm
+    _np_helper.NPdgemm(ctypes.c_char(trans_b.encode('ascii')),
+  File "/workspace/research4/scripts/pyscf_resumable_hessian_worker_20261104_v5.py", line 336, in stop
+    raise base.BudgetStop("Supervisor resource signal " + str(signum))
+research4_v8_resumable_hessian_dependency.BudgetStop: Supervisor resource signal 15

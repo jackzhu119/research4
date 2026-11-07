@@ -1,0 +1,104 @@
+{
+  "schema": "research4-frozen815-actual-XC-queue-interruption-independent-diagnosis-v1",
+  "created_at_utc": "2026-11-05T02:37:50.514457+00:00",
+  "status": "ACTUAL_FAILURE_CONFIRMED_EXACT_TRIGGER_UNKNOWN",
+  "evidence": [
+    {
+      "path": "scripts/research4_quantum_queue_20261105.py",
+      "sha256": "815dca5a59706cf6a0fac67fc61e8abe77eb305ffcb0db385dfc32de6b7b1733",
+      "bytes": 27419
+    },
+    {
+      "path": "reports/pyscf-spinosin-grid-checkpoint-20261105-v7/queues/spinosin-xc-blocks-001/state.json",
+      "sha256": "88e2712c23aaed75e116897ae7d6b0aaff42713faace7d42b0e69ce7e2f8e1c3",
+      "bytes": 5834
+    },
+    {
+      "path": "reports/pyscf-spinosin-grid-checkpoint-20261105-v7/execution/v7-spinosin-C001-xc-deriv2-000-001.log.queue-console.log",
+      "sha256": "a97a0687d3b08515f4096f2025edf54b489998b08e820a575a71f5f5c9e740fa",
+      "bytes": 4135
+    },
+    {
+      "path": "reports/pyscf-spinosin-grid-checkpoint-20261105-v7/spinosin-C001-xc-deriv2-000-001/result.json",
+      "sha256": "0d3cad63ed1e3aff5e343218fcf0180271477a6016b3443892bf8611e72b7312",
+      "bytes": 52827
+    }
+  ],
+  "actual_phase": "v7-spinosin-C001-xc-deriv2-000-001",
+  "actual_guardian_returncode_from_queue_state": 1,
+  "actual_payload_exitcode": 2,
+  "actual_wait4_quantum_CPU_seconds": 2772.4671240000002,
+  "actual_payload_elapsed_wall_seconds": 1402.4849622129987,
+  "actual_peak_RSS_kib": 6483912,
+  "actual_peak_cgroup_bytes": 9208975360,
+  "guard_stop_reason": "SUPERVISOR_INTERRUPTED",
+  "guard_supervisor_signal": 15,
+  "wall_terminated_field": true,
+  "wall_flag_interpretation": "Original b985 marks supervisor interruption with wall_terminated=true; actual elapsed1402.48sec is below wall_SIGTERM10740sec. This flag does not prove a walltimeout. Do not rewrite it false.",
+  "guardian_received_signal15_and_forwarded_to_scientific_child": true,
+  "queue_terminate_sender_or_predicate_proven_from_captured_evidence": false,
+  "exact_originating_signal_sender_PID": "UNKNOWN_NOT_CAPTURED",
+  "exact815_stop_branch": "UNKNOWN_NOT_CAPTURED",
+  "captured_queue_invocation_own_CPU_seconds": 3.548921136,
+  "captured_queue_invocation_elapsed_wall_seconds": 1413.562737671993,
+  "own_last_RSS_and_possible_momentary_RSS_trigger": "Root reports26MB; old815 did not persist RSS at decision, so this review does not prove absence of an unobserved transient own-RSS threshold crossing.",
+  "static_active_stop_predicates": [
+    "pending SIGINT/SIGTERM/SIGXCPU boolean",
+    "UTC deadline minus60",
+    "monotonic deadline minus60",
+    "own CPU >=600-5",
+    "own RSS >=268435456",
+    "any conflicting_processes match"
+  ],
+  "static_observability_defect": "No exact chosen predicate, process matches, signal number/actor or before-terminate action record was persisted. Actual normal-loop guardianexitfailure state also does not exclude an external direct SIGTERM to guardian.",
+  "confirmed_static_classifier_defects": [
+    "Any argv0 basenamegit anywhere is a conflict, with no repository/cwd or readonly-command distinction.",
+    "Any argument basename matching ML script prefixes is labelledML regardless of actual executable/script position; read-only shell source searches can match.",
+    "A detected external Git/ML match while Q is active immediately terminates guardian, even when original resource guard has not reached a limit."
+  ],
+  "exact_scalar_AST_synthetic_classification_fixtures": [
+    {
+      "hypothetical_fixture": "readonly_git_status",
+      "old815_git": true,
+      "old815_ml": false,
+      "not_evidence_this_process_existed_at_actual_stop": true
+    },
+    {
+      "hypothetical_fixture": "readonly_shell_source_search",
+      "old815_git": false,
+      "old815_ml": true,
+      "not_evidence_this_process_existed_at_actual_stop": true
+    },
+    {
+      "hypothetical_fixture": "actual_queue_own_command",
+      "old815_git": false,
+      "old815_ml": false,
+      "not_evidence_this_process_existed_at_actual_stop": true
+    },
+    {
+      "hypothetical_fixture": "actual_guard_command",
+      "old815_git": false,
+      "old815_ml": false,
+      "not_evidence_this_process_existed_at_actual_stop": true
+    },
+    {
+      "hypothetical_fixture": "actual_XC_worker_command",
+      "old815_git": false,
+      "old815_ml": false,
+      "not_evidence_this_process_existed_at_actual_stop": true
+    }
+  ],
+  "fixtures_are_not_a_reconstruction_of_the_actual_unknown_sender": true,
+  "repair_recommendation": "Use NEW orchestrator source only: before-signal persisted typed decision+numeric limits+sanitized processidentity; capture signal number outside reentrant IO; actual executable/script/cwd classification; ignore classified readonlyGit while active; log writer/ML/unknown visibility and defer nextlaunch without killing healthy activeQ solely for conflicts; original b985 resource/CPU/wall safeguards remain authoritative; bounded waiting/stop and explicit rootfreshattempt after forensic closure.",
+  "failed_chunk_reusable_or_refunded": false,
+  "prior_healthy_diag0_state_preserved": true,
+  "scientific_status": "PARTIAL; this chunk has no arrays/fullRKS/fullHessian/frequencies",
+  "same_boot_scope": {
+    "current_boot_id": "50ca0010-b743-43c7-bc0f-b6bcbc47c68d",
+    "this_is_not_a_new_kernel_boot_recovery": true,
+    "sameboot_process_recovery": "fresh rootattempt for failedchunk only, preserve successfuldiag seal and all2772.467124CPUcost",
+    "whole_new_boot_crossboot_reuse": "NOT_VALIDATED. frozenA/G/plan exactboot gates require freshG and separately reviewed sourceversion; never relabel oldboot/G."
+  },
+  "this_review_no_Q_Git_numpy_largeIO_code_or_ledger_mutation": true,
+  "current_Q_ledger_not_read_by_this_review": true
+}

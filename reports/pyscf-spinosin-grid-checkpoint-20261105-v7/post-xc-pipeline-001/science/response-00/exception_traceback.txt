@@ -1,0 +1,46 @@
+Traceback (most recent call last):
+  File "/workspace/research4/scripts/pyscf_staged_consumer_20261105_v7.py", line 484, in execute
+    mo1, moe1 = hobj.solve_mo1(mf.mo_energy, mf.mo_coeff, mf.mo_occ, h1, fx=fx,
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/research4/.runtime/quantum-upgrade-site/pyscf/hessian/rhf.py", line 548, in solve_mo1
+    return solve_mo1(self.base, mo_energy, mo_coeff, mo_occ, h1ao,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/research4/.runtime/quantum-upgrade-site/pyscf/hessian/rhf.py", line 331, in solve_mo1
+    mo1, e1 = cphf.solve(fx, mo_energy, mo_occ, h1vo, s1vo,
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/research4/.runtime/quantum-upgrade-site/pyscf/scf/cphf.py", line 48, in solve
+    return solve_withs1(fvind, mo_energy, mo_occ, h1, s1,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/research4/.runtime/quantum-upgrade-site/pyscf/scf/cphf.py", line 130, in solve_withs1
+    mo1 = lib.krylov(vind_vo, mo1base.reshape(-1, nmo*nocc),
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/research4/.runtime/quantum-upgrade-site/pyscf/lib/linalg_helper.py", line 1310, in krylov
+    axt = aop(x1)
+          ^^^^^^^
+  File "/workspace/research4/.runtime/quantum-upgrade-site/pyscf/scf/cphf.py", line 124, in vind_vo
+    v = fvind(mo1).reshape(-1, nmo, nocc)
+        ^^^^^^^^^^
+  File "/workspace/research4/.runtime/quantum-upgrade-site/pyscf/hessian/rhf.py", line 355, in fx
+    v1 = vresp(dm1)
+         ^^^^^^^^^^
+  File "/workspace/research4/.runtime/quantum-upgrade-site/pyscf/scf/_response_functions.py", line 74, in vind
+    v1 = ni.nr_rks_fxc(mol, mf.grids, mf.xc, dm0, dm1, 0, hermi,
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/research4/.runtime/quantum-upgrade-site/pyscf/dft/numint.py", line 1502, in nr_rks_fxc
+    for i, ao, mask, wv in block_loop(ao_deriv):
+                           ^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/research4/.runtime/quantum-upgrade-site/pyscf/dft/numint.py", line 1481, in block_loop
+    rho1 = make_rho1(i, ao, mask, xctype)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/research4/.runtime/quantum-upgrade-site/pyscf/dft/numint.py", line 2985, in make_rho
+    return self.eval_rho1(mol, ao, dms[idm], sindex, xctype, hermi,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<string>", line 3, in eval_rho1
+  File "/workspace/research4/.runtime/quantum-upgrade-site/pyscf/dft/numint.py", line 290, in eval_rho1
+    c0 = _dot_ao_dm_sparse(ao[0], dm, nbins, screen_index, pair_mask, ao_loc)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/research4/.runtime/quantum-upgrade-site/pyscf/dft/numint.py", line 893, in _dot_ao_dm_sparse
+    fn(out.ctypes.data_as(ctypes.c_void_p),
+  File "/workspace/research4/scripts/pyscf_staged_consumer_20261105_v7.py", line 409, in stop
+    raise base.BudgetStop("V7 actual parent resource signal " + str(signum))
+research4_v7_frozen_native_thread_and_memory_helpers.BudgetStop: V7 actual parent resource signal 15
