@@ -1,0 +1,99 @@
+{
+  "schema": "research4-b-v6-independent-static-AH-science-review-v1",
+  "status": "PASS_STATIC_AH_REPAIR_CANDIDATE_REQUIRES_REAL_DISPLACED_SMOKE",
+  "reviewer": "recovery_science_audit",
+  "observed_at_utc": "2026-11-07T12:22:34.830542+00:00",
+  "worker": {
+    "path": "scripts/research4_b_validation_recovery_worker_v6_20261107.py",
+    "sha256": "7fa73772a9e909450454e6f219249cedbad677e3f967df8489e84cb2df942121",
+    "bytes": 106495
+  },
+  "previous_frozen_worker": {
+    "path": "scripts/research4_b_validation_recovery_worker_20261107.py",
+    "sha256": "e4765df0da4d59c55ac61d8121321b500fced067912a82e4337af61004103901",
+    "bytes": 105343
+  },
+  "tests_source": {
+    "path": "scripts/test_research4_b_validation_recovery_worker_v6_20261107.py",
+    "sha256": "f35911ba84ede6781f940e0e952be652ea9732e816bfe4b16c66d020d8e72ed5",
+    "bytes": 7827
+  },
+  "changed_functions_exact_AST_comparison": [
+    "run_warmstart_scf"
+  ],
+  "unchanged_function_count": 44,
+  "source_and_toy_bindings": {
+    "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-recovery-v6/preparation/ah_solver_diagnostics/source_refs.json",
+    "sha256": "2750298293079a6bcec089e05eb9b181768e599d5723863a13591592c8bc15fd",
+    "bytes": 1401
+  },
+  "copied_offline_diagnostics": [
+    {
+      "original": {
+        "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-recovery-v5/execution/offline_AH_solver_diagnostic_001.json",
+        "sha256": "bc8bfb929c55827e9ca0a28639e46e1945462e518a53cd298a74abe3b3b2a64f",
+        "bytes": 41231
+      },
+      "exact_byte_copy": {
+        "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-recovery-v6/preparation/ah_solver_diagnostics/offline_AH_solver_diagnostic_001.json",
+        "sha256": "bc8bfb929c55827e9ca0a28639e46e1945462e518a53cd298a74abe3b3b2a64f",
+        "bytes": 41231
+      }
+    },
+    {
+      "original": {
+        "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-recovery-v5/execution/offline_AH_solver_diagnostic_002.json",
+        "sha256": "5190793469115cb9d063c27022c43569068e557f36be4b3d1a94df8b974f404b",
+        "bytes": 8956
+      },
+      "exact_byte_copy": {
+        "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-recovery-v6/preparation/ah_solver_diagnostics/offline_AH_solver_diagnostic_002.json",
+        "sha256": "5190793469115cb9d063c27022c43569068e557f36be4b3d1a94df8b974f404b",
+        "bytes": 8956
+      }
+    }
+  ],
+  "findings_zh": [
+    "v6相对v5的唯一科学计算改变为轨道Newton/AH内层ah_conv_tol从默认1e-12收紧到1e-22，另改监督器路径并增加实际是否使用AH等元数据。",
+    "物理泛函、基组、原子几何、网格、积分screening、外层SCF能量1e-12/轨道梯度1e-9及最终独立Fock范数1e-8资格没有放宽；methodsettings和点/中心配组代码逐函数AST相同。",
+    "精确installed CIAH数学函数的离线SPD模型复现了默认容差提前接受不完整子空间、末次dxi缩成近零、下一宏循环子空间被丢后旋转严格为0；更严格子容差能在相同外层梯度门槛内收敛。",
+    "离线toy可支持修复假设，不可替代分子真实失败位移点的实际SCF和核梯度验收；之前中心案例初始梯度已低于门槛，不能证明AH对超阈值残差真正有效。"
+  ],
+  "checks": {
+    "only_inner_AH_tolerance_changed": true,
+    "solver_control_metadata_separate_from_physical_method_settings": true,
+    "actual_AH_used_false_if_CDIIS_finishes": true,
+    "actual_AH_used_true_only_when_solver_kernel_entered": true,
+    "previous_v5_value_and_actual_pre_override_value_recorded": true,
+    "all_other_functions_including_load_checkpoint_qualification_and_group_key_identical_AST": true,
+    "installed_math_source_hashes_match_offline_diagnostics": true,
+    "exact_byte_toy_copies_verified": true,
+    "original_v5_worker_and_diagnostics_unchanged": true,
+    "no_new_full_nuclear_Hessian_operation": true
+  },
+  "minimum_runtime_acceptance_gate": [
+    "Use at least one actual previously FAILED displaced-point checkpoint with hash/geometry/method lineage; a center-only test is insufficient.",
+    "Keep MF/qualified-center actual quadrature and method settings bound; no old failure or charge may be overwritten.",
+    "Require true solver convergence, finite complete nuclear gradients, independent fresh-Fock norm<=1e-8, real wait4 closure/cost and output seals.",
+    "Record whether AH was actually used and its starting/terminal gradient. A CDIIS-only smoke proves recovery of that point but does not itself prove the molecular AH repair mechanism.",
+    "Complete and verify the opposite signed partner before treating the pair as a directional curvature observation, and preserve the same qualified center E0.",
+    "Release the batch only after the selected real failed-point smoke passes; toy-only or already-stationary-center success is not enough."
+  ],
+  "test_evidence": {
+    "author_reported_non_quantum_tests_passed": 60,
+    "this_reviewer_reran_tests": false,
+    "this_reviewer_independently_reproduced_installed_CIAH_math_before_this_review": true,
+    "relevant_regressions_inspected": [
+      "strict inner AH tolerance reaches smaller actual linear residual against exact SPD solve",
+      "unchanged physical method/qualification AST",
+      "actual AH not used when CDIIS finishes",
+      "small seed discarded by metric threshold"
+    ]
+  },
+  "review_scope": "Static source/AST/hash review and exact byte copies only in this task. Prior diagnostic files used only NumPy/SciPy linear algebra extracted from installed source. No new molecular SCF/Fock/integral/grid/gradient/Hessian kernel or Git mutation, and no old artifact rewrite.",
+  "limitations": [
+    "The review does not certify all molecular modes, a global electronic state, nuclear minimum, full corrected Hessian, IR intensities or chemical peak assignment.",
+    "Actual molecular runtime acceptance is pending; a mathematical toy cannot guarantee budget or convergence.",
+    "CPU grant/ledger authorization is a separate root/supervisor review scope; this scientific source review does not issue a new allocation."
+  ]
+}
