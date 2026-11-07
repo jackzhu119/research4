@@ -1,0 +1,99 @@
+{
+  "schema": "research4-A006-metadata-return-independent-source-review-v1",
+  "status": "PASS_SCOPED_SOURCE_REVIEW_PENDING_FINAL_FROZEN_BINDINGS",
+  "reviewed_at_utc": "2026-11-07T01:25:40.658314+00:00",
+  "reviewer_task": "derivative_assembly_audit",
+  "sources": {
+    "wrapper_v6": {
+      "path": "scripts/run_research4_host_a_20261107_v6.py",
+      "sha256": "59d96f41cd98db911dc2f3b6e48397d94a4dcffc47b7c0449a537e9095911175",
+      "bytes": 10393
+    },
+    "uploader_v6": {
+      "path": "scripts/research4_host_a_git_return_20261107_v6.py",
+      "sha256": "a711ba01c0d227bd7ce6f97d63473ecb212c2b1bb6d4ed0393fd0c74e39d6bc0",
+      "bytes": 22396
+    },
+    "wrapper_v5": {
+      "path": "scripts/run_research4_host_a_20261107_v5.py",
+      "sha256": "2480931186e71fe26461ce8a4bdefa44faba7853c1e576e478874ec972ca6347",
+      "bytes": 8079
+    },
+    "uploader_v5b": {
+      "path": "scripts/research4_host_a_git_return_20261107_v5b.py",
+      "sha256": "16084b32932c5dc52d56a3c24485280b48de740ebacc19c645188c9afdefddb5",
+      "bytes": 22309
+    },
+    "metadata_tests": {
+      "path": "tests/test_host_a_v6_namespace_stdlib_20261107.py",
+      "sha256": "9d7d93912648098db7fd45646abcae47520d1a0e93b00b1ecf87a1dfbf7d3083",
+      "bytes": 19427
+    }
+  },
+  "validation": {
+    "command": "python -B tests/test_host_a_v6_namespace_stdlib_20261107.py",
+    "tests_run": 16,
+    "tests_passed": 16,
+    "test_exit_code": 0,
+    "elapsed_reported_seconds": 0.016,
+    "real_Git_commands_run_by_reviewer_or_test": 0,
+    "quantum_calculations_run_by_reviewer_or_test": 0,
+    "test_execution_scope": "Temporary files and mocked subprocess/process observations; source and metadata reads only"
+  },
+  "source_findings": {
+    "uploader_changed_functions_only": [
+      "expected_branch",
+      "work_path",
+      "collect_return_files",
+      "require_no_live_quantum_processes"
+    ],
+    "uploader_execute_return_AST_identical_to_v5b": true,
+    "uploader_proof_closure_and_historical_exception_functions_AST_identical_to_v5b": true,
+    "A006_namespace": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006",
+    "A006_resource_protocol_namespace": "reports/fixed-quadrature-convergence-20261107-v2/resource-protocol",
+    "registered_ledger": "reports/pyscf-spinosin-96h-continuation-20261105-v8/cpu_budget.json",
+    "cumulative_CPU_cap_seconds": 390160.8308359999,
+    "strict_deadline_UTC": "2026-11-09T08:25:17.730193+00:00",
+    "research_branch": "research/pyscf-spinosin-mechanism-20261031",
+    "placeholder_config_and_grant_hashes_fail_closed_before_file_or_process_calls": true,
+    "research_branch_Git_check_precedes_any_queue_launch": true,
+    "default_check_only_driver_argv_omits_execute": true,
+    "detach_requires_execute": true,
+    "finite_queue_invocations_max": 4,
+    "uploader_attempts_per_queue_max": 3,
+    "closed_budget_snapshots_exclusive_create": true,
+    "fresh_wrapper_queue_console_and_snapshot_records_required": true,
+    "live_fixed_grid_water_and_energy_workers_rejected_before_upload": true,
+    "no_new_provenance_or_resource_waiver": true,
+    "raw_native_logs_preserved_verbatim_with_committed_blob_SHA_verification": true,
+    "whitespace_lint_only_structured_text_metadata": true,
+    "per_file_and_total_upload_limits_unchanged": true,
+    "main_force_push_and_merge_policy_unchanged": true,
+    "actual_source_helper_sha256_field": "sha(__file__) retained in uploader receipt"
+  },
+  "nonblocking_inherited_operational_constraints": [
+    {
+      "condition": "Keep the base wrapper --attempt at most 49 characters and within the uploader SAFE_ID ASCII format.",
+      "reason": "The generated -q1-upload1 suffix adds 11 characters under the uploader maximum length of 60. Wrapper alone admits a longer base ID, which would fail upload after science.",
+      "severity_for_short_ASCII_launch": "NONBLOCKING_IF_FINAL_INVOCATION_RESPECTS_LIMIT"
+    },
+    {
+      "condition": "Use an absolute config state path or launch with cwd=/workspace/research4.",
+      "reason": "The wrapper reads Path(config[\"state\"]) after queue completion; this inherited read is cwd-relative when the config value is relative. Queue validation itself resolves its state against ROOT.",
+      "severity_for_absolute_state_or_ROOT_cwd_launch": "NONBLOCKING_IF_FINAL_BINDING_OR_CWD_RESPECTS_CONDITION"
+    },
+    {
+      "condition": "Treat the pre-Q Git operation specifically as a branch check.",
+      "reason": "It does not preflight index cleanliness or remote authorization. The uploader retains its separate empty-index, origin, closure, committed-blob and verified-ref checks.",
+      "severity": "SCOPE_CLARIFICATION"
+    }
+  ],
+  "pending_before_actual_launch": {
+    "config_and_grant_files_at_final_A006_paths": "NOT_PRESENT_AT_TIME_OF_THIS_SOURCE_REVIEW",
+    "config_and_grant_SHA_constants": "INTENTIONALLY_UNFILLED_AND_FAIL_CLOSED",
+    "required_root_action": "Freeze and bind exact approved A006 config/grant, fill only their reviewed SHA constants, record the resulting wrapper SHA, and verify the final short attempt and working directory/state-path constraints.",
+    "final_config_grant_manifest_and_invocation_scientific_authorization": "NOT_ASSERTED_BY_THIS_SOURCE_REVIEW",
+    "runtime_quantum_closure_and_upload_or_remote_ref_verification": "NOT_RUN_BY_THIS_REVIEWER"
+  },
+  "conclusion": "No new blocking implementation defect found in the scoped v6 changes for a short ASCII attempt, absolute state path or ROOT cwd, and subsequently frozen approved bindings. This source review does not itself release execution or assert that the final configuration, closure or actual push has passed."
+}
