@@ -1,0 +1,113 @@
+{
+  "schema": "research4-worker-b-validation-research-questions-v4",
+  "created_at_utc": "2026-11-07T02:59:41.146430+00:00",
+  "authorization": "User explicitly requests additional autonomous background verification and paper experiment design; original aggregate CPU cap and absolute deadline remain unchanged. No hourly reporting automation is created.",
+  "source_documents": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "8d245ce768aed30aa5684aadcd893b9604768b3b5042b8358bd74c156fd15a9f",
+      "bytes": 16344
+    },
+    {
+      "path": "docs/RESEARCH4_PAPER_C_MASTER_PLAN.md",
+      "sha256": "73942bcd0eb7641fce0736b4a1be8df9af52026b186fb0b1e8d3b1a7ff6b1b5c",
+      "bytes": 16573
+    },
+    {
+      "path": "docs/RESEARCH4_PARALLEL_CLOUD_PLAN_20261106.md",
+      "sha256": "e01516416191f21b51c1aa377e768f30c50b30a5b2cccff31ffab50827373863",
+      "bytes": 5662
+    },
+    {
+      "path": "docs/DATA_LEAKAGE_PREVENTION_PROTOCOL.md",
+      "sha256": "67c159cb064ac0a8bfa5486fcfa46ea039d44e8752407575f4cb5e69f3f4eeef",
+      "bytes": 11168
+    },
+    {
+      "path": "docs/DATA_EXPOSURE_REGISTER.md",
+      "sha256": "6b66ed096d650c57600acd4be0e467e640498b2013e9cbb65b1cf8c3107ab0ae",
+      "bytes": 9437
+    }
+  ],
+  "priority_order": [
+    "fixed-prediction paper diagnostics",
+    "water numerical controls",
+    "protocatechuic-acid quadrature convergence",
+    "calycosin selected-direction dense-grid checks"
+  ],
+  "resource_scope": {
+    "cpu_cap_seconds": 58800,
+    "carry_actual_closed_cpu_seconds": 46361.060959,
+    "permanent_conservative_debit_cpu_seconds": 1000,
+    "starting_remaining_cpu_seconds": 11438.939041,
+    "deadline_utc": "2026-11-09T08:25:17.730193+00:00",
+    "threads": 2,
+    "address_space_gib": 12,
+    "rss_stop_gib": 8,
+    "reserve_cpu_seconds": 300,
+    "resource_policy": "Prioritize paired signed points; insufficient remaining resources produce explicit BLOCKED/NOT_RUN, never a reset or unpaired completion claim."
+  },
+  "questions": [
+    {
+      "id": "Q_GRID",
+      "question_zh": "原解析负曲率是否主要来自固定空间积分网格与随原子重建网格的离散函数差异？",
+      "design": "Same original molecular geometries and original Cartesian-unit mode directions; fixed center quadrature versus rebuilt atom-centered quadrature, levels3/5 for water and acid. Calycosin grid3 rebuilt checks. PBE/def2-SVP/noD3 retained.",
+      "primary_observations": [
+        "gradient and energy directional curvatures",
+        "difference between rebuilt False/True gradient-response controls on one SCF",
+        "grid3-to-grid5 changes where actually computed",
+        "translation control and actual quadrature metadata"
+      ],
+      "decision": "Report sign, absolute/relative discrepancies and step/grid changes. Agreement at sampled directions supports a quadrature explanation; it is not a full-Hessian or continuum-limit certificate.",
+      "numerical_settings": "New SCF conv_tol1e-12, explicit conv_tol_grad1e-9, fresh Fock orbital-gradient norm qualification1e-8; small_rho_cutoff0 disables density pruning while default angular pruning remains. Record all differences from historical grid1 settings."
+    },
+    {
+      "id": "Q_STEP_SCF",
+      "question_zh": "小步长异常是否由SCF密度误差放大，还是稳定的方向曲率？",
+      "design": "Paired +/- displacements at h=.001/.0005Bohr with independent final-Fock stationarity evidence and identical declared center energy settings.",
+      "decision": "No inference from one-sided energy lowering. If step convergence is poor or SCF fails independent qualification, preserve the result and label it unresolved; do not tune thresholds after seeing the outcome.",
+      "limitation": "The new Calycosin dense rebuilt-grid test does not isolate the historical fixed-grid density derivative discrepancy; its tight-SCF fixed-grid rerun remains NOT_RUN unless separately budgeted."
+    },
+    {
+      "id": "Q_CPHF",
+      "question_zh": "水单方向CPHF残差为何高于配置的迭代tol？",
+      "design": "Reuse frozen v3 center/orbitals and signed points; tighten requested CPHF tolerance and explicitly scope a smaller Krylov linear-dependency cutoff. Independently recompute physical equation residual. No package source edits, fresh SCF, or full Hessian.",
+      "decision": "A smaller residual supports solver stopping semantics for these directions; a normal solver return is not itself PASS, and the result does not certify untested molecular response blocks."
+    },
+    {
+      "id": "Q_PAPER_ERRORS",
+      "question_zh": "主模型总体高准确率是否掩盖少数类不确定性和持续错分样品？",
+      "design": "Use hash-bound existing five-fold R0-R4 predictions only; reproduce existing seven-test McNemar-Holm family and add per-class nominal exact recall intervals, fold/class confusion and persistent-error intersections. No fitting, model selection, new predictions, or seed selection.",
+      "decision": "Separate newly computed descriptive diagnostics from independently replayed prior analyses. Preserve all unfavorable classes and errors.",
+      "limitation": "All855 spectra are previously exposed development data, each origin has one lot, and OOF models share training samples. Nominal binomial and paired-test assumptions do not remove these dependencies or selection exposure."
+    }
+  ],
+  "paper_evidence_gaps": [
+    {
+      "id": "independent_batch_blind_test",
+      "status": "NOT_RUN_REQUIRES_NEW_PHYSICAL_DATA",
+      "reason_zh": "需覆盖原7来源的真正独立新批次、盲测与可追溯样品，当前855重新划分不能替代。"
+    },
+    {
+      "id": "minority_ZY02_confirmation",
+      "status": "NOT_RUN_REQUIRES_NEW_PHYSICAL_DATA",
+      "reason_zh": "ZY02目前5份，需新增独立样品而非重复增强。"
+    },
+    {
+      "id": "cross_batch_support_query",
+      "status": "NOT_RUN_REQUIRES_NEW_PHYSICAL_DATA",
+      "reason_zh": "真实跨批次少样本校准需来源/支持/查询互斥的新批次，原171协议仅回顾性内部验证。"
+    },
+    {
+      "id": "standard_THz_and_chemical_assay",
+      "status": "NOT_RUN_REQUIRES_LAB_VALIDATION",
+      "reason_zh": "标准品THz与HPLC/LC-MS、厚度/水分/仪器/单位及物种溯源缺口不能用分子计算填补。"
+    },
+    {
+      "id": "full_consistent_Hessian_and_IR",
+      "status": "NOT_RUN_IN_THIS_FINITE_QUEUE",
+      "reason_zh": "本轮有限方向曲率不构成全部正频率、极小点或化学峰归属；IR仍NOT_COMPUTED。"
+    }
+  ],
+  "preservation": "No original matrix, frequency classification, raw spectrum, prediction, failure cost, ledger, allocation, or historical report is overwritten."
+}
