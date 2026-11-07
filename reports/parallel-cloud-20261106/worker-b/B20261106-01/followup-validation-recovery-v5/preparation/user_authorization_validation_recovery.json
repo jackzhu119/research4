@@ -1,0 +1,54 @@
+{
+  "schema": "research4-b-validation-recovery-user-authorization-v5",
+  "recorded_at_utc": "2026-11-07T09:30:26.934046+00:00",
+  "user_instruction": "\u6388\u6743\u4f60\u66f4\u591a\u65f6\u95f4\uff0c\u6062\u590d\u4e00\u76f4\u7ee7\u7eed\u8dd1",
+  "interpretation": "Authorizes checkpoint diagnosis and repaired finite continuation. More time does not create or refund CPU; the original cap and still-sufficient deadline remain unchanged.",
+  "cpu_cap_seconds": 58800,
+  "deadline_utc": "2026-11-09T08:25:17.730193+00:00",
+  "recovery_boot_id": "d089ac25-54b5-42ba-ad6e-dca9a6678435",
+  "actual_closed_cpu_seconds": 49490.543988999976,
+  "permanent_conservative_debit_cpu_seconds": 1000,
+  "budget_charged_cpu_seconds": 50490.543988999976,
+  "remaining_cpu_seconds": 8309.456011000024,
+  "reserve_cpu_seconds": 300,
+  "old_successes_reused_without_recomputation": 43,
+  "old_guard_failures_charged_and_preserved": 5,
+  "predeclared_new_jobs": {
+    "checkpoint_probes": 2,
+    "repaired_centers": 5,
+    "signed_points": 20,
+    "aggregates": 6
+  },
+  "order": "Two independent probes, acid-g3-fixed and caly-g3-regrid representative centers, remaining centers, signed pairs, aggregates.",
+  "settings": {
+    "direct_scf_tol": 1e-15,
+    "scf_conv_tol": 1e-12,
+    "scf_conv_tol_grad": 1e-09,
+    "fresh_fock_gradient_qualification_max": 1e-08,
+    "small_rho_cutoff": 0,
+    "scf_solver": "warmstart_cdiis_then_newton",
+    "warmstart_scf_max_cycle": 8,
+    "newton_max_cycle": 12,
+    "newton_ah_max_cycle": 20,
+    "newton_ah_lindep": 1e-24
+  },
+  "probe_controls": {
+    "direct_scf_tolerances": [
+      1e-13,
+      1e-15
+    ],
+    "SCF_kernel_or_nuclear_gradient_runs": 0
+  },
+  "probe_decision_rule": "Probe results are recorded; they cannot silently change any predeclared numerical threshold or solver setting.",
+  "failure_policy": "Each old failed center has one remaining attempt; scientific qualification failures are not success and are not retried. No unknown closure restart; true operational retries require wait4 evidence and remaining pair budget.",
+  "predecessor_closure_review": {
+    "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-recovery-v5/preparation/v4_closure_remote_review.json",
+    "sha256": "3ab29353cb737a76cb8f406b028fbb8f9ca09b6639c8c7366808fe6855f6d19b"
+  },
+  "root_recovery_protocol": {
+    "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-recovery-v5/preparation/root_recovery_specification.json",
+    "sha256": "bdc2c85a4a66892cb511574107020e32202e26fc095a7c9d36a03e983687127c"
+  },
+  "hourly_automation_created": false,
+  "preservation": "Every old source, state, ledger, allocation, failure artifact and result remains unchanged."
+}

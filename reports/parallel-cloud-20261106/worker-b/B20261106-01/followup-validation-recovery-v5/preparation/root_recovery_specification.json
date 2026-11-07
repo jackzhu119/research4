@@ -1,0 +1,53 @@
+{
+  "schema": "research4-b-root-recovery-specification-v5",
+  "recorded_at_utc": "2026-11-07T09:25:24.040520+00:00",
+  "user_instruction": "授权你更多时间，恢复一直继续跑",
+  "authorization_scope": "Restore the finite background investigation and routine operational repairs. The existing absolute deadline still leaves sufficient wall time; no new CPU allocation is issued and no hourly reporting automation is created.",
+  "recovery_boot_id": "d089ac25-54b5-42ba-ad6e-dca9a6678435",
+  "predecessor_active_manifest": {
+    "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/manifest_v2_ROOT_AUTHORIZED.json",
+    "sha256": "e26ccf7ff25af88fad7be9a1f6fbc15b9a8faddee1d5d3c117123b114195f6cb"
+  },
+  "predecessor_ledger": {
+    "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/cpu_budget.json",
+    "sha256": "84b665228c82dd58ff1d05fcc1a269039244ac4fd903706bc744c12254017539"
+  },
+  "budget": {
+    "cap_cpu_seconds": 58800,
+    "actual_closed_cpu_seconds": 49490.543989,
+    "permanent_nonmeasured_conservative_debit_cpu_seconds": 1000,
+    "charged_cpu_seconds": 50490.543989,
+    "remaining_cpu_seconds": 8309.456011,
+    "reserve_cpu_seconds": 300,
+    "deadline_utc": "2026-11-09T08:25:17.730193+00:00"
+  },
+  "preserve": {
+    "old_successes_inherited_without_recalculation": 43,
+    "old_failed_closed_centers_retained_with_all_costs": 5,
+    "old_dependency_blocked_jobs": 26,
+    "old_state_and_ledger_and_allocation_and_source_immutable": true,
+    "new_unique_allocation_required": true
+  },
+  "scientific_recovery": {
+    "checkpoint_probes": "Two proof-gated checks, acid grid3 and Calycosin grid3: compare independent fresh Fock/energy/orbital gradients at direct_scf_tol1e-13 and1e-15 on the same old hash-bound checkpoint state. No old SCF convergence claim.",
+    "SCF": "Hash-bound read-only checkpoint density guess -> up to8 stock CDIIS cycles -> stock orbital Newton/AH fallback if needed. Moving-geometry source MO coefficients are used only to construct an initial density, never accepted as converged target orbitals.",
+    "SCF_energy_tolerance": 1e-12,
+    "SCF_internal_orbital_gradient_tolerance": 1e-09,
+    "independent_final_Fock_orbital_gradient_norm_qualification": 1e-08,
+    "new_uniform_direct_scf_tol": 1e-15,
+    "grid": "Keep v4 grids3/5, default angular pruning, small_rho_cutoff0. Fixed points consume the new center actual quadrature; rebuilt points retain False/True gradient controls and actual regenerated quadrature limitations.",
+    "Newton_semantics": "Orbital Newton solver only, no full nuclear Hessian. Copy genuine final solver orbitals/occupations/energy/convergence state back to the same base molecule/grid; recompute final energy and independent Fock qualification.",
+    "output_semantics": "Record solver transitions, source checkpoint hashes and actual residuals. Any nonconvergence/qualification failure remains negative or incomplete, without threshold relaxation or old result reclassification.",
+    "probe_interpretation": "No presumption that tighter integral screening improves the residual; report the comparison even when it is negative.",
+    "original_science_and_classification_and_IR": "Original matrices/frequencies/classifier unchanged; IR NOT_COMPUTED. Finite directions do not certify a full-dimensional minimum."
+  },
+  "execution_order": "Two probes -> acid grid3 and Calycosin grid3 representative centers -> remaining centers -> signed pairs -> aggregates. Root verifies real recovery of both molecules before leaving the detached queue.",
+  "attempt_limits": "Each previously failed center receives only one recovery attempt, preserving the cross-version total of2. Other original pending jobs have at most2 attempts. Guard stops, unknown costs, invalid seals and scientific failures are not blindly retried.",
+  "resource_limits": {
+    "numerical_threads": 2,
+    "address_space_gib": 12,
+    "rss_stop_gib": 8,
+    "pair_admission": "Both unfulfilled point caps plus reserve required before starting/retrying either sign."
+  },
+  "cross_boot_rule": "Only historical session enumeration may use an exact-source-hash scoped boot adapter after genuine closed wait4 accounting has been verified. Same-boot group checks, current live proofs, unknown-CPU blocking and all cost/hash/seal checks remain enforced."
+}

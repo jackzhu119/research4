@@ -1,0 +1,90 @@
+{
+  "schema": "research4-b-v5-independent-static-newton-science-review-v1",
+  "status": "PASS_STATIC_SCIENTIFIC_DESIGN_AND_IMPLEMENTATION",
+  "observed_at_utc": "2026-11-07T09:29:25.455993+00:00",
+  "reviewer": "recovery_science_audit",
+  "worker": {
+    "path": "scripts/research4_b_validation_recovery_worker_20261107.py",
+    "sha256": "e4765df0da4d59c55ac61d8121321b500fced067912a82e4337af61004103901",
+    "bytes": 105343
+  },
+  "examined_source_refs": [
+    {
+      "path": ".runtime/worker-b-20261106/venv/lib/python3.12/site-packages/pyscf/soscf/newton_ah.py",
+      "sha256": "7276458382a9530771b85b0c0d1aa39fd42d9b98e69c65d9b4a5410222a70c98",
+      "bytes": 42276
+    },
+    {
+      "path": ".runtime/worker-b-20261106/venv/lib/python3.12/site-packages/pyscf/soscf/ciah.py",
+      "sha256": "3343eee3fcfd237b302136a312059a3c417b93a30acd2c7239c6894b599dcc7e",
+      "bytes": 13862
+    },
+    {
+      "path": ".runtime/worker-b-20261106/venv/lib/python3.12/site-packages/pyscf/scf/hf.py",
+      "sha256": "34ea1a9057da3a2d5aa37fe51d4e7305580bcb8e0118a5f17ba95ba5bb36c22f",
+      "bytes": 94652
+    },
+    {
+      "path": ".runtime/worker-b-20261106/venv/lib/python3.12/site-packages/pyscf/scf/chkfile.py",
+      "sha256": "6dcaf06dd0d3e2ec4e474f903e986e6076f3e7e33d1318d1ca5c61abe7a054b0",
+      "bytes": 1490
+    },
+    {
+      "path": "scripts/research4_parallel_b_quantum_20261106.py",
+      "sha256": "a95d7cf972ba2b95da3f14a44bcfdf094d5ceb1db23bad2de559a123ee8bc9df",
+      "bytes": 31296
+    },
+    {
+      "path": "scripts/research4_b_validation_worker_20261107.py",
+      "sha256": "e142a53301ede54af3ffe6120ed86fc68117611ad1aaea99f06b9061c930310e",
+      "bytes": 81963
+    }
+  ],
+  "review_scope": "Static Python source and installed PySCF implementation only; no PySCF import, grid generation, SCF, Fock/integral evaluation, numerical quantum kernel, Git mutation, or original artifact rewrite was performed.",
+  "resolved_findings": [
+    {
+      "id": "MOVING_AO_NEWTON_INITIAL_GUESS",
+      "finding": "PySCF Newton accepts supplied MO coefficients without automatically orthonormalizing them on the target overlap; its source explicitly leaves this as TODO. Directly passing a center MO at a displaced geometry would be unsafe.",
+      "resolution": "The direct warmstart_newton mode is removed. Only source density is provided to short target-geometry CDIIS; the target eigensolution is then passed to orbital Newton if CDIIS did not converge."
+    },
+    {
+      "id": "NEWTON_BASE_STATE_SYNCHRONIZATION",
+      "finding": "PySCF second-order kernel writes converged/MO/energy results to the wrapper and does not automatically synchronize all base MF state.",
+      "resolution": "Recovery copies the actual solver coefficients, occupations, MO energies, total energy and convergence boolean to the same base MF, verifies base/grid/molecule/direct relationships, recomputes fresh total energy and final Fock gradient from that final density, and writes only the new output checkpoint."
+    },
+    {
+      "id": "DISPATCH_AND_PROVENANCE_METADATA",
+      "resolution": "point/fixed-grid-center/fixed-grid-point now call the recovery helper; checkpoint_probe is dispatched; warmstart CLI bindings exist; initial-density provenance records checkpoint use; actual SCF solver kernel calls are recorded as one or two."
+    }
+  ],
+  "scientific_checks": {
+    "closed_shell_source_checkpoint_dimensions_basis_ecp_atom_order_charge_spin_checked": true,
+    "source_checkpoint_geometry_bound_to_hash_verified_source_geometry": true,
+    "source_overlap_orthonormality_and_electron_trace_checked": true,
+    "displaced_source_density_only_initial_guess_not_target_convergence": true,
+    "interrupted_checkpoint_explicit_new_manifest_hash_binding_and_progress_energy_rule_1e_12": true,
+    "source_checkpoint_cannot_be_writable_output_and_is_rehashed_after_use": true,
+    "source_method_grid_level_primary_response_small_rho_settings_checked": true,
+    "fixed_grid_displacements_keep_actual_center_grid_hash": true,
+    "recovery_internal_energy_tol_1e_12_and_gradient_tol_1e_9_unchanged": true,
+    "fresh_independent_final_Fock_qualification_not_relaxed_above_norm_1e_8": true,
+    "strict_direct_integral_screening_1e_15_is_explicit_numerical_change_from_1e_13": true,
+    "Newton_AH_lindep_1e_24_explicit_not_stock_default_claim": true,
+    "same_base_grid_molecule_direct_no_DF_no_incore_ERI_guarded": true,
+    "probe_uses_frozen_density_no_SCF_convergence_claim_and_same_actual_grid_between_tolerances": true,
+    "fresh_energy_preserves_RKS_tagged_veff_metadata": true,
+    "no_full_nuclear_Hessian_recomputation_added": true,
+    "original_v4_worker_and_original_quantum_worker_hashes_unchanged": true
+  },
+  "test_evidence": {
+    "reported_by_worker_author": "50 non-quantum tests passed for this worker candidate.",
+    "this_reviewer_reran_tests": false,
+    "this_reviewer_performed_standard_library_AST_and_source_hash_checks": true
+  },
+  "limits": [
+    "Static approval does not guarantee actual recovery convergence or completion within remaining CPU limits. Actual solver return, fresh Fock residual, energy and grid observations remain necessary.",
+    "A converged checkpoint-initialized SCF and selected-direction derivative agreement do not certify a global electronic state, a full molecular minimum, a corrected full Hessian, or a chemical peak assignment.",
+    "The orbital Newton/AH solver uses electronic orbital Hessian-vector response, not a complete nuclear-coordinate Hessian.",
+    "All previous failed phases, signed frequencies, curvature classifications, CPU charges and the permanent conservative debit remain separate historical results."
+  ]
+}

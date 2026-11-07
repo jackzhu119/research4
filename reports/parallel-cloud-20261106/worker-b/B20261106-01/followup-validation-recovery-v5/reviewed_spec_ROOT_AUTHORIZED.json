@@ -1,0 +1,2195 @@
+{
+  "schema": "research4-b-validation-recovery-spec-v5",
+  "reserve_cpu_seconds": 300,
+  "source_refs": [
+    {
+      "path": "scripts/research4_b_validation_recovery_worker_20261107.py",
+      "sha256": "e4765df0da4d59c55ac61d8121321b500fced067912a82e4337af61004103901"
+    },
+    {
+      "path": "scripts/research4_b_validation_supervisor_recovery_20261107.py",
+      "sha256": "7e20292017b5d9d7a43dd24969053fb40361f572e1f52b28eae929ccb4eb310a"
+    },
+    {
+      "path": "scripts/prepare_research4_b_validation_recovery_20261107.py",
+      "sha256": "fa2cd5b261bc9963374034b7f87dbf223c51a7c757b0c41b0e01551a1175259f"
+    },
+    {
+      "path": "scripts/test_research4_b_validation_supervisor_recovery_20261107.py",
+      "sha256": "73ee2e9bf29df91714b45b232d96150697c9d3975d721aea381f6a464931240d"
+    },
+    {
+      "path": "scripts/test_research4_b_validation_recovery_worker_20261107.py",
+      "sha256": "7df72d56cc7e221aaef421021260fd1107c441b5a9c07ddb0cd580f2e2050388"
+    }
+  ],
+  "input_refs": [
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/paper-existing-prediction-validation-attempt001/result.json",
+      "sha256": "bbfc2f501ab9cd1b0f048179e0248a2657947b43f1cda4de755bcb1b21b3af32"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/water-cphf-tight-translate0-attempt001/result.json",
+      "sha256": "b26db83029e83c03b1fb0c4ca35c93a070028e82805f35f4fe7b46f94fea9fc1"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/water-cphf-tight-mode01-attempt001/result.json",
+      "sha256": "8fc9ea75fc22fb3c99ea166b08567d1c574edd267dada667d21cf368b548160a"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/water-g3-fixed-center-attempt001/result.json",
+      "sha256": "0444bce71addb7175c53933b148171bc58f2b15ab38a3c5d301ff9643a222b19"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/water-g3-fixed-translate0-h0010-minus-attempt001/result.json",
+      "sha256": "a90468263f9ff67424a2dcf6706f9c2e96624fc3db4efa74c150c4ca8ef242f7"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/water-g3-fixed-translate0-h0010-plus-attempt001/result.json",
+      "sha256": "ee24153183c2d4822c6f58f80f0a096fe46d7058d865a27b21df6c3db5018a58"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/water-g3-fixed-translate0-h0005-minus-attempt001/result.json",
+      "sha256": "006c30f3193664b9df65368457b971043a8a6111a7e30746e20b3a8dc8b87443"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/water-g3-fixed-translate0-h0005-plus-attempt001/result.json",
+      "sha256": "7e150b1e834408f8a33b1143e60b866f373db4461eb11827e542ca3c2f307b7a"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/water-g3-fixed-mode01-h0010-minus-attempt001/result.json",
+      "sha256": "55dec7ff395f190b065f711086fdcef5c50746d29a2ef6b733221f19e2fe8cf7"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/water-g3-fixed-mode01-h0010-plus-attempt001/result.json",
+      "sha256": "929f1d1f77302dd860eee7eb148f1376450c3c06940305f0b3b9fd6cead847f9"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/water-g3-fixed-mode01-h0005-minus-attempt001/result.json",
+      "sha256": "447c59915db8392a070adc98cca096fc0fd0284a392494433971ef1dd52ab1bf"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/water-g3-fixed-mode01-h0005-plus-attempt001/result.json",
+      "sha256": "c589bc71d9c1963147d81dc11eaa1ca8fee1fefe01e81d95b7d0f766c34db98d"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/water-g3-fixed-comparison-attempt001/result.json",
+      "sha256": "aabb13ca0545b45a5084a828151c5127eb8789d3bd96c739db6080012ded6a4c"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/water-g3-regrid-center-attempt001/result.json",
+      "sha256": "75182dc5719c3f3047cb5b9b9a96b4e06214eb0956dc7b0dbc51180456f7b5fb"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/water-g3-regrid-translate0-h0010-minus-attempt001/result.json",
+      "sha256": "1c838a60ac81b683ee4d64f2a65758749a904b5d76567cc6d24d2a9dfa419f85"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/water-g3-regrid-translate0-h0010-plus-attempt001/result.json",
+      "sha256": "81993ab5f4dfcc3f88b3aa46adfd192d38d817f19cb2cfd499fc143160bc25db"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/water-g3-regrid-translate0-h0005-minus-attempt001/result.json",
+      "sha256": "30e737f272a648f4531e6b96f04affa442fa638a441d45bae8fd912e98d923cf"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/water-g3-regrid-translate0-h0005-plus-attempt001/result.json",
+      "sha256": "c270bcd28b1456caca8f45603c1c6ff6d1c3e60333b6197e3f4ba75d142e73b2"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/water-g3-regrid-mode01-h0010-minus-attempt001/result.json",
+      "sha256": "944f0661ea7c355d2bb402e8678a5eb5850d8201e6f57145d0a0bd3a0b9c8436"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/water-g3-regrid-mode01-h0010-plus-attempt001/result.json",
+      "sha256": "293b70d22428ffd201b0722d5922f4031b2f8b2980c65472e235c2626ae22b25"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/water-g3-regrid-mode01-h0005-minus-attempt001/result.json",
+      "sha256": "08aad0ec16ed498cad5fe832e2c095d623f874a73b6ee0ea21cd5048256623cc"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/water-g3-regrid-mode01-h0005-plus-attempt001/result.json",
+      "sha256": "ed367c1822d2ad90d6948e05c0c6a6a4d578c9dd8ca0283a0b39cd237159c743"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/water-g3-regrid-comparison-attempt001/result.json",
+      "sha256": "ef8f1fe13c4ea68c207d4a59f97bc7688e1c0a1b2b9eae79cb78611ff71f6748"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/water-g5-fixed-center-attempt001/result.json",
+      "sha256": "e0a76919919e730bb419407b15a97d98ff4e3919f4b1a63fb955b70de36d19fd"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/water-g5-fixed-translate0-h0010-minus-attempt001/result.json",
+      "sha256": "79b213d0d17c5ce326c955ffdbdda79031e1576921a1513dec7fd4b2a1004608"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/water-g5-fixed-translate0-h0010-plus-attempt001/result.json",
+      "sha256": "c89a5580c75453f3c6294c05a6bd731f8f8562f64bcf13d98ccbfe8b4e0dc4ad"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/water-g5-fixed-translate0-h0005-minus-attempt001/result.json",
+      "sha256": "6d3573670c45fd3d8a93456727db888a2b34fef04b93d14aa050a1eb36fb301a"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/water-g5-fixed-translate0-h0005-plus-attempt001/result.json",
+      "sha256": "39b543a907e20924aff5059e2ef24c96e1dce24100a2d3d00c14e329342fba11"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/water-g5-fixed-mode01-h0010-minus-attempt001/result.json",
+      "sha256": "205c29cba65ada3e6f2286436e272d2da347582d03413883cbcb029125f66b3c"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/water-g5-fixed-mode01-h0010-plus-attempt001/result.json",
+      "sha256": "08468083a14b33372ec0c9675b134bd44390b08a98a177c26cfa7e63700daf91"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/water-g5-fixed-mode01-h0005-minus-attempt001/result.json",
+      "sha256": "b133cb7c24fb499bf027c74fe88c95886455f5287c243aa4878fa90eb1dc4a63"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/water-g5-fixed-mode01-h0005-plus-attempt001/result.json",
+      "sha256": "45c67ecae7cc28bcff322b6d7fe6908cdc95360c22ed6f45693288ca2b1fb2b4"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/water-g5-fixed-comparison-attempt001/result.json",
+      "sha256": "dbcad9b80aeae7e5d22e43ba7ec7ab6750f74bf1638a2635c5c359460e96f2db"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/water-g5-regrid-center-attempt001/result.json",
+      "sha256": "bf395199096d00824192a60972a7b8f91f9efefc4c6f8b71afca8f8ae514c0e1"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/water-g5-regrid-translate0-h0010-minus-attempt001/result.json",
+      "sha256": "731defc36cb75bbfa58980e33338e938bde8c08df3e7a75819a4f78206f12dac"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/water-g5-regrid-translate0-h0010-plus-attempt001/result.json",
+      "sha256": "f6ac5f06e163c661febea3313a4511921b36def5b5ccf8bc9c8bdd5bebdbc06e"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/water-g5-regrid-translate0-h0005-minus-attempt001/result.json",
+      "sha256": "154f7b2443a15bee25d53dc2f63782b477c70b5df968593f1ea3bf978bad85b1"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/water-g5-regrid-translate0-h0005-plus-attempt001/result.json",
+      "sha256": "5c6c80e36831ca2425a3e96b163bf9c257e3b433d2ee43df69b61903ba93d2fb"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/water-g5-regrid-mode01-h0010-minus-attempt001/result.json",
+      "sha256": "ce569b2680419bbafd83c9dff3067078b52de160748f45ff34c7318c994019e8"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/water-g5-regrid-mode01-h0010-plus-attempt001/result.json",
+      "sha256": "1acd35b5b599d2458bca326b6109bd0fe44895286622699c7c60e3a9d4ae9917"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/water-g5-regrid-mode01-h0005-minus-attempt001/result.json",
+      "sha256": "ca1f21e2fd4dbb99a593903e94f4e71b102d8f6353254e98d6d4902e75e13c5e"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/water-g5-regrid-mode01-h0005-plus-attempt001/result.json",
+      "sha256": "504c1a052241cb3f7bc358186bcd6dc4f030ee92ebb7159ca88a9a0d98d13253"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/water-g5-regrid-comparison-attempt001/result.json",
+      "sha256": "806317e94fda168b28f8d97bdba1e82a936874bcfec673c43a61e2dd1529ed7e"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-recovery-v5/preparation/v4_closure_remote_review.json",
+      "sha256": "3ab29353cb737a76cb8f406b028fbb8f9ca09b6639c8c7366808fe6855f6d19b"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-recovery-v5/preparation/root_recovery_specification.json",
+      "sha256": "bdc2c85a4a66892cb511574107020e32202e26fc095a7c9d36a03e983687127c"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-recovery-v5/preparation/independent_newton_science_review.json",
+      "sha256": "43ef85d3db32c6a35c768167965efe40fa8f0f403097250bd7161e956b02d7d7"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/manifest_v2_ROOT_AUTHORIZED.json",
+      "sha256": "e26ccf7ff25af88fad7be9a1f6fbc15b9a8faddee1d5d3c117123b114195f6cb"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/cpu_budget.json",
+      "sha256": "84b665228c82dd58ff1d05fcc1a269039244ac4fd903706bc744c12254017539"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/state.json",
+      "sha256": "129d11e3b1e56355f4f3f8bdcc3edf11c15e6594d4f797e20bacd5e1f4755cd5"
+    },
+    {
+      "path": "scripts/research4_b_validation_supervisor_20261107.py",
+      "sha256": "74b0ab7820f3e8abb636ba33ff1b9c7858dff4367ee97b5dde1512ff166f10fd"
+    },
+    {
+      "path": ".runtime/worker-b-validation-allocation.json",
+      "sha256": "441cb1864c9931273d5cc61a55d265efe37a1986e5354a6c32d72a91def6249d"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/acid-g3-fixed-center-attempt001/result.json",
+      "sha256": "c928f4b362c526f910f47b58bbb29fd5f1542851f2cbab0308eb927636636ec2"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/acid-g3-fixed-center-attempt001/fresh_point_scf.chk",
+      "sha256": "3543fc1f20b20ea533cd1f0f1a6b992dcfcaaa8d00b196d9275e0e126d8bc946"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/execution/acid-g3-fixed-center-attempt001.wait4.json",
+      "sha256": "89d6061e83fcbc0bce0022f1caf31c2ff8f890d83005f19fcc5891b1f8161856"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/acid-g3-fixed-center-attempt001/progress.json",
+      "sha256": "84cd4ccfae7db89dce8fcbe67d16ba525a10816b28a1b341cdf8a1d8e2605b19",
+      "bytes": 8591
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/caly-g3-regrid-center-attempt001/result.json",
+      "sha256": "cce9ef62f5efe796373e32887f8d6a72d105f0891a6a614f557e936558c91e52"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/caly-g3-regrid-center-attempt001/fresh_point_scf.chk",
+      "sha256": "7b14061f4b79464695d463b8acda23712aac76989009c1f00e07cdc4486e554c"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/execution/caly-g3-regrid-center-attempt001.wait4.json",
+      "sha256": "3257804cfa27c03be58e9333a2540bef79430618b2e2baae7dd09d1ff92e9827"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/caly-g3-regrid-center-attempt001/progress.json",
+      "sha256": "90e9a35562526882c994db32a95db8a85495ea0288a97dac0fe9e34043217a10",
+      "bytes": 8891
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/acid-g3-regrid-center-attempt001/result.json",
+      "sha256": "f1faba60e558c5d1721d91044edf3721f6e5f3ef1235471f656f8bd31d2f1d4d"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/acid-g3-regrid-center-attempt001/fresh_point_scf.chk",
+      "sha256": "fbb51e7f48c56195d03488349b2e13068e13fa8727566b1dd2a4a05684854bd1"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/execution/acid-g3-regrid-center-attempt001.wait4.json",
+      "sha256": "40e031aa95d342eb0b685506913abbd3e10cf3b8e0eab1b82ac8fa65b8a52174"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/acid-g3-regrid-center-attempt001/progress.json",
+      "sha256": "ca17a9e0eb7a9b21fef780bc12e70cea531a877678f6101721ffcdd4bccadf24",
+      "bytes": 8906
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/acid-g5-fixed-center-attempt001/result.json",
+      "sha256": "0c89e0c0a374167f5e241ed9d0ab704982f0246dcd5d6ec7edd2200e7078e4c6"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/acid-g5-fixed-center-attempt001/fresh_point_scf.chk",
+      "sha256": "1473346afaf8e1698e4554bb964538530d3bacb067a722011e0b933d4f23ea3b"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/execution/acid-g5-fixed-center-attempt001.wait4.json",
+      "sha256": "d53077004dc9669aaeb1b916e8b5e82f95ffe6e81cd56ebe248e5e1fc28df7b9"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/acid-g5-fixed-center-attempt001/progress.json",
+      "sha256": "7107267441a1862d69d5b4149e9ffbab432b1a286d150412ff0ad038b335c2f8",
+      "bytes": 8591
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/acid-g5-regrid-center-attempt001/result.json",
+      "sha256": "ee49488968930bfc1d4d589a38df31aebf5560f2dda2020bb30a01b41c62c99f"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/acid-g5-regrid-center-attempt001/fresh_point_scf.chk",
+      "sha256": "7be25f5125ae8d9496355280b2d6fe5f1419eac1cb3d56c87456b6c8b6525e44"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/execution/acid-g5-regrid-center-attempt001.wait4.json",
+      "sha256": "16709dc995654a9f3463d56878c22a0ff900929b6f53c1414d2b87490693b209"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/acid-g5-regrid-center-attempt001/progress.json",
+      "sha256": "a92a66b10031f822c44c515d761e68bfc08c10c1cc4b2a97bf0b7e733b5d5149",
+      "bytes": 8909
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-recovery-v5/preparation/checkpoint_input_bindings.json",
+      "sha256": "1977f1f22fcd6fd6f49680da91c4f036222a4403c957aba3177c1ec1ff7abf10"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-recovery-v5/preparation/user_authorization_validation_recovery.json",
+      "sha256": "2b48584787deab2622f391fa071ca05ab44d6f258b7f2d461690bda2806ca386"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-recovery-v5/preparation/source_snapshots/research4_b_validation_recovery_worker_20261107.py.txt",
+      "sha256": "e4765df0da4d59c55ac61d8121321b500fced067912a82e4337af61004103901"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-recovery-v5/preparation/source_snapshots/research4_b_validation_supervisor_recovery_20261107.py.txt",
+      "sha256": "7e20292017b5d9d7a43dd24969053fb40361f572e1f52b28eae929ccb4eb310a"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-recovery-v5/preparation/source_snapshots/prepare_research4_b_validation_recovery_20261107.py.txt",
+      "sha256": "fa2cd5b261bc9963374034b7f87dbf223c51a7c757b0c41b0e01551a1175259f"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-recovery-v5/preparation/source_snapshots/test_research4_b_validation_supervisor_recovery_20261107.py.txt",
+      "sha256": "73ee2e9bf29df91714b45b232d96150697c9d3975d721aea381f6a464931240d"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-recovery-v5/preparation/source_snapshots/test_research4_b_validation_recovery_worker_20261107.py.txt",
+      "sha256": "7df72d56cc7e221aaef421021260fd1107c441b5a9c07ddb0cd580f2e2050388"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-recovery-v5/preparation/source_snapshots/source_refs.json",
+      "sha256": "fb8a92cbc7a66ac383f4a2af41850e13b9c59646c4a9682c35867057db22dd08"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/requests/acid-g3-fixed-center.json",
+      "sha256": "1ae5142317f08dac26087efce036d8bb1d54fc24f3613849f6020059053e33e8"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-recovery-v5/requests/acid-g3-checkpoint-probe.json",
+      "sha256": "ef97c6e7d3273dfbf0f2c476e50e2a96d988671649f7544f9d6b31b3071b0efb"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/requests/caly-g3-regrid-center.json",
+      "sha256": "b29694095cdc9348a7542ee956213e98f4590590199f4664b72057f06c54cb19"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-recovery-v5/requests/caly-g3-checkpoint-probe.json",
+      "sha256": "5380b10f50a60164d958561134c8925e69c460e1831a4c8fda55d4a88739f732"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-recovery-v5/requests/acid-g3-fixed-center.json",
+      "sha256": "e435f986614eca219c01dd6ad3d30f70fd42cf7beb94740f0e981b93132f1ab3"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-recovery-v5/requests/caly-g3-regrid-center.json",
+      "sha256": "fb5c0928aa11c68fdd9dfafea57dfb083fcc847907e4a1b5b80798eb544a09db"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/requests/acid-g3-regrid-center.json",
+      "sha256": "0dff9b7994ff31c27ebded14631e9740fd630796111e003b81ca5bc49ccc68d0"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-recovery-v5/requests/acid-g3-regrid-center.json",
+      "sha256": "24149d121b0244fcd715f87972edade6699231349ab453dc870b68e738d33126"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/requests/acid-g5-fixed-center.json",
+      "sha256": "06f1d612c5f20a5edd237a62739d7058d7bde1e7e583162be87d13ff43d9f50f"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-recovery-v5/requests/acid-g5-fixed-center.json",
+      "sha256": "d17a4739c2028437b75c0fa4f26ca5f8cd850ade470ea27a1eb041e0e8200ac1"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/requests/acid-g5-regrid-center.json",
+      "sha256": "23f9620455cee444c2d5feb68bbfdc63e19d5bf16e5f146d681d1ec8f921fd3b"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-recovery-v5/requests/acid-g5-regrid-center.json",
+      "sha256": "d0114799172c113fc6cb8852b413360ed1af7c18e12a528b859ac97e4f9d9c6a"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/requests/acid-g3-fixed-mode01-h0010-minus.json",
+      "sha256": "68aab5ecf341ffedf570a79925cae95214da68ae0940463f77a7e2e2c2f74f33"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-recovery-v5/requests/acid-g3-fixed-mode01-h0010-minus.json",
+      "sha256": "a60e9b61c09eac7dd4872ae908b179984b85269bc22b9b7205d007eefe84fb08"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/requests/acid-g3-fixed-mode01-h0010-plus.json",
+      "sha256": "25086d139563af8a7b805418bbdfa3c4f3305f023562d7e3827a3c8d8ae682d0"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-recovery-v5/requests/acid-g3-fixed-mode01-h0010-plus.json",
+      "sha256": "a7a1ac5ebb9d16c6b70011879ebfd209d0aefaae18c9deb4842c04336ed0b902"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/requests/acid-g3-fixed-mode01-h0005-minus.json",
+      "sha256": "a8265dcb3c0d3a1b1d891c68d8cba0f32def47e5e7b4bdfa12d78ff71e9e8dd6"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-recovery-v5/requests/acid-g3-fixed-mode01-h0005-minus.json",
+      "sha256": "749836cfe19d5b4181e2ceb91673e0b285d1d15564495cd0c40185b8baff7782"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/requests/acid-g3-fixed-mode01-h0005-plus.json",
+      "sha256": "a905f99c9eab15f56118223110d83144cd23d508bd0dc7f2550b3b6f77bc05d7"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-recovery-v5/requests/acid-g3-fixed-mode01-h0005-plus.json",
+      "sha256": "d01be2a7921a40788d851c108417c757f794f876a58524b75107aa2d466711b2"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/requests/acid-g3-regrid-mode01-h0010-minus.json",
+      "sha256": "17f436894e83ccea6fa9e6a3b922f474d5a16e137d9aafd10a4e0936e834bb93"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-recovery-v5/requests/acid-g3-regrid-mode01-h0010-minus.json",
+      "sha256": "49cdda11c86cd8df91329258a74746e27edb8a4c689377060e44e7ac25ecafb1"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/requests/acid-g3-regrid-mode01-h0010-plus.json",
+      "sha256": "e77a3dd27fdb6fe943220dc47776825ccdee6d4a9c901f2f4511e5bac879a33d"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-recovery-v5/requests/acid-g3-regrid-mode01-h0010-plus.json",
+      "sha256": "aded23c0e41b252853245b391a1406b87a70f3ea91e726b84833f9f5c8a3704e"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/requests/acid-g3-regrid-mode01-h0005-minus.json",
+      "sha256": "88edab6c2f44c3af06417398ce01ca483ad277e33795b4b8602f873d5142c9e8"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-recovery-v5/requests/acid-g3-regrid-mode01-h0005-minus.json",
+      "sha256": "f8e818add67bd4bf660e200ca5cc1759f940b3505451f153dfb443ee6d5059be"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/requests/acid-g3-regrid-mode01-h0005-plus.json",
+      "sha256": "b16a7c05640b3fd78eb6c8eeec72248669d3696f61a0e0abe789b6c28b798d70"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-recovery-v5/requests/acid-g3-regrid-mode01-h0005-plus.json",
+      "sha256": "73c4dbbac250384c2079e7769194fa0eb86aeb216513871b6d41943f49e0f64e"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/requests/acid-g5-fixed-mode01-h0010-minus.json",
+      "sha256": "ffc2340df30b3c487938d195d86dc75842799e48e8f39e4191da9abb2f95c04d"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-recovery-v5/requests/acid-g5-fixed-mode01-h0010-minus.json",
+      "sha256": "3faced5c4dbe5451c4ddf3b296b15a22a8dd5f7f2579f121abbac670b43ae5db"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/requests/acid-g5-fixed-mode01-h0010-plus.json",
+      "sha256": "7ad05c4c04566241f432ca2d6231680df7479a393b6cfe6c8adbbe4252173a6b"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-recovery-v5/requests/acid-g5-fixed-mode01-h0010-plus.json",
+      "sha256": "b8bf2781a9e510f5a7c9221a3111bee0578db764633e3efa89d4f0a72ab32e5b"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/requests/acid-g5-fixed-mode01-h0005-minus.json",
+      "sha256": "9b28293bed08cae2a29e7ea48c9030c0ba9fd300e23da81da47a497e0ee3db3c"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-recovery-v5/requests/acid-g5-fixed-mode01-h0005-minus.json",
+      "sha256": "7539a22fe7efeef6a927400c59fd3ed9cb5a83d523b319d7fe42e91041a1e73a"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/requests/acid-g5-fixed-mode01-h0005-plus.json",
+      "sha256": "d000e7f7cf59266e481b6ef36c6be632f8d73b78504e1cbdc2110a5136d98d25"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-recovery-v5/requests/acid-g5-fixed-mode01-h0005-plus.json",
+      "sha256": "0d5115e2309efb63a1a56415e55424b15e0d7c5f8d9e932d0d51fe517ef8876a"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/requests/acid-g5-regrid-mode01-h0010-minus.json",
+      "sha256": "fe9b59abf93c201784772f4c56a03f0eca97615dc102547f033b5735345a31b1"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-recovery-v5/requests/acid-g5-regrid-mode01-h0010-minus.json",
+      "sha256": "426bee0bcc87c02289843336131e8bb686af902370824ac94e9e7271bf9204f7"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/requests/acid-g5-regrid-mode01-h0010-plus.json",
+      "sha256": "2bf99fba5a0284cc20c0abfd0cff3d3050f2a663070cb7d1f7c302bf4ff4d27d"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-recovery-v5/requests/acid-g5-regrid-mode01-h0010-plus.json",
+      "sha256": "288425229c322feea7d7b5d9586eabdf279b804f039971f7884fbd01c6095995"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/requests/acid-g5-regrid-mode01-h0005-minus.json",
+      "sha256": "3ad91853f9818b89d99f742fac29a43407bfa6f27ce3b43a483a9dac06d797eb"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-recovery-v5/requests/acid-g5-regrid-mode01-h0005-minus.json",
+      "sha256": "098d74d73ccac56299341f13100cc151b02a3da94027ff31bd8f657ae3799d47"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/requests/acid-g5-regrid-mode01-h0005-plus.json",
+      "sha256": "e87837418da980167ed1e724b6a534879ba000078e52dda3a286c552b3628dc8"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-recovery-v5/requests/acid-g5-regrid-mode01-h0005-plus.json",
+      "sha256": "efb1a3652e7364b9cda375969d36ebd5ecd5b46b1e609f6729326f740b67d087"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/requests/caly-g3-regrid-mode01-h0010-minus.json",
+      "sha256": "f99c58e2377cb2a6dba08d5cf303e1b73ee8045a4fcd99a4dc5577ddfd5230ec"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-recovery-v5/requests/caly-g3-regrid-mode01-h0010-minus.json",
+      "sha256": "9f914168c758f69584f9ed2664526f6e6ea26768361ee9cb82f56c1ff2d643fb"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/requests/caly-g3-regrid-mode01-h0010-plus.json",
+      "sha256": "b3b5b7e038db008681bda7fc6e44a15be3d79c671d8f91071bcca4c3bc492ff0"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-recovery-v5/requests/caly-g3-regrid-mode01-h0010-plus.json",
+      "sha256": "fb65741130a68a6768f49a55f15422cc67bb5ff737ae50119e632fc478f78667"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/requests/caly-g3-regrid-mode01-h0005-minus.json",
+      "sha256": "88e18d77fcfb598d3b7f2260704e71246c19f6eb57c2354b0a52fa7168f8abdc"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-recovery-v5/requests/caly-g3-regrid-mode01-h0005-minus.json",
+      "sha256": "8b7068efd3da36b8e6693b5988e3edcd937c9fb3bbc7f1da083cdd316f7a35ce"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/requests/caly-g3-regrid-mode01-h0005-plus.json",
+      "sha256": "c59b649a95a51b7c89ab889f159d2ff71d9dd716ae4d5d95e2195bcce7f30cd4"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-recovery-v5/requests/caly-g3-regrid-mode01-h0005-plus.json",
+      "sha256": "5f23faf2e2298df2c0f9e064fa29733240e6dbbfcfaad18cdd926faabb7c54f1"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/requests/acid-g3-fixed-comparison.json",
+      "sha256": "700e6549904276b9fb2e089e201d8a244b74a496badcc7b621b4fce739cc63c9"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-recovery-v5/requests/acid-g3-fixed-comparison.json",
+      "sha256": "700e6549904276b9fb2e089e201d8a244b74a496badcc7b621b4fce739cc63c9"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/requests/acid-g3-regrid-comparison.json",
+      "sha256": "d24d6d247000c5bba839070308bb42a045ce034cb2d4b77f10251e318c10e41c"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-recovery-v5/requests/acid-g3-regrid-comparison.json",
+      "sha256": "d24d6d247000c5bba839070308bb42a045ce034cb2d4b77f10251e318c10e41c"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/requests/acid-g5-fixed-comparison.json",
+      "sha256": "259083de92b51617e1b00bd04d51f688c9b624bad963f289c9d8097e65f2afb1"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-recovery-v5/requests/acid-g5-fixed-comparison.json",
+      "sha256": "259083de92b51617e1b00bd04d51f688c9b624bad963f289c9d8097e65f2afb1"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/requests/acid-g5-regrid-comparison.json",
+      "sha256": "54ee13827f0b1c7e9dc0c23445e52294aaf8175c055ca6b335f22ea6cd220eb8"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-recovery-v5/requests/acid-g5-regrid-comparison.json",
+      "sha256": "54ee13827f0b1c7e9dc0c23445e52294aaf8175c055ca6b335f22ea6cd220eb8"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/requests/caly-g3-regrid-comparison.json",
+      "sha256": "9cb6278e471ce0ab36e01d1633179f6ffe56d439196eb1ee6c84e04a1eb1ba96"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-recovery-v5/requests/caly-g3-regrid-comparison.json",
+      "sha256": "9cb6278e471ce0ab36e01d1633179f6ffe56d439196eb1ee6c84e04a1eb1ba96"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/requests/all-validation-points-comparison.json",
+      "sha256": "c9d8f5b33aa454416b6c129f12f1f3051f211d91d59e5e60552fa7e21f6de6ef"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-recovery-v5/requests/all-validation-points-comparison.json",
+      "sha256": "c9d8f5b33aa454416b6c129f12f1f3051f211d91d59e5e60552fa7e21f6de6ef"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-recovery-v5/preparation/recovery_plan_bindings.json",
+      "sha256": "d9ce724d12c2dfe0fa108419397ead766faaf2101a89956ed71389d57f00cdf4"
+    }
+  ],
+  "authorization_ref": {
+    "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-recovery-v5/preparation/user_authorization_validation_recovery.json",
+    "sha256": "2b48584787deab2622f391fa071ca05ab44d6f258b7f2d461690bda2806ca386"
+  },
+  "predecessor_bindings": {
+    "predecessor_manifest": {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/manifest_v2_ROOT_AUTHORIZED.json",
+      "sha256": "e26ccf7ff25af88fad7be9a1f6fbc15b9a8faddee1d5d3c117123b114195f6cb"
+    },
+    "predecessor_ledger": {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/cpu_budget.json",
+      "sha256": "84b665228c82dd58ff1d05fcc1a269039244ac4fd903706bc744c12254017539"
+    },
+    "predecessor_state": {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/state.json",
+      "sha256": "129d11e3b1e56355f4f3f8bdcc3edf11c15e6594d4f797e20bacd5e1f4755cd5"
+    },
+    "predecessor_supervisor": {
+      "path": "scripts/research4_b_validation_supervisor_20261107.py",
+      "sha256": "74b0ab7820f3e8abb636ba33ff1b9c7858dff4367ee97b5dde1512ff166f10fd"
+    },
+    "predecessor_allocation": {
+      "path": ".runtime/worker-b-validation-allocation.json",
+      "sha256": "441cb1864c9931273d5cc61a55d265efe37a1986e5354a6c32d72a91def6249d"
+    },
+    "predecessor_closure_review": {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-recovery-v5/preparation/v4_closure_remote_review.json",
+      "sha256": "3ab29353cb737a76cb8f406b028fbb8f9ca09b6639c8c7366808fe6855f6d19b"
+    },
+    "inherited_results": {
+      "paper-existing-prediction-validation": {
+        "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/paper-existing-prediction-validation-attempt001/result.json",
+        "sha256": "bbfc2f501ab9cd1b0f048179e0248a2657947b43f1cda4de755bcb1b21b3af32"
+      },
+      "water-cphf-tight-translate0": {
+        "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/water-cphf-tight-translate0-attempt001/result.json",
+        "sha256": "b26db83029e83c03b1fb0c4ca35c93a070028e82805f35f4fe7b46f94fea9fc1"
+      },
+      "water-cphf-tight-mode01": {
+        "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/water-cphf-tight-mode01-attempt001/result.json",
+        "sha256": "8fc9ea75fc22fb3c99ea166b08567d1c574edd267dada667d21cf368b548160a"
+      },
+      "water-g3-fixed-center": {
+        "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/water-g3-fixed-center-attempt001/result.json",
+        "sha256": "0444bce71addb7175c53933b148171bc58f2b15ab38a3c5d301ff9643a222b19"
+      },
+      "water-g3-fixed-translate0-h0010-minus": {
+        "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/water-g3-fixed-translate0-h0010-minus-attempt001/result.json",
+        "sha256": "a90468263f9ff67424a2dcf6706f9c2e96624fc3db4efa74c150c4ca8ef242f7"
+      },
+      "water-g3-fixed-translate0-h0010-plus": {
+        "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/water-g3-fixed-translate0-h0010-plus-attempt001/result.json",
+        "sha256": "ee24153183c2d4822c6f58f80f0a096fe46d7058d865a27b21df6c3db5018a58"
+      },
+      "water-g3-fixed-translate0-h0005-minus": {
+        "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/water-g3-fixed-translate0-h0005-minus-attempt001/result.json",
+        "sha256": "006c30f3193664b9df65368457b971043a8a6111a7e30746e20b3a8dc8b87443"
+      },
+      "water-g3-fixed-translate0-h0005-plus": {
+        "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/water-g3-fixed-translate0-h0005-plus-attempt001/result.json",
+        "sha256": "7e150b1e834408f8a33b1143e60b866f373db4461eb11827e542ca3c2f307b7a"
+      },
+      "water-g3-fixed-mode01-h0010-minus": {
+        "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/water-g3-fixed-mode01-h0010-minus-attempt001/result.json",
+        "sha256": "55dec7ff395f190b065f711086fdcef5c50746d29a2ef6b733221f19e2fe8cf7"
+      },
+      "water-g3-fixed-mode01-h0010-plus": {
+        "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/water-g3-fixed-mode01-h0010-plus-attempt001/result.json",
+        "sha256": "929f1d1f77302dd860eee7eb148f1376450c3c06940305f0b3b9fd6cead847f9"
+      },
+      "water-g3-fixed-mode01-h0005-minus": {
+        "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/water-g3-fixed-mode01-h0005-minus-attempt001/result.json",
+        "sha256": "447c59915db8392a070adc98cca096fc0fd0284a392494433971ef1dd52ab1bf"
+      },
+      "water-g3-fixed-mode01-h0005-plus": {
+        "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/water-g3-fixed-mode01-h0005-plus-attempt001/result.json",
+        "sha256": "c589bc71d9c1963147d81dc11eaa1ca8fee1fefe01e81d95b7d0f766c34db98d"
+      },
+      "water-g3-fixed-comparison": {
+        "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/water-g3-fixed-comparison-attempt001/result.json",
+        "sha256": "aabb13ca0545b45a5084a828151c5127eb8789d3bd96c739db6080012ded6a4c"
+      },
+      "water-g3-regrid-center": {
+        "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/water-g3-regrid-center-attempt001/result.json",
+        "sha256": "75182dc5719c3f3047cb5b9b9a96b4e06214eb0956dc7b0dbc51180456f7b5fb"
+      },
+      "water-g3-regrid-translate0-h0010-minus": {
+        "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/water-g3-regrid-translate0-h0010-minus-attempt001/result.json",
+        "sha256": "1c838a60ac81b683ee4d64f2a65758749a904b5d76567cc6d24d2a9dfa419f85"
+      },
+      "water-g3-regrid-translate0-h0010-plus": {
+        "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/water-g3-regrid-translate0-h0010-plus-attempt001/result.json",
+        "sha256": "81993ab5f4dfcc3f88b3aa46adfd192d38d817f19cb2cfd499fc143160bc25db"
+      },
+      "water-g3-regrid-translate0-h0005-minus": {
+        "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/water-g3-regrid-translate0-h0005-minus-attempt001/result.json",
+        "sha256": "30e737f272a648f4531e6b96f04affa442fa638a441d45bae8fd912e98d923cf"
+      },
+      "water-g3-regrid-translate0-h0005-plus": {
+        "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/water-g3-regrid-translate0-h0005-plus-attempt001/result.json",
+        "sha256": "c270bcd28b1456caca8f45603c1c6ff6d1c3e60333b6197e3f4ba75d142e73b2"
+      },
+      "water-g3-regrid-mode01-h0010-minus": {
+        "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/water-g3-regrid-mode01-h0010-minus-attempt001/result.json",
+        "sha256": "944f0661ea7c355d2bb402e8678a5eb5850d8201e6f57145d0a0bd3a0b9c8436"
+      },
+      "water-g3-regrid-mode01-h0010-plus": {
+        "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/water-g3-regrid-mode01-h0010-plus-attempt001/result.json",
+        "sha256": "293b70d22428ffd201b0722d5922f4031b2f8b2980c65472e235c2626ae22b25"
+      },
+      "water-g3-regrid-mode01-h0005-minus": {
+        "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/water-g3-regrid-mode01-h0005-minus-attempt001/result.json",
+        "sha256": "08aad0ec16ed498cad5fe832e2c095d623f874a73b6ee0ea21cd5048256623cc"
+      },
+      "water-g3-regrid-mode01-h0005-plus": {
+        "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/water-g3-regrid-mode01-h0005-plus-attempt001/result.json",
+        "sha256": "ed367c1822d2ad90d6948e05c0c6a6a4d578c9dd8ca0283a0b39cd237159c743"
+      },
+      "water-g3-regrid-comparison": {
+        "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/water-g3-regrid-comparison-attempt001/result.json",
+        "sha256": "ef8f1fe13c4ea68c207d4a59f97bc7688e1c0a1b2b9eae79cb78611ff71f6748"
+      },
+      "water-g5-fixed-center": {
+        "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/water-g5-fixed-center-attempt001/result.json",
+        "sha256": "e0a76919919e730bb419407b15a97d98ff4e3919f4b1a63fb955b70de36d19fd"
+      },
+      "water-g5-fixed-translate0-h0010-minus": {
+        "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/water-g5-fixed-translate0-h0010-minus-attempt001/result.json",
+        "sha256": "79b213d0d17c5ce326c955ffdbdda79031e1576921a1513dec7fd4b2a1004608"
+      },
+      "water-g5-fixed-translate0-h0010-plus": {
+        "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/water-g5-fixed-translate0-h0010-plus-attempt001/result.json",
+        "sha256": "c89a5580c75453f3c6294c05a6bd731f8f8562f64bcf13d98ccbfe8b4e0dc4ad"
+      },
+      "water-g5-fixed-translate0-h0005-minus": {
+        "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/water-g5-fixed-translate0-h0005-minus-attempt001/result.json",
+        "sha256": "6d3573670c45fd3d8a93456727db888a2b34fef04b93d14aa050a1eb36fb301a"
+      },
+      "water-g5-fixed-translate0-h0005-plus": {
+        "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/water-g5-fixed-translate0-h0005-plus-attempt001/result.json",
+        "sha256": "39b543a907e20924aff5059e2ef24c96e1dce24100a2d3d00c14e329342fba11"
+      },
+      "water-g5-fixed-mode01-h0010-minus": {
+        "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/water-g5-fixed-mode01-h0010-minus-attempt001/result.json",
+        "sha256": "205c29cba65ada3e6f2286436e272d2da347582d03413883cbcb029125f66b3c"
+      },
+      "water-g5-fixed-mode01-h0010-plus": {
+        "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/water-g5-fixed-mode01-h0010-plus-attempt001/result.json",
+        "sha256": "08468083a14b33372ec0c9675b134bd44390b08a98a177c26cfa7e63700daf91"
+      },
+      "water-g5-fixed-mode01-h0005-minus": {
+        "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/water-g5-fixed-mode01-h0005-minus-attempt001/result.json",
+        "sha256": "b133cb7c24fb499bf027c74fe88c95886455f5287c243aa4878fa90eb1dc4a63"
+      },
+      "water-g5-fixed-mode01-h0005-plus": {
+        "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/water-g5-fixed-mode01-h0005-plus-attempt001/result.json",
+        "sha256": "45c67ecae7cc28bcff322b6d7fe6908cdc95360c22ed6f45693288ca2b1fb2b4"
+      },
+      "water-g5-fixed-comparison": {
+        "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/water-g5-fixed-comparison-attempt001/result.json",
+        "sha256": "dbcad9b80aeae7e5d22e43ba7ec7ab6750f74bf1638a2635c5c359460e96f2db"
+      },
+      "water-g5-regrid-center": {
+        "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/water-g5-regrid-center-attempt001/result.json",
+        "sha256": "bf395199096d00824192a60972a7b8f91f9efefc4c6f8b71afca8f8ae514c0e1"
+      },
+      "water-g5-regrid-translate0-h0010-minus": {
+        "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/water-g5-regrid-translate0-h0010-minus-attempt001/result.json",
+        "sha256": "731defc36cb75bbfa58980e33338e938bde8c08df3e7a75819a4f78206f12dac"
+      },
+      "water-g5-regrid-translate0-h0010-plus": {
+        "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/water-g5-regrid-translate0-h0010-plus-attempt001/result.json",
+        "sha256": "f6ac5f06e163c661febea3313a4511921b36def5b5ccf8bc9c8bdd5bebdbc06e"
+      },
+      "water-g5-regrid-translate0-h0005-minus": {
+        "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/water-g5-regrid-translate0-h0005-minus-attempt001/result.json",
+        "sha256": "154f7b2443a15bee25d53dc2f63782b477c70b5df968593f1ea3bf978bad85b1"
+      },
+      "water-g5-regrid-translate0-h0005-plus": {
+        "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/water-g5-regrid-translate0-h0005-plus-attempt001/result.json",
+        "sha256": "5c6c80e36831ca2425a3e96b163bf9c257e3b433d2ee43df69b61903ba93d2fb"
+      },
+      "water-g5-regrid-mode01-h0010-minus": {
+        "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/water-g5-regrid-mode01-h0010-minus-attempt001/result.json",
+        "sha256": "ce569b2680419bbafd83c9dff3067078b52de160748f45ff34c7318c994019e8"
+      },
+      "water-g5-regrid-mode01-h0010-plus": {
+        "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/water-g5-regrid-mode01-h0010-plus-attempt001/result.json",
+        "sha256": "1acd35b5b599d2458bca326b6109bd0fe44895286622699c7c60e3a9d4ae9917"
+      },
+      "water-g5-regrid-mode01-h0005-minus": {
+        "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/water-g5-regrid-mode01-h0005-minus-attempt001/result.json",
+        "sha256": "ca1f21e2fd4dbb99a593903e94f4e71b102d8f6353254e98d6d4902e75e13c5e"
+      },
+      "water-g5-regrid-mode01-h0005-plus": {
+        "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/water-g5-regrid-mode01-h0005-plus-attempt001/result.json",
+        "sha256": "504c1a052241cb3f7bc358186bcd6dc4f030ee92ebb7159ca88a9a0d98d13253"
+      },
+      "water-g5-regrid-comparison": {
+        "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/water-g5-regrid-comparison-attempt001/result.json",
+        "sha256": "806317e94fda168b28f8d97bdba1e82a936874bcfec673c43a61e2dd1529ed7e"
+      }
+    },
+    "recovery_boot_id": "d089ac25-54b5-42ba-ad6e-dca9a6678435"
+  },
+  "jobs": [
+    {
+      "id": "acid-g3-checkpoint-probe",
+      "argv": [
+        "/workspace/research4-worker-b/.runtime/worker-b-20261106/venv/bin/python",
+        "/workspace/research4-worker-b/scripts/research4_b_validation_recovery_worker_20261107.py",
+        "--request",
+        "/workspace/research4-worker-b/reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-recovery-v5/requests/acid-g3-checkpoint-probe.json",
+        "--request-sha256",
+        "ef97c6e7d3273dfbf0f2c476e50e2a96d988671649f7544f9d6b31b3071b0efb",
+        "--output",
+        "{output}",
+        "--execute"
+      ],
+      "cpu_seconds": 120,
+      "wall_seconds": 600,
+      "depends_on": [],
+      "max_attempts": 1,
+      "result_schema": "research4-b-diagnostic-result-v1",
+      "success_statuses": [
+        "CHECKPOINT_PROBE_COMPLETE"
+      ]
+    },
+    {
+      "id": "caly-g3-checkpoint-probe",
+      "argv": [
+        "/workspace/research4-worker-b/.runtime/worker-b-20261106/venv/bin/python",
+        "/workspace/research4-worker-b/scripts/research4_b_validation_recovery_worker_20261107.py",
+        "--request",
+        "/workspace/research4-worker-b/reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-recovery-v5/requests/caly-g3-checkpoint-probe.json",
+        "--request-sha256",
+        "5380b10f50a60164d958561134c8925e69c460e1831a4c8fda55d4a88739f732",
+        "--output",
+        "{output}",
+        "--execute"
+      ],
+      "cpu_seconds": 240,
+      "wall_seconds": 900,
+      "depends_on": [],
+      "max_attempts": 1,
+      "result_schema": "research4-b-diagnostic-result-v1",
+      "success_statuses": [
+        "CHECKPOINT_PROBE_COMPLETE"
+      ]
+    },
+    {
+      "id": "acid-g3-fixed-center",
+      "argv": [
+        "/workspace/research4-worker-b/.runtime/worker-b-20261106/venv/bin/python",
+        "/workspace/research4-worker-b/scripts/research4_b_validation_recovery_worker_20261107.py",
+        "--request",
+        "/workspace/research4-worker-b/reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-recovery-v5/requests/acid-g3-fixed-center.json",
+        "--request-sha256",
+        "e435f986614eca219c01dd6ad3d30f70fd42cf7beb94740f0e981b93132f1ab3",
+        "--output",
+        "{output}",
+        "--execute"
+      ],
+      "cpu_seconds": 350,
+      "wall_seconds": 600,
+      "depends_on": [
+        "acid-g3-checkpoint-probe"
+      ],
+      "max_attempts": 1,
+      "result_schema": "research4-b-diagnostic-result-v1",
+      "success_statuses": [
+        "FIXED_GRID_CENTER_COMPUTED"
+      ]
+    },
+    {
+      "id": "caly-g3-regrid-center",
+      "argv": [
+        "/workspace/research4-worker-b/.runtime/worker-b-20261106/venv/bin/python",
+        "/workspace/research4-worker-b/scripts/research4_b_validation_recovery_worker_20261107.py",
+        "--request",
+        "/workspace/research4-worker-b/reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-recovery-v5/requests/caly-g3-regrid-center.json",
+        "--request-sha256",
+        "fb5c0928aa11c68fdd9dfafea57dfb083fcc847907e4a1b5b80798eb544a09db",
+        "--output",
+        "{output}",
+        "--execute"
+      ],
+      "cpu_seconds": 1500,
+      "wall_seconds": 1800,
+      "depends_on": [
+        "caly-g3-checkpoint-probe"
+      ],
+      "max_attempts": 1,
+      "result_schema": "research4-b-diagnostic-result-v1",
+      "success_statuses": [
+        "POINT_COMPUTED"
+      ]
+    },
+    {
+      "id": "acid-g3-regrid-center",
+      "argv": [
+        "/workspace/research4-worker-b/.runtime/worker-b-20261106/venv/bin/python",
+        "/workspace/research4-worker-b/scripts/research4_b_validation_recovery_worker_20261107.py",
+        "--request",
+        "/workspace/research4-worker-b/reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-recovery-v5/requests/acid-g3-regrid-center.json",
+        "--request-sha256",
+        "24149d121b0244fcd715f87972edade6699231349ab453dc870b68e738d33126",
+        "--output",
+        "{output}",
+        "--execute"
+      ],
+      "cpu_seconds": 350,
+      "wall_seconds": 600,
+      "depends_on": [
+        "acid-g3-checkpoint-probe"
+      ],
+      "max_attempts": 1,
+      "result_schema": "research4-b-diagnostic-result-v1",
+      "success_statuses": [
+        "POINT_COMPUTED"
+      ]
+    },
+    {
+      "id": "acid-g5-fixed-center",
+      "argv": [
+        "/workspace/research4-worker-b/.runtime/worker-b-20261106/venv/bin/python",
+        "/workspace/research4-worker-b/scripts/research4_b_validation_recovery_worker_20261107.py",
+        "--request",
+        "/workspace/research4-worker-b/reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-recovery-v5/requests/acid-g5-fixed-center.json",
+        "--request-sha256",
+        "d17a4739c2028437b75c0fa4f26ca5f8cd850ade470ea27a1eb041e0e8200ac1",
+        "--output",
+        "{output}",
+        "--execute"
+      ],
+      "cpu_seconds": 500,
+      "wall_seconds": 900,
+      "depends_on": [
+        "acid-g3-checkpoint-probe"
+      ],
+      "max_attempts": 1,
+      "result_schema": "research4-b-diagnostic-result-v1",
+      "success_statuses": [
+        "FIXED_GRID_CENTER_COMPUTED"
+      ]
+    },
+    {
+      "id": "acid-g5-regrid-center",
+      "argv": [
+        "/workspace/research4-worker-b/.runtime/worker-b-20261106/venv/bin/python",
+        "/workspace/research4-worker-b/scripts/research4_b_validation_recovery_worker_20261107.py",
+        "--request",
+        "/workspace/research4-worker-b/reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-recovery-v5/requests/acid-g5-regrid-center.json",
+        "--request-sha256",
+        "d0114799172c113fc6cb8852b413360ed1af7c18e12a528b859ac97e4f9d9c6a",
+        "--output",
+        "{output}",
+        "--execute"
+      ],
+      "cpu_seconds": 500,
+      "wall_seconds": 900,
+      "depends_on": [
+        "acid-g3-checkpoint-probe"
+      ],
+      "max_attempts": 1,
+      "result_schema": "research4-b-diagnostic-result-v1",
+      "success_statuses": [
+        "POINT_COMPUTED"
+      ]
+    },
+    {
+      "id": "acid-g3-fixed-mode01-h0010-minus",
+      "argv": [
+        "/workspace/research4-worker-b/.runtime/worker-b-20261106/venv/bin/python",
+        "/workspace/research4-worker-b/scripts/research4_b_validation_recovery_worker_20261107.py",
+        "--request",
+        "/workspace/research4-worker-b/reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-recovery-v5/requests/acid-g3-fixed-mode01-h0010-minus.json",
+        "--request-sha256",
+        "a60e9b61c09eac7dd4872ae908b179984b85269bc22b9b7205d007eefe84fb08",
+        "--output",
+        "{output}",
+        "--execute",
+        "--center-result",
+        "{result:acid-g3-fixed-center}",
+        "--center-result-sha256",
+        "{sha256:acid-g3-fixed-center}",
+        "--warmstart-result",
+        "{result:acid-g3-fixed-center}",
+        "--warmstart-result-sha256",
+        "{sha256:acid-g3-fixed-center}"
+      ],
+      "cpu_seconds": 350,
+      "wall_seconds": 600,
+      "depends_on": [
+        "acid-g3-fixed-center"
+      ],
+      "max_attempts": 2,
+      "result_schema": "research4-b-diagnostic-result-v1",
+      "success_statuses": [
+        "POINT_COMPUTED"
+      ],
+      "admission_group": "acid-g3-fixed-mode01-h0010"
+    },
+    {
+      "id": "acid-g3-fixed-mode01-h0010-plus",
+      "argv": [
+        "/workspace/research4-worker-b/.runtime/worker-b-20261106/venv/bin/python",
+        "/workspace/research4-worker-b/scripts/research4_b_validation_recovery_worker_20261107.py",
+        "--request",
+        "/workspace/research4-worker-b/reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-recovery-v5/requests/acid-g3-fixed-mode01-h0010-plus.json",
+        "--request-sha256",
+        "a7a1ac5ebb9d16c6b70011879ebfd209d0aefaae18c9deb4842c04336ed0b902",
+        "--output",
+        "{output}",
+        "--execute",
+        "--center-result",
+        "{result:acid-g3-fixed-center}",
+        "--center-result-sha256",
+        "{sha256:acid-g3-fixed-center}",
+        "--warmstart-result",
+        "{result:acid-g3-fixed-center}",
+        "--warmstart-result-sha256",
+        "{sha256:acid-g3-fixed-center}"
+      ],
+      "cpu_seconds": 350,
+      "wall_seconds": 600,
+      "depends_on": [
+        "acid-g3-fixed-center"
+      ],
+      "max_attempts": 2,
+      "result_schema": "research4-b-diagnostic-result-v1",
+      "success_statuses": [
+        "POINT_COMPUTED"
+      ],
+      "admission_group": "acid-g3-fixed-mode01-h0010"
+    },
+    {
+      "id": "acid-g3-fixed-mode01-h0005-minus",
+      "argv": [
+        "/workspace/research4-worker-b/.runtime/worker-b-20261106/venv/bin/python",
+        "/workspace/research4-worker-b/scripts/research4_b_validation_recovery_worker_20261107.py",
+        "--request",
+        "/workspace/research4-worker-b/reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-recovery-v5/requests/acid-g3-fixed-mode01-h0005-minus.json",
+        "--request-sha256",
+        "749836cfe19d5b4181e2ceb91673e0b285d1d15564495cd0c40185b8baff7782",
+        "--output",
+        "{output}",
+        "--execute",
+        "--center-result",
+        "{result:acid-g3-fixed-center}",
+        "--center-result-sha256",
+        "{sha256:acid-g3-fixed-center}",
+        "--warmstart-result",
+        "{result:acid-g3-fixed-center}",
+        "--warmstart-result-sha256",
+        "{sha256:acid-g3-fixed-center}"
+      ],
+      "cpu_seconds": 350,
+      "wall_seconds": 600,
+      "depends_on": [
+        "acid-g3-fixed-center"
+      ],
+      "max_attempts": 2,
+      "result_schema": "research4-b-diagnostic-result-v1",
+      "success_statuses": [
+        "POINT_COMPUTED"
+      ],
+      "admission_group": "acid-g3-fixed-mode01-h0005"
+    },
+    {
+      "id": "acid-g3-fixed-mode01-h0005-plus",
+      "argv": [
+        "/workspace/research4-worker-b/.runtime/worker-b-20261106/venv/bin/python",
+        "/workspace/research4-worker-b/scripts/research4_b_validation_recovery_worker_20261107.py",
+        "--request",
+        "/workspace/research4-worker-b/reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-recovery-v5/requests/acid-g3-fixed-mode01-h0005-plus.json",
+        "--request-sha256",
+        "d01be2a7921a40788d851c108417c757f794f876a58524b75107aa2d466711b2",
+        "--output",
+        "{output}",
+        "--execute",
+        "--center-result",
+        "{result:acid-g3-fixed-center}",
+        "--center-result-sha256",
+        "{sha256:acid-g3-fixed-center}",
+        "--warmstart-result",
+        "{result:acid-g3-fixed-center}",
+        "--warmstart-result-sha256",
+        "{sha256:acid-g3-fixed-center}"
+      ],
+      "cpu_seconds": 350,
+      "wall_seconds": 600,
+      "depends_on": [
+        "acid-g3-fixed-center"
+      ],
+      "max_attempts": 2,
+      "result_schema": "research4-b-diagnostic-result-v1",
+      "success_statuses": [
+        "POINT_COMPUTED"
+      ],
+      "admission_group": "acid-g3-fixed-mode01-h0005"
+    },
+    {
+      "id": "acid-g3-regrid-mode01-h0010-minus",
+      "argv": [
+        "/workspace/research4-worker-b/.runtime/worker-b-20261106/venv/bin/python",
+        "/workspace/research4-worker-b/scripts/research4_b_validation_recovery_worker_20261107.py",
+        "--request",
+        "/workspace/research4-worker-b/reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-recovery-v5/requests/acid-g3-regrid-mode01-h0010-minus.json",
+        "--request-sha256",
+        "49cdda11c86cd8df91329258a74746e27edb8a4c689377060e44e7ac25ecafb1",
+        "--output",
+        "{output}",
+        "--execute",
+        "--warmstart-result",
+        "{result:acid-g3-regrid-center}",
+        "--warmstart-result-sha256",
+        "{sha256:acid-g3-regrid-center}"
+      ],
+      "cpu_seconds": 350,
+      "wall_seconds": 600,
+      "depends_on": [
+        "acid-g3-regrid-center"
+      ],
+      "max_attempts": 2,
+      "result_schema": "research4-b-diagnostic-result-v1",
+      "success_statuses": [
+        "POINT_COMPUTED"
+      ],
+      "admission_group": "acid-g3-regrid-mode01-h0010"
+    },
+    {
+      "id": "acid-g3-regrid-mode01-h0010-plus",
+      "argv": [
+        "/workspace/research4-worker-b/.runtime/worker-b-20261106/venv/bin/python",
+        "/workspace/research4-worker-b/scripts/research4_b_validation_recovery_worker_20261107.py",
+        "--request",
+        "/workspace/research4-worker-b/reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-recovery-v5/requests/acid-g3-regrid-mode01-h0010-plus.json",
+        "--request-sha256",
+        "aded23c0e41b252853245b391a1406b87a70f3ea91e726b84833f9f5c8a3704e",
+        "--output",
+        "{output}",
+        "--execute",
+        "--warmstart-result",
+        "{result:acid-g3-regrid-center}",
+        "--warmstart-result-sha256",
+        "{sha256:acid-g3-regrid-center}"
+      ],
+      "cpu_seconds": 350,
+      "wall_seconds": 600,
+      "depends_on": [
+        "acid-g3-regrid-center"
+      ],
+      "max_attempts": 2,
+      "result_schema": "research4-b-diagnostic-result-v1",
+      "success_statuses": [
+        "POINT_COMPUTED"
+      ],
+      "admission_group": "acid-g3-regrid-mode01-h0010"
+    },
+    {
+      "id": "acid-g3-regrid-mode01-h0005-minus",
+      "argv": [
+        "/workspace/research4-worker-b/.runtime/worker-b-20261106/venv/bin/python",
+        "/workspace/research4-worker-b/scripts/research4_b_validation_recovery_worker_20261107.py",
+        "--request",
+        "/workspace/research4-worker-b/reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-recovery-v5/requests/acid-g3-regrid-mode01-h0005-minus.json",
+        "--request-sha256",
+        "f8e818add67bd4bf660e200ca5cc1759f940b3505451f153dfb443ee6d5059be",
+        "--output",
+        "{output}",
+        "--execute",
+        "--warmstart-result",
+        "{result:acid-g3-regrid-center}",
+        "--warmstart-result-sha256",
+        "{sha256:acid-g3-regrid-center}"
+      ],
+      "cpu_seconds": 350,
+      "wall_seconds": 600,
+      "depends_on": [
+        "acid-g3-regrid-center"
+      ],
+      "max_attempts": 2,
+      "result_schema": "research4-b-diagnostic-result-v1",
+      "success_statuses": [
+        "POINT_COMPUTED"
+      ],
+      "admission_group": "acid-g3-regrid-mode01-h0005"
+    },
+    {
+      "id": "acid-g3-regrid-mode01-h0005-plus",
+      "argv": [
+        "/workspace/research4-worker-b/.runtime/worker-b-20261106/venv/bin/python",
+        "/workspace/research4-worker-b/scripts/research4_b_validation_recovery_worker_20261107.py",
+        "--request",
+        "/workspace/research4-worker-b/reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-recovery-v5/requests/acid-g3-regrid-mode01-h0005-plus.json",
+        "--request-sha256",
+        "73c4dbbac250384c2079e7769194fa0eb86aeb216513871b6d41943f49e0f64e",
+        "--output",
+        "{output}",
+        "--execute",
+        "--warmstart-result",
+        "{result:acid-g3-regrid-center}",
+        "--warmstart-result-sha256",
+        "{sha256:acid-g3-regrid-center}"
+      ],
+      "cpu_seconds": 350,
+      "wall_seconds": 600,
+      "depends_on": [
+        "acid-g3-regrid-center"
+      ],
+      "max_attempts": 2,
+      "result_schema": "research4-b-diagnostic-result-v1",
+      "success_statuses": [
+        "POINT_COMPUTED"
+      ],
+      "admission_group": "acid-g3-regrid-mode01-h0005"
+    },
+    {
+      "id": "acid-g5-fixed-mode01-h0010-minus",
+      "argv": [
+        "/workspace/research4-worker-b/.runtime/worker-b-20261106/venv/bin/python",
+        "/workspace/research4-worker-b/scripts/research4_b_validation_recovery_worker_20261107.py",
+        "--request",
+        "/workspace/research4-worker-b/reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-recovery-v5/requests/acid-g5-fixed-mode01-h0010-minus.json",
+        "--request-sha256",
+        "3faced5c4dbe5451c4ddf3b296b15a22a8dd5f7f2579f121abbac670b43ae5db",
+        "--output",
+        "{output}",
+        "--execute",
+        "--center-result",
+        "{result:acid-g5-fixed-center}",
+        "--center-result-sha256",
+        "{sha256:acid-g5-fixed-center}",
+        "--warmstart-result",
+        "{result:acid-g5-fixed-center}",
+        "--warmstart-result-sha256",
+        "{sha256:acid-g5-fixed-center}"
+      ],
+      "cpu_seconds": 500,
+      "wall_seconds": 900,
+      "depends_on": [
+        "acid-g5-fixed-center"
+      ],
+      "max_attempts": 2,
+      "result_schema": "research4-b-diagnostic-result-v1",
+      "success_statuses": [
+        "POINT_COMPUTED"
+      ],
+      "admission_group": "acid-g5-fixed-mode01-h0010"
+    },
+    {
+      "id": "acid-g5-fixed-mode01-h0010-plus",
+      "argv": [
+        "/workspace/research4-worker-b/.runtime/worker-b-20261106/venv/bin/python",
+        "/workspace/research4-worker-b/scripts/research4_b_validation_recovery_worker_20261107.py",
+        "--request",
+        "/workspace/research4-worker-b/reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-recovery-v5/requests/acid-g5-fixed-mode01-h0010-plus.json",
+        "--request-sha256",
+        "b8bf2781a9e510f5a7c9221a3111bee0578db764633e3efa89d4f0a72ab32e5b",
+        "--output",
+        "{output}",
+        "--execute",
+        "--center-result",
+        "{result:acid-g5-fixed-center}",
+        "--center-result-sha256",
+        "{sha256:acid-g5-fixed-center}",
+        "--warmstart-result",
+        "{result:acid-g5-fixed-center}",
+        "--warmstart-result-sha256",
+        "{sha256:acid-g5-fixed-center}"
+      ],
+      "cpu_seconds": 500,
+      "wall_seconds": 900,
+      "depends_on": [
+        "acid-g5-fixed-center"
+      ],
+      "max_attempts": 2,
+      "result_schema": "research4-b-diagnostic-result-v1",
+      "success_statuses": [
+        "POINT_COMPUTED"
+      ],
+      "admission_group": "acid-g5-fixed-mode01-h0010"
+    },
+    {
+      "id": "acid-g5-fixed-mode01-h0005-minus",
+      "argv": [
+        "/workspace/research4-worker-b/.runtime/worker-b-20261106/venv/bin/python",
+        "/workspace/research4-worker-b/scripts/research4_b_validation_recovery_worker_20261107.py",
+        "--request",
+        "/workspace/research4-worker-b/reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-recovery-v5/requests/acid-g5-fixed-mode01-h0005-minus.json",
+        "--request-sha256",
+        "7539a22fe7efeef6a927400c59fd3ed9cb5a83d523b319d7fe42e91041a1e73a",
+        "--output",
+        "{output}",
+        "--execute",
+        "--center-result",
+        "{result:acid-g5-fixed-center}",
+        "--center-result-sha256",
+        "{sha256:acid-g5-fixed-center}",
+        "--warmstart-result",
+        "{result:acid-g5-fixed-center}",
+        "--warmstart-result-sha256",
+        "{sha256:acid-g5-fixed-center}"
+      ],
+      "cpu_seconds": 500,
+      "wall_seconds": 900,
+      "depends_on": [
+        "acid-g5-fixed-center"
+      ],
+      "max_attempts": 2,
+      "result_schema": "research4-b-diagnostic-result-v1",
+      "success_statuses": [
+        "POINT_COMPUTED"
+      ],
+      "admission_group": "acid-g5-fixed-mode01-h0005"
+    },
+    {
+      "id": "acid-g5-fixed-mode01-h0005-plus",
+      "argv": [
+        "/workspace/research4-worker-b/.runtime/worker-b-20261106/venv/bin/python",
+        "/workspace/research4-worker-b/scripts/research4_b_validation_recovery_worker_20261107.py",
+        "--request",
+        "/workspace/research4-worker-b/reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-recovery-v5/requests/acid-g5-fixed-mode01-h0005-plus.json",
+        "--request-sha256",
+        "0d5115e2309efb63a1a56415e55424b15e0d7c5f8d9e932d0d51fe517ef8876a",
+        "--output",
+        "{output}",
+        "--execute",
+        "--center-result",
+        "{result:acid-g5-fixed-center}",
+        "--center-result-sha256",
+        "{sha256:acid-g5-fixed-center}",
+        "--warmstart-result",
+        "{result:acid-g5-fixed-center}",
+        "--warmstart-result-sha256",
+        "{sha256:acid-g5-fixed-center}"
+      ],
+      "cpu_seconds": 500,
+      "wall_seconds": 900,
+      "depends_on": [
+        "acid-g5-fixed-center"
+      ],
+      "max_attempts": 2,
+      "result_schema": "research4-b-diagnostic-result-v1",
+      "success_statuses": [
+        "POINT_COMPUTED"
+      ],
+      "admission_group": "acid-g5-fixed-mode01-h0005"
+    },
+    {
+      "id": "acid-g5-regrid-mode01-h0010-minus",
+      "argv": [
+        "/workspace/research4-worker-b/.runtime/worker-b-20261106/venv/bin/python",
+        "/workspace/research4-worker-b/scripts/research4_b_validation_recovery_worker_20261107.py",
+        "--request",
+        "/workspace/research4-worker-b/reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-recovery-v5/requests/acid-g5-regrid-mode01-h0010-minus.json",
+        "--request-sha256",
+        "426bee0bcc87c02289843336131e8bb686af902370824ac94e9e7271bf9204f7",
+        "--output",
+        "{output}",
+        "--execute",
+        "--warmstart-result",
+        "{result:acid-g5-regrid-center}",
+        "--warmstart-result-sha256",
+        "{sha256:acid-g5-regrid-center}"
+      ],
+      "cpu_seconds": 500,
+      "wall_seconds": 900,
+      "depends_on": [
+        "acid-g5-regrid-center"
+      ],
+      "max_attempts": 2,
+      "result_schema": "research4-b-diagnostic-result-v1",
+      "success_statuses": [
+        "POINT_COMPUTED"
+      ],
+      "admission_group": "acid-g5-regrid-mode01-h0010"
+    },
+    {
+      "id": "acid-g5-regrid-mode01-h0010-plus",
+      "argv": [
+        "/workspace/research4-worker-b/.runtime/worker-b-20261106/venv/bin/python",
+        "/workspace/research4-worker-b/scripts/research4_b_validation_recovery_worker_20261107.py",
+        "--request",
+        "/workspace/research4-worker-b/reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-recovery-v5/requests/acid-g5-regrid-mode01-h0010-plus.json",
+        "--request-sha256",
+        "288425229c322feea7d7b5d9586eabdf279b804f039971f7884fbd01c6095995",
+        "--output",
+        "{output}",
+        "--execute",
+        "--warmstart-result",
+        "{result:acid-g5-regrid-center}",
+        "--warmstart-result-sha256",
+        "{sha256:acid-g5-regrid-center}"
+      ],
+      "cpu_seconds": 500,
+      "wall_seconds": 900,
+      "depends_on": [
+        "acid-g5-regrid-center"
+      ],
+      "max_attempts": 2,
+      "result_schema": "research4-b-diagnostic-result-v1",
+      "success_statuses": [
+        "POINT_COMPUTED"
+      ],
+      "admission_group": "acid-g5-regrid-mode01-h0010"
+    },
+    {
+      "id": "acid-g5-regrid-mode01-h0005-minus",
+      "argv": [
+        "/workspace/research4-worker-b/.runtime/worker-b-20261106/venv/bin/python",
+        "/workspace/research4-worker-b/scripts/research4_b_validation_recovery_worker_20261107.py",
+        "--request",
+        "/workspace/research4-worker-b/reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-recovery-v5/requests/acid-g5-regrid-mode01-h0005-minus.json",
+        "--request-sha256",
+        "098d74d73ccac56299341f13100cc151b02a3da94027ff31bd8f657ae3799d47",
+        "--output",
+        "{output}",
+        "--execute",
+        "--warmstart-result",
+        "{result:acid-g5-regrid-center}",
+        "--warmstart-result-sha256",
+        "{sha256:acid-g5-regrid-center}"
+      ],
+      "cpu_seconds": 500,
+      "wall_seconds": 900,
+      "depends_on": [
+        "acid-g5-regrid-center"
+      ],
+      "max_attempts": 2,
+      "result_schema": "research4-b-diagnostic-result-v1",
+      "success_statuses": [
+        "POINT_COMPUTED"
+      ],
+      "admission_group": "acid-g5-regrid-mode01-h0005"
+    },
+    {
+      "id": "acid-g5-regrid-mode01-h0005-plus",
+      "argv": [
+        "/workspace/research4-worker-b/.runtime/worker-b-20261106/venv/bin/python",
+        "/workspace/research4-worker-b/scripts/research4_b_validation_recovery_worker_20261107.py",
+        "--request",
+        "/workspace/research4-worker-b/reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-recovery-v5/requests/acid-g5-regrid-mode01-h0005-plus.json",
+        "--request-sha256",
+        "efb1a3652e7364b9cda375969d36ebd5ecd5b46b1e609f6729326f740b67d087",
+        "--output",
+        "{output}",
+        "--execute",
+        "--warmstart-result",
+        "{result:acid-g5-regrid-center}",
+        "--warmstart-result-sha256",
+        "{sha256:acid-g5-regrid-center}"
+      ],
+      "cpu_seconds": 500,
+      "wall_seconds": 900,
+      "depends_on": [
+        "acid-g5-regrid-center"
+      ],
+      "max_attempts": 2,
+      "result_schema": "research4-b-diagnostic-result-v1",
+      "success_statuses": [
+        "POINT_COMPUTED"
+      ],
+      "admission_group": "acid-g5-regrid-mode01-h0005"
+    },
+    {
+      "id": "caly-g3-regrid-mode01-h0010-minus",
+      "argv": [
+        "/workspace/research4-worker-b/.runtime/worker-b-20261106/venv/bin/python",
+        "/workspace/research4-worker-b/scripts/research4_b_validation_recovery_worker_20261107.py",
+        "--request",
+        "/workspace/research4-worker-b/reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-recovery-v5/requests/caly-g3-regrid-mode01-h0010-minus.json",
+        "--request-sha256",
+        "9f914168c758f69584f9ed2664526f6e6ea26768361ee9cb82f56c1ff2d643fb",
+        "--output",
+        "{output}",
+        "--execute",
+        "--warmstart-result",
+        "{result:caly-g3-regrid-center}",
+        "--warmstart-result-sha256",
+        "{sha256:caly-g3-regrid-center}"
+      ],
+      "cpu_seconds": 1500,
+      "wall_seconds": 1800,
+      "depends_on": [
+        "caly-g3-regrid-center"
+      ],
+      "max_attempts": 2,
+      "result_schema": "research4-b-diagnostic-result-v1",
+      "success_statuses": [
+        "POINT_COMPUTED"
+      ],
+      "admission_group": "caly-g3-regrid-mode01-h0010"
+    },
+    {
+      "id": "caly-g3-regrid-mode01-h0010-plus",
+      "argv": [
+        "/workspace/research4-worker-b/.runtime/worker-b-20261106/venv/bin/python",
+        "/workspace/research4-worker-b/scripts/research4_b_validation_recovery_worker_20261107.py",
+        "--request",
+        "/workspace/research4-worker-b/reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-recovery-v5/requests/caly-g3-regrid-mode01-h0010-plus.json",
+        "--request-sha256",
+        "fb65741130a68a6768f49a55f15422cc67bb5ff737ae50119e632fc478f78667",
+        "--output",
+        "{output}",
+        "--execute",
+        "--warmstart-result",
+        "{result:caly-g3-regrid-center}",
+        "--warmstart-result-sha256",
+        "{sha256:caly-g3-regrid-center}"
+      ],
+      "cpu_seconds": 1500,
+      "wall_seconds": 1800,
+      "depends_on": [
+        "caly-g3-regrid-center"
+      ],
+      "max_attempts": 2,
+      "result_schema": "research4-b-diagnostic-result-v1",
+      "success_statuses": [
+        "POINT_COMPUTED"
+      ],
+      "admission_group": "caly-g3-regrid-mode01-h0010"
+    },
+    {
+      "id": "caly-g3-regrid-mode01-h0005-minus",
+      "argv": [
+        "/workspace/research4-worker-b/.runtime/worker-b-20261106/venv/bin/python",
+        "/workspace/research4-worker-b/scripts/research4_b_validation_recovery_worker_20261107.py",
+        "--request",
+        "/workspace/research4-worker-b/reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-recovery-v5/requests/caly-g3-regrid-mode01-h0005-minus.json",
+        "--request-sha256",
+        "8b7068efd3da36b8e6693b5988e3edcd937c9fb3bbc7f1da083cdd316f7a35ce",
+        "--output",
+        "{output}",
+        "--execute",
+        "--warmstart-result",
+        "{result:caly-g3-regrid-center}",
+        "--warmstart-result-sha256",
+        "{sha256:caly-g3-regrid-center}"
+      ],
+      "cpu_seconds": 1500,
+      "wall_seconds": 1800,
+      "depends_on": [
+        "caly-g3-regrid-center"
+      ],
+      "max_attempts": 2,
+      "result_schema": "research4-b-diagnostic-result-v1",
+      "success_statuses": [
+        "POINT_COMPUTED"
+      ],
+      "admission_group": "caly-g3-regrid-mode01-h0005"
+    },
+    {
+      "id": "caly-g3-regrid-mode01-h0005-plus",
+      "argv": [
+        "/workspace/research4-worker-b/.runtime/worker-b-20261106/venv/bin/python",
+        "/workspace/research4-worker-b/scripts/research4_b_validation_recovery_worker_20261107.py",
+        "--request",
+        "/workspace/research4-worker-b/reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-recovery-v5/requests/caly-g3-regrid-mode01-h0005-plus.json",
+        "--request-sha256",
+        "5f23faf2e2298df2c0f9e064fa29733240e6dbbfcfaad18cdd926faabb7c54f1",
+        "--output",
+        "{output}",
+        "--execute",
+        "--warmstart-result",
+        "{result:caly-g3-regrid-center}",
+        "--warmstart-result-sha256",
+        "{sha256:caly-g3-regrid-center}"
+      ],
+      "cpu_seconds": 1500,
+      "wall_seconds": 1800,
+      "depends_on": [
+        "caly-g3-regrid-center"
+      ],
+      "max_attempts": 2,
+      "result_schema": "research4-b-diagnostic-result-v1",
+      "success_statuses": [
+        "POINT_COMPUTED"
+      ],
+      "admission_group": "caly-g3-regrid-mode01-h0005"
+    },
+    {
+      "id": "acid-g3-fixed-comparison",
+      "argv": [
+        "/workspace/research4-worker-b/.runtime/worker-b-20261106/venv/bin/python",
+        "/workspace/research4-worker-b/scripts/research4_b_validation_recovery_worker_20261107.py",
+        "--request",
+        "/workspace/research4-worker-b/reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-recovery-v5/requests/acid-g3-fixed-comparison.json",
+        "--request-sha256",
+        "700e6549904276b9fb2e089e201d8a244b74a496badcc7b621b4fce739cc63c9",
+        "--output",
+        "{output}",
+        "--execute",
+        "--point-result",
+        "{result:acid-g3-fixed-center}",
+        "--point-result-sha256",
+        "{sha256:acid-g3-fixed-center}",
+        "--point-result",
+        "{result:acid-g3-fixed-mode01-h0010-minus}",
+        "--point-result-sha256",
+        "{sha256:acid-g3-fixed-mode01-h0010-minus}",
+        "--point-result",
+        "{result:acid-g3-fixed-mode01-h0010-plus}",
+        "--point-result-sha256",
+        "{sha256:acid-g3-fixed-mode01-h0010-plus}",
+        "--point-result",
+        "{result:acid-g3-fixed-mode01-h0005-minus}",
+        "--point-result-sha256",
+        "{sha256:acid-g3-fixed-mode01-h0005-minus}",
+        "--point-result",
+        "{result:acid-g3-fixed-mode01-h0005-plus}",
+        "--point-result-sha256",
+        "{sha256:acid-g3-fixed-mode01-h0005-plus}"
+      ],
+      "cpu_seconds": 30,
+      "wall_seconds": 180,
+      "depends_on": [
+        "acid-g3-fixed-center",
+        "acid-g3-fixed-mode01-h0010-minus",
+        "acid-g3-fixed-mode01-h0010-plus",
+        "acid-g3-fixed-mode01-h0005-minus",
+        "acid-g3-fixed-mode01-h0005-plus"
+      ],
+      "max_attempts": 2,
+      "result_schema": "research4-b-diagnostic-result-v1",
+      "success_statuses": [
+        "AGGREGATE_COMPLETE"
+      ]
+    },
+    {
+      "id": "acid-g3-regrid-comparison",
+      "argv": [
+        "/workspace/research4-worker-b/.runtime/worker-b-20261106/venv/bin/python",
+        "/workspace/research4-worker-b/scripts/research4_b_validation_recovery_worker_20261107.py",
+        "--request",
+        "/workspace/research4-worker-b/reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-recovery-v5/requests/acid-g3-regrid-comparison.json",
+        "--request-sha256",
+        "d24d6d247000c5bba839070308bb42a045ce034cb2d4b77f10251e318c10e41c",
+        "--output",
+        "{output}",
+        "--execute",
+        "--point-result",
+        "{result:acid-g3-regrid-center}",
+        "--point-result-sha256",
+        "{sha256:acid-g3-regrid-center}",
+        "--point-result",
+        "{result:acid-g3-regrid-mode01-h0010-minus}",
+        "--point-result-sha256",
+        "{sha256:acid-g3-regrid-mode01-h0010-minus}",
+        "--point-result",
+        "{result:acid-g3-regrid-mode01-h0010-plus}",
+        "--point-result-sha256",
+        "{sha256:acid-g3-regrid-mode01-h0010-plus}",
+        "--point-result",
+        "{result:acid-g3-regrid-mode01-h0005-minus}",
+        "--point-result-sha256",
+        "{sha256:acid-g3-regrid-mode01-h0005-minus}",
+        "--point-result",
+        "{result:acid-g3-regrid-mode01-h0005-plus}",
+        "--point-result-sha256",
+        "{sha256:acid-g3-regrid-mode01-h0005-plus}"
+      ],
+      "cpu_seconds": 30,
+      "wall_seconds": 180,
+      "depends_on": [
+        "acid-g3-regrid-center",
+        "acid-g3-regrid-mode01-h0010-minus",
+        "acid-g3-regrid-mode01-h0010-plus",
+        "acid-g3-regrid-mode01-h0005-minus",
+        "acid-g3-regrid-mode01-h0005-plus"
+      ],
+      "max_attempts": 2,
+      "result_schema": "research4-b-diagnostic-result-v1",
+      "success_statuses": [
+        "AGGREGATE_COMPLETE"
+      ]
+    },
+    {
+      "id": "acid-g5-fixed-comparison",
+      "argv": [
+        "/workspace/research4-worker-b/.runtime/worker-b-20261106/venv/bin/python",
+        "/workspace/research4-worker-b/scripts/research4_b_validation_recovery_worker_20261107.py",
+        "--request",
+        "/workspace/research4-worker-b/reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-recovery-v5/requests/acid-g5-fixed-comparison.json",
+        "--request-sha256",
+        "259083de92b51617e1b00bd04d51f688c9b624bad963f289c9d8097e65f2afb1",
+        "--output",
+        "{output}",
+        "--execute",
+        "--point-result",
+        "{result:acid-g5-fixed-center}",
+        "--point-result-sha256",
+        "{sha256:acid-g5-fixed-center}",
+        "--point-result",
+        "{result:acid-g5-fixed-mode01-h0010-minus}",
+        "--point-result-sha256",
+        "{sha256:acid-g5-fixed-mode01-h0010-minus}",
+        "--point-result",
+        "{result:acid-g5-fixed-mode01-h0010-plus}",
+        "--point-result-sha256",
+        "{sha256:acid-g5-fixed-mode01-h0010-plus}",
+        "--point-result",
+        "{result:acid-g5-fixed-mode01-h0005-minus}",
+        "--point-result-sha256",
+        "{sha256:acid-g5-fixed-mode01-h0005-minus}",
+        "--point-result",
+        "{result:acid-g5-fixed-mode01-h0005-plus}",
+        "--point-result-sha256",
+        "{sha256:acid-g5-fixed-mode01-h0005-plus}"
+      ],
+      "cpu_seconds": 30,
+      "wall_seconds": 180,
+      "depends_on": [
+        "acid-g5-fixed-center",
+        "acid-g5-fixed-mode01-h0010-minus",
+        "acid-g5-fixed-mode01-h0010-plus",
+        "acid-g5-fixed-mode01-h0005-minus",
+        "acid-g5-fixed-mode01-h0005-plus"
+      ],
+      "max_attempts": 2,
+      "result_schema": "research4-b-diagnostic-result-v1",
+      "success_statuses": [
+        "AGGREGATE_COMPLETE"
+      ]
+    },
+    {
+      "id": "acid-g5-regrid-comparison",
+      "argv": [
+        "/workspace/research4-worker-b/.runtime/worker-b-20261106/venv/bin/python",
+        "/workspace/research4-worker-b/scripts/research4_b_validation_recovery_worker_20261107.py",
+        "--request",
+        "/workspace/research4-worker-b/reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-recovery-v5/requests/acid-g5-regrid-comparison.json",
+        "--request-sha256",
+        "54ee13827f0b1c7e9dc0c23445e52294aaf8175c055ca6b335f22ea6cd220eb8",
+        "--output",
+        "{output}",
+        "--execute",
+        "--point-result",
+        "{result:acid-g5-regrid-center}",
+        "--point-result-sha256",
+        "{sha256:acid-g5-regrid-center}",
+        "--point-result",
+        "{result:acid-g5-regrid-mode01-h0010-minus}",
+        "--point-result-sha256",
+        "{sha256:acid-g5-regrid-mode01-h0010-minus}",
+        "--point-result",
+        "{result:acid-g5-regrid-mode01-h0010-plus}",
+        "--point-result-sha256",
+        "{sha256:acid-g5-regrid-mode01-h0010-plus}",
+        "--point-result",
+        "{result:acid-g5-regrid-mode01-h0005-minus}",
+        "--point-result-sha256",
+        "{sha256:acid-g5-regrid-mode01-h0005-minus}",
+        "--point-result",
+        "{result:acid-g5-regrid-mode01-h0005-plus}",
+        "--point-result-sha256",
+        "{sha256:acid-g5-regrid-mode01-h0005-plus}"
+      ],
+      "cpu_seconds": 30,
+      "wall_seconds": 180,
+      "depends_on": [
+        "acid-g5-regrid-center",
+        "acid-g5-regrid-mode01-h0010-minus",
+        "acid-g5-regrid-mode01-h0010-plus",
+        "acid-g5-regrid-mode01-h0005-minus",
+        "acid-g5-regrid-mode01-h0005-plus"
+      ],
+      "max_attempts": 2,
+      "result_schema": "research4-b-diagnostic-result-v1",
+      "success_statuses": [
+        "AGGREGATE_COMPLETE"
+      ]
+    },
+    {
+      "id": "caly-g3-regrid-comparison",
+      "argv": [
+        "/workspace/research4-worker-b/.runtime/worker-b-20261106/venv/bin/python",
+        "/workspace/research4-worker-b/scripts/research4_b_validation_recovery_worker_20261107.py",
+        "--request",
+        "/workspace/research4-worker-b/reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-recovery-v5/requests/caly-g3-regrid-comparison.json",
+        "--request-sha256",
+        "9cb6278e471ce0ab36e01d1633179f6ffe56d439196eb1ee6c84e04a1eb1ba96",
+        "--output",
+        "{output}",
+        "--execute",
+        "--point-result",
+        "{result:caly-g3-regrid-center}",
+        "--point-result-sha256",
+        "{sha256:caly-g3-regrid-center}",
+        "--point-result",
+        "{result:caly-g3-regrid-mode01-h0010-minus}",
+        "--point-result-sha256",
+        "{sha256:caly-g3-regrid-mode01-h0010-minus}",
+        "--point-result",
+        "{result:caly-g3-regrid-mode01-h0010-plus}",
+        "--point-result-sha256",
+        "{sha256:caly-g3-regrid-mode01-h0010-plus}",
+        "--point-result",
+        "{result:caly-g3-regrid-mode01-h0005-minus}",
+        "--point-result-sha256",
+        "{sha256:caly-g3-regrid-mode01-h0005-minus}",
+        "--point-result",
+        "{result:caly-g3-regrid-mode01-h0005-plus}",
+        "--point-result-sha256",
+        "{sha256:caly-g3-regrid-mode01-h0005-plus}"
+      ],
+      "cpu_seconds": 30,
+      "wall_seconds": 180,
+      "depends_on": [
+        "caly-g3-regrid-center",
+        "caly-g3-regrid-mode01-h0010-minus",
+        "caly-g3-regrid-mode01-h0010-plus",
+        "caly-g3-regrid-mode01-h0005-minus",
+        "caly-g3-regrid-mode01-h0005-plus"
+      ],
+      "max_attempts": 2,
+      "result_schema": "research4-b-diagnostic-result-v1",
+      "success_statuses": [
+        "AGGREGATE_COMPLETE"
+      ]
+    },
+    {
+      "id": "all-validation-points-comparison",
+      "argv": [
+        "/workspace/research4-worker-b/.runtime/worker-b-20261106/venv/bin/python",
+        "/workspace/research4-worker-b/scripts/research4_b_validation_recovery_worker_20261107.py",
+        "--request",
+        "/workspace/research4-worker-b/reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-recovery-v5/requests/all-validation-points-comparison.json",
+        "--request-sha256",
+        "c9d8f5b33aa454416b6c129f12f1f3051f211d91d59e5e60552fa7e21f6de6ef",
+        "--output",
+        "{output}",
+        "--execute",
+        "--point-result",
+        "{result:water-g3-fixed-center}",
+        "--point-result-sha256",
+        "{sha256:water-g3-fixed-center}",
+        "--point-result",
+        "{result:water-g3-fixed-translate0-h0010-minus}",
+        "--point-result-sha256",
+        "{sha256:water-g3-fixed-translate0-h0010-minus}",
+        "--point-result",
+        "{result:water-g3-fixed-translate0-h0010-plus}",
+        "--point-result-sha256",
+        "{sha256:water-g3-fixed-translate0-h0010-plus}",
+        "--point-result",
+        "{result:water-g3-fixed-translate0-h0005-minus}",
+        "--point-result-sha256",
+        "{sha256:water-g3-fixed-translate0-h0005-minus}",
+        "--point-result",
+        "{result:water-g3-fixed-translate0-h0005-plus}",
+        "--point-result-sha256",
+        "{sha256:water-g3-fixed-translate0-h0005-plus}",
+        "--point-result",
+        "{result:water-g3-fixed-mode01-h0010-minus}",
+        "--point-result-sha256",
+        "{sha256:water-g3-fixed-mode01-h0010-minus}",
+        "--point-result",
+        "{result:water-g3-fixed-mode01-h0010-plus}",
+        "--point-result-sha256",
+        "{sha256:water-g3-fixed-mode01-h0010-plus}",
+        "--point-result",
+        "{result:water-g3-fixed-mode01-h0005-minus}",
+        "--point-result-sha256",
+        "{sha256:water-g3-fixed-mode01-h0005-minus}",
+        "--point-result",
+        "{result:water-g3-fixed-mode01-h0005-plus}",
+        "--point-result-sha256",
+        "{sha256:water-g3-fixed-mode01-h0005-plus}",
+        "--point-result",
+        "{result:water-g3-regrid-center}",
+        "--point-result-sha256",
+        "{sha256:water-g3-regrid-center}",
+        "--point-result",
+        "{result:water-g3-regrid-translate0-h0010-minus}",
+        "--point-result-sha256",
+        "{sha256:water-g3-regrid-translate0-h0010-minus}",
+        "--point-result",
+        "{result:water-g3-regrid-translate0-h0010-plus}",
+        "--point-result-sha256",
+        "{sha256:water-g3-regrid-translate0-h0010-plus}",
+        "--point-result",
+        "{result:water-g3-regrid-translate0-h0005-minus}",
+        "--point-result-sha256",
+        "{sha256:water-g3-regrid-translate0-h0005-minus}",
+        "--point-result",
+        "{result:water-g3-regrid-translate0-h0005-plus}",
+        "--point-result-sha256",
+        "{sha256:water-g3-regrid-translate0-h0005-plus}",
+        "--point-result",
+        "{result:water-g3-regrid-mode01-h0010-minus}",
+        "--point-result-sha256",
+        "{sha256:water-g3-regrid-mode01-h0010-minus}",
+        "--point-result",
+        "{result:water-g3-regrid-mode01-h0010-plus}",
+        "--point-result-sha256",
+        "{sha256:water-g3-regrid-mode01-h0010-plus}",
+        "--point-result",
+        "{result:water-g3-regrid-mode01-h0005-minus}",
+        "--point-result-sha256",
+        "{sha256:water-g3-regrid-mode01-h0005-minus}",
+        "--point-result",
+        "{result:water-g3-regrid-mode01-h0005-plus}",
+        "--point-result-sha256",
+        "{sha256:water-g3-regrid-mode01-h0005-plus}",
+        "--point-result",
+        "{result:water-g5-fixed-center}",
+        "--point-result-sha256",
+        "{sha256:water-g5-fixed-center}",
+        "--point-result",
+        "{result:water-g5-fixed-translate0-h0010-minus}",
+        "--point-result-sha256",
+        "{sha256:water-g5-fixed-translate0-h0010-minus}",
+        "--point-result",
+        "{result:water-g5-fixed-translate0-h0010-plus}",
+        "--point-result-sha256",
+        "{sha256:water-g5-fixed-translate0-h0010-plus}",
+        "--point-result",
+        "{result:water-g5-fixed-translate0-h0005-minus}",
+        "--point-result-sha256",
+        "{sha256:water-g5-fixed-translate0-h0005-minus}",
+        "--point-result",
+        "{result:water-g5-fixed-translate0-h0005-plus}",
+        "--point-result-sha256",
+        "{sha256:water-g5-fixed-translate0-h0005-plus}",
+        "--point-result",
+        "{result:water-g5-fixed-mode01-h0010-minus}",
+        "--point-result-sha256",
+        "{sha256:water-g5-fixed-mode01-h0010-minus}",
+        "--point-result",
+        "{result:water-g5-fixed-mode01-h0010-plus}",
+        "--point-result-sha256",
+        "{sha256:water-g5-fixed-mode01-h0010-plus}",
+        "--point-result",
+        "{result:water-g5-fixed-mode01-h0005-minus}",
+        "--point-result-sha256",
+        "{sha256:water-g5-fixed-mode01-h0005-minus}",
+        "--point-result",
+        "{result:water-g5-fixed-mode01-h0005-plus}",
+        "--point-result-sha256",
+        "{sha256:water-g5-fixed-mode01-h0005-plus}",
+        "--point-result",
+        "{result:water-g5-regrid-center}",
+        "--point-result-sha256",
+        "{sha256:water-g5-regrid-center}",
+        "--point-result",
+        "{result:water-g5-regrid-translate0-h0010-minus}",
+        "--point-result-sha256",
+        "{sha256:water-g5-regrid-translate0-h0010-minus}",
+        "--point-result",
+        "{result:water-g5-regrid-translate0-h0010-plus}",
+        "--point-result-sha256",
+        "{sha256:water-g5-regrid-translate0-h0010-plus}",
+        "--point-result",
+        "{result:water-g5-regrid-translate0-h0005-minus}",
+        "--point-result-sha256",
+        "{sha256:water-g5-regrid-translate0-h0005-minus}",
+        "--point-result",
+        "{result:water-g5-regrid-translate0-h0005-plus}",
+        "--point-result-sha256",
+        "{sha256:water-g5-regrid-translate0-h0005-plus}",
+        "--point-result",
+        "{result:water-g5-regrid-mode01-h0010-minus}",
+        "--point-result-sha256",
+        "{sha256:water-g5-regrid-mode01-h0010-minus}",
+        "--point-result",
+        "{result:water-g5-regrid-mode01-h0010-plus}",
+        "--point-result-sha256",
+        "{sha256:water-g5-regrid-mode01-h0010-plus}",
+        "--point-result",
+        "{result:water-g5-regrid-mode01-h0005-minus}",
+        "--point-result-sha256",
+        "{sha256:water-g5-regrid-mode01-h0005-minus}",
+        "--point-result",
+        "{result:water-g5-regrid-mode01-h0005-plus}",
+        "--point-result-sha256",
+        "{sha256:water-g5-regrid-mode01-h0005-plus}",
+        "--point-result",
+        "{result:acid-g3-fixed-center}",
+        "--point-result-sha256",
+        "{sha256:acid-g3-fixed-center}",
+        "--point-result",
+        "{result:acid-g3-fixed-mode01-h0010-minus}",
+        "--point-result-sha256",
+        "{sha256:acid-g3-fixed-mode01-h0010-minus}",
+        "--point-result",
+        "{result:acid-g3-fixed-mode01-h0010-plus}",
+        "--point-result-sha256",
+        "{sha256:acid-g3-fixed-mode01-h0010-plus}",
+        "--point-result",
+        "{result:acid-g3-fixed-mode01-h0005-minus}",
+        "--point-result-sha256",
+        "{sha256:acid-g3-fixed-mode01-h0005-minus}",
+        "--point-result",
+        "{result:acid-g3-fixed-mode01-h0005-plus}",
+        "--point-result-sha256",
+        "{sha256:acid-g3-fixed-mode01-h0005-plus}",
+        "--point-result",
+        "{result:acid-g3-regrid-center}",
+        "--point-result-sha256",
+        "{sha256:acid-g3-regrid-center}",
+        "--point-result",
+        "{result:acid-g3-regrid-mode01-h0010-minus}",
+        "--point-result-sha256",
+        "{sha256:acid-g3-regrid-mode01-h0010-minus}",
+        "--point-result",
+        "{result:acid-g3-regrid-mode01-h0010-plus}",
+        "--point-result-sha256",
+        "{sha256:acid-g3-regrid-mode01-h0010-plus}",
+        "--point-result",
+        "{result:acid-g3-regrid-mode01-h0005-minus}",
+        "--point-result-sha256",
+        "{sha256:acid-g3-regrid-mode01-h0005-minus}",
+        "--point-result",
+        "{result:acid-g3-regrid-mode01-h0005-plus}",
+        "--point-result-sha256",
+        "{sha256:acid-g3-regrid-mode01-h0005-plus}",
+        "--point-result",
+        "{result:acid-g5-fixed-center}",
+        "--point-result-sha256",
+        "{sha256:acid-g5-fixed-center}",
+        "--point-result",
+        "{result:acid-g5-fixed-mode01-h0010-minus}",
+        "--point-result-sha256",
+        "{sha256:acid-g5-fixed-mode01-h0010-minus}",
+        "--point-result",
+        "{result:acid-g5-fixed-mode01-h0010-plus}",
+        "--point-result-sha256",
+        "{sha256:acid-g5-fixed-mode01-h0010-plus}",
+        "--point-result",
+        "{result:acid-g5-fixed-mode01-h0005-minus}",
+        "--point-result-sha256",
+        "{sha256:acid-g5-fixed-mode01-h0005-minus}",
+        "--point-result",
+        "{result:acid-g5-fixed-mode01-h0005-plus}",
+        "--point-result-sha256",
+        "{sha256:acid-g5-fixed-mode01-h0005-plus}",
+        "--point-result",
+        "{result:acid-g5-regrid-center}",
+        "--point-result-sha256",
+        "{sha256:acid-g5-regrid-center}",
+        "--point-result",
+        "{result:acid-g5-regrid-mode01-h0010-minus}",
+        "--point-result-sha256",
+        "{sha256:acid-g5-regrid-mode01-h0010-minus}",
+        "--point-result",
+        "{result:acid-g5-regrid-mode01-h0010-plus}",
+        "--point-result-sha256",
+        "{sha256:acid-g5-regrid-mode01-h0010-plus}",
+        "--point-result",
+        "{result:acid-g5-regrid-mode01-h0005-minus}",
+        "--point-result-sha256",
+        "{sha256:acid-g5-regrid-mode01-h0005-minus}",
+        "--point-result",
+        "{result:acid-g5-regrid-mode01-h0005-plus}",
+        "--point-result-sha256",
+        "{sha256:acid-g5-regrid-mode01-h0005-plus}",
+        "--point-result",
+        "{result:caly-g3-regrid-center}",
+        "--point-result-sha256",
+        "{sha256:caly-g3-regrid-center}",
+        "--point-result",
+        "{result:caly-g3-regrid-mode01-h0010-minus}",
+        "--point-result-sha256",
+        "{sha256:caly-g3-regrid-mode01-h0010-minus}",
+        "--point-result",
+        "{result:caly-g3-regrid-mode01-h0010-plus}",
+        "--point-result-sha256",
+        "{sha256:caly-g3-regrid-mode01-h0010-plus}",
+        "--point-result",
+        "{result:caly-g3-regrid-mode01-h0005-minus}",
+        "--point-result-sha256",
+        "{sha256:caly-g3-regrid-mode01-h0005-minus}",
+        "--point-result",
+        "{result:caly-g3-regrid-mode01-h0005-plus}",
+        "--point-result-sha256",
+        "{sha256:caly-g3-regrid-mode01-h0005-plus}"
+      ],
+      "cpu_seconds": 60,
+      "wall_seconds": 240,
+      "depends_on": [
+        "water-g3-fixed-center",
+        "water-g3-fixed-translate0-h0010-minus",
+        "water-g3-fixed-translate0-h0010-plus",
+        "water-g3-fixed-translate0-h0005-minus",
+        "water-g3-fixed-translate0-h0005-plus",
+        "water-g3-fixed-mode01-h0010-minus",
+        "water-g3-fixed-mode01-h0010-plus",
+        "water-g3-fixed-mode01-h0005-minus",
+        "water-g3-fixed-mode01-h0005-plus",
+        "water-g3-regrid-center",
+        "water-g3-regrid-translate0-h0010-minus",
+        "water-g3-regrid-translate0-h0010-plus",
+        "water-g3-regrid-translate0-h0005-minus",
+        "water-g3-regrid-translate0-h0005-plus",
+        "water-g3-regrid-mode01-h0010-minus",
+        "water-g3-regrid-mode01-h0010-plus",
+        "water-g3-regrid-mode01-h0005-minus",
+        "water-g3-regrid-mode01-h0005-plus",
+        "water-g5-fixed-center",
+        "water-g5-fixed-translate0-h0010-minus",
+        "water-g5-fixed-translate0-h0010-plus",
+        "water-g5-fixed-translate0-h0005-minus",
+        "water-g5-fixed-translate0-h0005-plus",
+        "water-g5-fixed-mode01-h0010-minus",
+        "water-g5-fixed-mode01-h0010-plus",
+        "water-g5-fixed-mode01-h0005-minus",
+        "water-g5-fixed-mode01-h0005-plus",
+        "water-g5-regrid-center",
+        "water-g5-regrid-translate0-h0010-minus",
+        "water-g5-regrid-translate0-h0010-plus",
+        "water-g5-regrid-translate0-h0005-minus",
+        "water-g5-regrid-translate0-h0005-plus",
+        "water-g5-regrid-mode01-h0010-minus",
+        "water-g5-regrid-mode01-h0010-plus",
+        "water-g5-regrid-mode01-h0005-minus",
+        "water-g5-regrid-mode01-h0005-plus",
+        "acid-g3-fixed-center",
+        "acid-g3-fixed-mode01-h0010-minus",
+        "acid-g3-fixed-mode01-h0010-plus",
+        "acid-g3-fixed-mode01-h0005-minus",
+        "acid-g3-fixed-mode01-h0005-plus",
+        "acid-g3-regrid-center",
+        "acid-g3-regrid-mode01-h0010-minus",
+        "acid-g3-regrid-mode01-h0010-plus",
+        "acid-g3-regrid-mode01-h0005-minus",
+        "acid-g3-regrid-mode01-h0005-plus",
+        "acid-g5-fixed-center",
+        "acid-g5-fixed-mode01-h0010-minus",
+        "acid-g5-fixed-mode01-h0010-plus",
+        "acid-g5-fixed-mode01-h0005-minus",
+        "acid-g5-fixed-mode01-h0005-plus",
+        "acid-g5-regrid-center",
+        "acid-g5-regrid-mode01-h0010-minus",
+        "acid-g5-regrid-mode01-h0010-plus",
+        "acid-g5-regrid-mode01-h0005-minus",
+        "acid-g5-regrid-mode01-h0005-plus",
+        "caly-g3-regrid-center",
+        "caly-g3-regrid-mode01-h0010-minus",
+        "caly-g3-regrid-mode01-h0010-plus",
+        "caly-g3-regrid-mode01-h0005-minus",
+        "caly-g3-regrid-mode01-h0005-plus"
+      ],
+      "max_attempts": 2,
+      "result_schema": "research4-b-diagnostic-result-v1",
+      "success_statuses": [
+        "AGGREGATE_COMPLETE"
+      ]
+    }
+  ],
+  "upload": {
+    "enabled": true,
+    "allowlist": [
+      "followup-validation-recovery-v5/*.json",
+      "followup-validation-recovery-v5/*.jsonl",
+      "followup-validation-recovery-v5/detached-*.console.log",
+      "followup-validation-recovery-v5/preparation/**/*.json",
+      "followup-validation-recovery-v5/preparation/**/*.csv",
+      "followup-validation-recovery-v5/preparation/**/*.txt",
+      "followup-validation-recovery-v5/preparation/**/*.md",
+      "followup-validation-recovery-v5/requests/*.json",
+      "followup-validation-recovery-v5/science/**/*.json",
+      "followup-validation-recovery-v5/science/**/*.jsonl",
+      "followup-validation-recovery-v5/science/**/*.csv",
+      "followup-validation-recovery-v5/science/**/*.log",
+      "followup-validation-recovery-v5/science/**/*.txt",
+      "followup-validation-recovery-v5/science/**/gradient.npy",
+      "followup-validation-recovery-v5/science/**/gradient_grid_response_true.npy",
+      "followup-validation-recovery-v5/science/**/direction.npy",
+      "followup-validation-recovery-v5/science/**/geometry_bohr.npy",
+      "followup-validation-recovery-v5/science/**/predicted_Hq.npy",
+      "followup-validation-recovery-v5/execution/*.json",
+      "followup-validation-recovery-v5/execution/*.log"
+    ]
+  },
+  "local_only_artifacts": [
+    "*.chk",
+    "density.npy",
+    "grids_coords.npy",
+    "grids_weights.npy",
+    "grid_non0tab.npy"
+  ],
+  "local_only_policy": "Keep all original artifacts intact with source/result/seal hashes; only the finite small return whitelist is uploaded.",
+  "new_quantum_evaluations_at_preparation": 0,
+  "hourly_automation_created": false
+}
