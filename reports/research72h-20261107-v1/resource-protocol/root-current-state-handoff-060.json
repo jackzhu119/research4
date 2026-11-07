@@ -1,0 +1,126 @@
+{
+  "schema": "research4-root-current-state-handoff-v1",
+  "number": 60,
+  "at_utc": "2026-11-07T12:10:22.786174+00:00",
+  "status": "BACKGROUND_ACTIVE_NO_RECOVERY_NEEDED_ONE_SCIENTIFIC_FAILURE_PRESERVED",
+  "current_ledger_path": "/workspace/research4/reports/research72h-20261107-v1/cpu_budget.json",
+  "current_config": {
+    "path": "/workspace/research4/reports/research72h-20261107-v1/queue-configs/main-001/config_ROOT_APPROVED_EXPANDED.json",
+    "sha256": "d9dad53ef4715b1bf4222d19a1d0f3eeb706c66a41ec9d63224d0436f5dc0bde"
+  },
+  "workroot": "/workspace/research4/reports/research72h-20261107-v1/autonomous-main-001",
+  "actual_phase": "r72-mode-026-energy-001",
+  "actual_health_receipt": {
+    "path": "/workspace/research4/reports/research72h-20261107-v1/resource-protocol/actual-health-check-060.json",
+    "sha256": "57ffca03f334ee1053e53dc4acf482db099d78dbeddbb0e565607381956ca608"
+  },
+  "real_active_identities": [
+    {
+      "pid": 10914,
+      "start_ticks": 1224162,
+      "uid": 1000,
+      "boot_id": "bcc60ef9-a836-45c2-82a2-1766833e8991",
+      "state": "S",
+      "ppid": 1,
+      "pgrp": 10914,
+      "session": 10914,
+      "CPU_seconds": 2.82
+    },
+    {
+      "pid": 13060,
+      "start_ticks": 3421878,
+      "uid": 1000,
+      "boot_id": "bcc60ef9-a836-45c2-82a2-1766833e8991",
+      "state": "S",
+      "ppid": 10914,
+      "pgrp": 13060,
+      "session": 13060,
+      "CPU_seconds": 187.19
+    },
+    {
+      "pid": 13061,
+      "start_ticks": 3421900,
+      "uid": 1000,
+      "boot_id": "bcc60ef9-a836-45c2-82a2-1766833e8991",
+      "state": "R",
+      "ppid": 13060,
+      "pgrp": 13061,
+      "session": 13061,
+      "CPU_seconds": 7866.86
+    }
+  ],
+  "latest_state_path": "/workspace/research4/reports/research72h-20261107-v1/autonomous-main-001/state.json",
+  "latest_events_path": "/workspace/research4/reports/research72h-20261107-v1/autonomous-main-001/events.jsonl",
+  "job_statuses_at_observation": {
+    "control-water": "SUCCESS",
+    "control-ethanol": "SUCCESS",
+    "spino-zero-pilot": "SUCCESS",
+    "spino-zero-continue": "SUCCESS",
+    "mode-001-energy": "FAILED_CLOSED",
+    "mode-026-energy": "RUNNING"
+  },
+  "progress_hint": "Actual mode026 worker is live; do not restart. Parent may sleep while worker computes. Top-level historical adoption status is not a health flag. Failed mode001 is closed scientific nonconvergence, not whole pipeline stop.",
+  "failed_mode1": {
+    "parent_result": {
+      "path": "/workspace/research4/reports/research72h-20261107-v1/autonomous-main-001/jobs/mode-001-energy/attempt-001/result.json",
+      "sha256": "2e6de6bf466e07d172d5d9b11841ee80c01aa6a00a19fe7ebb1ac32e4f9f1dad"
+    },
+    "point_result": {
+      "path": "/workspace/research4/reports/research72h-20261107-v1/autonomous-main-001/jobs/mode-001-energy/attempt-001/h0.0050-plus/native_result.json",
+      "sha256": "9d8558940a321e8177fec248d42954d1ef2c49efb0b4959806d674211f14043b"
+    },
+    "actual_closed_CPU_seconds": 20165.772185,
+    "closure_confirmed": true,
+    "resource_killed": false,
+    "reason": "A displacement is uncertified; no further geometry attempted",
+    "last_convergence_checks": [
+      {
+        "phase": "SCF_MAIN_CYCLE",
+        "energy_delta_abs_hartree": 9.094947017729282e-13,
+        "orbital_gradient_norm": 7.595272874712409e-10,
+        "energy_tolerance_hartree": 1e-12,
+        "orbital_gradient_tolerance": 1e-09,
+        "accepted": true,
+        "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+        "kernel_call_1based": 1,
+        "cycle_0based": 70,
+        "energy_hartree": -2210.4455227080844
+      },
+      {
+        "phase": "FINAL_EXTRA_CYCLE",
+        "energy_delta_abs_hartree": 9.094947017729282e-13,
+        "orbital_gradient_norm": 2.533527764364998e-09,
+        "energy_tolerance_hartree": 1e-12,
+        "orbital_gradient_tolerance": 1e-09,
+        "accepted": false,
+        "acceptance_rule": "ENERGY_AND_ORBITAL_GRADIENT_NO_RELAXED_EXTRA_CYCLE_OR",
+        "kernel_call_1based": 1,
+        "cycle_0based": 70,
+        "energy_hartree": -2210.4455227080834
+      }
+    ],
+    "qualified_displacements": 0,
+    "failure_is_not_evidence_all_science_succeeded": true
+  },
+  "deadline_UTC": "2026-11-10T02:50:37.289380+00:00",
+  "deadline_Beijing": "2026-11-10 10:50:37+08:00",
+  "old_v8_ledger_frozen_sha256": "55b27cad9f90d2cc1af0091668f0e889d2fb7d0c60833c0d1825b5c3d0723713",
+  "last_Git_backup_remote_verified_from_actual_record": "75e19e32e85db20c9fbbb7f5fb94c119e2894aeb",
+  "handoff_and_running_results": "LOCAL_NOT_YET_PUSHED_WAIT_ACTUAL_Q_CLOSURE_FOR_GIT",
+  "remaining_queue": [
+    "rebuilt-grid-controls",
+    "rebuilt-spino-grid-1",
+    "rebuilt-spino-grid-3",
+    "source-shift-augmentation",
+    "paper-ml-figures"
+  ],
+  "historical_spinosin": "219_SIGNED_194_POSITIVE_25_IMAGINARY_UNQUALIFIED_MINIMUM",
+  "new219_modes": "NOT_RUN",
+  "IR": "NOT_COMPUTED",
+  "classification_baseline": "821/85596.0234% INTERNAL_CV_UNCHANGED",
+  "lab_standard_HPLC_independent_batch": "NOT_RUN",
+  "all_original_data_labels_historical_models_main_unchanged": true,
+  "no_scheduled_hourly_task": true,
+  "recovery_action": "NONE_LIVE_PARENT_GUARD_WORKER_HEALTHY",
+  "automatic_background": "ACTIVE_FINITE_REVIEWED_QUEUE_NOT_HOST_SHUTDOWN_SURVIVAL_GUARANTEE"
+}
