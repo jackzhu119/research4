@@ -1,0 +1,64 @@
+{
+  "schema": "research4-raw-native-log-return-source-review-v1",
+  "status": "PASS_SOURCE_REVIEW_ONLY",
+  "reviewed_at_utc": "2026-11-07T01:11:03.379973+00:00",
+  "reviewer_task": "derivative_assembly_audit",
+  "sources": {
+    "old_helper": {
+      "path": "scripts/research4_host_a_git_return_20261107_v5.py",
+      "sha256": "806e21fa2ec182b1c83b0b78498025111a272938ed4d604ae83dd83e6ecc1dff"
+    },
+    "new_helper": {
+      "path": "scripts/research4_host_a_git_return_20261107_v5b.py",
+      "sha256": "16084b32932c5dc52d56a3c24485280b48de740ebacc19c645188c9afdefddb5"
+    },
+    "bound_return_manifest": {
+      "path": "reports/fixed-quadrature-20261107-v1/queue-configs/host-a-005/git_return_manifest_ROOT_APPROVED.json",
+      "sha256": "579c5f93e88aee6f1b3a3174119ced58ac98a8d03bc24efa338b8d3218b9c7df"
+    },
+    "initial_failed_return_receipt": {
+      "path": "reports/fixed-quadrature-20261107-v1/queue-host-a-005/git-return/host-a-fixedgrid-005-q1-upload1/failure_receipt.json",
+      "sha256": "714d32a66937f65c5ef2292821ded7af4042b6d5414f29b3bc7df8902ddfbf83"
+    },
+    "root_owned_staging_forensics": {
+      "path": "reports/fixed-quadrature-20261107-v1/resource-protocol/owned-staged-output-forensics-001.json",
+      "sha256": "87eb816b92e24cb3fa3fbdefadb3299773c80526f704e16f2e56749757b0e0db"
+    }
+  },
+  "source_comparison": {
+    "AST_parses": true,
+    "function_signatures_preserved": true,
+    "changed_functions_only": [
+      "git",
+      "execute_return"
+    ],
+    "all_constants_and_other_functions_identical": true,
+    "change_scope": [
+      "Git failure message no longer diagnoses account authorization without evidence",
+      "Whitespace diff check restricted to allowlisted structured-text suffixes .json .jsonl .csv .md .txt .xyz .sdf",
+      "Raw .log and binary bytes excluded from whitespace lint; source bytes are not rewritten",
+      "Receipt explicitly records raw_native_logs_preserved_verbatim_not_whitespace_normalized=true"
+    ]
+  },
+  "provenance_and_safety_gates": {
+    "no_new_proof_or_closure_waiver": true,
+    "historical_exact_failed_start_exception_unchanged": true,
+    "native_ledger_validator_and_no_live_quantum_gates_unchanged": true,
+    "allowlist_origin_fixed_branch_main_ban_and_size_limits_unchanged": true,
+    "per_file_snapshot_SHA_and_committed_blob_SHA_checks_unchanged": true,
+    "empty_index_precondition_unchanged": true,
+    "actual_source_helper_sha256_field": "sha(__file__) at receipt creation; will identify v5b when v5b executes",
+    "manifest_binding": "Actual manifest file SHA and parsed value equality checked independently; initial receipt matches bound manifest",
+    "raw_log_whitespace_is_not_a_scientific_validation_waiver": true
+  },
+  "limits": {
+    "git_commands_executed_by_this_reviewer": 0,
+    "quantum_calculations_executed_by_this_reviewer": 0,
+    "helper_executed_by_this_reviewer": false,
+    "index_and_committed_blob_ownership_verification": "ROOT_RUNTIME_CHECK_REQUIRED_NOT_ASSERTED_BY_THIS_SOURCE_REVIEW",
+    "current_quantum_closure": "NOT_REMEASURED_BY_THIS_SOURCE_REVIEW",
+    "actual_push_or_remote_ref_verification": "NOT_RUN_BY_THIS_REVIEWER",
+    "science_GATE_or_13_computed_results_changed": false
+  },
+  "conclusion": "No blocker in the scoped v5b source change. Root must preserve and verify the previously staged artifact snapshot against the initial failure receipt and exact allowlist, then let a fresh helper attempt collect current closed artifacts and perform its unchanged blob and remote-ref checks."
+}
