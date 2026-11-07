@@ -1,0 +1,168 @@
+{
+  "protocol_id": "same855-fixed-oof-strong-controls-20261107-v1",
+  "frozen_at_utc": "2026-11-07T03:01:02.847798+00:00",
+  "status": "FROZEN_NOT_RUN",
+  "new_model_fits": 0,
+  "methods": [
+    "R2_reproduction",
+    "full_svm",
+    "shrinkage_lda",
+    "mlp",
+    "R2_full_features",
+    "R2_random_K",
+    "R2_no_C_gamma_search",
+    "R2_no_class_weight",
+    "R2_fixed_MC20_LV2_K62",
+    "strong_mlp_200",
+    "strong_mlp_200_plus100_source_updates"
+  ],
+  "pairs": [
+    [
+      "R2_reproduction",
+      "full_svm"
+    ],
+    [
+      "R2_reproduction",
+      "shrinkage_lda"
+    ],
+    [
+      "R2_reproduction",
+      "mlp"
+    ],
+    [
+      "R2_reproduction",
+      "R2_full_features"
+    ],
+    [
+      "R2_reproduction",
+      "R2_random_K"
+    ],
+    [
+      "R2_reproduction",
+      "R2_no_C_gamma_search"
+    ],
+    [
+      "R2_reproduction",
+      "R2_no_class_weight"
+    ],
+    [
+      "R2_reproduction",
+      "R2_fixed_MC20_LV2_K62"
+    ],
+    [
+      "R2_reproduction",
+      "strong_mlp_200"
+    ],
+    [
+      "R2_reproduction",
+      "strong_mlp_200_plus100_source_updates"
+    ],
+    [
+      "strong_mlp_200_plus100_source_updates",
+      "strong_mlp_200"
+    ]
+  ],
+  "primary_strong_mlp_seed": 42,
+  "bootstrap_replicates": 2000,
+  "bootstrap_seed": 20261107,
+  "bootstrap_unit": "user-declared physical specimen, within true class",
+  "metric_order": [
+    "accuracy",
+    "macro_f1",
+    "balanced_accuracy"
+  ],
+  "rare_class": "ZY02",
+  "rare_class_deletions": "each of five single specimens separately",
+  "fold_sensitivity": "omit each of five saved outer test folds, without refitting",
+  "multiplicity": "descriptive conditional intervals only; no p-values or significance decisions",
+  "bounds": {
+    "cpu_seconds": 1800,
+    "wall_seconds": 1800,
+    "threads": 1,
+    "bootstrap_chunk_size": 100,
+    "expected_disk_bytes_below": 5000000
+  },
+  "limitations": [
+    "All 855 specimens and their old test scores have been exposed historically; this is retrospective development analysis.",
+    "Each anonymous origin group has only one user-declared source lot; no actual cross-batch or named-origin validation is created.",
+    "Bootstrap intervals condition on saved OOF predictions and observed class counts; training, tuning, architecture, and seed uncertainty are excluded.",
+    "OOF models share training specimens. Conditional percentile ranges are not a validated nested-CV significance test or population/batch confidence guarantee.",
+    "ZY02 has only five user-declared independent specimens. Deletion is fixed-prediction influence analysis, not retraining or biological replication.",
+    "Strong MLP uses the predeclared primary seed 42 only; seeds 43/44 were not used to select this seed or pooled as additional specimens.",
+    "Source-update continuation is 200 epochs plus 100 source gradient updates, not 300 training epochs.",
+    "All controls share IDs and folds, but candidate grids and compute differ; no equal-compute or universal superiority claim is made.",
+    "The 171-record, external-plant, and quantum experiments are deliberately not mixed with this same-855 OOF analysis.",
+    "Existing 2026-11-06 R0--R4 bootstrap and feature stability are cited, not repeated or relabelled as newly independent evidence.",
+    "No new model, feature, seed, or hyperparameter may be chosen from these diagnostics. No new training, inference, label permutation, or quantum task is performed."
+  ],
+  "artifacts": {
+    "outputs/approved-zaoren-20261031/datasets/candidate_0p1_1p5.npz": {
+      "sha256": "a3fac9b2f0ee6b8e51c835c7c74354f80e2fac2bc66923e76647e35d3c6bec9d",
+      "bytes": 7790868
+    },
+    "data/active_workbooks.json": {
+      "sha256": "6fd4d317d3f43c7b64bffca0c590ddfa78bfe206067a1a0291b41d4b649dade4",
+      "bytes": 3416
+    },
+    "data/annotations/zaoren_user_declaration_20261031.json": {
+      "sha256": "14992d9180ae5944df343f3dd98e6314c7cee8707ad4aedaa6b3e63cc41e3fbf",
+      "bytes": 1644
+    },
+    "reports/paper-c/2026-10-31/fair-benchmark/outer_predictions.csv.gz": {
+      "sha256": "81e6166d103cdddbcc6444a7802c23505367c163903cb6bcf75a83f61ee0ef64",
+      "bytes": 520249
+    },
+    "reports/paper-c/2026-10-31/fair-benchmark/pooled_metrics.json": {
+      "sha256": "272606099ad88deaffbcc0fd74bb8efb35484681bb73d3be8d09b5530eba700b",
+      "bytes": 23939
+    },
+    "reports/paper-c/2026-10-31/fair-benchmark/splits.json": {
+      "sha256": "fcf14231b4dc1a1e15af8c46310ee6f39e71520b76a7b62fe0e176485f6f5cfe",
+      "bytes": 229008
+    },
+    "reports/paper-c/2026-10-31/fair-benchmark/selection_lock.json": {
+      "sha256": "6f18a3d52565edca109a738b40ed3e44fdfe0d9bb6bb30614675652e78da1ba4",
+      "bytes": 121890
+    },
+    "reports/paper-c/2026-10-31/fair-benchmark/run_manifest.json": {
+      "sha256": "a2875aacc0b2ba5a1bccfa629e4d892047f6c2e636959ddf774ed0bfbf7729fe",
+      "bytes": 1112
+    },
+    "reports/paper-c/2026-10-31/fair-benchmark/release_snapshot.json": {
+      "sha256": "3075c8b53ef2dff66aaafdcf8501711b4d7683bba7dc522ab484fe0a135fe9fd",
+      "bytes": 753
+    },
+    "reports/paper-c/2026-10-31/strong-mlp/outer_predictions.csv.gz": {
+      "sha256": "44e37f91e652cb71a434c0168ed83a75fe88435e5d290e25d80d6e34bc5dae1d",
+      "bytes": 347625
+    },
+    "reports/paper-c/2026-10-31/strong-mlp/primary_seed42_metrics.json": {
+      "sha256": "f161efa384db0c32e2f5fc5fdc7b280a4e1cd21a50927d426441d64ff4045b08",
+      "bytes": 5457
+    },
+    "reports/paper-c/2026-10-31/strong-mlp/selection_lock.json": {
+      "sha256": "827fd9d4e2ae3baf92a8625fa45b98b82e2607cf560fe250148d48a669b8ed84",
+      "bytes": 17024
+    },
+    "reports/paper-c/2026-10-31/strong-mlp/run_manifest.json": {
+      "sha256": "c15bf7e97476ad277d460613fd9382b9a6d55f8ecb87329b1931fb0552970496",
+      "bytes": 1732
+    },
+    "reports/paper-c/2026-10-31/history-audit/main_results.csv": {
+      "sha256": "89653732d535ce0644197eb7984ff488cb1cf95e28182e638b440c497ee9fdc6",
+      "bytes": 1421
+    },
+    "reports/cloud-followup-20261106-v1/model-evidence/summary.json": {
+      "sha256": "2127c55ce208e65c70f4807d0f4705ab2eb30e3558fc1b212dabcef82eeffbdd",
+      "bytes": 8852
+    },
+    "scripts/run_ml_evidence_battery_20261107.py": {
+      "sha256": "0dd76adfdc4600f705d28838559273f843d7fccdb45b3ea5fb6b4d6e5fd31ccc",
+      "bytes": 22016
+    },
+    "tests/test_ml_evidence_battery_20261107.py": {
+      "sha256": "dac566851b5333462ee39b19bb1c64357fe36154efc2e815311ff95f2da7db6f",
+      "bytes": 8342
+    }
+  }
+}
