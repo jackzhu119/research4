@@ -1,0 +1,75 @@
+{
+  "schema": "research4-independent-live-thread-environment-interpretation-v1",
+  "status": "OBSERVED_RESOURCE_ENVELOPE_WITHIN_CAP_ENV_BYTE_EQUALITY_FALSE_EXPLAINED",
+  "created_at_utc": "2026-11-07T03:59:54.573813+00:00",
+  "observation": {
+    "path": "/workspace/research4/reports/research72h-20261107-v1/resource-protocol/independent-live-launch-observation-001.json",
+    "sha256": "45f4f4d95a8542eb7c0b729a86938582ee088cac96af087603e6749ccb6177bc"
+  },
+  "exact_observation": "Guardian launch row records OMP/OpenBLAS/MKL/NumExpr=2; /proc worker environment showed OMP/OpenBLAS=1 and MKL/NumExpr=2. The strict byte-equality check in the immutable observation is correctly false.",
+  "direct_wrapper_evidence": {
+    "path": "/workspace/research4/.runtime/bin/python",
+    "sha256": "ee0ccfa5326b7d7f0798b1215548c5e38a89ca272ef7b35ce683ef430e335d7c",
+    "bytes": 123,
+    "observed_text": "#!/bin/sh\nexport OPENBLAS_NUM_THREADS=1\nexport OMP_NUM_THREADS=1\nexec /workspace/research4/.runtime/python/bin/python \"$@\"\n",
+    "meaning": "The actual configured Python launcher explicitly exports OMP and OpenBLAS as1 before exec. This directly explains the two lowered environment strings; it does not mean the guardian failed to construct its documented launch environment."
+  },
+  "same_worker_progress_evidence": {
+    "path": "/workspace/research4/reports/research72h-20261107-v1/autonomous-main-001/jobs/spino-zero-pilot/attempt-001/progress.json",
+    "sha256_at_read": "12a13861e77437c9c8123fa9b2c8204a9a3b1f7beb9aabc6a09ff8423dddcb1d",
+    "resource_proof_SHA_matches_observed_worker": true,
+    "worker_PID": 11230,
+    "declared_outer_worker_threads": 2,
+    "declared_native_JK_threads": 1,
+    "event": {
+      "event": "native_direct_driver_signature",
+      "utc": "2026-11-07T03:57:44.073909+00:00",
+      "CPU_seconds": 16.968748068,
+      "wall_seconds": 8.701540258000023,
+      "native_threads_observed": 1,
+      "outer_threads_before_call": 2,
+      "density_batch_signature": "density_count=1;components=1",
+      "process_resources_before_native_allocation": {
+        "address_space_soft_limit_bytes": 25769803776,
+        "address_space_hard_limit_bytes": 25769803776,
+        "virtual_address_space_bytes": 633790464,
+        "resident_bytes": 215859200
+      },
+      "guard_statistics": {
+        "strategy": "SCOPED_NATIVE_OMP_LIMIT_OUTER_XC_UNCHANGED",
+        "native_thread_observation_kind": "OMP_CONFIGURED_MAX_BEFORE_PARALLEL_REGION_NOT_ACTIVE_WORKER_COUNT",
+        "native_thread_limit": 1,
+        "outer_threads_at_install": 2,
+        "native_calls_entered": 1,
+        "native_calls_returned": 0,
+        "max_observed_native_threads": 1,
+        "restoration_failures": 0,
+        "original_driver_restored": false,
+        "density_or_operator_arguments_modified": false,
+        "native_source_files_modified": false,
+        "density_batch_signature_counts": {
+          "density_count=1;components=1": 1
+        }
+      }
+    }
+  },
+  "resource_interpretation": {
+    "observed_environment_values_are_at_most_guard_two_thread_cap": true,
+    "native_progress_records_configured_limit_1_and_outer_before_call_2": true,
+    "configured_limit_is_not_a_measurement_of_active_native_worker_count": true,
+    "thread_environment_byte_equality_required_for_this_observation": false,
+    "proof_and_identity_bindings_verified_in_primary_observation": true,
+    "actual_worker_CPU_advanced_seconds_between_samples": 0.56,
+    "bounded_resource_activity_observed": true,
+    "physical_SCF_gate_has_passed": false,
+    "current_completed_Spinosin_energy_points": 0
+  },
+  "no_future_claim": "This describes the two observations and a same-worker progress signature only; it does not promise uniform thread counts, future host availability, convergence, new curvature, minimum or IR.",
+  "actions": {
+    "quantum_operations": 0,
+    "Git_commands": 0,
+    "signals": 0,
+    "runtime_environment_changes": 0,
+    "process_or_source_edits": 0
+  }
+}
