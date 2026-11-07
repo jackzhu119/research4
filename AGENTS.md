@@ -4,6 +4,18 @@
 
 ### A006 convergence follow-up
 
+The initial A00631-point suite actually attempted every point:16 strict
+successes and15 final-extra-cycle failures,13.712143CPU seconds, no resource
+kill. Preserve those failed results. A separately reviewed v2 water solver may
+use at most3 deterministic SCF calls of100cycles per point, with a tighter
+normal-loop orbital trigger and the same1e-13/1e-9 final AND checks. Audit
+two actual consecutive kernel density states with full nonincremental native
+VEFF and an unshifted full Fock; independently copied consecutive states may
+coincide numerically at a true fixed point. The new water grant is300CPU,
+with all original numerical control gates retained. Keep large Spinosin
+DM/MO/checkpoint audit states local with hashes; only small results return.
+No Spinosin launch until actual controls and the new source review pass.
+
 A005 actually completed13 water calculations, but oxygen-coordinate central
 differences were step-dependent; its proposed Spinosin point was NOT_RUN.
 Retain that failed gate and its4.357029CPU cost. The next separately declared
