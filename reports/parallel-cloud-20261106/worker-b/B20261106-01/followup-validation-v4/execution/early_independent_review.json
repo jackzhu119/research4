@@ -1,0 +1,407 @@
+{
+  "schema": "research4-b-v4-early-independent-review-v1",
+  "created_at_utc": "2026-11-07T03:12:52.485977+00:00",
+  "scope": "Read-only provenance/source review and light NumPy/SciPy calculations only; no new quantum calculation, grid generation, training, installation or Git command. Only this new review document is created.",
+  "manifest_handling": "Observed active manifest SHA is recorded for provenance. This review is not added to any frozen input_refs and does not change the active manifest or its hash.",
+  "active_manifest_sha256_observed": "e26ccf7ff25af88fad7be9a1f6fbc15b9a8faddee1d5d3c117123b114195f6cb",
+  "early_3_seals": [
+    {
+      "job": "paper-existing-prediction-validation",
+      "result": {
+        "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/paper-existing-prediction-validation-attempt001/result.json",
+        "sha256": "bbfc2f501ab9cd1b0f048179e0248a2657947b43f1cda4de755bcb1b21b3af32"
+      },
+      "worker": {
+        "path": "scripts/research4_b_paper_validation_20261107.py",
+        "sha256": "c14f4907d86b9f914c8a309fed3dfa77f554d859d91412da9c2efbcd9dea2ec2",
+        "bytes": 20060
+      },
+      "request": {
+        "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/preparation/paper_validation_request.json",
+        "sha256": "5e2535d4f202e81c51f7b9e9eff911bfbc0d81e00c56235e4b8c0168b70ee32e",
+        "bytes": 2266
+      },
+      "result_status": "DONE_CONDITIONAL_PREDICTION_DIAGNOSTICS",
+      "actual_wait4_CPU_seconds": 1.00229,
+      "closed_row_digest_verified": true,
+      "proof_and_installed_source_refs_verified": true,
+      "sealed_artifact_count": 8
+    },
+    {
+      "job": "water-cphf-tight-translate0",
+      "result": {
+        "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/water-cphf-tight-translate0-attempt001/result.json",
+        "sha256": "b26db83029e83c03b1fb0c4ca35c93a070028e82805f35f4fe7b46f94fea9fc1"
+      },
+      "worker": {
+        "path": "scripts/research4_b_validation_worker_20261107.py",
+        "sha256": "e142a53301ede54af3ffe6120ed86fc68117611ad1aaea99f06b9061c930310e",
+        "bytes": 81963
+      },
+      "request": {
+        "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/requests/water-cphf-tight-translate0.json",
+        "sha256": "d426f52caf4e582a5c5c46bc99abe1a6cf3dd7c0ce7d7e783eefea04e5987135",
+        "bytes": 846
+      },
+      "result_status": "RESPONSE_AUDIT_COMPLETE",
+      "actual_wait4_CPU_seconds": 2.5073689999999997,
+      "closed_row_digest_verified": true,
+      "proof_and_installed_source_refs_verified": true,
+      "sealed_artifact_count": 15
+    },
+    {
+      "job": "water-cphf-tight-mode01",
+      "result": {
+        "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/water-cphf-tight-mode01-attempt001/result.json",
+        "sha256": "8fc9ea75fc22fb3c99ea166b08567d1c574edd267dada667d21cf368b548160a"
+      },
+      "worker": {
+        "path": "scripts/research4_b_validation_worker_20261107.py",
+        "sha256": "e142a53301ede54af3ffe6120ed86fc68117611ad1aaea99f06b9061c930310e",
+        "bytes": 81963
+      },
+      "request": {
+        "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/requests/water-cphf-tight-mode01.json",
+        "sha256": "41120027411e3c8b23988963d0c34eb32df47cc17ccbc1cb0183a5dff72fedc0",
+        "bytes": 840
+      },
+      "result_status": "RESPONSE_AUDIT_COMPLETE",
+      "actual_wait4_CPU_seconds": 1.945757,
+      "closed_row_digest_verified": true,
+      "proof_and_installed_source_refs_verified": true,
+      "sealed_artifact_count": 15
+    }
+  ],
+  "water_tight_response_reviews": [
+    {
+      "result": {
+        "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/water-cphf-tight-translate0-attempt001/result.json",
+        "sha256": "b26db83029e83c03b1fb0c4ca35c93a070028e82805f35f4fe7b46f94fea9fc1",
+        "bytes": 16382
+      },
+      "old_result": {
+        "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-rootcause-v3/science/water-fixed-response-translate0-attempt001/result.json",
+        "sha256": "68216284c8c15bffe0c870605c7828c5bd0af17eb9badcca7a0640b714c048ea",
+        "bytes": 18703
+      },
+      "direction": {
+        "type": "translation",
+        "axis": 0
+      },
+      "CPHF_controls": {
+        "stock_krylov_lindep": 1e-13,
+        "requested_krylov_lindep": 1e-24,
+        "actual_krylov_lindep": 1e-24,
+        "stock_source_file_modified": false,
+        "krylov_iteration_callbacks": 9,
+        "stop_rule_caveat": "Krylov trial-vector cutoff and requested tol are separate stopping conditions; only an independently recomputed physical CPHF residual establishes the observed residual.",
+        "original_krylov_restored": true
+      },
+      "requested_tol": 1e-13,
+      "recomputed_metrics": {
+        "max_virtual_residual_Eh": 8.307503951079974e-15,
+        "L2_virtual_residual_Eh": 2.0165119771474533e-14,
+        "occupied_gauge_max_abs": 0
+      },
+      "old_max_virtual_residual_Eh": 6.276392139941977e-8,
+      "physical_residual_improvement_factor": 7555087.757889116,
+      "U_change_L2": 5.284226710459832e-8,
+      "D1_change_L2": 1.6325868435375075e-7,
+      "D1_FD_same_saved_points_control": [
+        {
+          "h_bohr": 0.0005,
+          "FD_norm": 0.0006371011261160323,
+          "old_U_D1_FD_error_L2": 6.949152254409932e-7,
+          "tight_U_D1_FD_error_L2": 6.741027234308845e-7,
+          "old_U_D1_FD_relative_error": 0.0010907455613481862,
+          "tight_U_D1_FD_relative_error": 0.0010580780598214061
+        },
+        {
+          "h_bohr": 0.001,
+          "FD_norm": 0.0006370038020844768,
+          "old_U_D1_FD_error_L2": 6.799863599377791e-7,
+          "tight_U_D1_FD_error_L2": 6.588402747977518e-7,
+          "old_U_D1_FD_relative_error": 0.0010674761401935904,
+          "tight_U_D1_FD_relative_error": 0.001034279972335831
+        }
+      ],
+      "current_center_response_curvature_old_Eh_per_Bohr2": -1.5679479601779902e-7,
+      "current_center_response_curvature_tight_Eh_per_Bohr2": -1.567944070117085e-7,
+      "response_curvature_change_Eh_per_Bohr2": 3.8900609051919463e-13,
+      "H1_fock_FD_rerun_status": "NOT_RUN",
+      "stock_direct_rerun_status": "NOT_RUN",
+      "SCF_recomputed": false,
+      "independent_reconstruction_uses_saved_fresh_induced_response_no_new_kernel": true
+    },
+    {
+      "result": {
+        "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/water-cphf-tight-mode01-attempt001/result.json",
+        "sha256": "8fc9ea75fc22fb3c99ea166b08567d1c574edd267dada667d21cf368b548160a",
+        "bytes": 16244
+      },
+      "old_result": {
+        "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-rootcause-v3/science/water-fixed-response-mode01-attempt001/result.json",
+        "sha256": "e9476db5e3e32dd67bce59fbf5733b33d99413c72cd142d130baa17fd9dede45",
+        "bytes": 18551
+      },
+      "direction": {
+        "type": "mode",
+        "index": 1
+      },
+      "CPHF_controls": {
+        "stock_krylov_lindep": 1e-13,
+        "requested_krylov_lindep": 1e-24,
+        "actual_krylov_lindep": 1e-24,
+        "stock_source_file_modified": false,
+        "krylov_iteration_callbacks": 11,
+        "stop_rule_caveat": "Krylov trial-vector cutoff and requested tol are separate stopping conditions; only an independently recomputed physical CPHF residual establishes the observed residual.",
+        "original_krylov_restored": true
+      },
+      "requested_tol": 1e-13,
+      "recomputed_metrics": {
+        "max_virtual_residual_Eh": 4.1795993749316196e-15,
+        "L2_virtual_residual_Eh": 9.522145406857297e-15,
+        "occupied_gauge_max_abs": 0
+      },
+      "old_max_virtual_residual_Eh": 1.2319012267258175e-9,
+      "physical_residual_improvement_factor": 294741.46113488975,
+      "U_change_L2": 1.0460953549853368e-9,
+      "D1_change_L2": 2.9940236136565822e-9,
+      "D1_FD_same_saved_points_control": [
+        {
+          "h_bohr": 0.0005,
+          "FD_norm": 0.6597914131673761,
+          "old_U_D1_FD_error_L2": 4.103846287311715e-8,
+          "tight_U_D1_FD_error_L2": 4.0645329304299114e-8,
+          "old_U_D1_FD_relative_error": 6.21991466607743e-8,
+          "tight_U_D1_FD_relative_error": 6.160330142700447e-8
+        },
+        {
+          "h_bohr": 0.001,
+          "FD_norm": 0.6597913198922849,
+          "old_U_D1_FD_error_L2": 1.8945954066581173e-7,
+          "tight_U_D1_FD_error_L2": 1.8875525652534603e-7,
+          "old_U_D1_FD_relative_error": 2.871507019776226e-7,
+          "tight_U_D1_FD_relative_error": 2.860832672914847e-7
+        }
+      ],
+      "current_center_response_curvature_old_Eh_per_Bohr2": 0.06270029364087606,
+      "current_center_response_curvature_tight_Eh_per_Bohr2": 0.06270029384409838,
+      "response_curvature_change_Eh_per_Bohr2": 2.0322231397695845e-10,
+      "H1_fock_FD_rerun_status": "NOT_RUN",
+      "stock_direct_rerun_status": "NOT_RUN",
+      "SCF_recomputed": false,
+      "independent_reconstruction_uses_saved_fresh_induced_response_no_new_kernel": true
+    }
+  ],
+  "unique_SHA_checked_so_far": 82,
+  "paper_independent_review": {
+    "verdict": "RECOMPUTED_CONDITIONAL_EXISTING_PREDICTION_DIAGNOSTICS; NO_MUST_FIX_FOUND",
+    "source_report": {
+      "status": "DONE_CONDITIONAL_PREDICTION_DIAGNOSTICS",
+      "models_fitted": 0,
+      "new_predictions_generated": 0,
+      "quantum_evaluations": 0,
+      "samples": 855,
+      "methods": [
+        "R0",
+        "R1",
+        "R2",
+        "R3",
+        "R4"
+      ],
+      "class_counts": {
+        "ZY01": 350,
+        "ZY02": 5,
+        "ZY03": 100,
+        "ZY04": 100,
+        "ZY05": 100,
+        "ZY06": 100,
+        "ZY07": 100
+      },
+      "historical_correct_counts_replayed": {
+        "R0": 773,
+        "R1": 791,
+        "R2": 821,
+        "R3": 816,
+        "R4": 812
+      },
+      "majority_class_only_baseline": {
+        "majority_class": "ZY01",
+        "accuracy": 0.4093567251461988,
+        "balanced_accuracy": 0.14285714285714285,
+        "scope": "Descriptive fixed majority-rule comparator; not fitted or selected from new evaluation"
+      },
+      "R2_ZY02_nominal_recall_interval": {
+        "method": "R2",
+        "class": "ZY02",
+        "support": 5,
+        "true_positive": 3,
+        "predicted_count": 3,
+        "recall": 0.6,
+        "precision": 1,
+        "F1": 0.75,
+        "nominal_marginal_CP95_lower": 0.14663279963467307,
+        "nominal_marginal_CP95_upper": 0.9472550494736831
+      },
+      "historical_seven_McNemar_Holm_replay_matches_1e_12": true,
+      "new_analyses": [
+        "35 marginal class-recall binomial intervals",
+        "class/fold confusion and error consistency",
+        "pairwise error-set overlaps"
+      ],
+      "reused_existing_analyses": [
+        "Historical seven McNemar/Holm comparisons replayed; not counted as newly designed tests"
+      ],
+      "persistent_wrong_all_five_methods": 15,
+      "correct_all_five_methods": 724,
+      "limitations": [
+        "All 855 specimens are historically exposed development data from one lot per origin; no new independent cohort, cross-batch test, or model validation is created.",
+        "Clopper-Pearson exact refers to the binomial calculation. Nominal 95% intervals are marginal per class/method, not simultaneous, and assume independent Bernoulli trials. Shared OOF training sets and historical selection prevent a guaranteed generalization-coverage interpretation.",
+        "Saved OOF predictions condition these diagnostics; training, tuning, seed, feature-selection, and model-selection uncertainty are not included.",
+        "The seven exact McNemar/Holm results replay the previously published seven-comparison family. They are nominal conditional diagnostics with overlapping OOF training, not a new confirmatory significance test.",
+        "Error-set overlaps and class/fold tables are descriptive; no sample, model, seed, feature, or threshold is selected from these results.",
+        "No perturbation robustness, learning curve, independent batch, instrument, moisture, thickness, chemical assay, or standard-compound THz measurement is performed by this worker."
+      ],
+      "中文结论": "本次只补充既有855份开发样本的少数类不确定性和错误一致性描述，重放原七项配对检验；没有新模型或新独立验证。ZY02仅5份，整体96.0234%不能代替该类的召回率与证据不足。",
+      "frozen_inputs": {
+        "core_predictions": {
+          "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/preparation/paper_inputs/core_predictions.csv.gz",
+          "sha256": "0f6d5843408ce2193abaf8ea9344d36ee1718ad7ef3603c72c10eb104a167c3c",
+          "bytes": 641997
+        },
+        "combinations_predictions": {
+          "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/preparation/paper_inputs/combinations_predictions.csv.gz",
+          "sha256": "df9f3469173877045266e396e3648e72e7f96913ddee08f15ccfaa1d49f16e1a",
+          "bytes": 446760
+        },
+        "prior_summary": {
+          "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/preparation/paper_inputs/prior_summary.json",
+          "sha256": "2127c55ce208e65c70f4807d0f4705ab2eb30e3558fc1b212dabcef82eeffbdd",
+          "bytes": 8852
+        },
+        "prior_mcnemar": {
+          "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/preparation/paper_inputs/prior_mcnemar.csv",
+          "sha256": "1865d869ae722a0fe9797c48ef9577f7ab7b097e16e099c8a5628f25e523e998",
+          "bytes": 594
+        },
+        "splits": {
+          "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/preparation/paper_inputs/splits.json",
+          "sha256": "fcf14231b4dc1a1e15af8c46310ee6f39e71520b76a7b62fe0e176485f6f5cfe",
+          "bytes": 229008
+        },
+        "input_provenance": {
+          "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/preparation/paper_inputs/provenance.json",
+          "sha256": "249f24173b42240433b5a83a34dd001cff673ba7b114501cf48986e503d09ef9",
+          "bytes": 2858
+        }
+      }
+    },
+    "independent_checks": {
+      "unique_SHA256_references_verified_by_reviewer": 15,
+      "Git_blob_content_SHA1_values_verified_without_Git_command": 5,
+      "Git_blob_membership_limitation": "Content hashes only; no assertion of commit membership or pipeline provenance beyond the supplied frozen records.",
+      "samples": 855,
+      "methods": 5,
+      "outer_splits": 5,
+      "train_per_split": 684,
+      "test_per_split": 171,
+      "all_saved_record_identity_truth_and_fold_assignments_match": true,
+      "split_train_test_disjoint_and_union_test_855": true,
+      "all_output_CSVs_independently_recomputed": 7,
+      "correct_counts_R0_to_R4": [
+        773,
+        791,
+        821,
+        816,
+        812
+      ],
+      "R2_accuracy": 0.960233918128655,
+      "ZY02_R2_recall": 0.6,
+      "ZY02_R2_Clopper_Pearson_nominal_95": [
+        0.14663279963467313,
+        0.9472550494736831
+      ],
+      "class_recall_Clopper_Pearson_intervals": 35,
+      "maximum_endpoint_difference_against_independent_beta_quantile": 1.11e-15,
+      "historical_exact_McNemar_Holm_comparisons": 7,
+      "historical_McNemar_Holm_max_abs_replay_difference_approximately": 3e-15,
+      "all_methods_wrong": 15,
+      "all_methods_correct": 724,
+      "wrong_method_count_distribution": {
+        "0": 724,
+        "1": 69,
+        "2": 32,
+        "3": 6,
+        "4": 9,
+        "5": 15
+      }
+    },
+    "interpretation": "These are fixed-prediction, historical-development-set conditional diagnostics. Split/identity checks and accurate replay do not prove the complete historical training pipeline was leakage-free, nor establish new external validation. No new bootstrap, label-shuffle, perturbation or training experiment was performed."
+  },
+  "zero_weight_quadrature_metadata_review": {
+    "source_refs": {
+      "dft/gen_grid.py": {
+        "path": ".runtime/worker-b-20261106/venv/lib/python3.12/site-packages/pyscf/dft/gen_grid.py",
+        "sha256": "44aa665fb25efc544a42cb80fdad737767c787c20479d4df0ae4b1649028ff14",
+        "bytes": 30391
+      },
+      "lib/dft/grid_basis.c": {
+        "path": ".runtime/worker-b-20261106/venv/lib/python3.12/site-packages/pyscf/lib/dft/grid_basis.c",
+        "sha256": "1e5be782c98153213a3ad6b2b32506f56fe867736ec0f7fa058342a6cc48e8e6",
+        "bytes": 23328
+      },
+      "grad/rks.py": {
+        "path": ".runtime/worker-b-20261106/venv/lib/python3.12/site-packages/pyscf/grad/rks.py",
+        "sha256": "cffc3e9efa10cf1b547d757e9d165c1000377e9159c794f87464a79c8c93ab46",
+        "bytes": 30032
+      }
+    },
+    "point_result": {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-v4/science/water-g3-regrid-translate0-h0010-minus-attempt001/result.json",
+      "sha256": "1c838a60ac81b683ee4d64f2a65758749a904b5d76567cc6d24d2a9dfa419f85"
+    },
+    "actual_observation": {
+      "generator": "pyscf.grad.rks.grids_response_cc; actual iterated atom blocks",
+      "generator_order_grid_content_sha256": "e335817d3a8140fc98daf39b453c4f9f7a2322d8d9fd35d7bc18cb43c4b1e19a",
+      "generated_grid_points": 33698,
+      "generated_nonzero_weight_points": 33698,
+      "SCF_grid_points_including_padding": 33704,
+      "SCF_nonzero_weight_points": 33658,
+      "generated_weight_sum": 16923.24138409626,
+      "SCF_weight_sum": 16923.24138409626,
+      "nonzero_quadrature_sets_numerically_match": false,
+      "canonical_coordinate_max_abs_difference_Bohr": null,
+      "canonical_weight_max_abs_difference": null,
+      "comparison": "Remove exactly zero-weight padding, lexicographically sort (x,y,z,weight), compare coordinates and weights to 1e-12; generator-order SHA differs from sorted/padded SCF SHA by design.",
+      "limitation": "Regenerated full-response and SCF quadrature sets were not shown equal; energy/gradient consistency remains limited by this difference.",
+      "original_generator_restored": true
+    },
+    "scf_qualified": true,
+    "static_mechanism": [
+      "SCF dft/gen_grid.py:361-387 invokes the C VXCgen_grid Becke partition. lib/dft/grid_basis.c:85-90 repeatedly smooths Becke factors then directly multiplies .5 +/- s, which can round to exact zero.",
+      "The full-response path grad/rks.py:566-571 adds 1e-200 inside the .5*(1 +/- smoothed + 1e-200) expressions to keep factors positive for later divisions; grids_response_cc dispatch at:732-739 selects this Becke path.",
+      "dft/gen_grid.py:637-647 adds exact-zero padding separately. Here 33704 SCF points vs33698 generated points accounts for six padding entries, while40 nonpadding exact-zero SCF weights vs tiny generated weights can explain the additional nonzero-count difference."
+    ],
+    "assessment": "The static mechanism can explain different exact-zero/nonzero counts while double-precision total weights remain equal. It is a supported explanation, not a pointwise identification of the40 entries.",
+    "limits": [
+      "The actual regenerated True coordinate/weight arrays were not persisted, so the40-node mapping cannot be reconstructed exactly from these files.",
+      "Equal weight sums do not establish equal weight derivatives, response gradients, or fully equivalent quadrature sets.",
+      "Keep nonzero_quadrature_sets_numerically_match=false and the saved limitation. This metadata difference is not by itself evidence of a runtime fault or a reason to modify the frozen worker."
+    ]
+  },
+  "qualified_findings": [
+    "The two water saved tight responses independently satisfy their physical virtual CPHF equations to8.31e-15 and4.18e-15 Eh, below the requested1e-13, with occupied gauge error zero. Same center MO/H1/S1 references are verified.",
+    "Compared with old controls, maximum physical residuals improve by about7.56e6 and2.95e5. Requested tol and Krylov lindep were changed jointly; this result does not isolate their separate effects.",
+    "Density FD agreement is controlled against the same saved points: translation at h=.0005 changes only from relative0.00109075 to0.00105808. Near-machine-precision CPHF residual does not remove the finite-difference/SCF/grid limitations.",
+    "The scalar orbital-response curvature changes by only3.89e-13 Eh/Bohr^2 in translation and2.03e-10 in mode1; this cannot explain the earlier .022-scale fixed-grid translation curvature.",
+    "New tight jobs reused existing center and displaced observations; SCF, frozen-D0 FockFD and stock-direct controls were not rerun by these two jobs.",
+    "Paper replay and interval calculations are numerically consistent with saved predictions, with sufficiently explicit conditional and historical-data limitations."
+  ],
+  "not_claimed": [
+    "No full-Hessian correction or all-dimensional minimum certificate.",
+    "No removal of the original calycosin fixed-grid D1 discrepancy.",
+    "No new independent model performance validation, retraining or proof of historical leakage absence.",
+    "No equality proof for the regenerated True and SCF quadrature sets."
+  ]
+}

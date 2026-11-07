@@ -1,0 +1,32 @@
+Traceback (most recent call last):
+  File "/workspace/research4-worker-b/scripts/research4_b_validation_worker_20261107.py", line 1187, in run
+    point(request, state, output, emit)
+  File "/workspace/research4-worker-b/scripts/research4_b_validation_worker_20261107.py", line 812, in point
+    state["energy_hartree"] = float(mf.kernel())
+                                    ^^^^^^^^^^^
+  File "<string>", line 2, in kernel
+  File "/workspace/research4-worker-b/.runtime/worker-b-20261106/venv/lib/python3.12/site-packages/pyscf/scf/hf.py", line 2099, in scf
+    kernel(self, self.conv_tol, self.conv_tol_grad,
+  File "/workspace/research4-worker-b/.runtime/worker-b-20261106/venv/lib/python3.12/site-packages/pyscf/scf/hf.py", line 178, in kernel
+    vhf = mf.get_veff(mol, dm, dm_last, vhf)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/research4-worker-b/.runtime/worker-b-20261106/venv/lib/python3.12/site-packages/pyscf/dft/rks.py", line 81, in get_veff
+    n, exc, vxc = ni.nr_rks(mol, ks.grids, ks.xc, dm, max_memory=max_memory)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/research4-worker-b/.runtime/worker-b-20261106/venv/lib/python3.12/site-packages/pyscf/dft/numint.py", line 1152, in nr_rks
+    for i, ao, mask, wv in block_loop(ao_deriv):
+                           ^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/research4-worker-b/.runtime/worker-b-20261106/venv/lib/python3.12/site-packages/pyscf/dft/numint.py", line 1129, in block_loop
+    in ni.block_loop(mol, grids, nao, ao_deriv, max_memory=max_memory):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/research4-worker-b/.runtime/worker-b-20261106/venv/lib/python3.12/site-packages/pyscf/dft/numint.py", line 2922, in block_loop
+    ao = self.eval_ao(mol, coords, deriv=deriv, non0tab=mask,
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/research4-worker-b/.runtime/worker-b-20261106/venv/lib/python3.12/site-packages/pyscf/dft/numint.py", line 113, in eval_ao
+    return mol.eval_gto(feval, coords, comp, shls_slice, non0tab,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/research4-worker-b/.runtime/worker-b-20261106/venv/lib/python3.12/site-packages/pyscf/gto/eval_gto.py", line 139, in eval_gto
+    drv(ctypes.c_int(ngrids),
+  File "/workspace/research4-worker-b/scripts/research4_b_validation_worker_20261107.py", line 1182, in interrupted
+    raise RuntimeError("Diagnostic resource/termination signal " + str(signum))
+RuntimeError: Diagnostic resource/termination signal 15

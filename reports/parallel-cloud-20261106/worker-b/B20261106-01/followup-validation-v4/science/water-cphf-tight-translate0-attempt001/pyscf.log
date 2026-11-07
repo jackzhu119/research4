@@ -1,0 +1,1275 @@
+#INFO: **** input file is /workspace/research4-worker-b/scripts/research4_b_validation_worker_20261107.py ****
+"""Source-bound Worker B Hessian diagnostics, executed only under live supervision.
+
+This creates independent observations; it never repairs or rewrites the original
+Hessian, geometry, normal modes, results, or cumulative resource ledger.
+"""
+from __future__ import annotations
+
+import argparse
+from collections import defaultdict
+import csv
+from datetime import datetime, timezone
+import hashlib
+import importlib.util
+import json
+import math
+import os
+from pathlib import Path
+import resource
+import signal
+import sys
+import time
+import traceback
+
+ROOT = Path(__file__).resolve().parents[1]
+ORIGINAL = ROOT / "scripts/research4_parallel_b_quantum_20261106.py"
+ORIGINAL_SHA = "a95d7cf972ba2b95da3f14a44bcfdf094d5ceb1db23bad2de559a123ee8bc9df"
+INPUT = ROOT / "data/research/parallel_cloud_20261106/worker_b/cases.json"
+INPUT_SHA = "84f306a6e09a6b162650988d8ba81a34529f58a21accd53626d87e923613d893"
+SUPERVISOR = ROOT / "scripts/research4_b_validation_supervisor_20261107.py"
+REQUEST_SCHEMA = "research4-b-diagnostic-request-v1"
+SCHEMA = "research4-b-diagnostic-result-v1"
+ORIGINAL_SCHEMA = "research4-parallel-b-quantum-result-v1"
+CASES = ("water", "protocatechuic_acid", "calycosin")
+BOHR_TO_ANGSTROM = .52917721092
+FREQUENCY_FACTOR_CM1 = 5140.487138493369
+CM1_TO_THZ = .0299792458
+GRID_CAVEAT = (
+    "Each displaced point rebuilds its atom-centered quadrature grid. With "
+    "grid_response=False the stock gradient is not the exact derivative of "
+    "one common fixed-quadrature energy. A discrepancy alone does not identify "
+    "a Hessian implementation defect or prove a physical saddle."
+)
+
+
+def require(condition, message):
+    if not condition:
+        raise ValueError(message)
+
+
+def utc():
+    return datetime.now(timezone.utc).isoformat()
+
+
+def sha(path):
+    digest = hashlib.sha256()
+    with Path(path).open("rb") as handle:
+        for block in iter(lambda: handle.read(1024 ** 2), b""):
+            digest.update(block)
+    return digest.hexdigest()
+
+
+def local_path(value):
+    original = Path(value)
+    original = original if original.is_absolute() else ROOT / original
+    resolved = original.resolve()
+    require(resolved.is_relative_to(ROOT), "Source/output must remain in this checkout")
+    require(not any(p.is_symlink() for p in (original, *original.parents) if p != ROOT.parent),
+            "Symlink source/output is not accepted")
+    return resolved
+
+
+def ref(path):
+    p = local_path(path)
+    return {"path": p.relative_to(ROOT).as_posix(), "sha256": sha(p), "bytes": p.stat().st_size}
+
+
+def checked(record, max_bytes=32 * 1024 ** 2):
+    require(isinstance(record, dict) and isinstance(record.get("path"), str)
+            and isinstance(record.get("sha256"), str) and len(record["sha256"]) == 64,
+            "Explicit path/SHA256 source binding is required")
+    p = local_path(record["path"])
+    require(p.is_file() and p.stat().st_size <= max_bytes, "Missing or oversized bounded source")
+    require(sha(p) == record["sha256"], "Source hash changed: " + str(p))
+    if "bytes" in record:
+        require(p.stat().st_size == record["bytes"], "Source size changed")
+    return p
+
+
+def read(path):
+    p = local_path(path)
+    require(p.is_file() and p.stat().st_size <= 4 * 1024 ** 2, "Small existing JSON required")
+    return json.loads(p.read_text())
+
+
+def save(path, value, exclusive=False):
+    p = local_path(path)
+    temporary = p if exclusive else p.with_name(p.name + ".writing-" + str(os.getpid()))
+    with temporary.open("x") as handle:
+        json.dump(value, handle, ensure_ascii=False, indent=2, allow_nan=False)
+        handle.write("\n"); handle.flush(); os.fsync(handle.fileno())
+    if not exclusive:
+        os.replace(temporary, p)
+
+
+def save_array(path, array, np):
+    require(np.isfinite(array).all(), "Finite array required")
+    with Path(path).open("xb") as handle:
+        np.save(handle, array, allow_pickle=False)
+
+
+def load_module(path, name):
+    spec = importlib.util.spec_from_file_location(name, path)
+    require(spec is not None and spec.loader is not None, "Required source module unavailable")
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
+def validate_request(request):
+    require(request.get("schema") == REQUEST_SCHEMA, "Wrong diagnostic request schema")
+    require(request.get("operation") in ("point", "postprocess", "aggregate", "fixed_grid_center", "fixed_grid_point", "response_audit"), "Unsupported operation")
+    require(request.get("threads", 2) == 2, "Released diagnostic allocation uses two numerical threads")
+    if request["operation"] in ("point", "fixed_grid_center", "fixed_grid_point", "response_audit"):
+        request = dict(request)
+        if request["operation"] in ("fixed_grid_center", "response_audit"):
+            request.setdefault("direction", {"type": "translation", "axis": 0})
+            request.setdefault("step_bohr", 0)
+            request.setdefault("sign", 0)
+        require(request.get("case") in CASES, "Registered Worker B case required")
+        direction = request.get("direction", {})
+        require(direction.get("type") in ("mode", "translation"), "Mode or translation direction required")
+        if direction["type"] == "mode":
+            require(type(direction.get("index")) is int and direction["index"] >= 1,
+                    "Mode index is positive and one based")
+        else:
+            require(type(direction.get("axis")) is int and direction["axis"] in (0, 1, 2),
+                    "Translation axis must be 0, 1, or 2")
+        h, sign = request.get("step_bohr"), request.get("sign")
+        require(type(h) in (int, float) and math.isfinite(h), "Finite displacement required")
+        require(type(sign) is int and sign in (-1, 0, 1), "Signed displacement must be -1, 0, or 1")
+        require((h == 0 and sign == 0) or (1e-4 <= h <= .02 and sign in (-1, 1)),
+                "Use center h=0/sign=0 or 0.0001..0.02 Bohr with sign +/-1")
+        if request["operation"] == "fixed_grid_center":
+            require(h == 0 and sign == 0, "Fixed-grid center must have h=0/sign=0")
+        if request["operation"] == "fixed_grid_point":
+            require(h > 0 and sign in (-1, 1), "Fixed-grid point requires a nonzero signed displacement")
+        require(request.get("grid_level", 1) in (1, 3, 5), "Only explicit grid levels 1, 3 and 5 are released")
+        require(type(request.get("gradient_grid_response", False)) is bool, "Grid response must be boolean")
+        require(request.get("grid_prune", "default") in ("default", "none"), "Unknown quadrature pruning")
+        tolerance = request.get("scf_conv_tol", 1e-8)
+        require(type(tolerance) in (int, float) and math.isfinite(tolerance) and 1e-12 <= tolerance <= 1e-8,
+                "SCF energy tolerance must be 1e-12..1e-8 Hartree")
+        if "scf_conv_tol_grad" in request:
+            threshold = request["scf_conv_tol_grad"]
+            require(type(threshold) in (int, float) and math.isfinite(threshold) and 1e-12 <= threshold <= 1e-6,
+                    "Finite explicit SCF orbital-gradient tolerance must be 1e-12..1e-6")
+        if "small_rho_cutoff" in request:
+            require(request["small_rho_cutoff"] == 0 and type(request["small_rho_cutoff"]) in (int, float),
+                    "Only the explicit zero small-rho cutoff control is released")
+        threshold = request.get("scf_qualification_gradient_norm", 1e-8)
+        require(type(threshold) in (int, float) and math.isfinite(threshold) and 1e-12 <= threshold <= 1e-6,
+                "Finite independent SCF qualification threshold required")
+        controls = request.get("gradient_response_controls", [request.get("gradient_grid_response", False)])
+        require(isinstance(controls, list) and 1 <= len(controls) <= 2
+                and all(type(flag) is bool for flag in controls) and len(set(controls)) == len(controls)
+                and request.get("gradient_grid_response", False) in controls,
+                "Distinct boolean gradient controls must include the primary gradient flag")
+        if request["operation"] != "point":
+            require(request.get("gradient_grid_response", False) is False,
+                    "Fixed Cartesian quadrature diagnostics require gradient_grid_response=False")
+            require(controls == [False], "Fixed quadrature diagnostics cannot use moving-grid gradient response")
+        if request["operation"] == "response_audit":
+            require(1e-13 <= request.get("cphf_tol", 1e-10) <= 1e-8, "Bounded explicit CPHF tolerance required")
+            require(type(request.get("cphf_max_cycle", 100)) is int and 1 <= request.get("cphf_max_cycle", 100) <= 200,
+                    "Bounded explicit CPHF iteration cap required")
+            require(type(request.get("include_fock_fd", True)) is bool
+                    and type(request.get("include_stock_direct_control", False)) is bool,
+                    "Response control switches must be boolean")
+            if "cphf_krylov_lindep" in request:
+                value = request["cphf_krylov_lindep"]
+                require(type(value) in (int, float) and math.isfinite(value) and 1e-30 <= value <= 1e-13,
+                        "Explicit Krylov linear-dependency threshold must be 1e-30..1e-13")
+
+
+def supervise(request):
+    # No NumPy, RDKit or PySCF import is permitted before this live proof check.
+    module = load_module(SUPERVISOR, "research4_b_diagnostic_live_supervision")
+    return module.verify_resource_supervision(
+        expected_worker_path=Path(__file__).resolve(), expected_threads=request.get("threads", 2))
+
+
+def initialize_platform_processor_without_fork():
+    """Resolve truthful processor metadata without the stdlib's ``uname -p``.
+
+    Linux platform._Processor normally starts a short-lived ``uname`` process.
+    h5py calls that metadata path during import, which conflicts with the
+    released single-TGID accounting rule even though it is not scientific work.
+    Keep that rule intact: replace only this process-local metadata resolver
+    after real supervision has been verified and before numerical imports.
+    """
+    import platform
+    require(sys.platform == "linux" and hasattr(os, "uname"),
+            "This no-fork metadata compatibility fix is scoped to Linux")
+    uname = os.uname()
+    cpuinfo = Path("/proc/cpuinfo")
+    model = None
+    if cpuinfo.is_file() and cpuinfo.stat().st_size <= 4 * 1024 ** 2:
+        # procfs can report size zero for populated virtual files. Read only
+        # this non-secret hardware metadata and retain an exact observation.
+        with cpuinfo.open() as stream:
+            text = stream.read(4 * 1024 ** 2 + 1)
+        require(len(text) <= 4 * 1024 ** 2, "CPU metadata exceeds bounded size")
+        for line in text.splitlines():
+            key, separator, value = line.partition(":")
+            if separator and key.strip().lower() == "model name" and value.strip():
+                model = value.strip()
+                break
+    value = model if model is not None else uname.machine
+    source = "/proc/cpuinfo:first model name" if model is not None else "os.uname().machine:architecture fallback, not a CPU model"
+    require(isinstance(value, str) and value.strip(), "Observed processor/architecture metadata required")
+    require(hasattr(platform, "_Processor") and hasattr(platform._Processor, "get"),
+            "Expected CPython platform processor resolver unavailable")
+    # Cover future platform cache invalidation as well as the current import.
+    # Do not restore the subprocess resolver while this worker remains alive.
+    platform._Processor.get = classmethod(lambda cls: value)
+    platform._uname_cache = None
+    observed = platform.processor()
+    require(observed == value, "No-fork processor metadata did not round-trip")
+    return {"status": "NO_FORK_PROCESSOR_METADATA_INITIALIZED",
+            "processor_value": observed, "processor_value_source": source,
+            "processor_is_cpu_model": model is not None,
+            "uname_system": uname.sysname, "uname_release": uname.release,
+            "uname_machine": uname.machine,
+            "stdlib_platform_path": str(Path(platform.__file__).resolve()),
+            "stdlib_platform_sha256": sha(platform.__file__),
+            "resolver_scope": "Current supervised worker process only; original scientific functions unchanged",
+            "subprocess_used": False, "initialized_at_utc": utc()}
+
+
+def original_worker(request):
+    binding = request.get("source_worker")
+    require(binding is not None, "Frozen original worker source reference required")
+    p = checked(binding)
+    require(p == ORIGINAL and sha(p) == ORIGINAL_SHA, "Original Worker B implementation changed")
+    return load_module(p, "research4_b_diagnostic_original_worker")
+
+
+def load_case(case_name, frequency_ref, np):
+    require(case_name in CASES, "Unknown case")
+    source_path = checked(frequency_ref)
+    source = read(source_path)
+    require(source.get("schema") == ORIGINAL_SCHEMA and source.get("case") == case_name
+            and source.get("operation") == "frequency" and source.get("status") == "FREQUENCIES_COMPUTED",
+            "Original complete case frequency result required")
+    require(source.get("input_manifest_sha256") == INPUT_SHA
+            and source.get("source_worker", {}).get("sha256") == ORIGINAL_SHA,
+            "Original chemical/source lineage changed")
+    require(source.get("complete_global_Hessian") is True and source.get("normal_modes_complete") is True,
+            "Complete original Hessian and mode set required")
+    require(sha(INPUT) == INPUT_SHA, "Frozen chemical manifest changed")
+    original_input = read(INPUT)
+    case = original_input["cases"][case_name]
+    require(source["settings"] == original_input["method"], "Original physical settings changed")
+    n, k = case["atoms"], case["expected_normal_modes"]
+    shapes = {"hessian_raw.npy": (n, n, 3, 3), "hessian_used.npy": (n, n, 3, 3),
+              "normal_modes.npy": (k, n, 3), "geometry_bohr.npy": (n, 3),
+              "frequencies_cm1.npy": (k,), "masses_amu.npy": (n,), "fresh_gradient.npy": (n, 3)}
+    arrays = {}
+    for name, shape in shapes.items():
+        p = checked(source["arrays"][name])
+        a = np.load(p, allow_pickle=False)
+        require(a.shape == shape and np.issubdtype(a.dtype, np.floating) and np.isfinite(a).all(),
+                "Array shape, dtype or finiteness differs: " + name)
+        arrays[name] = a
+    geometry = read(checked(source["optimized_geometry"]))
+    require(len(geometry["atom_symbols"]) == n, "Original atom order incomplete")
+    delta = np.max(np.abs(arrays["geometry_bohr.npy"] * BOHR_TO_ANGSTROM
+                          - np.asarray(geometry["coordinates_angstrom"])))
+    require(delta <= 1e-10, "Frequency and optimized geometry differ")
+    require(np.max(np.abs(arrays["hessian_used.npy"]
+                         - .5 * (arrays["hessian_raw.npy"]
+                                 + arrays["hessian_raw.npy"].transpose(1, 0, 3, 2)))) <= 1e-13,
+            "Original Hessian symmetrization differs")
+    cart = arrays["hessian_used.npy"].transpose(0, 2, 1, 3).reshape(3 * n, 3 * n)
+    return {"source": source, "source_ref": ref(source_path), "case": case, "arrays": arrays,
+            "geometry": geometry, "cartesian_hessian": cart}
+
+
+def unit_direction(direction, modes, np):
+    n = modes.shape[1]
+    if direction["type"] == "mode":
+        index = direction["index"]
+        require(1 <= index <= modes.shape[0], "Mode index outside complete original mode set")
+        q = modes[index - 1].copy()
+    else:
+        q = np.zeros((n, 3), dtype=float)
+        q[:, direction["axis"]] = 1.
+    norm = float(np.linalg.norm(q))
+    require(math.isfinite(norm) and norm > 1e-12, "Nonzero finite Cartesian direction required")
+    return q / norm
+
+
+def grid_digest(coords, weights, np):
+    require(coords.ndim == 2 and coords.shape[1] == 3 and weights.shape == (len(coords),)
+            and np.isfinite(coords).all() and np.isfinite(weights).all(), "Finite complete grid arrays required")
+    digest = hashlib.sha256()
+    for array in (coords, weights):
+        canonical = np.ascontiguousarray(array, dtype=np.float64)
+        digest.update(str(canonical.shape).encode()); digest.update(canonical.tobytes())
+    return digest.hexdigest()
+
+
+def fixed_grid_source(args, request, np):
+    require(args.center_result is not None and args.center_result_sha256,
+            "Actual center result path and hash required")
+    p = checked({"path": str(args.center_result), "sha256": args.center_result_sha256})
+    center = read(p)
+    require(center.get("schema") == SCHEMA and center.get("operation") == "fixed_grid_center"
+            and center.get("status") == "FIXED_GRID_CENTER_COMPUTED"
+            and center.get("case") == request["case"] and center.get("scf_converged") is True,
+            "Successfully computed same-case fixed-grid center required")
+    require(center["original_frequency_result"]["sha256"] == request["frequency_result"]["sha256"],
+            "Center and diagnostic original frequency lineage differ")
+    require(center.get("grid_semantics") == "FIXED_CENTER_CARTESIAN_QUADRATURE", "Wrong center quadrature semantics")
+    def array(name):
+        a = np.load(checked(center["arrays"][name]), allow_pickle=False)
+        require(np.isfinite(a).all(), "Nonfinite center array")
+        return a
+    coords, weights = array("grids_coords.npy"), array("grids_weights.npy")
+    require(grid_digest(coords, weights, np) == center["fixed_grid_content_sha256"], "Center grid content changed")
+    return center, ref(p), coords, weights, array
+
+
+def settings_for(request, source):
+    settings = dict(source["source"]["settings"])
+    settings["grid_level"] = request.get("grid_level", settings["grid_level"])
+    settings["gradient_grid_response"] = request.get("gradient_grid_response", False)
+    settings["scf_conv_tol"] = request.get("scf_conv_tol", settings["scf_conv_tol"])
+    if "scf_conv_tol_grad" in request:
+        settings["scf_conv_tol_grad"] = request["scf_conv_tol_grad"]
+    if "small_rho_cutoff" in request:
+        settings["small_rho_cutoff"] = request["small_rho_cutoff"]
+    return settings
+
+
+def configure_scf_tolerance(mf, request):
+    if "scf_conv_tol_grad" in request:
+        mf.conv_tol_grad = request["scf_conv_tol_grad"]
+    if "small_rho_cutoff" in request:
+        mf.small_rho_cutoff = request["small_rho_cutoff"]
+
+
+def independent_scf_qualification(mf, request, np, emit):
+    """Recompute the final Fock/orbital gradient without DIIS or a new SCF."""
+    started = time.process_time()
+    before = grid_digest(mf.grids.coords, mf.grids.weights, np)
+    density = np.asarray(mf.make_rdm1())
+    fock = np.asarray(mf.get_hcore()) + np.asarray(mf.get_veff(mf.mol, density))
+    orbital_gradient = np.asarray(mf.get_grad(mf.mo_coeff, mf.mo_occ, fock))
+    after = grid_digest(mf.grids.coords, mf.grids.weights, np)
+    require(before == after, "Independent final Fock evaluation changed the quadrature")
+    finite = bool(np.isfinite(orbital_gradient).all())
+    norm = float(np.linalg.norm(orbital_gradient)) if finite else None
+    maximum = float(np.max(np.abs(orbital_gradient))) if finite else None
+    threshold = request.get("scf_qualification_gradient_norm", 1e-8)
+    qualified = bool(mf.converged and finite and norm <= threshold)
+    record = {"status": "SCF_QUALIFIED" if qualified else "SCF_NOT_QUALIFIED", "qualified": qualified,
+              "orbital_gradient_finite": finite, "orbital_gradient_norm_Eh": norm,
+              "orbital_gradient_max_abs_Eh": maximum, "qualification_norm_threshold_Eh": threshold,
+              "requested_scf_conv_tol_grad": request.get("scf_conv_tol_grad"),
+              "actual_scf_conv_tol_grad": mf.conv_tol_grad,
+              "Fock_definition": "get_hcore()+get_veff(molecule,final_make_rdm1()), no DIIS, no new SCF",
+              "grid_sha256_before": before, "grid_sha256_after": after,
+              "process_cpu_seconds": time.process_time() - started}
+    emit("independent_final_SCF_qualification", **{key: value for key, value in record.items() if key != "process_cpu_seconds"},
+         qualification_process_cpu_seconds=record["process_cpu_seconds"])
+    return record
+
+
+def true_gradient_quadrature(gradient_method, mf, np):
+    """Observe the quadrature regenerated inside PySCF's full-response path."""
+    from pyscf.grad import rks as rks_gradient
+    original_generator = rks_gradient.grids_response_cc
+    coordinate_blocks, weight_blocks = [], []
+    def observed_generator(grids):
+        for coords, weights, response in original_generator(grids):
+            coordinate_blocks.append(np.asarray(coords).copy())
+            weight_blocks.append(np.asarray(weights).copy())
+            yield coords, weights, response
+    rks_gradient.grids_response_cc = observed_generator
+    try:
+        gradient = np.asarray(gradient_method.kernel())
+    finally:
+        rks_gradient.grids_response_cc = original_generator
+    require(coordinate_blocks, "True-gradient quadrature generator was not observed")
+    coords, weights = np.vstack(coordinate_blocks), np.concatenate(weight_blocks)
+    actual = weights != 0
+    scf_actual = mf.grids.weights != 0
+    response_coords, response_weights = coords[actual], weights[actual]
+    scf_coords, scf_weights = mf.grids.coords[scf_actual], mf.grids.weights[scf_actual]
+    def canonical(c, w):
+        order = np.lexsort((w, c[:, 2], c[:, 1], c[:, 0]))
+        return c[order], w[order]
+    coordinate_error, weight_error = None, None
+    same_count = len(response_weights) == len(scf_weights)
+    if same_count:
+        rc, rw = canonical(response_coords, response_weights)
+        sc, sw = canonical(scf_coords, scf_weights)
+        coordinate_error = float(np.max(np.abs(rc - sc)))
+        weight_error = float(np.max(np.abs(rw - sw)))
+    same_set = bool(same_count and coordinate_error <= 1e-12 and weight_error <= 1e-12)
+    return gradient, {"generator": "pyscf.grad.rks.grids_response_cc; actual iterated atom blocks",
+        "generator_order_grid_content_sha256": grid_digest(coords, weights, np),
+        "generated_grid_points": len(weights), "generated_nonzero_weight_points": int(np.count_nonzero(actual)),
+        "SCF_grid_points_including_padding": len(mf.grids.weights), "SCF_nonzero_weight_points": int(np.count_nonzero(scf_actual)),
+        "generated_weight_sum": float(weights.sum()), "SCF_weight_sum": float(mf.grids.weights.sum()),
+        "nonzero_quadrature_sets_numerically_match": same_set,
+        "canonical_coordinate_max_abs_difference_Bohr": coordinate_error,
+        "canonical_weight_max_abs_difference": weight_error,
+        "comparison": "Remove exactly zero-weight padding, lexicographically sort (x,y,z,weight), compare coordinates and weights to 1e-12; generator-order SHA differs from sorted/padded SCF SHA by design.",
+        "limitation": "Observed numerical set agreement supports quadrature consistency; it does not by itself establish SCF stationarity or finite-difference convergence." if same_set else
+                      "Regenerated full-response and SCF quadrature sets were not shown equal; energy/gradient consistency remains limited by this difference.",
+        "original_generator_restored": rks_gradient.grids_response_cc is original_generator}
+
+
+def configure_fixed_grid(mf, molecule, coords, weights, np):
+    # All level/pruning options MUST be set before these arrays: Grids.__setattr__
+    # resets the arrays when a grid-construction option is changed.
+    mf.grids.mol = molecule
+    mf.grids.coords = np.ascontiguousarray(coords.copy())
+    mf.grids.weights = np.ascontiguousarray(weights.copy())
+    mf.grids.non0tab = mf.grids.make_mask(molecule, mf.grids.coords)
+    mf.grids.screen_index = mf.grids.non0tab
+    # coords is populated, so RKS.initialize_grids and small-rho pruning are
+    # not entered. Preserve the original small_rho_cutoff value and record it.
+    return grid_digest(mf.grids.coords, mf.grids.weights, np)
+
+
+def fixed_grid_observation(args, request, state, output, emit, is_center):
+    import numpy as np
+    original = original_worker(request)
+    source = load_case(request["case"], request["frequency_result"], np)
+    direction = request.get("direction", {"type": "translation", "axis": 0})
+    h, sign = (0., 0) if is_center else (request["step_bohr"], request["sign"])
+    q = unit_direction(direction, source["arrays"]["normal_modes.npy"], np)
+    xyz = source["arrays"]["geometry_bohr.npy"] + sign * h * q
+    predicted = (source["cartesian_hessian"] @ q.ravel()).reshape(q.shape)
+    settings = settings_for(request, source)
+    state.update(case=request["case"], direction=direction, step_bohr=h, sign=sign,
+                 settings=settings, original_settings=source["source"]["settings"],
+                 grid_prune=request.get("grid_prune", "default"),
+                 original_frequency_result=source["source_ref"], original_source_worker=request["source_worker"],
+                 original_center_energy_hartree=source["source"]["energy_hartree"],
+                 analytic_directional_curvature_Eh_per_Bohr2=float(q.ravel() @ predicted.ravel()),
+                 analytic_Hessian_settings=source["source"]["settings"],
+                 coordinate_normalization="Euclidean Cartesian Frobenius norm = 1; displacement is in Bohr",
+                 grid_semantics="FIXED_CENTER_CARTESIAN_QUADRATURE", grid_rebuilt_at_each_geometry=False,
+                 grid_consistency_limitation="Absolute center quadrature coordinates and weights are held identical. Uniform molecular translation can change this fixed-grid discretized functional; a nonzero translation curvature is not by itself a continuum physical instability.",
+                 initial_density="FRESH_DEFAULT_MINAO_NO_CHECKPOINT_REUSE", numerical_DFT_operations=1)
+    state["arrays"] = {}
+    for name, value in (("direction.npy", q), ("geometry_bohr.npy", xyz), ("predicted_Hq.npy", predicted)):
+        save_array(output / name, value, np); state["arrays"][name] = ref(output / name)
+    center_data = None
+    if not is_center:
+        center, binding, coords, weights, _ = fixed_grid_source(args, request, np)
+        require(settings == center["settings"] and state["grid_prune"] == center["grid_prune"],
+                "Point method/numerical settings must exactly match center")
+        center_data = (center, binding, coords, weights)
+        state["center_result"] = binding
+    with (output / "pyscf.log").open("x", buffering=1) as log:
+        molecule = original.molecule(source["case"], source["geometry"]["atom_symbols"],
+                                     source["geometry"]["coordinates_angstrom"], settings, log)
+        molecule.set_geom_(xyz, unit="Bohr")
+        require(np.max(np.abs(molecule.atom_coords(unit="Bohr") - xyz)) <= 1e-12, "Exact displaced Bohr geometry differs")
+        mf = original.make_scf(molecule, settings, output / "fresh_point_scf.chk", 2, emit)
+        configure_scf_tolerance(mf, request)
+        if state["grid_prune"] == "none":
+            mf.grids.prune = None
+        if center_data:
+            before_grid = configure_fixed_grid(mf, molecule, center_data[2], center_data[3], np)
+            require(before_grid == center_data[0]["fixed_grid_content_sha256"], "Point grid differs before SCF")
+        else:
+            before_grid = None
+        state["quantum_payload_entered"] = True
+        emit("fixed_grid_center_scf_started" if is_center else "fixed_grid_point_scf_started")
+        state["energy_hartree"] = float(mf.kernel())
+        state["scf_converged"] = bool(mf.converged)
+        require(mf.converged and math.isfinite(mf.e_tot), "Fixed-grid fresh SCF did not converge")
+        after_scf = grid_digest(mf.grids.coords, mf.grids.weights, np)
+        if before_grid is not None:
+            require(after_scf == before_grid, "Fixed grid changed during SCF")
+        state["scf_qualification"] = independent_scf_qualification(mf, request, np, emit)
+        state["scf_qualified"] = state["scf_qualification"]["qualified"]
+        gradient_method = mf.nuc_grad_method()
+        gradient_method.grid_response = False
+        gradient_method.grids = mf.grids
+        emit("fixed_grid_gradient_started")
+        gradient = np.asarray(gradient_method.kernel())
+        after_gradient = grid_digest(mf.grids.coords, mf.grids.weights, np)
+        require(after_gradient == after_scf and gradient.shape == q.shape and np.isfinite(gradient).all(),
+                "Fixed grid changed during gradient or gradient incomplete")
+        for name, value in (("gradient.npy", gradient), ("density.npy", np.asarray(mf.make_rdm1()))):
+            save_array(output / name, value, np); state["arrays"][name] = ref(output / name)
+        if is_center:
+            for name, value in (("grids_coords.npy", mf.grids.coords), ("grids_weights.npy", mf.grids.weights),
+                                ("grid_non0tab.npy", mf.grids.non0tab), ("mo_coeff.npy", mf.mo_coeff),
+                                ("mo_energy.npy", mf.mo_energy), ("mo_occ.npy", mf.mo_occ)):
+                save_array(output / name, np.asarray(value), np); state["arrays"][name] = ref(output / name)
+        state.update(fixed_grid_content_sha256=after_gradient,
+                     grid_sha256_before_scf=before_grid,
+                     grid_sha256_after_scf=after_scf, grid_sha256_after_gradient=after_gradient,
+                     fixed_grid_coordinates_ref=state["arrays"]["grids_coords.npy"] if is_center else center_data[0]["arrays"]["grids_coords.npy"],
+                     fixed_grid_weights_ref=state["arrays"]["grids_weights.npy"] if is_center else center_data[0]["arrays"]["grids_weights.npy"],
+                     actual_grid_points=int(mf.grids.weights.size),
+                     small_rho_cutoff=float(mf.small_rho_cutoff),
+                     grid_AO_mask_sha256=hashlib.sha256(np.ascontiguousarray(mf.grids.non0tab).tobytes()).hexdigest(),
+                     grid_AO_mask_shape=list(mf.grids.non0tab.shape),
+                     gradient_checks=original.gradient_checks(np, gradient, settings),
+                     AO_mask_policy="Center actual mask retained; displaced masks rebuilt for each new molecule on the same absolute grid",
+                     projected_gradient_Eh_per_Bohr=float(q.ravel() @ gradient.ravel()),
+                     max_abs_gradient_Eh_per_Bohr=float(np.max(np.abs(gradient))),
+                     status=("FIXED_GRID_CENTER_COMPUTED" if is_center else "POINT_COMPUTED")
+                            if state["scf_qualified"] else "SCF_NOT_QUALIFIED")
+        emit("fixed_grid_observation_complete", energy_hartree=state["energy_hartree"], grid_content_sha256=after_gradient)
+    state["checkpoint_files"] = [ref(p) for p in output.glob("*.chk")]
+
+
+def overlap_directional_derivative(molecule, q, np):
+    nao = molecule.nao_nr()
+    derivative = -molecule.intor("int1e_ipovlp", comp=3)
+    result = np.zeros((nao, nao))
+    for atom, (_, _, p0, p1) in enumerate(molecule.aoslice_by_atom()):
+        block = np.einsum("x,xpq->pq", q[atom], derivative[:, p0:p1])
+        result[p0:p1, :] += block
+        result[:, p0:p1] += block.T
+    return result
+
+
+def response_equation_metrics(u, induced, h1mo, s1mo, energies, occupation, np):
+    occupied, virtual = occupation > 0, occupation == 0
+    e_i = energies[occupied]
+    residual = (energies[:, None] - e_i) * u + induced + h1mo - s1mo * e_i
+    oo_constraint = u[occupied] + .5 * s1mo[occupied]
+    return {"virtual_equation_max_abs_Eh": float(np.max(np.abs(residual[virtual]))),
+            "virtual_equation_norm_Eh": float(np.linalg.norm(residual[virtual])),
+            "occupied_normalization_max_abs": float(np.max(np.abs(oo_constraint))),
+            "equation_definition": "R_ai=(epsilon_a-epsilon_i) U_ai + Vresp(U)_ai + H1q_ai - S1q_ai epsilon_i; occupied U_ij=-S1q_ij/2"}
+
+
+def density_directional_derivative(coeff, occupied_coeff, u, np):
+    c1 = coeff @ u
+    return 2 * (c1 @ occupied_coeff.T + occupied_coeff @ c1.T)
+
+
+def stock_direct_control(mf, coords, weights, density, d1, np):
+    """Compare the wrapper with stock RKS using the same screened-direct path."""
+    from types import MethodType
+    from pyscf import dft
+    from pyscf.scf import hf
+    stock = dft.RKS(mf.mol)
+    stock.xc, stock.disp = mf.xc, mf.disp
+    stock.max_memory, stock.direct_scf_tol = mf.max_memory, mf.direct_scf_tol
+    stock.direct_scf, stock._eri, stock.mol.incore_anyway = True, None, False
+    stock.conv_tol, stock.max_cycle, stock.conv_tol_cpscf = mf.conv_tol, mf.max_cycle, mf.conv_tol_cpscf
+    stock.grids.level, stock.grids.prune = mf.grids.level, mf.grids.prune
+    stock.mo_coeff, stock.mo_energy, stock.mo_occ = mf.mo_coeff, mf.mo_energy, mf.mo_occ
+    stock.e_tot, stock.converged = mf.e_tot, True
+    # RKS.get_jk can auto-select in-core integrals. Bind the same SCF direct
+    # implementation that the original ScreenedDirectRKS wrapper delegates to.
+    stock.get_jk = MethodType(hf.SCF.get_jk, stock)
+    expected_grid = configure_fixed_grid(stock, mf.mol, coords, weights, np)
+    custom_fock = np.asarray(mf.get_hcore()) + np.asarray(mf.get_veff(mf.mol, density))
+    stock_fock = np.asarray(stock.get_hcore()) + np.asarray(stock.get_veff(stock.mol, density))
+    custom_response = np.asarray(mf.gen_response(mf.mo_coeff, mf.mo_occ, hermi=1)(d1))
+    stock_response = np.asarray(stock.gen_response(stock.mo_coeff, stock.mo_occ, hermi=1)(d1))
+    require(stock._eri is None and mf._eri is None and stock.direct_scf and mf.direct_scf,
+            "Screened-direct stock control policy changed")
+    require(grid_digest(stock.grids.coords, stock.grids.weights, np) == expected_grid,
+            "Stock control quadrature changed")
+    def metrics(difference):
+        return {"max_abs_Eh": float(np.max(np.abs(difference))), "norm_Eh": float(np.linalg.norm(difference))}
+    return {"status": "COMPUTED_WITHOUT_NEW_SCF", "Fock_difference": metrics(stock_fock - custom_fock),
+            "induced_response_difference": metrics(stock_response - custom_response),
+            "stock_get_jk": "instance-bound pyscf.scf.hf.SCF.get_jk; screened direct; _eri=None",
+            "same_molecule_orbitals_density_direction_and_absolute_grid": True,
+            "SCF_recomputed": False}, stock_fock - custom_fock, stock_response - custom_response
+
+
+def controlled_cphf_solve(cphf, fx, energies, occupation, h1mo, s1mo, request, emit):
+    """Scope an explicit Krylov cutoff to this solve and always restore it."""
+    import inspect
+    original_krylov = cphf.lib.krylov
+    original_lindep = inspect.signature(original_krylov).parameters["lindep"].default
+    requested_lindep = request.get("cphf_krylov_lindep")
+    controls = {"stock_krylov_lindep": original_lindep, "requested_krylov_lindep": requested_lindep,
+                "actual_krylov_lindep": original_lindep if requested_lindep is None else requested_lindep,
+                "stock_source_file_modified": False, "krylov_iteration_callbacks": 0,
+                "stop_rule_caveat": "Krylov trial-vector cutoff and requested tol are separate stopping conditions; only an independently recomputed physical CPHF residual establishes the observed residual."}
+    def callback(cycle, xs, ax):
+        controls["krylov_iteration_callbacks"] += 1
+        emit("CPHF_krylov_iteration", cycle=int(cycle), trial_vectors=len(xs))
+    def scoped_krylov(*args, **kwargs):
+        if requested_lindep is not None:
+            kwargs["lindep"] = requested_lindep
+        kwargs["callback"] = callback
+        return original_krylov(*args, **kwargs)
+    cphf.lib.krylov = scoped_krylov
+    try:
+        u, e1 = cphf.solve(fx, energies, occupation, h1mo, s1mo,
+                           max_cycle=request.get("cphf_max_cycle", 100),
+                           tol=request.get("cphf_tol", 1e-10), level_shift=0)
+    finally:
+        cphf.lib.krylov = original_krylov
+        controls["original_krylov_restored"] = cphf.lib.krylov is original_krylov
+    return u, e1, controls
+
+
+def response_audit(args, request, state, output, emit):
+    import numpy as np
+    from pyscf.hessian import rhf as rhf_hessian
+    from pyscf.scf import cphf
+    from pyscf.hessian import rks as rks_hessian
+    import pyscf
+    original = original_worker(request)
+    source = load_case(request["case"], request["frequency_result"], np)
+    center, center_ref, coords, weights, center_array = fixed_grid_source(args, request, np)
+    settings = settings_for(request, source)
+    require(settings == center["settings"] and request.get("grid_prune", "default") == center["grid_prune"],
+            "Response and center method settings differ")
+    require(args.minus_result is not None and args.minus_result_sha256 and args.plus_result is not None and args.plus_result_sha256,
+            "Both actual fixed-grid finite-difference point references required")
+    pair_refs = [{"path": str(args.minus_result), "sha256": args.minus_result_sha256},
+                 {"path": str(args.plus_result), "sha256": args.plus_result_sha256}]
+    pair = [read(checked(binding)) for binding in pair_refs]
+    direction = request["direction"]
+    for sign, observation in zip((-1, 1), pair):
+        require(observation.get("schema") == SCHEMA and observation.get("operation") == "fixed_grid_point"
+                and observation.get("status") == "POINT_COMPUTED" and observation.get("scf_converged") is True
+                and observation.get("case") == request["case"] and observation.get("sign") == sign
+                and observation.get("direction") == direction and observation.get("settings") == settings
+                and observation.get("fixed_grid_content_sha256") == center["fixed_grid_content_sha256"],
+                "Response finite-difference source case/direction/settings/grid differs")
+        require(observation.get("center_result", {}).get("sha256") == center_ref["sha256"], "Point belongs to another center")
+    h = pair[0]["step_bohr"]
+    require(h == pair[1]["step_bohr"] and h > 0 and h == request.get("finite_difference_step_bohr", h),
+            "Explicit matching response finite-difference step required")
+    q = unit_direction(direction, source["arrays"]["normal_modes.npy"], np)
+    center_geometry = center_array("geometry_bohr.npy")
+    for sign, observation in zip((-1, 1), pair):
+        point_q = np.load(checked(observation["arrays"]["direction.npy"]), allow_pickle=False)
+        point_geometry = np.load(checked(observation["arrays"]["geometry_bohr.npy"]), allow_pickle=False)
+        require(point_q.shape == q.shape and np.max(np.abs(point_q - q)) <= 1e-12
+                and point_geometry.shape == center_geometry.shape
+                and np.max(np.abs(point_geometry - (center_geometry + sign * h * q))) <= 1e-12,
+                "Response FD source direction or exact displacement differs")
+    state.update(case=request["case"], direction=direction, settings=settings,
+                 center_result=center_ref, minus_result=ref(checked(pair_refs[0])), plus_result=ref(checked(pair_refs[1])),
+                 original_frequency_result=source["source_ref"], original_source_worker=request["source_worker"],
+                 grid_semantics="FIXED_CENTER_CARTESIAN_QUADRATURE", fixed_grid_content_sha256=center["fixed_grid_content_sha256"],
+                 finite_difference_step_bohr=h, numerical_DFT_operations=1,
+                 numerical_operation_scope="Selected explicit Fock derivative and single-RHS response; no SCF or full Hessian recomputation",
+                 SCF_recomputed=False, full_Hessian_recomputed=False,
+                 installed_PySCF_version=pyscf.__version__,
+                 installed_response_sources={module.__name__: {"path": module.__file__, "sha256": sha(module.__file__)}
+                                             for module in (cphf, rhf_hessian, rks_hessian)},
+                 response_density_convention="Derivative of AO coefficient density matrix in identical atom/basis ordering on the moving AO labels; not the complete real-space density derivative")
+    arrays = {}
+    def store(name, value):
+        save_array(output / name, np.asarray(value), np); arrays[name] = ref(output / name)
+    with (output / "pyscf.log").open("x", buffering=1) as log:
+        molecule = original.molecule(source["case"], source["geometry"]["atom_symbols"],
+                                     source["geometry"]["coordinates_angstrom"], settings, log)
+        molecule.set_geom_(center_array("geometry_bohr.npy"), unit="Bohr")
+        mf = original.make_scf(molecule, settings, output / "unused_response_scf.chk", 2, emit)
+        if center["grid_prune"] == "none":
+            mf.grids.prune = None
+        require(configure_fixed_grid(mf, molecule, coords, weights, np) == center["fixed_grid_content_sha256"], "Response grid differs")
+        coeff, energies, occupation = center_array("mo_coeff.npy"), center_array("mo_energy.npy"), center_array("mo_occ.npy")
+        mf.mo_coeff, mf.mo_energy, mf.mo_occ = coeff, energies, occupation
+        mf.e_tot, mf.converged = center["energy_hartree"], True
+        occupied_coeff = coeff[:, occupation > 0]
+        state["quantum_payload_entered"] = True
+        emit("directional_response_explicit_H1_started")
+        hessian = mf.Hessian()
+        h1ao = np.asarray(hessian.make_h1(coeff, occupation, atmlst=list(range(molecule.natm))))
+        h1q = np.einsum("ax,axpq->pq", q, h1ao)
+        s1q = overlap_directional_derivative(molecule, q, np)
+        h1mo, s1mo = coeff.T @ h1q @ occupied_coeff, coeff.T @ s1q @ occupied_coeff
+        fx = rhf_hessian.gen_vind(mf, coeff, occupation)
+        tolerance, max_cycle = request.get("cphf_tol", 1e-10), request.get("cphf_max_cycle", 100)
+        emit("single_rhs_CPHF_started", tolerance=tolerance, max_cycle=max_cycle)
+        u, e1, solver_controls = controlled_cphf_solve(cphf, fx, energies, occupation, h1mo, s1mo, request, emit)
+        induced = np.asarray(fx(u)).reshape(u.shape)
+        metrics = response_equation_metrics(u, induced, h1mo, s1mo, energies, occupation, np)
+        d1 = density_directional_derivative(coeff, occupied_coeff, u, np)
+        d_minus = np.load(checked(pair[0]["arrays"]["density.npy"]), allow_pickle=False)
+        d_plus = np.load(checked(pair[1]["arrays"]["density.npy"]), allow_pickle=False)
+        require(d1.shape == d_minus.shape == d_plus.shape, "AO coefficient density dimensions differ")
+        dfd = (d_plus - d_minus) / (2 * h)
+        d0 = center_array("density.npy")
+        overlap = np.asarray(mf.get_ovlp())
+        state.update(cphf_tol=tolerance, cphf_max_cycle=max_cycle, cphf_level_shift=0,
+                     CPHF_solver_controls=solver_controls,
+                     CPHF_equation=metrics,
+                     CPHF_independent_virtual_residual_below_requested_tol=metrics["virtual_equation_max_abs_Eh"] <= tolerance,
+                     center_electron_count_Tr_DS=float(np.einsum("pq,qp->", d0, overlap)),
+                     electron_count_directional_derivative=float(np.einsum("pq,qp->", d1, overlap) + np.einsum("pq,qp->", d0, s1q)),
+                     density_derivative_symmetry_max_abs=float(np.max(np.abs(d1 - d1.T))),
+                     density_derivative_FD_error_norm=float(np.linalg.norm(d1 - dfd)),
+                     density_derivative_FD_relative_error=float(np.linalg.norm(d1 - dfd) / max(np.linalg.norm(dfd), 1e-12)),
+                     density_derivative_FD_max_abs_error=float(np.max(np.abs(d1 - dfd))),
+                     density_derivative_analytic_norm=float(np.linalg.norm(d1)), density_derivative_FD_norm=float(np.linalg.norm(dfd)))
+        for name, value in (("direction.npy", q), ("H1q_AO.npy", h1q), ("S1q_AO.npy", s1q),
+                            ("H1q_MO.npy", h1mo), ("S1q_MO.npy", s1mo), ("U_MO.npy", u),
+                            ("induced_response_MO.npy", induced), ("occupied_energy_response.npy", e1),
+                            ("density_derivative_analytic.npy", d1), ("density_derivative_FD.npy", dfd)):
+            store(name, value)
+        emit("single_rhs_CPHF_audited", virtual_equation_max_abs_Eh=metrics["virtual_equation_max_abs_Eh"],
+             density_derivative_FD_relative_error=state["density_derivative_FD_relative_error"])
+        if request.get("include_fock_fd", True):
+            d0 = center_array("density.npy")
+            focks = []
+            for observation in pair:
+                geometry = np.load(checked(observation["arrays"]["geometry_bohr.npy"]), allow_pickle=False)
+                displaced = original.molecule(source["case"], source["geometry"]["atom_symbols"],
+                                               source["geometry"]["coordinates_angstrom"], settings, log)
+                displaced.set_geom_(geometry, unit="Bohr")
+                point_mf = original.make_scf(displaced, settings, output / "unused_fock_scf.chk", 2, emit)
+                if center["grid_prune"] == "none":
+                    point_mf.grids.prune = None
+                require(configure_fixed_grid(point_mf, displaced, coords, weights, np) == center["fixed_grid_content_sha256"],
+                        "Frozen-density Fock grid differs before evaluation")
+                focks.append(np.asarray(point_mf.get_hcore()) + np.asarray(point_mf.get_veff(displaced, d0)))
+                require(grid_digest(point_mf.grids.coords, point_mf.grids.weights, np) == center["fixed_grid_content_sha256"],
+                        "Frozen-density Fock grid changed during evaluation")
+            fock_fd = (focks[1] - focks[0]) / (2 * h)
+            difference = fock_fd - h1q
+            state["explicit_H1_Fock_FD"] = {"status": "COMPUTED_WITHOUT_NEW_SCF",
+                "AO_max_abs_error_Eh_per_Bohr": float(np.max(np.abs(difference))),
+                "AO_error_norm_Eh_per_Bohr": float(np.linalg.norm(difference)),
+                "AO_relative_error": float(np.linalg.norm(difference) / max(np.linalg.norm(fock_fd), 1e-12)),
+                "MO_vo_error_norm_Eh_per_Bohr": float(np.linalg.norm((coeff.T @ difference @ occupied_coeff)[occupation == 0])),
+                "frozen_density_convention": "Identical center AO coefficient density matrix at +/- geometries with fixed absolute quadrature; no SCF iterations"}
+            store("explicit_H1_Fock_FD.npy", fock_fd)
+            emit("explicit_H1_frozen_density_Fock_FD_complete", relative_error=state["explicit_H1_Fock_FD"]["AO_relative_error"])
+        else:
+            state["explicit_H1_Fock_FD"] = {"status": "NOT_RUN"}
+        if request.get("include_stock_direct_control", False):
+            emit("stock_screened_direct_control_started")
+            metrics, delta_fock, delta_response = stock_direct_control(mf, coords, weights, center_array("density.npy"), d1, np)
+            state["stock_screened_direct_control"] = metrics
+            store("stock_direct_Fock_difference.npy", delta_fock)
+            store("stock_direct_induced_response_difference.npy", delta_response)
+            emit("stock_screened_direct_control_complete", Fock_max_abs_Eh=metrics["Fock_difference"]["max_abs_Eh"],
+                 induced_response_max_abs_Eh=metrics["induced_response_difference"]["max_abs_Eh"])
+        else:
+            state["stock_screened_direct_control"] = {"status": "NOT_RUN"}
+        require(grid_digest(mf.grids.coords, mf.grids.weights, np) == center["fixed_grid_content_sha256"], "Response center grid changed")
+    state.update(status="RESPONSE_AUDIT_COMPLETE", arrays=arrays,
+                 interpretation="Residuals test the selected response equation and AO coefficient density derivative, not a full Hessian or a molecular minimum. Agreement/disagreement is evidence for further causal discrimination, not a prespecified verdict.")
+
+
+def point(request, state, output, emit):
+    import numpy as np
+    from pyscf import lib
+    original = original_worker(request)
+    source = load_case(request["case"], request["frequency_result"], np)
+    q = unit_direction(request["direction"], source["arrays"]["normal_modes.npy"], np)
+    xyz = source["arrays"]["geometry_bohr.npy"]
+    point_xyz = xyz + request["sign"] * request["step_bohr"] * q
+    predicted = (source["cartesian_hessian"] @ q.ravel()).reshape(q.shape)
+    curvature = float(np.dot(q.ravel(), predicted.ravel()))
+    settings = settings_for(request, source)
+    prune = request.get("grid_prune", "default")
+    primary_response = settings["gradient_grid_response"]
+    controls = [primary_response] + [flag for flag in request.get("gradient_response_controls", [primary_response])
+                                     if flag != primary_response]
+    state.update(case=request["case"], direction=request["direction"], step_bohr=request["step_bohr"],
+                 sign=request["sign"], settings=settings, grid_prune=prune,
+                 original_source_worker=request["source_worker"],
+                 original_frequency_result=source["source_ref"],
+                 original_settings=source["source"]["settings"],
+                 original_center_energy_hartree=source["source"]["energy_hartree"],
+                 analytic_directional_curvature_Eh_per_Bohr2=curvature,
+                 analytic_Hessian_settings=source["source"]["settings"],
+                 coordinate_normalization="Euclidean Cartesian Frobenius norm = 1; displacement is in Bohr",
+                 grid_semantics="REBUILT_ATOM_CENTERED_QUADRATURE",
+                 grid_rebuilt_at_each_geometry=True, grid_consistency_limitation=GRID_CAVEAT,
+                 gradient_response_controls=controls, gradient_controls_share_one_SCF_energy_and_density=True,
+                 actual_SCF_kernel_calls=0,
+                 initial_density="FRESH_DEFAULT_MINAO_NO_CHECKPOINT_REUSE", numerical_DFT_operations=1)
+    for name, value in (("direction.npy", q), ("geometry_bohr.npy", point_xyz), ("predicted_Hq.npy", predicted)):
+        save_array(output / name, value, np)
+    state["arrays"] = {name: ref(output / name) for name in ("direction.npy", "geometry_bohr.npy", "predicted_Hq.npy")}
+    symbols = source["geometry"]["atom_symbols"]
+    with (output / "pyscf.log").open("x", buffering=1) as log:
+        molecule = original.molecule(source["case"], symbols, source["geometry"]["coordinates_angstrom"], settings, log)
+        molecule.set_geom_(point_xyz, unit="Bohr")
+        require(np.max(np.abs(molecule.atom_coords(unit="Bohr") - point_xyz)) <= 1e-12,
+                "Exact displaced Bohr geometry differs")
+        lib.num_threads(2)
+        mf = original.make_scf(molecule, settings, output / "fresh_point_scf.chk", 2, emit)
+        configure_scf_tolerance(mf, request)
+        if prune == "none":
+            mf.grids.prune = None
+        emit("fresh_point_scf_started", displaced_geometry_sha256=sha(output / "geometry_bohr.npy"))
+        state["quantum_payload_entered"] = True
+        state["grid_sha256_before_scf"] = None
+        state["grid_before_scf_status"] = "NOT_YET_BUILT; fresh geometry initializes its own quadrature in SCF"
+        state["actual_SCF_kernel_calls"] += 1
+        state["energy_hartree"] = float(mf.kernel())
+        state["scf_converged"] = bool(mf.converged)
+        require(mf.converged and math.isfinite(mf.e_tot), "Displaced-point fresh SCF did not converge")
+        state["grid_sha256_after_scf"] = grid_digest(mf.grids.coords, mf.grids.weights, np)
+        state["scf_qualification"] = independent_scf_qualification(mf, request, np, emit)
+        state["scf_qualified"] = state["scf_qualification"]["qualified"]
+        density = np.asarray(mf.make_rdm1())
+        save_array(output / "density.npy", density, np)
+        state["arrays"]["density.npy"] = ref(output / "density.npy")
+        observations = {}
+        for flag in controls:
+            before = grid_digest(mf.grids.coords, mf.grids.weights, np)
+            require(before == state["grid_sha256_after_scf"], "Rebuilt grid changed before a gradient control")
+            gradient_method = mf.nuc_grad_method()
+            gradient_method.grid_response = flag
+            gradient_method.grids = mf.grids
+            gradient_cpu = time.process_time()
+            emit("gradient_response_control_started", gradient_grid_response=flag)
+            quadrature_observation = None
+            if flag:
+                measured, quadrature_observation = true_gradient_quadrature(gradient_method, mf, np)
+            else:
+                measured = np.asarray(gradient_method.kernel())
+            elapsed = time.process_time() - gradient_cpu
+            after = grid_digest(mf.grids.coords, mf.grids.weights, np)
+            require(before == after and measured.shape == q.shape and np.isfinite(measured).all(),
+                    "Gradient control changed its grid or returned an incomplete gradient")
+            name = "gradient.npy" if flag == primary_response else "gradient_grid_response_" + str(flag).lower() + ".npy"
+            save_array(output / name, measured, np)
+            state["arrays"][name] = ref(output / name)
+            observations[str(flag).lower()] = {"gradient_grid_response": flag, "array": state["arrays"][name],
+                "grid_sha256_before": before, "grid_sha256_after": after,
+                "process_cpu_seconds": elapsed, "same_SCF_energy_and_density": True,
+                "regenerated_quadrature": quadrature_observation,
+                "projected_gradient_Eh_per_Bohr": float(q.ravel() @ measured.ravel()),
+                "max_abs_gradient_Eh_per_Bohr": float(np.max(np.abs(measured)))}
+            if flag == primary_response:
+                gradient = measured
+            emit("gradient_response_control_complete", **{key: value for key, value in observations[str(flag).lower()].items()
+                                                            if key not in ("array", "process_cpu_seconds")},
+                 gradient_process_cpu_seconds=elapsed)
+        state["gradient_observations"] = observations
+        state["grid_sha256_after_gradient"] = grid_digest(mf.grids.coords, mf.grids.weights, np)
+        state.update(projected_gradient_Eh_per_Bohr=float(np.dot(q.ravel(), gradient.ravel())),
+                     max_abs_gradient_Eh_per_Bohr=float(np.max(np.abs(gradient))),
+                     actual_grid_points=int(mf.grids.weights.size),
+                     small_rho_cutoff=float(mf.small_rho_cutoff),
+                     grid_AO_mask_sha256=hashlib.sha256(np.ascontiguousarray(mf.grids.non0tab).tobytes()).hexdigest(),
+                     grid_AO_mask_shape=list(mf.grids.non0tab.shape),
+                     gradient_checks=original.gradient_checks(np, gradient, settings),
+                     status="POINT_COMPUTED" if state["scf_qualified"] else "SCF_NOT_QUALIFIED")
+        emit("fresh_point_gradient_complete", energy_hartree=state["energy_hartree"],
+             projected_gradient_Eh_per_Bohr=state["projected_gradient_Eh_per_Bohr"])
+    state["checkpoint_files"] = [ref(p) for p in output.glob("*.chk")]
+
+
+def external_bases(xyz, mass, np):
+    n = len(mass)
+    centered = xyz - np.einsum("i,ij->j", mass, xyz) / mass.sum()
+    translations, rotations, weighted = [], [], []
+    for axis in np.eye(3):
+        t = np.broadcast_to(axis, (n, 3)).copy()
+        translations.append(t.ravel() / np.linalg.norm(t))
+        r = np.cross(centered, axis)
+        rotations.append(r.ravel() / np.linalg.norm(r))
+        weighted.append((np.sqrt(mass)[:, None] * t).ravel())
+        weighted.append((np.sqrt(mass)[:, None] * r).ravel())
+    u, singular, _ = np.linalg.svd(np.asarray(weighted).T, full_matrices=True)
+    require(int(np.sum(singular > 1e-10)) == 6, "Nonlinear six-dimensional external space required")
+    return np.asarray(translations), np.asarray(rotations), u
+
+
+def case_postprocess(source, output, np):
+    case_name = source["source"]["case"]
+    arrays, h = source["arrays"], source["cartesian_hessian"]
+    mass, xyz = arrays["masses_amu.npy"], arrays["geometry_bohr.npy"]
+    trans, rot, u = external_bases(xyz, mass, np)
+    weights = np.repeat(np.sqrt(mass), 3)
+    mw_h = h / weights[:, None] / weights[None, :]
+    vib = u[:, 6:]
+    eigen = np.linalg.eigvalsh(vib.T @ mw_h @ vib)
+    replay = np.sign(eigen) * np.sqrt(np.abs(eigen)) * FREQUENCY_FACTOR_CM1
+    frequencies = arrays["frequencies_cm1.npy"]
+    require(np.max(np.abs(replay - frequencies)) < 1e-6, "Independent mode replay differs")
+    symbols = source["geometry"]["atom_symbols"]
+    mode_rows, negative = [], []
+    for i, freq in enumerate(frequencies):
+        q = unit_direction({"type": "mode", "index": i + 1}, arrays["normal_modes.npy"], np)
+        atom_power = np.sum(q ** 2, axis=1)
+        element = defaultdict(float)
+        for symbol, contribution in zip(symbols, atom_power):
+            element[symbol] += float(contribution)
+        row = {"case": case_name, "mode": i + 1, "frequency_cm1": float(freq),
+               "frequency_THz": float(freq * CM1_TO_THZ), "imaginary": bool(freq < 0),
+               "unit_cartesian_curvature_Eh_per_Bohr2": float(q.ravel() @ h @ q.ravel()),
+               "oxygen_cartesian_fraction": element.get("O", 0.),
+               "carbon_cartesian_fraction": element.get("C", 0.),
+               "hydrogen_cartesian_fraction": element.get("H", 0.)}
+        mode_rows.append(row)
+        if freq < 0:
+            indices = np.argsort(atom_power)[::-1][:min(6, len(symbols))]
+            negative.append({**row, "element_cartesian_fractions": dict(element),
+                             "atom_cartesian_fractions": atom_power.tolist(),
+                             "largest_atom_contributions": [{"atom_1based": int(j + 1), "symbol": symbols[j],
+                                                             "fraction": float(atom_power[j])} for j in indices]})
+    csv_path = output / (case_name + "_modes.csv")
+    with csv_path.open("x", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=list(mode_rows[0]), lineterminator="\n")
+        writer.writeheader(); writer.writerows(mode_rows)
+    trajectory = []
+    original_opt = read(checked(source["source"]["preceding_result"]))
+    opt_path = checked(source["source"]["preceding_result"]).parent
+    for path in sorted((opt_path / "geometry_steps").glob("step_*.json")):
+        record = read(path)
+        trajectory.append({"cycle": record["cycle"], "energy_hartree": record["energy_hartree"],
+                           "scf_converged": record["scf_converged"], "source": ref(path)})
+    raw = arrays["hessian_raw.npy"]
+    t_products = np.asarray([h @ q for q in trans])
+    r_products = np.asarray([h @ q for q in rot])
+    full_eigen = np.linalg.eigvalsh(h)
+    ext_eigen = np.linalg.eigvalsh(u[:, :6].T @ mw_h @ u[:, :6])
+    return {"case": case_name, "source_frequency_result": source["source_ref"],
+            "source_array_refs": source["source"]["arrays"], "modes_csv": ref(csv_path),
+            "normal_mode_count": len(frequencies), "imaginary_frequency_count": int(np.sum(frequencies < 0)),
+            "stationary_minimum_verified_original": source["source"]["stationary_minimum_verified"],
+            "independent_replay_max_frequency_error_cm1": float(np.max(np.abs(replay - frequencies))),
+            "raw_Hessian_max_asymmetry_Eh_per_Bohr2": float(np.max(np.abs(raw - raw.transpose(1, 0, 3, 2)))),
+            "translation_Hq_max_abs_Eh_per_Bohr2": float(np.max(np.abs(t_products))),
+            "translation_axis_Hq_norms_Eh_per_Bohr2": np.linalg.norm(t_products, axis=1).tolist(),
+            "translation_axis_curvatures_Eh_per_Bohr2": [float(q @ h @ q) for q in trans],
+            "rotation_Hq_max_abs_Eh_per_Bohr2": float(np.max(np.abs(r_products))),
+            "rotation_residual_limitation": "At nonzero gradient, rotational Hessian products need not vanish; examine the gradient-coupling identity before interpretation.",
+            "full_cartesian_min_eigenvalue_Eh_per_Bohr2": float(full_eigen[0]),
+            "external_mass_weighted_block_eigenvalues": ext_eigen.tolist(),
+            "negative_modes": negative, "optimizer_trajectory": trajectory,
+            "optimizer_converged_original": original_opt["optimizer_converged"],
+            "fresh_gradient_thresholds_passed_original": source["source"]["fresh_gradient_thresholds_passed"],
+            "Hessian_derivative_correctness": "NOT_VERIFIED_BY_EIGEN_REPLAY",
+            "translation_interpretation": "A complete continuum molecular Hessian annihilates uniform Cartesian translations. Finite quadrature and response approximations require explicit displaced derivative controls before causal diagnosis."}
+
+
+def postprocess(request, state, output, emit):
+    import numpy as np
+    original_worker(request)
+    refs = request.get("frequency_results")
+    if refs is None:
+        refs = {request["case"]: request["frequency_result"]}
+    require(isinstance(refs, dict) and refs, "Explicit original frequency references required")
+    summaries = {}
+    for case_name, binding in refs.items():
+        source = load_case(case_name, binding, np)
+        summaries[case_name] = case_postprocess(source, output, np)
+        emit("original_case_postprocessed", case=case_name,
+             translation_Hq_max_abs=summaries[case_name]["translation_Hq_max_abs_Eh_per_Bohr2"])
+    state.update(status="POSTPROCESS_COMPLETE", cases=summaries, numerical_DFT_operations=0,
+                 interpretation="Original frequency replay validates eigenanalysis, not the underlying analytic second derivative. Follow-up displaced SCF/gradient/energy observations are required.")
+
+
+def central_difference(q, g_minus, g_plus, h, predicted_hq, np, *, e_minus=None, e_plus=None, e_center=None):
+    require(h > 0 and math.isfinite(h), "Positive finite central step required")
+    require(q.shape == g_minus.shape == g_plus.shape == predicted_hq.shape, "Full directional arrays must share shape")
+    require(all(np.isfinite(a).all() for a in (q, g_minus, g_plus, predicted_hq)), "Finite derivative arrays required")
+    require(abs(float(np.linalg.norm(q)) - 1.) <= 1e-10, "Cartesian direction must have unit Euclidean norm")
+    fd = (g_plus - g_minus) / (2 * h)
+    analytic = float(np.dot(q.ravel(), predicted_hq.ravel()))
+    measured = float(np.dot(q.ravel(), fd.ravel()))
+    residual = float(np.linalg.norm(fd - predicted_hq))
+    result = {"step_bohr": h, "analytic_directional_curvature_Eh_per_Bohr2": analytic,
+              "gradient_FD_curvature_Eh_per_Bohr2": measured,
+              "gradient_FD_Hq_error_norm_Eh_per_Bohr2": residual,
+              "gradient_FD_Hq_relative_error": residual / max(float(np.linalg.norm(predicted_hq)), 1e-12),
+              "gradient_FD_Hq_max_abs_error_Eh_per_Bohr2": float(np.max(np.abs(fd - predicted_hq))),
+              "curvature_absolute_error_Eh_per_Bohr2": abs(measured - analytic),
+              "curvature_sign_agrees": bool(analytic * measured > 0) if abs(analytic) > 1e-9 and abs(measured) > 1e-9 else None}
+    if all(v is not None for v in (e_minus, e_plus, e_center)):
+        require(all(math.isfinite(v) for v in (e_minus, e_plus, e_center)), "Finite point energies required")
+        result.update(energy_FD_curvature_Eh_per_Bohr2=(e_plus - 2 * e_center + e_minus) / h ** 2,
+                      energy_FD_slope_Eh_per_Bohr=(e_plus - e_minus) / (2 * h),
+                      energy_center_hartree=e_center)
+    return result
+
+
+def point_group_key(point, include_direction=True):
+    value = {"case": point["case"], "settings": point["settings"], "grid_prune": point.get("grid_prune", "default"),
+             "grid_semantics": point.get("grid_semantics", "REBUILT_ATOM_CENTERED_QUADRATURE"),
+             "fixed_grid_content_sha256": point.get("fixed_grid_content_sha256"),
+             "source_frequency_sha256": point["original_frequency_result"]["sha256"]}
+    if value["grid_semantics"] == "FIXED_CENTER_CARTESIAN_QUADRATURE":
+        value["fixed_center_result_sha256"] = (point.get("center_result", {}).get("sha256")
+                                                or point.get("point_result_ref", {}).get("sha256"))
+    if include_direction:
+        value["direction"] = point["direction"]
+    return json.dumps(value, sort_keys=True, separators=(",", ":"))
+
+
+def aggregate(request, state, output, emit, extra_points):
+    import numpy as np
+    bindings = list(request.get("points", [])) + list(extra_points)
+    require(bindings, "Actual hash-bound point result references required")
+    groups, centers, seen = defaultdict(list), defaultdict(list), set()
+    source_refs, excluded = [], []
+    for binding in bindings:
+        path = checked(binding)
+        require(str(path) not in seen, "Duplicate point reference would change pairing")
+        seen.add(str(path)); p = read(path); source_refs.append(ref(path))
+        p["point_result_ref"] = ref(path)
+        require(p.get("schema") == SCHEMA and p.get("operation") in ("point", "fixed_grid_center", "fixed_grid_point"),
+                "Diagnostic point or fixed-grid center result required")
+        expected_status = "FIXED_GRID_CENTER_COMPUTED" if p["operation"] == "fixed_grid_center" else "POINT_COMPUTED"
+        if (p.get("status") != expected_status or p.get("scf_converged") is not True
+                or p.get("scf_qualified", True) is not True):
+            excluded.append({"source": ref(path), "status": p.get("status"), "reason": "Point not successfully computed"})
+            continue
+        if p["step_bohr"] == 0 and p["sign"] == 0:
+            centers[point_group_key(p, False)].append(p)
+        else:
+            groups[point_group_key(p)].append(p)
+    rows, missing, double_steps = [], [], []
+    for group_key, points in groups.items():
+        by_step = defaultdict(dict)
+        for p in points:
+            h, sign = p["step_bohr"], p["sign"]
+            require(sign in (-1, 1) and sign not in by_step[h], "Ambiguous duplicate signed point")
+            by_step[h][sign] = p
+        group_rows = defaultdict(list)
+        for h, pair in sorted(by_step.items()):
+            meta = {"case": points[0]["case"], "direction": points[0]["direction"],
+                    "direction_type": points[0]["direction"]["type"],
+                    "mode_index": points[0]["direction"].get("index"),
+                    "translation_axis": points[0]["direction"].get("axis"),
+                    "grid_level": points[0]["settings"]["grid_level"],
+                    "gradient_grid_response": points[0]["settings"]["gradient_grid_response"],
+                    "scf_conv_tol": points[0]["settings"]["scf_conv_tol"],
+                    "scf_conv_tol_grad": points[0]["settings"].get("scf_conv_tol_grad"),
+                    "small_rho_cutoff": points[0]["settings"].get("small_rho_cutoff"),
+                    "grid_semantics": points[0].get("grid_semantics", "REBUILT_ATOM_CENTERED_QUADRATURE"),
+                    "fixed_grid_content_sha256": points[0].get("fixed_grid_content_sha256"),
+                    "grid_prune": points[0].get("grid_prune", "default"), "step_bohr": h}
+            if set(pair) != {-1, 1}:
+                missing.append({**meta, "status": "NOT_RUN_MISSING_SIGNED_POINT", "available_signs": sorted(pair)})
+                continue
+            minus, plus = pair[-1], pair[1]
+            def array(p, name):
+                a = np.load(checked(p["arrays"][name]), allow_pickle=False)
+                require(np.isfinite(a).all(), "Finite point array required")
+                return a
+            q = array(plus, "direction.npy")
+            require(np.max(np.abs(q - array(minus, "direction.npy"))) <= 1e-12, "Signed point directions differ")
+            prediction = array(plus, "predicted_Hq.npy")
+            require(np.max(np.abs(prediction - array(minus, "predicted_Hq.npy"))) <= 1e-12,
+                    "Signed point Hessian predictions differ")
+            center_records = centers.get(point_group_key(plus, False), [])
+            center_energy, center_source = None, None
+            if center_records:
+                require(len(center_records) == 1, "Multiple equivalent center points require explicit resolution")
+                center_energy = center_records[0]["energy_hartree"]
+                center_source = "NEW_MATCHING_METHOD_CENTER_POINT"
+            def gradient_variants(p):
+                if p.get("gradient_observations"):
+                    return {bool(value["gradient_grid_response"]): value for value in p["gradient_observations"].values()}
+                flag = p["settings"]["gradient_grid_response"]
+                return {flag: {"gradient_grid_response": flag, "array": p["arrays"]["gradient.npy"]}}
+            minus_variants, plus_variants = gradient_variants(minus), gradient_variants(plus)
+            for flag in sorted(set(minus_variants) | set(plus_variants)):
+                if flag not in minus_variants or flag not in plus_variants:
+                    missing.append({**meta, "gradient_grid_response": flag, "status": "NOT_RUN_MISSING_GRADIENT_CONTROL"})
+                    continue
+                def observed_gradient(value):
+                    gradient = np.load(checked(value["array"]), allow_pickle=False)
+                    require(np.isfinite(gradient).all(), "Nonfinite gradient control")
+                    return gradient
+                measurement = central_difference(q, observed_gradient(minus_variants[flag]), observed_gradient(plus_variants[flag]),
+                                                 h, prediction, np, e_minus=minus["energy_hartree"],
+                                                 e_plus=plus["energy_hartree"], e_center=center_energy)
+                evaluated_settings = {**plus["settings"], "gradient_grid_response": flag}
+                caveat = plus.get("grid_consistency_limitation", GRID_CAVEAT)
+                if flag and meta["grid_semantics"] == "REBUILT_ATOM_CENTERED_QUADRATURE":
+                    caveat = "Full grid-response gradients regenerate atom-centered quadrature. Actual regenerated/SCF set comparisons are recorded at each point; energy/gradient agreement requires numerical set agreement, qualified SCF and finite-step convergence."
+                row = {**meta, **measurement, "gradient_grid_response": flag,
+                       "primary_gradient_grid_response": plus["settings"]["gradient_grid_response"],
+                       "center_energy_source": center_source,
+                       "minus_point_result": minus["point_result_ref"], "plus_point_result": plus["point_result_ref"],
+                       "minus_gradient_array": minus_variants[flag]["array"], "plus_gradient_array": plus_variants[flag]["array"],
+                       "minus_regenerated_quadrature": minus_variants[flag].get("regenerated_quadrature"),
+                       "plus_regenerated_quadrature": plus_variants[flag].get("regenerated_quadrature"),
+                       "center_point_result": center_records[0]["point_result_ref"] if center_records else None,
+                       "original_frequency_result": plus["original_frequency_result"],
+                       "same_settings_as_original_Hessian": evaluated_settings == plus["original_settings"],
+                       "point_method_settings": evaluated_settings, "Hessian_method_settings": plus["original_settings"],
+                       "gradient_controls_share_one_SCF_energy_and_density": plus.get("gradient_controls_share_one_SCF_energy_and_density", False),
+                       "grid_consistency_limitation": caveat, "new_center_available": bool(center_records)}
+                if "energy_FD_curvature_Eh_per_Bohr2" in row:
+                    row["gradient_energy_curvature_difference_Eh_per_Bohr2"] = row["gradient_FD_curvature_Eh_per_Bohr2"] - row["energy_FD_curvature_Eh_per_Bohr2"]
+                rows.append(row); group_rows[flag].append(row)
+                emit("directional_pair_analyzed", case=row["case"], direction=row["direction"], step_bohr=h,
+                     gradient_grid_response=flag, gradient_curvature=row["gradient_FD_curvature_Eh_per_Bohr2"])
+        for flag, variant_rows in group_rows.items():
+            if len(variant_rows) < 2:
+                continue
+            first, last = variant_rows[0], variant_rows[-1]
+            entry = {"case": first["case"], "direction": first["direction"],
+                     "gradient_grid_response": flag,
+                     "direction_type": first["direction_type"], "mode_index": first["mode_index"],
+                     "translation_axis": first["translation_axis"], "grid_prune": first["grid_prune"],
+                     "grid_semantics": first["grid_semantics"], "fixed_grid_content_sha256": first["fixed_grid_content_sha256"],
+                     "point_method_settings": first["point_method_settings"],
+                     "small_step_bohr": first["step_bohr"], "large_step_bohr": last["step_bohr"],
+                     "gradient_curvature_step_difference_Eh_per_Bohr2": abs(first["gradient_FD_curvature_Eh_per_Bohr2"] - last["gradient_FD_curvature_Eh_per_Bohr2"]),
+                     "both_steps_curvature_sign_agrees": [first["curvature_sign_agrees"], last["curvature_sign_agrees"]]}
+            if "energy_FD_curvature_Eh_per_Bohr2" in first and "energy_FD_curvature_Eh_per_Bohr2" in last:
+                entry["energy_curvature_step_difference_Eh_per_Bohr2"] = abs(first["energy_FD_curvature_Eh_per_Bohr2"] - last["energy_FD_curvature_Eh_per_Bohr2"])
+            double_steps.append(entry)
+    csv_rows = [{k: v for k, v in row.items() if not isinstance(v, (dict, list)) and k != "grid_consistency_limitation"} for row in rows]
+    if csv_rows:
+        fields = list(dict.fromkeys(k for row in csv_rows for k in row))
+        with (output / "directional_comparisons.csv").open("x", newline="") as handle:
+            writer = csv.DictWriter(handle, fieldnames=fields, lineterminator="\n")
+            writer.writeheader(); writer.writerows(csv_rows)
+    state.update(status="AGGREGATE_COMPLETE", point_result_refs=source_refs, paired_comparisons=rows,
+                 double_step_comparisons=double_steps, missing_pairs=missing, excluded_points=excluded,
+                 expected_points=request.get("expected_points"), numerical_DFT_operations=0,
+                 causal_conclusion="DIAGNOSTIC_OBSERVATIONS_ONLY; do not infer an implementation bug or stable molecular minimum from signed-frequency replay alone.",
+                 grid_consistency_limitation="Each row records its quadrature semantics. Fixed absolute grids and rebuilt atom-centered grids are separate discretizations and are never pooled.")
+    lines = ["有限方向数值验证：实际观测汇总", "",
+             "cG 为 q·(g+−g−)/(2h)，cE 为 (E+−2E0+E−)/h²，单位均为 Eh/Bohr²；q 为单位欧氏笛卡尔方向。",
+             "E0 仅取本轮设置完全匹配的新中心；没有匹配中心时不报告能量曲率。False/True 梯度控制共享一次 SCF 的能量和密度。",
+             "固定绝对网格与随几何重建的原子网格分组报告。True 梯度内部再生成的网格集合一致性及实际 SCF 轨道梯度验收见各点 result.json。", ""]
+    seen_settings = set()
+    for row in rows:
+        configuration = json.dumps({"case": row["case"], "new": row["point_method_settings"], "old": row["Hessian_method_settings"]}, sort_keys=True)
+        if configuration not in seen_settings:
+            seen_settings.add(configuration)
+            new, old = row["point_method_settings"], row["Hessian_method_settings"]
+            lines.append(f"设置 {row['case']}: 新网格级别={new['grid_level']}，SCF能量容差={new['scf_conv_tol']}，显式轨道梯度容差={new.get('scf_conv_tol_grad', '未指定')}，small_rho_cutoff={new.get('small_rho_cutoff', '库默认')}，梯度grid_response={new['gradient_grid_response']}；原Hessian网格级别={old['grid_level']}，SCF能量容差={old['scf_conv_tol']}，梯度grid_response={old['gradient_grid_response']}。记录设置完全相同={row['same_settings_as_original_Hessian']}。")
+        direction = row["direction"]
+        label = "模式" + str(direction["index"]) if direction["type"] == "mode" else "整体平移轴" + str(direction["axis"])
+        energy_curvature = format(row["energy_FD_curvature_Eh_per_Bohr2"], ".12g") if "energy_FD_curvature_Eh_per_Bohr2" in row else "未取得匹配中心"
+        lines.append(f"观测 {row['case']} / {label} / grid={row['grid_level']} / {row['grid_semantics']} / grid_response={row['gradient_grid_response']} / h={row['step_bohr']:.8g} Bohr: cG={row['gradient_FD_curvature_Eh_per_Bohr2']:.12g}，cE={energy_curvature}。")
+    lines.extend(["", f"缺失配对或梯度控制记录数={len(missing)}；排除的未成功或未达SCF资格点数={len(excluded)}。缺失项详见 result.json 的 missing_pairs/excluded_points。",
+                  "这些是有限方向、有限步长和指定数值网格下的观测，不是完整 Hessian 重算，不证明分子为极小值或完成化学峰归属。旧原始结果和设置保持不变；IR 强度未计算，历史分类结果未改变。"])
+    (output / "analysis_conclusion_zh.txt").write_text("\n".join(lines) + "\n")
+
+
+def run(args):
+    request_path = checked({"path": str(args.request), "sha256": args.request_sha256})
+    request = read(request_path); validate_request(request)
+    if not args.execute:
+        return {"schema": SCHEMA, "status": "NOT_RUN", "operation": request["operation"],
+                "request": ref(request_path), "new_quantum_evaluations": 0}
+    supervision = supervise(request)
+    platform_processor_metadata = initialize_platform_processor_without_fork()
+    output = local_path(args.output)
+    require(output.is_relative_to(ROOT / "reports") and not output.exists(), "Fresh independent report output required")
+    output.mkdir(parents=True)
+    started = time.perf_counter(); cpu = time.process_time()
+    state = {"schema": SCHEMA, "status": "PARTIAL", "operation": request["operation"],
+             "request": ref(request_path), "source_worker": ref(__file__), "resource_supervision": supervision,
+             "platform_processor_nofork_setup": platform_processor_metadata,
+             "output_directory": str(output),
+             "started_at_utc": utc(), "quantum_payload_entered": False,
+             "IR_intensities_status": "NOT_COMPUTED", "original_science_modified": False,
+             "classifier_modified": False, "chemical_peak_assignment_verified": False}
+    save(output / "input.json", state, exclusive=True)
+    def emit(event, **data):
+        row = {"utc": utc(), "event": event, "wall_seconds": time.perf_counter() - started,
+               "process_cpu_seconds": time.process_time() - cpu, **data}
+        with (output / "events.jsonl").open("a") as handle:
+            handle.write(json.dumps(row, ensure_ascii=False, allow_nan=False) + "\n"); handle.flush()
+        save(output / "progress.json", {**state, **row})
+    def interrupted(signum, _):
+        raise RuntimeError("Diagnostic resource/termination signal " + str(signum))
+    handlers = {sig: signal.signal(sig, interrupted) for sig in (signal.SIGTERM, signal.SIGINT, signal.SIGXCPU)}
+    try:
+        emit("diagnostic_operation_started")
+        if request["operation"] == "point":
+            point(request, state, output, emit)
+        elif request["operation"] in ("fixed_grid_center", "fixed_grid_point"):
+            fixed_grid_observation(args, request, state, output, emit,
+                                   is_center=request["operation"] == "fixed_grid_center")
+        elif request["operation"] == "response_audit":
+            response_audit(args, request, state, output, emit)
+        elif request["operation"] == "postprocess":
+            postprocess(request, state, output, emit)
+        else:
+            require(len(args.point_result) == len(args.point_result_sha256), "Each point result needs exactly one hash")
+            extra = [{"path": str(path), "sha256": digest} for path, digest in zip(args.point_result, args.point_result_sha256)]
+            aggregate(request, state, output, emit, extra)
+    except BaseException as error:
+        state.update(status="PARTIAL", exception_type=type(error).__name__, stop_reason=str(error))
+        (output / "exception_traceback.txt").write_text(traceback.format_exc())
+    finally:
+        for sig, previous in handlers.items():
+            signal.signal(sig, previous)
+        state.update(completed_at_utc=utc(), wall_seconds=time.perf_counter() - started,
+                     process_cpu_seconds=time.process_time() - cpu,
+                     peak_rss_kib=resource.getrusage(resource.RUSAGE_SELF).ru_maxrss,
+                     new_quantum_evaluations=int(state["quantum_payload_entered"]))
+        state["output_artifacts"] = [ref(p) for p in sorted(output.rglob("*"))
+                                     if p.is_file() and p.suffix != ".chk" and p.name != "result.json"]
+        save(output / "result.json", state, exclusive=True)
+    return state
+
+
+def parser():
+    p = argparse.ArgumentParser(description=__doc__)
+    p.add_argument("--request", type=Path, required=True)
+    p.add_argument("--request-sha256", required=True)
+    p.add_argument("--output", type=Path, required=True)
+    p.add_argument("--execute", action="store_true")
+    p.add_argument("--point-result", type=Path, action="append", default=[])
+    p.add_argument("--point-result-sha256", action="append", default=[])
+    for role in ("center", "minus", "plus"):
+        p.add_argument("--" + role + "-result", type=Path)
+        p.add_argument("--" + role + "-result-sha256")
+    return p
+
+
+def main():
+    args = parser().parse_args(); result = run(args)
+    print(json.dumps({k: result.get(k) for k in ("schema", "status", "operation", "case", "stop_reason")}, ensure_ascii=False), flush=True)
+    if args.execute and result["status"] == "PARTIAL":
+        raise SystemExit(2)
+
+
+if __name__ == "__main__":
+    main()
+#INFO: ******************** input file end ********************
+
+
+System: uname_result(system='Linux', node='595ff14d6639', release='6.18.57', version='#1 SMP Tue Oct 20 21:56:04 UTC 2026', machine='x86_64')  Threads 2
+Python 3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]
+numpy 2.3.5  scipy 1.17.0  h5py 3.16.0
+Date: Sat Nov  7 03:09:28 2026
+PySCF version 2.14.0
+PySCF path  /workspace/research4-worker-b/.runtime/worker-b-20261106/venv/lib/python3.12/site-packages/pyscf
+
+[CONFIG] conf_file None
+[INPUT] verbose = 4
+[INPUT] num. atoms = 3
+[INPUT] num. electrons = 10
+[INPUT] charge = 0
+[INPUT] spin (= nelec alpha-beta = 2S) = 0
+[INPUT] symmetry False subgroup None
+[INPUT] Mole.unit = Angstrom
+[INPUT] Symbol           X                Y                Z      unit          X                Y                Z       unit  Magmom
+[INPUT]  1 O      0.000071590271   0.398393535304   0.000000000000 AA    0.000135286005   0.752854671521   0.000000000000 Bohr   0.0
+[INPUT]  2 H     -0.757820277597  -0.214694232158   0.000000000000 AA   -1.432072776301  -0.405713299302   0.000000000000 Bohr   0.0
+[INPUT]  3 H      0.757750647505  -0.214957110503   0.000000000000 AA    1.431941194496  -0.406210067378   0.000000000000 Bohr   0.0
+
+nuclear repulsion = 9.0346856274397
+number of shells = 12
+number of NR pGTOs = 38
+number of NR cGTOs = 24
+basis = def2-svp
+ecp = {}
+CPU time:         1.77
+
+WARN: Mole.unit (Angstrom) is changed to Bohr
+
+New geometry
+   1 O      0.000071590271   0.398393535304   0.000000000000 AA    0.000135286005   0.752854671521   0.000000000000 Bohr
+   2 H     -0.757820277597  -0.214694232158   0.000000000000 AA   -1.432072776301  -0.405713299302   0.000000000000 Bohr
+   3 H      0.757750647505  -0.214957110503   0.000000000000 AA    1.431941194496  -0.406210067378   0.000000000000 Bohr

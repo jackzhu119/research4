@@ -1,0 +1,41 @@
+Traceback (most recent call last):
+  File "/workspace/research4-worker-b/scripts/research4_b_validation_worker_20261107.py", line 1187, in run
+    point(request, state, output, emit)
+  File "/workspace/research4-worker-b/scripts/research4_b_validation_worker_20261107.py", line 812, in point
+    state["energy_hartree"] = float(mf.kernel())
+                                    ^^^^^^^^^^^
+  File "<string>", line 2, in kernel
+  File "/workspace/research4-worker-b/.runtime/worker-b-20261106/venv/lib/python3.12/site-packages/pyscf/scf/hf.py", line 2099, in scf
+    kernel(self, self.conv_tol, self.conv_tol_grad,
+  File "/workspace/research4-worker-b/.runtime/worker-b-20261106/venv/lib/python3.12/site-packages/pyscf/scf/hf.py", line 178, in kernel
+    vhf = mf.get_veff(mol, dm, dm_last, vhf)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/research4-worker-b/.runtime/worker-b-20261106/venv/lib/python3.12/site-packages/pyscf/dft/rks.py", line 81, in get_veff
+    n, exc, vxc = ni.nr_rks(mol, ks.grids, ks.xc, dm, max_memory=max_memory)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/research4-worker-b/.runtime/worker-b-20261106/venv/lib/python3.12/site-packages/pyscf/dft/numint.py", line 1152, in nr_rks
+    for i, ao, mask, wv in block_loop(ao_deriv):
+                           ^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/research4-worker-b/.runtime/worker-b-20261106/venv/lib/python3.12/site-packages/pyscf/dft/numint.py", line 1131, in block_loop
+    rho = make_rho(i, ao, mask, xctype)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/research4-worker-b/.runtime/worker-b-20261106/venv/lib/python3.12/site-packages/pyscf/dft/numint.py", line 2989, in make_rho
+    return self.eval_rho2(mol, ao, mo_coeff[idm], mo_occ[idm],
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/research4-worker-b/.runtime/worker-b-20261106/venv/lib/python3.12/site-packages/pyscf/dft/numint.py", line 383, in eval_rho2
+    c1 = _dot_ao_dm(mol, ao[i], cpos, non0tab, shls_slice, ao_loc)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/research4-worker-b/.runtime/worker-b-20261106/venv/lib/python3.12/site-packages/pyscf/dft/numint.py", line 711, in _dot_ao_dm
+    return lib.dot(dm.T, ao.T).T
+           ^^^^^^^^^^^^^^^^^^^
+  File "/workspace/research4-worker-b/.runtime/worker-b-20261106/venv/lib/python3.12/site-packages/pyscf/lib/numpy_helper.py", line 921, in dot
+    return ddot(a, b, alpha, c, beta)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/research4-worker-b/.runtime/worker-b-20261106/venv/lib/python3.12/site-packages/pyscf/lib/numpy_helper.py", line 858, in ddot
+    return _dgemm(trans_a, trans_b, m, n, k, a, b, c, alpha, beta)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/research4-worker-b/.runtime/worker-b-20261106/venv/lib/python3.12/site-packages/pyscf/lib/numpy_helper.py", line 993, in _dgemm
+    _np_helper.NPdgemm(ctypes.c_char(trans_b.encode('ascii')),
+  File "/workspace/research4-worker-b/scripts/research4_b_validation_worker_20261107.py", line 1182, in interrupted
+    raise RuntimeError("Diagnostic resource/termination signal " + str(signum))
+RuntimeError: Diagnostic resource/termination signal 15

@@ -1,0 +1,34 @@
+Traceback (most recent call last):
+  File "/workspace/research4-worker-b/scripts/research4_b_validation_worker_20261107.py", line 1189, in run
+    fixed_grid_observation(args, request, state, output, emit,
+  File "/workspace/research4-worker-b/scripts/research4_b_validation_worker_20261107.py", line 487, in fixed_grid_observation
+    state["energy_hartree"] = float(mf.kernel())
+                                    ^^^^^^^^^^^
+  File "<string>", line 2, in kernel
+  File "/workspace/research4-worker-b/.runtime/worker-b-20261106/venv/lib/python3.12/site-packages/pyscf/scf/hf.py", line 2099, in scf
+    kernel(self, self.conv_tol, self.conv_tol_grad,
+  File "/workspace/research4-worker-b/.runtime/worker-b-20261106/venv/lib/python3.12/site-packages/pyscf/scf/hf.py", line 178, in kernel
+    vhf = mf.get_veff(mol, dm, dm_last, vhf)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/research4-worker-b/.runtime/worker-b-20261106/venv/lib/python3.12/site-packages/pyscf/dft/rks.py", line 105, in get_veff
+    vj = ks.get_j(mol, _dm, hermi)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/research4-worker-b/.runtime/worker-b-20261106/venv/lib/python3.12/site-packages/pyscf/scf/hf.py", line 2164, in get_j
+    return self.get_jk(mol, dm, hermi, with_k=False, omega=omega)[0]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/research4-worker-b/scripts/research4_parallel_b_quantum_20261106.py", line 233, in get_jk
+    return hf.SCF.get_jk(self, mol=mol, dm=dm, hermi=hermi, with_j=with_j, with_k=with_k, omega=omega)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/research4-worker-b/.runtime/worker-b-20261106/venv/lib/python3.12/site-packages/pyscf/scf/hf.py", line 2156, in get_jk
+    vj, vk = get_jk(mol, dm, hermi, vhfopt, with_j, with_k, omega)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/research4-worker-b/.runtime/worker-b-20261106/venv/lib/python3.12/site-packages/pyscf/scf/hf.py", line 1022, in get_jk
+    vj, vk = _vhf.direct(dm, mol._atm, mol._bas, mol._env,
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/research4-worker-b/.runtime/worker-b-20261106/venv/lib/python3.12/site-packages/pyscf/scf/_vhf.py", line 409, in direct
+    nr_direct_drv(intor, 's8', jkscripts, dms, 1, atm, bas, env,
+  File "/workspace/research4-worker-b/.runtime/worker-b-20261106/venv/lib/python3.12/site-packages/pyscf/scf/_vhf.py", line 595, in nr_direct_drv
+    fdrv(cintor, fdot, fjk, dmsptr, vjkptr,
+  File "/workspace/research4-worker-b/scripts/research4_b_validation_worker_20261107.py", line 1182, in interrupted
+    raise RuntimeError("Diagnostic resource/termination signal " + str(signum))
+RuntimeError: Diagnostic resource/termination signal 15

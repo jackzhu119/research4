@@ -1,0 +1,14 @@
+有限方向数值验证：实际观测汇总
+
+cG 为 q·(g+−g−)/(2h)，cE 为 (E+−2E0+E−)/h²，单位均为 Eh/Bohr²；q 为单位欧氏笛卡尔方向。
+E0 仅取本轮设置完全匹配的新中心；没有匹配中心时不报告能量曲率。False/True 梯度控制共享一次 SCF 的能量和密度。
+固定绝对网格与随几何重建的原子网格分组报告。True 梯度内部再生成的网格集合一致性及实际 SCF 轨道梯度验收见各点 result.json。
+
+设置 water: 新网格级别=5，SCF能量容差=1e-12，显式轨道梯度容差=1e-09，small_rho_cutoff=0，梯度grid_response=False；原Hessian网格级别=1，SCF能量容差=1e-08，梯度grid_response=False。记录设置完全相同=False。
+观测 water / 整体平移轴0 / grid=5 / FIXED_CENTER_CARTESIAN_QUADRATURE / grid_response=False / h=0.0005 Bohr: cG=-4.57541138656e-07，cE=4.54747350886e-07。
+观测 water / 整体平移轴0 / grid=5 / FIXED_CENTER_CARTESIAN_QUADRATURE / grid_response=False / h=0.001 Bohr: cG=-4.56406147551e-07，cE=-2.13162820728e-07。
+观测 water / 模式1 / grid=5 / FIXED_CENTER_CARTESIAN_QUADRATURE / grid_response=False / h=0.0005 Bohr: cG=0.105956663494，cE=0.105957553842。
+观测 water / 模式1 / grid=5 / FIXED_CENTER_CARTESIAN_QUADRATURE / grid_response=False / h=0.001 Bohr: cG=0.105956657671，cE=0.10595701383。
+
+缺失配对或梯度控制记录数=0；排除的未成功或未达SCF资格点数=0。缺失项详见 result.json 的 missing_pairs/excluded_points。
+这些是有限方向、有限步长和指定数值网格下的观测，不是完整 Hessian 重算，不证明分子为极小值或完成化学峰归属。旧原始结果和设置保持不变；IR 强度未计算，历史分类结果未改变。
