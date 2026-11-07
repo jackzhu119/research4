@@ -4,6 +4,15 @@
 
 ### A006 convergence follow-up
 
+The fresh v2 suite closed with29/31 qualified points and25.342708CPU seconds.
+The two remaining endpoints passed the independent full-VEFF energy/Fock
+checks, but native incremental-energy flags failed. A separately reviewed v3
+solver may certify the full-energy criterion after an actual accepted normal
+iteration and its actual extra-cycle pair, at the unchanged1e-13/1e-9 bounds.
+Retain native false flags verbatim and label runtime convergence as explicit
+full-VEFF certification; never relabel old v2 failures. All31 fresh points and
+the original finite-difference/energy/step-halving gates remain mandatory.
+
 The initial A00631-point suite actually attempted every point:16 strict
 successes and15 final-extra-cycle failures,13.712143CPU seconds, no resource
 kill. Preserve those failed results. A separately reviewed v2 water solver may
