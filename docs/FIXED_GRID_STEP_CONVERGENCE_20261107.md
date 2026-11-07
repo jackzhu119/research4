@@ -54,3 +54,55 @@ checks exact committed SHA rather than normalizing scientific evidence.
 
 Original219 modes/25imaginary frequencies, IR NOT_COMPUTED, classifier96.0234%
 historical internalCV and the outstanding laboratory gaps remain unchanged.
+
+## Actual software-control results
+
+All rows below are actual calculations on the same archived water geometry,
+PBE/def2-SVP/grid1 and exact fixed original quadrature. Failed rows are retained.
+
+| Attempt | Attempted points | Qualified endpoints | Actual CPU seconds | Numerical release |
+|---|---:|---:|---:|---|
+| A005 original steps | 13 | 13 | 4.357029 | Failed large-step curvature gate |
+| A006 tight SCF | 31 | 16 | 13.712143 | Incomplete; final extra-cycle failures |
+| A006 bounded polishing v2 | 31 | 29 | 25.342708 | Incomplete; two native incremental-energy failures |
+| A006 full endpoint certification v3 | 31 | 31 | 24.472247 | All original numerical gates passed |
+
+V3 preserves each native convergence flag and incremental-energy value. Its
+explicit solver certificate instead requires an accepted normal iteration
+followed by its actual final extra-cycle states in the same call, full native
+VEFF evaluations on both consecutive densities, energy drift below1e-13Eh,
+and the true unshifted full-Fock orbital residual below1e-9. Consecutive density
+values may coincide at a fixed point; they are not manufactured duplicate
+evaluations. Native failure records from v1/v2 remain unchanged. At most3
+calls of100cycles are permitted per point; there is no automatic job retry.
+
+The maximum water full-Hq error at the finest step is3.74893e-6Eh/Bohr²;
+the maximum energy-curvature error at the actual Spinosin h=.0003125Bohr is
+4.23483e-5Eh/Bohr². All finest-pair energy and5e-5Hq step-halving criteria
+also passed. The successful producer is
+`queue-host-a-006/science/water-full-audit-convergence-attempt001/result.json`,
+SHA81f57122b72b86c45c17e534e9f249b3ca02a0fc4fde9fbe8b2de571076788e2.
+This validates the small-molecule numerical control, not a new Spinosin minimum.
+
+## Finite background continuation
+
+The independently reviewed energy-v2 producer uses the same full-endpoint
+certificate, with the previously selected Spinosin1e-12Eh/1e-9 thresholds.
+It may perform fresh zero, plus and minus SCFs only. Large density/MO arrays
+and checkpoints stay under the work directory's `local-checkpoints/` with
+hashes, outside the small-result collector. It retains full AO/MO space,
+direct native integrals and the explicitly non-D3 PBE pilot.
+
+The A006 queue and detached wrapper record actual status and PID/birth/boot
+in `queue-host-a-006/`; configuration alone is not evidence of execution.
+After a complete triplet a separate non-quantum analyzer authenticates the
+closed producer and replays the compensated energy curvature into CSV and
+a figure. Small results return to the research branch only after Q closes.
+The7500CPU phase, original cumulative cap, earlier deadline and failed costs
+remain fixed. No periodic reporting task is created, and a host shutdown is
+not guaranteed to preserve a live process. Source-qualified checkpoints and
+failure evidence support a later explicit, independently checked recovery.
+
+A single directional energy test does not create219 new frequencies, verify
+all25 imaginary modes, establish a minimum, compute IR intensities or assign
+an experimental peak. Those conclusions require further real evidence.
