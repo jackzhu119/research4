@@ -1,5 +1,28 @@
 # Research data conventions
 
+## Fixed-quadrature diagnosis (2026-11-07)
+
+The user authorized further cloud diagnosis of curvature disagreement and
+imaginary modes, without scheduled reports. Preserve the completed A003/A004
+results and the 219 signed modes, including all25 imaginary frequencies.
+Use a new isolated protocol under `reports/fixed-quadrature-20261107-v1/`.
+Do not edit any frozen scientific producer, historical gradient or budget row.
+The current V8 pool has8932.978907 CPU seconds remaining; its cumulative cap
+390160.8308359999 and the stricter2026-11-09T08:25:17.730193Z cutoff remain fixed.
+Only root starts Q through the original V8 guardian. The selected finite plan
+is one water control suite capped at300CPU seconds, followed only if its
+predeclared controls pass by one Spinosin mode1,+0.005Bohr fixed-grid SCF/gradient
+point capped at7000CPU seconds. No automatic retry, second Spinosin point or
+full Hessian. A failed control blocks the large point and preserves results.
+Freeze original grid coordinates/weights/order/padding, recompute AO masks for
+each actual molecule, preserve PBE/def2-SVP/fullAO/fullMO/explicit noD3 and
+grid_response=False. A one-sided comparison must subtract the authenticated
+nonzero historical zero-gradient, disclose its old boot, and never label it a
+new-boot fresh gradient or minimum verification. Live proof/PID/birth/UID/boot
+must be new; archived source closure evidence stays historical. No timers or
+hourly chat reports. Continue to report IR intensity as NOT_COMPUTED and leave
+the existing96.0234% classifier result unchanged.
+
 ## Two-account cloud continuation (2026-11-06)
 
 The user explicitly authorized a second independent Codex cloud host, with
