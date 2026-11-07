@@ -1,0 +1,43 @@
+Traceback (most recent call last):
+  File "/workspace/research4/scripts/research4_host_a_git_return_20261107_v5.py", line 357, in <module>
+    main()
+  File "/workspace/research4/scripts/research4_host_a_git_return_20261107_v5.py", line 347, in main
+    print(json.dumps(execute_return(repo, manifest, source, args.manifest_sha256, args.attempt)))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/research4/scripts/research4_host_a_git_return_20261107_v5.py", line 304, in execute_return
+    git(repo_root, "-c", "core.whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol", "diff", "--cached", "--check")
+  File "/workspace/research4/scripts/research4_host_a_git_return_20261107_v5.py", line 66, in git
+    require(result.returncode == 0, "Git operation failed: " + args[0] + "; code=" + str(result.returncode) + ". Check this account's repository authorization; credentials are not inherited.")
+  File "/workspace/research4/scripts/research4_host_a_git_return_20261107_v5.py", line 45, in require
+    raise SafetyError(message)
+SafetyError: Git operation failed: -c; code=2. Check this account's repository authorization; credentials are not inherited.
+Traceback (most recent call last):
+  File "/workspace/research4/scripts/research4_host_a_git_return_20261107_v5.py", line 357, in <module>
+    main()
+  File "/workspace/research4/scripts/research4_host_a_git_return_20261107_v5.py", line 347, in main
+    print(json.dumps(execute_return(repo, manifest, source, args.manifest_sha256, args.attempt)))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/research4/scripts/research4_host_a_git_return_20261107_v5.py", line 284, in execute_return
+    require(not git(repo_root, "diff", "--cached", "--name-only"), "Preexisting staged work must not be included")
+  File "/workspace/research4/scripts/research4_host_a_git_return_20261107_v5.py", line 45, in require
+    raise SafetyError(message)
+SafetyError: Preexisting staged work must not be included
+Traceback (most recent call last):
+  File "/workspace/research4/scripts/research4_host_a_git_return_20261107_v5.py", line 357, in <module>
+    main()
+  File "/workspace/research4/scripts/research4_host_a_git_return_20261107_v5.py", line 347, in main
+    print(json.dumps(execute_return(repo, manifest, source, args.manifest_sha256, args.attempt)))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/research4/scripts/research4_host_a_git_return_20261107_v5.py", line 284, in execute_return
+    require(not git(repo_root, "diff", "--cached", "--name-only"), "Preexisting staged work must not be included")
+  File "/workspace/research4/scripts/research4_host_a_git_return_20261107_v5.py", line 45, in require
+    raise SafetyError(message)
+SafetyError: Preexisting staged work must not be included
+Traceback (most recent call last):
+  File "/workspace/research4/scripts/run_research4_host_a_20261107_v5.py", line 143, in <module>
+    main()
+  File "/workspace/research4/scripts/run_research4_host_a_20261107_v5.py", line 135, in main
+    require(returned, "Results remain local; automatic bounded upload attempts failed; no science rerun")
+  File "/workspace/research4/scripts/run_research4_host_a_20261107_v5.py", line 49, in require
+    raise RuntimeError(message)
+RuntimeError: Results remain local; automatic bounded upload attempts failed; no science rerun
