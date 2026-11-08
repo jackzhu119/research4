@@ -1,0 +1,381 @@
+{
+  "schema": "research4-b-yanan-resolved-context-v2",
+  "manifest_sha256": "d311b693a2fa4f497ecaf6add68a9de168051724f1bd5371d0d59a8aa1c770fc",
+  "job_id": "eval_f1_s42_b120_frozen",
+  "job_sha256": "b8a5a97a8a8d1ba4d1a9305449135ee50f8eb7cba35cdae29af81a75fb27b82e",
+  "job": {
+    "id": "eval_f1_s42_b120_frozen",
+    "kind": "neural",
+    "operation": "target_eval",
+    "source": {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/yanan-cause-followup-v2/preparation/bin/neural_worker.py",
+      "sha256": "e69758ddd32d81ff140a66ad71513bd4d4eeecd7ad5dcbd051070c5dcec55282",
+      "bytes": 39952
+    },
+    "parameters": {
+      "fold": 1,
+      "seed": 42,
+      "steps": 120,
+      "adapt": "frozen"
+    },
+    "depends_on": [
+      "prepare_data",
+      "aux_real_s42_b120",
+      "aux_shuffled_s42_b120",
+      "target_f1_s42_b120",
+      "sourceA_f1_s42_frozen"
+    ],
+    "cpu_seconds": 1440,
+    "wall_seconds": 1800,
+    "max_attempts": 2,
+    "result_schema": "research4-b-yanan-neural-result-v2",
+    "success_statuses": [
+      "DONE"
+    ]
+  },
+  "inputs": {
+    "data_worker": {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/yanan-cause-followup-v2/preparation/bin/data_worker.py",
+      "sha256": "6801cfc590f829a6b2a32b20424959fdcb5a598aa515995d4978a136ca7686da",
+      "bytes": 28003
+    },
+    "feature_reader": {
+      "bytes": 13465,
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/species-misuse-audit-v1/remote_snapshot/21d6edab24d198dc60b1ad4ef50e83602c9ecfa7/scripts/prepare_species_revision_features.py",
+      "sha256": "d3187d2d67b0af241f46e06b1733dc1c84e02d24b8b16bda187158cb09096a9e"
+    },
+    "historical_split": {
+      "bytes": 195615,
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/species-misuse-audit-v1/remote_snapshot/21d6edab24d198dc60b1ad4ef50e83602c9ecfa7/data/research/species_revision_20261108/historical_split_plan.json",
+      "sha256": "17055eef5a4c544344f735032b55ef12f52bde341ffdff9378b25a835baa9594"
+    },
+    "metadata": {
+      "bytes": 926375,
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/species-misuse-audit-v1/remote_snapshot/21d6edab24d198dc60b1ad4ef50e83602c9ecfa7/data/metadata_template.csv",
+      "sha256": "fee5e3053c7958da8f0ddadd01de9994efe9669c671e3c1aed72a6cd01639ff1"
+    },
+    "raw_workbooks": [
+      {
+        "registry_path": "data/processed/zaoren_20261031/\u9655\u897f\u5ef6\u5b89\u67a3\u4ec1.xlsx",
+        "source": {
+          "bytes": 55059547,
+          "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/species-misuse-audit-v1/remote_snapshot/21d6edab24d198dc60b1ad4ef50e83602c9ecfa7/data/processed/zaoren_20261031/\u9655\u897f\u5ef6\u5b89\u67a3\u4ec1.xlsx",
+          "sha256": "e9dd6398868979036ec98e7c722b17afa9319ac0289280233452f604407fe292"
+        }
+      },
+      {
+        "registry_path": "data/processed/zaoren_20261031/\u4e91\u5357\u67a3\u4ec1.xlsx",
+        "source": {
+          "bytes": 1018295,
+          "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/species-misuse-audit-v1/remote_snapshot/21d6edab24d198dc60b1ad4ef50e83602c9ecfa7/data/processed/zaoren_20261031/\u4e91\u5357\u67a3\u4ec1.xlsx",
+          "sha256": "549a43b57079480ae4324a474f4709101ea13ba17133f9d7941850bf86666c5a"
+        }
+      },
+      {
+        "registry_path": "data/processed/zaoren_20261031/\u5185\u8499\u53e4\u9178\u67a3\u4ec1.xlsx",
+        "source": {
+          "bytes": 15738639,
+          "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/species-misuse-audit-v1/remote_snapshot/21d6edab24d198dc60b1ad4ef50e83602c9ecfa7/data/processed/zaoren_20261031/\u5185\u8499\u53e4\u9178\u67a3\u4ec1.xlsx",
+          "sha256": "3045e608e629ebbc7b22948284817e9961cdaf02187a676a90159d8ba4a333f3"
+        }
+      },
+      {
+        "registry_path": "data/processed/zaoren_20261031/\u5c71\u897f\u7075\u77f3\u9178\u67a3\u4ec1.xlsx",
+        "source": {
+          "bytes": 15713254,
+          "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/species-misuse-audit-v1/remote_snapshot/21d6edab24d198dc60b1ad4ef50e83602c9ecfa7/data/processed/zaoren_20261031/\u5c71\u897f\u7075\u77f3\u9178\u67a3\u4ec1.xlsx",
+          "sha256": "0a378d201b1bc40281cdd61293dcbd4831b0a0d8c8b463df30c74a95b41eb7b4"
+        }
+      },
+      {
+        "registry_path": "data/processed/zaoren_20261031/\u5b89\u5fbd\u4eb3\u5dde\u9178\u67a3\u4ec1.xlsx",
+        "source": {
+          "bytes": 15730109,
+          "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/species-misuse-audit-v1/remote_snapshot/21d6edab24d198dc60b1ad4ef50e83602c9ecfa7/data/processed/zaoren_20261031/\u5b89\u5fbd\u4eb3\u5dde\u9178\u67a3\u4ec1.xlsx",
+          "sha256": "6915c6f1b935b3bdc30f9c56c053f5b0422ec73c8ada69018ed50b78c04538d5"
+        }
+      },
+      {
+        "registry_path": "data/processed/zaoren_20261031/\u6cb3\u5317\u77f3\u5bb6\u5e84\u9178\u67a3\u4ec1.xlsx",
+        "source": {
+          "bytes": 15790587,
+          "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/species-misuse-audit-v1/remote_snapshot/21d6edab24d198dc60b1ad4ef50e83602c9ecfa7/data/processed/zaoren_20261031/\u6cb3\u5317\u77f3\u5bb6\u5e84\u9178\u67a3\u4ec1.xlsx",
+          "sha256": "62e286ab34ac353bc99fe409a70a23460459c8e0fe2dfc5d9840f29a07ee7448"
+        }
+      },
+      {
+        "registry_path": "data/processed/zaoren_20261031/\u5c71\u897f\u9178\u67a3\u4ec1.xlsx",
+        "source": {
+          "bytes": 15787198,
+          "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/species-misuse-audit-v1/remote_snapshot/21d6edab24d198dc60b1ad4ef50e83602c9ecfa7/data/processed/zaoren_20261031/\u5c71\u897f\u9178\u67a3\u4ec1.xlsx",
+          "sha256": "4f42250208390eb257c027cb035c56ef8515d85785e2df4107d7a2dcb20537db"
+        }
+      },
+      {
+        "registry_path": "data/raw/huangqi/\u9ec4\u82aa\u66f2\u9756.xlsx",
+        "source": {
+          "bytes": 15663758,
+          "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/yanan-cause-followup-v2/remote_snapshot/21d6edab24d198dc60b1ad4ef50e83602c9ecfa7/data/raw/huangqi/\u9ec4\u82aa\u66f2\u9756.xlsx",
+          "sha256": "0ca75196163ed23084a921a95aad9056e02710ed4d1e129937507459bc87eda3"
+        }
+      },
+      {
+        "registry_path": "data/raw/huangqi/\u9ec4\u82aa\u5185\u8499\u53e4\u56fa\u9633.xlsx",
+        "source": {
+          "bytes": 15630237,
+          "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/yanan-cause-followup-v2/remote_snapshot/21d6edab24d198dc60b1ad4ef50e83602c9ecfa7/data/raw/huangqi/\u9ec4\u82aa\u5185\u8499\u53e4\u56fa\u9633.xlsx",
+          "sha256": "65c2f21798e50952fdb129a912a2417292df5cb5ab2f545e79b117fa7684597f"
+        }
+      },
+      {
+        "registry_path": "data/raw/huangqi/\u9ec4\u82aa\u7518\u8083.xlsx",
+        "source": {
+          "bytes": 15695947,
+          "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/yanan-cause-followup-v2/remote_snapshot/21d6edab24d198dc60b1ad4ef50e83602c9ecfa7/data/raw/huangqi/\u9ec4\u82aa\u7518\u8083.xlsx",
+          "sha256": "071fb64540c5a4791ddaf164f981c3b187c270dc05f55edbccdf7e56b619d38b"
+        }
+      },
+      {
+        "registry_path": "data/raw/huangqi/\u9ec4\u82aa\u5c71\u897f\u5927\u540c.xlsx",
+        "source": {
+          "bytes": 16050383,
+          "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/yanan-cause-followup-v2/remote_snapshot/21d6edab24d198dc60b1ad4ef50e83602c9ecfa7/data/raw/huangqi/\u9ec4\u82aa\u5c71\u897f\u5927\u540c.xlsx",
+          "sha256": "d468b76d8ec934ad8911fba2ca80151b93e60089e5f003c6c6904acc10fac440"
+        }
+      },
+      {
+        "registry_path": "data/raw/zaoren_20261108/\u9655\u897f\u6986\u6797\u67a3\u4ec1.xlsx",
+        "source": {
+          "bytes": 713003,
+          "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/species-misuse-audit-v1/remote_snapshot/21d6edab24d198dc60b1ad4ef50e83602c9ecfa7/data/raw/zaoren_20261108/\u9655\u897f\u6986\u6797\u67a3\u4ec1.xlsx",
+          "sha256": "7ef89ecb5e487da02c3ccd7b76f3cedbde128061d27236a97ca72219535eab38"
+        }
+      },
+      {
+        "registry_path": "data/raw/zaoren_20261108/\u8fbd\u5b81\u67a3\u4ec1.xlsx",
+        "source": {
+          "bytes": 714418,
+          "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/species-misuse-audit-v1/remote_snapshot/21d6edab24d198dc60b1ad4ef50e83602c9ecfa7/data/raw/zaoren_20261108/\u8fbd\u5b81\u67a3\u4ec1.xlsx",
+          "sha256": "0d822e1d8cc38a2c9f8508c9bf06b6f4d9b06ddfc4c9a69dd86c64b70bad03bc"
+        }
+      },
+      {
+        "registry_path": "data/raw/zaoren_20261108/\u5185\u8499\u53e4\u67a3\u4ec1.xlsx",
+        "source": {
+          "bytes": 714292,
+          "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/species-misuse-audit-v1/remote_snapshot/21d6edab24d198dc60b1ad4ef50e83602c9ecfa7/data/raw/zaoren_20261108/\u5185\u8499\u53e4\u67a3\u4ec1.xlsx",
+          "sha256": "50727abbfab16abc59b1396d872ff77f3a6489840c7aabe58f660faeb0d7ff6c"
+        }
+      },
+      {
+        "registry_path": "data/raw/tianma/\u5929\u9ebb\u8d35\u5dde\u96f7\u5c71.xlsx",
+        "source": {
+          "bytes": 15658312,
+          "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/yanan-cause-followup-v2/remote_snapshot/21d6edab24d198dc60b1ad4ef50e83602c9ecfa7/data/raw/tianma/\u5929\u9ebb\u8d35\u5dde\u96f7\u5c71.xlsx",
+          "sha256": "92160e815ab498cddac92eb414c8856e76336a501953eeed72c4c88a480df35b"
+        }
+      },
+      {
+        "registry_path": "data/raw/tianma/\u5929\u9ebb\u5409\u6797\u957f\u767d\u5c71.xlsx",
+        "source": {
+          "bytes": 15888054,
+          "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/yanan-cause-followup-v2/remote_snapshot/21d6edab24d198dc60b1ad4ef50e83602c9ecfa7/data/raw/tianma/\u5929\u9ebb\u5409\u6797\u957f\u767d\u5c71.xlsx",
+          "sha256": "ee1485c78b77f8d343a792b59e8f04082d45a69fb926528006c35c47b6536f2a"
+        }
+      },
+      {
+        "registry_path": "data/raw/tianma/\u5929\u9ebb\u5b89\u5fbd\u6beb\u5dde.xlsx",
+        "source": {
+          "bytes": 16009892,
+          "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/yanan-cause-followup-v2/remote_snapshot/21d6edab24d198dc60b1ad4ef50e83602c9ecfa7/data/raw/tianma/\u5929\u9ebb\u5b89\u5fbd\u6beb\u5dde.xlsx",
+          "sha256": "506dfb43f891a3eb09b11d9e878065e353610eb4cf1ef49870242ac44d8023ae"
+        }
+      },
+      {
+        "registry_path": "data/raw/tianma/\u5929\u9ebb\u4e91\u5357.xlsx",
+        "source": {
+          "bytes": 15627870,
+          "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/yanan-cause-followup-v2/remote_snapshot/21d6edab24d198dc60b1ad4ef50e83602c9ecfa7/data/raw/tianma/\u5929\u9ebb\u4e91\u5357.xlsx",
+          "sha256": "697efdcdc8625cd880a5f230db629528785a5f48c3067246045acf2e1a666a5b"
+        }
+      }
+    ],
+    "registry": {
+      "bytes": 22381,
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/species-misuse-audit-v1/remote_snapshot/21d6edab24d198dc60b1ad4ef50e83602c9ecfa7/data/active_workbooks.json",
+      "sha256": "dd9ec7728590dde2574f64b9664148465c85d7b618311494c613c32b4d879f95"
+    },
+    "split": {
+      "bytes": 341230,
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/species-misuse-audit-v1/remote_snapshot/21d6edab24d198dc60b1ad4ef50e83602c9ecfa7/data/research/species_revision_20261108/split_manifest.csv",
+      "sha256": "0767e3165984a4e0e4ae782d69fdea6f410bfe36bce05ec72f8eadca982317d4"
+    },
+    "old_baseline": {
+      "result": {
+        "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/species-misuse-audit-v1/science/audit-attempt001/result.json",
+        "sha256": "ee8d68438d66ecd5bd161fc7258ec880d83c11bd0673bf3b3ebac29c4b3b67aa",
+        "bytes": 291319
+      },
+      "manifest": {
+        "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/species-misuse-audit-v1/manifest_ROOT_AUTHORIZED.json",
+        "sha256": "67b1d51252c3e8c8fd119cc81c53f83c0f9aa30d16c0ac21529f97eac86832f0",
+        "bytes": 33109
+      },
+      "worker": {
+        "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/species-misuse-audit-v1/preparation/bin/species_audit_worker.py",
+        "sha256": "60df5e967b6dc71aca7a80c28107344643dbd8b61285119a31d29a2a436e0a20",
+        "bytes": 45672
+      },
+      "predictions": {
+        "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/species-misuse-audit-v1/science/audit-attempt001/TRAIN_only_group_OOF_predictions.csv",
+        "sha256": "ca957e2fb88f5f299f141f7298eb9373c20418e064e554beec011e12c6d485c7",
+        "bytes": 149668
+      },
+      "receipts": {
+        "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/species-misuse-audit-v1/science/audit-attempt001/TRAIN_only_fit_receipts.json",
+        "sha256": "bf675379e6832be07f3fbd04d5435b832d614467597fd7c61960c0c23e257cc0",
+        "bytes": 203564
+      },
+      "feature_access": {
+        "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/species-misuse-audit-v1/science/audit-attempt001/TRAIN_feature_access_audit.json",
+        "sha256": "22badc0bc4ec48ec3efd862bc7233a5940b06027723ebc9c8a0983cd642e9c15",
+        "bytes": 110351
+      },
+      "axis": {
+        "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/species-misuse-audit-v1/science/audit-attempt001/TRAIN_axis.npy",
+        "sha256": "84069ff8364dfeb4f49180072710b1f36d8c6375a73bd578823057f92cd24197",
+        "bytes": 5024
+      }
+    },
+    "legacy_sources": [
+      {
+        "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/yanan-cause-followup-v2/legacy_source/src/herb_spectra/__init__.py",
+        "sha256": "7ab151451e9996b82715b65cbe0fe6a58e68a471c0e50bc6e2a348d477afdb94",
+        "bytes": 86
+      },
+      {
+        "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/yanan-cause-followup-v2/legacy_source/src/herb_spectra/benchmark.py",
+        "sha256": "e9d860268a022baf5a9ed726fc3ef0293b82daefdef7fbe5eba5d02654630994",
+        "bytes": 19747
+      },
+      {
+        "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/yanan-cause-followup-v2/legacy_source/src/herb_spectra/calibration.py",
+        "sha256": "b05ea9ddbcf6d79909b5795f596fe8d940c7c597d1af9b46481dd7e75aa36ace",
+        "bytes": 10298
+      },
+      {
+        "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/yanan-cause-followup-v2/legacy_source/src/herb_spectra/classification.py",
+        "sha256": "793a550f46522bc2e69acf922b39e104a0e94b5eb058905f987a91d0f16a08b2",
+        "bytes": 26274
+      },
+      {
+        "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/yanan-cause-followup-v2/legacy_source/src/herb_spectra/classification_transfer.py",
+        "sha256": "ac8b0e3dfefe7b5131f21fe32d603555bc1f4f03b5158dedfa55dc66446cbd02",
+        "bytes": 23092
+      },
+      {
+        "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/yanan-cause-followup-v2/legacy_source/src/herb_spectra/conservative_calibration.py",
+        "sha256": "b69871f7379f6b5e2e930429a357478e8b89fd68940bfc35e7372d8077a28472",
+        "bytes": 14158
+      },
+      {
+        "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/yanan-cause-followup-v2/legacy_source/src/herb_spectra/cross_plant_transfer.py",
+        "sha256": "79f15d8fa8d08a1744740dd4892a963546403bf60212222e9a1b8897f87d6e01",
+        "bytes": 47734
+      },
+      {
+        "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/yanan-cause-followup-v2/legacy_source/src/herb_spectra/image_feature_models.py",
+        "sha256": "bb3dae0710cbaf341a5a5a27457bb40a86521e20707519194f9a499ac59f1169",
+        "bytes": 16662
+      },
+      {
+        "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/yanan-cause-followup-v2/legacy_source/src/herb_spectra/io.py",
+        "sha256": "8b9cfe61a70ab64f56f131325e068a6452f0a26d04369f4a94a561fd6192fb3c",
+        "bytes": 2744
+      },
+      {
+        "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/yanan-cause-followup-v2/legacy_source/src/herb_spectra/leakage_guard.py",
+        "sha256": "9b5555be27fc634aae46f31e50a06f1950d238c83ff654df91a37c0cdd74748e",
+        "bytes": 21151
+      },
+      {
+        "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/yanan-cause-followup-v2/legacy_source/src/herb_spectra/multiplant_database.py",
+        "sha256": "fbfde791331c7bd4f27f48816c63003c696bc9894a9fbaa44accf703baee50eb",
+        "bytes": 9087
+      },
+      {
+        "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/yanan-cause-followup-v2/legacy_source/src/herb_spectra/selection.py",
+        "sha256": "477d1f0404d8d170fb2bba91bbb5e24d311fb94cf7a20cfd8a7781b93064206f",
+        "bytes": 15758
+      },
+      {
+        "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/yanan-cause-followup-v2/legacy_source/src/herb_spectra/spectral_models.py",
+        "sha256": "7bf02ba3086dba052c12ae1df3369c7168c571fb0504ae1162d7193c92d92527",
+        "bytes": 10748
+      },
+      {
+        "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/yanan-cause-followup-v2/legacy_source/src/herb_spectra/stability.py",
+        "sha256": "ab1a193eba58beec09b3615f8e39a78eb98b12bec8d09e32c1b3edf4453481be",
+        "bytes": 8062
+      },
+      {
+        "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/yanan-cause-followup-v2/legacy_source/src/herb_spectra/staged_nested_search.py",
+        "sha256": "c180225f6ebad218b18aa4b9785907a95a41c7e9cf7a0c2dbbc31cf4f2ea58c5",
+        "bytes": 31293
+      },
+      {
+        "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/yanan-cause-followup-v2/legacy_source/src/herb_spectra/upgrade_neural.py",
+        "sha256": "4ec65e407c197d9f666c72e9f4a5d79eee0045f823787df9e5b22f57dc43e773",
+        "bytes": 36387
+      },
+      {
+        "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/yanan-cause-followup-v2/legacy_source/src/herb_spectra/validation.py",
+        "sha256": "bb4e4761be2b020ece6352ff8a2e3e442247ca50dc748d25690401434b4c5bf8",
+        "bytes": 8872
+      }
+    ]
+  },
+  "protocol_ref": {
+    "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/yanan-cause-followup-v2/preparation/scientific_protocol_ROOT.json",
+    "sha256": "344cfe292f329c3657328999a961b493d6bbabd809d50b8bc129edfd7299fc51",
+    "bytes": 11231
+  },
+  "dependencies": {
+    "prepare_data": {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/yanan-cause-followup-v2/science/prepare_data-attempt001/result.json",
+      "sha256": "cc5f55eadc5be74b9798fe64e71ca43689c9a5d21f63420477a067bacc9e2788"
+    },
+    "aux_real_s42_b120": {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/yanan-cause-followup-v2/science/aux_real_s42_b120-attempt001/result.json",
+      "sha256": "cbeac3df681e1b7a9bd59fc9a34c3166848f1d310cd53f53f904fbce3bc2bdc5"
+    },
+    "aux_shuffled_s42_b120": {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/yanan-cause-followup-v2/science/aux_shuffled_s42_b120-attempt001/result.json",
+      "sha256": "cc478356d78a1316517222156be5d1077280c9f436f2ff965ab6468fd6635f0b"
+    },
+    "target_f1_s42_b120": {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/yanan-cause-followup-v2/science/target_f1_s42_b120-attempt001/result.json",
+      "sha256": "df1aeaead4db4ffdd7287bda6f5298f171a65eb5a539ab0be6be89ecc8685def"
+    },
+    "sourceA_f1_s42_frozen": {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/yanan-cause-followup-v2/science/sourceA_f1_s42_frozen-attempt001/result.json",
+      "sha256": "0281d5a1d7067332da44bce7334f13d75b076e1cca8577ed8294ae9600469914"
+    }
+  },
+  "dependency_states": {
+    "prepare_data": "DONE_SEALED",
+    "aux_real_s42_b120": "DONE_SEALED",
+    "aux_shuffled_s42_b120": "DONE_SEALED",
+    "target_f1_s42_b120": "DONE_SEALED",
+    "sourceA_f1_s42_frozen": "DONE_SEALED"
+  },
+  "dataset_result": {
+    "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/yanan-cause-followup-v2/science/prepare_data-attempt001/result.json",
+    "sha256": "cc5f55eadc5be74b9798fe64e71ca43689c9a5d21f63420477a067bacc9e2788"
+  },
+  "attempt": 1,
+  "output_directory": "/workspace/research4-worker-b/reports/parallel-cloud-20261106/worker-b/B20261106-01/yanan-cause-followup-v2/science/eval_f1_s42_b120_frozen-attempt001",
+  "created_at_utc": "2026-11-08T10:19:02.425112+00:00",
+  "supervisor_source_sha256": "bd29cca67a5ad98fcda0978ca35dc512b96f9b18a502345eaee5be9f4987ca49",
+  "manifest_was_not_modified_to_invent_output_hashes": true
+}
