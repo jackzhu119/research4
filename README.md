@@ -68,3 +68,9 @@
 ## 科研代码与版本记录
 
 历史算法审读及实验说明位于[研究分支](https://github.com/jackzhu119/research4/tree/research/algorithm-review-and-baselines-20261030)。各分支是否已同步本轮文件和标签应以实际清单为准，不把旧分支中的历史文件名称或成绩当作当前18表版本。归档、重命名与恢复过程见[上传记录](data/UPLOAD_LOG.md)。
+
+## 本分支的PySCF后台任务（2026-11-08）
+
+已整理[A/B分支已做与未做清单](docs/PYSCF_BACKLOG_AUDIT_20261108.md)。本轮总授权为90,000 CPU秒，优先原儿茶酸的grid3重新优化、双步长完整数值Hessian和45模式复核；不改光谱或分类结果。
+
+首次队列水控制通过、药材SCF失败，记录保留。最新入口为[同一剩余预算内的Newton预条件续算](docs/PYSCF_NEWTON_RECOVERY_90000_20261108.md)，实际状态见[最新CPU账本](reports/pyscf-autonomous-90000-20261108/newton-recovery-v2/ledger.json)和[启动核验](reports/pyscf-autonomous-90000-20261108/newton-recovery-v2/runtime_verification.json)。是否完成以产物和闭合记录为准，启动不等于通过；独立后台进程仍依赖云实例存活。

@@ -1,0 +1,55 @@
+{
+  "schema": "research4-pyscf90000-v2-independent-source-review-v1",
+  "reviewed_at_utc": "2026-11-08T11:47:12.283979+00:00",
+  "reviewer": "/root/review_science_budget",
+  "status": "SOURCE_REVIEW_PASSED_NO_BLOCKING_FINDINGS",
+  "review_method": "Independent v1-to-v2 source diff review plus installed PySCF 2.13.0 Newton/ordinary kernel API inspection. No quantum payload was launched by this reviewer.",
+  "source_refs": [
+    {
+      "path": "scripts/run_pyscf_autonomous_90000_20261108.py",
+      "sha256": "0986a1356a72f69651074f8c9f7681529248ecad9190526d078d6820a055e8ca"
+    },
+    {
+      "path": "scripts/pyscf_full_numerical_hessian_20261108_v2.py",
+      "sha256": "4a0f2d5a5642e47409803f40ac9314000cf1dc7536f56236456c765ff5803dd5"
+    }
+  ],
+  "carried_history": {
+    "ledger_path": "reports/pyscf-autonomous-90000-20261108/ledger.json",
+    "ledger_sha256": "6b72b561460278d574bc6f2d490a372e76ba8ed8ab1eeb3f32ec37f39f0333f5",
+    "v1_status": "FINITE_QUEUE_COMPLETE",
+    "v1_cost_including_conservative_preparation_reservation": 2293.033319,
+    "v1_driver_identity_no_longer_alive": true,
+    "v1_unclosed_RUNNING_jobs": false,
+    "v2_required_cap_at_most": 87000,
+    "conservative_v1_plus_v2_maximum": 89293.033319,
+    "current_user_total_authorization": 90000,
+    "v1_failed_result_or_cost_reset": false
+  },
+  "flags": {
+    "distinct_v2_schema_and_source_preserve_v1": true,
+    "full_AO_MO_native_Newton_used_only_for_uncertified_density_seed": true,
+    "Newton_ordinary_callback_disabled_for_distinct_Newton_environment": true,
+    "Newton_macro_inner_AH_cycles_finite": true,
+    "maximum_one_Newton_plus_two_ordinary_calls_per_point": true,
+    "fresh_ordinary_strict_main_AND_extra_cycle_and_full_Fock_gate_unchanged": true,
+    "second_ordinary_call_uses_immediately_preceding_actual_endpoint_only": true,
+    "all_seed_native_false_flags_and_strict_false_calls_preserved": true,
+    "old_unconverged_guess_source_SHA_coordinates_atom_order_model_and_80_electrons_checked": true,
+    "intermediate_seed_and_call_DM_MO_saved_local_with_hashes_final_DM_uploadable": true,
+    "v1_45_mode_projection_and_two_step_matrix_gates_retained": true,
+    "supervisor_source_unchanged_from_prior_review": true,
+    "direct_scf_tolerance_tightened_to_1e_minus_15_not_relaxed": true
+  },
+  "conditions_before_launch": [
+    "Freeze v2 configuration cap at or below 87000 and bind the carried v1 ledger hash and current sources/inputs.",
+    "Run final tests and current-source water control, then verify the detached driver and worker identity."
+  ],
+  "limitations": [
+    "Newton preconditioning does not prove convergence and may legitimately remain false; only actual strict ordinary endpoints can certify electronic states.",
+    "Historical failed densities are guesses and do not certify an energy, gradient, stationary point, or minimum.",
+    "The two-step operator difference is an empirical numerical uncertainty margin, not a rigorous bound on the exact physical Hessian.",
+    "Detached execution still depends on cloud-instance uptime. Unknown interrupted phases require verified accounting before recovery."
+  ],
+  "historical_sources_results_or_ledgers_modified_by_reviewer": false
+}
