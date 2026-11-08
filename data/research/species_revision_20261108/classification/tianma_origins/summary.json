@@ -1,0 +1,835 @@
+{
+  "task": "tianma_origins",
+  "scope": "retrospective_internal_specimen_holdout_not_cross_batch",
+  "roles": {
+    "train": {
+      "count": 242,
+      "class_counts": {
+        "TM01": 60,
+        "TM02": 61,
+        "TM03": 61,
+        "TM04": 60
+      }
+    },
+    "calibration": {
+      "count": 80,
+      "class_counts": {
+        "TM01": 20,
+        "TM02": 20,
+        "TM03": 20,
+        "TM04": 20
+      }
+    },
+    "prediction": {
+      "count": 83,
+      "class_counts": {
+        "TM01": 20,
+        "TM02": 21,
+        "TM03": 22,
+        "TM04": 20
+      }
+    }
+  },
+  "classes": [
+    "TM01",
+    "TM02",
+    "TM03",
+    "TM04"
+  ],
+  "training_cv": "fixed historical parameters; no new tuning",
+  "tiny_class_warning": null,
+  "unsupported_shots": {},
+  "selection_lock_sha256": "e161eeee92b86266c9292a352c5451ac7080c2ddfbd1a8e7c867edd7f3ca985c",
+  "all_results": [
+    {
+      "model": "dummy_majority",
+      "method": "source_only",
+      "shots_per_class": 0,
+      "repeat": 0,
+      "support_count": 0,
+      "metrics": {
+        "accuracy": 0.25301204819277107,
+        "balanced_accuracy": 0.25,
+        "macro_f1": 0.10096153846153846,
+        "class_recall": {
+          "TM01": 0.0,
+          "TM02": 1.0,
+          "TM03": 0.0,
+          "TM04": 0.0
+        },
+        "class_counts": {
+          "TM01": 20,
+          "TM02": 21,
+          "TM03": 22,
+          "TM04": 20
+        },
+        "confusion_matrix": [
+          [
+            0,
+            20,
+            0,
+            0
+          ],
+          [
+            0,
+            21,
+            0,
+            0
+          ],
+          [
+            0,
+            22,
+            0,
+            0
+          ],
+          [
+            0,
+            20,
+            0,
+            0
+          ]
+        ],
+        "class_order": [
+          "TM01",
+          "TM02",
+          "TM03",
+          "TM04"
+        ]
+      },
+      "parameters": null
+    },
+    {
+      "model": "full_svm",
+      "method": "source_only",
+      "shots_per_class": 0,
+      "repeat": 0,
+      "support_count": 0,
+      "metrics": {
+        "accuracy": 0.9759036144578314,
+        "balanced_accuracy": 0.9761904761904762,
+        "macro_f1": 0.9755952380952382,
+        "class_recall": {
+          "TM01": 1.0,
+          "TM02": 0.9047619047619048,
+          "TM03": 1.0,
+          "TM04": 1.0
+        },
+        "class_counts": {
+          "TM01": 20,
+          "TM02": 21,
+          "TM03": 22,
+          "TM04": 20
+        },
+        "confusion_matrix": [
+          [
+            20,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            19,
+            0,
+            2
+          ],
+          [
+            0,
+            0,
+            22,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            20
+          ]
+        ],
+        "class_order": [
+          "TM01",
+          "TM02",
+          "TM03",
+          "TM04"
+        ]
+      },
+      "parameters": null
+    },
+    {
+      "model": "full_svm",
+      "method": "source_score_argmax",
+      "shots_per_class": 0,
+      "repeat": 0,
+      "support_count": 0,
+      "metrics": {
+        "accuracy": 0.9759036144578314,
+        "balanced_accuracy": 0.9761904761904762,
+        "macro_f1": 0.9755952380952382,
+        "class_recall": {
+          "TM01": 1.0,
+          "TM02": 0.9047619047619048,
+          "TM03": 1.0,
+          "TM04": 1.0
+        },
+        "class_counts": {
+          "TM01": 20,
+          "TM02": 21,
+          "TM03": 22,
+          "TM04": 20
+        },
+        "confusion_matrix": [
+          [
+            20,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            19,
+            0,
+            2
+          ],
+          [
+            0,
+            0,
+            22,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            20
+          ]
+        ],
+        "class_order": [
+          "TM01",
+          "TM02",
+          "TM03",
+          "TM04"
+        ]
+      },
+      "parameters": {
+        "reason": "matched score-rule control for anchor corrections; standard SVC voting is source_only"
+      }
+    },
+    {
+      "model": "full_svm",
+      "method": "legacy_anchor_lambda1",
+      "shots_per_class": "all",
+      "repeat": 0,
+      "support_count": 80,
+      "metrics": {
+        "accuracy": 0.9759036144578314,
+        "balanced_accuracy": 0.9761904761904762,
+        "macro_f1": 0.9755952380952382,
+        "class_recall": {
+          "TM01": 1.0,
+          "TM02": 0.9047619047619048,
+          "TM03": 1.0,
+          "TM04": 1.0
+        },
+        "class_counts": {
+          "TM01": 20,
+          "TM02": 21,
+          "TM03": 22,
+          "TM04": 20
+        },
+        "confusion_matrix": [
+          [
+            20,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            19,
+            0,
+            2
+          ],
+          [
+            0,
+            0,
+            22,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            20
+          ]
+        ],
+        "class_order": [
+          "TM01",
+          "TM02",
+          "TM03",
+          "TM04"
+        ]
+      },
+      "parameters": {
+        "id": "legacy_anchor_lambda1",
+        "family": "legacy_anchor",
+        "regularization": 1.0
+      }
+    },
+    {
+      "model": "full_svm",
+      "method": "weak_anchor_lambda1000_blend005",
+      "shots_per_class": "all",
+      "repeat": 0,
+      "support_count": 80,
+      "metrics": {
+        "accuracy": 0.9759036144578314,
+        "balanced_accuracy": 0.9761904761904762,
+        "macro_f1": 0.9755952380952382,
+        "class_recall": {
+          "TM01": 1.0,
+          "TM02": 0.9047619047619048,
+          "TM03": 1.0,
+          "TM04": 1.0
+        },
+        "class_counts": {
+          "TM01": 20,
+          "TM02": 21,
+          "TM03": 22,
+          "TM04": 20
+        },
+        "confusion_matrix": [
+          [
+            20,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            19,
+            0,
+            2
+          ],
+          [
+            0,
+            0,
+            22,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            20
+          ]
+        ],
+        "class_order": [
+          "TM01",
+          "TM02",
+          "TM03",
+          "TM04"
+        ]
+      },
+      "parameters": {
+        "id": "weak_anchor_lambda1000_blend005",
+        "family": "damped_anchor",
+        "regularization": 1000.0,
+        "blend": 0.05
+      }
+    },
+    {
+      "model": "full_svm",
+      "method": "train_plus_calibration_full_retrain",
+      "shots_per_class": "all",
+      "repeat": 0,
+      "support_count": 80,
+      "metrics": {
+        "accuracy": 0.9879518072289156,
+        "balanced_accuracy": 0.9880952380952381,
+        "macro_f1": 0.9878048780487805,
+        "class_recall": {
+          "TM01": 1.0,
+          "TM02": 0.9523809523809523,
+          "TM03": 1.0,
+          "TM04": 1.0
+        },
+        "class_counts": {
+          "TM01": 20,
+          "TM02": 21,
+          "TM03": 22,
+          "TM04": 20
+        },
+        "confusion_matrix": [
+          [
+            20,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            20,
+            0,
+            1
+          ],
+          [
+            0,
+            0,
+            22,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            20
+          ]
+        ],
+        "class_order": [
+          "TM01",
+          "TM02",
+          "TM03",
+          "TM04"
+        ]
+      },
+      "parameters": null
+    },
+    {
+      "model": "fixed_MC20",
+      "method": "source_only",
+      "shots_per_class": 0,
+      "repeat": 0,
+      "support_count": 0,
+      "metrics": {
+        "accuracy": 0.963855421686747,
+        "balanced_accuracy": 0.9642857142857143,
+        "macro_f1": 0.9633089133089132,
+        "class_recall": {
+          "TM01": 1.0,
+          "TM02": 0.8571428571428571,
+          "TM03": 1.0,
+          "TM04": 1.0
+        },
+        "class_counts": {
+          "TM01": 20,
+          "TM02": 21,
+          "TM03": 22,
+          "TM04": 20
+        },
+        "confusion_matrix": [
+          [
+            20,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            18,
+            1,
+            2
+          ],
+          [
+            0,
+            0,
+            22,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            20
+          ]
+        ],
+        "class_order": [
+          "TM01",
+          "TM02",
+          "TM03",
+          "TM04"
+        ]
+      },
+      "parameters": {
+        "preprocessing": "snv",
+        "mc": {
+          "runs": 20,
+          "components": 2,
+          "ratio": 0.1
+        },
+        "svm": {
+          "C": 10.0,
+          "gamma": "scale",
+          "class_weight": "balanced"
+        },
+        "id": "fixed_MC20"
+      }
+    },
+    {
+      "model": "fixed_MC20",
+      "method": "source_score_argmax",
+      "shots_per_class": 0,
+      "repeat": 0,
+      "support_count": 0,
+      "metrics": {
+        "accuracy": 0.963855421686747,
+        "balanced_accuracy": 0.9642857142857143,
+        "macro_f1": 0.9633089133089132,
+        "class_recall": {
+          "TM01": 1.0,
+          "TM02": 0.8571428571428571,
+          "TM03": 1.0,
+          "TM04": 1.0
+        },
+        "class_counts": {
+          "TM01": 20,
+          "TM02": 21,
+          "TM03": 22,
+          "TM04": 20
+        },
+        "confusion_matrix": [
+          [
+            20,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            18,
+            1,
+            2
+          ],
+          [
+            0,
+            0,
+            22,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            20
+          ]
+        ],
+        "class_order": [
+          "TM01",
+          "TM02",
+          "TM03",
+          "TM04"
+        ]
+      },
+      "parameters": {
+        "reason": "matched score-rule control for anchor corrections; standard SVC voting is source_only"
+      }
+    },
+    {
+      "model": "fixed_MC20",
+      "method": "legacy_anchor_lambda1",
+      "shots_per_class": "all",
+      "repeat": 0,
+      "support_count": 80,
+      "metrics": {
+        "accuracy": 0.963855421686747,
+        "balanced_accuracy": 0.9642857142857143,
+        "macro_f1": 0.9633089133089132,
+        "class_recall": {
+          "TM01": 1.0,
+          "TM02": 0.8571428571428571,
+          "TM03": 1.0,
+          "TM04": 1.0
+        },
+        "class_counts": {
+          "TM01": 20,
+          "TM02": 21,
+          "TM03": 22,
+          "TM04": 20
+        },
+        "confusion_matrix": [
+          [
+            20,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            18,
+            1,
+            2
+          ],
+          [
+            0,
+            0,
+            22,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            20
+          ]
+        ],
+        "class_order": [
+          "TM01",
+          "TM02",
+          "TM03",
+          "TM04"
+        ]
+      },
+      "parameters": {
+        "id": "legacy_anchor_lambda1",
+        "family": "legacy_anchor",
+        "regularization": 1.0
+      }
+    },
+    {
+      "model": "fixed_MC20",
+      "method": "weak_anchor_lambda1000_blend005",
+      "shots_per_class": "all",
+      "repeat": 0,
+      "support_count": 80,
+      "metrics": {
+        "accuracy": 0.963855421686747,
+        "balanced_accuracy": 0.9642857142857143,
+        "macro_f1": 0.9633089133089132,
+        "class_recall": {
+          "TM01": 1.0,
+          "TM02": 0.8571428571428571,
+          "TM03": 1.0,
+          "TM04": 1.0
+        },
+        "class_counts": {
+          "TM01": 20,
+          "TM02": 21,
+          "TM03": 22,
+          "TM04": 20
+        },
+        "confusion_matrix": [
+          [
+            20,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            18,
+            1,
+            2
+          ],
+          [
+            0,
+            0,
+            22,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            20
+          ]
+        ],
+        "class_order": [
+          "TM01",
+          "TM02",
+          "TM03",
+          "TM04"
+        ]
+      },
+      "parameters": {
+        "id": "weak_anchor_lambda1000_blend005",
+        "family": "damped_anchor",
+        "regularization": 1000.0,
+        "blend": 0.05
+      }
+    },
+    {
+      "model": "fixed_MC20",
+      "method": "train_plus_calibration_full_retrain",
+      "shots_per_class": "all",
+      "repeat": 0,
+      "support_count": 80,
+      "metrics": {
+        "accuracy": 0.963855421686747,
+        "balanced_accuracy": 0.9648268398268398,
+        "macro_f1": 0.9642461197339246,
+        "class_recall": {
+          "TM01": 1.0,
+          "TM02": 0.9047619047619048,
+          "TM03": 0.9545454545454546,
+          "TM04": 1.0
+        },
+        "class_counts": {
+          "TM01": 20,
+          "TM02": 21,
+          "TM03": 22,
+          "TM04": 20
+        },
+        "confusion_matrix": [
+          [
+            20,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            19,
+            1,
+            1
+          ],
+          [
+            0,
+            1,
+            21,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            20
+          ]
+        ],
+        "class_order": [
+          "TM01",
+          "TM02",
+          "TM03",
+          "TM04"
+        ]
+      },
+      "parameters": {
+        "preprocessing": "snv",
+        "mc": {
+          "runs": 20,
+          "components": 2,
+          "ratio": 0.1
+        },
+        "svm": {
+          "C": 10.0,
+          "gamma": "scale",
+          "class_weight": "balanced"
+        },
+        "id": "fixed_MC20"
+      }
+    }
+  ],
+  "aggregates": [
+    {
+      "model": "dummy_majority",
+      "method": "source_only",
+      "shots_per_class": "0",
+      "repeats": 1,
+      "accuracy_mean": 0.25301204819277107,
+      "macro_f1_mean": 0.10096153846153846,
+      "balanced_accuracy_mean": 0.25,
+      "accuracy_sd_support_draws": 0.0
+    },
+    {
+      "model": "full_svm",
+      "method": "source_only",
+      "shots_per_class": "0",
+      "repeats": 1,
+      "accuracy_mean": 0.9759036144578314,
+      "macro_f1_mean": 0.9755952380952382,
+      "balanced_accuracy_mean": 0.9761904761904762,
+      "accuracy_sd_support_draws": 0.0
+    },
+    {
+      "model": "full_svm",
+      "method": "source_score_argmax",
+      "shots_per_class": "0",
+      "repeats": 1,
+      "accuracy_mean": 0.9759036144578314,
+      "macro_f1_mean": 0.9755952380952382,
+      "balanced_accuracy_mean": 0.9761904761904762,
+      "accuracy_sd_support_draws": 0.0
+    },
+    {
+      "model": "full_svm",
+      "method": "legacy_anchor_lambda1",
+      "shots_per_class": "all",
+      "repeats": 1,
+      "accuracy_mean": 0.9759036144578314,
+      "macro_f1_mean": 0.9755952380952382,
+      "balanced_accuracy_mean": 0.9761904761904762,
+      "accuracy_sd_support_draws": 0.0
+    },
+    {
+      "model": "full_svm",
+      "method": "weak_anchor_lambda1000_blend005",
+      "shots_per_class": "all",
+      "repeats": 1,
+      "accuracy_mean": 0.9759036144578314,
+      "macro_f1_mean": 0.9755952380952382,
+      "balanced_accuracy_mean": 0.9761904761904762,
+      "accuracy_sd_support_draws": 0.0
+    },
+    {
+      "model": "full_svm",
+      "method": "train_plus_calibration_full_retrain",
+      "shots_per_class": "all",
+      "repeats": 1,
+      "accuracy_mean": 0.9879518072289156,
+      "macro_f1_mean": 0.9878048780487805,
+      "balanced_accuracy_mean": 0.9880952380952381,
+      "accuracy_sd_support_draws": 0.0
+    },
+    {
+      "model": "fixed_MC20",
+      "method": "source_only",
+      "shots_per_class": "0",
+      "repeats": 1,
+      "accuracy_mean": 0.963855421686747,
+      "macro_f1_mean": 0.9633089133089132,
+      "balanced_accuracy_mean": 0.9642857142857143,
+      "accuracy_sd_support_draws": 0.0
+    },
+    {
+      "model": "fixed_MC20",
+      "method": "source_score_argmax",
+      "shots_per_class": "0",
+      "repeats": 1,
+      "accuracy_mean": 0.963855421686747,
+      "macro_f1_mean": 0.9633089133089132,
+      "balanced_accuracy_mean": 0.9642857142857143,
+      "accuracy_sd_support_draws": 0.0
+    },
+    {
+      "model": "fixed_MC20",
+      "method": "legacy_anchor_lambda1",
+      "shots_per_class": "all",
+      "repeats": 1,
+      "accuracy_mean": 0.963855421686747,
+      "macro_f1_mean": 0.9633089133089132,
+      "balanced_accuracy_mean": 0.9642857142857143,
+      "accuracy_sd_support_draws": 0.0
+    },
+    {
+      "model": "fixed_MC20",
+      "method": "weak_anchor_lambda1000_blend005",
+      "shots_per_class": "all",
+      "repeats": 1,
+      "accuracy_mean": 0.963855421686747,
+      "macro_f1_mean": 0.9633089133089132,
+      "balanced_accuracy_mean": 0.9642857142857143,
+      "accuracy_sd_support_draws": 0.0
+    },
+    {
+      "model": "fixed_MC20",
+      "method": "train_plus_calibration_full_retrain",
+      "shots_per_class": "all",
+      "repeats": 1,
+      "accuracy_mean": 0.963855421686747,
+      "macro_f1_mean": 0.9642461197339246,
+      "balanced_accuracy_mean": 0.9648268398268398,
+      "accuracy_sd_support_draws": 0.0
+    }
+  ],
+  "calibration_gain_reference": "Anchor correction must be compared to source_score_argmax; full retrain to standard-vote source_only",
+  "prediction_never_used_for_selection": true,
+  "historical_exposure": "Old855 already used in prior algorithm development; preserving roles does not create a new blind test"
+}

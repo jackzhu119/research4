@@ -1,0 +1,993 @@
+{
+  "task": "jujube_origins",
+  "scope": "retrospective_internal_specimen_holdout_not_cross_batch",
+  "roles": {
+    "train": {
+      "count": 216,
+      "class_counts": {
+        "ZR01": 1,
+        "ZR02": 1,
+        "ZR03": 1,
+        "ZY01": 210,
+        "ZY02": 3
+      }
+    },
+    "calibration": {
+      "count": 74,
+      "class_counts": {
+        "ZR01": 1,
+        "ZR02": 1,
+        "ZR03": 1,
+        "ZY01": 70,
+        "ZY02": 1
+      }
+    },
+    "prediction": {
+      "count": 74,
+      "class_counts": {
+        "ZR01": 1,
+        "ZR02": 1,
+        "ZR03": 1,
+        "ZY01": 70,
+        "ZY02": 1
+      }
+    }
+  },
+  "classes": [
+    "ZR01",
+    "ZR02",
+    "ZR03",
+    "ZY01",
+    "ZY02"
+  ],
+  "training_cv": "fixed historical parameters; no new tuning",
+  "tiny_class_warning": "Three new jujube origin groups have only one independent specimen in each role; rates are descriptive and unstable",
+  "unsupported_shots": {},
+  "selection_lock_sha256": "6a191d7907ea9719ae4b775d814f6611e2c933fb66d66948d4d86b45e7ce7b86",
+  "all_results": [
+    {
+      "model": "dummy_majority",
+      "method": "source_only",
+      "shots_per_class": 0,
+      "repeat": 0,
+      "support_count": 0,
+      "metrics": {
+        "accuracy": 0.9459459459459459,
+        "balanced_accuracy": 0.2,
+        "macro_f1": 0.19444444444444445,
+        "class_recall": {
+          "ZR01": 0.0,
+          "ZR02": 0.0,
+          "ZR03": 0.0,
+          "ZY01": 1.0,
+          "ZY02": 0.0
+        },
+        "class_counts": {
+          "ZR01": 1,
+          "ZR02": 1,
+          "ZR03": 1,
+          "ZY01": 70,
+          "ZY02": 1
+        },
+        "confusion_matrix": [
+          [
+            0,
+            0,
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            70,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            0
+          ]
+        ],
+        "class_order": [
+          "ZR01",
+          "ZR02",
+          "ZR03",
+          "ZY01",
+          "ZY02"
+        ]
+      },
+      "parameters": null
+    },
+    {
+      "model": "full_svm",
+      "method": "source_only",
+      "shots_per_class": 0,
+      "repeat": 0,
+      "support_count": 0,
+      "metrics": {
+        "accuracy": 0.972972972972973,
+        "balanced_accuracy": 0.6,
+        "macro_f1": 0.5971830985915493,
+        "class_recall": {
+          "ZR01": 1.0,
+          "ZR02": 0.0,
+          "ZR03": 0.0,
+          "ZY01": 1.0,
+          "ZY02": 1.0
+        },
+        "class_counts": {
+          "ZR01": 1,
+          "ZR02": 1,
+          "ZR03": 1,
+          "ZY01": 70,
+          "ZY02": 1
+        },
+        "confusion_matrix": [
+          [
+            1,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            70,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            1
+          ]
+        ],
+        "class_order": [
+          "ZR01",
+          "ZR02",
+          "ZR03",
+          "ZY01",
+          "ZY02"
+        ]
+      },
+      "parameters": null
+    },
+    {
+      "model": "full_svm",
+      "method": "source_score_argmax",
+      "shots_per_class": 0,
+      "repeat": 0,
+      "support_count": 0,
+      "metrics": {
+        "accuracy": 0.972972972972973,
+        "balanced_accuracy": 0.6,
+        "macro_f1": 0.5971830985915493,
+        "class_recall": {
+          "ZR01": 1.0,
+          "ZR02": 0.0,
+          "ZR03": 0.0,
+          "ZY01": 1.0,
+          "ZY02": 1.0
+        },
+        "class_counts": {
+          "ZR01": 1,
+          "ZR02": 1,
+          "ZR03": 1,
+          "ZY01": 70,
+          "ZY02": 1
+        },
+        "confusion_matrix": [
+          [
+            1,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            70,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            1
+          ]
+        ],
+        "class_order": [
+          "ZR01",
+          "ZR02",
+          "ZR03",
+          "ZY01",
+          "ZY02"
+        ]
+      },
+      "parameters": {
+        "reason": "matched score-rule control for anchor corrections; standard SVC voting is source_only"
+      }
+    },
+    {
+      "model": "full_svm",
+      "method": "legacy_anchor_lambda1",
+      "shots_per_class": "all",
+      "repeat": 0,
+      "support_count": 74,
+      "metrics": {
+        "accuracy": 0.972972972972973,
+        "balanced_accuracy": 0.6,
+        "macro_f1": 0.5971830985915493,
+        "class_recall": {
+          "ZR01": 1.0,
+          "ZR02": 0.0,
+          "ZR03": 0.0,
+          "ZY01": 1.0,
+          "ZY02": 1.0
+        },
+        "class_counts": {
+          "ZR01": 1,
+          "ZR02": 1,
+          "ZR03": 1,
+          "ZY01": 70,
+          "ZY02": 1
+        },
+        "confusion_matrix": [
+          [
+            1,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            70,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            1
+          ]
+        ],
+        "class_order": [
+          "ZR01",
+          "ZR02",
+          "ZR03",
+          "ZY01",
+          "ZY02"
+        ]
+      },
+      "parameters": {
+        "id": "legacy_anchor_lambda1",
+        "family": "legacy_anchor",
+        "regularization": 1.0
+      }
+    },
+    {
+      "model": "full_svm",
+      "method": "weak_anchor_lambda1000_blend005",
+      "shots_per_class": "all",
+      "repeat": 0,
+      "support_count": 74,
+      "metrics": {
+        "accuracy": 0.972972972972973,
+        "balanced_accuracy": 0.6,
+        "macro_f1": 0.5971830985915493,
+        "class_recall": {
+          "ZR01": 1.0,
+          "ZR02": 0.0,
+          "ZR03": 0.0,
+          "ZY01": 1.0,
+          "ZY02": 1.0
+        },
+        "class_counts": {
+          "ZR01": 1,
+          "ZR02": 1,
+          "ZR03": 1,
+          "ZY01": 70,
+          "ZY02": 1
+        },
+        "confusion_matrix": [
+          [
+            1,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            70,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            1
+          ]
+        ],
+        "class_order": [
+          "ZR01",
+          "ZR02",
+          "ZR03",
+          "ZY01",
+          "ZY02"
+        ]
+      },
+      "parameters": {
+        "id": "weak_anchor_lambda1000_blend005",
+        "family": "damped_anchor",
+        "regularization": 1000.0,
+        "blend": 0.05
+      }
+    },
+    {
+      "model": "full_svm",
+      "method": "train_plus_calibration_full_retrain",
+      "shots_per_class": "all",
+      "repeat": 0,
+      "support_count": 74,
+      "metrics": {
+        "accuracy": 0.972972972972973,
+        "balanced_accuracy": 0.6,
+        "macro_f1": 0.5971830985915493,
+        "class_recall": {
+          "ZR01": 1.0,
+          "ZR02": 0.0,
+          "ZR03": 0.0,
+          "ZY01": 1.0,
+          "ZY02": 1.0
+        },
+        "class_counts": {
+          "ZR01": 1,
+          "ZR02": 1,
+          "ZR03": 1,
+          "ZY01": 70,
+          "ZY02": 1
+        },
+        "confusion_matrix": [
+          [
+            1,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            70,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            1
+          ]
+        ],
+        "class_order": [
+          "ZR01",
+          "ZR02",
+          "ZR03",
+          "ZY01",
+          "ZY02"
+        ]
+      },
+      "parameters": null
+    },
+    {
+      "model": "fixed_MC20",
+      "method": "source_only",
+      "shots_per_class": 0,
+      "repeat": 0,
+      "support_count": 0,
+      "metrics": {
+        "accuracy": 0.972972972972973,
+        "balanced_accuracy": 0.6,
+        "macro_f1": 0.5971830985915493,
+        "class_recall": {
+          "ZR01": 1.0,
+          "ZR02": 0.0,
+          "ZR03": 0.0,
+          "ZY01": 1.0,
+          "ZY02": 1.0
+        },
+        "class_counts": {
+          "ZR01": 1,
+          "ZR02": 1,
+          "ZR03": 1,
+          "ZY01": 70,
+          "ZY02": 1
+        },
+        "confusion_matrix": [
+          [
+            1,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            70,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            1
+          ]
+        ],
+        "class_order": [
+          "ZR01",
+          "ZR02",
+          "ZR03",
+          "ZY01",
+          "ZY02"
+        ]
+      },
+      "parameters": {
+        "preprocessing": "snv",
+        "mc": {
+          "runs": 20,
+          "components": 2,
+          "ratio": 0.1
+        },
+        "svm": {
+          "C": 10.0,
+          "gamma": "scale",
+          "class_weight": "balanced"
+        },
+        "id": "fixed_MC20"
+      }
+    },
+    {
+      "model": "fixed_MC20",
+      "method": "source_score_argmax",
+      "shots_per_class": 0,
+      "repeat": 0,
+      "support_count": 0,
+      "metrics": {
+        "accuracy": 0.972972972972973,
+        "balanced_accuracy": 0.6,
+        "macro_f1": 0.5971830985915493,
+        "class_recall": {
+          "ZR01": 1.0,
+          "ZR02": 0.0,
+          "ZR03": 0.0,
+          "ZY01": 1.0,
+          "ZY02": 1.0
+        },
+        "class_counts": {
+          "ZR01": 1,
+          "ZR02": 1,
+          "ZR03": 1,
+          "ZY01": 70,
+          "ZY02": 1
+        },
+        "confusion_matrix": [
+          [
+            1,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            70,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            1
+          ]
+        ],
+        "class_order": [
+          "ZR01",
+          "ZR02",
+          "ZR03",
+          "ZY01",
+          "ZY02"
+        ]
+      },
+      "parameters": {
+        "reason": "matched score-rule control for anchor corrections; standard SVC voting is source_only"
+      }
+    },
+    {
+      "model": "fixed_MC20",
+      "method": "legacy_anchor_lambda1",
+      "shots_per_class": "all",
+      "repeat": 0,
+      "support_count": 74,
+      "metrics": {
+        "accuracy": 0.972972972972973,
+        "balanced_accuracy": 0.6,
+        "macro_f1": 0.5971830985915493,
+        "class_recall": {
+          "ZR01": 1.0,
+          "ZR02": 0.0,
+          "ZR03": 0.0,
+          "ZY01": 1.0,
+          "ZY02": 1.0
+        },
+        "class_counts": {
+          "ZR01": 1,
+          "ZR02": 1,
+          "ZR03": 1,
+          "ZY01": 70,
+          "ZY02": 1
+        },
+        "confusion_matrix": [
+          [
+            1,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            70,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            1
+          ]
+        ],
+        "class_order": [
+          "ZR01",
+          "ZR02",
+          "ZR03",
+          "ZY01",
+          "ZY02"
+        ]
+      },
+      "parameters": {
+        "id": "legacy_anchor_lambda1",
+        "family": "legacy_anchor",
+        "regularization": 1.0
+      }
+    },
+    {
+      "model": "fixed_MC20",
+      "method": "weak_anchor_lambda1000_blend005",
+      "shots_per_class": "all",
+      "repeat": 0,
+      "support_count": 74,
+      "metrics": {
+        "accuracy": 0.972972972972973,
+        "balanced_accuracy": 0.6,
+        "macro_f1": 0.5971830985915493,
+        "class_recall": {
+          "ZR01": 1.0,
+          "ZR02": 0.0,
+          "ZR03": 0.0,
+          "ZY01": 1.0,
+          "ZY02": 1.0
+        },
+        "class_counts": {
+          "ZR01": 1,
+          "ZR02": 1,
+          "ZR03": 1,
+          "ZY01": 70,
+          "ZY02": 1
+        },
+        "confusion_matrix": [
+          [
+            1,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            70,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            1
+          ]
+        ],
+        "class_order": [
+          "ZR01",
+          "ZR02",
+          "ZR03",
+          "ZY01",
+          "ZY02"
+        ]
+      },
+      "parameters": {
+        "id": "weak_anchor_lambda1000_blend005",
+        "family": "damped_anchor",
+        "regularization": 1000.0,
+        "blend": 0.05
+      }
+    },
+    {
+      "model": "fixed_MC20",
+      "method": "train_plus_calibration_full_retrain",
+      "shots_per_class": "all",
+      "repeat": 0,
+      "support_count": 74,
+      "metrics": {
+        "accuracy": 0.9594594594594594,
+        "balanced_accuracy": 0.5971428571428572,
+        "macro_f1": 0.5290780141843971,
+        "class_recall": {
+          "ZR01": 1.0,
+          "ZR02": 0.0,
+          "ZR03": 0.0,
+          "ZY01": 0.9857142857142858,
+          "ZY02": 1.0
+        },
+        "class_counts": {
+          "ZR01": 1,
+          "ZR02": 1,
+          "ZR03": 1,
+          "ZY01": 70,
+          "ZY02": 1
+        },
+        "confusion_matrix": [
+          [
+            1,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            69,
+            1
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            1
+          ]
+        ],
+        "class_order": [
+          "ZR01",
+          "ZR02",
+          "ZR03",
+          "ZY01",
+          "ZY02"
+        ]
+      },
+      "parameters": {
+        "preprocessing": "snv",
+        "mc": {
+          "runs": 20,
+          "components": 2,
+          "ratio": 0.1
+        },
+        "svm": {
+          "C": 10.0,
+          "gamma": "scale",
+          "class_weight": "balanced"
+        },
+        "id": "fixed_MC20"
+      }
+    }
+  ],
+  "aggregates": [
+    {
+      "model": "dummy_majority",
+      "method": "source_only",
+      "shots_per_class": "0",
+      "repeats": 1,
+      "accuracy_mean": 0.9459459459459459,
+      "macro_f1_mean": 0.19444444444444445,
+      "balanced_accuracy_mean": 0.2,
+      "accuracy_sd_support_draws": 0.0
+    },
+    {
+      "model": "full_svm",
+      "method": "source_only",
+      "shots_per_class": "0",
+      "repeats": 1,
+      "accuracy_mean": 0.972972972972973,
+      "macro_f1_mean": 0.5971830985915493,
+      "balanced_accuracy_mean": 0.6,
+      "accuracy_sd_support_draws": 0.0
+    },
+    {
+      "model": "full_svm",
+      "method": "source_score_argmax",
+      "shots_per_class": "0",
+      "repeats": 1,
+      "accuracy_mean": 0.972972972972973,
+      "macro_f1_mean": 0.5971830985915493,
+      "balanced_accuracy_mean": 0.6,
+      "accuracy_sd_support_draws": 0.0
+    },
+    {
+      "model": "full_svm",
+      "method": "legacy_anchor_lambda1",
+      "shots_per_class": "all",
+      "repeats": 1,
+      "accuracy_mean": 0.972972972972973,
+      "macro_f1_mean": 0.5971830985915493,
+      "balanced_accuracy_mean": 0.6,
+      "accuracy_sd_support_draws": 0.0
+    },
+    {
+      "model": "full_svm",
+      "method": "weak_anchor_lambda1000_blend005",
+      "shots_per_class": "all",
+      "repeats": 1,
+      "accuracy_mean": 0.972972972972973,
+      "macro_f1_mean": 0.5971830985915493,
+      "balanced_accuracy_mean": 0.6,
+      "accuracy_sd_support_draws": 0.0
+    },
+    {
+      "model": "full_svm",
+      "method": "train_plus_calibration_full_retrain",
+      "shots_per_class": "all",
+      "repeats": 1,
+      "accuracy_mean": 0.972972972972973,
+      "macro_f1_mean": 0.5971830985915493,
+      "balanced_accuracy_mean": 0.6,
+      "accuracy_sd_support_draws": 0.0
+    },
+    {
+      "model": "fixed_MC20",
+      "method": "source_only",
+      "shots_per_class": "0",
+      "repeats": 1,
+      "accuracy_mean": 0.972972972972973,
+      "macro_f1_mean": 0.5971830985915493,
+      "balanced_accuracy_mean": 0.6,
+      "accuracy_sd_support_draws": 0.0
+    },
+    {
+      "model": "fixed_MC20",
+      "method": "source_score_argmax",
+      "shots_per_class": "0",
+      "repeats": 1,
+      "accuracy_mean": 0.972972972972973,
+      "macro_f1_mean": 0.5971830985915493,
+      "balanced_accuracy_mean": 0.6,
+      "accuracy_sd_support_draws": 0.0
+    },
+    {
+      "model": "fixed_MC20",
+      "method": "legacy_anchor_lambda1",
+      "shots_per_class": "all",
+      "repeats": 1,
+      "accuracy_mean": 0.972972972972973,
+      "macro_f1_mean": 0.5971830985915493,
+      "balanced_accuracy_mean": 0.6,
+      "accuracy_sd_support_draws": 0.0
+    },
+    {
+      "model": "fixed_MC20",
+      "method": "weak_anchor_lambda1000_blend005",
+      "shots_per_class": "all",
+      "repeats": 1,
+      "accuracy_mean": 0.972972972972973,
+      "macro_f1_mean": 0.5971830985915493,
+      "balanced_accuracy_mean": 0.6,
+      "accuracy_sd_support_draws": 0.0
+    },
+    {
+      "model": "fixed_MC20",
+      "method": "train_plus_calibration_full_retrain",
+      "shots_per_class": "all",
+      "repeats": 1,
+      "accuracy_mean": 0.9594594594594594,
+      "macro_f1_mean": 0.5290780141843971,
+      "balanced_accuracy_mean": 0.5971428571428572,
+      "accuracy_sd_support_draws": 0.0
+    }
+  ],
+  "calibration_gain_reference": "Anchor correction must be compared to source_score_argmax; full retrain to standard-vote source_only",
+  "prediction_never_used_for_selection": true,
+  "historical_exposure": "Old855 already used in prior algorithm development; preserving roles does not create a new blind test"
+}

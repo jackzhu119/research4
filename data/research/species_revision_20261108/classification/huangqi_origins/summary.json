@@ -1,0 +1,835 @@
+{
+  "task": "huangqi_origins",
+  "scope": "retrospective_internal_specimen_holdout_not_cross_batch",
+  "roles": {
+    "train": {
+      "count": 241,
+      "class_counts": {
+        "HQ01": 60,
+        "HQ02": 60,
+        "HQ03": 60,
+        "HQ04": 61
+      }
+    },
+    "calibration": {
+      "count": 80,
+      "class_counts": {
+        "HQ01": 20,
+        "HQ02": 20,
+        "HQ03": 20,
+        "HQ04": 20
+      }
+    },
+    "prediction": {
+      "count": 82,
+      "class_counts": {
+        "HQ01": 20,
+        "HQ02": 20,
+        "HQ03": 20,
+        "HQ04": 22
+      }
+    }
+  },
+  "classes": [
+    "HQ01",
+    "HQ02",
+    "HQ03",
+    "HQ04"
+  ],
+  "training_cv": "fixed historical parameters; no new tuning",
+  "tiny_class_warning": null,
+  "unsupported_shots": {},
+  "selection_lock_sha256": "cacf993a96f65ffdc4664d5fbba32fe5b9ca1ba959d1b9f072749145c54591d5",
+  "all_results": [
+    {
+      "model": "dummy_majority",
+      "method": "source_only",
+      "shots_per_class": 0,
+      "repeat": 0,
+      "support_count": 0,
+      "metrics": {
+        "accuracy": 0.2682926829268293,
+        "balanced_accuracy": 0.25,
+        "macro_f1": 0.10576923076923077,
+        "class_recall": {
+          "HQ01": 0.0,
+          "HQ02": 0.0,
+          "HQ03": 0.0,
+          "HQ04": 1.0
+        },
+        "class_counts": {
+          "HQ01": 20,
+          "HQ02": 20,
+          "HQ03": 20,
+          "HQ04": 22
+        },
+        "confusion_matrix": [
+          [
+            0,
+            0,
+            0,
+            20
+          ],
+          [
+            0,
+            0,
+            0,
+            20
+          ],
+          [
+            0,
+            0,
+            0,
+            20
+          ],
+          [
+            0,
+            0,
+            0,
+            22
+          ]
+        ],
+        "class_order": [
+          "HQ01",
+          "HQ02",
+          "HQ03",
+          "HQ04"
+        ]
+      },
+      "parameters": null
+    },
+    {
+      "model": "full_svm",
+      "method": "source_only",
+      "shots_per_class": 0,
+      "repeat": 0,
+      "support_count": 0,
+      "metrics": {
+        "accuracy": 0.8414634146341463,
+        "balanced_accuracy": 0.8409090909090909,
+        "macro_f1": 0.8386008410824066,
+        "class_recall": {
+          "HQ01": 0.7,
+          "HQ02": 0.85,
+          "HQ03": 0.95,
+          "HQ04": 0.8636363636363636
+        },
+        "class_counts": {
+          "HQ01": 20,
+          "HQ02": 20,
+          "HQ03": 20,
+          "HQ04": 22
+        },
+        "confusion_matrix": [
+          [
+            14,
+            4,
+            2,
+            0
+          ],
+          [
+            1,
+            17,
+            0,
+            2
+          ],
+          [
+            1,
+            0,
+            19,
+            0
+          ],
+          [
+            0,
+            0,
+            3,
+            19
+          ]
+        ],
+        "class_order": [
+          "HQ01",
+          "HQ02",
+          "HQ03",
+          "HQ04"
+        ]
+      },
+      "parameters": null
+    },
+    {
+      "model": "full_svm",
+      "method": "source_score_argmax",
+      "shots_per_class": 0,
+      "repeat": 0,
+      "support_count": 0,
+      "metrics": {
+        "accuracy": 0.8414634146341463,
+        "balanced_accuracy": 0.8409090909090909,
+        "macro_f1": 0.8386008410824066,
+        "class_recall": {
+          "HQ01": 0.7,
+          "HQ02": 0.85,
+          "HQ03": 0.95,
+          "HQ04": 0.8636363636363636
+        },
+        "class_counts": {
+          "HQ01": 20,
+          "HQ02": 20,
+          "HQ03": 20,
+          "HQ04": 22
+        },
+        "confusion_matrix": [
+          [
+            14,
+            4,
+            2,
+            0
+          ],
+          [
+            1,
+            17,
+            0,
+            2
+          ],
+          [
+            1,
+            0,
+            19,
+            0
+          ],
+          [
+            0,
+            0,
+            3,
+            19
+          ]
+        ],
+        "class_order": [
+          "HQ01",
+          "HQ02",
+          "HQ03",
+          "HQ04"
+        ]
+      },
+      "parameters": {
+        "reason": "matched score-rule control for anchor corrections; standard SVC voting is source_only"
+      }
+    },
+    {
+      "model": "full_svm",
+      "method": "legacy_anchor_lambda1",
+      "shots_per_class": "all",
+      "repeat": 0,
+      "support_count": 80,
+      "metrics": {
+        "accuracy": 0.8292682926829268,
+        "balanced_accuracy": 0.828409090909091,
+        "macro_f1": 0.8250727025542681,
+        "class_recall": {
+          "HQ01": 0.65,
+          "HQ02": 0.85,
+          "HQ03": 0.95,
+          "HQ04": 0.8636363636363636
+        },
+        "class_counts": {
+          "HQ01": 20,
+          "HQ02": 20,
+          "HQ03": 20,
+          "HQ04": 22
+        },
+        "confusion_matrix": [
+          [
+            13,
+            4,
+            3,
+            0
+          ],
+          [
+            1,
+            17,
+            0,
+            2
+          ],
+          [
+            1,
+            0,
+            19,
+            0
+          ],
+          [
+            0,
+            0,
+            3,
+            19
+          ]
+        ],
+        "class_order": [
+          "HQ01",
+          "HQ02",
+          "HQ03",
+          "HQ04"
+        ]
+      },
+      "parameters": {
+        "id": "legacy_anchor_lambda1",
+        "family": "legacy_anchor",
+        "regularization": 1.0
+      }
+    },
+    {
+      "model": "full_svm",
+      "method": "weak_anchor_lambda1000_blend005",
+      "shots_per_class": "all",
+      "repeat": 0,
+      "support_count": 80,
+      "metrics": {
+        "accuracy": 0.8414634146341463,
+        "balanced_accuracy": 0.8409090909090909,
+        "macro_f1": 0.8386008410824066,
+        "class_recall": {
+          "HQ01": 0.7,
+          "HQ02": 0.85,
+          "HQ03": 0.95,
+          "HQ04": 0.8636363636363636
+        },
+        "class_counts": {
+          "HQ01": 20,
+          "HQ02": 20,
+          "HQ03": 20,
+          "HQ04": 22
+        },
+        "confusion_matrix": [
+          [
+            14,
+            4,
+            2,
+            0
+          ],
+          [
+            1,
+            17,
+            0,
+            2
+          ],
+          [
+            1,
+            0,
+            19,
+            0
+          ],
+          [
+            0,
+            0,
+            3,
+            19
+          ]
+        ],
+        "class_order": [
+          "HQ01",
+          "HQ02",
+          "HQ03",
+          "HQ04"
+        ]
+      },
+      "parameters": {
+        "id": "weak_anchor_lambda1000_blend005",
+        "family": "damped_anchor",
+        "regularization": 1000.0,
+        "blend": 0.05
+      }
+    },
+    {
+      "model": "full_svm",
+      "method": "train_plus_calibration_full_retrain",
+      "shots_per_class": "all",
+      "repeat": 0,
+      "support_count": 80,
+      "metrics": {
+        "accuracy": 0.8414634146341463,
+        "balanced_accuracy": 0.8420454545454545,
+        "macro_f1": 0.8404686560416924,
+        "class_recall": {
+          "HQ01": 0.75,
+          "HQ02": 0.9,
+          "HQ03": 0.9,
+          "HQ04": 0.8181818181818182
+        },
+        "class_counts": {
+          "HQ01": 20,
+          "HQ02": 20,
+          "HQ03": 20,
+          "HQ04": 22
+        },
+        "confusion_matrix": [
+          [
+            15,
+            3,
+            2,
+            0
+          ],
+          [
+            1,
+            18,
+            0,
+            1
+          ],
+          [
+            2,
+            0,
+            18,
+            0
+          ],
+          [
+            0,
+            1,
+            3,
+            18
+          ]
+        ],
+        "class_order": [
+          "HQ01",
+          "HQ02",
+          "HQ03",
+          "HQ04"
+        ]
+      },
+      "parameters": null
+    },
+    {
+      "model": "fixed_MC20",
+      "method": "source_only",
+      "shots_per_class": 0,
+      "repeat": 0,
+      "support_count": 0,
+      "metrics": {
+        "accuracy": 0.8292682926829268,
+        "balanced_accuracy": 0.8295454545454546,
+        "macro_f1": 0.8289909702700401,
+        "class_recall": {
+          "HQ01": 0.75,
+          "HQ02": 0.9,
+          "HQ03": 0.85,
+          "HQ04": 0.8181818181818182
+        },
+        "class_counts": {
+          "HQ01": 20,
+          "HQ02": 20,
+          "HQ03": 20,
+          "HQ04": 22
+        },
+        "confusion_matrix": [
+          [
+            15,
+            2,
+            2,
+            1
+          ],
+          [
+            1,
+            18,
+            0,
+            1
+          ],
+          [
+            2,
+            0,
+            17,
+            1
+          ],
+          [
+            1,
+            0,
+            3,
+            18
+          ]
+        ],
+        "class_order": [
+          "HQ01",
+          "HQ02",
+          "HQ03",
+          "HQ04"
+        ]
+      },
+      "parameters": {
+        "preprocessing": "snv",
+        "mc": {
+          "runs": 20,
+          "components": 2,
+          "ratio": 0.1
+        },
+        "svm": {
+          "C": 10.0,
+          "gamma": "scale",
+          "class_weight": "balanced"
+        },
+        "id": "fixed_MC20"
+      }
+    },
+    {
+      "model": "fixed_MC20",
+      "method": "source_score_argmax",
+      "shots_per_class": 0,
+      "repeat": 0,
+      "support_count": 0,
+      "metrics": {
+        "accuracy": 0.8292682926829268,
+        "balanced_accuracy": 0.8295454545454546,
+        "macro_f1": 0.8285638941369305,
+        "class_recall": {
+          "HQ01": 0.75,
+          "HQ02": 0.9,
+          "HQ03": 0.85,
+          "HQ04": 0.8181818181818182
+        },
+        "class_counts": {
+          "HQ01": 20,
+          "HQ02": 20,
+          "HQ03": 20,
+          "HQ04": 22
+        },
+        "confusion_matrix": [
+          [
+            15,
+            2,
+            2,
+            1
+          ],
+          [
+            1,
+            18,
+            0,
+            1
+          ],
+          [
+            2,
+            0,
+            17,
+            1
+          ],
+          [
+            0,
+            1,
+            3,
+            18
+          ]
+        ],
+        "class_order": [
+          "HQ01",
+          "HQ02",
+          "HQ03",
+          "HQ04"
+        ]
+      },
+      "parameters": {
+        "reason": "matched score-rule control for anchor corrections; standard SVC voting is source_only"
+      }
+    },
+    {
+      "model": "fixed_MC20",
+      "method": "legacy_anchor_lambda1",
+      "shots_per_class": "all",
+      "repeat": 0,
+      "support_count": 80,
+      "metrics": {
+        "accuracy": 0.8292682926829268,
+        "balanced_accuracy": 0.8295454545454546,
+        "macro_f1": 0.8289909702700401,
+        "class_recall": {
+          "HQ01": 0.75,
+          "HQ02": 0.9,
+          "HQ03": 0.85,
+          "HQ04": 0.8181818181818182
+        },
+        "class_counts": {
+          "HQ01": 20,
+          "HQ02": 20,
+          "HQ03": 20,
+          "HQ04": 22
+        },
+        "confusion_matrix": [
+          [
+            15,
+            2,
+            2,
+            1
+          ],
+          [
+            1,
+            18,
+            0,
+            1
+          ],
+          [
+            2,
+            0,
+            17,
+            1
+          ],
+          [
+            1,
+            0,
+            3,
+            18
+          ]
+        ],
+        "class_order": [
+          "HQ01",
+          "HQ02",
+          "HQ03",
+          "HQ04"
+        ]
+      },
+      "parameters": {
+        "id": "legacy_anchor_lambda1",
+        "family": "legacy_anchor",
+        "regularization": 1.0
+      }
+    },
+    {
+      "model": "fixed_MC20",
+      "method": "weak_anchor_lambda1000_blend005",
+      "shots_per_class": "all",
+      "repeat": 0,
+      "support_count": 80,
+      "metrics": {
+        "accuracy": 0.8292682926829268,
+        "balanced_accuracy": 0.8295454545454546,
+        "macro_f1": 0.8285638941369305,
+        "class_recall": {
+          "HQ01": 0.75,
+          "HQ02": 0.9,
+          "HQ03": 0.85,
+          "HQ04": 0.8181818181818182
+        },
+        "class_counts": {
+          "HQ01": 20,
+          "HQ02": 20,
+          "HQ03": 20,
+          "HQ04": 22
+        },
+        "confusion_matrix": [
+          [
+            15,
+            2,
+            2,
+            1
+          ],
+          [
+            1,
+            18,
+            0,
+            1
+          ],
+          [
+            2,
+            0,
+            17,
+            1
+          ],
+          [
+            0,
+            1,
+            3,
+            18
+          ]
+        ],
+        "class_order": [
+          "HQ01",
+          "HQ02",
+          "HQ03",
+          "HQ04"
+        ]
+      },
+      "parameters": {
+        "id": "weak_anchor_lambda1000_blend005",
+        "family": "damped_anchor",
+        "regularization": 1000.0,
+        "blend": 0.05
+      }
+    },
+    {
+      "model": "fixed_MC20",
+      "method": "train_plus_calibration_full_retrain",
+      "shots_per_class": "all",
+      "repeat": 0,
+      "support_count": 80,
+      "metrics": {
+        "accuracy": 0.8536585365853658,
+        "balanced_accuracy": 0.8545454545454546,
+        "macro_f1": 0.8545020870602267,
+        "class_recall": {
+          "HQ01": 0.8,
+          "HQ02": 0.9,
+          "HQ03": 0.9,
+          "HQ04": 0.8181818181818182
+        },
+        "class_counts": {
+          "HQ01": 20,
+          "HQ02": 20,
+          "HQ03": 20,
+          "HQ04": 22
+        },
+        "confusion_matrix": [
+          [
+            16,
+            1,
+            2,
+            1
+          ],
+          [
+            1,
+            18,
+            0,
+            1
+          ],
+          [
+            1,
+            0,
+            18,
+            1
+          ],
+          [
+            1,
+            0,
+            3,
+            18
+          ]
+        ],
+        "class_order": [
+          "HQ01",
+          "HQ02",
+          "HQ03",
+          "HQ04"
+        ]
+      },
+      "parameters": {
+        "preprocessing": "snv",
+        "mc": {
+          "runs": 20,
+          "components": 2,
+          "ratio": 0.1
+        },
+        "svm": {
+          "C": 10.0,
+          "gamma": "scale",
+          "class_weight": "balanced"
+        },
+        "id": "fixed_MC20"
+      }
+    }
+  ],
+  "aggregates": [
+    {
+      "model": "dummy_majority",
+      "method": "source_only",
+      "shots_per_class": "0",
+      "repeats": 1,
+      "accuracy_mean": 0.2682926829268293,
+      "macro_f1_mean": 0.10576923076923077,
+      "balanced_accuracy_mean": 0.25,
+      "accuracy_sd_support_draws": 0.0
+    },
+    {
+      "model": "full_svm",
+      "method": "source_only",
+      "shots_per_class": "0",
+      "repeats": 1,
+      "accuracy_mean": 0.8414634146341463,
+      "macro_f1_mean": 0.8386008410824066,
+      "balanced_accuracy_mean": 0.8409090909090909,
+      "accuracy_sd_support_draws": 0.0
+    },
+    {
+      "model": "full_svm",
+      "method": "source_score_argmax",
+      "shots_per_class": "0",
+      "repeats": 1,
+      "accuracy_mean": 0.8414634146341463,
+      "macro_f1_mean": 0.8386008410824066,
+      "balanced_accuracy_mean": 0.8409090909090909,
+      "accuracy_sd_support_draws": 0.0
+    },
+    {
+      "model": "full_svm",
+      "method": "legacy_anchor_lambda1",
+      "shots_per_class": "all",
+      "repeats": 1,
+      "accuracy_mean": 0.8292682926829268,
+      "macro_f1_mean": 0.8250727025542681,
+      "balanced_accuracy_mean": 0.828409090909091,
+      "accuracy_sd_support_draws": 0.0
+    },
+    {
+      "model": "full_svm",
+      "method": "weak_anchor_lambda1000_blend005",
+      "shots_per_class": "all",
+      "repeats": 1,
+      "accuracy_mean": 0.8414634146341463,
+      "macro_f1_mean": 0.8386008410824066,
+      "balanced_accuracy_mean": 0.8409090909090909,
+      "accuracy_sd_support_draws": 0.0
+    },
+    {
+      "model": "full_svm",
+      "method": "train_plus_calibration_full_retrain",
+      "shots_per_class": "all",
+      "repeats": 1,
+      "accuracy_mean": 0.8414634146341463,
+      "macro_f1_mean": 0.8404686560416924,
+      "balanced_accuracy_mean": 0.8420454545454545,
+      "accuracy_sd_support_draws": 0.0
+    },
+    {
+      "model": "fixed_MC20",
+      "method": "source_only",
+      "shots_per_class": "0",
+      "repeats": 1,
+      "accuracy_mean": 0.8292682926829268,
+      "macro_f1_mean": 0.8289909702700401,
+      "balanced_accuracy_mean": 0.8295454545454546,
+      "accuracy_sd_support_draws": 0.0
+    },
+    {
+      "model": "fixed_MC20",
+      "method": "source_score_argmax",
+      "shots_per_class": "0",
+      "repeats": 1,
+      "accuracy_mean": 0.8292682926829268,
+      "macro_f1_mean": 0.8285638941369305,
+      "balanced_accuracy_mean": 0.8295454545454546,
+      "accuracy_sd_support_draws": 0.0
+    },
+    {
+      "model": "fixed_MC20",
+      "method": "legacy_anchor_lambda1",
+      "shots_per_class": "all",
+      "repeats": 1,
+      "accuracy_mean": 0.8292682926829268,
+      "macro_f1_mean": 0.8289909702700401,
+      "balanced_accuracy_mean": 0.8295454545454546,
+      "accuracy_sd_support_draws": 0.0
+    },
+    {
+      "model": "fixed_MC20",
+      "method": "weak_anchor_lambda1000_blend005",
+      "shots_per_class": "all",
+      "repeats": 1,
+      "accuracy_mean": 0.8292682926829268,
+      "macro_f1_mean": 0.8285638941369305,
+      "balanced_accuracy_mean": 0.8295454545454546,
+      "accuracy_sd_support_draws": 0.0
+    },
+    {
+      "model": "fixed_MC20",
+      "method": "train_plus_calibration_full_retrain",
+      "shots_per_class": "all",
+      "repeats": 1,
+      "accuracy_mean": 0.8536585365853658,
+      "macro_f1_mean": 0.8545020870602267,
+      "balanced_accuracy_mean": 0.8545454545454546,
+      "accuracy_sd_support_draws": 0.0
+    }
+  ],
+  "calibration_gain_reference": "Anchor correction must be compared to source_score_argmax; full retrain to standard-vote source_only",
+  "prediction_never_used_for_selection": true,
+  "historical_exposure": "Old855 already used in prior algorithm development; preserving roles does not create a new blind test"
+}

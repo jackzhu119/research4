@@ -1,0 +1,835 @@
+{
+  "task": "four_kinds",
+  "scope": "retrospective_internal_specimen_holdout_not_cross_batch",
+  "roles": {
+    "train": {
+      "count": 999,
+      "class_counts": {
+        "天麻": 242,
+        "枣仁": 216,
+        "酸枣仁": 300,
+        "黄芪": 241
+      }
+    },
+    "calibration": {
+      "count": 334,
+      "class_counts": {
+        "天麻": 80,
+        "枣仁": 74,
+        "酸枣仁": 100,
+        "黄芪": 80
+      }
+    },
+    "prediction": {
+      "count": 339,
+      "class_counts": {
+        "天麻": 83,
+        "枣仁": 74,
+        "酸枣仁": 100,
+        "黄芪": 82
+      }
+    }
+  },
+  "classes": [
+    "天麻",
+    "枣仁",
+    "酸枣仁",
+    "黄芪"
+  ],
+  "training_cv": "fixed historical parameters; no new tuning",
+  "tiny_class_warning": null,
+  "unsupported_shots": {},
+  "selection_lock_sha256": "4ec078a9f3b6ec106e19b763b3d78b935f4f6f7122b76f42a32c7ea1376b242c",
+  "all_results": [
+    {
+      "model": "dummy_majority",
+      "method": "source_only",
+      "shots_per_class": 0,
+      "repeat": 0,
+      "support_count": 0,
+      "metrics": {
+        "accuracy": 0.2949852507374631,
+        "balanced_accuracy": 0.25,
+        "macro_f1": 0.11389521640091116,
+        "class_recall": {
+          "天麻": 0.0,
+          "枣仁": 0.0,
+          "酸枣仁": 1.0,
+          "黄芪": 0.0
+        },
+        "class_counts": {
+          "天麻": 83,
+          "枣仁": 74,
+          "酸枣仁": 100,
+          "黄芪": 82
+        },
+        "confusion_matrix": [
+          [
+            0,
+            0,
+            83,
+            0
+          ],
+          [
+            0,
+            0,
+            74,
+            0
+          ],
+          [
+            0,
+            0,
+            100,
+            0
+          ],
+          [
+            0,
+            0,
+            82,
+            0
+          ]
+        ],
+        "class_order": [
+          "天麻",
+          "枣仁",
+          "酸枣仁",
+          "黄芪"
+        ]
+      },
+      "parameters": null
+    },
+    {
+      "model": "full_svm",
+      "method": "source_only",
+      "shots_per_class": 0,
+      "repeat": 0,
+      "support_count": 0,
+      "metrics": {
+        "accuracy": 0.976401179941003,
+        "balanced_accuracy": 0.9749505603164139,
+        "macro_f1": 0.9750880176632055,
+        "class_recall": {
+          "天麻": 1.0,
+          "枣仁": 0.972972972972973,
+          "酸枣仁": 1.0,
+          "黄芪": 0.926829268292683
+        },
+        "class_counts": {
+          "天麻": 83,
+          "枣仁": 74,
+          "酸枣仁": 100,
+          "黄芪": 82
+        },
+        "confusion_matrix": [
+          [
+            83,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            72,
+            0,
+            2
+          ],
+          [
+            0,
+            0,
+            100,
+            0
+          ],
+          [
+            5,
+            1,
+            0,
+            76
+          ]
+        ],
+        "class_order": [
+          "天麻",
+          "枣仁",
+          "酸枣仁",
+          "黄芪"
+        ]
+      },
+      "parameters": null
+    },
+    {
+      "model": "full_svm",
+      "method": "source_score_argmax",
+      "shots_per_class": 0,
+      "repeat": 0,
+      "support_count": 0,
+      "metrics": {
+        "accuracy": 0.976401179941003,
+        "balanced_accuracy": 0.9749505603164139,
+        "macro_f1": 0.9750880176632055,
+        "class_recall": {
+          "天麻": 1.0,
+          "枣仁": 0.972972972972973,
+          "酸枣仁": 1.0,
+          "黄芪": 0.926829268292683
+        },
+        "class_counts": {
+          "天麻": 83,
+          "枣仁": 74,
+          "酸枣仁": 100,
+          "黄芪": 82
+        },
+        "confusion_matrix": [
+          [
+            83,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            72,
+            0,
+            2
+          ],
+          [
+            0,
+            0,
+            100,
+            0
+          ],
+          [
+            5,
+            1,
+            0,
+            76
+          ]
+        ],
+        "class_order": [
+          "天麻",
+          "枣仁",
+          "酸枣仁",
+          "黄芪"
+        ]
+      },
+      "parameters": {
+        "reason": "matched score-rule control for anchor corrections; standard SVC voting is source_only"
+      }
+    },
+    {
+      "model": "full_svm",
+      "method": "legacy_anchor_lambda1",
+      "shots_per_class": "all",
+      "repeat": 0,
+      "support_count": 334,
+      "metrics": {
+        "accuracy": 0.9705014749262537,
+        "balanced_accuracy": 0.968889731635838,
+        "macro_f1": 0.9694482388509298,
+        "class_recall": {
+          "天麻": 0.9879518072289156,
+          "枣仁": 0.972972972972973,
+          "酸枣仁": 1.0,
+          "黄芪": 0.9146341463414634
+        },
+        "class_counts": {
+          "天麻": 83,
+          "枣仁": 74,
+          "酸枣仁": 100,
+          "黄芪": 82
+        },
+        "confusion_matrix": [
+          [
+            82,
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            72,
+            0,
+            2
+          ],
+          [
+            0,
+            0,
+            100,
+            0
+          ],
+          [
+            5,
+            1,
+            1,
+            75
+          ]
+        ],
+        "class_order": [
+          "天麻",
+          "枣仁",
+          "酸枣仁",
+          "黄芪"
+        ]
+      },
+      "parameters": {
+        "id": "legacy_anchor_lambda1",
+        "family": "legacy_anchor",
+        "regularization": 1.0
+      }
+    },
+    {
+      "model": "full_svm",
+      "method": "weak_anchor_lambda1000_blend005",
+      "shots_per_class": "all",
+      "repeat": 0,
+      "support_count": 334,
+      "metrics": {
+        "accuracy": 0.976401179941003,
+        "balanced_accuracy": 0.9749505603164139,
+        "macro_f1": 0.9750880176632055,
+        "class_recall": {
+          "天麻": 1.0,
+          "枣仁": 0.972972972972973,
+          "酸枣仁": 1.0,
+          "黄芪": 0.926829268292683
+        },
+        "class_counts": {
+          "天麻": 83,
+          "枣仁": 74,
+          "酸枣仁": 100,
+          "黄芪": 82
+        },
+        "confusion_matrix": [
+          [
+            83,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            72,
+            0,
+            2
+          ],
+          [
+            0,
+            0,
+            100,
+            0
+          ],
+          [
+            5,
+            1,
+            0,
+            76
+          ]
+        ],
+        "class_order": [
+          "天麻",
+          "枣仁",
+          "酸枣仁",
+          "黄芪"
+        ]
+      },
+      "parameters": {
+        "id": "weak_anchor_lambda1000_blend005",
+        "family": "damped_anchor",
+        "regularization": 1000.0,
+        "blend": 0.05
+      }
+    },
+    {
+      "model": "full_svm",
+      "method": "train_plus_calibration_full_retrain",
+      "shots_per_class": "all",
+      "repeat": 0,
+      "support_count": 334,
+      "metrics": {
+        "accuracy": 0.9734513274336283,
+        "balanced_accuracy": 0.9723048423092502,
+        "macro_f1": 0.9722914367563197,
+        "class_recall": {
+          "天麻": 0.9759036144578314,
+          "枣仁": 0.9864864864864865,
+          "酸枣仁": 1.0,
+          "黄芪": 0.926829268292683
+        },
+        "class_counts": {
+          "天麻": 83,
+          "枣仁": 74,
+          "酸枣仁": 100,
+          "黄芪": 82
+        },
+        "confusion_matrix": [
+          [
+            81,
+            0,
+            0,
+            2
+          ],
+          [
+            0,
+            73,
+            0,
+            1
+          ],
+          [
+            0,
+            0,
+            100,
+            0
+          ],
+          [
+            5,
+            1,
+            0,
+            76
+          ]
+        ],
+        "class_order": [
+          "天麻",
+          "枣仁",
+          "酸枣仁",
+          "黄芪"
+        ]
+      },
+      "parameters": null
+    },
+    {
+      "model": "fixed_MC20",
+      "method": "source_only",
+      "shots_per_class": 0,
+      "repeat": 0,
+      "support_count": 0,
+      "metrics": {
+        "accuracy": 0.9233038348082596,
+        "balanced_accuracy": 0.9186449158532614,
+        "macro_f1": 0.9187429636033517,
+        "class_recall": {
+          "天麻": 0.927710843373494,
+          "枣仁": 0.9054054054054054,
+          "酸枣仁": 1.0,
+          "黄芪": 0.8414634146341463
+        },
+        "class_counts": {
+          "天麻": 83,
+          "枣仁": 74,
+          "酸枣仁": 100,
+          "黄芪": 82
+        },
+        "confusion_matrix": [
+          [
+            77,
+            3,
+            0,
+            3
+          ],
+          [
+            1,
+            67,
+            0,
+            6
+          ],
+          [
+            0,
+            0,
+            100,
+            0
+          ],
+          [
+            9,
+            3,
+            1,
+            69
+          ]
+        ],
+        "class_order": [
+          "天麻",
+          "枣仁",
+          "酸枣仁",
+          "黄芪"
+        ]
+      },
+      "parameters": {
+        "preprocessing": "snv",
+        "mc": {
+          "runs": 20,
+          "components": 2,
+          "ratio": 0.1
+        },
+        "svm": {
+          "C": 10.0,
+          "gamma": "scale",
+          "class_weight": "balanced"
+        },
+        "id": "fixed_MC20"
+      }
+    },
+    {
+      "model": "fixed_MC20",
+      "method": "source_score_argmax",
+      "shots_per_class": 0,
+      "repeat": 0,
+      "support_count": 0,
+      "metrics": {
+        "accuracy": 0.9262536873156342,
+        "balanced_accuracy": 0.9216936963410662,
+        "macro_f1": 0.9218493306034576,
+        "class_recall": {
+          "天麻": 0.927710843373494,
+          "枣仁": 0.9054054054054054,
+          "酸枣仁": 1.0,
+          "黄芪": 0.8536585365853658
+        },
+        "class_counts": {
+          "天麻": 83,
+          "枣仁": 74,
+          "酸枣仁": 100,
+          "黄芪": 82
+        },
+        "confusion_matrix": [
+          [
+            77,
+            3,
+            0,
+            3
+          ],
+          [
+            1,
+            67,
+            0,
+            6
+          ],
+          [
+            0,
+            0,
+            100,
+            0
+          ],
+          [
+            8,
+            3,
+            1,
+            70
+          ]
+        ],
+        "class_order": [
+          "天麻",
+          "枣仁",
+          "酸枣仁",
+          "黄芪"
+        ]
+      },
+      "parameters": {
+        "reason": "matched score-rule control for anchor corrections; standard SVC voting is source_only"
+      }
+    },
+    {
+      "model": "fixed_MC20",
+      "method": "legacy_anchor_lambda1",
+      "shots_per_class": "all",
+      "repeat": 0,
+      "support_count": 334,
+      "metrics": {
+        "accuracy": 0.9233038348082596,
+        "balanced_accuracy": 0.9186449158532614,
+        "macro_f1": 0.9187429636033517,
+        "class_recall": {
+          "天麻": 0.927710843373494,
+          "枣仁": 0.9054054054054054,
+          "酸枣仁": 1.0,
+          "黄芪": 0.8414634146341463
+        },
+        "class_counts": {
+          "天麻": 83,
+          "枣仁": 74,
+          "酸枣仁": 100,
+          "黄芪": 82
+        },
+        "confusion_matrix": [
+          [
+            77,
+            3,
+            0,
+            3
+          ],
+          [
+            1,
+            67,
+            0,
+            6
+          ],
+          [
+            0,
+            0,
+            100,
+            0
+          ],
+          [
+            9,
+            3,
+            1,
+            69
+          ]
+        ],
+        "class_order": [
+          "天麻",
+          "枣仁",
+          "酸枣仁",
+          "黄芪"
+        ]
+      },
+      "parameters": {
+        "id": "legacy_anchor_lambda1",
+        "family": "legacy_anchor",
+        "regularization": 1.0
+      }
+    },
+    {
+      "model": "fixed_MC20",
+      "method": "weak_anchor_lambda1000_blend005",
+      "shots_per_class": "all",
+      "repeat": 0,
+      "support_count": 334,
+      "metrics": {
+        "accuracy": 0.9262536873156342,
+        "balanced_accuracy": 0.9216936963410662,
+        "macro_f1": 0.9218493306034576,
+        "class_recall": {
+          "天麻": 0.927710843373494,
+          "枣仁": 0.9054054054054054,
+          "酸枣仁": 1.0,
+          "黄芪": 0.8536585365853658
+        },
+        "class_counts": {
+          "天麻": 83,
+          "枣仁": 74,
+          "酸枣仁": 100,
+          "黄芪": 82
+        },
+        "confusion_matrix": [
+          [
+            77,
+            3,
+            0,
+            3
+          ],
+          [
+            1,
+            67,
+            0,
+            6
+          ],
+          [
+            0,
+            0,
+            100,
+            0
+          ],
+          [
+            8,
+            3,
+            1,
+            70
+          ]
+        ],
+        "class_order": [
+          "天麻",
+          "枣仁",
+          "酸枣仁",
+          "黄芪"
+        ]
+      },
+      "parameters": {
+        "id": "weak_anchor_lambda1000_blend005",
+        "family": "damped_anchor",
+        "regularization": 1000.0,
+        "blend": 0.05
+      }
+    },
+    {
+      "model": "fixed_MC20",
+      "method": "train_plus_calibration_full_retrain",
+      "shots_per_class": "all",
+      "repeat": 0,
+      "support_count": 334,
+      "metrics": {
+        "accuracy": 0.943952802359882,
+        "balanced_accuracy": 0.9412680385351557,
+        "macro_f1": 0.9405521128213726,
+        "class_recall": {
+          "天麻": 0.9397590361445783,
+          "枣仁": 0.9594594594594594,
+          "酸枣仁": 1.0,
+          "黄芪": 0.8658536585365854
+        },
+        "class_counts": {
+          "天麻": 83,
+          "枣仁": 74,
+          "酸枣仁": 100,
+          "黄芪": 82
+        },
+        "confusion_matrix": [
+          [
+            78,
+            3,
+            0,
+            2
+          ],
+          [
+            0,
+            71,
+            0,
+            3
+          ],
+          [
+            0,
+            0,
+            100,
+            0
+          ],
+          [
+            8,
+            3,
+            0,
+            71
+          ]
+        ],
+        "class_order": [
+          "天麻",
+          "枣仁",
+          "酸枣仁",
+          "黄芪"
+        ]
+      },
+      "parameters": {
+        "preprocessing": "snv",
+        "mc": {
+          "runs": 20,
+          "components": 2,
+          "ratio": 0.1
+        },
+        "svm": {
+          "C": 10.0,
+          "gamma": "scale",
+          "class_weight": "balanced"
+        },
+        "id": "fixed_MC20"
+      }
+    }
+  ],
+  "aggregates": [
+    {
+      "model": "dummy_majority",
+      "method": "source_only",
+      "shots_per_class": "0",
+      "repeats": 1,
+      "accuracy_mean": 0.2949852507374631,
+      "macro_f1_mean": 0.11389521640091116,
+      "balanced_accuracy_mean": 0.25,
+      "accuracy_sd_support_draws": 0.0
+    },
+    {
+      "model": "full_svm",
+      "method": "source_only",
+      "shots_per_class": "0",
+      "repeats": 1,
+      "accuracy_mean": 0.976401179941003,
+      "macro_f1_mean": 0.9750880176632055,
+      "balanced_accuracy_mean": 0.9749505603164139,
+      "accuracy_sd_support_draws": 0.0
+    },
+    {
+      "model": "full_svm",
+      "method": "source_score_argmax",
+      "shots_per_class": "0",
+      "repeats": 1,
+      "accuracy_mean": 0.976401179941003,
+      "macro_f1_mean": 0.9750880176632055,
+      "balanced_accuracy_mean": 0.9749505603164139,
+      "accuracy_sd_support_draws": 0.0
+    },
+    {
+      "model": "full_svm",
+      "method": "legacy_anchor_lambda1",
+      "shots_per_class": "all",
+      "repeats": 1,
+      "accuracy_mean": 0.9705014749262537,
+      "macro_f1_mean": 0.9694482388509298,
+      "balanced_accuracy_mean": 0.968889731635838,
+      "accuracy_sd_support_draws": 0.0
+    },
+    {
+      "model": "full_svm",
+      "method": "weak_anchor_lambda1000_blend005",
+      "shots_per_class": "all",
+      "repeats": 1,
+      "accuracy_mean": 0.976401179941003,
+      "macro_f1_mean": 0.9750880176632055,
+      "balanced_accuracy_mean": 0.9749505603164139,
+      "accuracy_sd_support_draws": 0.0
+    },
+    {
+      "model": "full_svm",
+      "method": "train_plus_calibration_full_retrain",
+      "shots_per_class": "all",
+      "repeats": 1,
+      "accuracy_mean": 0.9734513274336283,
+      "macro_f1_mean": 0.9722914367563197,
+      "balanced_accuracy_mean": 0.9723048423092502,
+      "accuracy_sd_support_draws": 0.0
+    },
+    {
+      "model": "fixed_MC20",
+      "method": "source_only",
+      "shots_per_class": "0",
+      "repeats": 1,
+      "accuracy_mean": 0.9233038348082596,
+      "macro_f1_mean": 0.9187429636033517,
+      "balanced_accuracy_mean": 0.9186449158532614,
+      "accuracy_sd_support_draws": 0.0
+    },
+    {
+      "model": "fixed_MC20",
+      "method": "source_score_argmax",
+      "shots_per_class": "0",
+      "repeats": 1,
+      "accuracy_mean": 0.9262536873156342,
+      "macro_f1_mean": 0.9218493306034576,
+      "balanced_accuracy_mean": 0.9216936963410662,
+      "accuracy_sd_support_draws": 0.0
+    },
+    {
+      "model": "fixed_MC20",
+      "method": "legacy_anchor_lambda1",
+      "shots_per_class": "all",
+      "repeats": 1,
+      "accuracy_mean": 0.9233038348082596,
+      "macro_f1_mean": 0.9187429636033517,
+      "balanced_accuracy_mean": 0.9186449158532614,
+      "accuracy_sd_support_draws": 0.0
+    },
+    {
+      "model": "fixed_MC20",
+      "method": "weak_anchor_lambda1000_blend005",
+      "shots_per_class": "all",
+      "repeats": 1,
+      "accuracy_mean": 0.9262536873156342,
+      "macro_f1_mean": 0.9218493306034576,
+      "balanced_accuracy_mean": 0.9216936963410662,
+      "accuracy_sd_support_draws": 0.0
+    },
+    {
+      "model": "fixed_MC20",
+      "method": "train_plus_calibration_full_retrain",
+      "shots_per_class": "all",
+      "repeats": 1,
+      "accuracy_mean": 0.943952802359882,
+      "macro_f1_mean": 0.9405521128213726,
+      "balanced_accuracy_mean": 0.9412680385351557,
+      "accuracy_sd_support_draws": 0.0
+    }
+  ],
+  "calibration_gain_reference": "Anchor correction must be compared to source_score_argmax; full retrain to standard-vote source_only",
+  "prediction_never_used_for_selection": true,
+  "historical_exposure": "Old855 already used in prior algorithm development; preserving roles does not create a new blind test"
+}
