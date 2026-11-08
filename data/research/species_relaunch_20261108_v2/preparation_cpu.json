@@ -1,0 +1,147 @@
+{
+  "schema": "research4-species-preparation-actual-cpu-v1",
+  "run_id": "species-relaunch-20261108-v2",
+  "cap_cpu_seconds": 1900,
+  "phases": [
+    {
+      "name": "rebuild-paired-18-workbook-features",
+      "started_at_utc": "2026-11-08T05:25:51.457179+00:00",
+      "command": [
+        "/workspace/.venvs/research4-species-relaunch-20261108/bin/python",
+        "-B",
+        "scripts/prepare_species_revision_features.py",
+        "--output",
+        "data/research/species_relaunch_20261108_v2/rebuilt_features"
+      ],
+      "status": "DONE",
+      "exit_code": 0,
+      "ended_at_utc": "2026-11-08T05:26:15.279238+00:00",
+      "actual_cpu_seconds": 23.802352000000003,
+      "wall_seconds": 23.822080232999724,
+      "child_maxrss_kib": 121452
+    },
+    {
+      "name": "independent-18file-role-CRC-audit",
+      "status": "DONE",
+      "actual_cpu_seconds": 2.804506,
+      "measurement_basis": "independent audit process own measured CPU, report hash attached",
+      "report_sha256": "ef67e91152be87cfc037702eb7a95933c1053b8441d02788e919df097326127a"
+    },
+    {
+      "name": "historical-species-revision-tests",
+      "command": [
+        "/workspace/.venvs/research4-species-relaunch-20261108/bin/python",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_species_revision*.py"
+      ],
+      "started_at_utc": "2026-11-08T05:34:04.572517+00:00",
+      "ended_at_utc": "2026-11-08T05:34:06.140196+00:00",
+      "exit_code": 0,
+      "status": "DONE",
+      "actual_cpu_seconds": 1.5603749999999998,
+      "wall_seconds": 1.5676977510001961
+    },
+    {
+      "name": "budget-leakage-relaunch-backup-tests",
+      "command": [
+        "/workspace/.venvs/research4-species-relaunch-20261108/bin/python",
+        "-B",
+        "-c",
+        "import unittest,sys; s=unittest.TestSuite(); [s.addTests(unittest.defaultTestLoader.discover('tests',pattern=p)) for p in sys.argv[1:]]; r=unittest.TextTestRunner(verbosity=1).run(s);sys.exit(not r.wasSuccessful())",
+        "test_species_background*.py",
+        "test_prepare_species_relaunch*.py",
+        "test_species_relaunch*.py"
+      ],
+      "started_at_utc": "2026-11-08T05:34:43.096426+00:00",
+      "ended_at_utc": "2026-11-08T05:34:45.067685+00:00",
+      "exit_code": 0,
+      "status": "DONE",
+      "actual_cpu_seconds": 1.193775,
+      "wall_seconds": 1.9712741889998142
+    },
+    {
+      "name": "fresh-grant-TRAIN999-only-manifest-preparation",
+      "command": [
+        "/workspace/.venvs/research4-species-relaunch-20261108/bin/python",
+        "-B",
+        "scripts/prepare_species_relaunch_20261108_v2.py",
+        "--features",
+        "/workspace/research4-relaunch/data/research/species_relaunch_20261108_v2/rebuilt_features/features.npz"
+      ],
+      "started_at_utc": "2026-11-08T05:34:56.846052+00:00",
+      "ended_at_utc": "2026-11-08T05:34:57.862520+00:00",
+      "exit_code": 0,
+      "status": "DONE",
+      "actual_cpu_seconds": 0.9670329999999999,
+      "wall_seconds": 1.0164854700001342
+    },
+    {
+      "name": "prelaunch001-preserved-regenerate-reviewed-backup",
+      "command": [
+        "/workspace/.venvs/research4-species-relaunch-20261108/bin/python",
+        "-B",
+        "scripts/prepare_species_relaunch_20261108_v2.py",
+        "--features",
+        "/workspace/research4-relaunch/data/research/species_relaunch_20261108_v2/rebuilt_features/features.npz"
+      ],
+      "started_at_utc": "2026-11-08T05:35:41.501129+00:00",
+      "ended_at_utc": "2026-11-08T05:35:42.066376+00:00",
+      "exit_code": 0,
+      "status": "DONE",
+      "actual_cpu_seconds": 0.554958,
+      "wall_seconds": 0.5652646800003822
+    },
+    {
+      "name": "neural-perturbation-leakage-selftest",
+      "command": [
+        "/workspace/.venvs/research4-species-relaunch-20261108/bin/python",
+        "-B",
+        "scripts/species_revision_background_neural.py",
+        "--self-test"
+      ],
+      "started_at_utc": "2026-11-08T05:35:42.067024+00:00",
+      "ended_at_utc": "2026-11-08T05:35:45.088622+00:00",
+      "exit_code": 0,
+      "status": "DONE",
+      "actual_cpu_seconds": 3.009935,
+      "wall_seconds": 3.0216141559999414
+    },
+    {
+      "name": "final-backup-14-mock-tests",
+      "command": [
+        "/workspace/.venvs/research4-species-relaunch-20261108/bin/python",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_species_relaunch_backup_stdlib_20261108.py"
+      ],
+      "started_at_utc": "2026-11-08T05:35:45.088931+00:00",
+      "ended_at_utc": "2026-11-08T05:35:45.253304+00:00",
+      "exit_code": 0,
+      "status": "DONE",
+      "actual_cpu_seconds": 0.15156899999999984,
+      "wall_seconds": 0.16438596800026062
+    },
+    {
+      "name": "final-metadata-consistency-preparation",
+      "started_at_utc": "2026-11-08T05:36:21.539686+00:00",
+      "ended_at_utc": "2026-11-08T05:36:22.155118+00:00",
+      "exit_code": 0,
+      "status": "DONE",
+      "actual_cpu_seconds": 0.5661639999999999,
+      "wall_seconds": 0.6154868229996282
+    }
+  ],
+  "consumed_cpu_seconds": 34.610667,
+  "frozen_for_launch": true
+}

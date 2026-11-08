@@ -1,0 +1,69 @@
+{
+  "status": "PASS",
+  "observed_utc": "2026-11-08T05:36:53.474728+00:00",
+  "reviewer": "independent relaunch_data_independent agent",
+  "source_path": "scripts/species_relaunch_backup_20261108.py",
+  "source_sha256": "b3ae715f95ad9e498b2fbb188b970ec8ae001a6543fe70f15aab190b65024f98",
+  "source_expected_matches": true,
+  "scope": "Read-only source/metadata review and synthetic mocked publisher tests; no actual Git, network, fitting, inference or quantum calculation. No giant numerical artifacts opened.",
+  "checks": {
+    "training_record_count": 999,
+    "training_record_and_physical_ids_unique": true,
+    "master_holdout_used_in_current_jobs": false,
+    "scientific_jobs_exact_training_inputs": 1305,
+    "manifest_job_kinds": {
+      "classical": 225,
+      "summary": 55,
+      "backup": 55,
+      "neural": 1080
+    },
+    "all_declared_outputs_inside_approved_runroot": true,
+    "raw_xlsx_npz_hdf_excluded_from_publication": true,
+    "only_completed_receipt_sealed_jobs_exported": true,
+    "supervisor_completed_requires_real_worker_exit_descendant_closure_zero_exit_and_frozen_hash_rechecks": true,
+    "active_unsealed_results_and_live_state_not_exported": true,
+    "file_cap_bytes": 10485760,
+    "delta_cap_bytes": 41943040,
+    "small_sealed_TRAIN_only_model_weights_eligible": true,
+    "remote_repository_restricted": true,
+    "unknown_index_fails_before_staging": true,
+    "non_research_branch_fails_before_staging": true,
+    "branch_and_head_rechecked_before_add_commit_push": true,
+    "push_uses_verified_commit_SHA_instead_of_HEAD": true,
+    "git_stderr_and_credentials_not_logged": true,
+    "backup_failure_does_not_retry_expensive_science": true,
+    "all_seals_rechecked_at_actual_backup_runtime": true
+  },
+  "tests": {
+    "existing_mock_suite": "14 / 14 PASS at earlier source inspection; final source re-run is owned by parent",
+    "additional_final_source_mock_tests": [
+      {
+        "case": "branch_changed_before_commit",
+        "status": "PASS",
+        "reason": "Branch or HEAD changed before commit"
+      },
+      {
+        "case": "branch_changed_before_push",
+        "status": "PASS",
+        "reason": "Branch or HEAD changed before push"
+      },
+      {
+        "case": "push_exact_verified_commit_not_HEAD",
+        "status": "PASS"
+      }
+    ]
+  },
+  "plan_snapshot": {
+    "jobs_sha256": "bb96b0e1a5518c8ee38cde5f577bbe95d7a22f258ddee2df755dd6d676d84f0f",
+    "protocol_sha256": "c8fa1c92ac35250085cb0cb2810122b9f21eb827cdb9397ed9fa260896253a0f",
+    "publisher_source_matches_current_plan": true,
+    "note": "Preparation metadata is NOT_RUN and parent is archiving/regenerating to match final publication wording; this report approves final publisher source, not runtime launch or eventual backup success."
+  },
+  "limitations": [
+    "Git read-check-write sequence assumes the declared serialized queue and no separate concurrent Git writer; it is not an atomic transaction across unrelated manual Git processes.",
+    "Public backup success must be read from actual receipt status DONE and independently verified remote commit; complete.json alone only means the backup attempt closed.",
+    "Scientific development validation is within the999 original training samples; no new independent confirmation set or cross-batch claim."
+  ],
+  "blocking_findings": [],
+  "consumed_review_cpu_seconds_this_command": 0.18607595500000002
+}
