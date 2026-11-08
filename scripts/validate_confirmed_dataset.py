@@ -144,6 +144,16 @@ class Validator:
         self.check('migration_baseline_commit_available', resolved == baseline)
         self.baseline_commit = baseline
         entries = registry['workbooks']
+        independence_path = root / 'data/annotations/specimen_independence_user_declaration_20261108.json'
+        independence = json.loads(independence_path.read_text()) if independence_path.is_file() else None
+        if independence is not None:
+            expected_groups = {g for g in EXPECTED if not g.startswith('ZY')}
+            self.check('new817_independence_declaration',
+                       independence.get('verbatim_answer') == '每列都是独立实物样品'
+                       and independence.get('scope', {}).get('record_count') == 817
+                       and set(independence.get('scope', {}).get('groups', [])) == expected_groups
+                       and independence.get('applied_annotation', {}).get('physical_sample_id_basis')
+                       == 'user_declared_independent_20261108')
         by_group = {item['origin_group_id']: item for item in entries}
         by_path = {item['path']: item for item in entries}
         kind_counts = Counter()
@@ -295,9 +305,17 @@ class Validator:
                            and row['physical_sample_id_basis'] == 'user_declared_independent_20261031'
                            and not row['batch_id'])
             else:
-                self.check('metadata_no_undeclared_independence_or_batch_' + row['record_id'],
-                           not row['physical_sample_id'] and not row['physical_sample_id_basis'] and not row['batch_id']
-                           and 'independence_basis' not in item and 'source_batches_per_origin_user_declared' not in item)
+                if independence is not None:
+                    self.check('metadata_new817_declared_independence_' + row['record_id'],
+                               group in independence['scope']['groups']
+                               and row['physical_sample_id'] == row['record_id']
+                               and row['physical_sample_id_basis'] == item.get('independence_basis')
+                               == 'user_declared_independent_20261108'
+                               and not row['batch_id'] and 'source_batches_per_origin_user_declared' not in item)
+                else:
+                    self.check('metadata_no_undeclared_independence_or_batch_' + row['record_id'],
+                               not row['physical_sample_id'] and not row['physical_sample_id_basis'] and not row['batch_id']
+                               and 'independence_basis' not in item and 'source_batches_per_origin_user_declared' not in item)
             # Match the metadata column and header to the actual absorption worksheet.
             if item['path'] not in header_cache:
                 with ZipFile(root / item['path']) as z:

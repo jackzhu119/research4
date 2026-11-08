@@ -30,7 +30,8 @@ The user's current data decision, effective 2026-11-08, is recorded in
 - The three added 枣仁 workbooks are in `data/raw/zaoren_20261108/` (ZR01--ZR03)
   and the four added 天麻 workbooks are in `data/raw/tianma/` (TM01--TM04).
   Registry/metadata record IDs do not imply the raw workbook column headers
-  were rewritten, or that individual physical samples or batches were verified.
+  were rewritten. Physical independence is now separately user-declared below;
+  actual sample logs and batch information remain unverified.
 - The current old/new filename map is `data/confirmed_names_20261108.csv`;
   the current 18-workbook summary is `data/confirmed_workbooks_20261108.xlsx`.
   The older `酸枣仁_编号对照表.xlsx`, numbered-name mapping CSVs and verification
@@ -43,6 +44,20 @@ The user's current data decision, effective 2026-11-08, is recorded in
   `physical_sample_id=record_id` basis remains
   `user_declared_independent_20261031`. Do not extend this declaration to the
   new raw workbooks or Huangqi records, and do not invent actual batch IDs.
+- The subsequent explicit user reply on 2026-11-08, “每列都是独立实物样品”,
+  separately confirms physical independence for the remaining 817 records
+  (HQ01--HQ04, TM01--TM04, ZR01--ZR03). See
+  `data/annotations/specimen_independence_user_declaration_20261108.json`.
+  These now have `physical_sample_id=record_id` with basis
+  `user_declared_independent_20261108`; preserve the old 855-record basis.
+  This reply supplies no new batch counts or IDs.
+- The fixed current train/calibration/prediction assignment is
+  `data/research/species_revision_20261108/split_manifest.csv`; its protocol
+  and summary are in the same directory. Reuse this assignment for all tasks
+  and methods; fit selectors and choose parameters using training data only.
+  Calibration is support for prespecified adaptation; prediction labels are
+  used only for the final comparison. Historical ZY samples have already been
+  used in model development, so this is not a previously unseen external test.
 - Historical experiments on ZY01--ZY07 used anonymous group labels and were
   conducted on a collection now known to mix 枣仁 and 酸枣仁. Retain their
   original counts, hashes, metrics and protocols, but do not describe them as
