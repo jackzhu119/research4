@@ -1,0 +1,130 @@
+{
+  "schema": "research4-b-species-misuse-root-conclusions-before-control-v1",
+  "observed_at_Asia_Shanghai": "2026-11-08T12:43:16.735855+08:00",
+  "状态": "既有问题审查与旧预测重计已完成；新增TRAIN来源组验证尚未真实拟合，等最终后台监督器核验。",
+  "source_commits": {
+    "confirmed_main": "806584a5571c6a90ef37c6bfa915671b680ba48b",
+    "corrected_research": "21d6edab24d198dc60b1ad4ef50e83602c9ecfa7"
+  },
+  "确认的数据": {
+    "工作簿": 18,
+    "记录": 1672,
+    "枣仁": 364,
+    "酸枣仁": 500,
+    "黄芪": 403,
+    "天麻": 405,
+    "旧855构成": {
+      "ZY01_ZY02枣仁": 355,
+      "ZY03_ZY07酸枣仁": 500
+    },
+    "主角色": {
+      "TRAIN": 999,
+      "CAL": 334,
+      "PRED": 339
+    },
+    "验证": "逐ID种类/来源/路径/物理身份与新版表一致，旧855角色逐ID继承，新增817固定补充划分，角色交集0。用户声明是身份独立性与中文种类确认，不补造植物学鉴定或真实批次。"
+  },
+  "旧结果处理": {
+    "应撤回的表述": "旧R2 821/855=96.0234%是纯酸枣仁产地识别准确率。",
+    "保留表述": "旧混合种类七来源组任务的历史数值、输入/算法/失败/结果记录保留；原始光谱不改。",
+    "可复用": "固定原始光谱、ID/角色、未拟合的谱处理规则及源内算法代码、旧预测作为回顾性诊断。",
+    "必须重拟合": "目标标签/类别/纯物种子集改变的scaler、特征选择、分类头、选参、校准上下文等；已有修正分支已完成，B不重复它。",
+    "历史拆解": "R2折叠种类852/855；旧模型对500酸枣仁子集正确470，相对R0的428多42。仅旧预测拆解，不是新二分类/五分类模型成绩。"
+  },
+  "已修正实验的核对": {
+    "二分类源R2": [
+      174,
+      174
+    ],
+    "酸枣仁5来源源R2": [
+      87,
+      100
+    ],
+    "四种类源全谱SVM": [
+      331,
+      339
+    ],
+    "黄芪4来源源全谱SVM": [
+      69,
+      82
+    ],
+    "天麻4来源源全谱SVM": [
+      81,
+      83
+    ],
+    "枣仁5来源源全谱SVM": [
+      72,
+      74
+    ],
+    "完整重训注意": "修正报告93/100使用全部100校准标签重训；不能称少样本校准增益或看完预测再择优为预选冠军。",
+    "跨种类迁移独立重计": {
+      "记录": 144900,
+      "设置": 1449,
+      "唯一固定预测样品": 100,
+      "A_only_target_mean": 0.81,
+      "Aextra_extra_target_mean": 0.8033333333333333,
+      "B_HQ_TM_mean": 0.79,
+      "判断": "此协议未成立稳定正迁移；保留负结果，不推断所有迁移方法都不可能。"
+    },
+    "冻结组件联合审计": {
+      "共同正确": [
+        304,
+        339
+      ],
+      "比例": 0.8967551622418879,
+      "种类门正确": [
+        331,
+        339
+      ],
+      "按真物种来源头正确": [
+        309,
+        339
+      ],
+      "解释": "按同ID计算种类门与来源头共同正确，保留错误路由；误路由来源头输出未算，完整路由混淆和系统macroF1 NOT_COMPUTED。回顾性组件组合，不是完整新系统外部确认。"
+    }
+  },
+  "B量子结果": "指定分子的化学图/坐标/方法与样品标签无输入依赖；能量、梯度、网格/SCF一致性诊断保留数值，不可据此确认药材产地/混合分类机理、实验峰或全维最低点。IR仍NOT_COMPUTED。",
+  "新增后台验证": {
+    "状态": "NOT_RUN_PRELAUNCH_REVIEW",
+    "内容": "仅516个masterTRAIN枣仁/酸枣仁；5fold成对留来源组，固定旧全谱SNV+Scaler+SVM及3组fit标签置乱，共20fits，不选参。",
+    "fold0限制": "枣仁训练仅6份，原最大组210份会主导总准确率；3个singleton来源又占来源等权均值30%，必须同时报告逐组N和recall。",
+    "预算": "从B原累计90000的最终剩余量内最多用600新CPU秒，包括监督器和Git，不向另端的90000额度借用或重发。",
+    "开始条件": "旧v7实际成本/进程组/父进程与回传闭合后自动执行；本轮没有小时报告任务。"
+  },
+  "仍无法由现数据完成": [
+    "独立新批次/跨仪器/跨年份确认",
+    "未知药材拒识与掺伪比例/成分定量的真实对照",
+    "拉丁学名或物种鉴定",
+    "确认所有背景队列实时活跃：另一实例控制目录未公开，本B只能核其固定代码/声明，不能臆造PID健康或重置它。"
+  ],
+  "静态审查发现": {
+    "修正分类入口": "未逐ID把NPZ labels与split/features锁强绑定的防错缺口已记录；当前实数据没有发现实际错配。新B审计会强制逐ID校验。",
+    "另端恢复账本": "缺state或换state_dir可能零重领的源码风险已记录，不据此认定当前运行已失账；本B新队列以固定allocation+丢账failclosed实现，绝不代重跑。"
+  },
+  "evidence_refs": [
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/species-misuse-audit-v1/analysis/B_scientific_impact.json",
+      "sha256": "fb60424519f9a86d2c76f2319d7553d4511af95944ba4ba9ca9ac07f9ae9cfcd"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/species-misuse-audit-v1/analysis/ROOT_historical_kind_recoding.json",
+      "sha256": "e7de39d35a744418ed09fca83f84040b1a98800cdabe094961583eef047282bd"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/species-misuse-audit-v1/analysis/ROOT_joint_correctness_precheck.json",
+      "sha256": "8eb4c13764945df78c2d61af4ad6a883392ff89402a2b78ef6e469a0d34828b1"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/species-misuse-audit-v1/analysis/ROOT_transfer_prediction_replay.json",
+      "sha256": "9f8b3930ffa00edb787f620a5b260b0b93afa284381705c4fe5f04a709ee7927"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/species-misuse-audit-v1/analysis/corrected_pipeline_independent_review.json",
+      "sha256": "f1a8588884011a17801d872fe14e4b25eeb592de7f080962a802784a825986a0"
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/species-misuse-audit-v1/analysis/existing_background_audit.json",
+      "sha256": "481b70851e17a4c623f6d3efe24bba0ffe811e41cd65848c7e39636c8a0c1aeb"
+    }
+  ]
+}

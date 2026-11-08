@@ -1,0 +1,651 @@
+"""Pinned species/role/prediction audit and one prespecified TRAIN-only control.
+
+Execution requires the live, cumulative-budget supervisor. No quantum code,
+hyperparameter search, calibration/prediction spectra or foreign queue is run.
+"""
+from __future__ import annotations
+
+import argparse
+import ast
+from collections import Counter, defaultdict
+import csv
+from datetime import datetime, timezone
+import gzip
+import hashlib
+import importlib.util
+import json
+import math
+import os
+from pathlib import Path
+import resource
+import signal
+import sys
+import time
+import traceback
+from zipfile import ZipFile
+
+AUDIT_ROOT = Path(__file__).resolve().parents[2]
+ROOT = next((p for p in AUDIT_ROOT.parents if (p / "AGENTS.md").is_file()), AUDIT_ROOT)
+SOURCE_COMMIT = "21d6edab24d198dc60b1ad4ef50e83602c9ecfa7"
+CONFIRMATION_COMMIT = "806584a5571c6a90ef37c6bfa915671b680ba48b"
+SCHEMA = "research4-b-species-audit-result-v1"
+MANIFEST_SCHEMA = "research4-b-species-audit-manifest-v1"
+KINDS = ("枣仁", "酸枣仁")
+TASK_KINDS = {"acid_origins": "酸枣仁", "jujube_origins": "枣仁", "huangqi_origins": "黄芪", "tianma_origins": "天麻"}
+TASKS = ("binary_kinds", "acid_origins", "four_kinds", "huangqi_origins", "tianma_origins", "jujube_origins")
+IDENTITY_FIELDS = ("record_id", "physical_sample_id", "physical_sample_id_basis", "origin_group_id", "species", "origin",
+                   "source_workbook", "excel_column", "scan_header", "batch_id", "dataset_version")
+
+
+def require(condition, message):
+    if not condition:
+        raise ValueError(message)
+
+
+def utc():
+    return datetime.now(timezone.utc).isoformat()
+
+
+def sha(path):
+    digest = hashlib.sha256()
+    with Path(path).open("rb") as handle:
+        for block in iter(lambda: handle.read(1024 ** 2), b""):
+            digest.update(block)
+    return digest.hexdigest()
+
+
+def local_path(value):
+    original = Path(value)
+    original = original if original.is_absolute() else ROOT / original
+    resolved = original.resolve()
+    require(resolved.is_relative_to(ROOT), "Input/output must remain in the B checkout")
+    require(not any(p.is_symlink() for p in (original, *original.parents)), "Symlink data paths are not accepted")
+    return resolved
+
+
+def ref(path):
+    p = local_path(path)
+    return {"path": str(p.relative_to(ROOT)), "sha256": sha(p), "bytes": p.stat().st_size}
+
+
+def checked(binding):
+    require(isinstance(binding, dict) and isinstance(binding.get("path"), str)
+            and isinstance(binding.get("sha256"), str) and len(binding["sha256"]) == 64, "Explicit path/SHA256 binding required")
+    path = local_path(binding["path"])
+    require(path.is_file() and path.stat().st_size <= 256 * 1024 ** 2, "Missing/oversized source file")
+    require(sha(path) == binding["sha256"], "Input hash changed: " + str(path))
+    require("bytes" not in binding or path.stat().st_size == binding["bytes"], "Input size changed")
+    return path
+
+
+def read_json(path):
+    require(Path(path).stat().st_size <= 16 * 1024 ** 2, "Bounded JSON source required")
+    return json.loads(Path(path).read_text())
+
+
+def save_json(path, value):
+    path = local_path(path)
+    temporary = path.with_name(path.name + ".writing-" + str(os.getpid()))
+    with temporary.open("x") as handle:
+        json.dump(value, handle, ensure_ascii=False, indent=2, allow_nan=False); handle.write("\n")
+        handle.flush(); os.fsync(handle.fileno())
+    os.replace(temporary, path)
+
+
+def write_csv(path, rows):
+    require(rows, "Nonempty CSV observations required")
+    fields = list(dict.fromkeys(key for row in rows for key in row))
+    with Path(path).open("x", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=fields, lineterminator="\n")
+        writer.writeheader(); writer.writerows(rows)
+
+
+def csv_rows(path):
+    opener = gzip.open if str(path).endswith(".gz") else open
+    with opener(path, "rt", encoding="utf-8-sig", newline="") as handle:
+        yield from csv.DictReader(handle)
+
+
+def load_module(path, name):
+    spec = importlib.util.spec_from_file_location(name, path)
+    require(spec is not None and spec.loader is not None, "Required module unavailable")
+    module = importlib.util.module_from_spec(spec); sys.modules[name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
+def nofork_metadata():
+    import platform
+    require(sys.platform == "linux" and hasattr(os, "uname"), "Linux no-fork metadata setup required")
+    value, source = os.uname().machine, "os.uname().machine architecture fallback"
+    with Path("/proc/cpuinfo").open() as handle:
+        text = handle.read(4 * 1024 ** 2 + 1)
+    require(len(text) <= 4 * 1024 ** 2, "CPU metadata exceeds bound")
+    for line in text.splitlines():
+        key, separator, observed = line.partition(":")
+        if separator and key.strip().lower() == "model name" and observed.strip():
+            value, source = observed.strip(), "/proc/cpuinfo:first model name"; break
+    platform._Processor.get = classmethod(lambda cls: value)
+    platform._uname_cache = None
+    require(platform.processor() == value, "No-fork processor metadata round trip failed")
+    return {"processor_value": value, "source": source, "platform_source_sha256": sha(platform.__file__), "subprocess_used": False}
+
+
+def metrics(truth, predicted, classes=None):
+    require(len(truth) == len(predicted) and len(truth) > 0, "Paired nonempty truth/predictions required")
+    labels = sorted(set(truth) | set(predicted)) if classes is None else list(classes)
+    require(len(labels) == len(set(labels)) and set(truth) <= set(labels) and set(predicted) <= set(labels), "Unknown/duplicate metric class")
+    table = Counter(zip(truth, predicted)); per_class = []
+    for label in labels:
+        true_count = sum(t == label for t in truth); predicted_count = sum(p == label for p in predicted)
+        correct = table[label, label]
+        precision = correct / predicted_count if predicted_count else 0.
+        recall = correct / true_count if true_count else 0.
+        f1 = 2 * precision * recall / (precision + recall) if precision + recall else 0.
+        per_class.append({"label": label, "N": true_count, "predicted_count": predicted_count,
+                          "correct_count": correct, "precision": precision, "recall": recall, "f1": f1})
+    correct = sum(t == p for t, p in zip(truth, predicted))
+    present = [row for row in per_class if row["N"]]
+    return {"N": len(truth), "correct_count": correct, "accuracy": correct / len(truth),
+            "macro_f1": sum(row["f1"] for row in per_class) / len(labels),
+            "balanced_accuracy": sum(row["recall"] for row in present) / len(present),
+            "per_class": per_class,
+            "confusion": [{"truth": a, "prediction": b, "count": table[a, b]} for a in labels for b in labels]}
+
+
+def unique_rows(rows, key, description):
+    result = {}
+    for row in rows:
+        require(row.get(key) and row[key] not in result, "Missing/duplicate " + description)
+        result[row[key]] = row
+    return result
+
+
+def validate_identity(registry, metadata_rows, split_rows, confirmation_rows, excel_rows, historical_split):
+    by_id = unique_rows(split_rows, "record_id", "split record ID")
+    metadata = unique_rows(metadata_rows, "record_id", "metadata record ID")
+    entries = unique_rows(registry["workbooks"], "path", "registry path")
+    confirmation = unique_rows(confirmation_rows, "group_id", "confirmation group")
+    excel = unique_rows(excel_rows, "group_id", "confirmation Excel group")
+    require(set(by_id) == set(metadata), "Metadata/split ID coverage differs")
+    require(all(row["dataset_version"] == registry["version"] for row in by_id.values()), "Registry/metadata dataset version differs")
+    require(set(confirmation) == set(excel) == {r["origin_group_id"] for r in entries.values()}, "Confirmed registry/Excel group coverage differs")
+    common = ("group_id", "new_path", "old_path", "uploaded_filename", "origin", "species", "record_count", "source_sha256", "output_sha256")
+    for group, row in confirmation.items():
+        require(all(str(row.get(key, "")) == str(excel[group].get(key, "")) for key in common), "CSV/Excel confirmation mismatch: " + group)
+    physical_roles, physical_ids, counts, columns = defaultdict(set), set(), Counter(), defaultdict(set)
+    for identifier, row in by_id.items():
+        require(all(row.get(field, "") == metadata[identifier].get(field, "") for field in IDENTITY_FIELDS), "Per-ID metadata/split identity mismatch: " + identifier)
+        require(row["role"] in ("train", "calibration", "prediction"), "Unknown master role")
+        require(row["physical_sample_id"] and row["physical_sample_id"] not in physical_ids, "Duplicate/empty physical specimen ID")
+        physical_ids.add(row["physical_sample_id"]); physical_roles[row["physical_sample_id"]].add(row["role"])
+        require(row["source_workbook"] in entries, "Unregistered specimen path")
+        entry = entries[row["source_workbook"]]; group = row["origin_group_id"]
+        require(group == entry["origin_group_id"] and row["species"] == entry["species"] and row["origin"] == entry["origin"], "Registry species/origin/path mismatch")
+        confirmed = confirmation[group]
+        require(confirmed["new_path"] == entry["path"] and confirmed["species"] == entry["species"]
+                and confirmed["origin"] == entry["origin"] and confirmed["output_sha256"] == entry["sha256"]
+                and int(confirmed["record_count"]) == int(entry["record_count"]), "Registry/user confirmation mismatch")
+        require(row["excel_column"] not in columns[row["source_workbook"]], "Duplicate workbook/Excel-column identity")
+        columns[row["source_workbook"]].add(row["excel_column"]); counts[row["source_workbook"]] += 1
+    require(counts == Counter({p: int(r["record_count"]) for p, r in entries.items()}), "Workbook specimen counts differ")
+    require(all(len(roles) == 1 for roles in physical_roles.values()), "Physical sample crosses master roles")
+    inherited = unique_rows(historical_split["records"], "record_id", "historical split ID")
+    old_ids = {identifier for identifier in by_id if identifier.startswith("ZY")}
+    require(old_ids == set(inherited), "Historical ZY split coverage differs")
+    require(all(by_id[i]["role"] == ("train" if inherited[i]["role"] == "training" else inherited[i]["role"]) for i in old_ids), "Historical ZY master role changed")
+    return {"by_id": by_id, "registry_by_path": entries,
+            "summary": {"records": len(by_id), "workbooks": len(entries), "physical_samples_unique": len(physical_ids),
+                        "role_counts": dict(Counter(r["role"] for r in by_id.values())), "historical_role_inheritance_verified": True,
+                        "species_role_counts": {kind: dict(Counter(r["role"] for r in by_id.values() if r["species"] == kind))
+                                                for kind in sorted({r["species"] for r in by_id.values()})},
+                        "label_authority": "User-confirmed Chinese kinds/origins; not independent Latin botanical authentication"}}
+
+
+def task_ids(task, by_id):
+    require(task in TASKS, "Unknown fixed prediction task")
+    def included(row):
+        return row["species"] in KINDS if task == "binary_kinds" else True if task == "four_kinds" else row["species"] == TASK_KINDS[task]
+    return {identifier for identifier, row in by_id.items() if row["role"] == "prediction" and included(row)}
+
+
+def audit_task_predictions(task, rows_iterable, by_id):
+    expected = task_ids(task, by_id); grouped = defaultdict(dict); selected = {}; count = 0
+    allowed = {by_id[i]["species"] if task in ("binary_kinds", "four_kinds") else by_id[i]["origin_group_id"] for i in expected}
+    for row in rows_iterable:
+        require(row["task"] == task and row["record_id"] in expected, "Prediction task/ID/role mismatch")
+        identifier = row["record_id"]; item = by_id[identifier]
+        truth = item["species"] if task in ("binary_kinds", "four_kinds") else item["origin_group_id"]
+        require(row["y_predicted"] in allowed, "Predicted label is outside the fixed task classes")
+        require(row["y_true"] == truth and row["is_correct"] in ("0", "1")
+                and int(row["is_correct"]) == int(row["y_predicted"] == truth), "Frozen prediction truth/correctness mismatch")
+        key = (row["model"], row["method"], row["shots_per_class"], row["repeat"])
+        require(identifier not in grouped[key], "Duplicate prediction within fixed role/model")
+        grouped[key][identifier] = row; count += 1
+    summary = []
+    for key, rows in grouped.items():
+        require(set(rows) == expected, "Incomplete fixed prediction-role coverage")
+        model, method, shots, repeat = key
+        if method not in ("source_only", "train_plus_calibration_full_retrain"):
+            continue
+        require((method == "source_only" and shots == "0") or (method == "train_plus_calibration_full_retrain" and shots == "all"), "Unexpected frozen source/refit shot role")
+        require(repeat == "0", "Unexpected repeated source/refit prediction role")
+        identifiers = sorted(expected)
+        score = metrics([rows[i]["y_true"] for i in identifiers], [rows[i]["y_predicted"] for i in identifiers])
+        summary.append({"task": task, "model": model, "method": method, "shots_per_class": shots, "repeat": repeat, **score})
+        selected[key] = rows
+    require(summary, "No fixed source/refit predictions found")
+    return summary, selected, {"rows_verified": count, "fixed_prediction_records": len(expected), "all_per_ID_truth_and_roles_match": True,
+                               "observed_role_model_keys": [list(key) for key in sorted(grouped)]}
+
+
+def joint_correctness(gate_by_id, branches_by_species, by_id):
+    expected = {i for i, row in by_id.items() if row["role"] == "prediction"}
+    require(set(gate_by_id) == expected, "Four-kind gate must cover the full fixed prediction cohort")
+    rows = []
+    for identifier in sorted(expected):
+        item = by_id[identifier]; true_kind, predicted_kind = item["species"], gate_by_id[identifier]
+        require(predicted_kind in branches_by_species, "Unknown predicted gate kind")
+        routed_correctly = predicted_kind == true_kind
+        if routed_correctly:
+            require(identifier in branches_by_species[predicted_kind], "Correctly routed specimen lacks its frozen origin prediction")
+            predicted_origin = branches_by_species[predicted_kind][identifier]
+            origin_correct = predicted_origin == item["origin_group_id"]
+        else:
+            predicted_origin = "NOT_COMPUTED_WRONG_ROUTE"
+            origin_correct = False
+        rows.append({"record_id": identifier, "true_species": true_kind, "predicted_species": predicted_kind,
+                     "true_origin_group": item["origin_group_id"], "predicted_origin_group": predicted_origin,
+                     "species_correct": int(routed_correctly), "origin_component_evaluated": int(routed_correctly),
+                     "joint_correct": int(routed_correctly and origin_correct)})
+    correct = sum(row["joint_correct"] for row in rows)
+    return {"N": len(rows), "exact_joint_correct_count": correct, "exact_joint_accuracy": correct / len(rows),
+            "wrong_route_count": sum(not row["species_correct"] for row in rows),
+            "by_true_species": [{"species": kind, "N": len(block), "exact_joint_correct_count": sum(r["joint_correct"] for r in block),
+                                  "exact_joint_accuracy": sum(r["joint_correct"] for r in block) / len(block)}
+                                 for kind in sorted({r["true_species"] for r in rows})
+                                 for block in [[r for r in rows if r["true_species"] == kind]]],
+            "full_routed_origin_predictions": "NOT_COMPUTED", "full_joint_macro_f1": "NOT_COMPUTED",
+            "rule": "Exact same-ID conjunction of fixed species gate and correct-route origin; never product of marginal accuracies or a conditional-subset system score",
+            "scope": "Retrospective composition of frozen components, not a newly trained or fully evaluated routed hierarchy"}, rows
+
+
+def audit_legacy_predictions(rows_iterable, by_id):
+    expected = {i for i in by_id if i.startswith("ZY")}; grouped = defaultdict(dict)
+    group_kind = {}
+    for identifier in expected:
+        item = by_id[identifier]
+        require(item["origin_group_id"] not in group_kind or group_kind[item["origin_group_id"]] == item["species"], "Legacy group mixes confirmed kinds internally")
+        group_kind[item["origin_group_id"]] = item["species"]
+    for row in rows_iterable:
+        identifier = row["record_id"]
+        require(identifier in expected and row["y_true"] == by_id[identifier]["origin_group_id"], "Legacy OOF truth/ID mismatch")
+        require(row["y_predicted"] in group_kind, "Unknown legacy predicted group")
+        require(row["is_correct"] in ("0", "1") and int(row["is_correct"]) == int(row["y_true"] == row["y_predicted"]),
+                "Legacy saved correctness differs from its fixed prediction")
+        require(identifier not in grouped[row["method"]], "Duplicate legacy OOF specimen")
+        grouped[row["method"]][identifier] = row
+    output = []
+    for method, rows in sorted(grouped.items()):
+        require(set(rows) == expected, "Incomplete legacy OOF coverage")
+        identifiers = sorted(expected)
+        old = metrics([rows[i]["y_true"] for i in identifiers], [rows[i]["y_predicted"] for i in identifiers])
+        kinds = metrics([by_id[i]["species"] for i in identifiers], [group_kind[rows[i]["y_predicted"]] for i in identifiers], list(KINDS))
+        output.append({"method": method, "original_group_metrics": old, "posthoc_species_recoded_metrics": kinds,
+                       "interpretation": "Old frozen OOF predictions recoded after label correction; no new fit, pure-species origin benchmark or independent confirmation"})
+    return output
+
+
+def paired_group_folds(rows, np, seed=20261108):
+    require(rows and all(r["role"] == "train" and r["species"] in KINDS for r in rows), "Group control accepts only master TRAIN of the two kinds")
+    unique_rows(rows, "record_id", "TRAIN control ID")
+    rng = np.random.Generator(np.random.PCG64(seed)); permutations = {}
+    for kind in KINDS:
+        groups = sorted({r["origin_group_id"] for r in rows if r["species"] == kind})
+        require(len(groups) == 5, "Exactly five source groups per kind required")
+        permutations[kind] = rng.permutation(groups).tolist()
+    folds, tested = [], []
+    for fold in range(5):
+        held = [permutations[kind][fold] for kind in KINDS]
+        train = sorted(r["record_id"] for r in rows if r["origin_group_id"] not in held)
+        test = sorted(r["record_id"] for r in rows if r["origin_group_id"] in held)
+        require(not set(train) & set(test) and set(train) | set(test) == {r["record_id"] for r in rows}, "Group fold role leakage")
+        train_groups = {r["origin_group_id"] for r in rows if r["record_id"] in set(train)}
+        require(not train_groups & set(held), "Source group crosses fold roles")
+        folds.append({"fold": fold, "held_out_groups": held, "train_ids": train, "test_ids": test,
+                      "train_kind_counts": dict(Counter(r["species"] for r in rows if r["record_id"] in set(train))),
+                      "test_kind_counts": dict(Counter(r["species"] for r in rows if r["record_id"] in set(test)))})
+        tested.extend(test)
+    require(len(tested) == len(rows) and len(set(tested)) == len(rows), "Every TRAIN specimen must be tested once")
+    return folds, permutations
+
+
+def load_pinned_snv(path, np):
+    tree = ast.parse(Path(path).read_text())
+    functions = [node for node in tree.body if isinstance(node, ast.FunctionDef) and node.name == "_snv"]
+    require(len(functions) == 1, "One pinned SNV function required")
+    std_calls = [node for node in ast.walk(functions[0]) if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute) and node.func.attr == "std"]
+    require(len(std_calls) == 1 and any(k.arg == "ddof" and isinstance(k.value, ast.Constant) and k.value.value == 1 for k in std_calls[0].keywords), "Pinned SNV sample-standard-deviation ddof=1 required")
+    namespace = {"np": np}
+    exec(compile(ast.Module(body=functions, type_ignores=[]), str(path), "exec"), namespace)
+    return namespace["_snv"]
+
+
+def extract_train_alpha(registry, split_rows, raw_refs, helper, np, emit=lambda *a, **k: None):
+    selected = [r for r in split_rows if r["role"] == "train" and r["species"] in KINDS]
+    wanted_paths = {r["source_workbook"] for r in selected}
+    sources = unique_rows(raw_refs, "registry_path", "raw workbook reference")
+    require(set(sources) == wanted_paths, "Raw workbook access must be exactly the two-kind TRAIN source groups")
+    entries = {row["path"]: row for row in registry["workbooks"]}
+    by_id, reference_axis, audits = {}, None, []
+    for workbook in sorted(wanted_paths):
+        entry = entries[workbook]; binding = sources[workbook]["source"]
+        require(binding["sha256"] == entry["sha256"], "Raw workbook hash differs from pinned registry")
+        path = checked(binding)
+        records = sorted((r for r in selected if r["source_workbook"] == workbook), key=lambda r: helper.column_index_from_string(r["excel_column"]))
+        columns = [helper.column_index_from_string(r["excel_column"]) for r in records]
+        require(len(columns) == len(set(columns)) and all(column > 1 for column in columns), "Unique explicit TRAIN columns required")
+        allowed = set(columns) | {1}; original_cell_value = helper.cell_value; decoded = Counter()
+        def guarded_cell_value(cell, strings):
+            coordinate = cell.get("r", ""); letters = "".join(c for c in coordinate if c.isalpha())
+            column = helper.column_index_from_string(letters)
+            require(column in allowed, "CAL/PRED or other unapproved feature column reached numeric decoder")
+            decoded[column] += 1
+            return original_cell_value(cell, strings)
+        helper.cell_value = guarded_cell_value
+        try:
+            with ZipFile(path) as archive:
+                members, strings = helper.sheet_members(archive), helper.shared_strings(archive)
+                require("吸收系数" in members, "Absorption sheet missing")
+                headers, axis, spectra, original_rows = helper.read_sheet(archive, members["吸收系数"], strings, columns)
+        finally:
+            helper.cell_value = original_cell_value
+        require(headers[1:] == [r["scan_header"] for r in records], "TRAIN raw headers differ from pinned specimen metadata")
+        require(axis.ndim == 1 and spectra.shape == (len(records), len(axis)) and np.isfinite(spectra).all()
+                and np.isfinite(axis).all() and np.all(np.diff(axis) > 0), "Finite increasing raw TRAIN spectra/axis required")
+        mask = (axis >= .1) & (axis <= 1.5)
+        require(int(mask.sum()) == 612, "Exactly 612 original inclusive 0.1-1.5 frequency coordinates required")
+        if reference_axis is None:
+            reference_axis = axis[mask].copy()
+        require(np.array_equal(reference_axis, axis[mask]), "Axes differ; interpolation is forbidden in this control")
+        for record, values in zip(records, spectra[:, mask]):
+            require(record["record_id"] not in by_id, "Duplicate extracted TRAIN ID")
+            by_id[record["record_id"]] = values.copy()
+        require(sha(path) == binding["sha256"], "Raw workbook changed during extraction")
+        audits.append({"registry_path": workbook, "source": ref(path), "TRAIN_ids": [r["record_id"] for r in records],
+                       "TRAIN_excel_columns": [r["excel_column"] for r in records], "decoded_column_numbers": sorted(decoded),
+                       "unapproved_columns_decoded": 0, "original_numeric_rows": len(axis), "selected_original_row_numbers": [original_rows[i] for i in np.flatnonzero(mask)],
+                       "feature_count": 612, "CAL_or_PRED_spectra_extracted": False})
+        emit("TRAIN_workbook_extracted", path=workbook, records=len(records), frequency_points=612)
+    ordered = sorted(selected, key=lambda r: r["record_id"])
+    require(set(by_id) == {r["record_id"] for r in ordered}, "TRAIN extraction coverage differs")
+    matrix = np.vstack([by_id[r["record_id"]] for r in ordered])
+    return matrix, reference_axis, ordered, {"workbooks": audits, "feature_policy": "Only numeric absorption values at 612 original coordinates; no IDs, paths, labels or metadata are numerical predictors", "feature_sha256": hashlib.sha256(np.ascontiguousarray(matrix, dtype='<f8').tobytes()).hexdigest(),
+        "axis_sha256": hashlib.sha256(np.ascontiguousarray(reference_axis, dtype='<f8').tobytes()).hexdigest(),
+        "XML_scope": "Hashing/ZIP/XML traversal necessarily reads container bytes, but only axis and explicit TRAIN columns reach the numeric cell decoder; no CAL/PRED spectral vectors are extracted or fitted."}
+
+
+def fit_fixed_fullsvm(train, labels, test):
+    from sklearn.preprocessing import StandardScaler
+    from sklearn.svm import SVC
+    scaler = StandardScaler().fit(train)
+    estimator = SVC(C=10., gamma="scale", class_weight="balanced", random_state=42,
+                    decision_function_shape="ovr", break_ties=False)
+    estimator.fit(scaler.transform(train), labels)
+    return estimator.predict(scaler.transform(test))
+
+
+def run_group_control(X, axis, rows, protocol, np, fit_predict=None, snv=None, progress=None):
+    fit_predict = fit_fixed_fullsvm if fit_predict is None else fit_predict
+    require(X.shape == (len(rows), 612) and axis.shape == (612,) and np.isfinite(X).all()
+            and np.isfinite(axis).all() and np.all(np.diff(axis) > 0) and axis[0] >= .1 and axis[-1] <= 1.5,
+            "Original finite increasing 612-point 0.1-1.5 TRAIN matrix required")
+    require(snv is not None, "Pinned SNV callable required")
+    control = protocol["group_control"] if "group_control" in protocol else protocol
+    folds, permutations = paired_group_folds(rows, np, seed=20261108)
+    require([{k: row[k] for k in ("fold", "held_out_groups")} for row in folds] == control["folds"], "Computed source-group pairing differs from the predeclared protocol")
+    by_id = {r["record_id"]: i for i, r in enumerate(rows)}
+    predictions, receipts = [], []
+    for fold in folds:
+        train = np.asarray([by_id[i] for i in fold["train_ids"]]); test = np.asarray([by_id[i] for i in fold["test_ids"]])
+        train_X, test_X = snv(X[train]), snv(X[test])
+        true_fit = np.asarray([rows[i]["species"] for i in train]); truth = [rows[i]["species"] for i in test]
+        for seed in (None, 42, 43, 44):
+            labels = true_fit.copy()
+            if seed is not None:
+                labels = np.random.default_rng(np.random.SeedSequence([20261108, seed, fold["fold"]])).permutation(labels)
+            started = time.process_time()
+            key = "real" if seed is None else "permuted_fit_labels_seed" + str(seed)
+            if progress is not None:
+                progress("fit_started", {"control": key, "fold": fold["fold"]})
+            predicted = list(map(str, fit_predict(train_X, labels, test_X)))
+            require(len(predicted) == len(test) and set(predicted) <= set(KINDS), "Invalid fixed-control predictions")
+            receipts.append({**fold, "control": key, "permutation_seed": seed, "fit_rows": len(train), "test_rows": len(test),
+                             "true_fit_kind_counts": dict(Counter(map(str, true_fit))), "actual_fit_kind_counts": dict(Counter(map(str, labels))),
+                             "fit_labels_sha256": hashlib.sha256(json.dumps(list(map(str, labels)), ensure_ascii=False).encode()).hexdigest(),
+                             "fit_spectra_sha256": hashlib.sha256(np.ascontiguousarray(train_X, dtype='<f8').tobytes()).hexdigest(),
+                             "master_roles_accessed_for_spectra": ["train"], "test_truth_permuted": False,
+                             "process_cpu_seconds": time.process_time() - started})
+            current_predictions = []
+            for index, true, pred in zip(test, truth, predicted):
+                current_predictions.append({"control": key, "fold": fold["fold"], "record_id": rows[index]["record_id"],
+                                    "physical_sample_id": rows[index]["physical_sample_id"], "origin_group_id": rows[index]["origin_group_id"],
+                                    "master_role": "train", "y_true": true, "y_predicted": pred, "is_correct": int(true == pred)})
+            predictions.extend(current_predictions)
+            if progress is not None:
+                progress("fit_completed", {"receipt": receipts[-1], "predictions": current_predictions})
+    summaries = []
+    for control_name in ("real", "permuted_fit_labels_seed42", "permuted_fit_labels_seed43", "permuted_fit_labels_seed44"):
+        selected = [r for r in predictions if r["control"] == control_name]
+        require(len(selected) == len(rows) and len({r["record_id"] for r in selected}) == len(rows), "Control OOF coverage is not exactly once per TRAIN specimen")
+        score = metrics([r["y_true"] for r in selected], [r["y_predicted"] for r in selected], list(KINDS))
+        group_recall = [{"origin_group_id": group, "N": len(block), "correct_count": sum(r["is_correct"] for r in block),
+                         "recall": sum(r["is_correct"] for r in block) / len(block)}
+                        for group in sorted({r["origin_group_id"] for r in selected})
+                        for block in [[r for r in selected if r["origin_group_id"] == group]]]
+        summaries.append({"control": control_name, **score, "per_origin_group_recall": group_recall,
+                          "unweighted_mean_origin_group_recall": sum(r["recall"] for r in group_recall) / len(group_recall)})
+    return {"actual_fits": len(receipts), "group_permutations": permutations, "results": summaries,
+            "scope": "Retrospective master-TRAIN-only leave-source-group-out development diagnostic, not a new batch or independent confirmation",
+            "p_value": "NOT_COMPUTED; three fit-label permutations do not support inferential significance",
+            "seeds_do_not_increase_independent_N": True, "model_search_performed": False}, predictions, receipts
+
+
+def read_confirmation_excel(path):
+    from openpyxl import load_workbook
+    workbook = load_workbook(path, read_only=True, data_only=True)
+    try:
+        require("当前18份工作簿" in workbook.sheetnames, "Prespecified confirmation worksheet missing")
+        values = list(workbook["当前18份工作簿"].iter_rows(values_only=True))
+        header = list(values[0]); require(len(header) == len(set(header)), "Duplicate confirmation header")
+        return [{key: "" if value is None else str(value) for key, value in zip(header, row)} for row in values[1:] if any(v is not None for v in row)]
+    finally:
+        workbook.close()
+
+
+def collect_refs(value):
+    if isinstance(value, dict):
+        if "path" in value and "sha256" in value:
+            yield value
+        else:
+            for item in value.values():
+                yield from collect_refs(item)
+    elif isinstance(value, list):
+        for item in value:
+            yield from collect_refs(item)
+
+
+def validate_protocol(protocol):
+    require(protocol.get("schema") == "research4-b-species-audit-protocol-v1"
+            and protocol.get("source_ref") == SOURCE_COMMIT and protocol.get("confirmed_main_ref") == CONFIRMATION_COMMIT
+            and protocol.get("frozen_before_new_control_fitting") is True, "Frozen pinned protocol required")
+    group = protocol["group_control"]
+    require(group["record_count"] == 516 and group["kind_counts"] == {"枣仁": 216, "酸枣仁": 300}
+            and group["paired_group_seed"] == 20261108 and group["total_fits"] == 20
+            and group["fixed_pipeline"]["SNV"]["std_ddof"] == 1
+            and group["fixed_pipeline"]["SVC"] == {"C": 10., "gamma": "scale", "class_weight": "balanced", "decision_function_shape": "ovr", "break_ties": False, "random_state": 42}
+            and group["label_permutation_controls"]["seeds"] == [42, 43, 44], "Fixed group-control policy changed")
+    joint = protocol["joint_components"]
+    require(joint["gate"] == {"task": "four_kinds", "model": "full_svm", "method": "source_only", "shots": 0, "repeat": 0}
+            and joint["origins"] == {"酸枣仁": {"task": "acid_origins", "model": "R2_reselected"},
+                                     "枣仁": {"task": "jujube_origins", "model": "full_svm"},
+                                     "黄芪": {"task": "huangqi_origins", "model": "full_svm"},
+                                     "天麻": {"task": "tianma_origins", "model": "full_svm"}}
+            and joint["method"] == "source_only" and joint["no_model_selection_from_prediction_scores"] is True,
+            "Prespecified joint component policy changed")
+
+
+def execute_modules(manifest, output, state, emit):
+    import numpy as np
+    import scipy
+    import sklearn
+    import openpyxl
+    from threadpoolctl import threadpool_limits
+    state["versions"] = {"python": sys.version.split()[0], "numpy": np.__version__, "scipy": scipy.__version__,
+                         "sklearn": sklearn.__version__, "openpyxl": openpyxl.__version__, "numerical_threads": 1}
+    inputs = manifest["inputs"]
+    protocol = read_json(checked(inputs["protocol"])); validate_protocol(protocol)
+    require(inputs["split"]["sha256"] == protocol["group_control"]["split_manifest_sha256"], "Split hash differs from predeclared group-control protocol")
+    declared = {(str(local_path(r["path"])), r["sha256"]) for r in manifest["input_refs"]}
+    for binding in collect_refs(inputs):
+        require((str(local_path(binding["path"])), binding["sha256"]) in declared, "Nested source missing from supervisor input_refs")
+        checked(binding)
+    pinned = AUDIT_ROOT / "remote_snapshot" / SOURCE_COMMIT
+    for key in ("registry", "metadata", "split", "historical_split", "confirmation_xlsx", "feature_reader", "spectral_models_source"):
+        require(checked(inputs[key]).is_relative_to(pinned), "Input is not in the exact pinned revision snapshot: " + key)
+    require(checked(inputs["confirmation_csv"]).is_relative_to(AUDIT_ROOT / "remote_snapshot" / CONFIRMATION_COMMIT), "Confirmation CSV is not from pinned main")
+    registry = read_json(checked(inputs["registry"]))
+    metadata, split = list(csv_rows(checked(inputs["metadata"]))), list(csv_rows(checked(inputs["split"])))
+    identity = validate_identity(registry, metadata, split, list(csv_rows(checked(inputs["confirmation_csv"]))),
+                                 read_confirmation_excel(checked(inputs["confirmation_xlsx"])), read_json(checked(inputs["historical_split"])))
+    require(identity["summary"]["records"] == 1672 and identity["summary"]["workbooks"] == 18, "Pinned full identity population differs")
+    state["identity_audit"] = identity["summary"]; save_json(output / "identity_audit.json", identity["summary"])
+    by_id = identity["by_id"]
+    legacy = audit_legacy_predictions(csv_rows(checked(inputs["legacy_core_predictions"])), by_id)
+    save_json(output / "legacy_species_recoding.json", legacy)
+    emit("identity_and_legacy_audit_complete", records=len(by_id))
+    task_summaries, task_selected, prediction_checks = [], {}, {}
+    require(set(inputs["task_predictions"]) == set(TASKS), "Exactly six pinned task prediction files required")
+    for task in TASKS:
+        path = checked(inputs["task_predictions"][task]); require(path.is_relative_to(pinned), "Task predictions are outside pinned revision")
+        summaries, selected, checks = audit_task_predictions(task, csv_rows(path), by_id)
+        task_summaries.extend(summaries); task_selected[task] = selected; prediction_checks[task] = checks
+        emit("fixed_task_predictions_recounted", task=task, rows_verified=checks["rows_verified"])
+    save_json(output / "corrected_prediction_recount.json", {"metrics": task_summaries, "ID_truth_role_checks": prediction_checks,
+              "scope": "Independent score recomputation of already frozen predictions; no corrected model retraining"})
+    joint_config = protocol["joint_components"]
+    gate_key = (joint_config["gate"]["model"], "source_only", "0", "0")
+    gate = {i: r["y_predicted"] for i, r in task_selected["four_kinds"][gate_key].items()}
+    branches = {kind: {i: r["y_predicted"] for i, r in task_selected[config["task"]][(config["model"], "source_only", "0", "0")].items()}
+                for kind, config in joint_config["origins"].items()}
+    joint_summary, joint_rows = joint_correctness(gate, branches, by_id)
+    save_json(output / "joint_components_exact_correctness.json", joint_summary); write_csv(output / "joint_components_per_ID.csv", joint_rows)
+    state["joint_components"] = joint_summary
+    emit("fixed_components_exact_joint_correctness_complete", N=joint_summary["N"], exact_correct=joint_summary["exact_joint_correct_count"])
+    helper = load_module(checked(inputs["feature_reader"]), "pinned_species_revision_XML_reader")
+    snv = load_pinned_snv(checked(inputs["spectral_models_source"]), np)
+    state["SNV_implementation"] = {"source": inputs["spectral_models_source"], "function": "_snv",
+                                    "reuse": "AST-extracted exact pinned function; no other package module executed", "std_ddof": 1}
+    X, axis, rows, extraction = extract_train_alpha(registry, split, inputs["raw_workbooks"], helper, np, emit)
+    require(len(rows) == 516 and Counter(r["species"] for r in rows) == Counter({"枣仁": 216, "酸枣仁": 300}), "TRAIN-only two-kind control population differs")
+    save_json(output / "TRAIN_feature_access_audit.json", extraction)
+    np.save(output / "TRAIN_axis.npy", axis, allow_pickle=False)
+    # No CAL/PRED spectral matrix is instantiated, saved, transformed or fitted.
+    state["new_fitting_entered"] = True
+    emit("TRAIN_only_fixed_control_started", records=len(rows), planned_fits=20)
+    partial_receipts, partial_predictions = [], []
+    state["actual_new_model_fit_calls_started"] = 0
+    def fit_progress(event, observation):
+        if event == "fit_started":
+            state["actual_new_model_fit_calls_started"] += 1
+            emit("TRAIN_only_fit_started", **observation)
+        else:
+            partial_receipts.append(observation["receipt"]); partial_predictions.extend(observation["predictions"])
+            state["actual_new_model_fits"] = len(partial_receipts)
+            save_json(output / "TRAIN_only_partial_fit_receipts.json", partial_receipts)
+            save_json(output / "TRAIN_only_partial_predictions.json", partial_predictions)
+            emit("TRAIN_only_fit_completed", control=observation["receipt"]["control"],
+                 fold=observation["receipt"]["fold"], fit_process_cpu_seconds=observation["receipt"]["process_cpu_seconds"],
+                 completed_model_fits=len(partial_receipts))
+    with threadpool_limits(limits=1):
+        control, predictions, receipts = run_group_control(X, axis, rows, protocol, np, snv=snv, progress=fit_progress)
+    require(control["actual_fits"] == 20, "Unexpected model fit count")
+    save_json(output / "TRAIN_only_group_control.json", control)
+    save_json(output / "TRAIN_only_fit_receipts.json", receipts)
+    write_csv(output / "TRAIN_only_group_OOF_predictions.csv", predictions)
+    state.update(status="SPECIES_AUDIT_COMPLETE", actual_new_model_fits=20, TRAIN_only_control=control,
+                 legacy_recoding=legacy, corrected_prediction_roles=prediction_checks,
+                 no_new_independent_confirmation=True, corrected_classification_retrained=False,
+                 CAL_PRED_spectra_extracted=False, quantum_evaluations=0)
+    conclusion = ["本次为已曝光数据的回顾性审计与TRAIN-only固定开发诊断。旧ZY分类分数不再称纯酸枣仁产地准确率。",
+        "已逐ID核对用户确认种类/来源、固定角色与六任务冻结预测；联合正确数采用同ID逻辑与，不相乘准确率。错误路由的产地输出未计算，完整系统macro-F1未计算。",
+        f"冻结组件联合正确数={joint_summary['exact_joint_correct_count']}/{joint_summary['N']}，联合正确率={joint_summary['exact_joint_accuracy']:.8f}；错误路由={joint_summary['wrong_route_count']}。这不是完整路由系统的混淆评价或新层级模型。",
+        "新20次拟合只使用516条master TRAIN的原612点吸收系数，按预先固定的五个来源组配对留出；每条TRAIN在真实控制和每个置乱控制中分别仅测试一次。CAL/PRED光谱未提取。"]
+    for result in control["results"]:
+        conclusion.append(f"{result['control']}: {result['correct_count']}/{result['N']}，Accuracy={result['accuracy']:.8f}，Macro-F1={result['macro_f1']:.8f}，BalancedAccuracy={result['balanced_accuracy']:.8f}，不加权来源组平均召回={result['unweighted_mean_origin_group_recall']:.8f}。")
+    conclusion.extend(["每fold训练类别数、极小枣仁训练池、逐来源组召回与全部置乱负对照保留。三种置乱seed不增加样本数，不产生p值；这些来源组不是已核实的新批次。",
+                       "任何低泛化分数、较高置乱分数或未见迁移收益均照实保留，不作为修改参数、筛seed或重试追高分的条件。"])
+    (output / "analysis_conclusion_zh.txt").write_text("\n".join(conclusion) + "\n")
+
+
+def run(args):
+    manifest_path = checked({"path": str(args.manifest), "sha256": args.manifest_sha256})
+    manifest = read_json(manifest_path)
+    require(manifest.get("schema") == MANIFEST_SCHEMA, "Wrong species audit manifest schema")
+    if not args.execute:
+        return {"schema": SCHEMA, "status": "NOT_RUN", "manifest": ref(manifest_path), "new_model_fits": 0, "quantum_evaluations": 0}
+    supervisor_path = checked(manifest["supervisor"])
+    require(supervisor_path == Path(__file__).with_name("species_audit_supervisor.py"), "Unexpected live supervisor source")
+    require(checked(manifest["worker"]["source"]) == Path(__file__).resolve(), "Manifest worker source differs")
+    supervisor = load_module(supervisor_path, "species_audit_live_supervisor")
+    supervision = supervisor.verify_resource_supervision(expected_worker_path=Path(__file__).resolve(), expected_threads=1,
+                  expected_manifest_sha256=args.manifest_sha256, expected_proof_path=args.proof)
+    metadata = nofork_metadata()
+    for name in ("OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS", "MKL_NUM_THREADS", "NUMEXPR_NUM_THREADS", "VECLIB_MAXIMUM_THREADS"):
+        os.environ[name] = "1"
+    output = local_path(args.output)
+    require(output.is_relative_to(AUDIT_ROOT) and not output.exists(), "Fresh output under this species audit root required")
+    output.mkdir(parents=True)
+    started, cpu = time.perf_counter(), time.process_time()
+    state = {"schema": SCHEMA, "status": "PARTIAL", "manifest": ref(manifest_path), "source_worker": ref(__file__),
+             "resource_supervision": supervision, "platform_processor_nofork": metadata, "started_at_utc": utc(),
+             "output_directory": str(output), "new_fitting_entered": False, "actual_new_model_fits": 0,
+             "quantum_evaluations": 0, "foreign_queue_touched": False, "existing_inputs_modified": False}
+    def emit(event, **data):
+        row = {"utc": utc(), "event": event, "wall_seconds": time.perf_counter() - started,
+               "process_cpu_seconds": time.process_time() - cpu, **data}
+        with (output / "events.jsonl").open("a") as handle:
+            handle.write(json.dumps(row, ensure_ascii=False, allow_nan=False) + "\n"); handle.flush()
+        save_json(output / "progress.json", {**state, **row})
+    def interrupted(signum, _):
+        raise RuntimeError("Species audit resource/termination signal " + str(signum))
+    handlers = {sig: signal.signal(sig, interrupted) for sig in (signal.SIGTERM, signal.SIGINT, signal.SIGXCPU)}
+    try:
+        emit("species_audit_started")
+        execute_modules(manifest, output, state, emit)
+    except BaseException as error:
+        state.update(status="PARTIAL", exception_type=type(error).__name__, stop_reason=str(error))
+        (output / "exception_traceback.txt").write_text(traceback.format_exc())
+    finally:
+        for sig, previous in handlers.items():
+            signal.signal(sig, previous)
+        state.update(completed_at_utc=utc(), process_cpu_seconds=time.process_time() - cpu,
+                     wall_seconds=time.perf_counter() - started, peak_rss_kib=resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
+        state["output_artifacts"] = [ref(p) for p in sorted(output.iterdir()) if p.is_file() and p.name != "result.json"]
+        save_json(output / "result.json", state)
+    return state
+
+
+def parser():
+    p = argparse.ArgumentParser(description=__doc__)
+    p.add_argument("--manifest", type=Path, required=True); p.add_argument("--manifest-sha256", required=True)
+    p.add_argument("--output", type=Path, required=True); p.add_argument("--proof", type=Path)
+    p.add_argument("--execute", action="store_true")
+    return p
+
+
+if __name__ == "__main__":
+    args = parser().parse_args(); result = run(args)
+    print(json.dumps({key: result.get(key) for key in ("schema", "status", "stop_reason")}, ensure_ascii=False), flush=True)
+    if args.execute and result["status"] != "SPECIES_AUDIT_COMPLETE":
+        raise SystemExit(2)

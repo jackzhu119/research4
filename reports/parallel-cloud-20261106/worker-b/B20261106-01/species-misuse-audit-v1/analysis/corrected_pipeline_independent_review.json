@@ -1,0 +1,307 @@
+{
+  "schema": "research4-corrected-species-pipeline-independent-review-v1",
+  "created_utc": "2026-11-08T04:12:52.897797+00:00",
+  "reviewer": "/root/recovery_science_audit",
+  "independent_roles_reviewer": "/root/recovery_science_audit/species_roles",
+  "pinned_corrected_commit": "21d6edab24d198dc60b1ad4ef50e83602c9ecfa7",
+  "pinned_confirmation_commit": "806584a5571c6a90ef37c6bfa915671b680ba48b",
+  "status": "NO_OBSERVED_LABEL_ROLE_OR_FIT_SCOPE_ERROR_WITH_EXPLICIT_LIMITATIONS",
+  "scope": {
+    "read_only_static_and_offline_arithmetic": true,
+    "new_model_fits": 0,
+    "quantum_kernels": 0,
+    "git_operations": 0,
+    "existing_inputs_or_code_modified": false,
+    "new_queue_started": false,
+    "only_created_file": "analysis/corrected_pipeline_independent_review.json",
+    "actual_feature_npz_or_all_fitted_models_audited": false,
+    "numerical_predictions_replay": "Separate parent audit; reported scores below are not newly recomputed model predictions in this review."
+  },
+  "verified": [
+    {
+      "id": "current_labels_and_ids",
+      "result": "PASS",
+      "records": 1672,
+      "record_ids_unique": 1672,
+      "physical_sample_ids_unique": 1672,
+      "role_counts": {
+        "train": 999,
+        "calibration": 334,
+        "prediction": 339
+      },
+      "physical_id_role_pairwise_intersections": 0,
+      "details": "Every manifest row species/origin/group/workbook agrees with the 18-workbook user confirmation and active registry. All 1672 IDs and eleven identity/label/source fields agree with pinned metadata; no observed label mismatch."
+    },
+    {
+      "id": "role_inheritance",
+      "result": "PASS",
+      "historical_records": 855,
+      "historical_role_counts": {
+        "train": 513,
+        "calibration": 171,
+        "prediction": 171
+      },
+      "historical_per_id_role_mismatches": 0,
+      "added_records": 817,
+      "added_role_counts": {
+        "train": 486,
+        "calibration": 163,
+        "prediction": 168
+      },
+      "added_per_id_role_replay_mismatches": 0,
+      "details": "Historical plan and metadata were read from immutable pinned raw URLs into memory only and SHA checked against protocol. Added-role SHA256(seed:group) -> PCG64 allocation independently replayed."
+    },
+    {
+      "id": "kind_task_separation",
+      "result": "PASS_STATIC",
+      "details": "binary_kinds uses only 枣仁/酸枣仁 labels; acid_origins filters 酸枣仁 and labels ZY03..ZY07; each other within-kind task filters the proper Chinese kind before origin-group scoring. Four-kind identification is separate. Chinese user-confirmed labels are not independent Latin botanical authentication."
+    },
+    {
+      "id": "fit_selection_and_calibration_scope",
+      "result": "PASS_STATIC",
+      "details": "Classifier inner selection receives X/y/IDs of train only; two-fold validation chooses fixed candidates before prediction. Hash-verified historical fit_transform_bundle fits scaler/MC selector on its current training partition only; caches include training X/y fingerprints. Full refit explicitly uses train+CAL only and is a separate method. Calibration PCA/distance context fits source only; the two selected anchor adapters fit support scores/labels, with no query labels or query statistics."
+    },
+    {
+      "id": "calibration_rule_controls",
+      "result": "PASS_STATIC",
+      "details": "Source SVC vote and score argmax are both retained, making score-correction gains interpretable against the same argmax rule. K=1/3/5/10 draws are nested within each repeat, use CAL only, and are shared across methods. Full calibration-pool retraining is not called K-shot frozen-model calibration. Repeated support draws share a fixed prediction cohort and do not increase independent N."
+    },
+    {
+      "id": "cross_kind_transfer_controls",
+      "result": "PASS_STATIC_WITH_SCOPE_LIMITS",
+      "details": "A target-only, Aextra 120-step target-pretraining budget control and B 120 alternating Huangqi/Tianma pretraining steps use paired seeds42/43/44 and a fresh target head. B uses only HQ241/TM242 TRAIN records, independent source-origin heads, and source-only task scalers. No direct source-origin score-column mapping to target origins. Target-training order and initial encoder/head hashes are paired. Prediction packs omit origin labels; bytes are locked before a separate hash-checked truth join. This is representation initialization plus full target training on300 labels, followed by optional support-score calibration; it is not K-shot-only target learning."
+    },
+    {
+      "id": "historical_relabel_arithmetic",
+      "result": "PASS_STORED_MATRIX_ARITHMETIC",
+      "R0_seven_group_correct": 773,
+      "R2_seven_group_correct": 821,
+      "denominator": 855,
+      "R0_species_collapsed_correct": 853,
+      "R2_species_collapsed_correct": 852,
+      "acid_true_kind_original_group_correct": {
+        "R0": 428,
+        "R2": 470,
+        "n": 500
+      },
+      "jujube_true_kind_original_group_correct": {
+        "R0": 345,
+        "R2": 351,
+        "n": 355
+      },
+      "details": "Independently recomputed from saved 7x7 confusion matrices only. Original per-record historical prediction archive was not replayed here. The +42 acid-group contribution does not imply improved species-binary performance, which fell by one after label collapse."
+    }
+  ],
+  "findings": [
+    {
+      "id": "F01_classifier_label_input_guard",
+      "severity": "nonblocking_entry_hardening",
+      "observed_error": false,
+      "evidence": "scripts/run_species_revision_classification.py: main validates ID set and physical-ID uniqueness, but task_arrays takes species/origin labels from the NPZ and main does not assert per-ID equality to split labels or a prespecified expected feature audit hash. frozen_config records hashes of whichever files are supplied and prevents same-output config changes; it does not by itself prove the first supplied NPZ has the intended labels.",
+      "consequence": "An alternative same-ID NPZ with stale mixed-species labels could enter a newly initialized output directory undetected by this adapter. No evidence establishes that this occurred in the pinned completed run.",
+      "recommended_future_fix": "Before any future fit, assert NPZ species/origin/group/dataset per ID exactly equals the frozen manifest, manifest equals protocol hash, and features digest equals the prepared feature audit digest. Preserve completed inputs/results; do not silently relabel cached NPZ."
+    },
+    {
+      "id": "F02_exposed_development_and_batch_confounding",
+      "severity": "scientific_scope_limit",
+      "observed_error": false,
+      "evidence": "All1672 batch_id fields empty. Prior ZY groups each have one user-declared source batch; original855 have historical development exposure. New817 physical independence is a distinct user declaration without batch metadata.",
+      "consequence": "Specimen role isolation is verified, but kind/origin recognition may include source-group/batch/acquisition differences. Current100% binary score does not establish held-origin, real cross-batch, cross-instrument or external generalization. The pinned report correctly limits the claim."
+    },
+    {
+      "id": "F03_tiny_jujube_groups",
+      "severity": "scientific_scope_limit",
+      "observed_error": false,
+      "groups": {
+        "ZY02": {
+          "train": 3,
+          "calibration": 1,
+          "prediction": 1
+        },
+        "ZR01": {
+          "train": 1,
+          "calibration": 1,
+          "prediction": 1
+        },
+        "ZR02": {
+          "train": 1,
+          "calibration": 1,
+          "prediction": 1
+        },
+        "ZR03": {
+          "train": 1,
+          "calibration": 1,
+          "prediction": 1
+        }
+      },
+      "consequence": "The high jujube-origin aggregate accuracy is dominated by ZY01. One-example class rates and fixed-parameter diagnostics do not support reliable five-origin claims. These classes cannot support normal stratified tuning or higher-shot calibration."
+    },
+    {
+      "id": "F04_transfer_mechanism_not_identified",
+      "severity": "scientific_scope_limit",
+      "observed_error": false,
+      "details": "Paired A/Aextra/B controls allow this fixed scheme to be compared, but no shuffled-source-label/irrelevant-source negative-control arm is present. Equal120 optimizer steps is a training-step budget control, not measured FLOP equivalence across four-/five-class heads. With B reported below both controls, positive cross-species transfer is unsupported; no mechanism or general impossibility claim follows. No new fit is required to interpret the current negative result."
+    },
+    {
+      "id": "F05_conditional_vs_end_to_end",
+      "severity": "pending_offline_analysis",
+      "observed_error": false,
+      "details": "Species-specific origin scores condition on the known true kind. They are not an end-to-end hierarchical identification score. A species mistake must count as a system error even if the true-kind origin model would be correct. Parent is separately replaying stored prediction CSVs; do not multiply marginal accuracies or train a duplicate system."
+    },
+    {
+      "id": "F06_unmeasured_outputs",
+      "severity": "not_run_or_not_supported",
+      "details": "Four known-kind classification has no held-out unknown-kind rejection experiment. Alpha+n fusion, additional PLS-DA/CARS runs, botanical authentication, chemical content, quality grade, efficacy and mixture-ratio inference are not established by these origin labels. A stated method in inherited_methods does not show an executed current experiment."
+    }
+  ],
+  "reported_numbers_qualification": {
+    "source": "Pinned docs/SPECIES_REVISION_RESULTS_20261108.md; values below remain source-reported until separate prediction replay.",
+    "binary": {
+      "correct": 174,
+      "n": 174,
+      "qualification": "Fixed internal specimen holdout, historically exposed ZY plus new tiny groups; no external/batch claim."
+    },
+    "acid_R2": {
+      "source_correct": 87,
+      "full_cal_refit_correct": 93,
+      "n": 100,
+      "qualification": "Source300 labels vs full refit400 target labels; cannot attribute6 extra successes to frozen K-shot calibration."
+    },
+    "acid_R0": {
+      "source_correct": 94,
+      "full_cal_refit_correct": 96,
+      "n": 100,
+      "qualification": "Retain alongside R2; cannot select R0 as predeclared winner after viewing prediction scores."
+    },
+    "transfer_source_accuracy_means": {
+      "A": 0.81,
+      "Aextra": 0.8033333333333333,
+      "B": 0.79,
+      "qualification": "Paired seeds42/43/44 and same100 query subjects, not three independent cohorts or cross-batch confidence."
+    },
+    "report_scope_assessment": "Pinned report explicitly preserves negative calibration/transfer, historical exposure, tiny classes, missing batch confirmation, and nonexecuted experiments. No material contradiction with the reviewed adapters was found."
+  },
+  "evidence_local_snapshots": [
+    {
+      "snapshot_path": "remote_snapshot/21d6edab24d198dc60b1ad4ef50e83602c9ecfa7/AGENTS.md",
+      "sha256": "22de23f2ac5b90236b0d87887245359af48283b1b8ac26e4c4e900491ff0b51a"
+    },
+    {
+      "snapshot_path": "remote_snapshot/21d6edab24d198dc60b1ad4ef50e83602c9ecfa7/docs/SPECIES_REVISION_EXPERIMENT_PLAN_20261108.md",
+      "sha256": "81a82cbf56d146177365cb975adbcf013ae16ddf0ae76a186d05143f5120dd43"
+    },
+    {
+      "snapshot_path": "remote_snapshot/21d6edab24d198dc60b1ad4ef50e83602c9ecfa7/docs/SPECIES_REVISION_RESULTS_20261108.md",
+      "sha256": "91ca7ace303fe6ec307207b60fc69ad6126d97725f4a1ee6867ae14a2f3d6738"
+    },
+    {
+      "snapshot_path": "remote_snapshot/21d6edab24d198dc60b1ad4ef50e83602c9ecfa7/data/active_workbooks.json",
+      "sha256": "dd9ec7728590dde2574f64b9664148465c85d7b618311494c613c32b4d879f95"
+    },
+    {
+      "snapshot_path": "remote_snapshot/21d6edab24d198dc60b1ad4ef50e83602c9ecfa7/data/CURRENT_DATASET.md",
+      "sha256": "a147144953566beed3fdbc2b58451102ec64902e1f5f18ddeb2618af6df2b4e7"
+    },
+    {
+      "snapshot_path": "remote_snapshot/21d6edab24d198dc60b1ad4ef50e83602c9ecfa7/data/annotations/specimen_independence_user_declaration_20261108.json",
+      "sha256": "752c337d461b97304d9c27057afd473ff8ab7fe15fb5816e5130bed5f7c6cad6"
+    },
+    {
+      "snapshot_path": "remote_snapshot/21d6edab24d198dc60b1ad4ef50e83602c9ecfa7/data/research/species_revision_20261108/protocol.json",
+      "sha256": "a4d31c9a23711df97b2e3e883fd44065c7cbd5bbce3bd65c4efb46b6f6905f0c"
+    },
+    {
+      "snapshot_path": "remote_snapshot/21d6edab24d198dc60b1ad4ef50e83602c9ecfa7/data/research/species_revision_20261108/split_manifest.csv",
+      "sha256": "0767e3165984a4e0e4ae782d69fdea6f410bfe36bce05ec72f8eadca982317d4"
+    },
+    {
+      "snapshot_path": "remote_snapshot/21d6edab24d198dc60b1ad4ef50e83602c9ecfa7/data/research/species_revision_20261108/split_summary.json",
+      "sha256": "b6cbb1ba602ad2b302c98789514734eccee0f0af4f1a8dbf8990447b0dc499e6"
+    },
+    {
+      "snapshot_path": "remote_snapshot/21d6edab24d198dc60b1ad4ef50e83602c9ecfa7/data/research/species_revision_20261108/feature_audit.json",
+      "sha256": "a5a3a6424af44c2a700c0b27e5f711c386ebd6b725050f5ea27dc2fcfab588b3"
+    },
+    {
+      "snapshot_path": "remote_snapshot/21d6edab24d198dc60b1ad4ef50e83602c9ecfa7/data/research/species_revision_20261108/code_reuse.json",
+      "sha256": "8f157a1503bae17ccf0a2dec239624f4eef04edd9abf46d8cea4c466adfdecdc"
+    },
+    {
+      "snapshot_path": "remote_snapshot/21d6edab24d198dc60b1ad4ef50e83602c9ecfa7/data/research/species_revision_20261108/historical_relabel_audit.json",
+      "sha256": "144d309770978825763612c6b7cd1202a8bd8109c63d17e09acee157cf8f042f"
+    },
+    {
+      "snapshot_path": "remote_snapshot/21d6edab24d198dc60b1ad4ef50e83602c9ecfa7/scripts/freeze_species_revision_split.py",
+      "sha256": "a70c934899fdb0e7de9efd768d3ce7733a48ee2a3b0341d9b524a8cc09d072a4"
+    },
+    {
+      "snapshot_path": "remote_snapshot/21d6edab24d198dc60b1ad4ef50e83602c9ecfa7/scripts/prepare_species_revision_features.py",
+      "sha256": "d3187d2d67b0af241f46e06b1733dc1c84e02d24b8b16bda187158cb09096a9e"
+    },
+    {
+      "snapshot_path": "remote_snapshot/21d6edab24d198dc60b1ad4ef50e83602c9ecfa7/scripts/run_species_revision_classification.py",
+      "sha256": "f82937a846ae8020c287188cbbcaabafb94f9f28ea361d61c4485403e514ec5a"
+    },
+    {
+      "snapshot_path": "remote_snapshot/21d6edab24d198dc60b1ad4ef50e83602c9ecfa7/scripts/run_species_revision_transfer.py",
+      "sha256": "b6fec7f75d4b43f9ad722e430300017b3c4ad214223f648f441d0f786df2d50f"
+    },
+    {
+      "snapshot_path": "remote_snapshot/806584a5571c6a90ef37c6bfa915671b680ba48b/data/confirmed_names_20261108.csv",
+      "sha256": "afb4991937c512587b093b7d3365d9d4bceadd5533886ccfb075581bdb901068"
+    },
+    {
+      "snapshot_path": "remote_snapshot/806584a5571c6a90ef37c6bfa915671b680ba48b/data/active_workbooks.json",
+      "sha256": "d771713855e56c8c47b5e96dc0530233d2cf0e5a3d15e2cd13d00aaed35eee54"
+    },
+    {
+      "snapshot_path": "remote_snapshot/806584a5571c6a90ef37c6bfa915671b680ba48b/data/annotations/origin_kind_confirmation_20261108.json",
+      "sha256": "68fc2dfbbf0d30cb97835655b74791c42fa37ff184eace2c8c16f10b042ba682"
+    }
+  ],
+  "evidence_additional_pinned_read_only_in_memory": [
+    {
+      "url": "https://raw.githubusercontent.com/jackzhu119/research4/21d6edab24d198dc60b1ad4ef50e83602c9ecfa7/data/research/species_revision_20261108/historical_split_plan.json",
+      "sha256": "17055eef5a4c544344f735032b55ef12f52bde341ffdff9378b25a835baa9594",
+      "persisted_original_bytes": false,
+      "sha_matches_protocol_or_code_reuse": true
+    },
+    {
+      "url": "https://raw.githubusercontent.com/jackzhu119/research4/21d6edab24d198dc60b1ad4ef50e83602c9ecfa7/data/metadata_template.csv",
+      "sha256": "fee5e3053c7958da8f0ddadd01de9994efe9669c671e3c1aed72a6cd01639ff1",
+      "persisted_original_bytes": false,
+      "sha_matches_protocol_or_code_reuse": true
+    },
+    {
+      "url": "https://raw.githubusercontent.com/jackzhu119/research4/21d6edab24d198dc60b1ad4ef50e83602c9ecfa7/src/herb_spectra/staged_nested_search.py",
+      "sha256": "c180225f6ebad218b18aa4b9785907a95a41c7e9cf7a0c2dbbc31cf4f2ea58c5",
+      "persisted_original_bytes": false,
+      "sha_matches_protocol_or_code_reuse": true
+    },
+    {
+      "url": "https://raw.githubusercontent.com/jackzhu119/research4/21d6edab24d198dc60b1ad4ef50e83602c9ecfa7/src/herb_spectra/conservative_calibration.py",
+      "sha256": "b69871f7379f6b5e2e930429a357478e8b89fd68940bfc35e7372d8077a28472",
+      "persisted_original_bytes": false,
+      "sha_matches_protocol_or_code_reuse": true
+    },
+    {
+      "url": "https://raw.githubusercontent.com/jackzhu119/research4/21d6edab24d198dc60b1ad4ef50e83602c9ecfa7/src/herb_spectra/spectral_models.py",
+      "sha256": "7bf02ba3086dba052c12ae1df3369c7168c571fb0504ae1162d7193c92d92527",
+      "persisted_original_bytes": false,
+      "sha_matches_protocol_or_code_reuse": true
+    },
+    {
+      "url": "https://raw.githubusercontent.com/jackzhu119/research4/21d6edab24d198dc60b1ad4ef50e83602c9ecfa7/src/herb_spectra/classification.py",
+      "sha256": "793a550f46522bc2e69acf922b39e104a0e94b5eb058905f987a91d0f16a08b2",
+      "persisted_original_bytes": false,
+      "sha_matches_protocol_or_code_reuse": true
+    }
+  ],
+  "review_limits": [
+    "Static source inspection does not prove every historical runtime action.",
+    "Actual features.npz, all17 reused source modules and nine fitted neural weight files were not independently replayed by this reviewer. Four critical reused modules were exact-SHA checked and inspected.",
+    "Current classification and transfer CSV metric replay and end-to-end count reconstruction are a separate parent audit.",
+    "No user-authorized physical independence declaration was treated as laboratory verification or as batch counts."
+  ],
+  "conclusion_zh": "已核实修正后逐样品标签及训练/校准/预测角色衔接一致，未发现现有入口存在把校准或预测样品用于选参拟合的源码路径。当前成绩可作为内部回顾性识别与校准/迁移对照，不能升级为真实跨批次、外部验证或完整分层系统性能。分类NPZ标签与名单的强绑定建议在后续入口补齐；这是一项防错缺口，现有资料未证明已造成错误。"
+}

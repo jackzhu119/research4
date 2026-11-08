@@ -1,0 +1,167 @@
+{
+  "schema": "research4-b-species-audit-protocol-v1",
+  "frozen_before_new_control_fitting": true,
+  "utc": "2026-11-08T04:16:22.927628+00:00",
+  "source_ref": "21d6edab24d198dc60b1ad4ef50e83602c9ecfa7",
+  "confirmed_main_ref": "806584a5571c6a90ef37c6bfa915671b680ba48b",
+  "reason": "用户确认原枣仁/酸枣仁误混，要求审查已有流程、复用结果并在后台补充验证。",
+  "modules": [
+    "pinned_registry_excel_metadata_roles_and_legacy_prediction_audit",
+    "independent_corrected_prediction_recount_and_frozen_components_joint_correctness",
+    "TRAIN_only_paired_leave_source_group_out_species_discrimination_control"
+  ],
+  "predecessor": {
+    "manifest_path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-negative-subspace-v7/manifest_ROOT_AUTHORIZED.json",
+    "manifest_sha256": "b8ffb912e24c941f5be70b7e18d877e2b9d6dba03ae4babe5a60c2a1068a621a",
+    "rule": "Wait for actual scientific/parent/process-group/wait4/auto-return closure. Never edit current science or duplicate foreign background queue."
+  },
+  "budget": {
+    "cumulative_B_cap_cpu_seconds": 90000,
+    "new_authorization_cpu_seconds": 0,
+    "maximum_new_audit_supervisor_plus_worker_cpu_seconds": 600,
+    "permanent_nonmeasured_debit_cpu_seconds": 1000,
+    "admission_reserve_cpu_seconds": 300,
+    "deadline_utc": "2026-11-09T08:25:17.730193+00:00",
+    "semantics": "Carry final real v7 closed actual plus permanent nonmeasured1000 and add own actual supervisor/wait4 costs; no reset/refund or different-host90000 reissue."
+  },
+  "group_control": {
+    "pool": "Only frozen master TRAIN records from the two confirmed Chinese kinds; original master CAL/PRED roles remain excluded from all extraction/model fitting/control scoring.",
+    "split_manifest_sha256": "0767e3165984a4e0e4ae782d69fdea6f410bfe36bce05ec72f8eadca982317d4",
+    "record_count": 516,
+    "kind_counts": {
+      "枣仁": 216,
+      "酸枣仁": 300
+    },
+    "groups_per_kind": 5,
+    "paired_group_seed": 20261108,
+    "pairing_algorithm": "One numpy default_rng/PCG64(20261108), in fixed kind order 枣仁 then酸枣仁, independently permute lexicographically sorted group IDs, pair same indices.",
+    "folds": [
+      {
+        "fold": 0,
+        "held_out_groups": [
+          "ZY01",
+          "ZY03"
+        ]
+      },
+      {
+        "fold": 1,
+        "held_out_groups": [
+          "ZY02",
+          "ZY04"
+        ]
+      },
+      {
+        "fold": 2,
+        "held_out_groups": [
+          "ZR02",
+          "ZY05"
+        ]
+      },
+      {
+        "fold": 3,
+        "held_out_groups": [
+          "ZR01",
+          "ZY07"
+        ]
+      },
+      {
+        "fold": 4,
+        "held_out_groups": [
+          "ZR03",
+          "ZY06"
+        ]
+      }
+    ],
+    "spectrum": "Only 吸收系数 XML sheet for explicit TRAIN Excel columns; original common coordinates 0.1<=f<=1.5, expected612; do not interpolate differing axes or export calibration/prediction spectra.",
+    "fixed_pipeline": {
+      "SNV": {
+        "axis": "per spectrum",
+        "std_ddof": 1,
+        "zero_std_rule": "match pinned SpectralPreprocessor._snv"
+      },
+      "scaler": "StandardScaler fit on fold training rows only",
+      "SVC": {
+        "C": 10.0,
+        "gamma": "scale",
+        "class_weight": "balanced",
+        "decision_function_shape": "ovr",
+        "break_ties": false,
+        "random_state": 42
+      }
+    },
+    "fit_ids": "All TRAIN rows outside heldout sourcegroups, never file names/record IDs/species/origin text as features.",
+    "label_permutation_controls": {
+      "seeds": [
+        42,
+        43,
+        44
+      ],
+      "scope": "Permute fit-label vector only within each frozen fold; evaluation truth is unchanged.",
+      "rng": "default_rng(SeedSequence([20261108, seed, fold]))",
+      "no_p_value": true
+    },
+    "total_fits": 20,
+    "metrics": [
+      "correct_count/unique516",
+      "accuracy",
+      "macro_F1",
+      "balanced_accuracy",
+      "per_kind_recall",
+      "per_origin_group_recall",
+      "unweighted_mean_origin_group_recall",
+      "each_fold_training_kind_counts"
+    ],
+    "no_parameter_search": true,
+    "limitations": [
+      "Retrospective TRAIN-only development diagnostic after exposure to historical data, not independent confirmation.",
+      "Source groups are collection labels, not verified disjoint botanical populations or batches. 山西/山西灵石 geographic overlap is not erased.",
+      "Holding the dominant枣仁group leaves very few枣仁training samples; retain all folds/tiny classes/negative outcomes and report imbalance.",
+      "No seed averaging increases specimen count; three permutations do not support inferential significance."
+    ]
+  },
+  "joint_components": {
+    "gate": {
+      "task": "four_kinds",
+      "model": "full_svm",
+      "method": "source_only",
+      "shots": 0,
+      "repeat": 0
+    },
+    "origins": {
+      "酸枣仁": {
+        "task": "acid_origins",
+        "model": "R2_reselected"
+      },
+      "枣仁": {
+        "task": "jujube_origins",
+        "model": "full_svm"
+      },
+      "黄芪": {
+        "task": "huangqi_origins",
+        "model": "full_svm"
+      },
+      "天麻": {
+        "task": "tianma_origins",
+        "model": "full_svm"
+      }
+    },
+    "method": "source_only",
+    "rule": "Join fixed component predictions by identical record ID. Joint correct iff species gate and true-species origin component both correct. Wrong route => joint wrong, origin value NOT_COMPUTED_WRONG_ROUTE; no fabricated full confusion/macroF1.",
+    "interpretation": "Retrospective exact joint-correctness composition of already frozen heads, not fully evaluated routed system or newly trained hierarchical model.",
+    "no_model_selection_from_prediction_scores": true
+  },
+  "foreign_queue": {
+    "ref": "21d6edab24d198dc60b1ad4ef50e83602c9ecfa7",
+    "jobs_declared": 1319,
+    "cpu_grant_separate_from_B": true,
+    "live_state_accessible_here": false,
+    "do_not_duplicate_or_reset": true
+  },
+  "prohibited_claims": [
+    "Old96.0234 is pure acid-jujube origin accuracy",
+    "100% internal species split proves all unseen-source/batch generalization",
+    "93% is few-shot calibration",
+    "Positive cross-species transfer without B>A and B>Aextra evidence",
+    "Full-dimensional molecular minimum/IR or medicinal-plant peak assignment from these labels"
+  ]
+}

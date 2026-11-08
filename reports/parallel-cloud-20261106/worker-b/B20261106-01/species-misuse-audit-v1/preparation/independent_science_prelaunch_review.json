@@ -1,0 +1,172 @@
+{
+  "schema": "research4-b-species-audit-independent-science-prelaunch-review-v1",
+  "created_utc": "2026-11-08T04:36:00.613535+00:00",
+  "reviewer": "/root/recovery_science_audit",
+  "scope": "Frozen worker/protocol independent scientific static review, metadata/fold replay and synthetic pure-logic checks. Final manifest and live resource/progenitor closure remain separate ROOT/resource-review gates.",
+  "status": "PASS_WORKER_PROTOCOL_REQUIRES_FINAL_MANIFEST_BINDING",
+  "scientific_blockers_identified": [],
+  "source_bindings": {
+    "worker": {
+      "path": "preparation/bin/species_audit_worker.py",
+      "sha256": "60df5e967b6dc71aca7a80c28107344643dbd8b61285119a31d29a2a436e0a20"
+    },
+    "protocol": {
+      "path": "preparation/protocol_ROOT_AUTHORIZED.json",
+      "sha256": "852c5be008f03acc72bd81604601af63412b66e0cb0439b5b7da2323c749d837"
+    },
+    "author_tests": {
+      "path": "preparation/bin/test_species_audit_worker.py",
+      "sha256": "f5536e8a4129c4d27a47496deebd68bd62287a9167935257956e9f581177aeaa"
+    },
+    "prior_pipeline_review": {
+      "path": "analysis/corrected_pipeline_independent_review.json",
+      "sha256": "f1a8588884011a17801d872fe14e4b25eeb592de7f080962a802784a825986a0"
+    }
+  },
+  "verified_scope": [
+    {
+      "id": "registry_identity_and_roles",
+      "result": "PASS_STATIC_AND_OFFLINE",
+      "details": "Worker hash-checks pinned inputs, binds split hash to frozen protocol, compares per-ID identity/Chinese-kind/origin/source/Excel-column fields against metadata and user-confirmed registry/18-table mapping, rejects duplicate IDs/physical IDs/columns and verifies original855 historical roles. Independent prior review verified all1672 current rows, historical855 inheritance and added817 role replay."
+    },
+    {
+      "id": "only_master_train_spectra",
+      "result": "PASS_STATIC",
+      "details": "New fixed control selects only516 master-TRAIN rows from 枣仁/酸枣仁. Only their explicit absorption-sheet Excel columns and coordinate column enter the guarded numeric decoder. Raw workbook hash equals registry hash before and after extraction. CAL/PRED vectors are not constructed or transformed. Container hashing/XML traversal necessarily reads workbook bytes, which is correctly distinguished from numeric spectral extraction."
+    },
+    {
+      "id": "feature_and_preprocessing_binding",
+      "result": "PASS_STATIC",
+      "details": "Only original shared612 finite increasing points in inclusive0.1..1.5 are allowed; differing axes fail rather than interpolate. No IDs/path/kind/origin metadata become numerical predictors. SNV is the exact hash-bound pinned _snv AST function: per-row ddof1 and constant-spectrum rejection. StandardScaler fits fold-training only; sourcegroup-held rows receive transform only."
+    },
+    {
+      "id": "fixed_group_folds",
+      "result": "PASS_INDEPENDENT_OFFLINE_REPLAY",
+      "details": "PCG64 seed20261108 in fixed kind order on sorted group IDs exactly reproduces five frozen pairs. Each516 TRAIN physical specimen is held once per control; no held sourcegroup crosses its fold fit pool. Master CAL/PRED roles remain excluded.",
+      "fold_counts": [
+        {
+          "fold": 0,
+          "fit": {
+            "枣仁": 6,
+            "酸枣仁": 240
+          },
+          "held": {
+            "枣仁": 210,
+            "酸枣仁": 60
+          }
+        },
+        {
+          "fold": 1,
+          "fit": {
+            "枣仁": 213,
+            "酸枣仁": 240
+          },
+          "held": {
+            "枣仁": 3,
+            "酸枣仁": 60
+          }
+        },
+        {
+          "fold": 2,
+          "fit": {
+            "枣仁": 215,
+            "酸枣仁": 240
+          },
+          "held": {
+            "枣仁": 1,
+            "酸枣仁": 60
+          }
+        },
+        {
+          "fold": 3,
+          "fit": {
+            "枣仁": 215,
+            "酸枣仁": 240
+          },
+          "held": {
+            "枣仁": 1,
+            "酸枣仁": 60
+          }
+        },
+        {
+          "fold": 4,
+          "fit": {
+            "枣仁": 215,
+            "酸枣仁": 240
+          },
+          "held": {
+            "枣仁": 1,
+            "酸枣仁": 60
+          }
+        }
+      ]
+    },
+    {
+      "id": "fixed_real_and_label_permutation_controls",
+      "result": "PASS_STATIC_AND_FAKE_PREDICTOR_CHECK",
+      "details": "Exactly5 real fixed-SVM fold fits plus3 prespecified seeds×5 fit-label permutations =20 calls. All parameters remain C10/gamma scale/balanced/SVC vote/random_state42. Each seed uses SeedSequence([20261108,seed,fold]); fit-label counts are preserved, held truth and features are unchanged. No hyperparameter/seed search or result-triggered omission is implemented. Unknown predicted kinds are rejected."
+    },
+    {
+      "id": "group_scoring",
+      "result": "PASS_STATIC_AND_SYNTHETIC_ARITHMETIC",
+      "details": "Each control has516 unique OOF IDs, exact correct/N, macroF1, balanced accuracy, per-kind recall, each sourcegroup N/correct/recall and unweighted mean of10 group recalls. Fold training/test kind counts and complete ID lists are retained. These are binary-kind recalls grouped by source, not a new origin-group classifier."
+    },
+    {
+      "id": "existing_prediction_recount",
+      "result": "PASS_STATIC",
+      "details": "All six pinned task files are read as already frozen predictions, not refitted. Per-row truth/correctness/task/role and per-setting exact prediction-ID coverage are validated; predicted labels outside each task class set are rejected. Source-only and full-refit metrics are recomputed separately, preserving their distinct label budgets. Legacy OOF is only recoded after correction and is not called a new pure-kind experiment."
+    },
+    {
+      "id": "joint_correctness",
+      "result": "PASS_STATIC_AND_SYNTHETIC_CHECK",
+      "details": "Frozen four-kind full-SVM gate plus prespecified true-kind source-only origin heads (acidR2; other kinds full-SVM) are joined by identical prediction record ID. Joint success is the conjunction of gate correctness and correctly routed origin correctness. Wrong gate routes are certain joint failures and receive NOT_COMPUTED_WRONG_ROUTE origin, not fabricated wrong-head predictions. Exact joint accuracy can be counted without computing those wrong-head outputs; full routed origin confusion and joint macroF1 remain NOT_COMPUTED."
+    },
+    {
+      "id": "partial_evidence",
+      "result": "PASS_STATIC",
+      "details": "Fit-started and fit-completed calls are recorded separately. Every completed fit invokes persistent partial receipts/predictions and event/progress output before the next fit, retaining completed negative outcomes and preventing completed fits being reported as zero after a later failure. A failed/in-flight call is not counted as a completed model. Real CPU closure remains supervisor wait4 evidence, not these model counters."
+    }
+  ],
+  "independent_executed_checks": {
+    "method": "AST-extract selected pure worker functions into an in-memory namespace; use synthetic516x612 numeric matrix and an injected constant-output fake estimator. No sklearn fit, real spectra or quantum kernels were invoked.",
+    "real_model_fits": 0,
+    "injected_fake_estimator_calls": 20,
+    "group_prediction_rows": 2064,
+    "fit_started_callbacks": 20,
+    "fit_completed_callbacks": 20,
+    "all_control_unique_N": 516,
+    "sourcegroups_each_control": 10,
+    "preserved_fit_class_counts_all_calls": true,
+    "fold0_six_jujube_fit_records_preserved": true,
+    "unknown_prediction_label_rejected": true,
+    "pinned_constant_spectrum_SNV_rejected": true,
+    "wrong_route_joint_boolean_logic_checked": true,
+    "metric_arithmetic_checked": true,
+    "measured_check_process_cpu_seconds": 0.093478299,
+    "worker_hash_rechecked_after_check": true
+  },
+  "author_test_report": {
+    "reported_by": "/root/diagnostic_worker",
+    "count": 23,
+    "status": "PASS_REPORTED_BY_AUTHOR",
+    "scope": "Pure identities, fake estimators, synthetic XML boundaries, live-proof/preflight ordering and cold import with subprocess APIs forbidden. Reported zero new real fits/real spectral reads in tests.",
+    "independently_reran_entire_author_suite": false,
+    "cold_import_reported_spawn_count": 0
+  },
+  "required_interpretive_limits": [
+    "All new control predictions concern master TRAIN development specimens. Historical exposure and this audit motivated after viewing previous results make it retrospective development evidence, not a new blind or external confirmation.",
+    "The5 folds hold source groups, not verified independent acquisition batches or botanically authenticated populations. All current batch_id fields are empty; no cross-batch/cross-instrument/cross-year claim is supported.",
+    "Fold0 has only6 jujube-kind fit specimens versus240 acid-kind fit specimens and holds270/516 records; it must be retained and reported even if poor. Dominant ZY01 contributes210/516=40.70% of overall accuracy. Unweighted10-group recall gives three singleton ZR groups30% of its weight. Report both aggregate metrics and eachgroup N/recall; neither weighting alone establishes stable population performance.",
+    "Three permutations are pipeline/label-signal negative controls only. They do not provide a valid permutation p-value, exchangeability across sourcegroups, a confidence interval or additional independent N. High null scores and low real scores must remain as results.",
+    "The20 calls create four predictions per original TRAIN specimen across real/three-null controls, not2064 independent physical samples. Three seeds do not enlarge N.",
+    "The frozen joint-correctness composition is retrospective evaluation of already chosen components. It is not a newly trained hierarchy, a complete wrong-route origin confusion matrix, or external end-to-end system validation. Do not multiply gate and origin marginal accuracies.",
+    "No new classifier selection, score-improving retries, calibration-strength choice, transfer pretraining or duplication of the foreign90000CPU queue is in this scientific scope."
+  ],
+  "remaining_launch_gates_not_certified_here": [
+    "ROOT must bind this exact worker SHA, protocol SHA and review SHA into the final manifest; the resource reviewer must check all final input paths/hashes, runtime source/helper/environment binding and supervisor exact SHA.",
+    "The existing v7 scientific parent/worker/process-group/wait4/auto-return must actually close before admission; missing PID alone is insufficient. This reviewer did not certify that live closure.",
+    "Keep the same cumulative B cap90000, actual carry costs plus permanent nonmeasured1000, at most600 new supervisor+worker CPU and300 admission reserve, and original deadline. No new budget/refund/foreign queue grant is created by this review.",
+    "Actual run qualification requires real supervisor proof, wait4 CPU closure, seals, all20 fit receipts/516 unique IDs per control and final results inspection. Static/fake-predictor PASS is not actual model execution evidence."
+  ],
+  "conclusion_zh": "冻结worker与协议的科学流程审查通过，前提是最终manifest严格绑定本SHA并通过独立资源/前代闭合检查。逐样品标签与角色、新控制只读TRAIN光谱、来源组留出和置乱阴性对照、同ID联合正确计数均解释正确。保留fold0稀少枣仁条件与全部负结果，不把本轮开发诊断称为真实跨批次、独立外部验证或完整新分层系统。"
+}

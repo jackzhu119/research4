@@ -1,0 +1,434 @@
+"""Pure budget/closure and short kernel harness tests; no training or science.
+
+Fixtures live under a separate temporary .git root. Their live script names
+avoid the frozen running V7 queue's scientific-script detector. Only the
+historical predecessor inspector may be stubbed in the worker harness; live
+parent/child identity, proof, limits, actual wait4 and death signals stay real.
+"""
+from __future__ import annotations
+
+import importlib.util
+import ast
+import ctypes
+import json
+import os
+from pathlib import Path
+import shutil
+import signal
+import subprocess
+import sys
+import tempfile
+import time
+import unittest
+from unittest import mock
+from types import SimpleNamespace
+
+SOURCE = Path(__file__).with_name("species_audit_supervisor.py")
+WORK_REL = Path("reports/parallel-cloud-20261106/worker-b/B20261106-01/species-misuse-audit-v1")
+PRODUCTION_ROOT = next(p for p in SOURCE.parents if (p / ".git").exists())
+FROZEN_SOURCE = PRODUCTION_ROOT / "scripts/research4_b_negative_subspace_supervisor_20261108.py"
+
+HISTORY = {"actual_closed_cpu_seconds": 2000., "conservative_debit_cpu_seconds": 1000.,
+    "budget_charged_cpu_seconds": 3000., "retained_results": 0, "closed_wait4_rows": 0,
+    "all_saved_parents_exited": True, "new_cpu_authorization_seconds": 0, "cpu_cap_seconds": 90000,
+    "test_only_synthetic_history": True}
+
+WORKER = '''from pathlib import Path
+import argparse,importlib.util,json,os,subprocess,sys,time
+p=argparse.ArgumentParser();p.add_argument('--manifest');p.add_argument('--manifest-sha256');p.add_argument('--proof');p.add_argument('--output');p.add_argument('--mode',default='success');a=p.parse_args()
+source=Path(__file__).with_name('species_audit_supervisor.py');spec=importlib.util.spec_from_file_location('fixture_real_live_proof',source);s=importlib.util.module_from_spec(spec);spec.loader.exec_module(s)
+proof=s.verify_resource_supervision(expected_worker_path=Path(__file__).resolve(),expected_threads=1,expected_manifest_sha256=a.manifest_sha256,expected_proof_path=a.proof)
+out=Path(a.output);out.mkdir(parents=True)
+t=time.process_time()
+while time.process_time()-t<.05:pass
+(out/'ready.json').write_text(json.dumps({'pid':os.getpid(),'proof_verified':True}))
+if a.mode=='pause':
+ while True:time.sleep(.02)
+if a.mode=='fork':
+ child=subprocess.Popen([sys.executable,'-c','import time;time.sleep(1.5)'])
+ (out/'extra_child.json').write_text(json.dumps({'pid':child.pid}));child.wait()
+result={'schema':'fixture-species-audit-result-v1','status':'FIXTURE_COMPLETE','resource_supervision':proof,'source_worker':s.ref(__file__),'no_training_performed':True}
+(out/'result.json').write_text(json.dumps(result))
+'''
+
+HARNESS = '''import argparse
+def main(s):
+ p=argparse.ArgumentParser();p.add_argument('--manifest',required=True);p.add_argument('--manifest-sha256',required=True);p.add_argument('--attempt',default='fixture-audit');p.add_argument('--execute',action='store_true');a=p.parse_args()
+ m=s['read'](a.manifest,a.manifest_sha256);s['validate_manifest'](m,a.manifest_sha256)
+ ledger={'schema':s['LEDGER_SCHEMA'],'run_id':s['RUN_ID'],'audit_id':s['AUDIT_ID'],'manifest_sha256':a.manifest_sha256,'supervisor_sha256':s['sha'](s['SELF']),'boot_id':m['boot_id'],'cpu_cap_seconds':s['CAP'],'audit_cpu_cap_seconds':s['AUDIT_CAP'],'carry':s['inspect_predecessor'](m)['carry'],'parents':[{'id':a.attempt,'identity':s['identity'](__import__('os').getpid()),'status':'RUNNING','self_cpu_seconds':s['self_cpu']()}],'phases':[],'auxiliary_costs':[],'finalization_hold_seconds':s['FINALIZATION_HOLD'],'finalization_hold_is_not_measured_CPU':True}
+ state={'schema':'research4-b-species-audit-state-v1','manifest_sha256':a.manifest_sha256,'status':'INITIALIZED'}
+ s['checkpoint'](ledger,state,'INITIALIZED');s['claim_allocation'](m,a.manifest_sha256)
+ try:
+  s['run_worker'](a,m,ledger,state)
+  ledger['parents'][-1]['status']='CLOSED';s['checkpoint'](ledger,state,'FINALIZED')
+ except BaseException:
+  s['checkpoint'](ledger,state,'HARNESS_BLOCKED');raise
+'''
+
+
+def load_module(file, name):
+    spec = importlib.util.spec_from_file_location(name, file)
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
+def proc_identity(pid):
+    fields = (Path("/proc") / str(pid) / "stat").read_text().rsplit(")", 1)[1].split()
+    return {"pid": pid, "start_ticks": int(fields[19]), "pgrp": int(fields[2]), "session": int(fields[3]),
+            "state": fields[0], "boot_id": Path("/proc/sys/kernel/random/boot_id").read_text().strip()}
+
+
+def same_identity(saved):
+    try:
+        observed = proc_identity(saved["pid"])
+    except (FileNotFoundError, ProcessLookupError):
+        return False
+    return all(observed[key] == saved[key] for key in ("pid", "start_ticks", "pgrp", "session", "boot_id"))
+
+
+def live(saved):
+    return same_identity(saved) and proc_identity(saved["pid"])["state"] not in ("Z", "X", "x")
+
+
+def wait_until(predicate, timeout=4):
+    until = time.monotonic() + timeout
+    while time.monotonic() < until:
+        result = predicate()
+        if result:
+            return result
+        time.sleep(.02)
+    raise AssertionError("Short isolated harness did not reach its expected state")
+
+
+class AuditFixture(unittest.TestCase):
+    """Shared isolated fixture; concrete checks follow the supervisor API."""
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory(prefix="species-audit-supervisor-test-")
+        self.root = Path(self.temp.name); (self.root / ".git").mkdir()
+        self.work = self.root / WORK_REL; self.bin = self.work / "preparation/bin"; self.bin.mkdir(parents=True)
+        scripts = self.root / "scripts"; scripts.mkdir()
+        shutil.copyfile(FROZEN_SOURCE, scripts / FROZEN_SOURCE.name)
+        self.source = self.bin / SOURCE.name
+        code = SOURCE.read_text(); tree = ast.parse(code)
+        history = next(node for node in tree.body if isinstance(node, ast.FunctionDef) and node.name == "pureclosed_validator")
+        lines = code.splitlines(keepends=True)
+        lines[history.lineno - 1:history.end_lineno] = ["def pureclosed_validator(*unused, **also_unused):\n",
+            "    return read(WORK / 'preparation/closed_history_fixture.json')\n"]
+        code = "".join(lines)
+        tree = ast.parse(code)
+        main_guard = next(node for node in tree.body if isinstance(node, ast.If)
+            and ast.unparse(node.test).replace(' ', '') in ("__name__=='__main__'", '__name__=="__main__"'))
+        lines = code.splitlines(keepends=True)
+        lines[main_guard.lineno - 1:main_guard.end_lineno] = [
+            "if __name__ == '__main__':\n",
+            "    if os.environ.get('R4_AUDIT_TEST_HARNESS') == '1':\n",
+            "        spec = importlib.util.spec_from_file_location('isolated_harness', SELF.with_name('fixture_harness_driver.py'))\n",
+            "        harness = importlib.util.module_from_spec(spec); spec.loader.exec_module(harness); harness.main(globals())\n",
+            "    else:\n", "        main()\n"]
+        self.source.write_text("".join(lines))
+        (self.bin / "fixture_harness_driver.py").write_text(HARNESS)
+        self.m = load_module(self.source, "isolated_species_audit_supervisor")
+        self.processes = []; self.owned_identities = []
+        self.worker = self.bin / "species_audit_worker.py"; self.worker.write_text(WORKER)
+        self.m.save(self.work / "preparation/closed_history_fixture.json", HISTORY)
+        self.protocol = self.work / "preparation/protocol.json"; self.m.save(self.protocol, {"fixture": True})
+        self.pred = self.root / "closed_predecessor"; self.pred.mkdir()
+        self.pred_manifest = self.pred / "manifest.json"
+        self.m.save(self.pred_manifest, {"schema": self.m.B.MANIFEST_SCHEMA, "work_directory": str(self.pred), "ledger": str(self.pred / "cpu_budget.json")})
+        self.dead = self.m.identity(os.getpid())
+        dead_pid = int(Path("/proc/sys/kernel/pid_max").read_text()) + 1000
+        self.dead.update(pid=dead_pid, pgrp=dead_pid, session=dead_pid, start_ticks=1, state="Z")
+        self.pred_allocation = self.root / ".runtime/worker-b-negative-subspace-allocation.json"
+        self.m.save(self.pred_allocation, {"fixture": True})
+        self.pred_launch = self.pred / "launch.json"
+        self.manifest_path = self.work / "manifest.json"
+        self.manifest = {"schema": self.m.SCHEMA, "run_id": self.m.RUN_ID, "audit_id": self.m.AUDIT_ID,
+            "branch": self.m.BRANCH, "work_directory": str(self.work), "cpu_cap_seconds": 90000, "audit_cpu_cap_seconds": 600,
+            "threads": 1, "memory_gib": 4, "rss_stop_gib": 2, "worker_wall_seconds": 1800, "waiting_cpu_cap_seconds": 60,
+            "reserve_cpu_seconds": 300,
+            "deadline_utc": self.m.DEADLINE, "boot_id": self.m.boot_id(), "source_python": self.m.PYTHON,
+            "supervisor": self.m.ref(self.source), "source_refs": [self.m.ref(self.source), self.m.ref(self.worker)],
+            "input_refs": [self.m.ref(self.protocol), self.m.ref(self.work / "preparation/closed_history_fixture.json")],
+            "protocol_ref": self.m.ref(self.protocol), "worker": {"source": self.m.ref(self.worker), "max_attempts": 2,
+                "argv": [self.m.PYTHON, str(self.worker), "--manifest", "{manifest}", "--manifest-sha256", "{manifest_sha256}",
+                    "--proof", "{proof}", "--output", "{output}", "--mode", "success"],
+                "result_schema": "fixture-species-audit-result-v1", "success_statuses": ["FIXTURE_COMPLETE"]},
+            "predecessor": {"manifest": self.m.ref(self.pred_manifest), "supervisor": self.m.ref(scripts / FROZEN_SOURCE.name),
+                "ledger_path": str(self.pred / "cpu_budget.json"), "state_path": str(self.pred / "state.json"),
+                "allocation": self.m.ref(self.pred_allocation)}, "git_return": {"enabled": False}}
+        self.set_predecessor("CLOSED", self.dead)
+        self.write_manifest()
+
+    def tearDown(self):
+        for expected in reversed(self.owned_identities):
+            if live(expected):
+                try: os.kill(expected["pid"], signal.SIGKILL)
+                except ProcessLookupError: pass
+        for process in reversed(self.processes):
+            if process.poll() is None: process.kill()
+            try: process.wait(timeout=3)
+            except subprocess.TimeoutExpired: process.kill(); process.wait(timeout=3)
+            for handle in (process.stdin, process.stdout, process.stderr):
+                if handle is not None: handle.close()
+        self.temp.cleanup()
+
+    def track(self, process):
+        self.processes.append(process)
+        expected = proc_identity(process.pid); self.owned_identities.append(expected)
+        return expected
+
+    def track_pid(self, pid):
+        expected = proc_identity(pid); self.owned_identities.append(expected)
+        return expected
+
+    def set_predecessor(self, status, identity, *, phase_status=None):
+        self.m.save(self.pred_launch, {"manifest_sha256": self.m.sha(self.pred_manifest), "identity": identity})
+        self.manifest["predecessor"].update(launch_receipt=self.m.ref(self.pred_launch), expected_parent_identity=identity)
+        phases = [] if phase_status is None else [{"phase": "fixture-old-worker", "status": phase_status}]
+        self.m.save(self.pred / "cpu_budget.json", {"manifest_sha256": self.m.sha(self.pred_manifest), "phases": phases})
+        self.m.save(self.pred / "state.json", {"manifest_sha256": self.m.sha(self.pred_manifest),
+            "invocations": [{"identity": identity, "status": status}], "git_return_attempts": [{"status": "HELPER_EXITED_FIXTURE"}]})
+
+    def write_manifest(self):
+        self.m.save(self.manifest_path, self.manifest); self.manifest_sha = self.m.sha(self.manifest_path)
+        self.args = SimpleNamespace(manifest=str(self.manifest_path), manifest_sha256=self.manifest_sha,
+            attempt="fixture-audit", execute=True, detach=False, check_only=False)
+
+    def accounting(self):
+        ledger = {"schema": self.m.LEDGER_SCHEMA, "manifest_sha256": self.manifest_sha, "supervisor_sha256": self.m.sha(self.source),
+            "boot_id": self.manifest["boot_id"], "carry": dict(HISTORY), "cpu_cap_seconds": self.m.CAP, "audit_cpu_cap_seconds": self.m.AUDIT_CAP,
+            "parents": [{"identity": self.m.identity(os.getpid()), "status": "RUNNING", "self_cpu_seconds": .125}],
+            "phases": [], "auxiliary_costs": []}
+        state = {"manifest_sha256": self.manifest_sha, "status": "INITIALIZED"}
+        return ledger, state
+
+    def persist_accounting(self):
+        ledger, state = self.accounting(); self.m.save(self.m.ledger_path(), ledger); self.m.save(self.m.state_path(), state)
+        return ledger, state
+
+    def launch_harness(self, mode="success"):
+        self.manifest["worker"]["argv"][-1] = mode; self.write_manifest()
+        env = dict(os.environ, R4_AUDIT_TEST_HARNESS="1")
+        process = subprocess.Popen([self.m.PYTHON, str(self.source), "--manifest", str(self.manifest_path),
+            "--manifest-sha256", self.manifest_sha, "--attempt", "fixture-audit", "--execute"],
+            cwd=self.root, env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, start_new_session=True)
+        self.track(process); return process
+
+    def completed_harness(self, mode="success"):
+        process = self.launch_harness(mode); stdout, stderr = process.communicate(timeout=8)
+        return process.returncode, stdout, stderr
+
+
+class SupervisorTests(AuditFixture):
+    def test_fixture_never_resolves_the_production_root(self):
+        self.assertEqual(Path(self.m.ROOT), self.root)
+        production_root = next(p for p in SOURCE.parents if (p / ".git").exists())
+        self.assertNotEqual(Path(self.m.ROOT), production_root)
+
+    def test_claim_with_lost_ledger_blocks_reset(self):
+        self.persist_accounting(); self.m.claim_allocation(self.manifest, self.manifest_sha)
+        self.m.ledger_path().unlink()
+        with self.assertRaisesRegex(ValueError, "claim exists.*missing"):
+            self.m.claim_allocation(self.manifest, self.manifest_sha)
+
+    def test_claim_with_lost_state_blocks_reset(self):
+        self.persist_accounting(); self.m.claim_allocation(self.manifest, self.manifest_sha)
+        self.m.state_path().unlink()
+        with self.assertRaisesRegex(ValueError, "claim exists.*missing"):
+            self.m.claim_allocation(self.manifest, self.manifest_sha)
+
+    def test_claim_cannot_move_to_another_work_or_manifest(self):
+        self.persist_accounting(); self.m.claim_allocation(self.manifest, self.manifest_sha)
+        changed = dict(self.manifest, work_directory=str(self.root / "another_work"))
+        with self.assertRaisesRegex(ValueError, "fixed"):
+            self.m.validate_manifest(changed, self.manifest_sha)
+        with self.assertRaisesRegex(ValueError, "cannot move/reset"):
+            self.m.claim_allocation(changed, "a" * 64)
+
+    def test_boot_change_rejects_manifest_and_accounting(self):
+        ledger, state = self.accounting(); changed = dict(self.manifest, boot_id="00000000-0000-0000-0000-000000000000")
+        with self.assertRaisesRegex(ValueError, "boot binding"):
+            self.m.validate_manifest(changed, self.manifest_sha)
+        with self.assertRaisesRegex(ValueError, "boot changed"):
+            self.m.validate_accounting(ledger, state, changed, self.manifest_sha)
+
+    def test_healthy_predecessor_waits_without_old_closed_validator(self):
+        self.set_predecessor("RUNNING", self.m.identity(os.getpid()), phase_status="RUNNING")
+        with mock.patch.object(self.m, "pureclosed_validator", side_effect=AssertionError("Do not audit a live chain")) as closed:
+            self.assertEqual(self.m.inspect_predecessor(self.manifest)["status"], "WAITING_V7_CLOSURE")
+        closed.assert_not_called()
+
+    def test_closed_parent_with_live_git_session_member_is_not_closed(self):
+        self.set_predecessor("CLOSED", self.dead)
+        orphan = {**self.dead, "pid": self.dead["pid"] - 1, "state": "S", "CPU_seconds": .01, "rss_bytes": 4096}
+        def members(expected):
+            return [orphan] if self.m.same(expected, self.dead) else []
+        with mock.patch.object(self.m, "is_live", return_value=False), \
+             mock.patch.object(self.m, "session_members", side_effect=members), \
+             mock.patch.object(self.m, "pureclosed_validator", side_effect=AssertionError("Orphan is not closure")) as closed:
+            with self.assertRaisesRegex(ValueError, "parent session.*Git/helper orphan"):
+                self.m.inspect_predecessor(self.manifest)
+        closed.assert_not_called()
+
+    def test_waiting_parent_never_calls_worker_or_git(self):
+        self.set_predecessor("RUNNING", self.m.identity(os.getpid()), phase_status="RUNNING"); self.write_manifest()
+        with mock.patch.object(self.m, "run_worker", side_effect=AssertionError("No worker while waiting")) as worker, \
+             mock.patch.object(self.m, "git_return", side_effect=AssertionError("No Git while waiting")) as git, \
+             mock.patch.object(self.m, "pureclosed_validator", side_effect=AssertionError("No historical closure while live")) as closed, \
+             mock.patch.object(self.m.time, "sleep", side_effect=InterruptedError("fixture ends after first WAIT")):
+            with self.assertRaisesRegex(InterruptedError, "first WAIT"):
+                self.m.run(self.args, self.manifest)
+        worker.assert_not_called(); git.assert_not_called(); closed.assert_not_called()
+        ledger = self.m.read(self.m.ledger_path()); state = self.m.read(self.m.state_path())
+        self.assertEqual(ledger["phases"], []); self.assertEqual(ledger["auxiliary_costs"], [])
+        self.assertIsNone(ledger["carry"])
+        self.assertEqual(state["predecessor_observation"]["status"], "WAITING_V7_CLOSURE")
+
+    def test_missing_pid_does_not_close_a_running_predecessor(self):
+        self.set_predecessor("RUNNING", self.dead, phase_status="RUNNING")
+        with mock.patch.object(self.m, "pureclosed_validator", side_effect=AssertionError("Missing PID is not closure")) as closed:
+            observed = self.m.inspect_predecessor(self.manifest)
+        self.assertEqual(observed["status"], "BLOCKED_PREDECESSOR_UNCLOSED"); closed.assert_not_called()
+
+    def test_closed_worker_row_without_wait4_receipt_is_rejected(self):
+        ledger, state = self.accounting()
+        ledger["phases"].append({"phase": "unproved", "status": "EXITED", "actual_cpu_seconds": .05, "exit_code": 0})
+        with self.assertRaises((KeyError, ValueError)):
+            self.m.validate_accounting(ledger, state, self.manifest, self.manifest_sha)
+
+    def test_negative_or_nonfinite_parent_cost_cannot_increase_budget(self):
+        for value in (-1., float("nan"), float("inf")):
+            with self.subTest(value=value):
+                ledger, state = self.accounting(); ledger["parents"][0]["self_cpu_seconds"] = value
+                with self.assertRaisesRegex(ValueError, "finite and nonnegative"):
+                    self.m.validate_accounting(ledger, state, self.manifest, self.manifest_sha)
+
+    def test_real_wait4_self_cost_hold_and_finalized_retry_do_not_refund(self):
+        returncode, _, stderr = self.completed_harness()
+        self.assertEqual(returncode, 0, stderr)
+        ledger = self.m.read(self.m.ledger_path()); state = self.m.read(self.m.state_path()); row = ledger["phases"][0]
+        receipt = self.m.read(self.m.checked(row["wait4_receipt"]))
+        actual = receipt["ru_utime_seconds"] + receipt["ru_stime_seconds"]
+        self.assertGreater(actual, .05); self.assertEqual(row["actual_cpu_seconds"], actual)
+        totals = self.m.validate_accounting(ledger, state, self.manifest, self.manifest_sha)
+        self.assertAlmostEqual(totals["audit_actual_cpu_seconds"], totals["self_cpu_seconds"] + actual)
+        self.assertGreater(totals["self_cpu_seconds"], 0)
+        self.assertAlmostEqual(totals["audit_budget_charged_cpu_seconds"] - totals["audit_actual_cpu_seconds"], 1)
+        self.assertEqual(state["worker_status"], "DONE_SEALED")
+        before = self.m.sha(self.m.ledger_path())
+        completed = subprocess.run([self.m.PYTHON, str(self.source), "--manifest", str(self.manifest_path),
+            "--manifest-sha256", self.manifest_sha, "--attempt", "fixture-repeat", "--execute"],
+            cwd=self.root, text=True, capture_output=True, timeout=5)
+        self.assertEqual(completed.returncode, 0, completed.stderr)
+        self.assertEqual(before, self.m.sha(self.m.ledger_path()))
+        ledger["parents"][0]["self_cpu_seconds"] = 600
+        with self.assertRaisesRegex(ValueError, "600 CPU maximum"):
+            self.m.validate_accounting(ledger, state, self.manifest, self.manifest_sha)
+
+    def test_nonstrict_helper_guard_counts_live_child_cpu_not_only_leader(self):
+        helper = self.bin / "sleeping_audit_helper.py"
+        child_file = self.work / "sleeping_helper_child.json"
+        helper.write_text('''import json,signal,subprocess,sys,time
+from pathlib import Path
+child=subprocess.Popen([sys.executable,'-c','import time;time.sleep(3)'])
+def stop(signum,unused):
+ try:child.wait(timeout=1)
+ except subprocess.TimeoutExpired:child.kill();child.wait(timeout=1)
+ raise SystemExit(128+signum)
+signal.signal(signal.SIGTERM,stop)
+Path(sys.argv[1]).write_text(json.dumps({'pid':child.pid}))
+while True:time.sleep(.02)
+''')
+        ledger, state = self.persist_accounting()
+        original_members = self.m.session_members; injected = []
+        def observed_group(expected):
+            members = original_members(expected)
+            if not child_file.is_file(): return members
+            child_pid = json.loads(child_file.read_text())["pid"]
+            if not any(member["pid"] == child_pid for member in members): return members
+            leader = next(member for member in members if self.m.same(member, expected))
+            injected.append({"leader_real_cpu": leader["CPU_seconds"], "child_observed_cpu": 19.})
+            # Only the live /proc observation is overridden. Neither wait4 nor
+            # the saved kernel receipt/actual CPU is mocked or manufactured.
+            return [{**member, "CPU_seconds": 19.} if member["pid"] == child_pid else member for member in members]
+        with mock.patch.object(self.m, "session_members", side_effect=observed_group):
+            row = self.m.run_child(self.args, self.manifest, ledger, state, phase="fixture-helper-tree",
+                argv=[self.m.PYTHON, str(helper), str(child_file)], cpu=20, wall=4, strict_single_tgid=False)
+        self.assertTrue(injected)
+        self.assertLess(injected[0]["leader_real_cpu"], 1)
+        self.assertEqual(row["status"], "FAILED_CLOSED")
+        self.assertEqual(row["stop_reason"], "ACTUAL_CPU_GUARD")
+        self.assertGreaterEqual(row["peak_observed_group_cpu_seconds"], 19)
+        receipt = self.m.read(self.m.checked(row["wait4_receipt"]))
+        actual = receipt["ru_utime_seconds"] + receipt["ru_stime_seconds"]
+        self.assertEqual(actual, row["actual_cpu_seconds"]); self.assertLess(actual, 1)
+        self.assertFalse(receipt["unsupported_tree_observed"])
+        self.assertEqual(ledger["phases"], []); self.assertEqual(len(ledger["auxiliary_costs"]), 1)
+        self.m.validate_accounting(ledger, state, self.manifest, self.manifest_sha)
+
+    def test_complete_result_does_not_close_a_running_worker(self):
+        returncode, _, stderr = self.completed_harness(); self.assertEqual(returncode, 0, stderr)
+        ledger = self.m.read(self.m.ledger_path()); row = dict(ledger["phases"][0], status="RUNNING")
+        with self.assertRaisesRegex(ValueError, "successful closed"):
+            self.m.seal_worker(row, self.manifest)
+
+    def test_repinned_wait4_content_still_requires_raw_exit_and_finite_cpu(self):
+        returncode, _, stderr = self.completed_harness(); self.assertEqual(returncode, 0, stderr)
+        base = self.m.read(self.m.ledger_path()); state = self.m.read(self.m.state_path())
+        original = self.m.read(self.m.checked(base["phases"][0]["wait4_receipt"]))
+        for name, updates in (("raw-exit", {"raw_wait_status": signal.SIGTERM}), ("negative-CPU", {"ru_utime_seconds": -1.})):
+            with self.subTest(name=name):
+                ledger = json.loads(json.dumps(base)); receipt = {**original, **updates}
+                file = self.work / "execution" / ("synthetic-unit-" + name + ".json"); self.m.save(file, receipt)
+                ledger["phases"][0]["wait4_receipt"] = self.m.ref(file)
+                with self.assertRaisesRegex(ValueError, "Unreconciled kernel wait4 receipt"):
+                    self.m.validate_accounting(ledger, state, self.manifest, self.manifest_sha)
+
+    def test_parent_death_kills_proof_verified_worker_with_sigkill(self):
+        libc = ctypes.CDLL(None, use_errno=True); previous = ctypes.c_int()
+        self.assertEqual(libc.prctl(37, ctypes.byref(previous), 0, 0, 0), 0)
+        self.assertEqual(libc.prctl(36, 1, 0, 0, 0), 0)
+        worker_pid = None
+        try:
+            parent = self.launch_harness("pause"); ready = self.work / "science/audit-attempt001/ready.json"
+            wait_until(ready.is_file)
+            observation = json.loads(ready.read_text()); self.assertTrue(observation["proof_verified"])
+            worker_pid = observation["pid"]; worker = self.track_pid(worker_pid)
+            parent.kill(); parent.wait(timeout=3)
+            def reaped():
+                observed = os.wait4(worker_pid, os.WNOHANG)
+                return observed if observed[0] else None
+            status = wait_until(reaped)[1]
+            self.assertTrue(os.WIFSIGNALED(status)); self.assertEqual(os.WTERMSIG(status), signal.SIGKILL)
+            self.assertFalse(live(worker))
+        finally:
+            if worker_pid is not None:
+                try:
+                    current = proc_identity(worker_pid)
+                    if current["state"] not in ("Z", "X", "x"): os.kill(worker_pid, signal.SIGKILL)
+                    os.wait4(worker_pid, 0)
+                except (FileNotFoundError, ProcessLookupError, ChildProcessError): pass
+            libc.prctl(36, previous.value, 0, 0, 0)
+
+    def test_extra_child_blocks_but_preserves_kernel_receipt_first(self):
+        returncode, _, stderr = self.completed_harness("fork")
+        self.assertNotEqual(returncode, 0, stderr)
+        ledger = self.m.read(self.m.ledger_path()); row = ledger["phases"][0]
+        self.assertTrue(ledger["blocked_unknown_cpu_or_process_tree"])
+        self.assertEqual(row["status"], "BLOCKED_UNKNOWN")
+        receipt = self.m.read(self.m.checked(row["wait4_receipt"]))
+        self.assertTrue(receipt["unsupported_tree_observed"])
+        self.assertGreater(row["observed_wait4_cpu_seconds"], .05)
+        self.assertIsNone(row["actual_cpu_seconds"])
+        totals = self.m.budget_totals(ledger)
+        self.assertGreaterEqual(totals["unresolved_execution_cpu_reservation_seconds"], row["cpu_seconds"])
+        self.assertGreaterEqual(totals["unresolved_observed_wait4_cpu_lower_bound_seconds"], row["observed_wait4_cpu_seconds"])
+        self.assertGreaterEqual(totals["audit_budget_charged_cpu_seconds"], totals["audit_actual_cpu_seconds"] + row["cpu_seconds"] + 1)
+        with self.assertRaisesRegex(ValueError, "Unknown execution cost"):
+            self.m.validate_accounting(ledger, self.m.read(self.m.state_path()), self.manifest, self.manifest_sha)
+
+
+if __name__ == "__main__":
+    unittest.main()
