@@ -7,7 +7,7 @@
   "preparation_cpu_seconds_reserved": 2000.0,
   "preparation_reservation_is_conservative_not_measured_CPU": true,
   "payload_cpu_seconds": 217.9658,
-  "supervisor_cpu_seconds": 2.490372000000008,
+  "supervisor_cpu_seconds": 17.79520599999998,
   "jobs": {
     "water-diagnostics": {
       "status": "COMPLETED",
@@ -279,6 +279,84 @@
       "last_stop_reason": null,
       "updated_at_utc": "2026-11-08T13:53:55.292259+00:00",
       "ended_at_utc": "2026-11-08T13:53:55.293584+00:00"
+    },
+    "acid-g3-h001": {
+      "status": "RUNNING",
+      "started_at_utc": "2026-11-08T13:53:58.024388+00:00",
+      "actual_cpu_seconds": 0.0,
+      "attempts": [
+        {
+          "status": "RUNNING",
+          "started_at_utc": "2026-11-08T13:53:58.028340+00:00",
+          "argv": [
+            "/workspace/research4/.venv-pyscf-90000/bin/python",
+            "-B",
+            "/workspace/research4/scripts/pyscf_continuous_science_20261108_v3.py",
+            "--stage",
+            "hessian",
+            "--output",
+            "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/acid-g3-h001",
+            "--threads",
+            "2",
+            "--grid-level",
+            "3",
+            "--conv-tol",
+            "1e-10",
+            "--conv-grad",
+            "1e-7",
+            "--geometry",
+            "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/acid-g3-optimize/result.json",
+            "--step",
+            "0.001",
+            "--fallback-geometry",
+            "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/acid-g3-prepare/result.json"
+          ],
+          "remaining_pool_cpu_at_start": 77749,
+          "sampled_cpu_seconds": 1905.410266,
+          "attempt_index": 1,
+          "output_directory": "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/acid-g3-h001",
+          "guardian_identity": {
+            "pid": 4581,
+            "ppid": 1,
+            "pgrp": 4581,
+            "sid": 4581,
+            "state": "R",
+            "start_ticks": 908124,
+            "uid": 1000,
+            "boot_id": "a518927f-14ba-467c-8e72-ac5d3ebbe429",
+            "cpu_seconds": 220.89,
+            "rss_bytes": 15069184
+          },
+          "worker_identity": {
+            "pid": 4691,
+            "ppid": 4581,
+            "pgrp": 4691,
+            "sid": 4691,
+            "state": "R",
+            "start_ticks": 919529,
+            "uid": 1000,
+            "boot_id": "a518927f-14ba-467c-8e72-ac5d3ebbe429",
+            "cpu_seconds": 0.0,
+            "rss_bytes": 0
+          },
+          "peak_rss_bytes": 1918115840
+        }
+      ],
+      "quality_does_not_block_downstream": true,
+      "worker_identity": {
+        "pid": 4691,
+        "ppid": 4581,
+        "pgrp": 4691,
+        "sid": 4691,
+        "state": "R",
+        "start_ticks": 919529,
+        "uid": 1000,
+        "boot_id": "a518927f-14ba-467c-8e72-ac5d3ebbe429",
+        "cpu_seconds": 0.0,
+        "rss_bytes": 0
+      },
+      "current_attempt": 1,
+      "sampled_current_attempt_cpu_seconds": 1905.410266
     }
   },
   "prior_charged_cpu_seconds": 9678.939876,
@@ -298,11 +376,11 @@
     "rss_bytes": 14368768
   },
   "detachment_survives_host_shutdown": false,
-  "updated_at_utc": "2026-11-08T13:53:55.293588+00:00",
-  "consumed_cpu_seconds": 2220.456175,
-  "actual_observed_cpu_seconds_excluding_preparation_reservation": 220.4561749999998,
-  "remaining_cpu_seconds": 77779.543825,
-  "combined_original_grant_charged_cpu_seconds": 11899.396051,
+  "updated_at_utc": "2026-11-08T14:08:54.067700+00:00",
+  "consumed_cpu_seconds": 4141.171274,
+  "actual_observed_cpu_seconds_excluding_preparation_reservation": 2141.1712740000003,
+  "remaining_cpu_seconds": 75858.828726,
+  "combined_original_grant_charged_cpu_seconds": 13820.11115,
   "git_returns": [
     {
       "status": "PUSH_REMOTE_HEAD_VERIFIED",
@@ -313,6 +391,11 @@
       "status": "PUSH_REMOTE_HEAD_VERIFIED",
       "commit": "d7470271b875945026d163758b29d61e874bf3ee",
       "at_utc": "2026-11-08T13:52:10.828181+00:00"
+    },
+    {
+      "status": "PUSH_REMOTE_HEAD_VERIFIED",
+      "commit": "8040674237353826361932b4c69800cbe4ecaea1",
+      "at_utc": "2026-11-08T13:53:58.021640+00:00"
     }
   ]
 }
