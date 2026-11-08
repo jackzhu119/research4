@@ -6,7 +6,7 @@ import json
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
-from species_background_budget import status
+from species_background_budget import proc_stat, status
 
 ROOT = Path(__file__).resolve().parents[1]
 BASE = ROOT / "data/research/species_background_20261108"
@@ -20,8 +20,10 @@ def main():
     counts = Counter(value["status"] for value in state["jobs"].values())
     manifest = json.loads((BASE / "jobs.json").read_text())
     counts["not_started"] = len(manifest["jobs"]) - len(state["jobs"])
+    owner_state = (proc_stat(state["owner"]["pid"]) or {}).get("state")
+    supervisor_running = state["supervisor_identity_matches"] and owner_state not in (None, "Z", "X")
     result = {"status": state["status"], "supervisor_pid": state["owner"]["pid"],
-              "supervisor_running": state["supervisor_identity_matches"],
+              "supervisor_running": supervisor_running,
               "active_worker_running": state["active_identity_matches"],
               "cpu_seconds_used": round(state["spent_cpu_seconds"], 3),
               "cpu_seconds_remaining": round(state["remaining_cpu_seconds"], 3),
