@@ -1,0 +1,141 @@
+"""Real Git integration in a temporary repository; no production Git access.
+
+Reproduce the large before/after index evidence without synthetic JSON padding.
+The frozen v1 helper must clean exactly92 new files while preserving18,947
+unrelated baseline index entries. Qualify the resulting >9.5MiB JSON with v2.
+"""
+from __future__ import annotations
+
+import argparse
+import hashlib
+import importlib.util
+import json
+import os
+from pathlib import Path
+import resource
+import subprocess
+import sys
+import tempfile
+import time
+
+
+ROOT = next(p for p in Path(__file__).resolve().parents if (p / ".git").exists())
+BASE = ROOT / "reports/parallel-cloud-20261106/worker-b/B20261106-01/yanan-cause-followup-v2"
+HELPER = BASE / "publication-recovery-v1/bin/index_provenance_helper.py"
+HELPER_SHA = "771564dd61a42652da017f8d2f2cafd78c1de32eded4831583254b44e78999c6"
+QUALIFIER = BASE / "publication-recovery-v2/bin/compact_cleanup_qualification.py"
+
+
+def digest(data):
+    return hashlib.sha256(data).hexdigest()
+
+
+def cpu(kind):
+    value = resource.getrusage(kind)
+    return value.ru_utime + value.ru_stime
+
+
+def run(output):
+    started = time.monotonic()
+    self_before, children_before = cpu(resource.RUSAGE_SELF), cpu(resource.RUSAGE_CHILDREN)
+    assert digest(HELPER.read_bytes()) == HELPER_SHA
+    assert QUALIFIER.is_file(), "Wait for the frozen v2 qualifier before this integration test"
+    qualifier_sha = digest(QUALIFIER.read_bytes())
+    spec = importlib.util.spec_from_file_location("frozen_independent_large_index_helper", HELPER)
+    H = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(H)
+    report = {"schema": "research4-independent-real-git-large-index-test-v1", "status": "RUNNING",
+              "production_git_access": False, "scientific_fit_or_training": False,
+              "helper_sha256": HELPER_SHA, "qualifier_sha256": qualifier_sha,
+              "source_sha256": digest(Path(__file__).read_bytes()), "synthetic_padding": False}
+    env = {key: value for key, value in os.environ.items() if not key.startswith("GIT_")}
+    env.update(GIT_CONFIG_NOSYSTEM="1", GIT_CONFIG_GLOBAL="/dev/null", GIT_TERMINAL_PROMPT="0")
+    calls = []
+    with tempfile.TemporaryDirectory(prefix="independent-publication-large-index-") as temporary:
+        repo = Path(temporary)
+
+        def git(repo_arg, arguments, data=None):
+            assert Path(repo_arg) == repo and repo != ROOT
+            calls.append(list(arguments))
+            command = ["git", "-c", "core.hooksPath=/dev/null", "-c", "core.fsmonitor=false",
+                       "-c", "user.name=Temporary fixture", "-c", "user.email=fixture@example.invalid",
+                       "-C", str(repo), *arguments]
+            value = subprocess.run(command, input=data, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                   env=env, timeout=60, check=False)
+            assert value.returncode == 0, (arguments, value.returncode, value.stderr.decode("utf-8", "replace"))
+            return value.stdout
+
+        git(repo, ["init", "--quiet"])
+        oid = git(repo, ["hash-object", "-w", "--stdin"], b"baseline\n").strip().decode("ascii")
+        prefix = "baseline/" + "x" * 100 + "/"
+        baseline = [(prefix + "file%05d.txt" % index) for index in range(18947)]
+        entries = b"".join(("100644 " + oid + "\t" + name).encode() + b"\0" for name in baseline)
+        git(repo, ["update-index", "-z", "--index-info"], entries)
+        tree = git(repo, ["write-tree"]).strip().decode("ascii")
+        commit = git(repo, ["commit-tree", tree, "-m", "Temporary baseline only"]).strip().decode("ascii")
+        git(repo, ["update-ref", "HEAD", commit])
+        artifacts = {}
+        for index in range(92):
+            name = "owned/file%03d.json" % index
+            data = (json.dumps({"synthetic_owned_file": index}, sort_keys=True) + "\n").encode()
+            file = repo / name
+            file.parent.mkdir(parents=True, exist_ok=True)
+            file.write_bytes(data)
+            artifacts[name] = {"bytes": len(data), "sha256": digest(data)}
+        git(repo, ["add", "--", *artifacts])
+        receipt = repo / "failure_receipt.json"
+        receipt.write_text(json.dumps({"schema": "research4-actual-result-return-v1",
+            "status": "PARTIAL_OR_FAILED_UPLOAD_PRESERVED", "source_helper_sha256": HELPER_SHA,
+            "artifact_hashes": artifacts}, sort_keys=True) + "\n")
+        receipt_sha = digest(receipt.read_bytes())
+        original_worktree = {name: (repo / name).read_bytes() for name in artifacts}
+        result = H.perform(repo, receipt, receipt_sha, 92, "cleanup", execute=True, git=git)
+        raw = repo / "cleanup/result.json"
+        raw_bytes = raw.read_bytes()
+        assert 9.5 * 1024**2 < len(raw_bytes) <= 16 * 1024**2, len(raw_bytes)
+        assert result["status"] == "PRECISE_UNSTAGE_VERIFIED_WORKTREE_UNCHANGED"
+        assert len(result["before"]["index_entries"]) == 19039
+        assert len(result["after"]["index_entries"]) == 18947
+        assert result["after"]["staged_paths"] == []
+        assert original_worktree == {name: (repo / name).read_bytes() for name in artifacts}
+        index_after = (repo / ".git/index").read_bytes()
+        raw_sha = digest(raw_bytes)
+        command = [sys.executable, "-B", str(QUALIFIER), "--repo", str(repo),
+                   "--raw-result", str(raw), "--raw-result-sha256", raw_sha,
+                   "--failure-receipt", str(receipt), "--failure-receipt-sha256", receipt_sha,
+                   "--output", str(repo / "qualified"), "--execute"]
+        qualification = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                       env=env, timeout=90, check=False)
+        assert qualification.returncode == 0, qualification.stderr.decode("utf-8", "replace") + qualification.stdout.decode("utf-8", "replace")
+        compact_files = list((repo / "qualified").glob("*.json"))
+        assert compact_files and all(file.stat().st_size < 1024**2 for file in compact_files)
+        compact = [json.loads(file.read_text()) for file in compact_files]
+        assert any(value.get("status") == "COMPACT_CLEANUP_QUALIFIED" for value in compact)
+        assert (repo / ".git/index").read_bytes() == index_after
+        assert raw.read_bytes() == raw_bytes
+        assert original_worktree == {name: (repo / name).read_bytes() for name in artifacts}
+        assert git(repo, ["diff", "--cached", "--name-only", "-z", "--"]) == b""
+        report.update(status="PASS", baseline_entries=18947, owned_entries=92,
+                      before_index_entries=19039, after_index_entries=18947,
+                      raw_result_bytes=len(raw_bytes), raw_result_sha256=raw_sha,
+                      raw_result_greater_than_9_5_MiB=True,
+                      compact_files=[{"name": file.name, "bytes": file.stat().st_size,
+                                      "sha256": digest(file.read_bytes())} for file in compact_files],
+                      precise_restore_calls=sum(command[:2] == ["restore", "--staged"] for command in calls),
+                      qualifier_preserved_index_raw_evidence_and_all92_working_files=True,
+                      helper_real_git_invocations=len(calls), fixture_removed_at_end=True)
+    assert digest(HELPER.read_bytes()) == HELPER_SHA
+    assert digest(QUALIFIER.read_bytes()) == qualifier_sha
+    report.update(observed_self_cpu_seconds=cpu(resource.RUSAGE_SELF)-self_before,
+                  observed_waited_children_cpu_seconds=cpu(resource.RUSAGE_CHILDREN)-children_before,
+                  wall_seconds=time.monotonic()-started)
+    with Path(output).open("x") as handle:
+        json.dump(report, handle, ensure_ascii=False, indent=2)
+        handle.write("\n")
+    print(json.dumps(report, ensure_ascii=False))
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--output", required=True)
+    run(parser.parse_args().output)

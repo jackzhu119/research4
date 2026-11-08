@@ -1,0 +1,117 @@
+"""Real Git integration only in TemporaryDirectory; no production Git access."""
+from copy import deepcopy
+import importlib.util
+import json
+import os
+from pathlib import Path
+import subprocess
+import tempfile
+import unittest
+
+
+def load(name, file):
+    spec = importlib.util.spec_from_file_location(name, file)
+    module = importlib.util.module_from_spec(spec); spec.loader.exec_module(module)
+    return module
+
+
+HERE = Path(__file__).resolve().parent
+Q = load("compact_qualifier", HERE / "compact_cleanup_qualification.py")
+HFILE = HERE.parents[1] / "publication-recovery-v1/bin/index_provenance_helper.py"
+H = load("frozen_v1_index_helper", HFILE)
+assert Q.digest(HFILE.read_bytes()) == "771564dd61a42652da017f8d2f2cafd78c1de32eded4831583254b44e78999c6"
+
+
+class IntegrationTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.tmp = tempfile.TemporaryDirectory()
+        cls.repo = Path(cls.tmp.name)
+        def git(*argv):
+            env = {key: value for key, value in os.environ.items() if not key.startswith("GIT_")}
+            env.update(GIT_CONFIG_NOSYSTEM="1", GIT_OPTIONAL_LOCKS="0")
+            return subprocess.run(["git", "-c", "core.hooksPath=/dev/null", "-c", "core.fsmonitor=false", "-C", str(cls.repo), *argv],
+                                  env=env, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).stdout
+        cls.git = staticmethod(git)
+        git("init", "--quiet")
+        git("config", "user.name", "Temporary Integration")
+        git("config", "user.email", "temporary@example.invalid")
+        (cls.repo / "baseline.txt").write_text("baseline\n")
+        git("add", "--", "baseline.txt")
+        git("commit", "--quiet", "-m", "temporary baseline")
+        artifacts = {}
+        for index in range(92):
+            name = "owned/entry-%03d.json" % index
+            file = cls.repo / name; file.parent.mkdir(exist_ok=True)
+            file.write_text(json.dumps({"entry": index, "test_only": True}) + "\n")
+            artifacts[name] = {key: value for key, value in Q.file_ref(cls.repo, file).items() if key != "path"}
+        git("add", "--", "owned")
+        cls.failure = cls.repo / "failure_receipt.json"
+        cls.failure.write_text(json.dumps({"artifact_hashes": artifacts}))
+        cls.failure_sha = Q.digest(cls.failure.read_bytes())
+        actual = H.perform(cls.repo, cls.failure, cls.failure_sha, 92, "raw-cleanup", execute=True)
+        assert actual["status"] == "PRECISE_UNSTAGE_VERIFIED_WORKTREE_UNCHANGED"
+        # Genuine92 blob/index/worktree evidence is unchanged; non-core padding
+        # reproduces the >4MiB parser failure without thousands of temp commits.
+        actual["integration_evidence_padding"] = "x" * 9_500_000
+        cls.raw = cls.repo / "large_raw_result.json"
+        cls.raw.write_text(json.dumps(actual))
+        cls.raw_sha = Q.digest(cls.raw.read_bytes())
+        cls.raw_bytes = cls.raw.read_bytes()
+        assert cls.raw.stat().st_size >= 9_500_000
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.tmp.cleanup()
+
+    def qualify(self, raw=None, sha=None):
+        return Q.qualify(self.repo, raw or self.raw, sha or self.raw_sha, self.failure, self.failure_sha, execute=True)
+
+    def test_real92_cleanup_large_raw_to_compact_read_only(self):
+        before_index = (self.repo / ".git/index").read_bytes()
+        result = self.qualify()
+        self.assertEqual(result["status"], "COMPACT_CLEANUP_QUALIFIED")
+        self.assertEqual(len(result["owned_entries"]), 92)
+        self.assertLessEqual(len(json.dumps(result, indent=2).encode()), 1024 ** 2)
+        self.assertNotIn("index_entries", result)
+        self.assertEqual(self.raw.read_bytes(), self.raw_bytes)
+        self.assertEqual((self.repo / ".git/index").read_bytes(), before_index)
+        output = self.repo / "compact-cli"
+        self.assertEqual(Q.main(["--repo", str(self.repo), "--raw-result", str(self.raw), "--raw-result-sha256", self.raw_sha,
+                                 "--failure-receipt", str(self.failure), "--failure-receipt-sha256", self.failure_sha,
+                                 "--output", str(output), "--execute"]), 0)
+        self.assertLessEqual((output / "result.json").stat().st_size, 1024 ** 2)
+
+    def test_corrupt_raw_sha_rejected(self):
+        with self.assertRaisesRegex(ValueError, "hash changed"):
+            self.qualify(sha="0" * 64)
+
+    def test_wrong_status_rejected(self):
+        altered = json.loads(self.raw_bytes)
+        altered["status"] = "REJECTED"
+        file = self.repo / "bad-status.json"; file.write_text(json.dumps(altered))
+        with self.assertRaisesRegex(ValueError, "not a completed"):
+            self.qualify(file, Q.digest(file.read_bytes()))
+
+    def test_nonempty_current_index_rejected_without_cleanup(self):
+        file = self.repo / "unrelated.txt"; file.write_text("unrelated\n")
+        self.git("add", "--", "unrelated.txt")
+        try:
+            with self.assertRaisesRegex(ValueError, "Current index has staged changes"):
+                self.qualify()
+            self.assertIn(b"unrelated.txt", self.git("diff", "--cached", "--name-only", "-z"))
+        finally:
+            self.git("restore", "--staged", "--", "unrelated.txt")
+
+    def test_changed_owned_worktree_rejected(self):
+        file = self.repo / "owned/entry-000.json"; before = file.read_bytes()
+        file.write_bytes(b"changed")
+        try:
+            with self.assertRaisesRegex(ValueError, "Current worktree differs"):
+                self.qualify()
+        finally:
+            file.write_bytes(before)
+
+
+if __name__ == "__main__":
+    unittest.main()

@@ -1,0 +1,193 @@
+"""Read-only qualification of an already completed, receipt-bound unstage.
+
+The full historical index remains in the pinned raw evidence. Only the 92
+owned entries and full-index counts/digests are copied into the compact report.
+"""
+from __future__ import annotations
+
+import argparse
+import hashlib
+import json
+import os
+from pathlib import Path
+import re
+import subprocess
+
+RAW_LIMIT = 16 * 1024 ** 2
+OUTPUT_LIMIT = 1024 ** 2
+COUNT = 92
+
+
+def require(condition, message):
+    if not condition:
+        raise ValueError(message)
+
+
+def digest(data):
+    return hashlib.sha256(data).hexdigest()
+
+
+def canonical(value):
+    return json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"), allow_nan=False).encode("utf-8")
+
+
+def safe_path(repo, value, *, exists=True):
+    item = Path(value)
+    require("\x00" not in str(value) and ".." not in item.parts, "Unsafe evidence path")
+    item = item if item.is_absolute() else repo / item
+    item = Path(os.path.abspath(item))
+    require(item != repo and item.is_relative_to(repo), "Evidence outside repository")
+    require(not any(p.is_symlink() for p in (item, *item.parents) if p.is_relative_to(repo)), "Symlink evidence rejected")
+    if exists:
+        require(item.is_file(), "Expected regular evidence file: " + str(item))
+    return item
+
+
+def file_ref(repo, file):
+    data = file.read_bytes()
+    return {"path": str(file.relative_to(repo)), "bytes": len(data), "sha256": digest(data)}
+
+
+def checked(repo, value):
+    require(isinstance(value, dict) and isinstance(value.get("path"), str), "Malformed file ref")
+    file = safe_path(repo, value["path"])
+    actual = file_ref(repo, file)
+    require(type(value.get("bytes")) is int and value["bytes"] == actual["bytes"] and value.get("sha256") == actual["sha256"], "Evidence ref changed: " + value["path"])
+    return file
+
+
+def pinned_json(repo, value, expected_sha, limit):
+    file = safe_path(repo, value)
+    require(file.stat().st_size <= limit, "Pinned JSON exceeds size limit")
+    data = file.read_bytes()
+    require(len(data) <= limit and re.fullmatch(r"[0-9a-f]{64}", expected_sha or "") and digest(data) == expected_sha, "Pinned JSON hash changed")
+    return json.loads(data), {"path": str(file.relative_to(repo)), "sha256": expected_sha, "bytes": len(data)}
+
+
+def normalize_artifacts(repo, artifacts):
+    require(isinstance(artifacts, dict) and len(artifacts) == COUNT, "Exactly92 receipt artifacts required")
+    result = {}
+    for name, value in artifacts.items():
+        path = safe_path(repo, name)
+        relative = str(path.relative_to(repo))
+        require(relative not in result, "Duplicate owned path")
+        require(isinstance(value, dict) and type(value.get("bytes")) is int and value["bytes"] >= 0 and
+                re.fullmatch(r"[0-9a-f]{64}", value.get("sha256", "")), "Malformed receipt artifact")
+        result[relative] = {"bytes": value["bytes"], "sha256": value["sha256"]}
+    return result
+
+
+def owned_refs(repo, values, expected, label):
+    require(isinstance(values, list) and len(values) == COUNT, label + " needs exactly92 entries")
+    found = {}
+    for value in values:
+        require(isinstance(value, dict), "Malformed " + label)
+        name = str(safe_path(repo, value.get("path", "")).relative_to(repo))
+        require(name not in found and name in expected, "Unexpected/duplicate " + label)
+        require(type(value.get("bytes")) is int and {"bytes": value["bytes"], "sha256": value.get("sha256")} == expected[name], label + " differs from failure receipt")
+        found[name] = value
+    require(set(found) == set(expected), label + " owned set differs")
+    return found
+
+
+def current_index_empty(repo):
+    env = {key: value for key, value in os.environ.items() if not key.startswith("GIT_")}
+    env.update(GIT_OPTIONAL_LOCKS="0", GIT_CONFIG_NOSYSTEM="1")
+    command = ["git", "-c", "core.fsmonitor=false", "-C", str(repo), "diff", "--cached", "--name-only", "--no-renames", "--no-ext-diff", "--no-textconv", "-z", "--"]
+    result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=env, check=False)
+    require(result.returncode == 0, "Read-only Git inspection failed")
+    require(result.stdout == b"", "Current index has staged changes")
+    return {"command": command[6:], "staged_paths": [], "staged_index_empty": True, "git_mutation_performed": False}
+
+
+def qualify(repo, raw_result, raw_sha, receipt, receipt_sha, *, execute=False):
+    repo = Path(os.path.abspath(repo))
+    require(repo.is_dir() and not repo.is_symlink(), "Invalid repository")
+    raw, raw_ref = pinned_json(repo, raw_result, raw_sha, RAW_LIMIT)
+    failure, failure_ref = pinned_json(repo, receipt, receipt_sha, RAW_LIMIT)
+    expected = normalize_artifacts(repo, failure.get("artifact_hashes"))
+    require(raw.get("schema") == "research4-index-provenance-recovery-v1" and
+            raw.get("status") == "PRECISE_UNSTAGE_VERIFIED_WORKTREE_UNCHANGED" and
+            raw.get("execute") is True and raw.get("mutation_attempted") is True and
+            type(raw.get("expected_count")) is int and raw["expected_count"] == COUNT, "Raw result is not a completed precise92 cleanup")
+    bound = raw.get("failure_receipt", {})
+    require(safe_path(repo, bound.get("path", "")) == safe_path(repo, receipt) and bound.get("sha256") == receipt_sha,
+            "Raw cleanup binds a different failure receipt")
+    before, after = raw.get("before", {}), raw.get("after", {})
+    staged = before.get("staged_paths")
+    require(isinstance(staged, list) and len(staged) == COUNT and len(set(staged)) == COUNT and set(staged) == set(expected), "Before staged set differs from owned92")
+    require(after.get("staged_index_empty") is True and after.get("staged_paths") == [], "Raw cleanup did not prove empty index")
+    owned_refs(repo, before.get("worktree"), expected, "Before worktree")
+    owned_refs(repo, after.get("worktree"), expected, "After worktree")
+    blobs = owned_refs(repo, before.get("staged_blobs"), expected, "Staged blobs")
+    all_before, all_after = before.get("index_entries"), after.get("index_entries")
+    require(isinstance(all_before, list) and isinstance(all_after, list), "Full index evidence missing")
+    selected = {}
+    for entry in all_before:
+        require(isinstance(entry, dict), "Malformed full index entry")
+        if entry.get("path") not in expected:
+            continue
+        name = entry["path"]
+        require(name not in selected and entry.get("stage") == 0 and type(entry.get("stage")) is int and
+                entry.get("mode") in ("100644", "100755") and re.fullmatch(r"[0-9a-f]{40}|[0-9a-f]{64}", entry.get("oid", "")), "Owned index entry is not unique regular stage0")
+        require(blobs[name].get("oid") == entry["oid"], "Owned staged oid mismatch")
+        selected[name] = entry
+    require(set(selected) == set(expected), "Owned92 entries missing from historical full index")
+    backup = checked(repo, raw.get("index_before_backup"))
+    historic_index = before.get("index", {})
+    backup_ref = file_ref(repo, backup)
+    require(historic_index.get("sha256") == backup_ref["sha256"] and historic_index.get("bytes") == backup_ref["bytes"], "Historical index backup mismatch")
+    backup_blobs = {}
+    for value in raw.get("staged_blob_backups", []):
+        blob_path = checked(repo, value)
+        oid = blob_path.name.removesuffix(".blob")
+        require(blob_path.name == oid + ".blob" and oid not in backup_blobs, "Duplicate/invalid blob backup")
+        backup_blobs[oid] = value
+    require(set(backup_blobs) == {entry["oid"] for entry in selected.values()}, "Blob backup oid set differs")
+    compact = []
+    for name in sorted(expected):
+        entry = selected[name]
+        saved = backup_blobs[entry["oid"]]
+        require({"bytes": saved["bytes"], "sha256": saved["sha256"]} == expected[name], "Backup blob differs from receipt")
+        working = file_ref(repo, safe_path(repo, name))
+        require({"bytes": working["bytes"], "sha256": working["sha256"]} == expected[name], "Current worktree differs from owned92 receipt")
+        compact.append({"path": name, "mode": entry["mode"], "oid": entry["oid"], "blob_sha256": saved["sha256"],
+                        "blob_bytes": saved["bytes"], "working_sha256": working["sha256"], "working_bytes": working["bytes"]})
+    inspection = current_index_empty(repo)
+    # Recheck pinned raw after inspecting Git, without copying its large index lists.
+    require(file_ref(repo, safe_path(repo, raw_result)) == raw_ref, "Raw evidence changed during qualification")
+    result = {"schema": "research4-compact-cleanup-qualification-v2", "status": "COMPACT_CLEANUP_QUALIFIED" if execute else "CHECK_ONLY_COMPACT_CLEANUP_QUALIFIED",
+              "execute": bool(execute), "qualification_only_no_git_mutation": True, "expected_count": COUNT,
+              "source_raw_result": raw_ref, "failure_receipt": failure_ref, "owned_entries": compact,
+              "index_before_backup": raw["index_before_backup"], "current_index": inspection,
+              "full_index_metadata": {"before": {"count": len(all_before), "sha256": digest(canonical(all_before))},
+                                      "after": {"count": len(all_after), "sha256": digest(canonical(all_after))}}}
+    require(len(canonical(result)) <= OUTPUT_LIMIT, "Compact result exceeds1MiB")
+    return result
+
+
+def main(argv=None):
+    parser = argparse.ArgumentParser(description=__doc__)
+    for name in ("repo", "raw-result", "raw-result-sha256", "failure-receipt", "failure-receipt-sha256", "output"):
+        parser.add_argument("--" + name, required=True)
+    parser.add_argument("--execute", action="store_true")
+    args = parser.parse_args(argv)
+    try:
+        result = qualify(args.repo, args.raw_result, args.raw_result_sha256, args.failure_receipt,
+                         args.failure_receipt_sha256, execute=args.execute)
+        repo = Path(os.path.abspath(args.repo))
+        output = safe_path(repo, args.output, exists=False)
+        output.mkdir(parents=True, exist_ok=False)
+        data = json.dumps(result, ensure_ascii=False, indent=2, allow_nan=False).encode("utf-8") + b"\n"
+        require(len(data) <= OUTPUT_LIMIT, "Rendered compact result exceeds1MiB")
+        with (output / "result.json").open("xb") as handle:
+            handle.write(data); handle.flush(); os.fsync(handle.fileno())
+    except Exception as exc:
+        print(json.dumps({"status": "QUALIFICATION_REJECTED", "error_type": type(exc).__name__, "reason": str(exc)}))
+        return 2
+    print(json.dumps({"status": result["status"], "owned_count": len(result["owned_entries"])}))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

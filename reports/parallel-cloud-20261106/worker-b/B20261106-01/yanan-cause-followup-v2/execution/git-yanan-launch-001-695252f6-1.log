@@ -1,0 +1,13 @@
+Traceback (most recent call last):
+  File "/workspace/research4-worker-b/scripts/research4_parallel_b_git_return_20261106.py", line 408, in <module>
+    main()
+  File "/workspace/research4-worker-b/scripts/research4_parallel_b_git_return_20261106.py", line 400, in main
+    print(json.dumps(execute_return(repo, manifest, source, args.manifest_sha256, args.attempt)))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/research4-worker-b/scripts/research4_parallel_b_git_return_20261106.py", line 350, in execute_return
+    git(repo_root, "-c", "core.whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol", "diff", "--cached", "--check")
+  File "/workspace/research4-worker-b/scripts/research4_parallel_b_git_return_20261106.py", line 57, in git
+    require(result.returncode == 0, "Git operation failed: " + args[0] + "; code=" + str(result.returncode) + ". Check this account's repository authorization; credentials are not inherited.")
+  File "/workspace/research4-worker-b/scripts/research4_parallel_b_git_return_20261106.py", line 36, in require
+    raise SafetyError(message)
+SafetyError: Git operation failed: -c; code=2. Check this account's repository authorization; credentials are not inherited.

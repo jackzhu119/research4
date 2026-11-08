@@ -1,0 +1,140 @@
+"""Temporary-data/mocked-runner checks; no Git, fitting, launch or ledger edits."""
+from copy import deepcopy
+import importlib.util
+import json
+from pathlib import Path
+from types import SimpleNamespace
+import tempfile
+import unittest
+from unittest.mock import Mock, patch
+
+SPEC = importlib.util.spec_from_file_location("publication_v2_tested", Path(__file__).with_name("publication_recovery_driver.py"))
+D = importlib.util.module_from_spec(SPEC); SPEC.loader.exec_module(D)
+
+
+class Tests(unittest.TestCase):
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory(); self.addCleanup(self.tmp.cleanup)
+        self.root = Path(self.tmp.name)
+        self.args = SimpleNamespace(manifest_sha256="m" * 64, recovery_plan=str(self.root / "plan.json"))
+        self.plan = {"driver": {"path": "v2-driver.py", "sha256": "d" * 64},
+                     "authorization_ref": {"path": "v2-auth.json", "sha256": "a" * 64}}
+
+    def test_large_cleanup_accepts_real_size_bound_and_rejects_status(self):
+        raw = {"schema": "research4-index-provenance-recovery-v1", "status": "PRECISE_UNSTAGE_VERIFIED_WORKTREE_UNCHANGED",
+               "execute": True, "mutation_attempted": True, "expected_count": 92, "evidence_padding": "x" * 9_500_000}
+        file = self.root / "large.json"; file.write_text(json.dumps(raw))
+        with patch.object(D, "checked", return_value=file):
+            self.assertEqual(D.read_large_cleanup({})["expected_count"], 92)
+            raw["status"] = "FAILED"; file.write_text(json.dumps(raw))
+            with self.assertRaisesRegex(ValueError, "actual successful92"):
+                D.read_large_cleanup({})
+            with file.open("wb") as stream:
+                stream.truncate(16 * 1024 ** 2 + 1)
+            with self.assertRaisesRegex(ValueError, "4–16MiB"):
+                D.read_large_cleanup({})
+
+    def test_append_only_freezes_v1_science_old_parents_and78_attempts(self):
+        old = {"phases": [{"phase": "science", "cost": 1.2}], "parents": [{"id": "v1", "cost": 0.5}],
+               "auxiliary_costs": [{"phase": "owned-cleanup", "cost": 8.899}],
+               "publication_recovery": {"status": "BLOCKED_REQUIRES_FORENSICS", "reason": "Metadata larger than4MiB"},
+               "carry": {"old": 83728.759434}, "preparation_debit_ref": {"sha256": "prep"}, "finalization_hold_seconds": 2}
+        saved = {"jobs": {"j": {"status": "DONE_SEALED"}}, "results": {"j": {"sha256": "frozen"}},
+                 "git_return_attempts": [{"phase": "pre", "attempt": "old" + str(i)} for i in range(78)]}
+        auth = {"predecessor_ledger_ref": {"path": "old-ledger"}, "predecessor_state_ref": {"path": "old-state"}}
+        ledger, state = deepcopy(old), deepcopy(saved)
+        ledger["parents"].append({"id": "v2", "cost": 0.1}); ledger["finalization_hold_seconds"] += 1
+        ledger["publication_recovery_v2"] = {"status": "RUNNING"}
+        state["git_return_attempts"].append({"phase": "pre", "attempt": "v2-extra"})
+        with patch.object(D, "checked", lambda value: value["path"]), \
+             patch.object(D, "read", side_effect=lambda name: deepcopy(old if name == "old-ledger" else saved)):
+            D.assert_append_only(ledger, state, auth)
+            for key in ("phases", "parents", "auxiliary_costs", "publication_recovery", "carry", "preparation_debit_ref", "finalization_hold_seconds"):
+                bad = deepcopy(ledger)
+                if isinstance(bad[key], list): bad[key][0] = {"changed": True}
+                elif key == "finalization_hold_seconds": bad[key] = 2
+                else: bad[key] = {"changed": True}
+                with self.subTest(key=key), self.assertRaises(ValueError): D.assert_append_only(bad, state, auth)
+            for key in ("jobs", "results", "git_return_attempts"):
+                bad = deepcopy(state); bad[key] = [] if key == "git_return_attempts" else {}
+                with self.subTest(key=key), self.assertRaises(ValueError): D.assert_append_only(ledger, bad, auth)
+
+    def test_extra_attempts_global_v1_one_allows_one_v1_two_allows_none(self):
+        manifest = {"git_return": {"helper": {"path": "helper.py", "sha256": "h" * 64}}}
+        binding = {"path": "return.json", "sha256": "b" * 64}
+        for already in (1, 2):
+            original = [{"phase": "pre", "attempt": "old" + str(i)} for i in range(78)]
+            v1 = [{"phase": "pre", "attempt": "v1-" + str(i), "publication_recovery_id": "publication-recovery-v1"} for i in range(already)]
+            state = {"git_return_attempts": deepcopy(original + v1), "git_stages": {}}
+            ledger = {"publication_recovery": {"untouched": True}, "publication_recovery_v2": {"return_attempts": []}}
+            child = Mock(side_effect=lambda *args, **kwargs: {"phase": kwargs["phase"], "status": "FAILED_CLOSED", "actual_cpu_seconds": 0.1})
+            with self.subTest(already=already), patch.object(D, "actual_child", child), \
+                 patch.object(D, "checked", lambda value: Path(value["path"])), patch.object(D.S, "ORIGINAL", self.root), \
+                 patch.object(D.S, "remaining_cpu", return_value=100), patch.object(D.S, "checkpoint"), patch.object(D.time, "time", return_value=0):
+                self.assertFalse(D.recover_return(self.args, manifest, ledger, state, self.plan, "pre", binding))
+                self.assertFalse(D.recover_return(self.args, manifest, ledger, state, self.plan, "pre", binding))
+            self.assertEqual(child.call_count, 2 - already)
+            self.assertEqual(state["git_return_attempts"][:78 + already], original + v1)
+            self.assertEqual(len(D.global_extra_attempts(state, "pre")), 2)
+            self.assertEqual(ledger["publication_recovery"], {"untouched": True})
+
+    def test_unknown_return_cost_cannot_trigger_another_attempt(self):
+        state = {"git_return_attempts": [{"phase": "pre", "attempt": "old" + str(i)} for i in range(78)]}
+        before = deepcopy(state)
+        with patch.object(D, "actual_child", side_effect=RuntimeError("unknown tree")) as child, \
+             patch.object(D, "checked", lambda value: Path(value["path"])), \
+             patch.object(D.S, "remaining_cpu", return_value=100), patch.object(D.time, "time", return_value=0):
+            with self.assertRaisesRegex(RuntimeError, "unknown tree"):
+                D.recover_return(self.args, {"git_return": {"helper": {"path": "helper.py"}}},
+                                 {"publication_recovery_v2": {}}, state, self.plan, "pre", {"path": "return.json", "sha256": "b"})
+        self.assertEqual(child.call_count, 1); self.assertEqual(state, before)
+
+    def test_actual_child_finally_preserves_cost_in_v2_and_deadline_starts_nothing(self):
+        v1 = {"status": "BLOCKED_REQUIRES_FORENSICS", "actual_cleanup_cpu": 8.899}
+        ledger = {"publication_recovery": deepcopy(v1), "publication_recovery_v2": {}, "auxiliary_costs": []}
+        row = {"phase": "qualify", "status": "BLOCKED_UNKNOWN", "actual_cpu_seconds": 0.75,
+               "wait4_receipt": {"path": "kernel.json", "sha256": "k"}, "ru_utime": 0.5, "ru_stime": 0.25}
+        def fail(*args, **kwargs):
+            ledger["auxiliary_costs"].append(deepcopy(row)); raise RuntimeError("unknown after wait4")
+        with patch.object(D.S, "remaining_cpu", return_value=100), patch.object(D.S, "checkpoint") as checkpoint, \
+             patch.object(D.S, "identity", return_value={"pid": 987}), patch.object(D.S, "run_child", side_effect=fail), \
+             patch.object(D, "path", lambda value: Path(value)), patch.object(D, "ref", lambda value: {"path": str(value)}), \
+             patch.object(D.time, "time", return_value=0):
+            with self.assertRaisesRegex(RuntimeError, "unknown after wait4"):
+                D.actual_child(self.args, {}, ledger, {}, self.plan, phase="qualify", command=["fake-read-only"], kind="QUALIFICATION")
+        self.assertEqual(ledger["publication_recovery"], v1)
+        self.assertIn("qualify", ledger["publication_recovery_v2"]["declared_auxiliary_invocations"])
+        actual = ledger["auxiliary_costs"][0]
+        self.assertEqual(actual["wait4_receipt"], row["wait4_receipt"]); self.assertEqual(actual["actual_cpu_seconds"], 0.75)
+        self.assertEqual(actual["actual_driver_source"], self.plan["driver"])
+        self.assertEqual(actual["publication_recovery_authorization"], self.plan["authorization_ref"])
+        self.assertEqual(checkpoint.call_args.args[2], "PUBLICATION_V2_CHILD_EVIDENCE_PRESERVED")
+        before = deepcopy(ledger)
+        with patch.object(D.S, "remaining_cpu", return_value=100), patch.object(D.S, "checkpoint") as checkpoint, \
+             patch.object(D.S, "run_child") as child, \
+             patch.object(D.time, "time", return_value=D.S.datetime.fromisoformat(D.S.DEADLINE).timestamp() - 9.9):
+            with self.assertRaisesRegex(ValueError, "budget/deadline"):
+                D.actual_child(self.args, {}, ledger, {}, self.plan, phase="too-late", command=["never"], kind="QUALIFICATION")
+        child.assert_not_called(); checkpoint.assert_not_called(); self.assertEqual(ledger, before)
+
+    def test_predecessor_unknown_and_mismatched_v1_cannot_be_qualified(self):
+        auth = {"known_failure_reason": "Metadata larger than4MiB", "v1_plan_ref": {"sha256": "plan"}, "v1_claim_ref": {"path": "v1-claim"}}
+        previous = {"status": "BLOCKED_REQUIRES_FORENSICS", "reason": auth["known_failure_reason"], "error_type": "ValueError",
+                    "binding": {"recovery_plan": {"sha256": "plan"}, "driver": {"sha256": D.V1_SHA}}}
+        ledger = {"carry": {"old": 83728.759434}, "publication_recovery": previous}
+        with patch.object(D.P, "closed_science", side_effect=ValueError("unknown process tree")), patch.object(D.S, "validate_closed_carry") as carry:
+            with self.assertRaisesRegex(ValueError, "unknown process tree"):
+                D.validate_predecessor(self.args, auth, {}, ledger, {})
+        carry.assert_not_called()
+        with patch.object(D.P, "closed_science"), patch.object(D.S, "validate_closed_carry", return_value=ledger["carry"]), \
+             patch.object(D.P, "assert_append_only"), patch.object(D, "checked", lambda value: value["path"]), \
+             patch.object(D, "read", return_value={"wrong": "claim"}):
+            with self.assertRaisesRegex(ValueError, "allocation/provenance changed"):
+                D.validate_predecessor(self.args, auth, {}, ledger, {})
+            bad = deepcopy(ledger); bad["publication_recovery"]["reason"] = "unrelated unknown failure"
+            with self.assertRaisesRegex(ValueError, "bypass another failure"):
+                D.validate_predecessor(self.args, auth, {}, bad, {})
+
+
+if __name__ == "__main__":
+    unittest.main()

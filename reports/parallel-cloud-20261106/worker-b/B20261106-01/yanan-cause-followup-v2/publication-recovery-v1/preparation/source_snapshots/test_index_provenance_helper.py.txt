@@ -1,0 +1,133 @@
+"""Pure mocked-Git tests; these tests never invoke a Git executable."""
+import hashlib
+import importlib.util
+import json
+from pathlib import Path
+import tempfile
+import unittest
+from unittest.mock import patch
+
+SPEC = importlib.util.spec_from_file_location("index_helper", Path(__file__).with_name("index_provenance_helper.py"))
+H = importlib.util.module_from_spec(SPEC)
+SPEC.loader.exec_module(H)
+
+
+class Fixture:
+    def __init__(self, root):
+        self.root = Path(root)
+        (self.root / ".git").mkdir()
+        (self.root / ".git/index").write_bytes(b"FAKE INDEX BEFORE")
+        self.content = {"a file.json": b"one\n", "dir/b.txt": b"two\n"}
+        self.oids = {name: hashlib.sha1(data).hexdigest() for name, data in self.content.items()}
+        for name, data in self.content.items():
+            p = self.root / name
+            p.parent.mkdir(parents=True, exist_ok=True)
+            p.write_bytes(data)
+        self.receipt = self.root / "failure.json"
+        self.receipt.write_text(json.dumps({"artifact_hashes": {name: {"bytes": len(data), "sha256": H.digest(data)} for name, data in self.content.items()}}))
+        self.receipt_sha = H.digest(self.receipt.read_bytes())
+        self.staged = list(self.content)
+        self.stage = "0"
+        self.blobs = {self.oids[name]: data for name, data in self.content.items()}
+        self.calls = []
+        self.on_diff = None
+        self.diff_count = 0
+
+    def git(self, repo, argv):
+        assert repo == self.root
+        self.calls.append(argv)
+        if argv[0] == "diff":
+            self.diff_count += 1
+            if self.on_diff:
+                self.on_diff(self)
+            return b"".join(name.encode() + b"\0" for name in self.staged)
+        if argv[0] == "ls-files":
+            return b"".join(("100644 " + oid + " " + self.stage + "\t" + name).encode() + b"\0" for name, oid in self.oids.items())
+        if argv[:2] == ["cat-file", "blob"]:
+            return self.blobs[argv[2]]
+        if argv == ["rev-parse", "--git-path", "index"]:
+            return b".git/index\n"
+        if argv[:3] == ["restore", "--staged", "--"]:
+            self.staged = []
+            (self.root / ".git/index").write_bytes(b"FAKE INDEX AFTER")
+            return b""
+        raise AssertionError(argv)
+
+    def run(self, *, execute=True, output="evidence"):
+        return H.perform(self.root, self.receipt, self.receipt_sha, 2, output, execute=execute, git=self.git)
+
+    def mutations(self):
+        return [call for call in self.calls if call[0] == "restore"]
+
+
+class Tests(unittest.TestCase):
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.f = Fixture(self.tmp.name)
+
+    def rejected(self):
+        with self.assertRaises(ValueError):
+            self.f.run()
+        self.assertEqual(self.f.mutations(), [])
+
+    def test_exact_restore_two_passes_and_evidence(self):
+        before = {name: (self.f.root / name).read_bytes() for name in self.f.content}
+        result = self.f.run()
+        self.assertEqual(self.f.mutations(), [["restore", "--staged", "--", "a file.json", "dir/b.txt"]])
+        self.assertEqual(self.f.diff_count, 3)
+        self.assertTrue(result["after"]["staged_index_empty"])
+        self.assertEqual((self.f.root / "evidence/index_before.bin").read_bytes(), b"FAKE INDEX BEFORE")
+        self.assertEqual(len(result["staged_blob_backups"]), 2)
+        self.assertEqual(before, {name: (self.f.root / name).read_bytes() for name in self.f.content})
+
+    def test_default_check_only_no_mutation(self):
+        result = self.f.run(execute=False)
+        self.assertEqual(result["status"], "CHECK_ONLY_VERIFIED_NO_MUTATION")
+        self.assertEqual(self.f.mutations(), [])
+        with patch.object(H, "perform", return_value={"status": "CHECK_ONLY_VERIFIED_NO_MUTATION", "mutation_attempted": False}) as perform:
+            H.main(["--repo", str(self.f.root), "--failure-receipt", "failure.json", "--failure-receipt-sha256", self.f.receipt_sha, "--output", "other"])
+        self.assertFalse(perform.call_args.kwargs["execute"])
+
+    def test_wrong_staged_set_rejected(self):
+        self.f.staged = ["a file.json", "unrelated.txt"]
+        self.rejected()
+
+    def test_blob_mismatch_rejected(self):
+        self.f.blobs[self.f.oids["a file.json"]] = b"bad"
+        self.rejected()
+
+    def test_worktree_mismatch_rejected(self):
+        (self.f.root / "a file.json").write_bytes(b"bad")
+        self.rejected()
+
+    def test_unmerged_rejected(self):
+        self.f.stage = "2"
+        self.rejected()
+
+    def test_path_escape_and_symlink_rejected(self):
+        for value in ("../escape.txt", str(self.f.root.parent / "escape.txt")):
+            with self.assertRaises(ValueError):
+                H.safe_path(self.f.root, value, must_exist=False)
+        (self.f.root / "link").symlink_to(self.f.root / "dir", target_is_directory=True)
+        with self.assertRaises(ValueError):
+            H.safe_path(self.f.root, "link/b.txt")
+        self.assertEqual(self.f.calls, [])
+
+    def test_race_between_two_passes_rejected(self):
+        def race(f):
+            if f.diff_count == 2:
+                (f.root / "a file.json").write_bytes(b"raced")
+        self.f.on_diff = race
+        self.rejected()
+
+    def test_receipt_hash_and_expected_count_rejected(self):
+        self.f.receipt_sha = "0" * 64
+        self.rejected()
+
+    def test_safe_absolute_ref_supported(self):
+        self.assertEqual(H.safe_path(self.f.root, self.f.root / "dir/b.txt"), self.f.root / "dir/b.txt")
+
+
+if __name__ == "__main__":
+    unittest.main()

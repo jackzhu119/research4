@@ -1,0 +1,282 @@
+"""Qualify the already completed index cleanup and publish existing results.
+
+No cleanup, science, grant or prior record is repeated or rewritten. All new
+parent and real wait4 costs append to the existing finite Yanan round ledger.
+"""
+from __future__ import annotations
+
+import argparse
+from copy import deepcopy
+import hashlib
+import importlib.util
+import json
+import math
+import os
+from pathlib import Path
+import subprocess
+import sys
+import time
+
+SELF = Path(__file__).resolve()
+ROOT = next(p for p in SELF.parents if (p / '.git').exists())
+WORK = ROOT / 'reports/parallel-cloud-20261106/worker-b/B20261106-01/yanan-cause-followup-v2'
+RECOVERY = WORK / 'publication-recovery-v2'
+RECOVERY_ID = 'publication-recovery-v2'
+CLAIM = ROOT / '.runtime/worker-b-yanan-publication-recovery-v2-allocation.json'
+V1_SOURCE = WORK / 'publication-recovery-v1/bin/publication_recovery_driver.py'
+V1_SHA = '714489efb436238bae2ab397e8a380ab3faa9a3015171f071396f5f206a92bcf'
+V1_HELPER_SHA = '771564dd61a42652da017f8d2f2cafd78c1de32eded4831583254b44e78999c6'
+PLAN_SCHEMA = 'research4-b-yanan-publication-recovery-plan-v2'
+AUTH_SCHEMA = 'research4-b-yanan-publication-recovery-authorization-v2'
+
+
+def require(value, message):
+    if not value: raise ValueError(message)
+
+
+def sha(file):
+    h = hashlib.sha256()
+    with Path(file).open('rb') as f:
+        for block in iter(lambda: f.read(1024 ** 2), b''): h.update(block)
+    return h.hexdigest()
+
+
+require(sha(V1_SOURCE) == V1_SHA, 'Frozen v1 driver changed')
+spec = importlib.util.spec_from_file_location('frozen_publication_v1_closed_functions', V1_SOURCE)
+P = importlib.util.module_from_spec(spec); spec.loader.exec_module(P)
+S = P.S
+path, checked, ref, read, save = S.path, S.checked, S.ref, S.read, S.save
+
+
+def read_large_cleanup(binding):
+    file = checked(binding)
+    require(4 * 1024 ** 2 < file.stat().st_size <= 16 * 1024 ** 2, 'Only the known4–16MiB cleanup metadata exception is authorized')
+    value = json.loads(file.read_bytes())
+    require(value.get('schema') == 'research4-index-provenance-recovery-v1'
+            and value.get('status') == 'PRECISE_UNSTAGE_VERIFIED_WORKTREE_UNCHANGED'
+            and value.get('execute') is True and value.get('mutation_attempted') is True and value.get('expected_count') == 92,
+            'The large raw receipt must prove the actual successful92-file cleanup')
+    return value
+
+
+def validate_plan(args):
+    plan = read(args.recovery_plan, args.recovery_plan_sha256)
+    require(plan['schema'] == PLAN_SCHEMA and plan['recovery_id'] == RECOVERY_ID, 'Independent v2 publication-only plan required')
+    for item in plan['source_refs']: checked(item)
+    require(checked(plan['driver']) == SELF and plan['driver'] in plan['source_refs']
+            and checked(plan['qualifier']).parent == SELF.parent and plan['qualifier'] in plan['source_refs'], 'Exact new driver/qualifier sources required')
+    require(path(args.manifest) == checked(plan['base_manifest']) and args.manifest_sha256 == plan['base_manifest']['sha256'], 'Original manifest cannot change')
+    manifest = read(args.manifest, args.manifest_sha256); S.validate_manifest(manifest, args.manifest_sha256, check_inputs=False)
+    auth = read(checked(plan['authorization_ref']))
+    require(auth['schema'] == AUTH_SCHEMA and auth['approved'] is True and auth['recovery_id'] == RECOVERY_ID
+            and auth['run_id'] == S.RUN_ID and auth['audit_id'] == S.AUDIT_ID
+            and auth['base_manifest_ref'] == plan['base_manifest'] and auth['base_grant_ref'] == manifest['authorization_ref']
+            and checked(auth['current_allocation_ref']) == S.CLAIM
+            and auth['boot_id'] == manifest['boot_id'] == S.boot_id() and auth['deadline_utc'] == S.DEADLINE
+            and auth['new_CPU_authorization_seconds'] == 0 and auth['original_new_round_cpu_cap_seconds'] == S.ROUND_CAP
+            and math.isclose(auth['aggregate_charged_ceiling_seconds'], S.CAP, abs_tol=1e-6)
+            and auth['max_extra_attempts_per_return_plan'] == 2
+            and all(auth[key] is True for key in ('global_extra_across_v1_v2', 'no_cleanup_rerun', 'no_science_rerun', 'all_old_costs_attempts_preserved'))
+            and auth['known_failure_reason'] == 'Metadata larger than4MiB', 'Only the known closed v1 size failure is authorized; no new CPU')
+    require(checked(auth['v1_driver_ref']) == V1_SOURCE and auth['v1_driver_ref']['sha256'] == V1_SHA
+            and auth['v1_helper_ref']['sha256'] == V1_HELPER_SHA, 'Preserve the exact frozen v1 implementation')
+    for key in ('v1_plan_ref', 'v1_claim_ref', 'v1_helper_ref', 'v1_cleanup_result_ref', 'v1_cleanup_wait4_ref',
+                'predecessor_ledger_ref', 'predecessor_state_ref'): checked(auth[key])
+    extra = read(checked(plan['evidence_return_manifest']))
+    require(extra['role'] == 'B' and extra['run_id'] == S.RUN_ID and path(extra['ledger']) == S.ledger_path()
+            and path(extra['work_directory']) == S.ORIGINAL and extra['upload']['branch'] == S.BRANCH,
+            'New compact evidence stays on the original B ledger/branch')
+    return plan, auth, manifest
+
+
+def validate_predecessor(args, auth, manifest, ledger, state):
+    P.closed_science(manifest, args.manifest_sha256, ledger, state, allow_recovery=True)
+    require(S.validate_closed_carry(manifest) == ledger['carry'], 'Original historical costs/grant changed')
+    previous = ledger['publication_recovery']
+    require(previous['status'] == 'BLOCKED_REQUIRES_FORENSICS' and previous['reason'] == auth['known_failure_reason']
+            and previous['error_type'] == 'ValueError' and not previous.get('cleanup_complete'), 'Do not silently mark v1 successful or bypass another failure')
+    P.assert_append_only(ledger, state, previous)
+    require(previous['binding']['recovery_plan']['sha256'] == auth['v1_plan_ref']['sha256']
+            and previous['binding']['driver']['sha256'] == V1_SHA and read(checked(auth['v1_claim_ref'])) == previous['binding'], 'v1 allocation/provenance changed')
+    rows = [row for row in ledger['auxiliary_costs'] if row['phase'] == 'publication-owned-index-cleanup']
+    require(len(rows) == 1, 'Only one prior cleanup is allowed')
+    row = rows[0]
+    require(row['status'] == 'EXITED' and row['exit_code'] == 0 and row.get('stop_reason') is None
+            and row['kind'] == 'EXACT_OWNED_INDEX_CLEANUP' and row['wait4_receipt']['sha256'] == auth['v1_cleanup_wait4_ref']['sha256']
+            and checked(auth['v1_helper_ref']) == path(row['command'][1]) and row['actual_driver_source']['sha256'] == V1_SHA
+            and row['actual_cpu_seconds'] > 0, 'Prior cleanup needs actual successful kernel closure and frozen sources')
+    receipt = read(checked(auth['v1_cleanup_wait4_ref']))
+    require(receipt['exit_code'] == 0 and receipt['raw_wait_status'] == 0
+            and S.same(receipt['child_identity'], row['child_identity']) and S.same(receipt['supervisor_identity'], row['supervisor_identity'])
+            and math.isclose(receipt['ru_utime_seconds'] + receipt['ru_stime_seconds'], row['actual_cpu_seconds'], abs_tol=1e-9), 'Prior cleanup actual CPU must never disappear')
+    require(path(row['recovery_output_directory']) / 'result.json' == checked(auth['v1_cleanup_result_ref']), 'Bind the actual previous output')
+    raw = read_large_cleanup(auth['v1_cleanup_result_ref'])
+    v1plan = read(checked(auth['v1_plan_ref'])); v1auth = read(checked(v1plan['authorization_ref']))
+    require(raw['failure_receipt']['sha256'] == v1auth['initial_failure_receipt_ref']['sha256'], 'Successful cleanup belongs to another staged set')
+    return v1auth
+
+
+def assert_append_only(ledger, state, auth):
+    old = read(checked(auth['predecessor_ledger_ref'])); old_state = read(checked(auth['predecessor_state_ref']))
+    for key in ('phases', 'parents', 'auxiliary_costs'):
+        require(ledger[key][:len(old[key])] == old[key], 'Entire old ledger prefix must remain unchanged: ' + key)
+    require(ledger['publication_recovery'] == old['publication_recovery'], 'The complete failed v1 block must remain frozen')
+    require(state['jobs'] == old_state['jobs'] and state['results'] == old_state['results'], 'No scientific result/state may change')
+    old_attempts = old_state.get('git_return_attempts', [])
+    require(state.get('git_return_attempts', [])[:len(old_attempts)] == old_attempts, 'All78 original attempts and v1 attempts are preserved')
+    require(ledger['carry'] == old['carry'] and ledger['preparation_debit_ref'] == old['preparation_debit_ref']
+            and ledger['finalization_hold_seconds'] >= old['finalization_hold_seconds'] + 1, 'No prior cost/debit/hold refund')
+
+
+def actual_child(args, manifest, ledger, state, plan, *, phase, command, kind):
+    require(S.remaining_cpu(ledger) >= 34 and time.time() + 10 < S.datetime.fromisoformat(S.DEADLINE).timestamp(), 'Existing budget/deadline cannot admit a publication child')
+    record = ledger['publication_recovery_v2']
+    record.setdefault('declared_auxiliary_invocations', {})[phase] = {'command': command, 'kind': kind,
+        'actual_driver_source': plan['driver'], 'actual_driver_identity': S.identity(os.getpid()), 'authorization_ref': plan['authorization_ref']}
+    S.checkpoint(ledger, state, 'PUBLICATION_V2_CHILD_DECLARED')
+    try:
+        return S.run_child(args, manifest, ledger, state, phase=phase, argv=command, cpu=30,
+            wall=min(300, int(S.datetime.fromisoformat(S.DEADLINE).timestamp() - time.time()) - 2), strict_single_tgid=False)
+    finally:
+        rows = [row for row in ledger['auxiliary_costs'] if row['phase'] == phase]
+        if rows:
+            rows[-1].update(kind=kind, generic_frozen_runner_kind='PINNED_GIT_RETURN_HELPER', actual_driver_source=plan['driver'],
+                publication_recovery_plan=ref(path(args.recovery_plan)), publication_recovery_authorization=plan['authorization_ref'])
+            S.checkpoint(ledger, state, 'PUBLICATION_V2_CHILD_EVIDENCE_PRESERVED')
+
+
+def global_extra_attempts(state, label):
+    return [item for item in state.get('git_return_attempts', []) if item['phase'] == label
+            and item.get('publication_recovery_id') in ('publication-recovery-v1', RECOVERY_ID)]
+
+
+def recover_return(args, manifest, ledger, state, plan, label, binding):
+    if state.get('git_stages', {}).get(label, {}).get('remote_verified'): return True
+    prior = global_extra_attempts(state, label)
+    require(len(prior) <= 2, 'Two extra publication attempts are a global limit across v1/v2')
+    for index in range(len(prior) + 1, 3):
+        if S.remaining_cpu(ledger) < 34 or time.time() + 10 >= S.datetime.fromisoformat(S.DEADLINE).timestamp(): break
+        attempt = 'pub-v2-' + hashlib.sha256(label.encode()).hexdigest()[:10] + '-' + str(index)
+        command = [S.PYTHON, str(checked(manifest['git_return']['helper'])), '--repo', str(ROOT), '--manifest', str(checked(binding)),
+            '--manifest-sha256', binding['sha256'], '--attempt', attempt, '--execute']
+        row = actual_child(args, manifest, ledger, state, plan, phase='publication-' + attempt, command=command, kind='PUBLICATION_V2_ORIGINAL_RETURN_HELPER')
+        file = S.ORIGINAL / 'git-return' / attempt / 'return_receipt.json'; verified = False
+        if row['status'] == 'EXITED' and file.is_file():
+            receipt = read(file)
+            verified = (receipt.get('status') == 'DONE_ACTUAL_PUSH_AND_REMOTE_REF_VERIFIED' and receipt.get('actual_result_upload') == 'DONE'
+                and receipt.get('manifest_sha256') == binding['sha256'] and receipt.get('source_helper_sha256') == manifest['git_return']['helper']['sha256'])
+        item = {'phase': label, 'attempt': attempt, 'row_phase': row['phase'], 'remote_verified': verified,
+            'receipt': ref(file) if file.is_file() else None, 'publication_recovery_id': RECOVERY_ID,
+            'extra_attempt_number': index, 'global_extra_across_v1_v2': True, 'original_attempts_not_reset': True,
+            'actual_driver_source': plan['driver'], 'authorization_ref': plan['authorization_ref'], 'ended_at_utc': S.utc()}
+        state.setdefault('git_return_attempts', []).append(item); state.setdefault('git_stages', {})[label] = item
+        ledger['publication_recovery_v2'].setdefault('return_attempts', []).append(deepcopy(item))
+        S.checkpoint(ledger, state, 'PUBLICATION_V2_RETURN_CLOSED')
+        if verified: return True
+    return False
+
+
+def execute(args, plan, auth, manifest):
+    require(validate_plan(args) == (plan, auth, manifest), 'Pinned publication inputs changed')
+    with S.parent_lock(), S.B.exclusive_lock():
+        S.validate_manifest(manifest, args.manifest_sha256, check_inputs=True)
+        ledger, state = read(S.ledger_path()), read(S.state_path())
+        require(S.remaining_cpu(ledger) >= S.self_cpu() + args.launch_cpu_seconds + 35, 'Same existing round must cover all accrued CPU plus tail1 and safety')
+        v1auth = validate_predecessor(args, auth, manifest, ledger, state)
+        require(S.remaining_cpu(ledger) >= S.self_cpu() + args.launch_cpu_seconds + 35, 'Full validation cannot borrow a new budget')
+        binding = {'schema': 'research4-b-yanan-publication-recovery-allocation-v2', 'recovery_id': RECOVERY_ID,
+            'recovery_plan': ref(path(args.recovery_plan)), 'driver': plan['driver'], 'authorization_ref': plan['authorization_ref'],
+            'base_allocation': auth['current_allocation_ref'], 'v1_allocation': auth['v1_claim_ref'],
+            'predecessor_ledger': auth['predecessor_ledger_ref'], 'predecessor_state': auth['predecessor_state_ref'],
+            'ledger_path': str(S.ledger_path()), 'state_path': str(S.state_path()), 'boot_id': S.boot_id(), 'new_CPU_authorization_seconds': 0}
+        if CLAIM.exists():
+            require(read(CLAIM) == binding and ledger.get('publication_recovery_v2'), 'Lost or rebound v2 accounting cannot reset')
+            require(ledger['publication_recovery_v2']['status'] in ('FINALIZED', 'CLOSED_RETURN_PARTIAL'), 'Interrupted/blocked v2 needs forensic review')
+            assert_append_only(ledger, state, auth)
+        else:
+            require(not ledger.get('publication_recovery_v2')
+                    and sha(S.ledger_path()) == auth['predecessor_ledger_ref']['sha256']
+                    and sha(S.state_path()) == auth['predecessor_state_ref']['sha256'], 'The exact closed v1 ledger/state must precede the first v2 append')
+            ledger['publication_recovery_v2'] = {'id': RECOVERY_ID, 'status': 'STARTING', 'binding': binding,
+                'v1_remains_failed_and_unchanged': True, 'no_cleanup_or_science_repeated': True, 'return_attempts': []}
+            save(CLAIM, binding, exclusive=True)
+        record = ledger['publication_recovery_v2']; ledger['finalization_hold_seconds'] += 1
+        if args.launch_cpu_seconds:
+            ledger['parents'].append({'id': args.attempt + '-detacher', 'status': 'OBSERVED_AT_DETACH', 'self_cpu_seconds': args.launch_cpu_seconds,
+                'actual_driver_source': plan['driver'], 'publication_recovery_plan': binding['recovery_plan']})
+        ledger['parents'].append({'id': args.attempt, 'identity': S.identity(os.getpid()), 'status': 'RUNNING', 'self_cpu_seconds': S.self_cpu(),
+            'actual_driver_source': plan['driver'], 'actual_driver_argv': sys.argv, 'publication_recovery_plan': binding['recovery_plan'],
+            'authorization_ref': plan['authorization_ref'], 'new_nonmeasured_tail_hold_seconds': 1, 'new_CPU_authorization_seconds': 0})
+        args.accounting_appended = True
+        S.checkpoint(ledger, state, 'PUBLICATION_V2_STARTING')
+        try:
+            if not record.get('compact_qualification'):
+                output = RECOVERY / 'execution/compact-qualification'
+                command = [S.PYTHON, str(checked(plan['qualifier'])), '--repo', str(ROOT), '--raw-result',
+                    str(checked(auth['v1_cleanup_result_ref'])), '--raw-result-sha256', auth['v1_cleanup_result_ref']['sha256'],
+                    '--failure-receipt', str(checked(v1auth['initial_failure_receipt_ref'])), '--failure-receipt-sha256',
+                    v1auth['initial_failure_receipt_ref']['sha256'], '--output', str(output), '--execute']
+                row = actual_child(args, manifest, ledger, state, plan, phase='publication-v2-compact-qualification', command=command, kind='READ_ONLY_PRIOR_CLEANUP_QUALIFICATION')
+                file = output / 'result.json'
+                require(row['status'] == 'EXITED' and file.stat().st_size <= 1024 ** 2, 'Read-only compact qualification must actually close and stay below1MiB')
+                result = read(file)
+                require(result['status'] == 'COMPACT_CLEANUP_QUALIFIED' and result['source_raw_result']['sha256'] == auth['v1_cleanup_result_ref']['sha256'], 'Never infer cleanup qualification from an empty index alone')
+                record['compact_qualification'] = ref(file); row['qualification_result_ref'] = ref(file)
+                S.checkpoint(ledger, state, 'PUBLICATION_V2_COMPACT_QUALIFICATION_CLOSED')
+            values = P.plans(manifest, plan)
+            for label, item in values:
+                if label == 'publication-evidence':
+                    snapshot = RECOVERY / 'evidence/pre_evidence_return_snapshot.json'
+                    if not snapshot.exists(): save(snapshot, {'ledger': ledger, 'state': state,
+                        'scope': 'ALL_LISTED_COSTS_CLOSED_BEFORE_FINAL_EVIDENCE_RETURN', 'later_git_and_parent_tail_costs_local_only': True}, exclusive=True)
+                recover_return(args, manifest, ledger, state, plan, label, item)
+            assert_append_only(ledger, state, auth); S.validate_accounting(ledger, state, manifest, args.manifest_sha256)
+            record['return_pending'] = [label for label, _ in values if not state.get('git_stages', {}).get(label, {}).get('remote_verified')]
+            record['status'] = 'CLOSED_RETURN_PARTIAL' if record['return_pending'] else 'FINALIZED'
+            record['final_git_and_parent_tail_costs_remain_local'] = True; ledger['parents'][-1]['status'] = 'CLOSED'
+            S.checkpoint(ledger, state, 'PUBLICATION_V2_' + record['status'], ended_at_utc=S.utc())
+        except BaseException as error:
+            record.update(status='BLOCKED_REQUIRES_FORENSICS', reason=str(error), error_type=type(error).__name__)
+            unknown = ledger.get('blocked_unknown_cpu_or_process_tree') or any(r['status'] not in ('EXITED', 'FAILED_CLOSED') for r in ledger['auxiliary_costs'])
+            ledger['parents'][-1]['status'] = 'BLOCKED_PRESERVED' if unknown else 'CLOSED'
+            S.checkpoint(ledger, state, 'PUBLICATION_V2_BLOCKED_PRESERVED'); raise
+
+
+def main():
+    p = argparse.ArgumentParser(description=__doc__)
+    for key in ('manifest', 'manifest-sha256', 'recovery-plan', 'recovery-plan-sha256'): p.add_argument('--' + key, required=True)
+    p.add_argument('--attempt', default='publication-recovery-v2-001'); p.add_argument('--check-only', action='store_true')
+    p.add_argument('--execute', action='store_true'); p.add_argument('--detach', action='store_true')
+    p.add_argument('--launch-cpu-seconds', type=float, default=0.0, help=argparse.SUPPRESS)
+    args = p.parse_args(); require(S.SAFE.fullmatch(args.attempt), 'Fresh finite invocation identifier required')
+    require(math.isfinite(args.launch_cpu_seconds) and args.launch_cpu_seconds >= 0, 'Real finite detacher CPU required')
+    plan, auth, manifest = validate_plan(args)
+    if not args.execute or args.check_only:
+        validate_predecessor(args, auth, manifest, read(S.ledger_path()), read(S.state_path()))
+        print(json.dumps({'status': 'CHECKED_KNOWN_CLOSED_V1_SIZE_FAILURE_NOT_EXECUTED', 'raw_cleanup_bytes': checked(auth['v1_cleanup_result_ref']).stat().st_size,
+            'new_cleanup_calls': 0, 'new_scientific_jobs': 0, 'new_CPU_authorization_seconds': 0, 'return_plans': len(P.plans(manifest, plan))})); return
+    if args.detach:
+        directory = RECOVERY / 'launches' / args.attempt; directory.mkdir(parents=True, exist_ok=False)
+        observed = S.self_cpu(); child = None
+        command = [S.PYTHON, str(SELF), '--manifest', str(path(args.manifest)), '--manifest-sha256', args.manifest_sha256,
+            '--recovery-plan', str(path(args.recovery_plan)), '--recovery-plan-sha256', args.recovery_plan_sha256,
+            '--attempt', args.attempt, '--execute', '--launch-cpu-seconds', str(observed)]
+        try:
+            with (directory / 'console.log').open('xb') as log:
+                child = subprocess.Popen(command, cwd=ROOT, stdin=subprocess.DEVNULL, stdout=log, stderr=subprocess.STDOUT, start_new_session=True, close_fds=True)
+            receipt = {'status': 'ACTUAL_PUBLICATION_V2_PARENT_DETACHED', 'identity': S.identity(child.pid), 'command': command,
+                'actual_driver_source': plan['driver'], 'detacher_observed_self_cpu_seconds': observed, 'later_tail_covered_by_new_hold1': True}
+            save(directory / 'launch_receipt.json', receipt, exclusive=True); print(json.dumps(receipt)); return
+        except BaseException as error:
+            save(directory / 'detacher_failure.json', {'status': 'BLOCKED_CPU_EVIDENCE_PRESERVED', 'observed_self_cpu_seconds': S.self_cpu(),
+                'child_pid_if_started': child.pid if child else None, 'requires_reconciliation': True, 'error': str(error)}, exclusive=True); raise
+    try:
+        execute(args, plan, auth, manifest)
+    finally:
+        save(RECOVERY / 'own-final' / (args.attempt + '.json'), {'actual_driver_source': plan['driver'], 'actual_driver_identity': S.identity(os.getpid()),
+            'observed_self_cpu_seconds': S.self_cpu(), 'detacher_observed_self_cpu_seconds': args.launch_cpu_seconds,
+            'ledger_has_this_parent': getattr(args, 'accounting_appended', False), 'later_tail_not_claimed_as_measured_actual': True,
+            'observed_at_utc': S.utc()}, exclusive=True)
+
+
+if __name__ == '__main__': main()

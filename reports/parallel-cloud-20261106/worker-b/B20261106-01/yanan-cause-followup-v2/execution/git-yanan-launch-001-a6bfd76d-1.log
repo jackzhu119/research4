@@ -1,0 +1,11 @@
+Traceback (most recent call last):
+  File "/workspace/research4-worker-b/scripts/research4_parallel_b_git_return_20261106.py", line 408, in <module>
+    main()
+  File "/workspace/research4-worker-b/scripts/research4_parallel_b_git_return_20261106.py", line 400, in main
+    print(json.dumps(execute_return(repo, manifest, source, args.manifest_sha256, args.attempt)))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/research4-worker-b/scripts/research4_parallel_b_git_return_20261106.py", line 331, in execute_return
+    require(not git(repo_root, "diff", "--cached", "--name-only"), "Preexisting staged work must not be included")
+  File "/workspace/research4-worker-b/scripts/research4_parallel_b_git_return_20261106.py", line 36, in require
+    raise SafetyError(message)
+SafetyError: Preexisting staged work must not be included

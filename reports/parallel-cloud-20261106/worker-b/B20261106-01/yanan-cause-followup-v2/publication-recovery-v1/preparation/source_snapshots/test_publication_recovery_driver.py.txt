@@ -1,0 +1,197 @@
+"""Bounded publication recovery tests: temporary data and mocks, never Git."""
+from copy import deepcopy
+import importlib.util
+from pathlib import Path
+from types import SimpleNamespace
+import tempfile
+import unittest
+from unittest.mock import Mock, patch
+
+SPEC = importlib.util.spec_from_file_location("publication_driver_under_test", Path(__file__).with_name("publication_recovery_driver.py"))
+D = importlib.util.module_from_spec(SPEC)
+SPEC.loader.exec_module(D)
+
+
+class DriverTests(unittest.TestCase):
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.root = Path(self.tmp.name)
+        self.args = SimpleNamespace(attempt="test-publication-001", launch_cpu_seconds=0.01,
+                                    recovery_plan=str(self.root / "plan.json"))
+        self.plan = {"current_launch_ref": {"path": "launch.json"},
+                     "driver": {"path": "driver.py", "sha256": "a" * 64},
+                     "authorization_ref": {"path": "authorization.json", "sha256": "b" * 64}}
+
+    def test_healthy_wait_only_monitor_sleep30_then_self_cpu_stop(self):
+        identity = {"pid": 123, "boot_id": "boot-one"}
+        reads = Mock(return_value={"identity": identity})
+        saves = Mock()
+        with patch.object(D, "read", reads), patch.object(D, "checked", lambda value: value["path"]), \
+             patch.object(D, "save", saves), patch.object(D, "RECOVERY", self.root), \
+             patch.object(D.S, "self_cpu", side_effect=[0.1, 2.0]), \
+             patch.object(D.S, "identity", return_value={"pid": 321}), \
+             patch.object(D.S, "boot_id", return_value="boot-one"), \
+             patch.object(D.S, "is_live", return_value=True), \
+             patch.object(D.S, "ledger_path", side_effect=AssertionError("must not read original ledger")), \
+             patch.object(D.S, "parent_lock", side_effect=AssertionError("must not lock original")), \
+             patch.object(D.S.B, "exclusive_lock", side_effect=AssertionError("must not lock original")), \
+             patch.object(D.os, "kill", side_effect=AssertionError("must not signal original")), \
+             patch.object(D.subprocess, "run", side_effect=AssertionError("must not access Git/index")), \
+             patch.object(D.time, "time", return_value=0), patch.object(D.time, "sleep") as sleep:
+            with self.assertRaisesRegex(ValueError, "WAIT_SELF_CPU_LIMIT2"):
+                D.wait_for_original(self.args, self.plan)
+        reads.assert_called_once_with("launch.json")
+        sleep.assert_called_once_with(30)
+        self.assertEqual(saves.call_count, 2)
+        self.assertTrue(all(call.args[0] == self.root / "wait_monitor.json" for call in saves.call_args_list))
+
+    def test_wait_boot_change_rejected_before_poll(self):
+        with patch.object(D, "read", return_value={"identity": {"pid": 123, "boot_id": "old"}}), \
+             patch.object(D, "checked", lambda value: value["path"]), patch.object(D, "save"), \
+             patch.object(D.S, "self_cpu", return_value=0.1), patch.object(D.S, "identity", return_value={}), \
+             patch.object(D.S, "boot_id", return_value="new"), patch.object(D.S, "is_live") as live, \
+             patch.object(D.time, "sleep") as sleep:
+            with self.assertRaisesRegex(ValueError, "Kernel boot changed"):
+                D.wait_for_original(self.args, self.plan)
+        live.assert_not_called()
+        sleep.assert_not_called()
+
+    def test_missing_parent_with_git_session_is_not_closed(self):
+        with patch.object(D, "read", return_value={"identity": {"pid": 123, "boot_id": "same"}}), \
+             patch.object(D, "checked", lambda value: value["path"]), patch.object(D, "save"), \
+             patch.object(D.S, "self_cpu", return_value=0.1), patch.object(D.S, "identity", return_value={}), \
+             patch.object(D.S, "boot_id", return_value="same"), patch.object(D.S, "is_live", return_value=False), \
+             patch.object(D.S, "session_members", return_value=[{"pid": 999, "kind": "git-child"}]), \
+             patch.object(D.time, "time", return_value=0):
+            with self.assertRaisesRegex(ValueError, "Git session is not empty"):
+                D.wait_for_original(self.args, self.plan)
+
+    def closed_fixture(self):
+        jobs = [{"id": "job-" + str(index)} for index in range(220)]
+        manifest = {"jobs": jobs}
+        state = {"status": "FINALIZED_RETURN_PARTIAL", "jobs": {job["id"]: {"status": "NOT_RUN_RESOURCE_OR_DEADLINE"} for job in jobs}, "results": {}}
+        ledger = {"parents": [{"identity": {"pid": 123}, "status": "CLOSED"}], "phases": [], "auxiliary_costs": []}
+        return manifest, ledger, state
+
+    def test_closed_science_requires_all220_and_dead_empty_parent_session(self):
+        manifest, ledger, state = self.closed_fixture()
+        with patch.object(D.S, "validate_accounting"), patch.object(D.S, "is_live", return_value=False), \
+             patch.object(D.S, "session_members", return_value=[]):
+            D.closed_science(manifest, "m" * 64, ledger, state)
+            bad = deepcopy(state)
+            bad["jobs"].pop("job-219")
+            with self.assertRaisesRegex(ValueError, "all220"):
+                D.closed_science(manifest, "m" * 64, ledger, bad)
+            bad = deepcopy(state)
+            bad["jobs"]["job-0"]["status"] = "RUNNING"
+            with self.assertRaisesRegex(ValueError, "still active"):
+                D.closed_science(manifest, "m" * 64, ledger, bad)
+        for live, members in ((True, []), (False, [{"pid": 987}])):
+            with self.subTest(live=live, members=members), patch.object(D.S, "validate_accounting"), \
+                 patch.object(D.S, "is_live", return_value=live), patch.object(D.S, "session_members", return_value=members):
+                with self.assertRaisesRegex(ValueError, "Git session is still alive"):
+                    D.closed_science(manifest, "m" * 64, ledger, state)
+
+    def test_append_only_preserves_all_original_prefixes_and_science(self):
+        old = {"parents": [{"id": "old-parent", "cost": 2.0}], "phases": [{"phase": "science", "cost": 3.0}],
+               "auxiliary_costs": [{"phase": "old-git", "cost": 4.0}], "carry": {"old": 83728.759434},
+               "preparation_debit_ref": {"sha256": "prep"}, "finalization_hold_seconds": 1}
+        old_state = {"jobs": {"j": {"status": "DONE_SEALED"}}, "results": {"j": {"sha256": "result"}},
+                     "git_return_attempts": [{"attempt": "old1"}, {"attempt": "old2"}, {"attempt": "old3"}]}
+        recovery = {"baseline_ledger": {"path": "old-ledger"}, "baseline_state": {"path": "old-state"}}
+        ledger, state = deepcopy(old), deepcopy(old_state)
+        ledger["parents"].append({"id": "publication-parent", "cost": 0.2})
+        ledger["auxiliary_costs"].append({"phase": "new-git", "cost": 0.3})
+        ledger["finalization_hold_seconds"] = 2
+        state["git_return_attempts"].append({"attempt": "extra1"})
+        with patch.object(D, "checked", lambda value: value["path"]), \
+             patch.object(D, "read", side_effect=lambda name: deepcopy(old if name == "old-ledger" else old_state)):
+            D.assert_append_only(ledger, state, recovery)
+            for key in ("parents", "phases", "auxiliary_costs", "carry", "preparation_debit_ref", "finalization_hold_seconds"):
+                changed = deepcopy(ledger)
+                if isinstance(changed[key], list): changed[key][0] = {"changed": True}
+                elif key == "finalization_hold_seconds": changed[key] = 1
+                else: changed[key] = {"changed": True}
+                with self.subTest(key=key), self.assertRaises(ValueError):
+                    D.assert_append_only(changed, state, recovery)
+            for key in ("jobs", "results", "git_return_attempts"):
+                changed = deepcopy(state)
+                changed[key] = {} if key != "git_return_attempts" else []
+                with self.subTest(key=key), self.assertRaises(ValueError):
+                    D.assert_append_only(ledger, changed, recovery)
+
+    def return_fixture(self):
+        manifest = {"git_return": {"helper": {"path": str(self.root / "helper.py"), "sha256": "h" * 64}}}
+        binding = {"path": str(self.root / "return-manifest.json"), "sha256": "r" * 64}
+        ledger = {"publication_recovery": {"return_attempts": []}}
+        original = [{"phase": "pre", "attempt": "old" + str(index)} for index in range(3)]
+        state = {"git_return_attempts": deepcopy(original), "git_stages": {}}
+        return manifest, binding, ledger, state, original
+
+    def test_return_two_extra_attempts_total_old_three_not_reset(self):
+        manifest, binding, ledger, state, original = self.return_fixture()
+        child = Mock(side_effect=lambda *args, **kwargs: {"status": "FAILED_CLOSED", "phase": kwargs["phase"], "actual_cpu_seconds": 0.1})
+        with patch.object(D, "actual_child", child), patch.object(D, "checked", lambda value: Path(value["path"])), \
+             patch.object(D.S, "ORIGINAL", self.root), patch.object(D.S, "remaining_cpu", return_value=100), \
+             patch.object(D.S, "checkpoint"), patch.object(D.time, "time", return_value=0):
+            self.assertFalse(D.recover_return(self.args, manifest, ledger, state, self.plan, "pre", binding))
+            self.assertFalse(D.recover_return(self.args, manifest, ledger, state, self.plan, "pre", binding))
+        self.assertEqual(child.call_count, 2)
+        self.assertEqual(state["git_return_attempts"][:3], original)
+        self.assertEqual([row["extra_attempt_number"] for row in state["git_return_attempts"][3:]], [1, 2])
+        self.assertTrue(all(row["original_attempts_not_reset"] for row in state["git_return_attempts"][3:]))
+        self.assertEqual(len(ledger["publication_recovery"]["return_attempts"]), 2)
+
+    def test_unknown_return_child_propagates_without_new_retry(self):
+        manifest, binding, ledger, state, original = self.return_fixture()
+        with patch.object(D, "actual_child", side_effect=RuntimeError("unknown process tree")) as child, \
+             patch.object(D, "checked", lambda value: Path(value["path"])), \
+             patch.object(D.S, "remaining_cpu", return_value=100), patch.object(D.time, "time", return_value=0):
+            with self.assertRaisesRegex(RuntimeError, "unknown process tree"):
+                D.recover_return(self.args, manifest, ledger, state, self.plan, "pre", binding)
+        self.assertEqual(child.call_count, 1)
+        self.assertEqual(state["git_return_attempts"], original)
+
+    def test_actual_child_deadline_boundary_never_declares_or_runs_cleanup(self):
+        ledger = {"publication_recovery": {}, "auxiliary_costs": []}
+        before = deepcopy(ledger)
+        deadline = D.S.datetime.fromisoformat(D.S.DEADLINE).timestamp()
+        with patch.object(D.S, "remaining_cpu", return_value=100), \
+             patch.object(D.S, "checkpoint") as checkpoint, patch.object(D.S, "run_child") as child, \
+             patch.object(D.time, "time", return_value=deadline - 9.9):
+            with self.assertRaisesRegex(ValueError, "deadline lacks a safe publication window"):
+                D.actual_child(self.args, {}, ledger, {}, self.plan, phase="publication-owned-index-cleanup",
+                               command=["fake-cleanup"], kind="EXACT_OWNED_INDEX_CLEANUP")
+        checkpoint.assert_not_called()
+        child.assert_not_called()
+        self.assertEqual(ledger, before)
+
+    def test_actual_child_finally_keeps_raw_receipt_cpu_and_provenance(self):
+        ledger = {"publication_recovery": {}, "auxiliary_costs": []}
+        raw = {"path": "kernel-receipt.json", "sha256": "c" * 64}
+        row = {"phase": "publication-test", "status": "BLOCKED_UNKNOWN", "actual_cpu_seconds": 0.75,
+               "wait4_receipt": raw, "ru_utime": 0.5, "ru_stime": 0.25}
+        def failed_child(*args, **kwargs):
+            ledger["auxiliary_costs"].append(deepcopy(row))
+            raise RuntimeError("known wait4; unknown descendant")
+        checkpoint = Mock()
+        with patch.object(D.S, "remaining_cpu", return_value=100), patch.object(D.S, "identity", return_value={"pid": 456}), \
+             patch.object(D.S, "checkpoint", checkpoint), patch.object(D.S, "run_child", side_effect=failed_child), \
+             patch.object(D, "path", lambda value: Path(value)), \
+             patch.object(D, "ref", lambda value: {"path": str(value), "sha256": "d" * 64}), \
+             patch.object(D.time, "time", return_value=D.S.datetime.fromisoformat(D.S.DEADLINE).timestamp() - 10.1):
+            with self.assertRaisesRegex(RuntimeError, "unknown descendant"):
+                D.actual_child(self.args, {}, ledger, {}, self.plan, phase="publication-test", command=["fake-helper"], kind="TEST_HELPER")
+        saved = ledger["auxiliary_costs"][0]
+        self.assertEqual(saved["wait4_receipt"], raw)
+        self.assertEqual(saved["actual_cpu_seconds"], 0.75)
+        self.assertEqual(saved["ru_utime"] + saved["ru_stime"], 0.75)
+        self.assertEqual(saved["actual_driver_source"], self.plan["driver"])
+        self.assertEqual(saved["publication_recovery_authorization"], self.plan["authorization_ref"])
+        self.assertEqual(saved["kind"], "TEST_HELPER")
+        self.assertEqual(checkpoint.call_args_list[-1].args[2], "PUBLICATION_CHILD_EVIDENCE_PRESERVED")
+
+
+if __name__ == "__main__":
+    unittest.main()

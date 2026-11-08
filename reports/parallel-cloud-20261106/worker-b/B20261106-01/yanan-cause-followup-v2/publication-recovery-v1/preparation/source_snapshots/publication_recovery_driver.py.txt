@@ -1,0 +1,382 @@
+"""Publish already closed Yanan results; never invoke a scientific worker.
+
+This is an explicit, bounded publication retry on the existing round ledger.
+It preserves all original costs, attempts, sources, seals and the single grant.
+"""
+from __future__ import annotations
+
+import argparse
+from copy import deepcopy
+import fcntl
+import hashlib
+import importlib.util
+import json
+import math
+import os
+from pathlib import Path
+import re
+import signal
+import subprocess
+import sys
+import time
+
+SELF = Path(__file__).resolve()
+ROOT = next(p for p in SELF.parents if (p / '.git').exists())
+WORK = ROOT / 'reports/parallel-cloud-20261106/worker-b/B20261106-01/yanan-cause-followup-v2'
+RECOVERY = WORK / 'publication-recovery-v1'
+RECOVERY_ID = 'publication-recovery-v1'
+SUPERVISOR = WORK / 'preparation/bin/yanan_followup_supervisor.py'
+SUPERVISOR_SHA = 'bd29cca67a5ad98fcda0978ca35dc512b96f9b18a502345eaee5be9f4987ca49'
+CLAIM = ROOT / '.runtime/worker-b-yanan-publication-recovery-v1-allocation.json'
+PLAN_SCHEMA = 'research4-b-yanan-publication-recovery-plan-v1'
+AUTH_SCHEMA = 'research4-b-yanan-publication-recovery-authorization-v1'
+
+
+def require(value, message):
+    if not value: raise ValueError(message)
+
+
+def sha(p):
+    h = hashlib.sha256()
+    with Path(p).open('rb') as f:
+        for block in iter(lambda: f.read(1024 ** 2), b''): h.update(block)
+    return h.hexdigest()
+
+
+require(sha(SUPERVISOR) == SUPERVISOR_SHA, 'Original frozen round supervisor changed')
+spec = importlib.util.spec_from_file_location('frozen_yanan_publication_accounting', SUPERVISOR)
+S = importlib.util.module_from_spec(spec); spec.loader.exec_module(S)
+path, checked, ref, read, save = S.path, S.checked, S.ref, S.read, S.save
+
+
+def validate_plan(args):
+    plan = read(args.recovery_plan, args.recovery_plan_sha256)
+    require(plan['schema'] == PLAN_SCHEMA and plan['recovery_id'] == RECOVERY_ID, 'Explicit publication-only recovery plan required')
+    require(checked(plan['driver']) == SELF and checked(plan['index_helper']).parent == SELF.parent,
+            'Exact recovery driver/helper sources required')
+    for item in plan['source_refs']: checked(item)
+    require(plan['driver'] in plan['source_refs'] and plan['index_helper'] in plan['source_refs'], 'Recovery source refs are incomplete')
+    require(checked(plan['base_manifest']) == path(args.manifest) and plan['base_manifest']['sha256'] == args.manifest_sha256,
+            'Recovery must bind the original immutable manifest')
+    manifest = read(args.manifest, args.manifest_sha256)
+    S.validate_manifest(manifest, args.manifest_sha256, check_inputs=False)
+    auth = read(checked(plan['authorization_ref']))
+    require(auth['schema'] == AUTH_SCHEMA and auth['approved'] is True
+            and auth['run_id'] == S.RUN_ID and auth['audit_id'] == S.AUDIT_ID and auth['recovery_id'] == RECOVERY_ID
+            and auth['base_manifest_ref'] == plan['base_manifest']
+            and auth['base_grant_ref'] == manifest['authorization_ref']
+            and checked(auth['current_allocation_ref']) == S.CLAIM
+            and path(auth['ledger_path']) == S.ledger_path()
+            and auth['new_CPU_authorization_seconds'] == 0
+            and auth['original_new_round_cpu_cap_seconds'] == S.ROUND_CAP
+            and math.isclose(auth['aggregate_charged_ceiling_seconds'], S.CAP, abs_tol=1e-6)
+            and auth['deadline_utc'] == S.DEADLINE
+            and auth['boot_id'] == manifest['boot_id'] == S.boot_id()
+            and auth['max_extra_attempts_per_return_plan'] == 2
+            and auth['new_postprocess_nonmeasured_tail_hold_cpu_seconds'] == 1
+            and all(auth[key] is True for key in ('no_science_rerun', 'all_old_costs_attempts_preserved',
+                'full_closure_required', 'tail_hold_inside_original_new_round_cap', 'active_science_unchanged'))
+            and all(isinstance(auth[key], str) and auth[key] for key in ('index_recovery_policy', 'publication_scope', 'attempt_policy')),
+            'Recovery authorizes only two extra publication attempts, no new CPU or science')
+    failure = read(checked(auth['initial_failure_receipt_ref']))
+    require(len(failure['artifact_hashes']) == 92 and failure['status'] == 'PARTIAL_OR_FAILED_UPLOAD_PRESERVED'
+            and failure['source_helper_sha256'] == manifest['git_return']['helper']['sha256'], 'Exact initial owned92 failure required')
+    attributes = read(checked(auth['attributes_preparation_ref']))
+    require(sha(ROOT / '.git/info/attributes') == attributes['attributes_after_sha256'], 'Reviewed exact Git attributes differ')
+    for item in attributes['frozen_files']: checked(item)
+    launch = read(checked(plan['current_launch_ref']))
+    require(path(plan['current_launch_ref']['path']) == WORK / 'current-launch.json'
+            and launch['manifest_sha256'] == args.manifest_sha256 and launch['supervisor_sha256'] == SUPERVISOR_SHA
+            and launch['identity']['boot_id'] == S.boot_id(), 'Bind the actual original launch and process birth')
+    if plan.get('evidence_return_manifest'):
+        extra = read(checked(plan['evidence_return_manifest']))
+        require(extra['role'] == 'B' and extra['run_id'] == S.RUN_ID and path(extra['ledger']) == S.ledger_path()
+                and path(extra['work_directory']) == S.ORIGINAL and extra['upload']['branch'] == S.BRANCH,
+                'New immutable evidence return must stay on this B branch/ledger')
+    return plan, auth, manifest
+
+
+def closed_science(manifest, manifest_sha, ledger, state, *, allow_recovery=False):
+    """Read-only: a healthy or incompletely returned original parent is never stopped."""
+    S.validate_accounting(ledger, state, manifest, manifest_sha)
+    expected = {job['id'] for job in manifest['jobs']}
+    require(set(state['jobs']) == expected and len(expected) == 220, 'Wait for all220 original jobs to reach a terminal state')
+    terminals = {'DONE_SEALED', 'PARTIAL_CLOSED', 'SCIENTIFIC_BLOCKED_CLOSED', 'PARTIAL_SCIENTIFIC_CLOSED',
+        'FAILED_RESULT_VALIDATION_CLOSED', 'NOT_RUN_DEPENDENCY', 'NOT_RUN_RESOURCE_OR_DEADLINE'}
+    require(all(item['status'] in terminals for item in state['jobs'].values()), 'Original scientific job is still active/unsettled')
+    if not allow_recovery:
+        require(state['status'] in ('FINALIZED', 'FINALIZED_RETURN_PARTIAL'), 'Original automatic returns are not finished')
+    for parent in ledger['parents']:
+        if parent.get('identity'):
+            require(parent['status'] == 'CLOSED' and not S.is_live(parent['identity']) and not S.session_members(parent['identity']),
+                    'Original/recovery parent or its Git session is still alive')
+    jobs = {j['id']: j for j in manifest['jobs']}
+    for row in [*ledger['phases'], *ledger['auxiliary_costs']]:
+        require(row['status'] in ('EXITED', 'FAILED_CLOSED') and not S.is_live(row['child_identity'])
+                and not S.session_members(row['child_identity']), 'Unclosed or unknown child/Git tree forbids publication')
+        require(sha(path(row['log'])) == row['log_sha256'], 'Closed execution log changed')
+        if row.get('job_id') in jobs:
+            job = jobs[row['job_id']]; proof = read(row['proof_path'], row['proof_sha256'])
+            require(row['job_sha256'] == S.digest(job) and proof['manifest_sha256'] == manifest_sha
+                    and proof['job_id'] == job['id'] and proof['job_sha256'] == row['job_sha256']
+                    and proof['phase'] == row['phase'] and proof['context_sha256'] == row['context']['sha256']
+                    and S.same(proof['child_identity'], row['child_identity'])
+                    and S.same(proof['supervisor_identity'], row['supervisor_identity']), 'Closed scientific proof/job binding changed')
+            checked(row['context'])
+            if row.get('result_sha256'):
+                require(sha(path(row['output_directory']) / 'result.json') == row['result_sha256'], 'Closed partial/scientific result changed')
+    for job_id, saved in state['jobs'].items():
+        if saved.get('result'): checked(saved['result'])
+        if saved.get('seal') or saved['status'] == 'DONE_SEALED':
+            rows = [r for r in ledger['phases'] if r['phase'] == saved['phase']]
+            require(len(rows) == 1, 'Successful job needs its unique actual wait4 phase')
+            _, seal = S.seal_job(rows[0], jobs[job_id])
+            require(seal == saved['seal'], 'Scientific or negative-result seal changed; never rerun science')
+            if saved['status'] == 'DONE_SEALED':
+                require(state['results'][job_id] == seal['result'], 'Successful result reference changed')
+
+
+def save_exact(source, target):
+    target.parent.mkdir(parents=True, exist_ok=True)
+    with target.open('xb') as f:
+        f.write(source.read_bytes()); f.flush(); os.fsync(f.fileno())
+    return ref(target)
+
+
+def plans(manifest, plan):
+    config = manifest['git_return']
+    values = [('pre', config['pre_manifest']), *[(x['id'], x['manifest']) for x in config['stage_manifests']], ('post', config['post_manifest'])]
+    if plan.get('evidence_return_manifest'): values.append(('publication-evidence', plan['evidence_return_manifest']))
+    require(len({key for key, _ in values}) == len(values), 'Unique finite recovery return plans required')
+    return values
+
+
+def assert_append_only(ledger, state, recovery):
+    old = read(checked(recovery['baseline_ledger'])); old_state = read(checked(recovery['baseline_state']))
+    for key in ('phases', 'parents', 'auxiliary_costs'):
+        require(ledger[key][:len(old[key])] == old[key], 'Original ledger prefix changed: ' + key)
+    require(state['jobs'] == old_state['jobs'] and state['results'] == old_state['results'], 'Scientific state/results changed during publication')
+    require(state.get('git_return_attempts', [])[:len(old_state.get('git_return_attempts', []))] == old_state.get('git_return_attempts', []),
+            'Original publication attempts cannot be reset')
+    require(ledger['carry'] == old['carry'] and ledger['preparation_debit_ref'] == old['preparation_debit_ref']
+            and ledger['finalization_hold_seconds'] >= old['finalization_hold_seconds'] + 1, 'Old costs/holds must remain charged')
+
+
+def actual_child(args, manifest, ledger, state, plan, *, phase, command, kind, output=None):
+    require(S.remaining_cpu(ledger) >= 34, 'Insufficient existing round CPU for a complete30-second publication child')
+    require(time.time() + 10 < S.datetime.fromisoformat(S.DEADLINE).timestamp(), 'Original deadline lacks a safe publication window; never start cleanup or Git')
+    ledger['publication_recovery'].setdefault('declared_auxiliary_invocations', {})[phase] = {
+        'actual_driver_source': plan['driver'], 'actual_driver_identity': S.identity(os.getpid()),
+        'command': command, 'kind': kind, 'authorization_ref': plan['authorization_ref']}
+    S.checkpoint(ledger, state, 'PUBLICATION_CHILD_DECLARED_BEFORE_EXECUTION')
+    try:
+        return S.run_child(args, manifest, ledger, state, phase=phase, argv=command, cpu=30,
+            wall=min(300, int(S.datetime.fromisoformat(S.DEADLINE).timestamp() - time.time()) - 2), strict_single_tgid=False)
+    finally:
+        rows = [r for r in ledger['auxiliary_costs'] if r['phase'] == phase]
+        if rows:
+            row = rows[-1]
+            row.update(kind=kind, generic_frozen_runner_kind='PINNED_GIT_RETURN_HELPER', actual_driver_source=plan['driver'],
+                publication_recovery_plan=ref(path(args.recovery_plan)), publication_recovery_authorization=plan['authorization_ref'])
+            if output is not None: row['recovery_output_directory'] = str(output)
+            S.checkpoint(ledger, state, 'PUBLICATION_CHILD_EVIDENCE_PRESERVED')
+
+
+def recover_return(args, manifest, ledger, state, plan, label, binding):
+    recovery = ledger['publication_recovery']
+    attempts = [x for x in state.get('git_return_attempts', []) if x.get('publication_recovery_id') == RECOVERY_ID and x['phase'] == label]
+    if state.get('git_stages', {}).get(label, {}).get('remote_verified'): return True
+    for index in range(len(attempts) + 1, 3):
+        if S.remaining_cpu(ledger) < 34 or time.time() + 10 >= S.datetime.fromisoformat(S.DEADLINE).timestamp(): break
+        suffix = hashlib.sha256(label.encode()).hexdigest()[:10]
+        attempt = 'pub-v1-' + suffix + '-' + str(index)
+        command = [S.PYTHON, str(checked(manifest['git_return']['helper'])), '--repo', str(ROOT), '--manifest', str(checked(binding)),
+            '--manifest-sha256', binding['sha256'], '--attempt', attempt, '--execute']
+        row = actual_child(args, manifest, ledger, state, plan, phase='publication-' + attempt, command=command, kind='PUBLICATION_RECOVERY_ORIGINAL_RETURN_HELPER')
+        receipt_file = S.ORIGINAL / 'git-return' / attempt / 'return_receipt.json'
+        verified = False
+        if row['status'] == 'EXITED' and receipt_file.is_file():
+            receipt = read(receipt_file)
+            verified = (receipt.get('status') == 'DONE_ACTUAL_PUSH_AND_REMOTE_REF_VERIFIED' and receipt.get('actual_result_upload') == 'DONE'
+                and receipt.get('manifest_sha256') == binding['sha256'] and receipt.get('source_helper_sha256') == manifest['git_return']['helper']['sha256'])
+        item = {'phase': label, 'attempt': attempt, 'row_phase': row['phase'], 'remote_verified': verified,
+            'receipt': ref(receipt_file) if receipt_file.is_file() else None, 'ended_at_utc': S.utc(),
+            'publication_recovery_id': RECOVERY_ID, 'extra_attempt_number': index,
+            'original_attempts_not_reset': True, 'actual_driver_source': plan['driver'], 'authorization_ref': plan['authorization_ref']}
+        state.setdefault('git_return_attempts', []).append(item); state.setdefault('git_stages', {})[label] = item
+        recovery.setdefault('return_attempts', []).append(deepcopy(item))
+        S.checkpoint(ledger, state, 'PUBLICATION_RETURN_ATTEMPT_CLOSED')
+        if verified: return True
+    return False
+
+
+def execute(args, plan, auth, manifest):
+    require(validate_plan(args) == (plan, auth, manifest), 'Pinned recovery inputs changed during the wait')
+    with S.parent_lock(), S.B.exclusive_lock():
+        S.validate_manifest(manifest, args.manifest_sha256, check_inputs=True)
+        ledger = read(S.ledger_path()); state = read(S.state_path())
+        accrued = S.self_cpu() + args.launch_cpu_seconds
+        require(S.remaining_cpu(ledger) >= accrued + 1 + 34, 'Existing round cannot cover accrued driver/detacher CPU, tailhold and publication safety margin')
+        existing = CLAIM.exists()
+        closed_science(manifest, args.manifest_sha256, ledger, state, allow_recovery=existing)
+        require(S.validate_closed_carry(manifest) == ledger['carry'], 'Frozen historical grant/cost chain changed')
+        require(S.remaining_cpu(ledger) >= S.self_cpu() + args.launch_cpu_seconds + 1 + 34,
+                'After full seal validation the same existing budget must still cover this driver')
+        binding = {'schema': 'research4-b-yanan-publication-recovery-allocation-v1', 'recovery_id': RECOVERY_ID,
+            'base_manifest': plan['base_manifest'], 'base_allocation': auth['current_allocation_ref'],
+            'recovery_plan': ref(path(args.recovery_plan)), 'driver': plan['driver'], 'authorization_ref': plan['authorization_ref'],
+            'ledger_path': str(S.ledger_path()), 'state_path': str(S.state_path()), 'boot_id': S.boot_id(), 'new_CPU_authorization_seconds': 0}
+        if existing:
+            require(read(CLAIM) == binding and ledger.get('publication_recovery'), 'Existing publication claim cannot reset/move/rebind')
+            require(ledger['publication_recovery']['status'] in ('CLOSED_RETURN_PARTIAL', 'FINALIZED'), 'Interrupted publication parent needs forensics')
+            assert_append_only(ledger, state, ledger['publication_recovery'])
+            require(ledger['publication_recovery'].get('cleanup_complete') is True, 'A failed/unknown index cleanup cannot be blindly repeated')
+        else:
+            require(not ledger.get('publication_recovery'), 'Unclaimed publication accounting requires forensics')
+            evidence = RECOVERY / 'evidence' / args.attempt
+            old_ledger = save_exact(S.ledger_path(), evidence / 'before_ledger.json')
+            old_state = save_exact(S.state_path(), evidence / 'before_state.json')
+            index_file = ROOT / '.git/index'
+            index_ref = save_exact(index_file, evidence / 'before_index.bin')
+            ledger['publication_recovery'] = {'id': RECOVERY_ID, 'status': 'STARTING', 'binding': binding,
+                'baseline_ledger': old_ledger, 'baseline_state': old_state, 'baseline_index': index_ref,
+                'driver_source': plan['driver'], 'authorization_ref': plan['authorization_ref'], 'return_attempts': [],
+                'no_scientific_reruns': True, 'new_CPU_authorization_seconds': 0}
+            save(CLAIM, binding, exclusive=True)
+        recovery = ledger['publication_recovery']
+        ledger['finalization_hold_seconds'] += 1
+        if args.launch_cpu_seconds:
+            ledger['parents'].append({'id': args.attempt + '-detacher', 'status': 'OBSERVED_AT_DETACH',
+                'self_cpu_seconds': args.launch_cpu_seconds, 'actual_driver_source': plan['driver'],
+                'publication_recovery_plan': binding['recovery_plan'], 'observed_not_a_fabricated_full_process_closure': True})
+        ledger['parents'].append({'id': args.attempt, 'identity': S.identity(os.getpid()), 'status': 'RUNNING',
+            'self_cpu_seconds': S.self_cpu(), 'actual_driver_source': plan['driver'], 'actual_driver_argv': sys.argv,
+            'publication_recovery_plan': binding['recovery_plan'], 'authorization_ref': plan['authorization_ref'],
+            'same_existing_round_budget_no_new_grant': True, 'new_nonmeasured_tail_hold_seconds': 1})
+        args.accounting_appended = True
+        S.checkpoint(ledger, state, 'PUBLICATION_RECOVERY_STARTING')
+        try:
+            if not recovery.get('cleanup_complete'):
+                output = RECOVERY / 'execution' / 'initial-owned-index-cleanup'
+                command = [S.PYTHON, str(checked(plan['index_helper'])), '--repo', str(ROOT), '--failure-receipt',
+                    str(checked(auth['initial_failure_receipt_ref'])), '--failure-receipt-sha256', auth['initial_failure_receipt_ref']['sha256'],
+                    '--expected-count', '92', '--output', str(output), '--execute']
+                row = actual_child(args, manifest, ledger, state, plan, phase='publication-owned-index-cleanup', command=command,
+                    kind='EXACT_OWNED_INDEX_CLEANUP', output=output)
+                result = read(output / 'result.json') if (output / 'result.json').is_file() else {}
+                require(row['status'] == 'EXITED' and result.get('status') == 'PRECISE_UNSTAGE_VERIFIED_WORKTREE_UNCHANGED', 'Owned index cleanup failed; preserve and stop')
+                recovery.update(cleanup_complete=True, cleanup_result=ref(output / 'result.json'))
+                S.checkpoint(ledger, state, 'PUBLICATION_OWNED_INDEX_CLEANUP_CLOSED')
+            values = plans(manifest, plan)
+            for label, item in values:
+                if label == 'publication-evidence':
+                    frozen = RECOVERY / 'evidence/pre_evidence_return_snapshot.json'
+                    if not frozen.exists():
+                        save(frozen, {'ledger': ledger, 'state': state,
+                            'scope': 'ALL_LISTED_COSTS_CLOSED_BEFORE_EVIDENCE_RETURN', 'later_git_and_parent_tail_costs_local_only': True}, exclusive=True)
+                recover_return(args, manifest, ledger, state, plan, label, item)
+            assert_append_only(ledger, state, recovery)
+            S.validate_accounting(ledger, state, manifest, args.manifest_sha256)
+            recovery['return_pending'] = [label for label, _ in values if not state.get('git_stages', {}).get(label, {}).get('remote_verified')]
+            recovery['status'] = 'CLOSED_RETURN_PARTIAL' if recovery['return_pending'] else 'FINALIZED'
+            recovery['final_git_and_parent_tail_costs_remain_local'] = True
+            ledger['parents'][-1]['status'] = 'CLOSED'
+            S.checkpoint(ledger, state, 'PUBLICATION_RECOVERY_' + recovery['status'], ended_at_utc=S.utc())
+        except BaseException as error:
+            unknown = ledger.get('blocked_unknown_cpu_or_process_tree') or any(r['status'] not in ('EXITED', 'FAILED_CLOSED') for r in ledger['auxiliary_costs'])
+            recovery.update(status='BLOCKED_REQUIRES_FORENSICS', reason=str(error), error_type=type(error).__name__)
+            ledger['parents'][-1]['status'] = 'BLOCKED_PRESERVED' if unknown else 'CLOSED'
+            S.checkpoint(ledger, state, 'PUBLICATION_RECOVERY_BLOCKED_PRESERVED'); raise
+
+
+def wait_for_original(args, plan):
+    """No original ledger/index access or original lock while science is healthy."""
+    launch = read(checked(plan['current_launch_ref'])); expected = launch['identity']
+    while True:
+        used = S.self_cpu()
+        monitor = {'status': 'WAITING_ORIGINAL_PARENT_TRUE_EXIT', 'driver_identity': S.identity(os.getpid()),
+            'actual_driver_source': plan['driver'], 'driver_self_cpu_seconds_observed': used,
+            'detacher_observed_self_cpu_seconds': args.launch_cpu_seconds, 'original_parent_identity': expected,
+            'no_original_ledger_or_index_written': True, 'updated_at_utc': S.utc()}
+        save(RECOVERY / 'wait_monitor.json', monitor)
+        require(S.boot_id() == expected['boot_id'], 'Kernel boot changed while waiting; require forensic closed-only recovery')
+        require(used < 2, 'WAIT_SELF_CPU_LIMIT2: preserve observed CPU, never stop the scientific parent')
+        require(time.time() + 10 < S.datetime.fromisoformat(S.DEADLINE).timestamp(), 'Original deadline expired while waiting')
+        checked(plan['current_launch_ref'])
+        if not S.is_live(expected):
+            require(not S.session_members(expected), 'Original parent exited but its Git session is not empty')
+            save(RECOVERY / 'evidence' / args.attempt / 'wait_monitor_at_parent_exit.json', monitor, exclusive=True)
+            return
+        time.sleep(30)
+
+
+def record_own_final(args, plan, *, status, error=None):
+    evidence = {'schema': 'research4-b-yanan-publication-driver-own-cpu-v1', 'status': status,
+        'actual_driver_source': plan['driver'], 'driver_identity': S.identity(os.getpid()), 'actual_driver_argv': sys.argv,
+        'observed_self_cpu_seconds': S.self_cpu(), 'detacher_observed_self_cpu_seconds': args.launch_cpu_seconds,
+        'measured_through_utc': S.utc(), 'remaining_process_tail_is_not_claimed_as_observed_actual': True,
+        'ledger_has_this_publication_parent': getattr(args, 'accounting_appended', False),
+        'unknown_wait_or_preaccounting_failure_requires_reconciliation': error is not None,
+        'error': str(error) if error is not None else None}
+    save(RECOVERY / 'own-final' / (args.attempt + '.json'), evidence, exclusive=True)
+
+
+def main():
+    p = argparse.ArgumentParser(description=__doc__)
+    p.add_argument('--manifest', required=True); p.add_argument('--manifest-sha256', required=True)
+    p.add_argument('--recovery-plan', required=True); p.add_argument('--recovery-plan-sha256', required=True)
+    p.add_argument('--attempt', default='publication-recovery-001'); p.add_argument('--check-only', action='store_true'); p.add_argument('--execute', action='store_true')
+    p.add_argument('--wait-for-closure', action='store_true'); p.add_argument('--detach', action='store_true')
+    p.add_argument('--launch-cpu-seconds', type=float, default=0.0, help=argparse.SUPPRESS)
+    args = p.parse_args(); require(S.SAFE.fullmatch(args.attempt), 'Finite fresh safe recovery invocation ID required')
+    require(math.isfinite(args.launch_cpu_seconds) and args.launch_cpu_seconds >= 0, 'Finite nonnegative detacher CPU required')
+    plan, auth, manifest = validate_plan(args)
+    if not args.execute or args.check_only:
+        launch = read(checked(plan['current_launch_ref']))
+        if args.wait_for_closure and S.is_live(launch['identity']):
+            print(json.dumps({'status': 'WAITING_CHECKED_NOT_EXECUTED', 'original_parent_identity': launch['identity'],
+                'original_ledger_or_index_read': False, 'new_scientific_jobs': 0, 'new_grant': 0})); return
+        ledger = read(S.ledger_path()); state = read(S.state_path())
+        try: closed_science(manifest, args.manifest_sha256, ledger, state, allow_recovery=CLAIM.exists())
+        except (ValueError, KeyError) as error:
+            print(json.dumps({'status': 'WAITING_OR_BLOCKED_NOT_EXECUTED', 'reason': str(error), 'new_scientific_jobs': 0, 'new_grant': 0})); return
+        print(json.dumps({'status': 'CHECKED_CLOSED_NOT_EXECUTED', 'plans': len(plans(manifest, plan)), 'max_extra_attempts_per_plan': 2,
+            'new_scientific_jobs': 0, 'new_grant': 0, 'remaining_existing_round_cpu': S.remaining_cpu(ledger)})); return
+    if args.detach:
+        launch_dir = RECOVERY / 'launches' / args.attempt; launch_dir.mkdir(parents=True, exist_ok=False)
+        observed_launcher_cpu = S.self_cpu()
+        command = [S.PYTHON, str(SELF), '--manifest', str(path(args.manifest)), '--manifest-sha256', args.manifest_sha256,
+            '--recovery-plan', str(path(args.recovery_plan)), '--recovery-plan-sha256', args.recovery_plan_sha256,
+            '--attempt', args.attempt, '--execute', '--launch-cpu-seconds', str(observed_launcher_cpu)]
+        if args.wait_for_closure: command.append('--wait-for-closure')
+        child = None
+        try:
+            with (launch_dir / 'console.log').open('xb') as log:
+                child = subprocess.Popen(command, cwd=ROOT, stdin=subprocess.DEVNULL, stdout=log, stderr=subprocess.STDOUT,
+                    start_new_session=True, close_fds=True)
+            receipt = {'status': 'ACTUAL_PUBLICATION_WAIT_PARENT_DETACHED', 'identity': S.identity(child.pid),
+                'command': command, 'actual_driver_source': plan['driver'], 'manifest_sha256': args.manifest_sha256,
+                'recovery_plan_sha256': args.recovery_plan_sha256, 'no_science_rerun': True,
+                'detacher_observed_self_cpu_seconds': observed_launcher_cpu,
+                'later_detacher_tail_covered_by_new_nonmeasured_hold1': True}
+            save(launch_dir / 'launch_receipt.json', receipt, exclusive=True); print(json.dumps(receipt)); return
+        except BaseException as error:
+            save(launch_dir / 'detacher_failure.json', {'status': 'DETACH_FAILURE_CPU_PRESERVED_REQUIRES_RECONCILIATION',
+                'actual_driver_source': plan['driver'], 'observed_detacher_self_cpu_seconds': S.self_cpu(),
+                'observed_at_utc': S.utc(), 'child_pid_if_started': child.pid if child is not None else None,
+                'do_not_blindly_relaunch_or_assume_zero_CPU': True, 'error': str(error)}, exclusive=True)
+            raise
+    RECOVERY.mkdir(parents=True, exist_ok=True)
+    with (RECOVERY / 'wait-parent.lock').open('a') as lock:
+        try:
+            fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            def interrupted(signum, frame): raise RuntimeError('Publication driver interrupted by signal ' + str(signum))
+            signal.signal(signal.SIGTERM, interrupted); signal.signal(signal.SIGINT, interrupted)
+            if args.wait_for_closure: wait_for_original(args, plan)
+            execute(args, plan, auth, manifest)
+        except BaseException as error:
+            record_own_final(args, plan, status='BLOCKED_PRESERVED_NO_SCIENTIFIC_SIGNAL_SENT', error=error); raise
+        record_own_final(args, plan, status='CLOSED_PUBLICATION_ONLY')
+
+
+if __name__ == '__main__': main()
