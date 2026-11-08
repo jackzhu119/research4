@@ -1,0 +1,50 @@
+{
+  "schema": "research4-pyscf90000-independent-source-review-v1",
+  "reviewed_at_utc": "2026-11-08T11:37:44.141293+00:00",
+  "reviewer": "/root/review_science_budget",
+  "review_method": "Independent source inspection, installed PySCF 2.13.0 API inspection, input provenance cross-check; no quantum payload launched by this reviewer.",
+  "status": "SOURCE_REVIEW_PASSED_NO_BLOCKING_FINDINGS",
+  "source_refs": [
+    {
+      "path": "scripts/run_pyscf_autonomous_90000_20261108.py",
+      "sha256": "0986a1356a72f69651074f8c9f7681529248ecad9190526d078d6820a055e8ca"
+    },
+    {
+      "path": "scripts/pyscf_full_numerical_hessian_20261108.py",
+      "sha256": "aecb5de96cca3f2cc39892384418499da39b70e1d44a8b9af8c51ad9105f79e3"
+    }
+  ],
+  "flags": {
+    "trusted_17_atom_C7H6O4_neutral_singlet_input_with_explicit_angstrom_units": true,
+    "full_native_veff_each_cycle_no_density_fitting_or_dispersion": true,
+    "actual_main_and_extra_cycle_energy_AND_orbital_checks": true,
+    "fresh_unshifted_full_fock_audit_and_grid_response_true_gradient": true,
+    "fresh_optimization_nuclear_stationarity_gate_before_hessian": true,
+    "all_102_independent_coordinate_points_per_step_share_same_zero_density": true,
+    "point_failures_retained_unattempted_coordinates_continue_no_automatic_retry": true,
+    "checkpoint_arrays_source_version_coordinates_density_hash_bound": true,
+    "partial_hessian_cannot_produce_complete_mode_claim": true,
+    "raw_antisymmetry_reported_before_symmetrization": true,
+    "sqrt_mass_weighted_translation_rotation_rank6_projection_leaves_45_modes": true,
+    "hartree_bohr_amu_to_signed_wavenumber_conversion_correct": true,
+    "two_step_projected_matrix_and_positive_margin_gates": true,
+    "independent_signed_frequencies_and_ir_not_computed_preserved": true,
+    "finite_payload_allocations_and_2000_second_preparation_reservation": true,
+    "wait4_user_system_science_costs_supervisor_and_git_overhead_monitored": true,
+    "git_upload_pid_sid_and_descendants_excluded_from_science_reaping": true,
+    "no_multithreaded_preexec_fn_fresh_exec_resource_shim_used": true,
+    "parent_death_signal_and_parent_identity_race_check": true,
+    "unknown_running_costs_block_recovery_budget_not_reset": true,
+    "owned_process_cleanup_cpu_rss_wall_stop_gates": true,
+    "configuration_source_input_hashes_revalidated_before_each_job": true,
+    "git_return_research_branch_small_explicit_paths_no_main_merge_or_force_push": true
+  },
+  "limitations": [
+    "This source review is not a completed large quantum calculation; root must run final tests and verify detached runtime identity.",
+    "Detached sessions survive terminal closure but do not guarantee cloud-instance uptime or survival after host shutdown.",
+    "Unknown interrupted RUNNING ledgers intentionally require independent closure/accounting before restart; cross-host recovery is not automatic.",
+    "The two-step operator difference is an empirical numerical uncertainty margin, not a rigorous bound on the exact physical Hessian.",
+    "Any minimum qualification concerns only the isolated PBE/def2-SVP grid3 model; IR intensity, chemical assignment and classifier changes remain unperformed."
+  ],
+  "historical_sources_or_results_modified_by_reviewer": false
+}

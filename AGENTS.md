@@ -56,3 +56,19 @@ The user's current data decision, effective 2026-11-08, is recorded in
   Any new origin study must account for kind, group and batch confounding;
   sample-level validation is not a real cross-batch experiment. New-batch
   calibration still needs independently annotated support/query batches.
+
+## New PySCF background queue (2026-11-08)
+
+The current user explicitly authorized a new finite 90,000 CPU-second PySCF
+background run, including continued execution after this chat ends. This is a
+separate prospective authorization from the historical classification protocol.
+Read `docs/PYSCF_BACKLOG_AUDIT_20261108.md` and
+`docs/PYSCF_AUTONOMOUS_90000_20261108.md`, then use the frozen configuration and
+independent ledger under `reports/pyscf-autonomous-90000-20261108/`.
+Do not reset budgets, relabel failed results, duplicate a live queue, merge main,
+or modify the frozen scientific/supervisor source while the queue is running.
+The finite priority is water controls, new grid3 protocatechuic-acid optimization,
+two complete numerical Hessians and signed-mode/step validation. Preserve the
+Spinosin and Calycosin backlogs and all historical imaginary modes. IR remains
+NOT_COMPUTED. An independent session can outlive the chat; cloud instance uptime
+is not guaranteed. Unknown unclosed process/CPU identity blocks automatic resume.
