@@ -6,8 +6,8 @@
   "total_cpu_seconds": 80000,
   "preparation_cpu_seconds_reserved": 2000.0,
   "preparation_reservation_is_conservative_not_measured_CPU": true,
-  "payload_cpu_seconds": 4.339277,
-  "supervisor_cpu_seconds": 0.47554099999999977,
+  "payload_cpu_seconds": 217.9658,
+  "supervisor_cpu_seconds": 2.490372000000008,
   "jobs": {
     "water-diagnostics": {
       "status": "COMPLETED",
@@ -188,6 +188,97 @@
       "last_stop_reason": null,
       "updated_at_utc": "2026-11-08T13:52:08.536551+00:00",
       "ended_at_utc": "2026-11-08T13:52:08.537866+00:00"
+    },
+    "acid-g3-optimize": {
+      "status": "COMPLETED",
+      "started_at_utc": "2026-11-08T13:52:10.830359+00:00",
+      "actual_cpu_seconds": 213.626523,
+      "attempts": [
+        {
+          "status": "COMPLETED",
+          "started_at_utc": "2026-11-08T13:52:10.833557+00:00",
+          "argv": [
+            "/workspace/research4/.venv-pyscf-90000/bin/python",
+            "-B",
+            "/workspace/research4/scripts/pyscf_continuous_science_20261108_v3.py",
+            "--stage",
+            "optimize",
+            "--output",
+            "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/acid-g3-optimize",
+            "--threads",
+            "2",
+            "--grid-level",
+            "3",
+            "--conv-tol",
+            "1e-10",
+            "--conv-grad",
+            "1e-7",
+            "--source-point",
+            "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/acid-g3-prepare/result.json"
+          ],
+          "remaining_pool_cpu_at_start": 77964,
+          "sampled_cpu_seconds": 213.626523,
+          "attempt_index": 1,
+          "output_directory": "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/acid-g3-optimize",
+          "guardian_identity": {
+            "pid": 4581,
+            "ppid": 1,
+            "pgrp": 4581,
+            "sid": 4581,
+            "state": "R",
+            "start_ticks": 908124,
+            "uid": 1000,
+            "boot_id": "a518927f-14ba-467c-8e72-ac5d3ebbe429",
+            "cpu_seconds": 5.17,
+            "rss_bytes": 14954496
+          },
+          "worker_identity": {
+            "pid": 4634,
+            "ppid": 4581,
+            "pgrp": 4634,
+            "sid": 4634,
+            "state": "R",
+            "start_ticks": 908810,
+            "uid": 1000,
+            "boot_id": "a518927f-14ba-467c-8e72-ac5d3ebbe429",
+            "cpu_seconds": 0.0,
+            "rss_bytes": 0
+          },
+          "peak_rss_bytes": 1933787136,
+          "actual_cpu_seconds": 213.626523,
+          "exit_code": 0,
+          "ended_at_utc": "2026-11-08T13:53:55.291778+00:00",
+          "actual_cpu_source": "WAIT4_ALL_OWNED_REAPED_CHILDREN_USER_PLUS_SYSTEM",
+          "all_owned_processes_closed": true,
+          "wall_seconds": 104.45720866500051,
+          "result_status": "GEOMETRY_AVAILABLE",
+          "result_sha256": "b178dd88c57c810e5ececa906aab252f108ae86bfd51c6ebfe891a11dae7088b",
+          "quality_matches_requested_status": true,
+          "quality_flags": [],
+          "quality_warnings_present": false
+        }
+      ],
+      "quality_does_not_block_downstream": true,
+      "worker_identity": {
+        "pid": 4634,
+        "ppid": 4581,
+        "pgrp": 4634,
+        "sid": 4634,
+        "state": "R",
+        "start_ticks": 908810,
+        "uid": 1000,
+        "boot_id": "a518927f-14ba-467c-8e72-ac5d3ebbe429",
+        "cpu_seconds": 0.0,
+        "rss_bytes": 0
+      },
+      "current_attempt": 1,
+      "sampled_current_attempt_cpu_seconds": 213.626523,
+      "last_result_status": "GEOMETRY_AVAILABLE",
+      "result_status": "GEOMETRY_AVAILABLE",
+      "last_exit_code": 0,
+      "last_stop_reason": null,
+      "updated_at_utc": "2026-11-08T13:53:55.292259+00:00",
+      "ended_at_utc": "2026-11-08T13:53:55.293584+00:00"
     }
   },
   "prior_charged_cpu_seconds": 9678.939876,
@@ -207,16 +298,21 @@
     "rss_bytes": 14368768
   },
   "detachment_survives_host_shutdown": false,
-  "updated_at_utc": "2026-11-08T13:52:08.537870+00:00",
-  "consumed_cpu_seconds": 2004.81482,
-  "actual_observed_cpu_seconds_excluding_preparation_reservation": 4.814820000000054,
-  "remaining_cpu_seconds": 77995.18518,
-  "combined_original_grant_charged_cpu_seconds": 11683.754696,
+  "updated_at_utc": "2026-11-08T13:53:55.293588+00:00",
+  "consumed_cpu_seconds": 2220.456175,
+  "actual_observed_cpu_seconds_excluding_preparation_reservation": 220.4561749999998,
+  "remaining_cpu_seconds": 77779.543825,
+  "combined_original_grant_charged_cpu_seconds": 11899.396051,
   "git_returns": [
     {
       "status": "PUSH_REMOTE_HEAD_VERIFIED",
       "commit": "730e5cd351a2524840b18acef051fbd2b5ea66e3",
       "at_utc": "2026-11-08T13:52:08.018915+00:00"
+    },
+    {
+      "status": "PUSH_REMOTE_HEAD_VERIFIED",
+      "commit": "d7470271b875945026d163758b29d61e874bf3ee",
+      "at_utc": "2026-11-08T13:52:10.828181+00:00"
     }
   ]
 }

@@ -1,0 +1,733 @@
+#INFO: **** input file is /workspace/research4/scripts/pyscf_continuous_science_20261108_v3.py ****
+#!/usr/bin/env python3
+"""Compute finite PySCF results continuously; scientific quality is metadata.
+
+The budget supervisor owns resource stops. Numerical warnings do not discard
+finite gradients or block later coordinates. Historical producers are untouched.
+"""
+from __future__ import annotations
+import argparse
+from datetime import datetime, timezone
+import hashlib
+import importlib.metadata
+import json
+import math
+import os
+from pathlib import Path
+import sys
+import traceback
+
+SCHEMA = 'research4-continuous-pyscf-science-v3'
+
+
+def utc(): return datetime.now(timezone.utc).isoformat()
+
+
+def sha(path):
+    with Path(path).open('rb') as stream: return hashlib.file_digest(stream, 'sha256').hexdigest()
+
+
+def save(path, value):
+    path = Path(path); path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = path.with_name(path.name + '.tmp')
+    with temporary.open('w') as stream:
+        json.dump(value, stream, indent=2, allow_nan=False); stream.write('\n'); stream.flush(); os.fsync(stream.fileno())
+    os.replace(temporary, path)
+
+
+def array_ref(path, value):
+    import numpy as np
+    path = Path(path); path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = path.with_name(path.name + '.tmp')
+    with temporary.open('wb') as stream:
+        np.save(stream, value, allow_pickle=False); stream.flush(); os.fsync(stream.fileno())
+    os.replace(temporary, path)
+    return {'path': str(path.resolve()), 'sha256': sha(path)}
+
+
+def read_ref(ref):
+    import numpy as np
+    path = Path(ref['path'])
+    if sha(path) != ref['sha256']: raise ValueError('Array content hash changed: ' + str(path))
+    value = np.load(path, allow_pickle=False)
+    if not np.isfinite(value).all(): raise ValueError('Nonfinite array: ' + str(path))
+    return value
+
+
+def settings(args):
+    return {'xc': 'PBE', 'basis': 'def2-SVP', 'grid_level': args.grid_level,
+            'charge': 0, 'spin': 0, 'dispersion': 'NONE_EXPLICIT', 'density_fitting': False,
+            'full_native_veff_every_cycle': True, 'grid_response': True, 'direct_scf_tol': 1e-14,
+            'energy_tolerance_hartree': args.conv_tol, 'orbital_gradient_tolerance': args.conv_grad,
+            'maximum_SCF_cycles': 80, 'newton_recovery_max_cycles': 20,
+            'quality_warnings_block_execution': False}
+
+
+def result(status, cfg):
+    return {'schema': SCHEMA, 'status': status, 'settings': cfg, 'source_sha256': sha(__file__),
+            'at_utc': utc(), 'IR': 'NOT_COMPUTED', 'chemical_assignment': 'NOT_PERFORMED',
+            'classifier_results_modified': False, 'quality_warnings': []}
+
+
+def new_molecule(symbols, coordinates, cfg, unit='Bohr'):
+    import numpy as np
+    from pyscf import gto
+    coordinates = np.asarray(coordinates, dtype=float)
+    if coordinates.shape != (len(symbols), 3) or not np.isfinite(coordinates).all(): raise ValueError('Invalid molecular coordinates')
+    return gto.M(atom=[(s, tuple(map(float, row))) for s, row in zip(symbols, coordinates)],
+                 unit=unit, basis=cfg['basis'], charge=cfg['charge'], spin=cfg['spin'], max_memory=6000, verbose=4)
+
+
+def make_scf(mol, out, cfg):
+    from pyscf import dft
+    from pyscf.dft import rks
+    class FullNativeRKS(dft.rks.RKS):
+        def get_veff(self, mol=None, dm=None, dm_last=None, vhf_last=None, hermi=1):
+            return rks.get_veff(self, mol, dm, dm_last=0, vhf_last=0, hermi=hermi)
+    mf = FullNativeRKS(mol)
+    mf.xc = cfg['xc']; mf.grids.level = cfg['grid_level']; mf.max_memory = 6000
+    mf.direct_scf = True; mf.direct_scf_tol = cfg['direct_scf_tol']
+    mf.conv_tol = cfg['energy_tolerance_hartree']; mf.conv_tol_grad = cfg['orbital_gradient_tolerance']
+    mf.max_cycle = cfg['maximum_SCF_cycles']; mf.chkfile = str(out / 'local-only/rolling.chk')
+    (out / 'local-only').mkdir(exist_ok=True)
+    return mf
+
+
+def fingerprint(mol, cfg, density):
+    import numpy as np
+    payload = {'source_sha256': sha(__file__), 'settings': cfg,
+               'pyscf_version': importlib.metadata.version('pyscf'),
+               'symbols': [mol.atom_symbol(i) for i in range(mol.natm)],
+               'coordinates_sha256': hashlib.sha256(np.asarray(mol.atom_coords(), dtype='<f8').tobytes()).hexdigest(),
+               'initial_density_sha256': None if density is None else hashlib.sha256(np.asarray(density, dtype='<f8').tobytes()).hexdigest()}
+    return hashlib.sha256(json.dumps(payload, sort_keys=True).encode()).hexdigest(), payload
+
+
+def calculate_attempt(mol, out, cfg, dm0, nuclear_gradient, save_density):
+    """Finite convergence attempts. Unconverged finite states remain usable."""
+    import numpy as np
+    out.mkdir(parents=True, exist_ok=True)
+    log = (out / 'pyscf.log').open('a', buffering=1)
+    mol = mol.copy(); mol.stdout = log
+    cfgout = result('POINT_RUNNING', cfg); calls = []
+    try:
+        mf = make_scf(mol, out, cfg)
+        try:
+            energy = float(mf.kernel(dm0=None if dm0 is None else np.array(dm0, copy=True)))
+            calls.append({'solver': 'NATIVE_SCF', 'native_converged': bool(mf.converged)})
+        except Exception as error:
+            calls.append({'solver': 'NATIVE_SCF', 'error': str(error)}); energy = float('nan')
+        if not getattr(mf, 'converged', False):
+            try:
+                seed = mf.newton(); seed.max_cycle = cfg['newton_recovery_max_cycles']; seed.max_cycle_inner = 10
+                seed.max_memory = 6000
+                guess = mf.make_rdm1() if getattr(mf, 'mo_coeff', None) is not None else dm0
+                seed.kernel(dm0=guess)
+                calls.append({'solver': 'NEWTON_RECOVERY', 'native_converged': bool(seed.converged)})
+                seed_density = np.array(seed.make_rdm1(), copy=True)
+                fresh = make_scf(mol, out, cfg); energy = float(fresh.kernel(dm0=seed_density)); mf = fresh
+                calls.append({'solver': 'NATIVE_AFTER_NEWTON', 'native_converged': bool(mf.converged)})
+            except Exception as error:
+                calls.append({'solver': 'NEWTON_RECOVERY', 'error': str(error)})
+        if getattr(mf, 'mo_coeff', None) is None: raise ValueError('No finite molecular-orbital state was produced')
+        dm = np.asarray(mf.make_rdm1())
+        if not np.isfinite(dm).all(): raise ValueError('Nonfinite density')
+        hcore = mf.get_hcore(); veff = mf.get_veff(mol, dm)
+        fresh_energy = float(mf.energy_tot(dm, hcore, veff))
+        if not math.isfinite(fresh_energy): raise ValueError('Nonfinite total energy')
+        if not math.isfinite(energy): energy = fresh_energy
+        audit = {'native_converged': bool(mf.converged), 'fresh_energy_hartree': fresh_energy,
+                 'energy_recheck_difference_hartree': fresh_energy - energy}
+        try:
+            fock = mf.get_fock(hcore, mf.get_ovlp(), veff, dm, cycle=-1, diis=None, level_shift_factor=0)
+            residual = float(np.linalg.norm(mf.get_grad(mf.mo_coeff, mf.mo_occ, fock)))
+            audit['fresh_orbital_gradient_norm'] = residual if math.isfinite(residual) else None
+        except Exception as error: audit['audit_error'] = str(error)
+        warnings = []
+        if not mf.converged: warnings.append('NATIVE_SCF_UNCONVERGED_FINITE_STATE_USED')
+        residual = audit.get('fresh_orbital_gradient_norm')
+        if residual is None or residual > 1e-9: warnings.append('FORMER_STRICT_ORBITAL_TARGET_NOT_MET_OR_UNAVAILABLE')
+        if abs(audit['energy_recheck_difference_hartree']) > 1e-12: warnings.append('FORMER_STRICT_ENERGY_RECHECK_TARGET_NOT_MET')
+        gradient = None
+        if nuclear_gradient:
+            driver = mf.nuc_grad_method(); driver.grid_response = True
+            gradient = np.asarray(driver.kernel())
+            if gradient.shape != (mol.natm, 3) or not np.isfinite(gradient).all(): raise ValueError('No finite complete nuclear gradient')
+            cfgout['gradient'] = array_ref(out / 'gradient.npy', gradient)
+            cfgout['nuclear_gradient_rms'] = float(np.sqrt(np.mean(gradient**2)))
+            cfgout['nuclear_gradient_max'] = float(np.max(np.abs(gradient)))
+        density_path = out / ('density.npy' if save_density else 'local-only/density.npy')
+        cfgout.update(status='POINT_COMPUTED', energy_hartree=fresh_energy, native_energy_hartree=energy, native_pyscf_converged=bool(mf.converged),
+                      calls=calls, diagnostics=audit, quality_warnings=warnings,
+                      coordinates_bohr=array_ref(out / 'coordinates_bohr.npy', mol.atom_coords()),
+                      symbols=[mol.atom_symbol(i) for i in range(mol.natm)], density=array_ref(density_path, dm),
+                      completed_at_utc=utc())
+        save(out / 'result.json', cfgout)
+        return cfgout, dm, gradient
+    except Exception as error:
+        cfgout.update(status='POINT_ERROR', error_type=type(error).__name__, error=str(error), calls=calls)
+        save(out / 'result.json', cfgout); raise
+    finally: log.close()
+
+
+def evaluate_point(mol, output, cfg, dm0=None, nuclear_gradient=True, save_density=False):
+    """Reuse authenticated finite gradients without reading local-only point DM."""
+    out = Path(output); out.mkdir(parents=True, exist_ok=True)
+    digest, inputs = fingerprint(mol, cfg, dm0)
+    target = out / 'result.json'
+    if target.exists():
+        old = json.loads(target.read_text())
+        if old.get('input_fingerprint') != digest: raise ValueError('Point fingerprint changed')
+        if old.get('status') == 'POINT_COMPUTED':
+            gradient = read_ref(old['gradient']) if nuclear_gradient else None
+            density = read_ref(old['density']) if save_density else None
+            return old, density, gradient
+    parent_attempt = max(1, int(os.environ.get('R4_ATTEMPT', '1')))
+    failures = []
+    for number in (1, 2):
+        attempt = out / ('attempt-%03d-%d' % (parent_attempt, number))
+        existed = attempt.exists()
+        input_path = attempt / 'input.json'
+        if existed:
+            if not input_path.exists() or json.loads(input_path.read_text()).get('input_fingerprint') != digest:
+                raise ValueError('Existing attempt input fingerprint is unavailable or changed')
+        else:
+            attempt.mkdir(parents=True)
+            save(input_path, {'input_fingerprint': digest, 'inputs': inputs, 'at_utc': utc()})
+        if (attempt / 'result.json').exists():
+            previous = json.loads((attempt / 'result.json').read_text())
+            if previous.get('status') == 'POINT_COMPUTED':
+                previous.update(input_fingerprint=digest, inputs=inputs); save(target, previous)
+                return previous, read_ref(previous['density']) if save_density else None, read_ref(previous['gradient']) if nuclear_gradient else None
+            failures.append({'attempt': str(attempt), 'error': previous.get('error', 'prior unsuccessful attempt')}); continue
+        if existed:
+            failures.append({'attempt': str(attempt), 'error': 'INTERRUPTED_ATTEMPT_RETAINED_WITHOUT_OVERWRITING'})
+            continue
+        try:
+            point, density, gradient = calculate_attempt(mol, attempt, cfg, dm0, nuclear_gradient, save_density)
+            point.update(input_fingerprint=digest, inputs=inputs, failed_attempts=failures)
+            save(target, point); return point, density if save_density else None, gradient
+        except Exception as error:
+            failures.append({'attempt': str(attempt), 'error_type': type(error).__name__, 'error': str(error)})
+            save(out / 'progress.json', {'status': 'POINT_RETRY_OR_ERROR', 'input_fingerprint': digest, 'failed_attempts': failures})
+    failed = result('POINT_ERROR', cfg); failed.update(input_fingerprint=digest, inputs=inputs, failed_attempts=failures)
+    save(target, failed); raise ValueError('No finite point after two recorded attempts')
+
+
+def load_source(path):
+    import numpy as np
+    record = json.loads(Path(path).read_text())
+    coords = read_ref(record['coordinates_bohr']); density = read_ref(record['density'])
+    symbols = record['symbols']
+    if coords.shape != (len(symbols), 3) or density.ndim != 2 or density.shape[0] != density.shape[1]: raise ValueError('Inconsistent source geometry/density')
+    return record, symbols, coords, density
+
+
+def input_molecule(args, cfg):
+    if args.source_point:
+        old, symbols, coords, density = load_source(args.source_point)
+        return new_molecule(symbols, coords, cfg), density, {'path': str(args.source_point.resolve()), 'sha256': sha(args.source_point), 'scope': 'HISTORICAL_FINITE_STATE_NOT_RETROACTIVELY_CERTIFIED'}
+    if args.xyz:
+        rows = args.xyz.read_text().splitlines(); atoms = [x.split() for x in rows[2:] if x.strip()]
+        if len(atoms) != int(rows[0]) or any(len(x) != 4 for x in atoms): raise ValueError('Invalid XYZ')
+        return new_molecule([x[0] for x in atoms], [[float(v) for v in x[1:]] for x in atoms], cfg, 'Angstrom'), None, {'path': str(args.xyz.resolve()), 'sha256': sha(args.xyz), 'scope': 'TRUSTED_INPUT_XYZ'}
+    raise ValueError('--source-point or --xyz is required')
+
+
+def geometry_record(point, cfg, status='GEOMETRY_AVAILABLE'):
+    record = result(status, cfg)
+    record.update(symbols=point['symbols'], coordinates_bohr=point['coordinates_bohr'], density=point['density'],
+                  quality_warnings=list(point.get('quality_warnings', [])),
+                  nuclear_gradient_rms=point.get('nuclear_gradient_rms'), nuclear_gradient_max=point.get('nuclear_gradient_max'),
+                  native_pyscf_converged=point.get('native_pyscf_converged'), gradient=point.get('gradient'),
+                  derivative_settings=point.get('derivative_settings', point.get('settings')), minimum_verified=False)
+    return record
+
+
+def stage_prepare(args, cfg):
+    mol, density, source = input_molecule(args, cfg)
+    if args.source_point:
+        point = json.loads(args.source_point.read_text())
+        point['density'] = array_ref(args.output / 'center-density.npy', density)
+        point['coordinates_bohr'] = array_ref(args.output / 'center-coordinates.npy', mol.atom_coords())
+        if point.get('gradient'):
+            point['gradient'] = array_ref(args.output / 'center-gradient.npy', read_ref(point['gradient']))
+        point['quality_warnings'] = list(point.get('quality_warnings', [])) + ['HISTORICAL_FINITE_STATE_REUSED_AS_STARTING_GEOMETRY']
+    else:
+        point, _, _ = evaluate_point(mol, args.output / 'center', cfg, density, save_density=True)
+    rec = geometry_record(point, cfg); rec.update(input_source=source, optimizer_converged=False)
+    rec['quality_warnings'].append('GEOMETRY_PREPARED_WITHOUT_OPTIMIZATION')
+    return rec
+
+
+def stage_optimize(args, cfg):
+    import numpy as np
+    from pyscf.geomopt import addons, geometric_solver
+    mol, density, source = input_molecule(args, cfg)
+    latest = {'density': density, 'point': None, 'mol': mol, 'count': 0}
+    history = []; errors = []
+    def scan(actual_mol):
+        i = latest['count']; latest['count'] += 1
+        point, dm, gradient = evaluate_point(actual_mol, args.output / 'optimization_steps' / ('step-%03d' % i), cfg, latest['density'], save_density=True)
+        latest.update(density=dm, point=point, mol=actual_mol.copy()); history.append({'point': i, 'energy_hartree': point['energy_hartree'], 'quality_warnings': point['quality_warnings']})
+        return point['energy_hartree'], gradient
+    converged = False; candidate = mol
+    try:
+        converged, candidate = geometric_solver.kernel(addons.as_pyscf_method(mol, scan), maxsteps=30,
+            convergence_energy=1e-6, convergence_grms=1e-4, convergence_gmax=3e-4,
+            convergence_drms=1.2e-3, convergence_dmax=1.8e-3)
+    except Exception as error: errors.append({'error_type': type(error).__name__, 'error': str(error)})
+    try:
+        point, _, _ = evaluate_point(candidate if converged else latest['mol'], args.output / 'final-center', cfg, latest['density'], save_density=True)
+    except Exception as error:
+        errors.append({'error_type': type(error).__name__, 'error': str(error)})
+        point = latest['point']
+        if point is None and args.source_point:
+            old, symbols, coords, dm = load_source(args.source_point)
+            point = dict(old)
+            point['density'] = array_ref(args.output / 'fallback-center-density.npy', dm)
+            point['coordinates_bohr'] = array_ref(args.output / 'fallback-center-coordinates.npy', coords)
+            point['quality_warnings'] = ['NEW_OPTIMIZATION_FAILED_HISTORICAL_FINITE_GEOMETRY_RETAINED']
+        if point is None: raise ValueError('No finite input or optimization geometry available')
+    rec = geometry_record(point, cfg); rec.update(optimizer_converged=bool(converged), input_source=source,
+        actual_gradient_evaluations=latest['count'], optimization_history=history, nonfatal_optimizer_errors=errors,
+        former_strict_nuclear_targets_met=bool(point.get('nuclear_gradient_rms') is not None and point.get('nuclear_gradient_max') is not None and point['nuclear_gradient_rms'] <= 1e-5 and point['nuclear_gradient_max'] <= 3e-5))
+    if not converged: rec['quality_warnings'].append('OPTIMIZER_NOT_CONVERGED_GEOMETRY_REMAINS_AVAILABLE')
+    return rec
+
+
+def assemble_hessian(plus, minus, step):
+    import numpy as np
+    plus, minus = np.asarray(plus), np.asarray(minus)
+    if plus.shape != minus.shape or plus.ndim != 3 or plus.shape[0] != 3*plus.shape[1] or plus.shape[2] != 3 or not step > 0: raise ValueError('Incomplete central differences')
+    if not np.isfinite(plus).all() or not np.isfinite(minus).all(): raise ValueError('Nonfinite central differences')
+    return ((plus-minus)/(2*step)).reshape(plus.shape[0], -1).T
+
+
+def stage_hessian(args, cfg):
+    import numpy as np
+    if args.geometry is None or not args.step or args.step <= 0: raise ValueError('--geometry and positive --step required')
+    candidates = [args.geometry] + list(getattr(args, 'fallback_geometry', None) or [])
+    geometry_errors = []
+    for candidate in candidates:
+        try:
+            geom, symbols, coords, density = load_source(candidate)
+            actual_geometry = Path(candidate)
+            break
+        except Exception as error:
+            geometry_errors.append({'path': str(candidate), 'error': str(error)})
+    else:
+        raise ValueError('No finite geometry among primary/fallback candidates: ' + str(geometry_errors))
+    derivative_settings = geom.get('derivative_settings') or geom.get('settings', {})
+    method_keys = ('xc', 'basis', 'grid_level', 'dispersion', 'density_fitting', 'full_native_veff_every_cycle', 'grid_response', 'charge', 'spin')
+    stationarity_settings_match = all(derivative_settings.get(key) == cfg.get(key) for key in method_keys)
+    n = len(symbols); dimension = 3*n; gradients = {1: {}, -1: {}}
+    warnings = []; failures = []; point_refs = []; native_false = 0
+    progress = result('HESSIAN_RUNNING', cfg); progress.update(expected_points=2*dimension, actual_finite_points=0)
+    for coordinate in range(dimension):
+        for sign in (1, -1):
+            name = 'c%03d-%s' % (coordinate, 'plus' if sign > 0 else 'minus')
+            displaced = np.array(coords, copy=True); displaced.flat[coordinate] += sign*args.step
+            try:
+                point, _, gradient = evaluate_point(new_molecule(symbols, displaced, cfg), args.output / 'points' / name, cfg, density)
+                gradients[sign][coordinate] = gradient
+                native_false += not bool(point['native_pyscf_converged'])
+                if point['quality_warnings']: warnings.append({'point': name, 'warnings': point['quality_warnings']})
+                p = args.output / 'points' / name / 'result.json'; point_refs.append({'path': str(p.resolve()), 'sha256': sha(p)})
+            except Exception as error: failures.append({'point': name, 'error_type': type(error).__name__, 'error': str(error)})
+            progress.update(actual_finite_points=len(gradients[1])+len(gradients[-1]), failed_points=failures,
+                            points_with_quality_warnings=warnings, native_unconverged_points=native_false)
+            save(args.output / 'progress.json', progress)
+    progress.update(status='HESSIAN_PARTIAL', geometry_result={'path': str(actual_geometry.resolve()), 'sha256': sha(actual_geometry)}, geometry_fallback_warnings=geometry_errors,
+        coordinates_bohr=geom['coordinates_bohr'], symbols=symbols, step_bohr=args.step,
+        center_density_sha256=geom['density']['sha256'], center_optimizer_converged=geom.get('optimizer_converged', False),
+        center_quality_warnings=list(geom.get('quality_warnings', [])) + ([] if stationarity_settings_match else ['CENTER_GRADIENT_METHOD_DIFFERS_FROM_HESSIAN_METHOD']),
+        geometry_source_derivative_settings=derivative_settings, center_stationarity_settings_match=stationarity_settings_match,
+        center_nuclear_gradient_rms=geom.get('nuclear_gradient_rms'), center_nuclear_gradient_max=geom.get('nuclear_gradient_max'),
+        center_strict_stationarity_quality=bool(geom.get('nuclear_gradient_rms', math.inf) is not None and geom.get('nuclear_gradient_max', math.inf) is not None and geom.get('nuclear_gradient_rms', math.inf)<=1e-5 and geom.get('nuclear_gradient_max', math.inf)<=3e-5),
+        point_results=point_refs, completed_at_utc=utc())
+    if progress['actual_finite_points'] == 2*dimension:
+        raw = assemble_hessian([gradients[1][i] for i in range(dimension)], [gradients[-1][i] for i in range(dimension)], args.step)
+        progress.update(status='HESSIAN_COMPUTED', raw_hessian=array_ref(args.output / 'raw_hessian.npy', raw),
+            raw_relative_asymmetry=float(np.linalg.norm(raw-raw.T)/max(np.linalg.norm(raw), 1e-300)), vibrational_modes_expected=dimension-6)
+    return progress
+
+
+def vibrational_modes(matrix, coords, masses):
+    import numpy as np
+    from scipy import constants
+    matrix, coords, masses = map(np.asarray, (matrix, coords, masses)); n = len(masses)
+    if matrix.shape != (3*n, 3*n) or coords.shape != (n, 3) or not np.isfinite(matrix).all() or np.any(masses <= 0): raise ValueError('Invalid mode inputs')
+    center = (coords*masses[:, None]).sum(axis=0)/masses.sum(); shifted = coords-center
+    roots = np.sqrt(masses); ext = []
+    for axis in np.eye(3): ext.append((roots[:, None]*np.broadcast_to(axis, coords.shape)).ravel())
+    for axis in np.eye(3): ext.append((roots[:, None]*np.cross(axis, shifted)).ravel())
+    u, singular, _ = np.linalg.svd(np.array(ext).T, full_matrices=True)
+    rank = int((singular > singular.max()*1e-10).sum()); complement = u[:, rank:]
+    scale = np.repeat(roots, 3); weighted = .5*(matrix+matrix.T)/scale[:, None]/scale[None, :]
+    projected = complement.T@weighted@complement; values, vectors = np.linalg.eigh(projected)
+    conversion = math.sqrt(constants.physical_constants['Hartree energy'][0]/(constants.physical_constants['Bohr radius'][0]**2*constants.physical_constants['atomic mass constant'][0]))/(2*math.pi*constants.c*100)
+    return np.sign(values)*np.sqrt(np.abs(values))*conversion, values, complement@vectors, rank
+
+
+def stage_analyze(args, cfg):
+    import numpy as np
+    from pyscf.data import elements
+    if not args.hessians: raise ValueError('--hessians required')
+    rows = [json.loads(Path(p).read_text()) for p in args.hessians]
+    rec = result('ANALYSIS_COMPUTED', cfg); rec.update(input_hessians=[{'path': str(Path(p).resolve()), 'sha256': sha(p)} for p in args.hessians], minimum_verified=False)
+    if any(x.get('status') != 'HESSIAN_COMPUTED' or 'raw_hessian' not in x for x in rows):
+        rec.update(status='ANALYSIS_PARTIAL', reason='Incomplete finite Hessian; no fabricated full modes', input_statuses=[x.get('status') for x in rows]); return rec
+    coordinates = read_ref(rows[0]['coordinates_bohr']); symbols = rows[0]['symbols']
+    if any(x['coordinates_bohr'] != rows[0]['coordinates_bohr'] or x['symbols'] != symbols or x['center_density_sha256'] != rows[0]['center_density_sha256'] for x in rows): raise ValueError('Different centers cannot form a paired step analysis')
+    masses = np.array([elements.MASSES[elements.charge(s)] for s in symbols]); matrices = [read_ref(x['raw_hessian']) for x in rows]
+    modes = [vibrational_modes(h, coordinates, masses) for h in matrices]; asym = [float(np.linalg.norm(h-h.T)/max(np.linalg.norm(h), 1e-300)) for h in matrices]
+    rec.update(hessian_settings=[x.get('settings') for x in rows], signed_frequencies_cm1=[m[0].tolist() for m in modes], signed_eigenvalues=[m[1].tolist() for m in modes],
+        imaginary_counts=[int((m[0]<0).sum()) for m in modes], vibrational_modes=len(modes[0][0]), external_rank=modes[0][3], raw_relative_asymmetry=asym,
+        point_native_unconverged_counts=[x.get('native_unconverged_points', 0) for x in rows],
+        point_warning_counts=[len(x.get('points_with_quality_warnings', [])) for x in rows])
+    if len(rows) >= 2:
+        scale = np.repeat(np.sqrt(masses), 3); common = modes[0][2]
+        projected = [common.T@(.5*(h+h.T)/scale[:, None]/scale[None, :])@common for h in matrices]
+        difference = projected[1]-projected[0]; uncertainty = float(np.linalg.norm(difference, 2)); relative = float(np.linalg.norm(difference)/max(np.linalg.norm(projected[1]), 1e-300))
+        quality = bool(max(asym)<=1e-3 and relative<=1e-3 and all(np.min(m[1])>uncertainty for m in modes))
+        native_ok = all(x.get('native_unconverged_points', 0)==0 and not x.get('points_with_quality_warnings') for x in rows)
+        center_ok = all(x.get('center_optimizer_converged') and x.get('center_strict_stationarity_quality') and x.get('center_stationarity_settings_match') and not x.get('center_quality_warnings') for x in rows)
+        rec.update(projected_relative_step_difference=relative, empirical_step_uncertainty_margin=uncertainty,
+                   minimum_verified=bool(quality and native_ok and center_ok), numerical_quality_diagnostics_passed=quality)
+    if not rec['minimum_verified']: rec['quality_warnings'].append('MINIMUM_NOT_VERIFIED_RESULTS_RETAINED')
+    for i, mode in enumerate(modes): rec['mass_weighted_modes_%d'%i] = array_ref(args.output / ('mass_weighted_modes_%d.npy'%i), mode[2])
+    return rec
+
+
+def stage_controls(args, cfg):
+    import numpy as np
+    mol = new_molecule(['O','H','H'], [[0,0,0],[.75695,0,.58588],[-.75695,0,.58588]], cfg, 'Angstrom')
+    center, dm, gradient = evaluate_point(mol, args.output/'zero', cfg, save_density=True)
+    directional = float(gradient[1,0]); numerical = []
+    for step in (.001,.0005):
+        energies = []
+        for sign in (1,-1):
+            coords = mol.atom_coords(); coords[1,0] += sign*step
+            point, _, _ = evaluate_point(new_molecule(['O','H','H'], coords, cfg), args.output/('h%s-%s'%(step,sign)), cfg, dm, nuclear_gradient=False)
+            energies.append(point['energy_hartree'])
+        numerical.append(math.fsum((energies[0],-energies[1]))/(2*step))
+    rec = result('CONTROLS_COMPUTED',cfg); rec.update(analytic_directional_gradient=directional, finite_energy_derivatives=numerical,
+        absolute_errors=[abs(x-directional) for x in numerical], diagnostics_within_former_tolerance=bool(max(abs(x-directional) for x in numerical)<=1e-5))
+    if not rec['diagnostics_within_former_tolerance']: rec['quality_warnings'].append('CONTROL_NUMERICAL_DIFFERENCE_REQUIRES_REVIEW')
+    return rec
+
+
+def main(argv=None):
+    p=argparse.ArgumentParser(description=__doc__)
+    p.add_argument('--stage',required=True,choices=['controls','prepare','optimize','hessian','analyze']);p.add_argument('--output',required=True,type=Path)
+    p.add_argument('--source-point',type=Path);p.add_argument('--xyz',type=Path);p.add_argument('--geometry',type=Path)
+    p.add_argument('--fallback-geometry',type=Path,action='append')
+    p.add_argument('--step',type=float);p.add_argument('--hessians',nargs='+');p.add_argument('--grid-level',type=int,default=3)
+    p.add_argument('--conv-tol',type=float,default=1e-10);p.add_argument('--conv-grad',type=float,default=1e-7);p.add_argument('--threads',type=int,default=2)
+    args=p.parse_args(argv);args.output=args.output.resolve();args.output.mkdir(parents=True,exist_ok=True)
+    if args.threads not in (1,2) or args.grid_level not in range(1,10) or not (0<args.conv_tol<1 and 0<args.conv_grad<1):p.error('Invalid resource/method arguments')
+    from pyscf import lib
+    lib.num_threads(args.threads);cfg=settings(args)
+    try:
+        rec={'controls':stage_controls,'prepare':stage_prepare,'optimize':stage_optimize,'hessian':stage_hessian,'analyze':stage_analyze}[args.stage](args,cfg)
+        rec.update(threads=args.threads,pyscf_version=importlib.metadata.version('pyscf'));save(args.output/'result.json',rec)
+        return 0
+    except Exception as error:
+        rec=result('DATA_UNAVAILABLE',cfg);rec.update(error_type=type(error).__name__,error=str(error),traceback=traceback.format_exc());save(args.output/'result.json',rec);return 2
+
+
+if __name__=='__main__':sys.exit(main())
+#INFO: ******************** input file end ********************
+
+
+System: uname_result(system='Linux', node='629429197df2', release='6.18.57', version='#1 SMP Tue Oct 20 21:56:04 UTC 2026', machine='x86_64')  Threads 2
+Python 3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]
+numpy 2.3.5  scipy 1.17.0  h5py 3.16.0
+Date: Sun Nov  8 13:52:11 2026
+PySCF version 2.13.0
+PySCF path  /workspace/research4/.venv-pyscf-90000/lib/python3.12/site-packages/pyscf
+
+[CONFIG] conf_file None
+[INPUT] verbose = 4
+[INPUT] num. atoms = 17
+[INPUT] num. electrons = 80
+[INPUT] charge = 0
+[INPUT] spin (= nelec alpha-beta = 2S) = 0
+[INPUT] symmetry False subgroup None
+[INPUT] Mole.unit = Bohr
+[INPUT] Symbol           X                Y                Z      unit          X                Y                Z       unit  Magmom
+[INPUT]  1 O     -2.940415507880   1.343952605492  -0.403547579159 AA   -5.556580002317   2.539702348776  -0.762594402841 Bohr   0.0
+[INPUT]  2 C     -2.458333285661   0.338228868808   0.097895405302 AA   -4.645576632801   0.639159929468   0.184995504874 Bohr   0.0
+[INPUT]  3 O     -3.227079503165  -0.593698209325   0.726685285844 AA   -6.098296443179  -1.121927016269   1.373236168996 Bohr   0.0
+[INPUT]  4 C     -1.013431374272  -0.004030979212   0.095264974457 AA   -1.915107743416  -0.007617446724   0.180024710987 Bohr   0.0
+[INPUT]  5 C     -0.501671385624  -1.177554154811   0.685317694016 AA   -0.948021523360  -2.225254849436   1.295062750009 Bohr   0.0
+[INPUT]  6 C      0.873249071834  -1.444986510506   0.650322150541 AA    1.650201584297  -2.730628758547   1.228930757260 Bohr   0.0
+[INPUT]  7 C      1.752665493287  -0.545158338372   0.026756786652 AA    3.312057770288  -1.030199954047   0.050562998745 Bohr   0.0
+[INPUT]  8 O      3.082699619653  -0.788172016949  -0.015622763785 AA    5.825458005446  -1.489429251080  -0.029522744863 Bohr   0.0
+[INPUT]  9 C      1.234909860805   0.639247835499  -0.568656803747 AA    2.333641425446   1.208003334814  -1.074605617952 Bohr   0.0
+[INPUT] 10 O      2.186471420994   1.441257350242  -1.146892858664 AA    4.131832164866   2.723581666974  -2.167313397095 Bohr   0.0
+[INPUT] 11 C     -0.131215874218   0.904892356362  -0.534038389039 AA   -0.247962065468   1.709998725736  -1.009186295287 Bohr   0.0
+[INPUT] 12 H     -4.143392225967  -0.250523186270   0.656978346909 AA   -7.829876533729  -0.473420209905   1.241509145428 Bohr   0.0
+[INPUT] 13 H     -1.190158561948  -1.880805387274   1.173044335691 AA   -2.249073726888  -3.554207075555   2.216732526428 Bohr   0.0
+[INPUT] 14 H      1.293056267224  -2.354309156801   1.104314451067 AA    2.443522208705  -4.448999518909   2.086851867917 Bohr   0.0
+[INPUT] 15 H      3.490242045588  -0.034650822629  -0.493035872342 AA    6.595601574603  -0.065480564759  -0.931702768312 Bohr   0.0
+[INPUT] 16 H      1.761171772464   2.229536658305  -1.530375251391 AA    3.328132308272   4.213213668875  -2.891990092942 Bohr   0.0
+[INPUT] 17 H     -0.553602109681   1.815486510231  -0.988626239579 AA   -1.046156369278   3.430772287179  -1.868232832362 Bohr   0.0
+
+nuclear repulsion = 581.47917069597
+number of shells = 84
+number of NR pGTOs = 306
+number of NR cGTOs = 184
+basis = def2-SVP
+ecp = {}
+CPU time:         0.83
+geometric-optimize called with the following command line:
+/workspace/research4/scripts/pyscf_continuous_science_20261108_v3.py --stage optimize --output /workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/acid-g3-optimize --threads 2 --grid-level 3 --conv-tol 1e-10 --conv-grad 1e-7 --source-point /workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/acid-g3-prepare/result.json
+
+                                        [91m())))))))))))))))/[0m                     
+                                    [91m())))))))))))))))))))))))),[0m                
+                                [91m*)))))))))))))))))))))))))))))))))[0m             
+                        [94m#,[0m    [91m()))))))))/[0m                [91m.)))))))))),[0m          
+                      [94m#%%%%,[0m  [91m())))))[0m                        [91m.))))))))*[0m        
+                      [94m*%%%%%%,[0m  [91m))[0m              [93m..[0m              [91m,))))))).[0m      
+                        [94m*%%%%%%,[0m         [93m***************/.[0m        [91m.)))))))[0m     
+                [94m#%%/[0m      [94m(%%%%%%,[0m    [93m/*********************.[0m       [91m)))))))[0m    
+              [94m.%%%%%%#[0m      [94m*%%%%%%,[0m  [93m*******/,[0m     [93m**********,[0m      [91m.))))))[0m   
+                [94m.%%%%%%/[0m      [94m*%%%%%%,[0m  [93m**[0m              [93m********[0m      [91m.))))))[0m  
+          [94m##[0m      [94m.%%%%%%/[0m      [94m(%%%%%%,[0m                  [93m,******[0m      [91m/)))))[0m  
+        [94m%%%%%%[0m      [94m.%%%%%%#[0m      [94m*%%%%%%,[0m    [92m,/////.[0m       [93m******[0m      [91m))))))[0m 
+      [94m#%[0m      [94m%%[0m      [94m.%%%%%%/[0m      [94m*%%%%%%,[0m  [92m////////,[0m      [93m*****/[0m     [91m,)))))[0m 
+    [94m#%%[0m  [94m%%%[0m  [94m%%%#[0m      [94m.%%%%%%/[0m      [94m(%%%%%%,[0m  [92m///////.[0m     [93m/*****[0m      [91m))))).[0m
+  [94m#%%%%.[0m      [94m%%%%%#[0m      [94m/%%%%%%*[0m      [94m#%%%%%%[0m   [92m/////)[0m     [93m******[0m      [91m))))),[0m
+    [94m#%%%%##%[0m  [94m%%%#[0m      [94m.%%%%%%/[0m      [94m(%%%%%%,[0m  [92m///////.[0m     [93m/*****[0m      [91m))))).[0m
+      [94m##[0m     [94m%%%[0m      [94m.%%%%%%/[0m      [94m*%%%%%%,[0m  [92m////////.[0m      [93m*****/[0m     [91m,)))))[0m 
+        [94m#%%%%#[0m      [94m/%%%%%%/[0m      [94m(%%%%%%[0m      [92m/)/)//[0m       [93m******[0m      [91m))))))[0m 
+          [94m##[0m      [94m.%%%%%%/[0m      [94m(%%%%%%,[0m                  [93m*******[0m      [91m))))))[0m  
+                [94m.%%%%%%/[0m      [94m*%%%%%%,[0m  [93m**.[0m             [93m/*******[0m      [91m.))))))[0m  
+              [94m*%%%%%%/[0m      [94m(%%%%%%[0m   [93m********/*..,*/*********[0m       [91m*))))))[0m   
+                [94m#%%/[0m      [94m(%%%%%%,[0m    [93m*********************/[0m        [91m)))))))[0m    
+                        [94m*%%%%%%,[0m         [93m,**************/[0m         [91m,))))))/[0m     
+                      [94m(%%%%%%[0m   [91m()[0m                              [91m))))))))[0m       
+                      [94m#%%%%,[0m  [91m())))))[0m                        [91m,)))))))),[0m        
+                        [94m#,[0m    [91m())))))))))[0m                [91m,)))))))))).[0m          
+                                 [91m()))))))))))))))))))))))))))))))/[0m             
+                                    [91m())))))))))))))))))))))))).[0m                
+                                         [91m())))))))))))))),[0m                     
+
+-=# [1;94m geomeTRIC started. Version: 1.1.1 [0m #=-
+Current date and time: 2026-11-08 13:52:11
+#========================================================#
+#| [92m    Arguments passed to driver run_optimizer():     [0m |#
+#========================================================#
+convergence_dmax          0.0018 
+convergence_drms          0.0012 
+convergence_energy        1e-06 
+convergence_gmax          0.0003 
+convergence_grms          0.0001 
+customengine              <pyscf.geomopt.geometric_solver.PySCFEngine object at 0x7fa978dc2930> 
+input                     /tmp/tmpbup6d46h/d9b66bf9-1987-443d-8937-627484efc82a 
+logIni                    /workspace/research4/.venv-pyscf-90000/lib/python3.12/site-packages/pyscf/geomopt/log.ini 
+maxiter                   30 
+----------------------------------------------------------
+Custom engine selected.
+Bonds will be generated from interatomic distances less than 1.20 times sum of covalent radii
+51 internal coordinates being used (instead of 51 Cartesians)
+Internal coordinate system (atoms numbered from 1):
+Distance 1-2
+Distance 2-3
+Distance 2-4
+Distance 3-12
+Distance 4-5
+Distance 4-11
+Distance 5-6
+Distance 5-13
+Distance 6-7
+Distance 6-14
+Distance 7-8
+Distance 7-9
+Distance 8-15
+Distance 9-10
+Distance 9-11
+Distance 10-16
+Distance 11-17
+Angle 1-2-4
+Angle 3-2-4
+Angle 2-3-12
+Angle 2-4-11
+Angle 5-4-11
+Angle 4-5-13
+Angle 6-5-13
+Angle 5-6-14
+Angle 7-6-14
+Angle 6-7-9
+Angle 8-7-9
+Angle 7-8-15
+Angle 7-9-11
+Angle 10-9-11
+Angle 9-10-16
+Angle 4-11-17
+Angle 9-11-17
+Out-of-Plane 2-1-3-4
+Out-of-Plane 4-2-5-11
+Out-of-Plane 5-4-6-13
+Out-of-Plane 6-5-7-14
+Out-of-Plane 7-6-8-9
+Out-of-Plane 9-7-10-11
+Out-of-Plane 11-4-9-17
+Dihedral 1-2-3-12
+Dihedral 4-2-3-12
+Dihedral 1-2-4-5
+Dihedral 1-2-4-11
+Dihedral 3-2-4-5
+Dihedral 3-2-4-11
+Dihedral 2-4-5-6
+Dihedral 2-4-5-13
+Dihedral 11-4-5-6
+Dihedral 11-4-5-13
+Dihedral 2-4-11-9
+Dihedral 2-4-11-17
+Dihedral 5-4-11-9
+Dihedral 5-4-11-17
+Dihedral 4-5-6-7
+Dihedral 4-5-6-14
+Dihedral 13-5-6-7
+Dihedral 13-5-6-14
+Dihedral 5-6-7-8
+Dihedral 5-6-7-9
+Dihedral 14-6-7-8
+Dihedral 14-6-7-9
+Dihedral 6-7-8-15
+Dihedral 9-7-8-15
+Dihedral 6-7-9-10
+Dihedral 6-7-9-11
+Dihedral 8-7-9-10
+Dihedral 8-7-9-11
+Dihedral 7-9-10-16
+Dihedral 11-9-10-16
+Dihedral 7-9-11-4
+Dihedral 7-9-11-17
+Dihedral 10-9-11-4
+Dihedral 10-9-11-17
+Translation-X 1-17
+Translation-Y 1-17
+Translation-Z 1-17
+Rotation-A 1-17
+Rotation-B 1-17
+Rotation-C 1-17
+<class 'geometric.internal.Distance'> : 17
+<class 'geometric.internal.Angle'> : 17
+<class 'geometric.internal.OutOfPlane'> : 7
+<class 'geometric.internal.Dihedral'> : 34
+<class 'geometric.internal.TranslationX'> : 1
+<class 'geometric.internal.TranslationY'> : 1
+<class 'geometric.internal.TranslationZ'> : 1
+<class 'geometric.internal.RotationA'> : 1
+<class 'geometric.internal.RotationB'> : 1
+<class 'geometric.internal.RotationC'> : 1
+> ===== Optimization Info: ====
+> Job type: Energy minimization
+> Maximum number of optimization cycles: 30
+> Initial / maximum trust radius (Angstrom): 0.100 / 0.300
+> Convergence Criteria:
+> Will converge when all 5 criteria are reached:
+>  |Delta-E| < 1.00e-06
+>  RMS-Grad  < 1.00e-04
+>  Max-Grad  < 3.00e-04
+>  RMS-Disp  < 1.20e-03
+>  Max-Disp  < 1.80e-03
+> === End Optimization Info ===
+
+Geometry optimization cycle 1
+Cartesian coordinates (Angstrom)
+ Atom        New coordinates             dX        dY        dZ
+   O  -2.940416   1.343953  -0.403548    0.000000  0.000000  0.000000
+   C  -2.458333   0.338229   0.097895    0.000000  0.000000  0.000000
+   O  -3.227080  -0.593698   0.726685    0.000000  0.000000  0.000000
+   C  -1.013431  -0.004031   0.095265    0.000000  0.000000  0.000000
+   C  -0.501671  -1.177554   0.685318    0.000000  0.000000 -0.000000
+   C   0.873249  -1.444987   0.650322    0.000000  0.000000  0.000000
+   C   1.752665  -0.545158   0.026757   -0.000000  0.000000  0.000000
+   O   3.082700  -0.788172  -0.015623    0.000000  0.000000  0.000000
+   C   1.234910   0.639248  -0.568657    0.000000  0.000000  0.000000
+   O   2.186471   1.441257  -1.146893    0.000000  0.000000  0.000000
+   C  -0.131216   0.904892  -0.534038    0.000000 -0.000000  0.000000
+   H  -4.143392  -0.250523   0.656978    0.000000  0.000000  0.000000
+   H  -1.190159  -1.880805   1.173044    0.000000  0.000000 -0.000000
+   H   1.293056  -2.354309   1.104314    0.000000  0.000000  0.000000
+   H   3.490242  -0.034651  -0.493036    0.000000  0.000000  0.000000
+   H   1.761172   2.229537  -1.530375    0.000000  0.000000  0.000000
+   H  -0.553602   1.815487  -0.988626    0.000000  0.000000  0.000000
+New geometry
+   1 O     -2.940415507880   1.343952605492  -0.403547579159 AA   -5.556580002317   2.539702348776  -0.762594402841 Bohr
+   2 C     -2.458333285661   0.338228868808   0.097895405302 AA   -4.645576632801   0.639159929468   0.184995504874 Bohr
+   3 O     -3.227079503165  -0.593698209325   0.726685285844 AA   -6.098296443179  -1.121927016269   1.373236168996 Bohr
+   4 C     -1.013431374272  -0.004030979212   0.095264974457 AA   -1.915107743416  -0.007617446724   0.180024710987 Bohr
+   5 C     -0.501671385624  -1.177554154811   0.685317694016 AA   -0.948021523360  -2.225254849436   1.295062750009 Bohr
+   6 C      0.873249071834  -1.444986510506   0.650322150541 AA    1.650201584297  -2.730628758547   1.228930757260 Bohr
+   7 C      1.752665493287  -0.545158338372   0.026756786652 AA    3.312057770288  -1.030199954047   0.050562998745 Bohr
+   8 O      3.082699619653  -0.788172016949  -0.015622763785 AA    5.825458005446  -1.489429251080  -0.029522744863 Bohr
+   9 C      1.234909860805   0.639247835499  -0.568656803747 AA    2.333641425446   1.208003334814  -1.074605617952 Bohr
+  10 O      2.186471420994   1.441257350242  -1.146892858664 AA    4.131832164866   2.723581666974  -2.167313397095 Bohr
+  11 C     -0.131215874218   0.904892356362  -0.534038389039 AA   -0.247962065468   1.709998725736  -1.009186295287 Bohr
+  12 H     -4.143392225967  -0.250523186270   0.656978346909 AA   -7.829876533729  -0.473420209905   1.241509145428 Bohr
+  13 H     -1.190158561948  -1.880805387274   1.173044335691 AA   -2.249073726888  -3.554207075555   2.216732526428 Bohr
+  14 H      1.293056267224  -2.354309156801   1.104314451067 AA    2.443522208705  -4.448999518909   2.086851867917 Bohr
+  15 H      3.490242045588  -0.034650822629  -0.493035872342 AA    6.595601574603  -0.065480564759  -0.931702768312 Bohr
+  16 H      1.761171772464   2.229536658305  -1.530375251391 AA    3.328132308272   4.213213668875  -2.891990092942 Bohr
+  17 H     -0.553602109681   1.815486510231  -0.988626239579 AA   -1.046156369278   3.430772287179  -1.868232832362 Bohr
+cycle 1: E = -570.226116426  dE = -570.226  norm(grad) = 6.89276e-05
+Step    0 : Gradient = 1.672e-05/5.200e-05 (rms/max) Energy = -570.2261164259
+Hessian Eigenvalues: 2.30000e-02 2.30000e-02 2.30000e-02 ... 5.25606e-01 5.44474e-01 9.41376e-01
+
+Geometry optimization cycle 2
+Cartesian coordinates (Angstrom)
+ Atom        New coordinates             dX        dY        dZ
+   O  -2.940328   1.343919  -0.403311    0.000088 -0.000034  0.000236
+   C  -2.458404   0.337952   0.097797   -0.000071 -0.000277 -0.000098
+   O  -3.227144  -0.593896   0.726715   -0.000065 -0.000198  0.000029
+   C  -1.013493  -0.004272   0.095344   -0.000062 -0.000242  0.000079
+   C  -0.501567  -1.177687   0.685486    0.000105 -0.000133  0.000169
+   C   0.873417  -1.444828   0.650317    0.000168  0.000158 -0.000005
+   C   1.752800  -0.545034   0.026652    0.000135  0.000124 -0.000105
+   O   3.082863  -0.787870  -0.015958    0.000164  0.000302 -0.000335
+   C   1.234852   0.639298  -0.568713   -0.000058  0.000050 -0.000057
+   O   2.186242   1.441442  -1.147047   -0.000230  0.000185 -0.000154
+   C  -0.131319   0.904703  -0.533962   -0.000103 -0.000189  0.000077
+   H  -4.143415  -0.250575   0.657205   -0.000023 -0.000052  0.000227
+   H  -1.189906  -1.881030   1.173292    0.000253 -0.000224  0.000248
+   H   1.293367  -2.354076   1.104315    0.000311  0.000233  0.000001
+   H   3.490229  -0.034289  -0.493428   -0.000013  0.000362 -0.000392
+   H   1.760800   2.229712  -1.530386   -0.000372  0.000175 -0.000011
+   H  -0.553829   1.815245  -0.988535   -0.000226 -0.000241  0.000092
+New geometry
+   1 O     -2.940327630082   1.343918827917  -0.403311415458 AA   -5.556413937346   2.539638518409  -0.762148118127 Bohr
+   2 C     -2.458403983614   0.337952201417   0.097797189051 AA   -4.645710232569   0.638637103873   0.184809903059 Bohr
+   3 O     -3.227144179901  -0.593896197402   0.726714717036 AA   -6.098418664497  -1.122301159509   1.373291785888 Bohr
+   4 C     -1.013493045579  -0.004272482115   0.095343943292 AA   -1.915224285295  -0.008073821070   0.180173940458 Bohr
+   5 C     -0.501566837199  -1.177687103610   0.685486387264 AA   -0.947823955470  -2.225506086255   1.295381534046 Bohr
+   6 C      0.873416575775  -1.444828356934   0.650317003575 AA    1.650518120871  -2.730329891611   1.228921030905 Bohr
+   7 C      1.752800351981  -0.545033970121   0.026651823756 AA    3.312312616286  -1.029964932112   0.050364647619 Bohr
+   8 O      3.082863451003  -0.787869860522  -0.015957917867 AA    5.825767601826  -1.488858258185  -0.030156094286 Bohr
+   9 C      1.234852058221   0.639298247336  -0.568713358388 AA    2.333532194393   1.208098599380  -1.074712490735 Bohr
+  10 O      2.186241618843   1.441441985608  -1.147046708285 AA    4.131397901739   2.723930577248  -2.167604130743 Bohr
+  11 C     -0.131319220000   0.904702911949  -0.533961514186 AA   -0.248157360692   1.709640727681  -1.009041022869 Bohr
+  12 H     -4.143415006057  -0.250574996291   0.657204918230 AA   -7.829919581861  -0.473518116653   1.241937303172 Bohr
+  13 H     -1.189905834705  -1.881029622950   1.173292106718 AA   -2.248596141614  -3.554630819570   2.217200745812 Bohr
+  14 H      1.293367115470  -2.354075980916   1.104315068710 AA    2.444109626758  -4.448558880348   2.086853035091 Bohr
+  15 H      3.490228861960  -0.034289245316  -0.493427849346 AA    6.595576661156  -0.064797282666  -0.932443497497 Bohr
+  16 H      1.760799927796   2.229711987469  -1.530386173893 AA    3.327429623689   4.213544992976  -2.892010733480 Bohr
+  17 H     -0.553828500502   1.815245077241  -0.988534547485 AA   -1.046584185928   3.430316044951  -1.868059559418 Bohr
+cycle 2: E = -570.226116439  dE = -1.27527e-08  norm(grad) = 8.15637e-05
+Step    1 : Displace = [92m1.925e-04[0m/[92m3.031e-04[0m (rms/max) Trust = 1.000e-01 (=) Grad = [92m1.978e-05[0m/[92m4.290e-05[0m (rms/max) E (change) = -570.2261164387 ([92m-1.275e-08[0m) Quality = [0m0.405[0m
+Hessian Eigenvalues: 2.30000e-02 2.30000e-02 2.30000e-02 ... 5.25606e-01 5.44474e-01 9.41376e-01
+Converged! =D
+
+    #==========================================================================#
+    #| If this code has benefited your research, please support us by citing: |#
+    #|                                                                        |#
+    #| Wang, L.-P.; Song, C.C. (2016) "Geometry optimization made simple with |#
+    #| translation and rotation coordinates", J. Chem, Phys. 144, 214108.     |#
+    #| http://dx.doi.org/10.1063/1.4952956                                    |#
+    #==========================================================================#
+    Time elapsed since start of run_optimizer: 70.241 seconds
