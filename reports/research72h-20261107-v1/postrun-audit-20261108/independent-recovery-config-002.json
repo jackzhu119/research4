@@ -1,0 +1,95 @@
+{
+  "schema": "research4-independent-exact-recovery-config-audit-v1",
+  "status": "PASS_EXACT_CONFIG_REFERENCES_GATES_BUDGET_DEPENDENCIES_AND_CROSS_BOOT_HISTORICAL_INPUTS",
+  "at_utc": "2026-11-08T02:01:10.994853+00:00",
+  "config": {
+    "path": "/workspace/research4/reports/research72h-20261107-v1/queue-configs/recovery-002/config_ROOT_APPROVED.json",
+    "sha256": "23c76f8df7edc01ab031398a3fa12fb7466772912a3f53530637c4a3d6c09ee5"
+  },
+  "new_source_sha256": "92962806bc789a64d63c7fff87fd1c7f9ba8686a6b1ebc1811f0f3cc8fd70123",
+  "source_review_ref": {
+    "path": "/workspace/research4/reports/research72h-20261107-v1/postrun-audit-20261108/grid-v2-independent-review-001.json",
+    "sha256": "b9cf790f73955ba5023db77610553939e2dc96ccc3a3478cc51c573690ef3cfa"
+  },
+  "guard_validate_and_original_driver_validate_config": "PASS",
+  "original_driver_process_scan": {
+    "observed_at_utc": "2026-11-08T02:01:10.542982+00:00",
+    "active_scientific_processes": []
+  },
+  "all_pinned_source_and_immutable_refs_checked": true,
+  "jobs": [
+    {
+      "id": "recovery-grid-controls-002",
+      "phase": "r72-recovery-grid-controls-002-001",
+      "output": "/workspace/research4/reports/research72h-20261107-v1/autonomous-recovery-002/jobs/recovery-grid-controls-002/attempt-001",
+      "CPU_cap": 2000,
+      "wall_cap": 1200,
+      "stage": "controls",
+      "grid": "1",
+      "zero_only": false,
+      "depends_on": [],
+      "unique_new_output_log_phase": true,
+      "old_input_closure_gate_new_boot": "PASS",
+      "live_proof_required_from_new_v2_source": true
+    },
+    {
+      "id": "recovery-spino-grid-1-zero-002",
+      "phase": "r72-recovery-spino-grid-1-zero-002-001",
+      "output": "/workspace/research4/reports/research72h-20261107-v1/autonomous-recovery-002/jobs/recovery-spino-grid-1-zero-002/attempt-001",
+      "CPU_cap": 30000,
+      "wall_cap": 28800,
+      "stage": "spinosin",
+      "grid": "1",
+      "zero_only": true,
+      "depends_on": [
+        "recovery-grid-controls-002"
+      ],
+      "unique_new_output_log_phase": true,
+      "old_input_closure_gate_new_boot": "PASS",
+      "live_proof_required_from_new_v2_source": true
+    },
+    {
+      "id": "recovery-spino-grid-3-zero-002",
+      "phase": "r72-recovery-spino-grid-3-zero-002-001",
+      "output": "/workspace/research4/reports/research72h-20261107-v1/autonomous-recovery-002/jobs/recovery-spino-grid-3-zero-002/attempt-001",
+      "CPU_cap": 60000,
+      "wall_cap": 28800,
+      "stage": "spinosin",
+      "grid": "3",
+      "zero_only": true,
+      "depends_on": [
+        "recovery-grid-controls-002"
+      ],
+      "unique_new_output_log_phase": true,
+      "old_input_closure_gate_new_boot": "PASS",
+      "live_proof_required_from_new_v2_source": true
+    }
+  ],
+  "total_CPU_ceiling": 92000,
+  "total_wall_ceiling": 58800,
+  "registered_CPU_remaining": 854976.867794,
+  "deadline_utc": "2026-11-10T02:50:37.289380+00:00",
+  "current_boot_id": "612a4927-902f-4873-a940-98a6b41d53d2",
+  "original_ledger_before_and_after_sha256": "74a226d5b5562b8cd2ebc8599fe878c25db418345d4df692dfb015f47d9be095",
+  "no_ledger_reset_refund_or_added_allocation": true,
+  "old_f93_future_schedule_unchanged_not_used_for_new_Q": true,
+  "old_boot_controls_and_zero_are_input_evidence_not_live_proof": true,
+  "new_grid_controls_actual_success_required_for_both_Spinosin_jobs": true,
+  "grid3_is_independent_of_grid1_failure": true,
+  "old_outputs_and_failed_costs_preserved": true,
+  "scope": {
+    "quantum_calls": 0,
+    "ML_training_or_inference": 0,
+    "Git_commands": 0,
+    "signals_sent": 0,
+    "source_config_ledger_runtime_state_mutations": 0,
+    "audit_file_created_only": true
+  },
+  "not_proven_by_this_audit": [
+    "Actual new small controls passed",
+    "New Spinosin SCF or gradients complete",
+    "New Hessian/219 frequencies/minimum/IR",
+    "Future host availability"
+  ],
+  "root_launch_instruction": "Root may release this exact reviewed finite config after preserving source/config backup and rechecking current no-Q/process/lock/budget state. Do not initialize a new ledger or reuse old launch output."
+}

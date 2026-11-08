@@ -1,0 +1,72 @@
+{
+  "schema": "research4-grid-v2-independent-source-review-v1",
+  "created_at_utc": "2026-11-08T01:59:15.597716+00:00",
+  "reviewer_agent": "/root/quantum_failure_audit/grid_v2_independent_review",
+  "status": "SOURCE_REVIEW_AND_20_STDLIB_FAKE_TESTS_PASS_NO_BLOCKER_FOUND",
+  "source": {
+    "path": "/workspace/research4/scripts/research4_rebuilt_grid_diagnostics_20261108_v2.py",
+    "sha256": "92962806bc789a64d63c7fff87fd1c7f9ba8686a6b1ebc1811f0f3cc8fd70123",
+    "bytes": 36911
+  },
+  "tests": {
+    "path": "/workspace/research4/tests/test_rebuilt_grid_diagnostics_v2_stdlib_20261108.py",
+    "sha256": "712af6ab59edbf3a1cde39c6e2bbcce5145c391ac0eb4954c0a4440730cb4a7d",
+    "bytes": 24215
+  },
+  "frozen_sources_preserved": [
+    {
+      "path": "/workspace/research4/scripts/research4_rebuilt_grid_diagnostics_20261107.py",
+      "sha256": "edfb5f5000007ca985c6c145885dff4da092a08c1336bb10bea29730193edcd0",
+      "bytes": 33192
+    },
+    {
+      "path": "/workspace/research4/scripts/research4_full_native_checkpoint_worker_20261107.py",
+      "sha256": "f93bc6eab66d1d3d1909edff25bc01b2231e1cfa49b23d45bba51e2e6706b03a",
+      "bytes": 53983
+    }
+  ],
+  "test_execution": {
+    "command": "python -B -m unittest discover -s tests -p test_rebuilt_grid_diagnostics_v2_stdlib_20261108.py",
+    "python_version": "3.12.14",
+    "tests_run": 20,
+    "passed": 20,
+    "elapsed_reported_seconds": 0.057,
+    "numerical_chemistry_performed": false
+  },
+  "checks": {
+    "two_kernel_calls_maximum": true,
+    "cycles_per_kernel_80": true,
+    "first_qualified_endpoint_stops_without_second_kernel": true,
+    "second_guess_from_immediately_preceding_actual_final_density": true,
+    "no_third_kernel_after_two_failures": true,
+    "fresh_native_DIIS_per_kernel_required": true,
+    "pair_reset_at_each_actual_kernel": true,
+    "check_and_checkpoint_call_tags_bind_actual_call_counter": true,
+    "accepted_MAIN_to_FINAL_EXTRA_same_call_lineage_is_retained": true,
+    "main_orbital_gradient_trigger": 1e-10,
+    "final_orbital_gradient_tolerance": 1e-09,
+    "final_energy_tolerance_hartree": 1e-12,
+    "all_final_energy_and_orbital_gradient_AND_rules_unchanged": true,
+    "independent_full_Fock_and_three_same_density_energy_audit_unchanged": true,
+    "failed_first_call_native_flag_audit_and_fingerprints_retained": true,
+    "typed_exception_recorded_without_blind_second_call": true,
+    "fresh_geometry_owned_grid_and_original_source_fingerprint_gates_unchanged": true,
+    "true_grid_gradient_FD_halving_translation_controls_unchanged": true,
+    "own_v2_schema_point_schema_source_and_live_guard_output_binding": true,
+    "old_producer_relabelled_as_v2_control_rejected": true,
+    "all_ten_actual_small_control_points_and_authenticated_release_required": true,
+    "compact_rolling_checkpoint_and_essential_arrays_only": true,
+    "no_DF_or_AO_MO_truncation_or_dispersion_change": true
+  },
+  "nonblocking_observations": [
+    "native_kernel_converged and native energy are copied into each attempt after endpoint auditor succeeds. If the auditor itself raises, exception type, timing, actual checkpoint and guardian cost remain, but those two attempt fields may be absent. Normal unqualified SCF audits retain both."
+  ],
+  "limits": [
+    "This is source review and synthetic/stdlib tests only; no actual new water, ethanol or Spinosin calculation was run by reviewer.",
+    "Actual moving-grid controls must pass before Spinosin execution. No success or frequency/minimum/IR claim follows from this receipt."
+  ],
+  "quantum_operations": 0,
+  "ML_operations": 0,
+  "Git_commands": 0,
+  "source_or_ledger_or_data_edits": 0
+}
