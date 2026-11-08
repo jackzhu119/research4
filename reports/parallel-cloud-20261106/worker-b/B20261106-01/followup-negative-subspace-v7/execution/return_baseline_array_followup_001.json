@@ -1,0 +1,34 @@
+{
+  "schema": "research4-b-baseline-array-return-followup-v1",
+  "utc": "2026-11-08T02:46:56.995232+00:00",
+  "status": "DEFERRED_UNTIL_SCIENTIFIC_AND_MAIN_RETURN_CLOSURE",
+  "supplement_manifest": {
+    "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-negative-subspace-v7/return_baseline_array_supplement_manifest.json",
+    "sha256": "51528981fbd55875e81041b6abb061f5ec663efccada4080a37dc5f06fb93b94"
+  },
+  "reason": "Frozen main return selection omits two old-Hessian/old-mode-derived baseline arrays in each case. All measured D/K/G, branch mass-normalized B, mixed-direction and prediction arrays match its allowlist.",
+  "exact_names": [
+    "original_mass_normalized_B_all_negative.npy",
+    "original_mass_normalized_mode_Gram.npy"
+  ],
+  "baseline_reconstruction": {
+    "B": "U_all.T @ H_original_cartesian @ U_original_negative",
+    "Gram": "U_all.T @ M_atomic_mass_cartesian @ U_all",
+    "source": "Original published and hash-verified U/H/masses, unchanged; no new quantum operation.",
+    "independent_audit": "review_bootstrap confirmed acid numerical equality and exact npy-byte SHA equality; original acid/Caly input arrays present in initial returned receipt."
+  },
+  "planned_scope": "Two files per case, expected four small arrays, hash/seal/provenance verify after Caly subspace exists.",
+  "instructions": [
+    "Do not modify active frozen manifest or source; no Git or helper execution while scientific parent/worker remains active.",
+    "After actual queue/invocation and all process groups are closed, verify primary return science/receipt commits at real remote branch, index empty and baseline array hashes equal seals.",
+    "Only then execute pinned original return helper with this separate supplement manifest SHA and fresh unique return attempt; no quantum recalculation, no new budget, no force/reset/clean/main merge.",
+    "If absent or failed case, report exact available subset and NOT_RUN; never fabricate the four-file expectation."
+  ],
+  "helper": {
+    "path": "scripts/research4_parallel_b_git_return_20261106.py",
+    "sha256": "3f118f7cbae979e67c1e219ca447e1d8193dc170bff60e0c4b70a237fb5c6a07"
+  },
+  "executed": false,
+  "active_configuration_changed": false,
+  "new_hourly_task_created": false
+}

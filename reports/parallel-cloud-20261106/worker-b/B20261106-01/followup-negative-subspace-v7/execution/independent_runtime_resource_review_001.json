@@ -1,0 +1,414 @@
+{
+  "schema": "research4-b-v7-independent-runtime-resource-review-v1",
+  "status": "PASS_LIVE_IDENTITY_LIMITS_CARRY_AND_CPU_ADVANCEMENT",
+  "observed_at_utc": "2026-11-08T02:30:55.396704+00:00",
+  "manifest": {
+    "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-negative-subspace-v7/manifest_ROOT_AUTHORIZED.json",
+    "sha256": "b8ffb912e24c941f5be70b7e18d877e2b9d6dba03ae4babe5a60c2a1068a621a",
+    "bytes": 120967
+  },
+  "ledger_at_review_end": {
+    "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-negative-subspace-v7/cpu_budget.json",
+    "sha256": "c556b713a43b7b47519611022d0d69349f4082617039ea2afc0c9d5bffd485ce",
+    "bytes": 14083
+  },
+  "state_at_review_end": {
+    "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-negative-subspace-v7/state.json",
+    "sha256": "0f3b516e20096321b669fc8282e2f3516df3a79e34edb9dcaacdee6dffc4e17f",
+    "bytes": 22900
+  },
+  "proof": {
+    "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-negative-subspace-v7/execution/acid-g3-negative-mode02-h0010-minus-attempt001.proof.json",
+    "sha256": "9292e3e1c597e3e2f81638603eb2c2e71381e1021f0b07827012623d628def6b",
+    "bytes": 2212
+  },
+  "proof_resource_fields": {
+    "threads": 2,
+    "cpu_seconds": 600,
+    "cpu_soft_limit_seconds": 540,
+    "address_space_bytes": 12884901888,
+    "rss_stop_bytes": 8589934592,
+    "wall_seconds": 1200,
+    "deadline_utc": "2026-11-09T08:25:17.730193+00:00",
+    "original_cpu_cap_seconds": 58800,
+    "historical_additional_cpu_authorized_seconds": 31200,
+    "new_cpu_authorization_seconds": 0,
+    "effective_cpu_cap_seconds": 90000
+  },
+  "phase": "negative-subspace-acid-g3-negative-mode02-h0010-minus-attempt001",
+  "job_id": "acid-g3-negative-mode02-h0010-minus",
+  "carry_costs": {
+    "actual_closed_cpu_seconds": 62057.94408299997,
+    "conservative_debit_cpu_seconds": 1000,
+    "budget_charged_cpu_seconds": 63057.94408299997
+  },
+  "unchanged_historical_extension_claim": {
+    "path": ".runtime/worker-b-cpu-extension-20261107.json",
+    "sha256": "2203dd5d646e93fad6c6a3cb1b6b31956e709edd2cfa68bc377848d5d0759ebd"
+  },
+  "snapshot_interval_seconds": 5.004063870999744,
+  "worker_CPU_seconds_delta": 10,
+  "snapshots": [
+    {
+      "observed_at_utc": "2026-11-08T02:30:50.390059+00:00",
+      "monotonic_seconds": 2307.611542553,
+      "boot_id": "5e4dd6fb-c532-435f-aa57-687513ec25ef",
+      "processes": {
+        "parent": {
+          "present": true,
+          "identity": {
+            "pid": 2427,
+            "start_ticks": 221312,
+            "uid": 1000,
+            "pgrp": 2427,
+            "session": 2427,
+            "state": "S",
+            "boot_id": "5e4dd6fb-c532-435f-aa57-687513ec25ef",
+            "CPU_seconds": 3.79,
+            "rss_bytes": 23822336
+          },
+          "ppid": 1,
+          "cmdline": [
+            "/workspace/research4-worker-b/.runtime/worker-b-20261106/venv/bin/python",
+            "/workspace/research4-worker-b/scripts/research4_b_negative_subspace_supervisor_20261108.py",
+            "--manifest",
+            "/workspace/research4-worker-b/reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-negative-subspace-v7/manifest_ROOT_AUTHORIZED.json",
+            "--manifest-sha256",
+            "b8ffb912e24c941f5be70b7e18d877e2b9d6dba03ae4babe5a60c2a1068a621a",
+            "--attempt",
+            "negative-subspace-launch-001",
+            "--execute"
+          ],
+          "limits": "Limit                     Soft Limit           Hard Limit           Units     \nMax cpu time              unlimited            unlimited            seconds   \nMax file size             unlimited            unlimited            bytes     \nMax data size             unlimited            unlimited            bytes     \nMax stack size            8388608              unlimited            bytes     \nMax core file size        0                    unlimited            bytes     \nMax resident set          unlimited            unlimited            bytes     \nMax processes             71955                71955                processes \nMax open files            16384                16384                files     \nMax locked memory         8388608              8388608              bytes     \nMax address space         unlimited            unlimited            bytes     \nMax file locks            unlimited            unlimited            locks     \nMax pending signals       71955                71955                signals   \nMax msgqueue size         819200               819200               bytes     \nMax nice priority         0                    0                    \nMax realtime priority     0                    0                    \nMax realtime timeout      unlimited            unlimited            us        \n",
+          "cgroup": "0::/\n",
+          "threads": 1,
+          "vmrss": "23340 kB",
+          "vmhwm": "25584 kB",
+          "vmsize": "49340 kB",
+          "task_child_process_ids": []
+        },
+        "worker": {
+          "present": true,
+          "identity": {
+            "pid": 2429,
+            "start_ticks": 221606,
+            "uid": 1000,
+            "pgrp": 2429,
+            "session": 2429,
+            "state": "R",
+            "boot_id": "5e4dd6fb-c532-435f-aa57-687513ec25ef",
+            "CPU_seconds": 188.01,
+            "rss_bytes": 167677952
+          },
+          "ppid": 2427,
+          "cmdline": [
+            "/workspace/research4-worker-b/.runtime/worker-b-20261106/venv/bin/python",
+            "/workspace/research4-worker-b/scripts/research4_b_negative_subspace_worker_20261108.py",
+            "--request",
+            "/workspace/research4-worker-b/reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-negative-subspace-v7/requests/acid-g3-negative-mode02-h0010-minus.json",
+            "--request-sha256",
+            "9b83756f94d969194d67a64907890239317677b4f9335f0b29e705ae20e63865",
+            "--output",
+            "/workspace/research4-worker-b/reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-negative-subspace-v7/science/acid-g3-negative-mode02-h0010-minus-attempt001",
+            "--execute",
+            "--warmstart-result",
+            "/workspace/research4-worker-b/reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-recovery-v5/science/acid-g3-regrid-center-attempt001/result.json",
+            "--warmstart-result-sha256",
+            "3656b71b4bdd4f432a7303c57919a5598c96d839a4b60e4a67f4e9c6d8a9b173"
+          ],
+          "limits": "Limit                     Soft Limit           Hard Limit           Units     \nMax cpu time              540                  600                  seconds   \nMax file size             unlimited            unlimited            bytes     \nMax data size             unlimited            unlimited            bytes     \nMax stack size            8388608              unlimited            bytes     \nMax core file size        0                    0                    bytes     \nMax resident set          unlimited            unlimited            bytes     \nMax processes             71955                71955                processes \nMax open files            16384                16384                files     \nMax locked memory         8388608              8388608              bytes     \nMax address space         12884901888          12884901888          bytes     \nMax file locks            unlimited            unlimited            locks     \nMax pending signals       71955                71955                signals   \nMax msgqueue size         819200               819200               bytes     \nMax nice priority         0                    0                    \nMax realtime priority     0                    0                    \nMax realtime timeout      unlimited            unlimited            us        \n",
+          "cgroup": "0::/\n",
+          "threads": 4,
+          "vmrss": "164240 kB",
+          "vmhwm": "1602080 kB",
+          "vmsize": "6979880 kB",
+          "task_child_process_ids": []
+        }
+      },
+      "b_worker_processes": [
+        {
+          "script": "/workspace/research4-worker-b/scripts/research4_b_negative_subspace_worker_20261108.py",
+          "identity": {
+            "pid": 2429,
+            "start_ticks": 221606,
+            "uid": 1000,
+            "pgrp": 2429,
+            "session": 2429,
+            "state": "R",
+            "boot_id": "5e4dd6fb-c532-435f-aa57-687513ec25ef",
+            "CPU_seconds": 188.01,
+            "rss_bytes": 167677952
+          }
+        }
+      ],
+      "worker_session_members": [
+        {
+          "pid": 2429,
+          "start_ticks": 221606,
+          "uid": 1000,
+          "pgrp": 2429,
+          "session": 2429,
+          "state": "R",
+          "boot_id": "5e4dd6fb-c532-435f-aa57-687513ec25ef",
+          "CPU_seconds": 188.01,
+          "rss_bytes": 167677952
+        }
+      ],
+      "ledger": {
+        "actual_closed_cpu_seconds": 62057.94408299997,
+        "conservative_debit_cpu_seconds": 1000,
+        "budget_charged_cpu_seconds": 63057.94408299997,
+        "remaining_cpu_seconds": 26942.055917000027,
+        "blocked_unknown_cpu_or_process_tree": null
+      },
+      "phase_states": [
+        {
+          "phase": "negative-subspace-acid-g3-negative-mode02-h0010-minus-attempt001",
+          "status": "RUNNING",
+          "actual_cpu_seconds": null
+        }
+      ],
+      "cgroup_root": {
+        "memory.max": "17179869184",
+        "memory.current": "610988032",
+        "memory.peak": "2066104320",
+        "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0",
+        "cpu.max": "400000 100000",
+        "cpu.stat": "usage_usec 287664369\nuser_usec 262979517\nsystem_usec 24684851\nnice_usec 0\nnr_periods 5114\nnr_throttled 18\nthrottled_usec 1053834\nnr_bursts 0\nburst_usec 0",
+        "cpuset.cpus.effective": "0-4",
+        "pids.max": "max",
+        "pids.current": "44"
+      },
+      "meminfo": {
+        "MemTotal": "18440100 kB",
+        "MemAvailable": "17538488 kB",
+        "SwapTotal": "0 kB",
+        "SwapFree": "0 kB"
+      }
+    },
+    {
+      "observed_at_utc": "2026-11-08T02:30:55.394094+00:00",
+      "monotonic_seconds": 2312.615606424,
+      "boot_id": "5e4dd6fb-c532-435f-aa57-687513ec25ef",
+      "processes": {
+        "parent": {
+          "present": true,
+          "identity": {
+            "pid": 2427,
+            "start_ticks": 221312,
+            "uid": 1000,
+            "pgrp": 2427,
+            "session": 2427,
+            "state": "S",
+            "boot_id": "5e4dd6fb-c532-435f-aa57-687513ec25ef",
+            "CPU_seconds": 3.84,
+            "rss_bytes": 23822336
+          },
+          "ppid": 1,
+          "cmdline": [
+            "/workspace/research4-worker-b/.runtime/worker-b-20261106/venv/bin/python",
+            "/workspace/research4-worker-b/scripts/research4_b_negative_subspace_supervisor_20261108.py",
+            "--manifest",
+            "/workspace/research4-worker-b/reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-negative-subspace-v7/manifest_ROOT_AUTHORIZED.json",
+            "--manifest-sha256",
+            "b8ffb912e24c941f5be70b7e18d877e2b9d6dba03ae4babe5a60c2a1068a621a",
+            "--attempt",
+            "negative-subspace-launch-001",
+            "--execute"
+          ],
+          "limits": "Limit                     Soft Limit           Hard Limit           Units     \nMax cpu time              unlimited            unlimited            seconds   \nMax file size             unlimited            unlimited            bytes     \nMax data size             unlimited            unlimited            bytes     \nMax stack size            8388608              unlimited            bytes     \nMax core file size        0                    unlimited            bytes     \nMax resident set          unlimited            unlimited            bytes     \nMax processes             71955                71955                processes \nMax open files            16384                16384                files     \nMax locked memory         8388608              8388608              bytes     \nMax address space         unlimited            unlimited            bytes     \nMax file locks            unlimited            unlimited            locks     \nMax pending signals       71955                71955                signals   \nMax msgqueue size         819200               819200               bytes     \nMax nice priority         0                    0                    \nMax realtime priority     0                    0                    \nMax realtime timeout      unlimited            unlimited            us        \n",
+          "cgroup": "0::/\n",
+          "threads": 1,
+          "vmrss": "23340 kB",
+          "vmhwm": "25584 kB",
+          "vmsize": "49340 kB",
+          "task_child_process_ids": []
+        },
+        "worker": {
+          "present": true,
+          "identity": {
+            "pid": 2429,
+            "start_ticks": 221606,
+            "uid": 1000,
+            "pgrp": 2429,
+            "session": 2429,
+            "state": "R",
+            "boot_id": "5e4dd6fb-c532-435f-aa57-687513ec25ef",
+            "CPU_seconds": 198.01,
+            "rss_bytes": 168202240
+          },
+          "ppid": 2427,
+          "cmdline": [
+            "/workspace/research4-worker-b/.runtime/worker-b-20261106/venv/bin/python",
+            "/workspace/research4-worker-b/scripts/research4_b_negative_subspace_worker_20261108.py",
+            "--request",
+            "/workspace/research4-worker-b/reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-negative-subspace-v7/requests/acid-g3-negative-mode02-h0010-minus.json",
+            "--request-sha256",
+            "9b83756f94d969194d67a64907890239317677b4f9335f0b29e705ae20e63865",
+            "--output",
+            "/workspace/research4-worker-b/reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-negative-subspace-v7/science/acid-g3-negative-mode02-h0010-minus-attempt001",
+            "--execute",
+            "--warmstart-result",
+            "/workspace/research4-worker-b/reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-recovery-v5/science/acid-g3-regrid-center-attempt001/result.json",
+            "--warmstart-result-sha256",
+            "3656b71b4bdd4f432a7303c57919a5598c96d839a4b60e4a67f4e9c6d8a9b173"
+          ],
+          "limits": "Limit                     Soft Limit           Hard Limit           Units     \nMax cpu time              540                  600                  seconds   \nMax file size             unlimited            unlimited            bytes     \nMax data size             unlimited            unlimited            bytes     \nMax stack size            8388608              unlimited            bytes     \nMax core file size        0                    0                    bytes     \nMax resident set          unlimited            unlimited            bytes     \nMax processes             71955                71955                processes \nMax open files            16384                16384                files     \nMax locked memory         8388608              8388608              bytes     \nMax address space         12884901888          12884901888          bytes     \nMax file locks            unlimited            unlimited            locks     \nMax pending signals       71955                71955                signals   \nMax msgqueue size         819200               819200               bytes     \nMax nice priority         0                    0                    \nMax realtime priority     0                    0                    \nMax realtime timeout      unlimited            unlimited            us        \n",
+          "cgroup": "0::/\n",
+          "threads": 4,
+          "vmrss": "164792 kB",
+          "vmhwm": "1602080 kB",
+          "vmsize": "6979880 kB",
+          "task_child_process_ids": []
+        }
+      },
+      "b_worker_processes": [
+        {
+          "script": "/workspace/research4-worker-b/scripts/research4_b_negative_subspace_worker_20261108.py",
+          "identity": {
+            "pid": 2429,
+            "start_ticks": 221606,
+            "uid": 1000,
+            "pgrp": 2429,
+            "session": 2429,
+            "state": "R",
+            "boot_id": "5e4dd6fb-c532-435f-aa57-687513ec25ef",
+            "CPU_seconds": 198.01,
+            "rss_bytes": 168202240
+          }
+        }
+      ],
+      "worker_session_members": [
+        {
+          "pid": 2429,
+          "start_ticks": 221606,
+          "uid": 1000,
+          "pgrp": 2429,
+          "session": 2429,
+          "state": "R",
+          "boot_id": "5e4dd6fb-c532-435f-aa57-687513ec25ef",
+          "CPU_seconds": 198.01,
+          "rss_bytes": 168202240
+        }
+      ],
+      "ledger": {
+        "actual_closed_cpu_seconds": 62057.94408299997,
+        "conservative_debit_cpu_seconds": 1000,
+        "budget_charged_cpu_seconds": 63057.94408299997,
+        "remaining_cpu_seconds": 26942.055917000027,
+        "blocked_unknown_cpu_or_process_tree": null
+      },
+      "phase_states": [
+        {
+          "phase": "negative-subspace-acid-g3-negative-mode02-h0010-minus-attempt001",
+          "status": "RUNNING",
+          "actual_cpu_seconds": null
+        }
+      ],
+      "cgroup_root": {
+        "memory.max": "17179869184",
+        "memory.current": "605945856",
+        "memory.peak": "2066104320",
+        "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0",
+        "cpu.max": "400000 100000",
+        "cpu.stat": "usage_usec 297740677\nuser_usec 273042725\nsystem_usec 24697952\nnice_usec 0\nnr_periods 5164\nnr_throttled 18\nthrottled_usec 1053834\nnr_bursts 0\nburst_usec 0",
+        "cpuset.cpus.effective": "0-4",
+        "pids.max": "max",
+        "pids.current": "42"
+      },
+      "meminfo": {
+        "MemTotal": "18440100 kB",
+        "MemAvailable": "17576012 kB",
+        "SwapTotal": "0 kB",
+        "SwapFree": "0 kB"
+      }
+    }
+  ],
+  "checks": {
+    "actual_proc_birth_UID_boot_parent_pgrp_session_match_proof_and_running_row": true,
+    "actual_worker_command_matches_materialized_row": true,
+    "actual_parent_argv_manifest_sha_matches": true,
+    "kernel_cpu_and_address_space_rlimits_match_proof": true,
+    "RSS_stop_is_supervisor_observed_8GiB_bound_not_a_kernel_cgroup_limit": true,
+    "original_cpu_carry_and_separate_permanent_debit_unchanged": true,
+    "single_use_extension_claim_exact_old_sha_unchanged": true,
+    "no_worker_descendant_process_or_other_B_scientific_worker_observed": true,
+    "no_unknown_orphan_accounting_observed": true,
+    "live_proc_cpu_is_observation_not_closed_wait4_cost": true
+  },
+  "operations": {
+    "quantum_kernels_run": false,
+    "unit_tests_run": false,
+    "git_commands_or_writes": false,
+    "background_start_or_restart": false,
+    "frozen_file_changes": false
+  },
+  "followup_after_snapshots": {
+    "current_running": [
+      {
+        "phase": "negative-subspace-acid-g3-negative-mode02-h0010-plus-attempt001",
+        "child_identity": {
+          "pid": 2478,
+          "start_ticks": 232222,
+          "uid": 1000,
+          "pgrp": 2478,
+          "session": 2478,
+          "state": "R",
+          "boot_id": "5e4dd6fb-c532-435f-aa57-687513ec25ef",
+          "CPU_seconds": 0,
+          "rss_bytes": 131072
+        },
+        "status": "RUNNING"
+      }
+    ],
+    "ledger_summary": {
+      "actual_closed_cpu_seconds": 62271.60423499997,
+      "conservative_debit_cpu_seconds": 1000,
+      "budget_charged_cpu_seconds": 63271.60423499997,
+      "remaining_cpu_seconds": 26728.39576500003
+    },
+    "first_phase_status": "EXITED",
+    "first_closed": {
+      "phase": "negative-subspace-acid-g3-negative-mode02-h0010-minus-attempt001",
+      "actual_cpu_seconds": 213.660152,
+      "exit_code": 0,
+      "ended_at_utc": "2026-11-08T02:31:03.658084+00:00",
+      "wait4_receipt": {
+        "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-negative-subspace-v7/execution/acid-g3-negative-mode02-h0010-minus-attempt001.wait4.json",
+        "sha256": "0b54d1726307c91d744bbfee07752ec46b8813c990d15f39398bdbb55a998c8b"
+      },
+      "result": {
+        "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-negative-subspace-v7/science/acid-g3-negative-mode02-h0010-minus-attempt001/result.json",
+        "sha256": "febf2e7fa58291da2c3d8b22f5eee7c91accc6a5f9227013ab1ff4096609d126"
+      },
+      "sealed_files": 12,
+      "status": "DONE_SEALED",
+      "fresh_fock_norm": 2.41944838716232e-10,
+      "both_gradient_controls": [
+        "false",
+        "true"
+      ]
+    },
+    "current_worker_thread_control_environment_only": {
+      "OMP_NUM_THREADS": "2",
+      "OPENBLAS_NUM_THREADS": "2",
+      "MKL_NUM_THREADS": "2",
+      "NUMEXPR_NUM_THREADS": "2"
+    }
+  },
+  "thread_interpretation": {
+    "requested_compute_threads_per_library": 2,
+    "observed_Linux_native_TIDs_in_worker": 4,
+    "observed_CPU_seconds_per_wall_second": 1.9983757717309345,
+    "successor_worker_allowlisted_thread_environment": {
+      "OMP_NUM_THREADS": "2",
+      "OPENBLAS_NUM_THREADS": "2",
+      "MKL_NUM_THREADS": "2",
+      "NUMEXPR_NUM_THREADS": "2"
+    },
+    "interpretation": "Kernel native TID count includes library pools. Both observed snapshots used about2 CPU-seconds per wall-second; four native TIDs are recorded honestly. The cgroup allows4 CPUs; this review does not claim a kernel-enforced2-TID or2-CPU cgroup ceiling."
+  },
+  "evidence_time_scope": "The two /proc snapshots are historical observations of worker2429 at02:30:50–02:30:55UTC. That worker then closed successfully; its later wait4/seal is independently verified below and successor2478 was observed running. Ledger/state refs are capture-time hashes of mutable live control files, not frozen future hashes.",
+  "reviewer": "review_bootstrap",
+  "saved_at_utc": "2026-11-08T02:31:52.405034+00:00"
+}
