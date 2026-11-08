@@ -1,0 +1,423 @@
+#!/usr/bin/env python3
+"""Cross encoder/pretraining RNG with target RNG; explicit BN mechanism probes.
+
+One job executes in a fresh resource-proven worker. Historical target-finetuned
+weights are never used for a new fit. Only exact sealed pure-pretraining
+producers can be inherited. Source-only gradient APIs and prediction-before-
+truth scoring follow the reviewed v2 implementation.
+"""
+from __future__ import annotations
+import argparse
+from collections import Counter
+import hashlib
+import gzip
+import importlib.util
+import json
+import math
+import os
+from pathlib import Path
+import re
+import resource
+import signal
+import sys
+import time
+import traceback
+
+ROOT = next(p for p in Path(__file__).resolve().parents if (p / '.git').exists())
+OLD_ROOT = ROOT / 'reports/parallel-cloud-20261106/worker-b/B20261106-01/yanan-cause-followup-v2'
+BASE_SOURCE = OLD_ROOT / 'preparation/bin/neural_worker.py'
+BASE_SHA = 'e69758ddd32d81ff140a66ad71513bd4d4eeecd7ad5dcbd051070c5dcec55282'
+OLD_MANIFEST_SHA = 'd311b693a2fa4f497ecaf6add68a9de168051724f1bd5371d0d59a8aa1c770fc'
+SCHEMA = 'research4-b-neural-mechanisms-result-v3'
+CONTEXT_SCHEMA = 'research4-b-deep-mechanisms-context-v3'
+ENCODER_SEEDS = tuple(range(42, 50))
+NEW_PRETRAIN_SEEDS = tuple(range(45, 50))
+TARGET_SEEDS = (101, 202, 303)
+
+def _sha(p):
+    h = hashlib.sha256()
+    with Path(p).open('rb') as f:
+        for part in iter(lambda: f.read(1024 * 1024), b''): h.update(part)
+    return h.hexdigest()
+if _sha(BASE_SOURCE) != BASE_SHA: raise ValueError('Frozen v2 neural math changed')
+spec = importlib.util.spec_from_file_location('_deep_v3_frozen_neural_math', BASE_SOURCE)
+B = importlib.util.module_from_spec(spec); spec.loader.exec_module(B)
+require, checked, ref, local_path = B.require, B.checked, B.ref, B.local_path
+utc, sha, objhash, job_hash, import_file = B.utc, B.sha, B.objhash, B.job_hash, B.import_file
+KINDS, TARGET_CLASSES, FOLDS, PROFILE, COUNTERS = B.KINDS, B.TARGET_CLASSES, B.FOLDS, B.PROFILE, B.COUNTERS
+metrics, audit_pointwise_inference = B.metrics, B.audit_pointwise_inference
+state_hash, loss_summary, trace_source_batch = B.state_hash, B.loss_summary, B.trace_source_batch
+Recorder, scale_source, class_targets = B.Recorder, B.scale_source, B.class_targets
+validate_dataset, scopes = B.validate_dataset, B.scopes
+
+def read(p, digest=None, limit=2 * 1024 ** 2):
+    p = local_path(p)
+    require(p.stat().st_size <= limit, 'Bounded neural metadata read exceeded')
+    if digest is not None: require(sha(p) == digest, 'Neural JSON digest mismatch')
+    return json.loads(p.read_text(encoding='utf-8'))
+
+def atomic_json(p, value):
+    data = (json.dumps(value, ensure_ascii=False, separators=(',', ':'), allow_nan=False) + '\n').encode()
+    require(len(data) <= 2 * 1024 ** 2, 'Split neural metadata before exceeding2MiB')
+    p = Path(p); tmp = p.with_name(p.name + '.tmp')
+    with tmp.open('wb') as f: f.write(data); f.flush(); os.fsync(f.fileno())
+    os.replace(tmp, p)
+
+def validate_parameters(kind, p):
+    require(kind in ('aux_pretrain','target_pretrain','source_A_cross','target_eval_cross','bn_probe'), 'Unknown neural mechanism operation')
+    require(type(p.get('encoder_seed')) is int and p['encoder_seed'] in ENCODER_SEEDS, 'Fixed encoder RNG factor required')
+    if kind in ('aux_pretrain','target_pretrain'):
+        require(p['encoder_seed'] in NEW_PRETRAIN_SEEDS, 'Old pure-pretrained seeds must be inherited, never rerun')
+    if kind != 'source_A_cross': require(p.get('steps') in (120,480), 'Fixed120/480 optimizer steps required')
+    if kind != 'aux_pretrain': require(type(p.get('fold')) is int and p['fold'] in range(5), 'Fixed whole-source fold required')
+    if kind in ('source_A_cross','target_eval_cross','bn_probe'):
+        require(type(p.get('target_seed')) is int and p['target_seed'] in TARGET_SEEDS, 'Independent target RNG factor required')
+        require(p.get('adapt') in ('full','frozen'), 'Declared adaptation required')
+    if kind == 'aux_pretrain': require(p.get('label_mode') in ('real','shuffled'), 'Declared auxiliary origin-label control required')
+    if kind == 'bn_probe':
+        require(p['encoder_seed'] in (42,43,44) and p['target_seed']==101 and p['steps']==480 and p['adapt']=='frozen', 'BN posthoc probe is a fixed15-cell scope')
+        require(p.get('bn_policy') in ('neutral','source_recal'), 'Explicit BN intervention required')
+
+def _identity_equal(a,b):
+    return all(a.get(k)==b.get(k) for k in ('pid','start_ticks','uid','pgrp','session','boot_id'))
+
+def pretraining_pools(data, kind, p, np):
+    if kind == 'aux_pretrain': return [(name,np.flatnonzero(data['kinds']==name)) for name in KINDS[2:]]
+    donor,_ = scopes(data,p['fold'],np)
+    return [(name,donor[data['kinds'][donor]==name]) for name in TARGET_CLASSES]
+
+def old_job_id(kind,p):
+    if kind=='aux_pretrain': return f"aux_{p['label_mode']}_s{p['encoder_seed']}_b{p['steps']}"
+    return f"target_f{p['fold']}_s{p['encoder_seed']}_b{p['steps']}"
+
+def _validate_pretraining_scopes(producer,data,kind,p,row_snv,np):
+    require(producer.get('checkpoint_role')=='pure_pretrained_encoder' and producer.get('not_target_finetuned') is True and producer.get('target_query_seen') is False, 'Only pure source-pretraining checkpoint eligible')
+    pools=pretraining_pools(data,kind,p,np)
+    expected=[str(v) for _,ind in pools for v in data['ids'][ind]]
+    require(producer.get('unique_fit_ids')==expected and producer.get('unique_n')==len(expected), 'Inherited pure-pretraining ordered fit scope changed')
+    require(producer.get('optimizer_steps')==p['steps'], 'Pure-pretraining step budget changed')
+    require(producer.get('profile')==PROFILE, 'Pure-pretraining architecture/optimizer profile changed')
+    for ordinal,(name,ind) in enumerate(pools):
+        ids=data['ids'][ind].tolist();task=producer['source_tasks'][name];scaler=read(checked(producer['source_scalers'][name]))
+        require(task['unique_fit_ids']==ids and task['unique_n']==len(ids) and task['batch_size']==min(32,len(ids)), 'Pretraining source-head identities/exposure recipe changed')
+        require(task['batch_exposure_count']==(p['steps']//2)*min(32,len(ids)), 'Recorded source exposures do not match alternating fixed-step recipe')
+        classes=sorted(set(data['groups'][ind].tolist()));labels=data['groups'][ind]
+        require(len(classes)==4 and task['classes']==classes and task['class_counts']==[int(np.count_nonzero(labels==x)) for x in classes] and task['label_mode']==p.get('label_mode','real') and task['original_labels_sha256']==objhash(labels.tolist()), 'Origin-head label provenance changed')
+        if p.get('label_mode')=='shuffled': labels=B.shuffled_labels(labels,p['encoder_seed'],ordinal,np)
+        require(task['training_labels_sha256']==objhash(labels.tolist()), 'Origin-label permutation changed')
+        require(scaler['fit_ids']==ids and scaler['n_samples_seen']==len(ids) and scaler['snv_ddof']==1, 'Source scaler learned outside permitted source')
+        # Pure arithmetic replay of saved source statistics; no sklearn fit.
+        x=row_snv(data['X'][ind]);mean=x.mean(axis=0);var=x.var(axis=0);scale=np.sqrt(var);eps=np.finfo(float).eps;scale[var <= len(ids)*eps*var+(len(ids)*mean*eps)**2]=1.
+        require(np.allclose(scaler['mean'],mean,atol=1e-12,rtol=1e-10) and np.allclose(scaler['var'],var,atol=1e-12,rtol=1e-10) and np.allclose(scaler['scale'],scale,atol=1e-12,rtol=1e-10),'Source scaler numerical statistics changed')
+    checked(producer['encoder_checkpoint'])
+    return expected
+
+def inherited_envelope(manifest,kind,p):
+    require(p['encoder_seed'] in (42,43,44), 'Only old42/43/44 may inherit old pure producers')
+    jid=old_job_id(kind,p)
+    require(jid in manifest['neural']['inherited_pretraining_jobs'], 'Inherited producer is not explicitly authorized')
+    oldmanifest=read(checked(manifest['base_manifest']),limit=8*1024**2)
+    require(manifest['base_manifest']['sha256']==OLD_MANIFEST_SHA, 'Inheritance must bind originald311 manifest')
+    oldstate=read(checked(manifest['predecessor_state_ref']),limit=8*1024**2)
+    oldledger=read(checked(manifest['predecessor_ledger_ref']),limit=32*1024**2)
+    saved=oldstate['jobs'][jid]
+    require(saved['status']=='DONE_SEALED' and oldstate['results'][jid]==saved['seal']['result'],'Old pure producer is not DONE_SEALED')
+    result_ref=saved['seal']['result'];producer=read(checked(result_ref))
+    job=next(j for j in oldmanifest['jobs'] if j['id']==jid)
+    expected_params={'seed':p['encoder_seed'],'steps':p['steps']}
+    if kind=='aux_pretrain':expected_params['label_mode']=p['label_mode']
+    else:expected_params['fold']=p['fold']
+    require(job['operation']==producer.get('job_type')==kind and job['parameters']==producer.get('params')==expected_params,'Old pretraining operation/parameters changed')
+    require(producer['status']=='DONE' and producer['manifest_sha256']==OLD_MANIFEST_SHA and producer['source_worker']['sha256']==BASE_SHA and checked(producer['source_worker'])==BASE_SOURCE and checked(job['source'])==BASE_SOURCE,'Historical fitted-target or foreign source rejected')
+    require(producer['job_id']==jid and producer['profile']==PROFILE,'Old producer identity/profile changed')
+    rows=[r for r in oldledger['phases'] if r['phase']==saved['phase']]
+    require(len(rows)==1,'Unique old producer closure missing');row=rows[0]
+    require(row['status']=='EXITED' and row['exit_code']==0 and job_hash(row)==saved['seal']['closed_row_sha256'],'Old pure producer closed-row seal changed')
+    require(row['result_sha256']==result_ref['sha256'] and sha(local_path(row['log']))==row['log_sha256'],'Old result/log byte binding changed')
+    receipt=read(checked(row['wait4_receipt']));actual=receipt['ru_utime_seconds']+receipt['ru_stime_seconds']
+    require(receipt.get('schema')=='research4-yanan-followup-wait4-v2' and receipt['phase']==row['phase'] and receipt['exit_code']==0 and os.waitstatus_to_exitcode(receipt['raw_wait_status'])==0 and not receipt['unsupported_tree_observed'],'Old kernel closure proof invalid')
+    require(math.isfinite(actual) and actual>=0 and math.isclose(actual,row['actual_cpu_seconds'],abs_tol=1e-9),'Old observed CPU receipt changed')
+    require(_identity_equal(receipt['child_identity'],row['child_identity']) and _identity_equal(receipt['supervisor_identity'],row['supervisor_identity']),'Old birth identities differ')
+    proof=read(local_path(row['proof_path']),row['proof_sha256']);context=read(checked(row['context']))
+    require(proof['manifest_sha256']==OLD_MANIFEST_SHA and proof['job_id']==jid and proof['job_sha256']==row['job_sha256']==job_hash(job) and proof['context_sha256']==row['context']['sha256']==producer['context_sha256'] and proof['threads']==2 and proof['address_space_bytes']==12*1024**3,'Old execution proof/job/context changed')
+    require(context['dataset_result']==manifest['dataset_result'] and context['manifest_sha256']==OLD_MANIFEST_SHA,'Old checkpoint used a different TRAIN dataset')
+    supervision=producer['resource_supervision']
+    require(supervision['proof']==proof and supervision['proof_sha256']==row['proof_sha256'] and supervision['live_parent_process_and_source_verified'] is True,'Old worker did not verify actual resource parent')
+    output=local_path(row['output_directory']);require(local_path(producer['output_directory'])==output,'Old pure producer directory changed')
+    listed=set()
+    for item in saved['seal']['files']:
+        relative=Path(item['relative_path']);require(not relative.is_absolute() and '..' not in relative.parts,'Unsafe inherited seal member')
+        f=output/relative;checked({'path':str(f),'sha256':item['sha256'],'bytes':item['bytes']});listed.add(relative.as_posix())
+    require(listed=={str(f.relative_to(output)) for f in output.rglob('*') if f.is_file()},'Old producer artifacts added/removed after seal')
+    return dict(producer,_original_closed_binding={'wait4_receipt':row['wait4_receipt'],'closed_row_sha256':saved['seal']['closed_row_sha256'],'context':row['context'],'proof_sha256':row['proof_sha256']}),result_ref,saved['seal'],actual
+
+def inherited_producer(manifest,data,kind,p,row_snv,np):
+    producer,result_ref,seal,actual=inherited_envelope(manifest,kind,p)
+    expected=_validate_pretraining_scopes(producer,data,kind,p,row_snv,np)
+    return dict(producer,_result_ref=result_ref,_inherited_qualification={'job_id':old_job_id(kind,p),'original_manifest_sha256':OLD_MANIFEST_SHA,'seal':seal,'original_wait4_cpu_seconds_not_refunded':actual,'all_source_statistics_replayed_without_fit':True,'permitted_fit_ids_sha256':objhash(expected),'closed_binding':producer['_original_closed_binding']})
+
+def dependencies(context,manifest_sha):
+    rows=[]
+    for jid,binding in context.get('dependencies',{}).items():
+        row=read(checked(binding))
+        if row.get('schema')!=SCHEMA:continue
+        require(context.get('dependency_states',{}).get(jid)=='DONE_SEALED' and row.get('status')=='DONE' and row.get('job_id')==jid and row.get('manifest_sha256')==manifest_sha,'New neural dependency is not an exact sealed current producer')
+        rows.append(dict(row,_result_ref=binding))
+    return rows
+
+def pick(rows,kind,params):
+    found=[r for r in rows if r.get('operation')==kind and all(r.get('parameters',{}).get(k)==v for k,v in params.items())]
+    require(len(found)==1,'One exact current neural dependency required: '+kind+' '+str(params))
+    return found[0]
+
+def pure_producer(manifest,context,data,kind,p,row_snv,np):
+    if p['encoder_seed'] in (42,43,44): return inherited_producer(manifest,data,kind,p,row_snv,np)
+    params={k:p[k] for k in ('encoder_seed','steps')}
+    params.update(label_mode=p['label_mode']) if kind=='aux_pretrain' else params.update(fold=p['fold'])
+    row=pick(dependencies(context,context['manifest_sha256']),kind,params)
+    _validate_pretraining_scopes(row,data,kind,p,row_snv,np)
+    return row
+
+
+def _train_binary_donors(encoder, head, features, targets, class_weights, fit_ids,
+                         seed, adapt, arm, output, recorder, torch):
+    """Gradient-only API: donor tensors, labels and IDs; no query or whole pack."""
+    require(len(features) == len(targets) == len(fit_ids) and len(set(fit_ids)) == len(fit_ids),
+            "Unique paired donor-only training rows required")
+    require(adapt in ("full", "frozen") and seed in TARGET_SEEDS, "Fixed target training profile required")
+    initial_encoder, initial_head = state_hash(encoder), state_hash(head)
+    frozen = adapt == "frozen"
+    for parameter in encoder.parameters():
+        parameter.requires_grad_(not frozen)
+    optimizer = torch.optim.Adam(list(head.parameters()) if frozen else [*encoder.parameters(), *head.parameters()], lr=.0005, weight_decay=.001)
+    torch.manual_seed(seed + 50000)
+    generator = torch.Generator().manual_seed(seed + 60000)
+    recorder.enter("train", arm + ".binary_target", fit_ids)
+    losses, steps = [], 0
+    order_hash = hashlib.sha256()
+    with gzip.open(Path(output) / (arm + "-target-batches.jsonl.gz"), "xt", encoding="utf-8") as trace:
+        for epoch in range(96):
+            order = torch.randperm(len(fit_ids), generator=generator)
+            order_hash.update(order.numpy().tobytes())
+            encoder.eval() if frozen else encoder.train()
+            head.train(); total = 0.
+            for left in range(0, len(fit_ids), 64):
+                selected = order[left:left + 64]
+                optimizer.zero_grad(set_to_none=True)
+                if frozen:
+                    with torch.no_grad():
+                        representation = encoder(features[selected])
+                else:
+                    representation = encoder(features[selected])
+                loss = torch.nn.functional.cross_entropy(head(representation), targets[selected], weight=class_weights)
+                require(bool(torch.isfinite(loss)), "Nonfinite target loss")
+                loss.backward(); optimizer.step()
+                value = float(loss.detach())
+                ids = [fit_ids[i] for i in selected.tolist()]
+                trace_source_batch(trace, ids, fit_ids, "target", arm, steps, value)
+                total += value * len(selected); steps += 1
+            losses.append(total / len(fit_ids))
+            recorder.state["active_target_epoch"] = epoch + 1
+            recorder.state["completed_optimizer_steps"] = steps
+            recorder.save()
+    encoder.eval(); head.eval()
+    final_encoder = state_hash(encoder)
+    require(not frozen or final_encoder == initial_encoder, "Frozen encoder parameters/BN buffers changed")
+    recorder.complete("train", arm + ".binary_target", epochs=96, optimizer_steps=steps, losses=loss_summary(losses))
+    atomic_json(Path(output) / (arm + "-epoch-losses.json"), losses)
+    return {"initial_encoder_state_sha256": initial_encoder, "initial_head_state_sha256": initial_head,
+            "final_encoder_state_sha256": final_encoder, "final_head_state_sha256": state_hash(head),
+            "encoder_unchanged": final_encoder == initial_encoder, "target_order_sha256": order_hash.hexdigest(),
+            "loss_summary": loss_summary(losses), "epochs": 96, "optimizer_steps": steps,
+            "training_api_scope": "donor-only tensors, encoded labels and fit IDs; no query inputs"}
+
+def parameter_hash(model):
+    h=hashlib.sha256()
+    for name,tensor in sorted(model.named_parameters()):
+        a=tensor.detach().cpu().contiguous().numpy();h.update(name.encode());h.update(str(a.dtype).encode());h.update(str(a.shape).encode());h.update(a.tobytes())
+    return h.hexdigest()
+
+def bn_intervene(encoder, source_features, source_ids, policy, arm, recorder, torch):
+    """An explicit source-only buffer intervention; no query or whole pack API."""
+    require(policy in ('native','neutral','source_recal'),'Unknown BN mechanism intervention')
+    before=state_hash(encoder);weights_before=parameter_hash(encoder)
+    layers=[m for m in encoder.modules() if isinstance(m,torch.nn.modules.batchnorm._BatchNorm)]
+    require(layers and all(m.track_running_stats for m in layers),'Tracked BN buffers required')
+    encoder.eval()
+    if policy=='neutral':
+        for m in layers:
+            m.running_mean.zero_();m.running_var.fill_(1);m.num_batches_tracked.zero_()
+    elif policy=='source_recal':
+        require(source_features is not None and len(source_features)==len(source_ids)>1 and len(source_ids)==len(set(source_ids)),'BN recalibration needs unique donor-only rows')
+        recorder.enter('fit',arm+'.BN_source_recalibration',source_ids)
+        momentum=[m.momentum for m in layers]
+        try:
+            for m in layers:m.train();m.momentum=1.
+            # Every other layer remains eval, including every dropout module.
+            require(all(not m.training for m in encoder.modules() if isinstance(m,torch.nn.Dropout)),'Dropout must be eval during source-only BN recalibration')
+            with torch.no_grad(): encoder(source_features)
+        finally:
+            for m,old in zip(layers,momentum):m.momentum=old
+            encoder.eval()
+        require(parameter_hash(encoder)==weights_before,'BN source recalibration changed learned weights')
+        recorder.complete('fit',arm+'.BN_source_recalibration',unique_n=len(source_ids),full_donor_batches=1,momentum=1.,no_gradient=True)
+    encoder.eval();after=state_hash(encoder)
+    require(parameter_hash(encoder)==weights_before,'BN intervention changed affine/convolution weights')
+    if policy=='native':require(after==before,'Native BN intervention must be identity')
+    record={'policy':policy,'encoder_state_before':before,'encoder_state_after':after,'parameter_sha256_before':weights_before,
+            'parameter_sha256_after':parameter_hash(encoder),'parameters_unchanged':True,'bn_layers':len(layers),
+            'source_fit_ids':list(source_ids) if policy=='source_recal' else [],'source_full_batch_passes':int(policy=='source_recal'),
+            'all_dropout_eval':True,'query_or_support_statistics_used':False,'deterministic_prior_not_fit':policy=='neutral'}
+    recorder.event('declared_BN_intervention',arm=arm,**record)
+    return record
+
+def rng_contract(p):
+    return {'encoder_initialization_seed':p['encoder_seed'],'pretraining_sampling_dropout_seed':p['encoder_seed'],
+            'target_head_seed':p['target_seed']+10000,'target_dropout_seed':p['target_seed']+50000,
+            'target_order_seed':p['target_seed']+60000,'encoder_and_target_rng_factors_are_crossed':True}
+
+def _new_encoder_head(p,producer,expected_fit_ids,Encoder,np,torch):
+    torch.manual_seed(p['encoder_seed']);encoder=Encoder(12,2,.35,residual=True,attention=False)
+    if producer is not None:B.load_pure_encoder(producer,encoder,expected_fit_ids,torch)
+    with torch.random.fork_rng():
+        torch.manual_seed(p['target_seed']+10000);head=torch.nn.Linear(16,2)
+    return encoder,head
+
+def fit_target(data,p,arm,producer,output,recorder,Encoder,row_snv,np,torch,StandardScaler,bn_policy='native'):
+    donor,query=scopes(data,p['fold'],np);fit_ids=data['ids'][donor].tolist()
+    scaler,z,scaler_ref=scale_source(data['X'][donor],fit_ids,arm+'-target',output,recorder,row_snv,np,StandardScaler)
+    targets,weights,counts=class_targets(data['kinds'][donor],list(TARGET_CLASSES),np)
+    pre_ids=data['ids'][donor].tolist() if arm=='Aextra' else data['ids'][np.flatnonzero(np.isin(data['kinds'],KINDS[2:]))].tolist()
+    encoder,head=_new_encoder_head(p,producer,pre_ids,Encoder,np,torch)
+    pre_intervention_state=state_hash(encoder)
+    intervention=bn_intervene(encoder,torch.as_tensor(z) if bn_policy=='source_recal' else None,fit_ids,bn_policy,arm,recorder,torch)
+    trained=_train_binary_donors(encoder,head,torch.as_tensor(z),torch.as_tensor(targets),torch.as_tensor(weights),fit_ids,p['target_seed'],p['adapt'],arm,output,recorder,torch)
+    weights_path=Path(output)/(arm+'-binary.pt');torch.save({'encoder':encoder.state_dict(),'head':head.state_dict()},weights_path)
+    qx=scaler.transform(row_snv(data['X'][query])).astype(np.float32)
+    inferred=B._infer_binary_query(encoder,head,qx,data['ids'][query].tolist(),data['groups'][query].tolist(),arm,output,np,torch)
+    scored=B._score_binary_predictions(inferred,data['kinds'][query].tolist())
+    result={**trained,**inferred,**scored,'unique_fit_ids':fit_ids,'unique_n':len(donor),'class_counts':counts.tolist(),
+            'target_scaler':scaler_ref,'model_checkpoint':ref(weights_path),'pretraining_dependency':producer['_result_ref'] if producer else None,
+            'rng_contract':rng_contract(p),'bn_intervention':intervention,'pure_encoder_before_intervention_sha256':pre_intervention_state,
+            'pretraining_fit_scope_sha256':objhash(pre_ids) if producer else None,'historically_exposed_internal_source_group_test':True,
+            'pretraining_provenance':None if producer is None else {'producer_result':producer['_result_ref'],'producer_manifest_sha256':producer['manifest_sha256'],'checkpoint':producer['encoder_checkpoint'],'tensor_state_hash_verified':True,'source_scalers':producer['source_scalers'],'source_statistics_replayed_without_fit':True,'inherited_qualification':producer.get('_inherited_qualification')}}
+    arm_path=Path(output)/(arm+'-arm-result.json');atomic_json(arm_path,result)
+    return compact_arm(result,ref(arm_path))
+
+def compact_arm(result,result_ref,**extra):
+    return {'result':result_ref,'metrics':result['metrics'],'initial_head_state_sha256':result['initial_head_state_sha256'],
+            'initial_encoder_state_sha256':result['initial_encoder_state_sha256'],'final_encoder_state_sha256':result['final_encoder_state_sha256'],
+            'target_order_sha256':result['target_order_sha256'],'target_scaler':result['target_scaler'],
+            'pointwise_inference_status':result['pointwise_inference_audit']['status'],
+            'encoder_unchanged':result['encoder_unchanged'],'epochs':result['epochs'],**extra}
+
+def read_arm(compact):
+    row=read(checked(compact['result']))
+    for key in ('metrics','initial_head_state_sha256','initial_encoder_state_sha256','final_encoder_state_sha256','target_order_sha256','target_scaler','encoder_unchanged','epochs'):
+        require(compact[key]==row[key],'Compact neural arm/index differs from hash-bound result')
+    require(compact['pointwise_inference_status']==row['pointwise_inference_audit']['status']=='PASS_FOR_FIXED_QUERY_ONLY','Fixed-query inference qualification missing')
+    checked(row['target_scaler']);checked(row['model_checkpoint']);checked(row['prediction_artifact'])
+    return row
+
+def validate_native_arm(compact,data,p):
+    row=read_arm(compact);donor,query=scopes(data,p['fold'],__import__('numpy'))
+    require(row['record_ids']==data['ids'][query].tolist() and row['truth']==data['kinds'][query].tolist() and row['unique_fit_ids']==data['ids'][donor].tolist(),'Native target source/query identities differ')
+    require(row['rng_contract']==rng_contract(p) and row['epochs']==96,'Native RNG or fixed target budget changed')
+    require(row['bn_intervention']['policy']=='native','Native baseline was already subjected to a BN intervention')
+    return row
+
+def _reuse_neutral_A(native,data,p,Encoder,np,torch):
+    row=validate_native_arm(native,data,p)
+    encoder,head=_new_encoder_head(p,None,[],Encoder,np,torch)
+    # A starts with neutral BN priors, so resetting those same priors is identity.
+    for m in encoder.modules():
+        if isinstance(m,torch.nn.modules.batchnorm._BatchNorm):m.running_mean.zero_();m.running_var.fill_(1);m.num_batches_tracked.zero_()
+    require(state_hash(encoder)==row['initial_encoder_state_sha256'] and state_hash(head)==row['initial_head_state_sha256'],'Neutral random encoder/head differs from native A')
+    require(row['encoder_unchanged'] is True and row['initial_encoder_state_sha256']==row['final_encoder_state_sha256'],'Native A was not a frozen exact random encoder')
+    return dict(native,reused_native_prediction=True,reuse_gate='fresh neutral encoder+head hashes; identical source/scaler/query/RNG/96epochs; no refit',bn_policy='neutral')
+
+def execute_neural(manifest,context,state,recorder,output,supervisor):
+    B.nofork_metadata();state['nofork_libc_discovery']=B.nofork_libc_discovery()
+    import numpy as np
+    import torch
+    from sklearn.preprocessing import StandardScaler
+    torch.set_num_threads(2);torch.set_num_interop_threads(1);torch.use_deterministic_algorithms(True)
+    require(checked(manifest['neural']['base_worker'])==BASE_SOURCE and manifest['neural']['base_worker']['sha256']==BASE_SHA,'Actual frozen neural math must be manifest-bound')
+    Encoder,row_snv,reuse=B.load_legacy(manifest['neural']['legacy_encoder_source'],np,torch)
+    reuse=dict(reuse,reuse_method='exact pinned legacy AST; pure checkpoint inheritance separately qualified')
+    state.update(profile=PROFILE,reuse=reuse,runtime={'python':sys.version,'numpy':np.__version__,'torch':torch.__version__,'torch_threads':torch.get_num_threads(),'torch_interop_threads':torch.get_num_interop_threads()},legacy_math_source=ref(BASE_SOURCE))
+    recorder.save();data=validate_dataset(supervisor.load_verified_train_dataset(context,manifest),np)
+    p,kind=state['parameters'],state['operation']
+    if kind in ('aux_pretrain','target_pretrain'):
+        oldp={'seed':p['encoder_seed'],'steps':p['steps']}
+        if kind=='aux_pretrain':oldp['label_mode']=p['label_mode']
+        else:oldp['fold']=p['fold']
+        state.update(B.pure_pretrain(data,kind,oldp,output,recorder,Encoder,row_snv,np,torch,StandardScaler))
+    elif kind=='source_A_cross':
+        state['arms']={'A':fit_target(data,p,'A',None,output,recorder,Encoder,row_snv,np,torch,StandardScaler)}
+    else:
+        rows=dependencies(context,state['manifest_sha256'])
+        a=pick(rows,'source_A_cross',{k:p[k] for k in ('encoder_seed','target_seed','fold','adapt')})['arms']['A']
+        arow=validate_native_arm(a,data,p)
+        producers={}
+        for arm,prekind,extra in [('Aextra','target_pretrain',{}),('B','aux_pretrain',{'label_mode':'real'}),('Bshuffle','aux_pretrain',{'label_mode':'shuffled'})]:
+            producers[arm]=pure_producer(manifest,context,data,prekind,{**p,**extra},row_snv,np)
+        if kind=='target_eval_cross':
+            arms={'A':dict(a,reused_A_prediction_across_pretraining_budgets=True)}
+            for arm in ('Aextra','B','Bshuffle'):
+                arms[arm]=fit_target(data,p,arm,producers[arm],output,recorder,Encoder,row_snv,np,torch,StandardScaler)
+                require(arms[arm]['initial_head_state_sha256']==arow['initial_head_state_sha256'] and arms[arm]['target_order_sha256']==arow['target_order_sha256'],'Crossed arms target head/order not paired')
+                state['arms']=arms;recorder.save()
+        else:
+            native=pick(rows,'target_eval_cross',{k:p[k] for k in ('encoder_seed','target_seed','fold','adapt','steps')})
+            for arm in ('A','Aextra','B','Bshuffle'):validate_native_arm(native['arms'][arm],data,p)
+            state['native_arms']=native['arms'];arms={}
+            for arm in ('A','Aextra','B','Bshuffle'):
+                if arm=='A' and p['bn_policy']=='neutral':arms[arm]=_reuse_neutral_A(a,data,p,Encoder,np,torch)
+                else:arms[arm]=fit_target(data,p,arm,producers.get(arm),output,recorder,Encoder,row_snv,np,torch,StandardScaler,bn_policy=p['bn_policy'])
+                require(arms[arm]['initial_head_state_sha256']==arow['initial_head_state_sha256'] and arms[arm]['target_order_sha256']==arow['target_order_sha256'],'BN probe changed paired target RNG/head')
+                state['arms']=arms;recorder.save()
+            state['bn_probe_qualification']='Predeclared posthoc mechanism intervention on previously exposed TRAIN; not independent confirmation or a selected winner'
+        state['arms']=arms
+    state['status']='DONE'
+
+def run(args):
+    manifest=read(args.manifest,args.manifest_sha256,limit=8*1024**2);context=read(args.context,args.context_sha256,limit=8*1024**2)
+    require(context.get('schema')==CONTEXT_SCHEMA and context.get('manifest_sha256')==args.manifest_sha256 and context.get('job_id')==args.job_id,'Exact v3 context required')
+    job=context['job'];require(job['id']==args.job_id and job_hash(job)==context['job_sha256'] and any(j==job for j in manifest['jobs']),'Frozen v3 job/hash differs')
+    require(checked(job['source'])==Path(__file__).resolve(),'Neural mechanism source mismatch')
+    validate_parameters(job['operation'],job['parameters']);output=local_path(args.output)
+    require(output==local_path(context['output_directory']),'Neural output context differs')
+    state={'schema':SCHEMA,'status':'VALIDATED_ONLY','job_id':args.job_id,'operation':job['operation'],'job_type':job['operation'],
+           'parameters':job['parameters'],'params':job['parameters'],'source_worker':ref(__file__),'manifest_sha256':args.manifest_sha256,
+           'context_sha256':args.context_sha256,'job_sha256':context['job_sha256'],'output_directory':str(output),'created_at_utc':utc(),**COUNTERS}
+    if not args.execute:return state
+    supervisor=import_file(checked(manifest['supervisor']),'_deep_v3_neural_resource_supervisor')
+    proof=supervisor.verify_resource_supervision(expected_worker_path=__file__,expected_threads=2,expected_manifest_sha256=args.manifest_sha256,
+        expected_job_id=args.job_id,expected_context_sha256=args.context_sha256,expected_proof_path=args.proof)
+    require(not output.exists() or not any(output.iterdir()),'Never rerun a nonempty neural output directory');output.mkdir(parents=True,exist_ok=True)
+    state.update(status='RUNNING',resource_supervision=proof,dataset_result=manifest['dataset_result'],dataset_manifest=manifest['base_manifest'],new_scientific_evaluations='neural mechanism only',quantum_evaluations=0,labels_modified=False,CAL_PRED_spectra_accessed=False)
+    recorder=Recorder(output,state);started=time.perf_counter();cpu=time.process_time()
+    def stop(signum,frame):raise RuntimeError('Resource supervisor stopped neural mechanism '+str(signum))
+    old={s:signal.signal(s,stop) for s in (signal.SIGTERM,signal.SIGINT,signal.SIGXCPU)}
+    try:execute_neural(manifest,context,state,recorder,output,supervisor)
+    except BaseException as exc:
+        state.update(status='PARTIAL',exception_type=type(exc).__name__,stop_reason=str(exc));(output/'exception_traceback.txt').write_text(traceback.format_exc())
+    finally:
+        for sig,handler in old.items():signal.signal(sig,handler)
+        state.update(completed_at_utc=utc(),process_cpu_seconds=time.process_time()-cpu,wall_seconds=time.perf_counter()-started,
+                     peak_rss_kib=resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
+        state['output_artifacts']=[ref(p) for p in sorted(output.iterdir()) if p.is_file() and p.name not in ('result.json','progress.json')]
+        state['heavy_artifacts_local_only']=[x for x in state['output_artifacts'] if Path(x['path']).suffix in ('.pt','.gz','.npz')]
+        recorder.save();atomic_json(output/'result.json',state)
+    return state
+
+def parser():
+    p=argparse.ArgumentParser(description=__doc__)
+    p.add_argument('--manifest',type=Path,required=True);p.add_argument('--manifest-sha256',required=True);p.add_argument('--job-id',required=True)
+    p.add_argument('--context',type=Path,required=True);p.add_argument('--context-sha256',required=True);p.add_argument('--output',type=Path,required=True)
+    p.add_argument('--proof',type=Path);p.add_argument('--execute',action='store_true');return p
+
+if __name__=='__main__':
+    result=run(parser().parse_args());print(json.dumps({k:result.get(k) for k in ('schema','status','job_id','stop_reason')},ensure_ascii=False),flush=True)
+    if result['status'] not in ('DONE','VALIDATED_ONLY'):raise SystemExit(2)

@@ -1,0 +1,342 @@
+"""Prepare a finite, source-bound mechanism DAG; never fit, launch or Git."""
+from __future__ import annotations
+
+import argparse
+from copy import deepcopy
+import hashlib
+import importlib.util
+import json
+from pathlib import Path
+
+SELF = Path(__file__).resolve()
+ROOT = next(p for p in SELF.parents if (p / '.git').exists())
+BASE = ROOT / 'reports/parallel-cloud-20261106/worker-b/B20261106-01'
+OLD = BASE / 'yanan-cause-followup-v2'
+WORK = OLD / 'deep-mechanisms-v3'
+BIN = WORK / 'preparation/bin'
+SCHEMA = 'research4-b-deep-mechanisms-manifest-v3'
+SPEC_SCHEMA = 'research4-b-deep-mechanisms-preparation-spec-v3'
+ACID = ('ZY03', 'ZY04', 'ZY05', 'ZY06', 'ZY07')
+MODALITIES = ('alpha', 'n', 'fusion')
+PSEEDS = tuple(range(42, 50))
+NEW_PSEEDS = tuple(range(45, 50))
+TSEEDS = (101, 202, 303)
+STEPS = (120, 480)
+ADAPT = ('full', 'frozen')
+RULES = ('anchor_lambda1', 'bias_lambda1', 'anchor_lambda_per_sample',
+         'anchor_permuted_labels', 'anchor_flipped_labels', 'weak_lambda1000_blend005',
+         'support_ERM_threshold', 'equal_prior_unstratified_center',
+         'anchor_score_scale01', 'anchor_score_scale10', 'source_std_anchor')
+KS = (0, 1, 3, 5, 10, 20)
+CAPS = {'source_scores': (120, 300), 'support_mechanisms': (900, 1200),
+        'donor_mechanisms': (900, 1200), 'aux_pretrain': (480, 600),
+        'target_pretrain': (480, 600), 'source_A_cross': (480, 600),
+        'target_eval_cross': (1440, 1800), 'bn_probe': (1440, 1800),
+        'summary': (300, 900)}
+
+
+def require(value, message):
+    if not value:
+        raise ValueError(message)
+
+
+def path(value):
+    p = Path(value); p = p if p.is_absolute() else ROOT / p
+    require('..' not in p.parts and not any(q.is_symlink() for q in (p, *p.parents)), 'Unsafe preparation path')
+    p = p.resolve(); require(p.is_relative_to(ROOT), 'Preparation escapes B checkout')
+    return p
+
+
+def sha(file):
+    h = hashlib.sha256()
+    with Path(file).open('rb') as f:
+        for block in iter(lambda: f.read(1024 ** 2), b''):
+            h.update(block)
+    return h.hexdigest()
+
+
+def ref(file):
+    p = path(file)
+    return {'path': str(p.relative_to(ROOT)), 'sha256': sha(p), 'bytes': p.stat().st_size}
+
+
+def read(file, expected=None):
+    p = path(file)
+    if expected:
+        require(sha(p) == expected, 'Frozen preparation input changed')
+    require(p.stat().st_size <= 8 * 1024 ** 2, 'Oversized preparation metadata')
+    return json.loads(p.read_bytes())
+
+
+def save(file, value):
+    p = path(file); p.parent.mkdir(parents=True, exist_ok=True)
+    with p.open('x') as f:
+        json.dump(value, f, ensure_ascii=False, indent=2, allow_nan=False); f.write('\n')
+
+
+def refs_in(value):
+    if isinstance(value, dict):
+        if isinstance(value.get('path'), str) and isinstance(value.get('sha256'), str):
+            yield value
+        else:
+            for child in value.values(): yield from refs_in(child)
+    elif isinstance(value, list):
+        for child in value: yield from refs_in(child)
+
+
+def unique_refs(items):
+    result = {}
+    for item in items:
+        value = ref(item['path']); require(value['sha256'] == item['sha256'], 'Input SHA changed')
+        key = value['path']
+        if key in result: require(result[key] == value, 'Conflicting frozen input')
+        result[key] = value
+    return list(result.values())
+
+
+def source_score_id(acid, modality): return f'scores_{acid}_{modality}'
+def aux_id(mode, seed, steps): return f'aux_{mode}_p{seed}_b{steps}'
+def target_id(fold, seed, steps): return f'target_f{fold}_p{seed}_b{steps}'
+def a_id(fold, seed, target, adapt): return f'A_f{fold}_p{seed}_t{target}_{adapt}'
+def eval_id(fold, seed, target, steps, adapt): return f'eval_f{fold}_p{seed}_t{target}_b{steps}_{adapt}'
+
+
+def job(jid, kind, operation, source, params, dependencies=(), *, partial=False):
+    cpu, wall = CAPS[operation]
+    result = {'id': jid, 'kind': kind, 'operation': operation, 'source': deepcopy(source),
+              'parameters': deepcopy(params), 'depends_on': list(dict.fromkeys(dependencies)),
+              'cpu_seconds': cpu, 'wall_seconds': wall, 'max_attempts': 2,
+              'result_schema': 'research4-b-neural-mechanisms-result-v3' if kind == 'neural'
+                 else 'research4-b-deep-mechanisms-summary-v3' if kind == 'summary'
+                 else 'research4-b-classical-mechanisms-result-v3',
+              'success_statuses': ['DONE'] if kind == 'neural' else ['COMPLETED']}
+    if partial:
+        require(kind == 'summary', 'Only summary can report missing dependencies')
+        result.update(allow_partial_dependencies=True,
+                      success_statuses=['SUMMARY_COMPLETE', 'PARTIAL_BLOCKS_PRESERVED'])
+    return result
+
+
+def build_jobs(sources):
+    jobs = []
+    for acid in ACID:
+        for modality in MODALITIES:
+            jobs.append(job(source_score_id(acid, modality), 'classical', 'source_scores', sources['classical'],
+                            {'acid_group': acid, 'modality': modality}))
+    for acid in ACID:
+        for modality in MODALITIES:
+            for first in (45, 50, 55, 60):
+                jobs.append(job(f'support_{acid}_{modality}_d{first}', 'classical', 'support_mechanisms', sources['classical'],
+                    {'acid_group': acid, 'modality': modality, 'draw_seeds': list(range(first, first+5))},
+                    [source_score_id(acid, modality)]))
+    for acid in ACID:
+        for modality in MODALITIES:
+            for seed in range(45, 50):
+                jobs.append(job(f'donor_{acid}_{modality}_s{seed}', 'classical', 'donor_mechanisms', sources['classical'],
+                    {'acid_group': acid, 'modality': modality, 'draw_seed': seed}, [source_score_id(acid, modality)]))
+    for mode in ('real', 'shuffled'):
+        for seed in NEW_PSEEDS:
+            for steps in STEPS:
+                jobs.append(job(aux_id(mode, seed, steps), 'neural', 'aux_pretrain', sources['neural'],
+                                {'encoder_seed': seed, 'steps': steps, 'label_mode': mode}))
+    for fold in range(5):
+        for seed in NEW_PSEEDS:
+            for steps in STEPS:
+                jobs.append(job(target_id(fold, seed, steps), 'neural', 'target_pretrain', sources['neural'],
+                                {'encoder_seed': seed, 'steps': steps, 'fold': fold}))
+    for fold in range(5):
+        for seed in PSEEDS:
+            for target in TSEEDS:
+                for adapt in ADAPT:
+                    jobs.append(job(a_id(fold, seed, target, adapt), 'neural', 'source_A_cross', sources['neural'],
+                        {'encoder_seed': seed, 'target_seed': target, 'fold': fold, 'adapt': adapt}))
+    for steps in STEPS:
+        for adapt in ADAPT:
+            for fold in range(5):
+                for seed in PSEEDS:
+                    for target in TSEEDS:
+                        deps = [a_id(fold, seed, target, adapt)]
+                        if seed in NEW_PSEEDS:
+                            deps += [target_id(fold, seed, steps), aux_id('real', seed, steps), aux_id('shuffled', seed, steps)]
+                        jobs.append(job(eval_id(fold, seed, target, steps, adapt), 'neural', 'target_eval_cross', sources['neural'],
+                            {'encoder_seed': seed, 'target_seed': target, 'fold': fold, 'adapt': adapt, 'steps': steps}, deps))
+    for policy in ('neutral', 'source_recal'):
+        for fold in range(5):
+            for seed in (42, 43, 44):
+                jobs.append(job(f'bn_f{fold}_p{seed}_t101_{policy}', 'neural', 'bn_probe', sources['neural'],
+                    {'encoder_seed': seed, 'target_seed': 101, 'fold': fold, 'adapt': 'frozen', 'steps': 480, 'bn_policy': policy},
+                    [a_id(fold, seed, 101, 'frozen'), eval_id(fold, seed, 101, 480, 'frozen')]))
+    jobs.append(job('summary', 'summary', 'summary', sources['summary'], {}, [j['id'] for j in jobs], partial=True))
+    require(len(jobs) == len({j['id'] for j in jobs}) == 971, 'Exact971 distinct jobs required')
+    seen = set()
+    for item in jobs:
+        require(set(item['depends_on']) <= seen, 'Job dependencies are not topological')
+        seen.add(item['id'])
+    return jobs
+
+
+def summary_blocks(jobs):
+    result = []
+    def add(name, operation, selector=lambda j: True, **extra):
+        ids = [j['id'] for j in jobs if j['operation'] == operation and selector(j)]
+        result.append({'id': name, 'operation': operation, 'required_job_ids': ids,
+                       'expected_count': len(ids), **extra})
+    add('source_scores', 'source_scores', expected_count_design=15)
+    for modality in MODALITIES:
+        add('support_'+modality, 'support_mechanisms', lambda j, m=modality: j['parameters']['modality'] == m,
+            expected_count_design=20, expected_draws=list(range(45,65)), rules=list(RULES), K=list(KS), refit_K=[1,5,20])
+        add('donor_'+modality, 'donor_mechanisms', lambda j, m=modality: j['parameters']['modality'] == m,
+            expected_count_design=25, expected_draws=list(range(45,50)))
+    add('aux_pretraining', 'aux_pretrain', expected_count_design=20, artifact_only=True)
+    add('target_pretraining', 'target_pretrain', expected_count_design=50, artifact_only=True)
+    add('source_A', 'source_A_cross', expected_count_design=240, artifact_only=True)
+    for steps in STEPS:
+        for adapt in ADAPT:
+            add(f'neural_{steps}_{adapt}', 'target_eval_cross',
+                lambda j,s=steps,a=adapt: j['parameters']['steps']==s and j['parameters']['adapt']==a,
+                expected_count_design=120, steps=steps, adapt=adapt, encoder_seeds=list(PSEEDS), target_seeds=list(TSEEDS), folds=list(range(5)), arms=['A','Aextra','B','Bshuffle'])
+    for policy in ('neutral', 'source_recal'):
+        add('bn_'+policy, 'bn_probe', lambda j,p=policy: j['parameters']['bn_policy']==p,
+            expected_count_design=15, steps=480, adapt='frozen', bn_policy=policy, encoder_seeds=[42,43,44], target_seeds=[101], folds=list(range(5)), arms=['A','Aextra','B','Bshuffle'])
+    for block in result:
+        require(block['expected_count'] == block['expected_count_design'], 'Frozen family count mismatch')
+    return result
+
+
+def source_ref(name, draft):
+    f = BIN / name
+    if f.is_file(): return ref(f)
+    require(draft, 'Missing final source: '+str(f))
+    return {'path': str(f.relative_to(ROOT)), 'sha256': None, 'pending_source': True}
+
+
+def build_candidate(draft=False):
+    auth_file = WORK/'preparation/user_authorized_extension_ROOT.json'; auth = read(auth_file)
+    base = read(auth['base_manifest_ref']['path'], auth['base_manifest_ref']['sha256'])
+    old_state = read(auth['predecessor_state_ref']['path'], auth['predecessor_state_ref']['sha256'])
+    sources = {'classical': source_ref('classical_mechanisms.py',draft), 'neural': source_ref('neural_mechanisms.py',draft),
+               'summary': source_ref('summary_worker.py',draft)}
+    jobs = build_jobs(sources)
+    inherited = {}
+    for old_job in base['jobs']:
+        if old_job['operation'] not in ('aux_pretrain','target_pretrain'): continue
+        saved = old_state['jobs'][old_job['id']]
+        require(saved['status']=='DONE_SEALED', 'Inherited pure pretraining must remain sealed')
+        inherited[old_job['id']] = {'result': saved['seal']['result'], 'phase': saved['phase'],
+                                     'closed_row_sha256': saved['seal']['closed_row_sha256'], 'parameters': old_job['parameters']}
+    require(len(inherited)==42, 'Exact42 inherited pure pretraining jobs required')
+    m = {'schema':SCHEMA,'extension_id':'deep-mechanisms-v3','run_id':'B20261106-01','branch':base['branch'],
+         'work_directory':str(WORK.relative_to(ROOT)),'base_manifest':auth['base_manifest_ref'],
+         'dataset_manifest':auth['base_manifest_ref'],'dataset_result':old_state['results']['prepare_data'],
+         'authorization_ref':ref(auth_file),'predecessor_ledger_ref':auth['predecessor_ledger_ref'],
+         'predecessor_state_ref':auth['predecessor_state_ref'],
+         'protocol_ref':ref(WORK/'preparation/scientific_protocol_ROOT.json'),
+         'supervisor':source_ref('deep_mechanisms_supervisor.py',draft),
+         'threads':2,'memory_gib':12,'rss_stop_gib':8,'deadline_utc':auth['deadline_utc'],'boot_id':auth['boot_id'],
+         'source_python':base['source_python'],'new_CPU_authorization_seconds':0,'inputs':{},
+         'classical':{'legacy_worker':ref(OLD/'preparation/bin/classical_worker.py'), 'rules':list(RULES)},
+         'neural':{'base_worker':ref(OLD/'preparation/bin/neural_worker.py'),
+                   'legacy_encoder_source':base['neural']['legacy_encoder_source'], 'inherited_pretraining_jobs':inherited},
+         'jobs':jobs,'summary_blocks':summary_blocks(jobs),'source_refs':[ref(p) for p in sorted(BIN.glob('*.py'))], 'input_refs':[]}
+    if not draft: require(m['protocol_ref'].get('sha256'), 'Actual science protocol required')
+    documents = [ref(p) for p in sorted((WORK/'preparation').glob('*.json'))
+                 if not p.name.startswith(('draft_','spec_','return_'))]
+    m['input_refs'] = unique_refs([*refs_in(auth),*refs_in(m['classical']),*refs_in(m['neural']),
+                                   m['dataset_result'],*documents])
+    groups = []
+    for operation, size in [('source_scores',10),('support_mechanisms',3),('donor_mechanisms',10),
+                            ('aux_pretrain',10),('target_pretrain',10),('source_A_cross',10),
+                            ('target_eval_cross',10),('bn_probe',10)]:
+        ids=[j['id'] for j in jobs if j['operation']==operation]
+        for first in range(0,len(ids),size):
+            groups.append({'id':f'{operation}_{first//size+1:03d}','after_job_ids':ids[first:first+size],
+                           'allowlist':science_allowlist(ids[first:first+size],f'{operation}_{first//size+1:03d}')})
+    for block in m['summary_blocks']:
+        if block.get('artifact_only'): continue
+        bid='summary_'+block['id']
+        groups.append({'id':bid,'after_job_ids':['summary'], 'allowlist':summary_allowlist(block['id'],bid)})
+    groups.append({'id':'post','after_job_ids':['summary'],'allowlist':post_allowlist()})
+    m['git_return']={'enabled':True,'helper':base['git_return']['helper'],
+                     'plan_specs':[{'id':'pre','after_job_ids':[],'allowlist':pre_allowlist()},*groups]}
+    return {'schema':SPEC_SCHEMA,'draft_only':draft,'manifest':m,
+            'notice':'DRAFT_NOT_EXECUTABLE' if draft else 'PINNED_SPEC_NOT_LAUNCHED'}
+
+
+PREFIX = 'yanan-cause-followup-v2/deep-mechanisms-v3/'
+def pre_allowlist():
+    return [PREFIX+'preparation/*.json',PREFIX+'preparation/source_snapshots/*.json',
+            PREFIX+'preparation/source_snapshots/*.txt',PREFIX+'manifest_ROOT_AUTHORIZED.json']
+
+
+def science_allowlist(ids, stage):
+    patterns=[PREFIX+'manifest_ROOT_AUTHORIZED.json',PREFIX+f'snapshots/{stage}/closed_summary.json']
+    for jid in ids:
+        patterns += [PREFIX+f'science/{jid}-attempt*/**/*.json', PREFIX+f'science/{jid}-attempt*/**/*.csv',
+                     PREFIX+f'execution/deep-v3-{jid}-a*.*', PREFIX+f'contexts/{jid}/attempt*/resolved_context.json',
+                     PREFIX+f'seals/{jid}-attempt*.json']
+    require(len(patterns)<=64, 'Return stage exceeds64 bounded patterns')
+    return patterns
+
+
+def summary_allowlist(block, stage):
+    return [PREFIX+f'science/summary-attempt*/{block}_*.json',PREFIX+f'science/summary-attempt*/{block}_*.csv',
+            PREFIX+f'snapshots/{stage}/closed_summary.json']
+
+
+def post_allowlist():
+    return [*pre_allowlist(),PREFIX+'science/summary-attempt*/result.json',PREFIX+'science/summary-attempt*/summary_index.json',
+            PREFIX+'execution/deep-v3-summary-a*.*',
+            PREFIX+'contexts/summary/attempt*/resolved_context.json',PREFIX+'seals/summary-attempt*.json',
+            PREFIX+'snapshots/post/closed_summary.json']
+
+
+def check_text_source(data, name):
+    text=data.decode('utf-8'); lines=text.splitlines()
+    require(not any(line.endswith((' ','\t')) for line in lines), 'Frozen TXT source has trailing whitespace: '+name)
+    require(not data.endswith(b'\n\n'), 'Frozen TXT source has extra blank EOF: '+name)
+    require(not any(line.startswith(('=======','<<<<<<< ','>>>>>>> ')) for line in lines), 'Source resembles a conflict marker: '+name)
+
+
+def prepare(spec_file, expected):
+    spec=read(spec_file,expected);require(spec['schema']==SPEC_SCHEMA and spec['draft_only'] is False,'Only final pinned spec may prepare')
+    require(not (WORK/'manifest_ROOT_AUTHORIZED.json').exists()
+            and not (ROOT/'.runtime/worker-b-deep-mechanisms-v3-allocation.json').exists(), 'Existing execution binding cannot be reset')
+    m=deepcopy(spec['manifest']);snapshots=[]
+    for value in m['source_refs']:
+        f=path(value['path']);require(sha(f)==value['sha256'],'Source changed after final spec')
+        data=f.read_bytes();check_text_source(data,f.name)
+        target=WORK/'preparation/source_snapshots'/(f.name+'.txt');target.parent.mkdir(parents=True,exist_ok=True)
+        with target.open('xb') as x:x.write(data)
+        snapshots.append({'source':value,'exact_byte_snapshot':ref(target)})
+    mapfile=WORK/'preparation/source_snapshots/source_refs.json';save(mapfile,{'files':snapshots})
+    m['input_refs']=unique_refs([*m['input_refs'],ref(spec_file),ref(mapfile),*[v['exact_byte_snapshot'] for v in snapshots]])
+    cfg=m['git_return'];plans=[]
+    for item in cfg['plan_specs']:
+        name=item['id'];file=WORK/'preparation'/('return_'+name+'_manifest.json')
+        save(file,{'schema':'research4-b-deep-mechanisms-return-v3','role':'B','run_id':'B20261106-01',
+                   'work_directory':str(BASE.relative_to(ROOT)),'ledger':str((OLD/'cpu_budget.json').relative_to(ROOT)),
+                   'upload':{'branch':m['branch'],'allowlist':item['allowlist']}})
+        plans.append({'id':name,'after_job_ids':item['after_job_ids'],'manifest':ref(file)})
+    m['git_return']={'enabled':True,'helper':cfg['helper'],'plans':plans}
+    m['input_refs']=unique_refs([*m['input_refs'],*[v['manifest'] for v in plans]])
+    supervisor=path(m['supervisor']['path']);module_spec=importlib.util.spec_from_file_location('_deep_v3_prepare_validator',supervisor)
+    engine=importlib.util.module_from_spec(module_spec);module_spec.loader.exec_module(engine)
+    engine.validate_manifest(m,'0'*64,check_inputs=True)
+    file=WORK/'manifest_ROOT_AUTHORIZED.json';save(file,m);engine.validate_manifest(m,sha(file),check_inputs=True)
+    return {'status':'PREPARED_NOT_RUN','manifest':ref(file),'jobs':len(m['jobs']),'new_fits':0,'Git_commands':0}
+
+
+def main():
+    parser=argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--write-draft');parser.add_argument('--build-spec');parser.add_argument('--spec');parser.add_argument('--spec-sha256')
+    args=parser.parse_args()
+    if args.write_draft or args.build_spec:
+        require(not args.spec and not args.spec_sha256 and not(args.write_draft and args.build_spec),'Choose one preparation mode')
+        target=args.write_draft or args.build_spec;value=build_candidate(bool(args.write_draft));save(target,value)
+        output={'status':value['notice'],'spec':ref(target),'jobs':len(value['manifest']['jobs'])}
+    else:
+        require(args.spec and args.spec_sha256,'Pinned spec/SHA required');output=prepare(args.spec,args.spec_sha256)
+    print(json.dumps(output,ensure_ascii=False,indent=2))
+
+
+if __name__=='__main__':main()

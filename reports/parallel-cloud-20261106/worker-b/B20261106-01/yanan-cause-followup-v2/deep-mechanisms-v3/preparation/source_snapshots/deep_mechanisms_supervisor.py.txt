@@ -1,0 +1,655 @@
+"""Run a finite reviewed mechanism DAG inside the existing Yanan CPU grant.
+
+Original science/seals and allocation remain frozen. New exact worker costs are
+auxiliary rows in the same ledger; a distinct zero-grant extension claim prevents
+reallocation. One native-thread-only scientific worker runs at a time.
+"""
+from __future__ import annotations
+
+import argparse
+from copy import deepcopy
+from contextlib import contextmanager
+import ctypes
+from datetime import datetime, timezone
+import fcntl
+import hashlib
+import importlib.util
+import json
+import math
+import os
+from pathlib import Path
+import re
+import resource
+import signal
+import subprocess
+import sys
+import time
+
+SELF = Path(__file__).resolve()
+ROOT = next(p for p in SELF.parents if (p / '.git').exists())
+BASE_WORK = ROOT / 'reports/parallel-cloud-20261106/worker-b/B20261106-01/yanan-cause-followup-v2'
+WORK = BASE_WORK / 'deep-mechanisms-v3'
+EXTENSION_ID = 'deep-mechanisms-v3'
+SCHEMA = 'research4-b-deep-mechanisms-manifest-v3'
+AUTH_SCHEMA = 'research4-b-deep-mechanisms-authorization-v3'
+CONTEXT_SCHEMA = 'research4-b-deep-mechanisms-context-v3'
+PROOF_SCHEMA = 'research4-b-deep-mechanisms-resource-proof-v3'
+CLAIM = ROOT / '.runtime/worker-b-deep-mechanisms-v3-allocation.json'
+FROZEN_SOURCE = BASE_WORK / 'preparation/bin/yanan_followup_supervisor.py'
+FROZEN_SHA = 'bd29cca67a5ad98fcda0978ca35dc512b96f9b18a502345eaee5be9f4987ca49'
+BASE_MANIFEST_SHA = 'd311b693a2fa4f497ecaf6add68a9de168051724f1bd5371d0d59a8aa1c770fc'
+PUBLICATION_SOURCE = BASE_WORK / 'publication-recovery-v2/bin/publication_recovery_driver.py'
+PUBLICATION_SHA = '40d351e0daa07dd00668bfbc135573c3afea82f4a54ed50cf362af3f96536da1'
+SAFE = re.compile(r'[A-Za-z0-9][A-Za-z0-9_-]{0,95}\Z')
+
+
+def require(value, message):
+    if not value: raise ValueError(message)
+
+
+def sha(file):
+    h = hashlib.sha256()
+    with Path(file).open('rb') as stream:
+        for block in iter(lambda: stream.read(1024 ** 2), b''): h.update(block)
+    return h.hexdigest()
+
+
+def import_file(file, name):
+    spec = importlib.util.spec_from_file_location(name, file)
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[name] = module; spec.loader.exec_module(module)
+    return module
+
+
+require(sha(FROZEN_SOURCE) == FROZEN_SHA, 'Frozen accounting source changed')
+S = import_file(FROZEN_SOURCE, 'deep_v3_frozen_accounting')
+path, checked, ref, save, digest = S.path, S.checked, S.ref, S.save, S.digest
+identity, same, is_live, session_members = S.identity, S.same, S.is_live, S.session_members
+
+
+def utc(): return datetime.now(timezone.utc).isoformat()
+def self_cpu():
+    r = resource.getrusage(resource.RUSAGE_SELF)
+    return r.ru_utime + r.ru_stime
+
+
+def read(file, expected=None, *, limit=None):
+    p = path(file)
+    if limit is None:
+        limit = 32 * 1024 ** 2 if p == S.ledger_path() else 8 * 1024 ** 2 if p in (S.state_path(), WORK / 'state.json') else 2 * 1024 ** 2
+    require(p.stat().st_size <= limit, 'Metadata exceeds explicit bounded read limit: ' + str(p))
+    if expected is not None: require(sha(p) == expected, 'Pinned bytes changed: ' + str(p))
+    return json.loads(p.read_bytes())
+
+
+def read_ref(binding, *, limit=None): return read(checked(binding), limit=limit)
+
+def ref_equal(a, b):
+    return checked(a) == checked(b) and a['sha256'] == b['sha256']
+
+
+def manifest_read(file, expected): return read(file, expected, limit=8 * 1024 ** 2)
+
+
+def validate_manifest(manifest, manifest_sha, *, check_inputs=True):
+    require(manifest.get('schema') == SCHEMA and manifest.get('extension_id') == EXTENSION_ID
+            and manifest.get('run_id') == S.RUN_ID and manifest.get('branch') == S.BRANCH,
+            'Exact B mechanism extension required')
+    require(path(manifest['work_directory']) == WORK and checked(manifest['supervisor']) == SELF
+            and SELF == WORK / 'preparation/bin/deep_mechanisms_supervisor.py', 'Fixed extension directory/source required')
+    require(re.fullmatch(r'[0-9a-f]{64}', manifest_sha) and manifest['base_manifest']['sha256'] == BASE_MANIFEST_SHA
+            and checked(manifest['base_manifest']) == BASE_WORK / 'manifest_ROOT_AUTHORIZED.json', 'Original manifest cannot change')
+    require(manifest['threads'] == 2 and manifest['memory_gib'] == 12 and manifest['rss_stop_gib'] == 8
+            and manifest['deadline_utc'] == S.DEADLINE and manifest['boot_id'] == S.boot_id()
+            and manifest['source_python'] == S.PYTHON and manifest['new_CPU_authorization_seconds'] == 0,
+            'Original deadline/runtime and2threads/12GiBAS/8GiBRSS/no new grant required')
+    require(any(ref_equal(v, manifest['supervisor']) for v in manifest['source_refs']), 'Supervisor missing from frozen sources')
+    if check_inputs:
+        for item in [*manifest['source_refs'], *manifest.get('input_refs', [])]: checked(item)
+    require(ref_equal(manifest.get('dataset_manifest', manifest['base_manifest']), manifest['base_manifest']), 'Dataset belongs to original supervised manifest')
+    checked(manifest['dataset_result']); checked(manifest['protocol_ref']); checked(manifest['authorization_ref'])
+    ids = []
+    for job in manifest['jobs']:
+        require(SAFE.fullmatch(job['id']) and job['id'] not in ids and isinstance(job['parameters'], dict), 'Unique finite jobs/parameters required')
+        require(set(job.get('depends_on', [])) <= set(ids), 'Dependencies must precede their job')
+        source = checked(job['source'])
+        require(source.parent == WORK / 'preparation/bin' and source.suffix == '.py'
+                and any(ref_equal(v, job['source']) for v in manifest['source_refs']), 'Exact new worker source required')
+        require(type(job['cpu_seconds']) is int and 5 <= job['cpu_seconds'] <= 30000
+                and type(job['wall_seconds']) is int and 10 <= job['wall_seconds'] <= 7200
+                and type(job.get('max_attempts', 1)) is int and 1 <= job.get('max_attempts', 1) <= 2,
+                'Finite job CPU/wall/attempt limits required')
+        require(isinstance(job['result_schema'], str) and job['success_statuses']
+                and all(v not in ('SCIENTIFIC_BLOCKED', 'FAILED', 'PARTIAL') for v in job['success_statuses']), 'Only completed results release dependent jobs')
+        if job.get('allow_partial_dependencies'): require(job.get('kind') == 'summary', 'Only a report may consume partial dependencies')
+        ids.append(job['id'])
+    require(0 < len(ids) <= 2000, 'Finite mechanism joblist required')
+    base = manifest_read(checked(manifest['base_manifest']), manifest['base_manifest']['sha256'])
+    S.validate_manifest(base, BASE_MANIFEST_SHA, check_inputs=False)
+    auth = read_ref(manifest['authorization_ref'])
+    require(auth['schema'] == AUTH_SCHEMA and auth['approved'] is True and auth['run_id'] == S.RUN_ID
+            and auth['extension_id'] == EXTENSION_ID and auth['base_manifest_ref'] == manifest['base_manifest']
+            and checked(auth['current_allocation_ref']) == S.CLAIM
+            and auth['boot_id'] == S.boot_id() and auth['deadline_utc'] == S.DEADLINE
+            and auth['new_CPU_authorization_seconds'] == 0 and auth['original_new_round_cpu_cap_seconds'] == S.ROUND_CAP
+            and math.isclose(auth['aggregate_charged_ceiling_seconds'], S.CAP, abs_tol=1e-6)
+            and auth['new_nonmeasured_tail_hold_cpu_seconds'] == 1
+            and auth['new_scientific_experiments_allowed'] is True
+            and auth['all_old_costs_attempts_and_science_preserved'] is True, 'Explicit no-new-grant scientific continuation authority required')
+    for key in ('predecessor_ledger_ref', 'predecessor_state_ref'):
+        checked(auth[key])
+        if key in manifest: require(ref_equal(manifest[key], auth[key]), 'Top-level predecessor alias differs')
+    returning = manifest.get('git_return', {})
+    if returning.get('enabled'):
+        require(ref_equal(returning['helper'], base['git_return']['helper']), 'Use the original bounded Git-return helper')
+        for plan in returning['plans']:
+            require(SAFE.fullmatch(plan['id']) and set(plan.get('after_job_ids', [])) <= set(ids), 'Finite return-stage selectors required')
+            m = read_ref(plan['manifest'])
+            require(m['role'] == 'B' and m['run_id'] == S.RUN_ID and path(m['work_directory']) == S.ORIGINAL
+                    and path(m['ledger']) == S.ledger_path() and m['upload']['branch'] == S.BRANCH
+                    and 1 <= len(m['upload']['allowlist']) <= 64, 'Bounded same-B return manifest required')
+    return base, auth
+
+
+def assert_old_preserved(ledger, state, auth):
+    old = read_ref(auth['predecessor_ledger_ref'], limit=8 * 1024 ** 2)
+    old_state = read_ref(auth['predecessor_state_ref'], limit=8 * 1024 ** 2)
+    require(ledger['phases'] == old['phases'], 'Original scientific phase records must stay exact')
+    for key in ('parents', 'auxiliary_costs'):
+        require(ledger[key][:len(old[key])] == old[key], 'Original ledger prefix changed: ' + key)
+    for key in ('publication_recovery', 'publication_recovery_v2', 'carry', 'preparation_debit_ref', 'manifest_sha256', 'supervisor_sha256'):
+        require(ledger[key] == old[key], 'Original accounting/provenance field changed: ' + key)
+    for key in ('jobs', 'results'):
+        require(state[key] == old_state[key], 'Original scientific state changed: ' + key)
+    attempts = old_state.get('git_return_attempts', [])
+    require(state.get('git_return_attempts', [])[:len(attempts)] == attempts, 'Original publication attempts changed')
+    for key, value in old_state.get('git_stages', {}).items():
+        require(state.get('git_stages', {}).get(key) == value, 'Original publication stage changed')
+    require(ledger['preparation_conservative_debit_cpu_seconds'] == 1000 and ledger['finalization_hold_seconds'] >= old['finalization_hold_seconds'],
+            'No historical conservative debit/tail hold refund')
+    return old, old_state
+
+
+def validate_base_closed(base, ledger, state, auth):
+    require(sha(PUBLICATION_SOURCE) == PUBLICATION_SHA, 'Frozen successful publication verifier changed')
+    p = import_file(PUBLICATION_SOURCE, 'deep_v3_closed_publication_verifier')
+    p.P.closed_science(base, BASE_MANIFEST_SHA, ledger, state, allow_recovery=True)
+    require(ledger['publication_recovery_v2']['status'] == 'FINALIZED'
+            and not ledger['publication_recovery_v2']['return_pending'], 'Prior publication must be truly complete')
+    require(S.validate_closed_carry(base) == ledger['carry'], 'Original historical budget chain changed')
+    require(ref_equal(state['results']['prepare_data'], auth.get('dataset_result_ref', state['results']['prepare_data'])), 'Original dataset binding differs')
+    return assert_old_preserved(ledger, state, auth)
+
+
+def extension_rows(ledger, manifest_sha):
+    return [r for r in ledger['auxiliary_costs'] if r.get('extension_id') == EXTENSION_ID and r.get('extension_manifest_sha256') == manifest_sha]
+
+
+def checkpoint(ledger, shared, local, status, **details):
+    local.update(status=status, updated_at_utc=utc(), **details)
+    save(WORK / 'state.json', local)
+    shared[EXTENSION_ID] = {'manifest': local['manifest'], 'status': status, 'sidecar_state_path': str(WORK / 'state.json'),
+        'closed_jobs': sum(v.get('status') == 'DONE_SEALED' for v in local.get('jobs', {}).values()), 'updated_at_utc': utc()}
+    S.checkpoint(ledger, shared, 'DEEP_V3_' + status)
+
+
+def verify_resource_supervision(*, expected_worker_path, expected_threads=2, expected_manifest_sha256=None,
+                                expected_job_id=None, expected_context_sha256=None, expected_proof_path=None):
+    supplied = os.environ.get('R4_B_DEEP_V3_PROOF'); require(supplied, 'Actual v3 worker proof is required')
+    if expected_proof_path is not None: require(path(expected_proof_path) == path(supplied), 'CLI/environment proof differs')
+    proof = read(supplied)
+    require(proof['schema'] == PROOF_SCHEMA and proof['supervisor_sha256'] == sha(SELF), 'Wrong v3 supervisor proof')
+    manifest = manifest_read(proof['manifest_path'], proof['manifest_sha256'])
+    base, auth = validate_manifest(manifest, proof['manifest_sha256'], check_inputs=False)
+    for expected, observed in ((expected_manifest_sha256, proof['manifest_sha256']), (expected_job_id, proof['job_id']),
+                               (expected_context_sha256, proof['context_sha256'])):
+        if expected is not None: require(expected == observed, 'Wrong frozen job/manifest/context proof')
+    job = next((j for j in manifest['jobs'] if j['id'] == proof['job_id']), None)
+    require(job is not None and digest(job) == proof['job_sha256'] and checked(job['source']) == path(expected_worker_path)
+            and checked(proof['worker']) == path(expected_worker_path), 'Actual worker/job source differs')
+    context = read(proof['context_path'], proof['context_sha256'])
+    require(context['schema'] == CONTEXT_SCHEMA and context['manifest_sha256'] == proof['manifest_sha256']
+            and context['job_id'] == job['id'] and context['job_sha256'] == digest(job) and context['job'] == job
+            and context['inputs'] == manifest.get('inputs', {}) and context['dataset_result'] == manifest['dataset_result']
+            and context['dataset_manifest'] == manifest.get('dataset_manifest', manifest['base_manifest']), 'Resolved v3 context differs')
+    me, parent = identity(os.getpid()), identity(os.getppid())
+    require(same(me, proof['child_identity']) and same(parent, proof['supervisor_identity'])
+            and me['pid'] == me['pgrp'] == me['session'], 'Exact worker/parent birth identity differs')
+    require(expected_threads == proof['threads'] == 2 and Path(os.path.abspath(sys.executable)) == Path(S.PYTHON), 'Pinned interpreter/two-thread limit differs')
+    require(resource.getrlimit(resource.RLIMIT_CPU) == (proof['cpu_soft_limit_seconds'], proof['cpu_hard_limit_seconds'])
+            and resource.getrlimit(resource.RLIMIT_AS) == (12 * 1024 ** 3,) * 2, 'Actual process resource limits differ')
+    tokens = [v.decode(errors='replace') for v in (Path('/proc') / str(parent['pid']) / 'cmdline').read_bytes().split(b'\0') if v]
+    require(str(SELF) in tokens and '--execute' in tokens and '--manifest' in tokens
+            and path(tokens[tokens.index('--manifest') + 1]) == path(proof['manifest_path'])
+            and tokens[tokens.index('--manifest-sha256') + 1] == proof['manifest_sha256'], 'Actual parent CLI differs')
+    ledger, shared = read(S.ledger_path()), read(S.state_path())
+    S.validate_accounting(ledger, shared, base, BASE_MANIFEST_SHA); assert_old_preserved(ledger, shared, auth)
+    require(read(CLAIM) == proof['allocation_binding'] and proof['allocation_binding']['manifest_sha256'] == proof['manifest_sha256'], 'Unique v3 allocation binding differs')
+    rows = [r for r in extension_rows(ledger, proof['manifest_sha256']) if r['status'] == 'RUNNING']
+    for _ in range(30):
+        if len(rows) == 1 and rows[0].get('child_identity'): break
+        time.sleep(.01); ledger = read(S.ledger_path()); rows = [r for r in extension_rows(ledger, proof['manifest_sha256']) if r['status'] == 'RUNNING']
+    require(len(rows) == 1 and rows[0]['phase'] == proof['phase'] and rows[0].get('v3_job_id') == job['id']
+            and same(rows[0]['child_identity'], me) and same(rows[0]['supervisor_identity'], parent)
+            and rows[0]['context']['sha256'] == proof['context_sha256'] and rows[0]['cpu_seconds'] == proof['cpu_hard_limit_seconds'] == job['cpu_seconds']
+            and path(context['output_directory']) == path(rows[0]['output_directory']),
+            'Unique actual v3 ledger phase/context differs')
+    require(proof['address_space_bytes'] == 12 * 1024 ** 3 and proof['rss_stop_bytes'] == 8 * 1024 ** 3
+            and proof['deadline_utc'] == S.DEADLINE and proof['boot_id'] == S.boot_id()
+            and proof['ledger_protocol_supervisor_sha256'] == FROZEN_SHA
+            and path(proof['ledger_path']) == S.ledger_path() and path(proof['state_path']) == S.state_path()
+            and path(proof['sidecar_state_path']) == WORK / 'state.json'
+            and ref_equal(proof['base_manifest'], manifest['base_manifest']), 'Proof resource/ledger/protocol bounds differ')
+    local = read(WORK / 'state.json')
+    for key, value in context['dependencies'].items():
+        require(local['jobs'][key]['status'] == 'DONE_SEALED' and ref_equal(local['results'][key], value), 'Dependency is not actually sealed')
+    require(ref_equal(shared['results']['prepare_data'], context['dataset_result']) and time.time() < datetime.fromisoformat(S.DEADLINE).timestamp(), 'Dataset/deadline differs')
+    return {'proof': proof, 'proof_path': str(path(supplied)), 'proof_sha256': sha(path(supplied)),
+            'live_parent_process_and_source_verified': True, 'verified_at_utc': utc(), 'job_id': job['id']}
+
+
+def load_verified_train_dataset(context, manifest):
+    """After v3 resource proof, consume the exact old TRAIN-only producer."""
+    require(context['manifest_sha256'] and context['dataset_result'] == manifest['dataset_result']
+            and context['dataset_manifest'] == manifest.get('dataset_manifest', manifest['base_manifest']), 'v3 inherited dataset binding differs')
+    base = manifest_read(checked(context['dataset_manifest']), context['dataset_manifest']['sha256'])
+    worker = import_file(checked(base['inputs']['data_worker']), 'deep_v3_actual_shared_train_loader')
+    original_context = {'manifest_sha256': context['dataset_manifest']['sha256'], 'dataset_result': context['dataset_result']}
+    return worker.load_verified_train_dataset(original_context, base)
+
+
+def resolve_context(args, manifest, local, job, attempt, output):
+    dependencies = {}
+    statuses = {key: local['jobs'].get(key, {}).get('status', 'NOT_RUN') for key in job.get('depends_on', [])}
+    for key, status in statuses.items():
+        if status == 'DONE_SEALED': dependencies[key] = local['results'][key]
+    context = {'schema': CONTEXT_SCHEMA, 'manifest_sha256': args.manifest_sha256, 'job_id': job['id'], 'job_sha256': digest(job),
+        'job': job, 'inputs': manifest.get('inputs', {}), 'protocol_ref': manifest['protocol_ref'],
+        'dataset_result': manifest['dataset_result'], 'dataset_manifest': manifest.get('dataset_manifest', manifest['base_manifest']),
+        'dependencies': dependencies, 'dependency_states': statuses, 'attempt': attempt, 'output_directory': str(output),
+        'created_at_utc': utc(), 'supervisor_source_sha256': sha(SELF)}
+    file = WORK / 'contexts' / job['id'] / ('attempt%03d' % attempt) / 'resolved_context.json'
+    save(file, context, exclusive=True); return ref(file)
+
+
+def run_child(args, manifest, base, ledger, shared, local, *, phase, command, cpu, wall, job=None, context=None, output=None):
+    scientific = job is not None
+    require(cpu >= 5 and S.remaining_cpu(ledger) >= cpu + 5 and time.time() + 10 < datetime.fromisoformat(S.DEADLINE).timestamp(), 'Insufficient same-grant CPU/deadline')
+    require(not any(r['status'] == 'RUNNING' for r in [*ledger['phases'], *ledger['auxiliary_costs']]), 'No second active child is allowed')
+    execution = WORK / 'execution'; execution.mkdir(parents=True, exist_ok=True)
+    log = execution / (phase + '.log'); proof_path = execution / (phase + '.proof.json')
+    row = {'phase': phase, 'kind': 'DEEP_V3_SCIENCE' if scientific else 'DEEP_V3_GIT_RETURN', 'extension_id': EXTENSION_ID,
+        'extension_manifest_sha256': args.manifest_sha256, 'actual_supervisor_source': manifest['supervisor'],
+        'status': 'RUNNING', 'started_at_utc': utc(), 'command': command, 'cpu_seconds': cpu, 'wall_seconds': wall,
+        'log': str(log), 'output_directory': str(output) if output else None, 'actual_cpu_seconds': None}
+    if scientific: row.update(v3_job_id=job['id'], job_sha256=digest(job), context=context, proof_path=str(proof_path))
+    ledger['auxiliary_costs'].append(row); checkpoint(ledger, shared, local, 'CHILD_DECLARED', active_phase=phase)
+    parent = identity(os.getpid()); margin = min(30, max(2, cpu // 20)); libc = ctypes.CDLL(None, use_errno=True)
+    def limits():
+        require(libc.prctl(1, signal.SIGKILL, 0, 0, 0) == 0 and os.getppid() == parent['pid'], 'Actual child must be bound to its parent')
+        resource.setrlimit(resource.RLIMIT_CPU, (max(1, cpu - margin), cpu)); resource.setrlimit(resource.RLIMIT_AS, (12 * 1024 ** 3,) * 2)
+        resource.setrlimit(resource.RLIMIT_CORE, (0, 0))
+        if scientific:
+            proof = {'schema': PROOF_SCHEMA, 'manifest_path': str(path(args.manifest)), 'manifest_sha256': args.manifest_sha256,
+                'supervisor_sha256': sha(SELF), 'ledger_protocol_supervisor_sha256': FROZEN_SHA,
+                'supervisor_identity': parent, 'child_identity': identity(os.getpid()), 'worker': job['source'],
+                'phase': phase, 'job_id': job['id'], 'job_sha256': digest(job), 'context_path': str(checked(context)),
+                'context_sha256': context['sha256'], 'threads': 2, 'cpu_soft_limit_seconds': max(1, cpu - margin), 'cpu_hard_limit_seconds': cpu,
+                'address_space_bytes': 12 * 1024 ** 3, 'rss_stop_bytes': 8 * 1024 ** 3,
+                'ledger_path': str(S.ledger_path()), 'state_path': str(S.state_path()), 'sidecar_state_path': str(WORK / 'state.json'),
+                'deadline_utc': S.DEADLINE, 'boot_id': S.boot_id(), 'base_manifest': manifest['base_manifest'],
+                'allocation_binding': read(CLAIM), 'new_CPU_authorization_seconds': 0}
+            save(proof_path, proof, exclusive=True)
+    env = dict(os.environ, R4_B_DEEP_V3_PROOF=str(proof_path), PYTHONUNBUFFERED='1')
+    env.pop('PYTHONPATH', None); env.pop('PYTHONHOME', None)
+    env.update({k: '2' for k in ('OMP_NUM_THREADS', 'OPENBLAS_NUM_THREADS', 'MKL_NUM_THREADS', 'NUMEXPR_NUM_THREADS')})
+    started = time.monotonic(); last = started; stop = None; stopped = None; unsupported = False; waited = None; expected = None
+    try:
+        with log.open('x') as handle:
+            child = subprocess.Popen(command, cwd=ROOT, stdin=subprocess.DEVNULL, stdout=handle, stderr=subprocess.STDOUT,
+                start_new_session=True, preexec_fn=limits, env=env)
+            expected = identity(child.pid); row.update(child_identity=expected, supervisor_identity=parent)
+            checkpoint(ledger, shared, local, 'CHILD_RUNNING', active_phase=phase)
+            while True:
+                observation = os.wait4(child.pid, os.WNOHANG)
+                if observation[0]:
+                    waited = observation; child.returncode = os.waitstatus_to_exitcode(waited[1])
+                    receipt = {'schema': 'research4-yanan-followup-wait4-v2', 'phase': phase, 'supervisor_identity': parent,
+                        'child_identity': expected, 'raw_wait_status': waited[1], 'exit_code': child.returncode,
+                        'ru_utime_seconds': waited[2].ru_utime, 'ru_stime_seconds': waited[2].ru_stime,
+                        'ru_maxrss_kib': waited[2].ru_maxrss, 'unsupported_tree_observed': unsupported,
+                        'extension_id': EXTENSION_ID, 'observed_at_utc': utc()}
+                    file = execution / (phase + '.wait4.json'); save(file, receipt, exclusive=True)
+                    row.update(wait4_receipt=ref(file), observed_wait4_cpu_seconds=waited[2].ru_utime + waited[2].ru_stime)
+                    checkpoint(ledger, shared, local, 'KERNEL_WAIT4_PERSISTED', active_phase=phase)
+                    break
+                members = session_members(expected)
+                if scientific and any(not same(v, expected) for v in members):
+                    unsupported = True; stop = stop or 'UNSUPPORTED_CHILD_TREE'; row['unexpected_members'] = members
+                if not scientific and any(not same(v, expected) for v in members): row['git_descendants_observed'] = True
+                observed_cpu = sum(v['CPU_seconds'] for v in members); rss = sum(v['rss_bytes'] for v in members)
+                row['peak_observed_group_cpu_seconds'] = max(row.get('peak_observed_group_cpu_seconds', 0), observed_cpu)
+                for member in members:
+                    try: children = (Path('/proc') / str(member['pid']) / 'task' / str(member['pid']) / 'children').read_text().split()
+                    except (FileNotFoundError, ProcessLookupError): continue
+                    for child_id in children:
+                        try: descendant = identity(int(child_id))
+                        except (FileNotFoundError, ProcessLookupError): continue
+                        if descendant['state'] not in ('Z', 'X', 'x') and descendant['pgrp'] != expected['pgrp'] and descendant['session'] != expected['session']:
+                            unsupported = True; stop = stop or 'DESCENDANT_ESCAPED_SESSION'
+                            row.setdefault('escaped_descendants', []).append(descendant)
+                            if is_live(descendant): os.kill(descendant['pid'], signal.SIGKILL)
+                if observed_cpu >= cpu - margin: stop = stop or 'CPU_GUARD'
+                if rss >= 8 * 1024 ** 3: stop = stop or 'RSS_GUARD'
+                if time.monotonic() - started >= wall - 2 or time.time() + 2 >= datetime.fromisoformat(S.DEADLINE).timestamp(): stop = stop or 'WALL_OR_DEADLINE_GUARD'
+                ledger['parents'][-1]['self_cpu_seconds'] = self_cpu()
+                if S.remaining_cpu(ledger) <= observed_cpu + 5: stop = stop or 'TOTAL_CPU_GUARD'
+                if stop and stopped is None:
+                    stopped = time.monotonic(); row['stop_reason'] = stop
+                    if not scientific and row.get('git_descendants_observed'): unsupported = True
+                    if is_live(expected): os.killpg(expected['pgrp'], signal.SIGTERM)
+                if stopped is not None and time.monotonic() - stopped > 1 and is_live(expected): os.killpg(expected['pgrp'], signal.SIGKILL)
+                if stopped is not None and time.monotonic() - stopped > 5: unsupported = True; break
+                if time.monotonic() - last >= 30:
+                    checkpoint(ledger, shared, local, 'CHILD_RUNNING', active_phase=phase); last = time.monotonic()
+                time.sleep(.1)
+    except BaseException as error:
+        if expected is not None and is_live(expected): os.killpg(expected['pgrp'], signal.SIGKILL)
+        row.update(status='BLOCKED_UNKNOWN', ended_at_utc=utc(), parent_exception_type=type(error).__name__)
+        ledger['blocked_unknown_cpu_or_process_tree'] = True
+        checkpoint(ledger, shared, local, 'BLOCKED_REQUIRES_FORENSICS'); raise
+    if waited is None or unsupported or session_members(expected):
+        row.update(status='BLOCKED_UNKNOWN', ended_at_utc=utc()); ledger['blocked_unknown_cpu_or_process_tree'] = True
+        checkpoint(ledger, shared, local, 'BLOCKED_REQUIRES_FORENSICS'); raise RuntimeError('Unknown subtree/cost; raw wait4 retained, no automatic restart')
+    row.update(status='EXITED' if child.returncode == 0 and stop is None else 'FAILED_CLOSED', exit_code=child.returncode,
+        stop_reason=stop, actual_cpu_seconds=row['observed_wait4_cpu_seconds'], ended_at_utc=utc(), log_sha256=sha(log))
+    if scientific: row['proof_sha256'] = sha(proof_path)
+    if output is not None and (output / 'result.json').is_file(): row['result_sha256'] = sha(output / 'result.json')
+    checkpoint(ledger, shared, local, 'CHILD_CLOSED', active_phase=None)
+    S.validate_accounting(ledger, shared, base, BASE_MANIFEST_SHA); assert_old_preserved(ledger, shared, read_ref(manifest['authorization_ref']))
+    return row
+
+
+def seal_job(row, job):
+    require(row['status'] == 'EXITED' and row['exit_code'] == 0, 'Successful actual child closure is required')
+    output = path(row['output_directory']); result = read(output / 'result.json', row['result_sha256'], limit=2 * 1024 ** 2)
+    require(result['schema'] == job['result_schema'] and result['status'] in job['success_statuses'], 'Partial/scientifically blocked result is not dependency-ready')
+    require(result.get('job_id') == job['id'] and result.get('manifest_sha256') == row['extension_manifest_sha256']
+            and result.get('context_sha256') == row['context']['sha256'], 'Result job/manifest/context identity differs')
+    supervision = result['resource_supervision']; proof = read(row['proof_path'], row['proof_sha256'])
+    require(supervision.get('proof') == proof and supervision.get('proof_sha256') == row['proof_sha256']
+            and supervision.get('live_parent_process_and_source_verified') is True, 'Result did not verify its real resource proof')
+    if result.get('source_worker'): require(checked(result['source_worker']) == checked(job['source']), 'Result worker source differs')
+    files = []
+    for file in sorted(output.rglob('*')):
+        require(not file.is_symlink(), 'Symlink scientific artifact is forbidden')
+        if file.is_file(): files.append({'relative_path': str(file.relative_to(output)), 'sha256': sha(file), 'bytes': file.stat().st_size})
+    require(len(files) <= 10000, 'Scientific artifact count is unexpectedly large')
+    return {'result': ref(output / 'result.json'), 'phase': row['phase'], 'closed_row_sha256': digest(row), 'files': files}
+
+
+def retry_decision(result, row, used, maximum):
+    pairs = [('actual_new_model_fit_calls_started', 'actual_new_model_fits'), ('actual_train_calls_started', 'actual_train_calls_completed')]
+    zero = result.get('new_fitting_entered') is False and result.get('new_training_entered') is False
+    zero = zero and all(type(result.get(k)) is int and result[k] == 0 for pair in pairs for k in pair)
+    scientific_blocked = result.get('status') in ('SCIENTIFIC_BLOCKED', 'CLASSICAL_BLOCKED', 'BLOCKED_SCIENTIFIC', 'NOT_RUN_SCIENTIFIC')
+    allowed = used < maximum and not row.get('stop_reason') and zero and not scientific_blocked and result.get('exception_type') in ('OSError', 'IOError', 'TimeoutError')
+    return {'allowed': allowed, 'reason': 'EXPLICIT_ZERO_FIT_TRAIN_OPERATIONAL_FAILURE' if allowed else 'NO_REDO_AFTER_TRAINING_OR_UNPROVED_COUNTS_OR_SCIENTIFIC_RESULT'}
+
+
+def closed_result(row):
+    file = path(row['output_directory']) / 'result.json'
+    try:
+        if not file.is_file(): return {}
+        require(isinstance(row.get('result_sha256'), str) and re.fullmatch(r'[0-9a-f]{64}', row['result_sha256']), 'No original closed result hash; retry evidence unproved')
+        return read(file, row['result_sha256'], limit=2 * 1024 ** 2)
+    except (ValueError, OSError) as error: return {'unreadable_result': str(error)}
+
+
+def run_job(args, manifest, base, ledger, shared, local, job):
+    record = local['jobs'].get(job['id'], {})
+    rows = [r for r in extension_rows(ledger, args.manifest_sha256) if r.get('v3_job_id') == job['id']]
+    require(all(r['status'] in ('EXITED', 'FAILED_CLOSED') for r in rows), 'Unsettled job cannot restart')
+    if record.get('status') == 'DONE_SEALED':
+        require(len(rows) >= 1 and rows[-1]['phase'] == record['phase'], 'Successful job lacks unique last phase')
+        seal = seal_job(rows[-1], job)
+        require(read_ref(record['seal']) == seal and ref_equal(local['results'][job['id']], seal['result']), 'Scientific seal changed')
+        return
+    if rows and (rows[-1].get('retry_decision', {}).get('allowed') is not True
+                 or not retry_decision(closed_result(rows[-1]), rows[-1], len(rows), job.get('max_attempts', 1))['allowed']):
+        return
+    missing = [k for k in job.get('depends_on', []) if local['jobs'].get(k, {}).get('status') != 'DONE_SEALED']
+    if missing and not job.get('allow_partial_dependencies'):
+        local['jobs'][job['id']] = {'status': 'NOT_RUN_DEPENDENCY', 'missing_dependencies': missing}
+        checkpoint(ledger, shared, local, 'DEPENDENCY_NOT_RUN'); return
+    while len(rows) < job.get('max_attempts', 1):
+        ledger['parents'][-1]['self_cpu_seconds'] = self_cpu()
+        reserve = 150 if job.get('kind') == 'summary' else 500
+        if S.remaining_cpu(ledger) < job['cpu_seconds'] + reserve or time.time() + 10 >= datetime.fromisoformat(S.DEADLINE).timestamp():
+            local['jobs'][job['id']] = {'status': 'NOT_RUN_RESOURCE_OR_DEADLINE'}
+            checkpoint(ledger, shared, local, 'RESOURCE_NOT_RUN'); return
+        used = len(rows) + 1; phase = 'deep-v3-' + job['id'] + '-a%02d' % used
+        output = WORK / 'science' / (job['id'] + '-attempt%03d' % used)
+        require(not output.exists(), 'Preserve all previous outputs')
+        context = resolve_context(args, manifest, local, job, used, output)
+        proof = WORK / 'execution' / (phase + '.proof.json')
+        command = [S.PYTHON, str(checked(job['source'])), '--manifest', str(path(args.manifest)), '--manifest-sha256', args.manifest_sha256,
+            '--job-id', job['id'], '--context', str(checked(context)), '--context-sha256', context['sha256'],
+            '--output', str(output), '--proof', str(proof), '--execute']
+        row = run_child(args, manifest, base, ledger, shared, local, phase=phase, command=command, cpu=job['cpu_seconds'],
+            wall=min(job['wall_seconds'], int(datetime.fromisoformat(S.DEADLINE).timestamp() - time.time()) - 2),
+            job=job, context=context, output=output)
+        result = closed_result(row)
+        row['retry_decision'] = retry_decision(result, row, used, job.get('max_attempts', 1))
+        item = {'status': 'PARTIAL_CLOSED', 'phase': phase, 'result': ref(output / 'result.json') if (output / 'result.json').is_file() else None,
+                'scientific_status': result.get('status'), 'actual_cpu_seconds': row['actual_cpu_seconds']}
+        local['jobs'][job['id']] = item
+        if row['status'] == 'EXITED':
+            try:
+                seal = seal_job(row, job); target = WORK / 'seals' / (job['id'] + '-attempt%03d.json' % used)
+                save(target, seal, exclusive=True); item.update(status='DONE_SEALED', seal=ref(target)); local['results'][job['id']] = seal['result']
+            except (ValueError, OSError, KeyError) as error: item.update(status='FAILED_RESULT_VALIDATION_CLOSED', reason=str(error))
+        checkpoint(ledger, shared, local, 'JOB_CLOSED'); rows.append(row)
+        if item['status'] == 'DONE_SEALED' or not row['retry_decision']['allowed']: return
+
+
+def closed_snapshot(ledger, shared, local, stage):
+    require(not any(r['status'] == 'RUNNING' for r in extension_rows(ledger, local['manifest']['sha256'])), 'All extension children must close before publication')
+    file = WORK / 'snapshots' / stage / 'closed_summary.json'
+    if file.exists(): return ref(file)
+    save(file, {'schema': 'research4-b-deep-v3-closed-before-git-snapshot', 'created_at_utc': utc(), 'manifest': local['manifest'],
+        'job_statuses': {k: {'status': v['status'], 'seal': v.get('seal'), 'result': v.get('result')} for k, v in local['jobs'].items()},
+        'budget_at_snapshot': S.budget_totals(ledger), 'parent_observation': ledger['parents'][-1],
+        'closed_new_cost_receipts': [{'phase': r['phase'], 'wait4_receipt': r['wait4_receipt'], 'actual_cpu_seconds': r['actual_cpu_seconds']}
+            for r in extension_rows(ledger, local['manifest']['sha256']) if r['status'] in ('EXITED', 'FAILED_CLOSED')],
+        'scope': 'IMMUTABLE_LISTED_CLOSED_CHILD_COSTS_AND_CHECKPOINTED_PARENT_ONLY', 'later_git_and_parent_tail_costs_remain_local': True}, exclusive=True)
+    return ref(file)
+
+
+def git_return(args, manifest, base, ledger, shared, local, plan, *, final=False):
+    if local.get('git_index_blocked_pending'): return False
+    if local.get('git_stages', {}).get(plan['id'], {}).get('remote_verified'): return True
+    previous = [x for x in local.get('git_return_attempts', []) if x['stage'] == plan['id']]
+    maximum = 2; end = maximum + 1 if final else min(maximum + 1, len(previous) + 2)
+    closed_snapshot(ledger, shared, local, plan['id'])
+    for n in range(len(previous) + 1, end):
+        if S.remaining_cpu(ledger) < 200 or time.time() + 10 >= datetime.fromisoformat(S.DEADLINE).timestamp(): break
+        attempt = 'dv3-' + hashlib.sha256(plan['id'].encode()).hexdigest()[:10] + '-' + str(n)
+        helper = checked(manifest['git_return']['helper'])
+        command = [S.PYTHON, str(helper), '--repo', str(ROOT), '--manifest', str(checked(plan['manifest'])),
+            '--manifest-sha256', plan['manifest']['sha256'], '--attempt', attempt, '--execute']
+        row = run_child(args, manifest, base, ledger, shared, local, phase='deep-v3-git-' + attempt, command=command, cpu=30,
+            wall=min(300, int(datetime.fromisoformat(S.DEADLINE).timestamp() - time.time()) - 2))
+        file = S.ORIGINAL / 'git-return' / attempt / 'return_receipt.json'
+        verified = False
+        if row['status'] == 'EXITED' and file.is_file():
+            try:
+                receipt = read(file); verified = (receipt.get('status') == 'DONE_ACTUAL_PUSH_AND_REMOTE_REF_VERIFIED'
+                    and receipt.get('actual_result_upload') == 'DONE' and receipt.get('manifest_sha256') == plan['manifest']['sha256'])
+            except (OSError, ValueError):
+                verified = False
+        value = {'stage': plan['id'], 'attempt': attempt, 'row_phase': row['phase'], 'remote_verified': verified,
+            'receipt': ref(file) if file.is_file() else None, 'closed_at_utc': utc()}
+        local.setdefault('git_return_attempts', []).append(value); local.setdefault('git_stages', {})[plan['id']] = value
+        shared.setdefault('git_return_attempts', []).append(dict(value, phase='deep-v3-' + plan['id'], extension_id=EXTENSION_ID))
+        shared.setdefault('git_stages', {})['deep-v3-' + plan['id']] = value
+        if not verified:
+            failure = S.ORIGINAL / 'git-return' / attempt / 'failure_receipt.json'
+            local['git_index_blocked_pending'] = {'attempt': attempt, 'failure_receipt': ref(failure) if failure.exists() else None,
+                'reason': 'Known closed Git failure: preserve exact own index/evidence for closed-only publication repair; scientific DAG continues'}
+        checkpoint(ledger, shared, local, 'GIT_RETURN_CLOSED')
+        if verified: return True
+        # Stop publication after the first evidenced failure. Continuing scientific
+        # work is safe; repeating against a staged index is not useful.
+        return False
+    return False
+
+
+def ready_returns(args, manifest, base, ledger, shared, local):
+    for plan in manifest.get('git_return', {}).get('plans', []):
+        if plan['id'] in local.get('scanned_return_stages', []): continue
+        if all(k in local['jobs'] and local['jobs'][k]['status'] not in ('PENDING', 'RUNNING') for k in plan.get('after_job_ids', [])):
+            git_return(args, manifest, base, ledger, shared, local, plan)
+            local.setdefault('scanned_return_stages', []).append(plan['id'])
+            checkpoint(ledger, shared, local, 'RETURN_STAGE_SCANNED')
+
+
+def parent_admission(ledger, launch_cpu_seconds):
+    require(S.remaining_cpu(ledger) >= self_cpu() + launch_cpu_seconds + 1 + 50,
+            'Existing budget must cover accrued parent/detacher CPU, new tailhold1 and finalization floor50')
+
+
+def parent_floor_reached(ledger):
+    ledger['parents'][-1]['self_cpu_seconds'] = self_cpu()
+    return S.remaining_cpu(ledger) <= 50
+
+
+def run(args, manifest, base, auth):
+    with S.parent_lock(), S.B.exclusive_lock():
+        ledger, shared = read(S.ledger_path()), read(S.state_path())
+        existing = CLAIM.exists()
+        parent_admission(ledger, args.launch_cpu_seconds)
+        if not existing:
+            require(sha(S.ledger_path()) == auth['predecessor_ledger_ref']['sha256']
+                    and sha(S.state_path()) == auth['predecessor_state_ref']['sha256']
+                    and not ledger.get(EXTENSION_ID) and not (WORK / 'state.json').exists(), 'Unclaimed/mutated accounting cannot reset')
+            validate_base_closed(base, ledger, shared, auth)
+            binding = {'schema': 'research4-b-deep-v3-zero-grant-allocation', 'extension_id': EXTENSION_ID,
+                'manifest_sha256': args.manifest_sha256, 'supervisor': manifest['supervisor'], 'authorization_ref': manifest['authorization_ref'],
+                'base_allocation': auth['current_allocation_ref'], 'ledger_path': str(S.ledger_path()), 'shared_state_path': str(S.state_path()),
+                'sidecar_state_path': str(WORK / 'state.json'), 'boot_id': S.boot_id(), 'new_CPU_authorization_seconds': 0}
+            local = {'schema': 'research4-b-deep-mechanisms-state-v3', 'manifest': ref(path(args.manifest)), 'jobs': {}, 'results': {},
+                'git_return_attempts': [], 'created_at_utc': utc()}
+            ledger[EXTENSION_ID] = {'binding': binding, 'status': 'STARTING', 'new_CPU_authorization_seconds': 0,
+                'authorization_ref': manifest['authorization_ref'], 'original_costs_never_refunded': True}
+        else:
+            binding = read(CLAIM)
+            require(binding['manifest_sha256'] == args.manifest_sha256 and binding['supervisor'] == manifest['supervisor']
+                    and binding['authorization_ref'] == manifest['authorization_ref'] and ledger.get(EXTENSION_ID), 'Existing extension allocation cannot reset or rebind')
+            local = read(WORK / 'state.json')
+            require(local['manifest']['sha256'] == args.manifest_sha256 and ledger[EXTENSION_ID]['status'] in ('FINALIZED', 'CLOSED_PARTIAL'), 'Interrupted extension requires forensic closure')
+            validate_base_closed(base, ledger, shared, auth)
+            if all(local['jobs'].get(j['id'], {}).get('status') == 'DONE_SEALED' for j in manifest['jobs']) and not local.get('return_pending'): return
+        parent_admission(ledger, args.launch_cpu_seconds)
+        require(sum(p.get('extension_id') == EXTENSION_ID for p in ledger['parents']) < 8, 'Finite extension invocations exhausted')
+        ledger['finalization_hold_seconds'] += 1
+        if args.launch_cpu_seconds:
+            ledger['parents'].append({'id': args.attempt + '-detacher', 'status': 'OBSERVED_AT_DETACH', 'self_cpu_seconds': args.launch_cpu_seconds,
+                'actual_supervisor_source': manifest['supervisor'], 'new_CPU_authorization_seconds': 0})
+        ledger['parents'].append({'id': args.attempt, 'identity': identity(os.getpid()), 'status': 'RUNNING', 'self_cpu_seconds': self_cpu(),
+            'actual_supervisor_source': manifest['supervisor'], 'extension_id': EXTENSION_ID,
+            'extension_manifest_sha256': args.manifest_sha256, 'new_nonmeasured_tail_hold_seconds': 1})
+        checkpoint(ledger, shared, local, 'STARTING')
+        if not existing: save(CLAIM, binding, exclusive=True)
+        try:
+            assert_old_preserved(ledger, shared, auth)
+            for offset, job in enumerate(manifest['jobs']):
+                if parent_floor_reached(ledger):
+                    for pending in manifest['jobs'][offset:]:
+                        local['jobs'].setdefault(pending['id'], {'status': 'NOT_RUN_RESOURCE_OR_DEADLINE',
+                            'reason': 'Parent finalization CPU floor50 reached before another expensive validation'})
+                    local['parent_finalization_floor_stop'] = True
+                    checkpoint(ledger, shared, local, 'PARENT_FINALIZATION_FLOOR')
+                    break
+                validate_manifest(manifest, args.manifest_sha256, check_inputs=False)
+                run_job(args, manifest, base, ledger, shared, local, job)
+                ready_returns(args, manifest, base, ledger, shared, local)
+            local['all_declared_jobs_scanned'] = True
+            for plan in manifest.get('git_return', {}).get('plans', []):
+                if parent_floor_reached(ledger): break
+                git_return(args, manifest, base, ledger, shared, local, plan, final=True)
+            local['return_pending'] = [p['id'] for p in manifest.get('git_return', {}).get('plans', [])
+                if not local.get('git_stages', {}).get(p['id'], {}).get('remote_verified')]
+            require(not any(r['status'] == 'RUNNING' for r in extension_rows(ledger, args.manifest_sha256)), 'Unclosed extension child cannot finalize')
+            ledger['parents'][-1]['self_cpu_seconds'] = self_cpu()
+            S.validate_accounting(ledger, shared, base, BASE_MANIFEST_SHA)
+            assert_old_preserved(ledger, shared, auth)
+            local['all_jobs_done_sealed'] = all(local['jobs'].get(j['id'], {}).get('status') == 'DONE_SEALED' for j in manifest['jobs'])
+            ledger[EXTENSION_ID]['status'] = 'CLOSED_PARTIAL' if local['return_pending'] or not local['all_jobs_done_sealed'] else 'FINALIZED'
+            ledger['parents'][-1]['status'] = 'CLOSED'
+            checkpoint(ledger, shared, local, ledger[EXTENSION_ID]['status'], ended_at_utc=utc())
+        except BaseException as error:
+            ledger[EXTENSION_ID].update(status='BLOCKED_PRESERVED', error_type=type(error).__name__, reason=str(error))
+            ledger['parents'][-1]['status'] = 'BLOCKED_PRESERVED' if ledger.get('blocked_unknown_cpu_or_process_tree') else 'CLOSED'
+            checkpoint(ledger, shared, local, 'BLOCKED_PRESERVED'); raise
+
+
+@contextmanager
+def launch_lock():
+    file = WORK / 'launcher.lock'; file.parent.mkdir(parents=True, exist_ok=True)
+    with file.open('a') as handle:
+        fcntl.flock(handle, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        yield
+
+
+def detach_locked(args, manifest):
+    current_launch = WORK / 'current-launch.json'
+    if current_launch.exists():
+        current = read(current_launch)
+        require(not is_live(current['identity']) and not session_members(current['identity']), 'An existing extension parent/session is still active; do not duplicate detach')
+    if CLAIM.exists():
+        current_ledger = read(S.ledger_path())
+        require(current_ledger.get(EXTENSION_ID, {}).get('status') in ('FINALIZED', 'CLOSED_PARTIAL')
+                and not any(r['status'] not in ('EXITED', 'FAILED_CLOSED') for r in extension_rows(current_ledger, args.manifest_sha256)),
+                'Unsettled extension accounting cannot be detached again')
+    launch = WORK / 'launches' / args.attempt; launch.mkdir(parents=True, exist_ok=False)
+    measured = self_cpu()
+    command = [S.PYTHON, str(SELF), '--manifest', str(path(args.manifest)), '--manifest-sha256', args.manifest_sha256,
+        '--attempt', args.attempt, '--execute', '--launch-cpu-seconds', str(measured)]
+    child = None
+    try:
+        with (launch / 'console.log').open('xb') as f:
+            child = subprocess.Popen(command, cwd=ROOT, stdin=subprocess.DEVNULL, stdout=f, stderr=subprocess.STDOUT,
+                start_new_session=True, close_fds=True)
+        value = {'status': 'ACTUAL_DETACHED_DEEP_V3_PARENT', 'identity': identity(child.pid), 'command': command,
+            'manifest_sha256': args.manifest_sha256, 'supervisor': manifest['supervisor'], 'new_CPU_authorization_seconds': 0,
+            'detacher_observed_self_cpu_seconds': measured, 'later_tail_covered_by_new_nonmeasured_hold1': True}
+        save(launch / 'launch_receipt.json', value, exclusive=True); save(WORK / 'current-launch.json', value)
+        print(json.dumps(value)); return
+    except BaseException as error:
+        save(launch / 'detacher_failure.json', {'observed_self_cpu_seconds': self_cpu(), 'child_pid': child.pid if child else None,
+            'error_type': type(error).__name__, 'reason': str(error), 'cannot_assume_zero_cost_or_blindly_relaunch': True}, exclusive=True)
+        raise
+
+
+def main():
+    p = argparse.ArgumentParser(description=__doc__)
+    p.add_argument('--manifest', required=True); p.add_argument('--manifest-sha256', required=True)
+    p.add_argument('--attempt', default='deep-v3-launch-001'); p.add_argument('--check-only', action='store_true')
+    p.add_argument('--execute', action='store_true'); p.add_argument('--detach', action='store_true')
+    p.add_argument('--launch-cpu-seconds', type=float, default=0.0, help=argparse.SUPPRESS)
+    args = p.parse_args(); require(SAFE.fullmatch(args.attempt), 'Safe finite invocation ID required')
+    require(math.isfinite(args.launch_cpu_seconds) and args.launch_cpu_seconds >= 0, 'Nonnegative measured detacher CPU required')
+    manifest = manifest_read(args.manifest, args.manifest_sha256); base, auth = validate_manifest(manifest, args.manifest_sha256)
+    if not args.execute or args.check_only:
+        ledger, shared = read(S.ledger_path()), read(S.state_path()); validate_base_closed(base, ledger, shared, auth)
+        print(json.dumps({'status': 'CHECKED_CLOSED_NOT_EXECUTED', 'jobs': len(manifest['jobs']), 'new_CPU_authorization_seconds': 0,
+            'remaining_existing_round_cpu_seconds': S.remaining_cpu(ledger), 'actual_new_model_fits': 0})); return
+    require(time.time() + 10 < datetime.fromisoformat(S.DEADLINE).timestamp(), 'Original deadline expired')
+    if args.detach:
+        with launch_lock(): detach_locked(args, manifest)
+        return
+    run(args, manifest, base, auth)
+
+
+if __name__ == '__main__': main()

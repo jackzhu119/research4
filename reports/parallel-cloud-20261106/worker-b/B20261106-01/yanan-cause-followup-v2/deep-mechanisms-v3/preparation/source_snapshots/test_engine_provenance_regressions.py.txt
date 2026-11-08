@@ -1,0 +1,92 @@
+"""Independent-review regressions, using only isolated synthetic controllers."""
+from copy import deepcopy
+import json
+import os
+from pathlib import Path
+import signal
+import subprocess
+import time
+from types import SimpleNamespace
+import unittest
+from unittest import mock
+import test_deep_mechanisms_supervisor as fixtures
+
+
+def zero_operational():
+    return {'status':'PARTIAL','exception_type':'OSError','new_fitting_entered':False,'new_training_entered':False,
+            'actual_new_model_fit_calls_started':0,'actual_new_model_fits':0,'actual_train_calls_started':0,'actual_train_calls_completed':0}
+
+
+class ReviewRegressions(unittest.TestCase):
+    def setUp(self):
+        self.f=fixtures.DeepControllerTests(methodName='runTest');self.f.setUp()
+    def tearDown(self):self.f.tearDown()
+
+    def test_old_partial_tamper_or_missing_original_hash_cannot_enable_retry(self):
+        f=self.f;m=f.m;output=f.work/'synthetic_old_partial';file=output/'result.json'
+        original=dict(zero_operational(),new_fitting_entered=True,actual_new_model_fit_calls_started=1)
+        fixtures.write(file,original);row={'output_directory':str(output),'result_sha256':fixtures.bytes_sha(file)}
+        self.assertFalse(m.retry_decision(m.closed_result(row),row,1,2)['allowed'])
+        fixtures.write(file,zero_operational())
+        self.assertIn('unreadable_result',m.closed_result(row));self.assertFalse(m.retry_decision(m.closed_result(row),row,1,2)['allowed'])
+        row.pop('result_sha256');self.assertIn('unreadable_result',m.closed_result(row))
+        self.assertFalse(m.retry_decision(m.closed_result(row),row,1,2)['allowed'])
+
+    def test_stored_retry_rejection_is_not_changed_by_current_zero_counts(self):
+        f=self.f;m=f.m;output=f.work/'synthetic_rejected';file=output/'result.json';fixtures.write(file,zero_operational())
+        row={'phase':'old-prefit','status':'FAILED_CLOSED','extension_id':m.EXTENSION_ID,'extension_manifest_sha256':f.manifest_sha,
+             'v3_job_id':'one','output_directory':str(output),'result_sha256':fixtures.bytes_sha(file),'retry_decision':{'allowed':False}}
+        ledger=deepcopy(f.ledger);ledger['auxiliary_costs'].append(row);local={'jobs':{'one':{'status':'PARTIAL_CLOSED'}},'results':{}}
+        self.assertTrue(m.retry_decision(m.closed_result(row),row,1,2)['allowed'])
+        args=SimpleNamespace(manifest=str(f.manifest_path),manifest_sha256=f.manifest_sha,attempt='no-redo')
+        with mock.patch.object(m,'run_child',side_effect=AssertionError('A stored rejection must never dispatch')),mock.patch.object(m,'resolve_context',side_effect=AssertionError('No new context')):
+            m.run_job(args,f.manifest,f.base,ledger,deepcopy(f.shared),local,f.manifest['jobs'][0])
+        self.assertEqual(len(ledger['auxiliary_costs']),1)
+
+    def test_scientific_blocked_zero_counter_result_is_never_operational_retry(self):
+        m=self.f.m
+        for status in ('SCIENTIFIC_BLOCKED','CLASSICAL_BLOCKED','BLOCKED_SCIENTIFIC','NOT_RUN_SCIENTIFIC'):
+            self.assertFalse(m.retry_decision(dict(zero_operational(),status=status),{},1,2)['allowed'])
+        self.assertTrue(m.retry_decision(zero_operational(),{},1,2)['allowed'])
+
+    def test_parent_admission_and_finalization_floor_boundaries(self):
+        m=self.f.m;ledger={'parents':[{'self_cpu_seconds':0}]}
+        with mock.patch.object(m,'self_cpu',return_value=10.0),mock.patch.object(m.S,'remaining_cpu',return_value=63.99):
+            with self.assertRaisesRegex(ValueError,'finalization floor50'):m.parent_admission(ledger,3)
+        with mock.patch.object(m,'self_cpu',return_value=10.0),mock.patch.object(m.S,'remaining_cpu',return_value=64.0):m.parent_admission(ledger,3)
+        with mock.patch.object(m,'self_cpu',return_value=10.0),mock.patch.object(m.S,'remaining_cpu',return_value=50.0):self.assertTrue(m.parent_floor_reached(ledger))
+        self.assertEqual(ledger['parents'][-1]['self_cpu_seconds'],10.0)
+        with mock.patch.object(m,'self_cpu',return_value=10.0),mock.patch.object(m.S,'remaining_cpu',return_value=50.01):self.assertFalse(m.parent_floor_reached(ledger))
+
+    def test_floor_stops_before_expensive_manifest_loop_and_preserves_partial_status(self):
+        f=self.f;m=f.m;args=SimpleNamespace(manifest=str(f.manifest_path),manifest_sha256=f.manifest_sha,attempt='floor-stop',launch_cpu_seconds=0.0)
+        auth=m.read(f.auth)
+        with mock.patch.object(m,'parent_floor_reached',return_value=True),mock.patch.object(m,'run_child',side_effect=AssertionError('No budget for dispatch')),mock.patch.object(m,'validate_manifest',side_effect=AssertionError('No expensive revalidation at floor')):
+            m.run(args,f.manifest,f.base,auth)
+        ledger,_,local=f.snapshot();self.assertTrue(local['parent_finalization_floor_stop']);self.assertFalse(local['all_jobs_done_sealed'])
+        self.assertEqual(local['status'],'CLOSED_PARTIAL');self.assertEqual(len(m.extension_rows(ledger,f.manifest_sha)),0)
+        self.assertEqual({v['status'] for v in local['jobs'].values()},{'NOT_RUN_RESOURCE_OR_DEADLINE'})
+
+    def test_two_concurrent_detachers_create_one_live_parent_and_one_launch_record(self):
+        f=self.f;m=f.m
+        f.worker.write_text(fixtures.WORKER.replace("if mode=='descendant':","if mode=='linger':time.sleep(1.0)\nif mode=='descendant':"))
+        f.manifest['source_refs']=[m.ref(f.source),m.ref(f.worker)]
+        f.manifest['jobs']=[f.job('one',mode='linger')];f.write_manifest()
+        def command(attempt):return [m.S.PYTHON,str(f.source),'--manifest',str(f.manifest_path),'--manifest-sha256',f.manifest_sha,'--attempt',attempt,'--execute','--detach']
+        processes=[subprocess.Popen(command(name),cwd=f.root,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True) for name in ('race-A','race-B')]
+        outputs=[p.communicate(timeout=10) for p in processes];successful=[(p,out) for p,out in zip(processes,outputs) if p.returncode==0]
+        self.assertEqual(len(successful),1,outputs)
+        receipt=json.loads(successful[0][1][0]);current=m.read(f.work/'current-launch.json')
+        self.assertTrue(m.same(receipt['identity'],current['identity']))
+        self.assertEqual(len(list((f.work/'launches').glob('*/launch_receipt.json'))),1)
+        expected=current['identity'];deadline=time.monotonic()+10
+        try:
+            while m.is_live(expected) and time.monotonic()<deadline:time.sleep(.05)
+            self.assertFalse(m.is_live(expected),'Synthetic parent should finish itself')
+            ledger,_,local=f.snapshot();self.assertEqual(local['jobs']['one']['status'],'DONE_SEALED')
+            self.assertEqual(len(m.extension_rows(ledger,f.manifest_sha)),1)
+        finally:
+            if m.is_live(expected):os.killpg(expected['pgrp'],signal.SIGKILL)
+
+
+if __name__=='__main__':unittest.main()

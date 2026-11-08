@@ -1,0 +1,198 @@
+"""Synthetic-only neural factor/BN/cache/proof boundary regressions."""
+import copy
+import importlib.util
+import inspect
+import json
+import os
+from pathlib import Path
+import sys
+import tempfile
+import unittest
+from unittest.mock import patch
+
+import numpy as np
+HERE=Path(__file__).resolve().parent
+spec=importlib.util.spec_from_file_location('neural_mechanisms_under_test',HERE/'neural_mechanisms.py')
+w=importlib.util.module_from_spec(spec);spec.loader.exec_module(w)
+
+def fake_data():
+    rows=[]
+    for kind,groups in ((w.KINDS[0],('ZY01','ZY02','ZR01','ZR02','ZR03')),(w.KINDS[1],('ZY03','ZY04','ZY05','ZY06','ZY07')),
+                       (w.KINDS[2],('HQ01','HQ02','HQ03','HQ04')),(w.KINDS[3],('TM01','TM02','TM03','TM04'))):
+        for group in groups:rows.append((kind,group))
+    axis=np.linspace(.21,1.49,128)
+    return {'ids':np.asarray(['SYNTHETIC-'+str(i) for i in range(len(rows))]),'physical':np.asarray(['fakephysical-'+str(i) for i in range(len(rows))]),
+            'kinds':np.asarray([k for k,g in rows]),'groups':np.asarray([g for k,g in rows]),
+            'X':np.stack([np.sin(axis*(1+i%9))+.03*i*axis+.02*axis**2 for i in range(len(rows))])}
+
+class ParametersAndBoundaries(unittest.TestCase):
+    def test_factorial_seeds_and_fixed_bn_scope(self):
+        for e in range(42,50):
+            for t in (101,202,303):w.validate_parameters('source_A_cross',{'encoder_seed':e,'target_seed':t,'fold':0,'adapt':'frozen'})
+        for p in ({'encoder_seed':50,'target_seed':101,'fold':0,'adapt':'frozen'},
+                  {'encoder_seed':42,'target_seed':42,'fold':0,'adapt':'frozen'},
+                  {'encoder_seed':42,'target_seed':101,'fold':5,'adapt':'frozen'}):
+            with self.assertRaises(ValueError):w.validate_parameters('source_A_cross',p)
+        with self.assertRaisesRegex(ValueError,'inherited'):
+            w.validate_parameters('aux_pretrain',{'encoder_seed':42,'steps':120,'label_mode':'real'})
+        w.validate_parameters('bn_probe',{'encoder_seed':42,'target_seed':101,'steps':480,'fold':0,'adapt':'frozen','bn_policy':'neutral'})
+        with self.assertRaises(ValueError):w.validate_parameters('bn_probe',{'encoder_seed':45,'target_seed':101,'steps':480,'fold':0,'adapt':'frozen','bn_policy':'neutral'})
+
+    def test_rng_contract_factors_are_independent(self):
+        a=w.rng_contract({'encoder_seed':42,'target_seed':101});b=w.rng_contract({'encoder_seed':49,'target_seed':101});c=w.rng_contract({'encoder_seed':42,'target_seed':303})
+        self.assertEqual(a['target_head_seed'],b['target_head_seed']);self.assertNotEqual(a['encoder_initialization_seed'],b['encoder_initialization_seed'])
+        self.assertEqual(a['encoder_initialization_seed'],c['encoder_initialization_seed']);self.assertNotEqual(a['target_order_seed'],c['target_order_seed'])
+
+    def test_gradient_and_bn_interfaces_do_not_receive_query_or_pack(self):
+        forbidden={'data','pack','context','query','query_ids','truth'}
+        for f in (w._train_binary_donors,w.bn_intervene,w.B._train_prepared_sources,w.scale_source):
+            self.assertTrue(set(inspect.signature(f).parameters).isdisjoint(forbidden))
+        self.assertNotIn('truth',inspect.signature(w.B._infer_binary_query).parameters)
+        self.assertEqual(set(inspect.signature(w.B._score_binary_predictions).parameters),{'inference','truth'})
+
+    def test_digest_relative_refs_and_proof_before_execution(self):
+        engine=w.import_file(HERE/'deep_mechanisms_supervisor.py','neural_mechanism_test_engine')
+        with tempfile.TemporaryDirectory(dir=w.ROOT/'.runtime') as directory:
+            root=Path(directory);supervisor=root/'fake_supervisor.py';supervisor.write_text("def verify_resource_supervision(**kwargs): raise ValueError('NO_ACTUAL_RESOURCE_PROOF')\n")
+            job={'id':'fake_source','operation':'source_A_cross','parameters':{'encoder_seed':42,'target_seed':101,'fold':0,'adapt':'frozen'},'source':w.ref(HERE/'neural_mechanisms.py')}
+            self.assertEqual(w.job_hash(job),engine.digest(job));self.assertFalse(Path(job['source']['path']).is_absolute())
+            mp=root/'manifest.json';w.atomic_json(mp,{'jobs':[job],'supervisor':w.ref(supervisor)})
+            cp=root/'context.json';w.atomic_json(cp,{'schema':w.CONTEXT_SCHEMA,'manifest_sha256':w.sha(mp),'job_id':job['id'],'job_sha256':w.job_hash(job),'job':job,'output_directory':str(root/'output')})
+            argv=['--manifest',str(mp),'--manifest-sha256',w.sha(mp),'--job-id',job['id'],'--context',str(cp),'--context-sha256',w.sha(cp),'--output',str(root/'output'),'--execute']
+            with patch.object(w,'execute_neural',side_effect=AssertionError('numerics/training entered without proof')):
+                with self.assertRaisesRegex(ValueError,'NO_ACTUAL_RESOURCE_PROOF'):w.run(w.parser().parse_args(argv))
+            self.assertFalse((root/'output').exists())
+
+    def test_metadata_size_is_bounded(self):
+        with tempfile.TemporaryDirectory(dir=w.ROOT/'.runtime') as directory:
+            with self.assertRaisesRegex(ValueError,'2MiB'):w.atomic_json(Path(directory)/'too_large.json',{'x':'a'*(2*1024**2)})
+
+@unittest.skipUnless(importlib.util.find_spec('torch'),'CPU Torch venv required')
+class TinySyntheticTorch(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        w.B.nofork_metadata();w.B.nofork_libc_discovery()
+        import torch
+        from sklearn.preprocessing import StandardScaler
+        torch.set_num_threads(2)
+        try:torch.set_num_interop_threads(1)
+        except RuntimeError:pass
+        torch.use_deterministic_algorithms(True)
+        cls.torch,cls.Scaler=torch,StandardScaler
+        source=w.OLD_ROOT/'legacy_source/src/herb_spectra/upgrade_neural.py'
+        cls.Encoder,snv,_=w.B.load_legacy(w.ref(source),np,torch);cls.snv=staticmethod(snv);cls.data=fake_data()
+
+    def fit(self,output,data=None,encoder=42,target=101,adapt='frozen',policy='native',producer=None,arm='A'):
+        p={'fold':0,'encoder_seed':encoder,'target_seed':target,'adapt':adapt}
+        recorder=w.Recorder(output,{**w.COUNTERS})
+        compact=w.fit_target(self.data if data is None else data,p,arm,producer,output,recorder,self.Encoder,self.snv,np,self.torch,self.Scaler,bn_policy=policy)
+        return compact,w.read_arm(compact),recorder
+
+    def test_same_target_seed_pairs_heads_across_encoder_seeds(self):
+        p={'encoder_seed':42,'target_seed':101};first=w._new_encoder_head(p,None,[],self.Encoder,np,self.torch)
+        second=w._new_encoder_head({**p,'encoder_seed':49},None,[],self.Encoder,np,self.torch)
+        self.assertNotEqual(w.state_hash(first[0]),w.state_hash(second[0]))
+        self.assertEqual(w.state_hash(first[1]),w.state_hash(second[1]))
+
+    def test_source_recal_head_training_keeps_intervened_encoder_frozen(self):
+        with tempfile.TemporaryDirectory(dir=w.ROOT/'.runtime') as directory:
+            _,row,rec=self.fit(Path(directory),policy='source_recal')
+            self.assertEqual(row['bn_intervention']['policy'],'source_recal')
+            self.assertEqual(row['bn_intervention']['encoder_state_after'],row['initial_encoder_state_sha256'])
+            self.assertEqual(row['initial_encoder_state_sha256'],row['final_encoder_state_sha256'])
+            self.assertTrue(row['bn_intervention']['parameters_unchanged'])
+            self.assertEqual(rec.state['actual_new_model_fits'],2)
+            self.assertEqual(rec.state['actual_train_calls_completed'],1)
+
+    def test_numerical_smoke_under_nonpermanent_nochild_audit(self):
+        active=[False]
+        def audit(event,args):
+            if active[0] and event in ('subprocess.Popen','os.fork','os.posix_spawn','os.system'):
+                raise AssertionError('Numerical mechanism smoke spawned a child')
+        sys.addaudithook(audit)
+        try:
+            active[0]=True
+            with tempfile.TemporaryDirectory(dir=w.ROOT/'.runtime') as directory:
+                encoder=self.Encoder(12,2,.35,residual=True,attention=False)
+                rec=w.Recorder(directory,{**w.COUNTERS})
+                x=self.torch.as_tensor(self.data['X'][:8].astype(np.float32))
+                w.bn_intervene(encoder,x,self.data['ids'][:8].tolist(),'source_recal','A',rec,self.torch)
+        finally:active[0]=False
+
+    def test_target_rng_crossing_and_frozen_invariance(self):
+        with tempfile.TemporaryDirectory(dir=w.ROOT/'.runtime') as directory:
+            results=[]
+            for target in (101,202):
+                output=Path(directory)/str(target);output.mkdir();results.append(self.fit(output,target=target))
+            first,second=[r[1] for r in results]
+            self.assertEqual(first['initial_encoder_state_sha256'],second['initial_encoder_state_sha256'])
+            self.assertNotEqual(first['initial_head_state_sha256'],second['initial_head_state_sha256'])
+            self.assertNotEqual(first['target_order_sha256'],second['target_order_sha256'])
+            for compact,row,rec in results:
+                self.assertTrue(row['encoder_unchanged']);self.assertEqual(row['epochs'],96)
+                self.assertEqual(row['initial_encoder_state_sha256'],row['final_encoder_state_sha256'])
+                self.assertEqual(row['pointwise_inference_audit']['status'],'PASS_FOR_FIXED_QUERY_ONLY')
+                self.assertEqual(rec.state['actual_train_calls_started'],1)
+                prediction=w.read(w.checked(row['prediction_artifact']));self.assertNotIn('truth',prediction)
+
+    def test_query_intervention_does_not_change_source_training(self):
+        changed={k:v.copy() for k,v in self.data.items()};donor,query=w.scopes(changed,0,np)
+        changed['X'][query]=np.stack([np.cos(np.linspace(.21,1.49,128)*(3+i)) for i in range(len(query))])
+        changed['kinds'][query]=[w.TARGET_CLASSES[1-w.TARGET_CLASSES.index(x)] for x in changed['kinds'][query]]
+        with tempfile.TemporaryDirectory(dir=w.ROOT/'.runtime') as directory:
+            rows=[]
+            for name,data in [('original',self.data),('changed',changed)]:
+                output=Path(directory)/name;output.mkdir();rows.append(self.fit(output,data=data,adapt='full')[1])
+            for key in ['initial_encoder_state_sha256','final_encoder_state_sha256','initial_head_state_sha256','final_head_state_sha256','loss_summary','target_order_sha256']:
+                self.assertEqual(rows[0][key],rows[1][key])
+            self.assertEqual(w.read(w.checked(rows[0]['target_scaler'])),w.read(w.checked(rows[1]['target_scaler'])))
+            self.assertNotEqual(rows[0]['truth'],rows[1]['truth'])
+
+    def test_source_bn_recal_changes_only_buffers_and_records_fit(self):
+        encoder=self.Encoder(12,2,.35,residual=True,attention=False)
+        source=self.torch.as_tensor(self.data['X'][:8].astype(np.float32));ids=self.data['ids'][:8].tolist()
+        with tempfile.TemporaryDirectory(dir=w.ROOT/'.runtime') as directory:
+            recorder=w.Recorder(directory,{**w.COUNTERS});before=w.parameter_hash(encoder)
+            info=w.bn_intervene(encoder,source,ids,'source_recal','A',recorder,self.torch)
+            self.assertEqual(before,w.parameter_hash(encoder));self.assertNotEqual(info['encoder_state_before'],info['encoder_state_after'])
+            self.assertEqual(recorder.state['actual_new_model_fit_calls_started'],1);self.assertEqual(recorder.state['actual_new_model_fits'],1)
+            self.assertEqual(info['source_fit_ids'],ids)
+            for m in encoder.modules():
+                if isinstance(m,self.torch.nn.modules.batchnorm._BatchNorm):self.assertEqual(m.momentum,.1);self.assertFalse(m.training)
+                if isinstance(m,self.torch.nn.Dropout):self.assertFalse(m.training)
+
+    def test_neutral_priors_and_exact_A_reuse_gate(self):
+        with tempfile.TemporaryDirectory(dir=w.ROOT/'.runtime') as directory:
+            compact,row,_=self.fit(Path(directory))
+            p={'encoder_seed':42,'target_seed':101,'fold':0,'adapt':'frozen','steps':480}
+            reused=w._reuse_neutral_A(compact,self.data,p,self.Encoder,np,self.torch)
+            self.assertTrue(reused['reused_native_prediction']);self.assertEqual(reused['result'],compact['result'])
+            with self.assertRaises(ValueError):w._reuse_neutral_A(compact,self.data,{**p,'target_seed':202},self.Encoder,np,self.torch)
+            encoder=self.Encoder(12,2,.35,residual=True,attention=False)
+            for m in encoder.modules():
+                if isinstance(m,self.torch.nn.modules.batchnorm._BatchNorm):m.running_mean.fill_(4);m.running_var.fill_(3);m.num_batches_tracked.fill_(20)
+            rec=w.Recorder(directory,{**w.COUNTERS});before=w.parameter_hash(encoder);w.bn_intervene(encoder,None,[],'neutral','B',rec,self.torch)
+            self.assertEqual(before,w.parameter_hash(encoder));self.assertEqual(rec.state['actual_new_model_fit_calls_started'],0)
+            for m in encoder.modules():
+                if isinstance(m,self.torch.nn.modules.batchnorm._BatchNorm):
+                    self.assertTrue(bool((m.running_mean==0).all()));self.assertTrue(bool((m.running_var==1).all()));self.assertEqual(int(m.num_batches_tracked),0)
+
+    def test_pure_pretrain_scope_numeric_cache_and_rejection(self):
+        with tempfile.TemporaryDirectory(dir=w.ROOT/'.runtime') as directory:
+            p={'encoder_seed':45,'steps':120,'fold':0};rec=w.Recorder(directory,{**w.COUNTERS})
+            producer=w.B.pure_pretrain(self.data,'target_pretrain',{'seed':45,'steps':120,'fold':0},directory,rec,self.Encoder,self.snv,np,self.torch,self.Scaler)
+            producer['profile']=w.PROFILE
+            ids=w._validate_pretraining_scopes(producer,self.data,'target_pretrain',p,self.snv,np)
+            donor,query=w.scopes(self.data,0,np);self.assertEqual(set(ids),set(self.data['ids'][donor]));self.assertTrue(set(ids).isdisjoint(self.data['ids'][query]))
+            for mutant in ['fit_scope','profile','statistics','steps']:
+                bad=copy.deepcopy(producer)
+                if mutant=='fit_scope':bad['unique_fit_ids'][0]=str(self.data['ids'][query][0])
+                elif mutant=='profile':bad['profile']={}
+                elif mutant=='steps':bad['optimizer_steps']=480
+                else:
+                    f=Path(directory)/'bad-scaler.json';saved=w.read(w.checked(bad['source_scalers'][w.KINDS[0]]));saved['mean'][0]+=1;w.atomic_json(f,saved);bad['source_scalers'][w.KINDS[0]]=w.ref(f)
+                with self.assertRaises(ValueError):w._validate_pretraining_scopes(bad,self.data,'target_pretrain',p,self.snv,np)
+            with self.assertRaisesRegex(ValueError,'pure'):
+                w._validate_pretraining_scopes({**producer,'checkpoint_role':'target_finetuned_encoder'},self.data,'target_pretrain',p,self.snv,np)
+
+if __name__=='__main__':unittest.main()

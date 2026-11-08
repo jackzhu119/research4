@@ -1,0 +1,149 @@
+"""Synthetic metadata/score tests only; no historical numerical data or fits."""
+from __future__ import annotations
+
+import copy
+import csv
+import importlib.util
+import itertools
+import json
+import os
+from pathlib import Path
+import tempfile
+import unittest
+from unittest.mock import patch
+
+for key in ('OMP_NUM_THREADS','OPENBLAS_NUM_THREADS','MKL_NUM_THREADS','NUMEXPR_NUM_THREADS'):
+    os.environ[key]='2'
+HERE=Path(__file__).resolve().parent
+
+
+def load(name):
+    spec=importlib.util.spec_from_file_location('_synthetic_v3_'+name,HERE/(name+'.py'))
+    module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module);return module
+
+
+s=load('summary_worker');b=load('prepare_deep_mechanisms')
+
+
+def fake_meta():
+    rows={}
+    for group,count,kind in [('ZY01',210,s.CLASSES[0]),('ZY02',3,s.CLASSES[0]),('ZR01',1,s.CLASSES[0]),('ZR02',1,s.CLASSES[0]),('ZR03',1,s.CLASSES[0])]+[(g,60,s.CLASSES[1]) for g in s.ACID]:
+        for i in range(count):
+            rid=f'SYNTHETIC-{group}-{i:03d}';rows[rid]={'record_id':rid,'species':kind,'origin_group_id':group,'master_role':'train','physical_sample_id':rid}
+    return dict(sorted(rows.items()))
+
+
+class JobDesignTests(unittest.TestCase):
+    def setUp(self):
+        self.jobs=b.build_jobs({k:{'path':'SYNTHETIC-'+k,'sha256':'a'*64} for k in ('classical','neural','summary')})
+        self.mapping={j['id']:j for j in self.jobs}
+    def test_exact971_and_topological_DAG(self):
+        self.assertEqual(len(self.jobs),971);seen=set()
+        for j in self.jobs:
+            self.assertLessEqual(set(j['depends_on']),seen);seen.add(j['id'])
+        self.assertEqual(len(self.jobs[-1]['depends_on']),970)
+        self.assertEqual(sum(j['operation']=='source_A_cross' for j in self.jobs),240)
+        self.assertEqual(sum(j['operation']=='target_eval_cross' for j in self.jobs),480)
+    def test_all_family_grids_and_independent_target_rng_factors(self):
+        blocks=b.summary_blocks(self.jobs)
+        for block in blocks:s.validate_block_design(block,self.mapping)
+        p42=self.mapping['eval_f0_p42_t202_b120_full']
+        self.assertEqual(p42['depends_on'],['A_f0_p42_t202_full'])
+        p45=self.mapping['eval_f0_p45_t202_b120_full']
+        self.assertEqual(len(p45['depends_on']),4)
+        self.assertIn('target_f0_p45_b120',p45['depends_on'])
+    def test_wrong_modality_and_step_adapt_policy_cannot_replace_complete_grid(self):
+        for bid,field,value in [('donor_alpha','modality','fusion'),('neural_120_full','steps',480),('neural_120_full','adapt','frozen'),('bn_neutral','bn_policy','source_recal')]:
+            jobs=copy.deepcopy(self.mapping);block=next(x for x in b.summary_blocks(self.jobs) if x['id']==bid)
+            jobs[block['required_job_ids'][0]]['parameters'][field]=value
+            with self.assertRaises(ValueError):s.validate_block_design(block,jobs)
+    def test_duplicate_neural_cell_and_missing_support_draw_rejected(self):
+        for bid in ('neural_120_full','support_alpha','aux_pretraining'):
+            jobs=copy.deepcopy(self.mapping);block=next(x for x in b.summary_blocks(self.jobs) if x['id']==bid)
+            jobs[block['required_job_ids'][1]]['parameters']=copy.deepcopy(jobs[block['required_job_ids'][0]]['parameters'])
+            with self.assertRaises(ValueError):s.validate_block_design(block,jobs)
+    def test_publication_excludes_science_journals_and_bounds_patterns(self):
+        patterns=b.science_allowlist([f'SYNTHETIC-{i}' for i in range(10)],'synthetic')
+        self.assertLessEqual(len(patterns),64)
+        self.assertFalse(any('.txt' in x for x in patterns))
+        self.assertFalse(any('exception_traceback.txt' in x for x in b.post_allowlist()))
+
+
+class SummaryMathTests(unittest.TestCase):
+    def test_all_support_and_donor_settings_exact(self):
+        self.assertEqual(len(s.expected_support_settings(range(45,50))),350)
+        self.assertEqual(len(s.expected_donor_settings('ZY03')),29)
+    def test_repeated_query_ids_are_not_counted_as_new_N(self):
+        m=s.Metrics()
+        for _ in range(20):m.add(['a','b'],list(s.CLASSES),list(s.CLASSES),['x','y'])
+        out=m.result();self.assertEqual(out['evaluation_rows'],40);self.assertEqual(out['unique_query_ids'],2)
+        self.assertEqual(out['evaluations_per_ID_histogram'],{20:2})
+        self.assertEqual(s.paired({'ids':['a','b'],'truth':list(s.CLASSES)},list(s.CLASSES),[s.CLASSES[1]]*2)['left_only_correct'],1)
+    def test_crossed_variance_has_separate_encoder_target_interaction(self):
+        values={(p,t):(p-45)/100+(t-202)/1000+(p-45)*(t-202)/100000 for p,t in itertools.product(range(42,50),(101,202,303))}
+        out=s.seed_variation(values);ss=out['crossed_descriptive_sum_squares']
+        self.assertGreater(ss['encoder'],0);self.assertGreater(ss['target'],0);self.assertGreater(ss['interaction'],0)
+        self.assertAlmostEqual(ss['encoder']+ss['target']+ss['interaction'],ss['total'])
+        out=s.seed_variation({k:0. for k in values})
+        self.assertTrue(all(v is None for v in out['crossed_descriptive_fraction_of_total'].values()))
+    def test_wrong_query_truth_or_duplicateIDs_rejected(self):
+        meta=fake_meta();_,ids,_=s.scopes(meta,{'acid_group':'ZY03'},True)
+        cohort={'ids':ids,'truth':[meta[i]['species'] for i in ids],'groups':[meta[i]['origin_group_id'] for i in ids]}
+        s.validate_cohort(cohort,ids,meta);cohort['truth'][0]='WRONG'
+        with self.assertRaises(ValueError):s.validate_cohort(cohort,ids,meta)
+        with self.assertRaises(ValueError):s.Metrics().add(['a','a'],list(s.CLASSES),list(s.CLASSES),['x','y'])
+    def test_partial_block_never_emits_metrics(self):
+        jobs=b.build_jobs({k:{'path':'SYNTHETIC-'+k,'sha256':'a'*64} for k in ('classical','neural','summary')})
+        manifest={'jobs':jobs,'summary_blocks':b.summary_blocks(jobs)}
+        ctx={'job_id':'summary','manifest_sha256':'b'*64,'dependency_states':{j['id']:'NOT_RUN_DEPENDENCY' for j in jobs[:-1]},'dependencies':{}}
+        with patch.object(s,'metadata',return_value=fake_meta()):blocks=s.summarize(manifest,ctx,Path('/unused'))
+        self.assertTrue(all(x['status']=='PARTIAL_BLOCKS_PRESERVED' and x['aggregate_metrics_emitted'] is False for x in blocks))
+    def test_missing_or_running_state_cannot_be_summarized(self):
+        jobs=b.build_jobs({k:{'path':'SYNTHETIC-'+k,'sha256':'a'*64} for k in ('classical','neural','summary')})
+        manifest={'jobs':jobs,'summary_blocks':[]};ctx={'job_id':'summary','manifest_sha256':'b'*64,'dependency_states':{},'dependencies':{}}
+        with self.assertRaises(ValueError):s.summarize(manifest,ctx,Path('/unused'))
+        ctx['dependency_states']={j['id']:'DONE_SEALED' for j in jobs[:-1]};ctx['dependency_states'][jobs[0]['id']]='RUNNING'
+        with self.assertRaises(ValueError):s.summarize(manifest,ctx,Path('/unused'))
+    def test_csv_shards_are_bounded_and_inspectable(self):
+        with tempfile.TemporaryDirectory(prefix='SYNTHETIC-v3-summary-',dir=s.ROOT/'.runtime') as d:
+            sink=s.CSVShards(d,'test')
+            for i in range(100):sink.add('synthetic','setting',str(i),{'large':'x'*10000})
+            refs=sink.refs();self.assertGreater(len(refs),1)
+            self.assertTrue(all(x['bytes']<=512*1024 for x in refs))
+            count=0
+            for binding in refs:
+                with s.checked(binding).open() as stream:count+=len(list(csv.reader(stream)))-1
+            self.assertEqual(count,100)
+
+
+class BNGateAndExportTests(unittest.TestCase):
+    def test_native_BN_comparator_uses_native_policy(self):
+        meta=fake_meta();p={'encoder_seed':42,'target_seed':101,'fold':0,'adapt':'frozen','bn_policy':'source_recal'}
+        donor,query,_=s.scopes(meta,p);artifact={'path':'SYNTHETIC','sha256':'0'*64}
+        row={'record_ids':query,'truth':[meta[i]['species'] for i in query],'origin_group_ids':[meta[i]['origin_group_id'] for i in query],
+             'unique_fit_ids':donor,'epochs':96,'metrics':{},'initial_head_state_sha256':'h','initial_encoder_state_sha256':'e','final_encoder_state_sha256':'e',
+             'target_order_sha256':'o','target_scaler':artifact,'model_checkpoint':artifact,'prediction_artifact':artifact,'encoder_unchanged':True,
+             'pointwise_inference_audit':{'status':'PASS_FOR_FIXED_QUERY_ONLY'},
+             'rng_contract':{'encoder_initialization_seed':42,'pretraining_sampling_dropout_seed':42,'target_head_seed':10101,'target_dropout_seed':50101,'target_order_seed':60101},
+             'bn_intervention':{'policy':'native','parameters_unchanged':True,'query_or_support_statistics_used':False,'source_fit_ids':[],'source_full_batch_passes':0}}
+        compact={k:row[k] for k in ('metrics','initial_head_state_sha256','initial_encoder_state_sha256','final_encoder_state_sha256','target_order_sha256','target_scaler','encoder_unchanged','epochs')}
+        compact.update(result=artifact,pointwise_inference_status='PASS_FOR_FIXED_QUERY_ONLY')
+        with patch.object(s,'read_ref',return_value=row),patch.object(s,'checked',return_value=Path('/unused')):
+            s.read_arm(compact,{'parameters':p},meta,native=True)
+            with self.assertRaises(ValueError):s.read_arm(compact,{'parameters':p},meta)
+    def test_source_score_export_is_exact516_rows_and_contains_no_truth(self):
+        import numpy as np
+        meta=fake_meta();p={'acid_group':'ZY03','modality':'alpha'};donor,held,_=s.scopes(meta,p);_,query,pool=s.scopes(meta,p,True)
+        with tempfile.TemporaryDirectory(prefix='SYNTHETIC-v3-score-export-',dir=s.ROOT/'.runtime') as d:
+            directory=Path(d);margins=np.linspace(-2,2,270);source=np.linspace(-1,1,246)
+            cache=directory/'SYNTHETIC-scores.npz';np.savez_compressed(cache,ids=np.array(held),source_ids=np.array(donor),scores=np.column_stack([-margins,margins]),source_scores=np.column_stack([-source,source]),predictions=np.asarray(s.CLASSES)[(margins>0).astype(int)],classes=np.asarray(s.CLASSES),scaler_mean=np.zeros(2),scaler_scale=np.ones(2))
+            worker={'path':'SYNTHETIC-worker','sha256':'a'*64};dataset={'path':'SYNTHETIC-data','sha256':'d'*64}
+            descriptor={'parameters':p,'manifest_sha256':'b'*64,'source_worker':worker,'dataset_result':dataset,'source_ids':donor,'held_ids':held,'fixed_query_ids':query,'support_pool_ids':pool,'scaler_fit_ids':donor,'source_margin_std_fit_ids':donor,'classes':list(s.CLASSES),'source_labels_sha256':s.jobhash([meta[i]['species'] for i in donor]),'cache_contains_truth':False,'npz':s.ref(cache),'source_margin_values_sha256':s.hashlib.sha256(np.ascontiguousarray(source,dtype='<f8').tobytes()).hexdigest(),'source_margin_std_ddof0':float(np.std(source,ddof=0)),'invariance_sanity':[]}
+            descriptor_file=directory/'SYNTHETIC-cache.json';s.save(descriptor_file,descriptor)
+            result={'parameters':p,'manifest_sha256':'b'*64,'source_worker':worker,'dataset_result':dataset,'source_cache':s.ref(descriptor_file)}
+            out=s.export_source_scores(result,{'parameters':p},meta,directory)
+            with s.checked(out['csv']).open() as f:rows=list(csv.DictReader(f))
+            self.assertEqual(len(rows),516);self.assertLess(out['csv']['bytes'],512*1024);self.assertNotIn('truth',rows[0]);self.assertEqual(len({r['record_id'] for r in rows}),516)
+
+
+if __name__=='__main__':unittest.main()

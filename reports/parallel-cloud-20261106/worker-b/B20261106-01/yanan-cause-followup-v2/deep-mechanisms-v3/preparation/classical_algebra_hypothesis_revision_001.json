@@ -1,0 +1,161 @@
+{
+  "schema": "research4-b-v3-classical-algebra-hypothesis-revision",
+  "scope": "Manufactured scalar margins and pinned legacy Anchor source only; no real spectral arrays or actual-sample fit.",
+  "utc": "2026-11-08T11:33:49.713330+00:00",
+  "worker_observed": {
+    "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/yanan-cause-followup-v2/deep-mechanisms-v3/preparation/bin/classical_mechanisms.py",
+    "sha256": "bdb99b23472e86bb737f251599c9882c668612458b447f27143598a2a9a89c18",
+    "bytes": 45004
+  },
+  "test_source": {
+    "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/yanan-cause-followup-v2/deep-mechanisms-v3/preparation/bin/test_classical_mechanisms.py",
+    "sha256": "885bfb09801cce588d2558105d6eb56f5fca4382c2953507ad59b9226304f052",
+    "bytes": 31435
+  },
+  "initial_incorrect_test_hypothesis": {
+    "claim": "Positive score-unit rescaling at fixed ridge lambda must change binary class predictions even with balanced labels.",
+    "initial_result": "22 passed, 1 failed; expected changed prediction count > 0, observed 0.",
+    "failing_test": "test_positive_score_units_keep_K0_votes_but_not_fixed_lambda_anchor_mapping",
+    "interpretation": "Incorrect overly broad test expectation. No production mathematical implementation or prediction threshold was changed to resolve it."
+  },
+  "revised_derivation": {
+    "conditions": [
+      "Binary source scores exactly [-s,s].",
+      "2K support labels with K specimens per class.",
+      "Anchor residual-ridge objective penalizes every coefficient and intercept with the same lambda.",
+      "Compare unblended affine predictions with positive nonzero raw slope; finite values and non-boundary queries."
+    ],
+    "affine_replay": "a_unit=C00-C01-C10+C11; b=d1-d0; a_raw=c*a_unit; positive-class margin=a_raw*s+b.",
+    "balanced_intercept_normal_equation": "a_raw*sum(s_support)+(2K+lambda)*b=0.",
+    "threshold": "tau_raw=-b/a_raw=sum(s_support)/(2K+lambda).",
+    "bias_only_equivalence": "Bias-only correction delta=(sum(onehot)-sum(scores))/(2K+lambda) has the same threshold for balanced support.",
+    "consequence": "Positive rescaling can change coefficients and slopes while retaining class predictions. Balanced label permutations can change orientation; report those outcomes rather than assume all nulls equivalent.",
+    "not_a_claim": [
+      "Weak blended rule is not covered by this identity.",
+      "a=0 constant, a<0 reversed ordering, unbalanced labels, and exact floating-point ties require separate evaluation.",
+      "Balanced support collection uses species labels and is not an unlabelled sampling procedure.",
+      "This synthetic algebra does not authenticate plant species or establish performance on real spectra."
+    ]
+  },
+  "manufactured_fixture": {
+    "support_raw_margins": [
+      -4.0,
+      -2.0,
+      -1.0,
+      3.0
+    ],
+    "support_labels": [
+      "枣仁",
+      "枣仁",
+      "酸枣仁",
+      "酸枣仁"
+    ],
+    "lambda": 1.0,
+    "query_grid": {
+      "start": -3.0,
+      "stop": 2.0,
+      "num": 501,
+      "additive_offset": 0.000123,
+      "min_abs_distance_to_expected_threshold": 0.00012300000000020628,
+      "truth_labels_used": false
+    },
+    "cases": [
+      {
+        "source_score_multiplier": 0.1,
+        "coef": [
+          [
+            1.1119791666666665,
+            -0.05989583333333335
+          ],
+          [
+            -0.11197916666666663,
+            1.0598958333333333
+          ]
+        ],
+        "intercept": [
+          0.3020833333333333,
+          0.4895833333333335
+        ],
+        "unit_margin_slope": 2.34375,
+        "raw_margin_slope": 0.234375,
+        "margin_intercept": 0.18750000000000017,
+        "raw_score_threshold": -0.8000000000000007,
+        "expected_balanced_raw_threshold": -0.8,
+        "normal_equation_residual": 8.881784197001252e-16,
+        "positive_orientation": true,
+        "changed_query_indices_vs_multiplier_0_1": [],
+        "query_prediction_counts": {
+          "枣仁": 220,
+          "酸枣仁": 281
+        },
+        "prediction_sha256": "2018c6a0a5de6deb66316f2b384d13ec8021963eafccb7fd2356f2404816f417"
+      },
+      {
+        "source_score_multiplier": 1.0,
+        "coef": [
+          [
+            0.5897435897435892,
+            0.42490842490842545
+          ],
+          [
+            0.41025641025640974,
+            0.5750915750915757
+          ]
+        ],
+        "intercept": [
+          0.2564102564102564,
+          0.5201465201465202
+        ],
+        "unit_margin_slope": 0.3296703296703297,
+        "raw_margin_slope": 0.3296703296703297,
+        "margin_intercept": 0.2637362637362638,
+        "raw_score_threshold": -0.8,
+        "expected_balanced_raw_threshold": -0.8,
+        "normal_equation_residual": 0.0,
+        "positive_orientation": true,
+        "changed_query_indices_vs_multiplier_0_1": [],
+        "query_prediction_counts": {
+          "枣仁": 220,
+          "酸枣仁": 281
+        },
+        "prediction_sha256": "2018c6a0a5de6deb66316f2b384d13ec8021963eafccb7fd2356f2404816f417"
+      },
+      {
+        "source_score_multiplier": 10.0,
+        "coef": [
+          [
+            0.5083006901697138,
+            0.4931915687372065
+          ],
+          [
+            0.491699309830225,
+            0.5068084312628547
+          ]
+        ],
+        "intercept": [
+          0.2671889572840881,
+          0.508934900205186
+        ],
+        "unit_margin_slope": 0.030218242865137024,
+        "raw_margin_slope": 0.30218242865137024,
+        "margin_intercept": 0.24174594292109786,
+        "raw_score_threshold": -0.8000000000000055,
+        "expected_balanced_raw_threshold": -0.8,
+        "normal_equation_residual": 8.43769498715119e-15,
+        "positive_orientation": true,
+        "changed_query_indices_vs_multiplier_0_1": [],
+        "query_prediction_counts": {
+          "枣仁": 220,
+          "酸枣仁": 281
+        },
+        "prediction_sha256": "2018c6a0a5de6deb66316f2b384d13ec8021963eafccb7fd2356f2404816f417"
+      }
+    ]
+  },
+  "test_revision": "The corrected test verifies balanced threshold/prediction equivalence and additionally verifies a manufactured unbalanced-label counterexample with changed predictions; the independent exact rational closed-form, a<=0 and tie tests remain.",
+  "readiness_first_pass": {
+    "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/yanan-cause-followup-v2/deep-mechanisms-v3/preparation/classical_mechanism_test_readiness_001.json",
+    "sha256": "95c722d9d65429ac86754126b0e2f50bf2e4c37eb2d1bfc3728851d0b76afe97",
+    "bytes": 2838
+  }
+}

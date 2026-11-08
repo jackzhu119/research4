@@ -1,0 +1,448 @@
+"""Manufactured-matrix tests for the v3 mechanism worker.
+
+These tests read pinned source code and fake identity metadata only. Production
+spectral arrays, ledger, claims and Git are never used. The one real-estimator
+smoke runs a tiny manufactured dataset in a fresh child, so its deliberately
+permanent no-child audit hook cannot affect the remaining test process.
+"""
+from __future__ import annotations
+
+import argparse
+from collections import Counter
+import copy
+import importlib.util
+import json
+import os
+from pathlib import Path
+import subprocess
+import sys
+import tempfile
+from types import SimpleNamespace
+import unittest
+from unittest.mock import patch
+
+import numpy as np
+
+SOURCE = Path(__file__).with_name('classical_mechanisms.py')
+ROOT = next(p for p in SOURCE.resolve().parents if (p / 'AGENTS.md').is_file())
+OLD_ROOT = ROOT / 'reports/parallel-cloud-20261106/worker-b/B20261106-01/yanan-cause-followup-v2'
+OLD_WORKER = OLD_ROOT / 'preparation/bin/classical_worker.py'
+
+
+def load(path, name):
+    spec = importlib.util.spec_from_file_location(name, path)
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
+w = load(SOURCE, 'v3_classical_mechanism_test_subject')
+legacy = load(OLD_WORKER, 'v3_mechanism_test_pinned_legacy')
+w.np = legacy.np = np
+w.LEG = legacy
+
+
+def initialize_test_numerics():
+    manifest = {'classical': {'legacy_worker': w.ref(OLD_WORKER)},
+                'base_manifest': w.ref(OLD_ROOT / 'manifest_ROOT_AUTHORIZED.json')}
+    w.initialize_numerics(manifest)
+
+
+def setUpModule():
+    initialize_test_numerics()
+
+
+def manufactured_data():
+    ids, groups, labels = [], [], []
+    jujube = ('ZY01', 'ZY02', 'ZR01', 'ZR02', 'ZR03')
+    for group in jujube + w.ACID:
+        count = 210 if group == 'ZY01' else 3 if group == 'ZY02' else 1 if group.startswith('ZR') else 60
+        for j in range(count):
+            ids.append(f'{group}-{j+1:03d}')
+            groups.append(group)
+            labels.append(w.CLASSES[0] if group in jujube else w.CLASSES[1])
+    axis = np.linspace(.1, 1.5, 612)
+    index = np.arange(len(ids))[:, None]
+    alpha = np.sin(axis[None, :] * (1 + index % 7 / 11)) + .002 * index * axis[None, :] ** 2
+    refractive = 100 + 25 * np.cos(axis[None, :] * (.7 + index % 9 / 10)) + .004 * index * np.sin(2 * axis[None, :])
+    return w.LEG.validate_dataset({'record_ids': np.array(ids), 'species': np.array(labels),
+        'origin_group_ids': np.array(groups), 'master_roles': np.full(len(ids), 'train'),
+        'physical_sample_ids': np.array(ids), 'alpha_main': alpha, 'n_main': refractive, 'axis_main': axis})
+
+
+def state():
+    return {**w.ZERO, 'dataset_result': {'synthetic_identity': 'no-real-spectra'}, 'manifest_sha256': 'a'*64}
+
+
+class PureAlgebraTests(unittest.TestCase):
+    def test_pinned_anchor_has_independent_closed_form_and_exact_binary_replay(self):
+        scores = np.array([[-1., 1.], [0., 0.], [1., -1.]])
+        labels = np.array([w.CLASSES[1], w.CLASSES[1], w.CLASSES[0]])
+        fitted = w.Anchor(w.CLASSES, regularization=1.).fit(scores, labels)
+        np.testing.assert_allclose(fitted.coef_, [[.8, .2], [.2, .8]], atol=1e-14)
+        np.testing.assert_allclose(fitted.intercept_, [.25, .5], atol=1e-14)
+        a, b = w.affine_binary_parameters(fitted.coef_, fitted.intercept_)
+        self.assertAlmostEqual(a, 1.2); self.assertAlmostEqual(b, .25)
+        np.testing.assert_array_equal(w.threshold_predictions(scores, a, b), fitted.predict(scores))
+        np.testing.assert_allclose(w.bias_only(scores, labels), [.25, .5], atol=1e-14)
+
+    def test_positive_reversed_constant_and_exact_tie_use_argmax_first_class(self):
+        scores = np.column_stack([-np.array([-2., 0., 1., 2.]), np.array([-2., 0., 1., 2.])])
+        cases = [(np.eye(2), np.array([1., -1.])), (-np.eye(2), np.zeros(2)),
+                 (np.zeros((2, 2)), np.array([0., 1.])), (np.zeros((2, 2)), np.zeros(2))]
+        for coef, bias in cases:
+            a, b = w.affine_binary_parameters(coef, bias)
+            direct = np.asarray(w.CLASSES)[np.argmax(scores @ coef + bias, axis=1)]
+            np.testing.assert_array_equal(w.threshold_predictions(scores, a, b), direct)
+        a, b = w.affine_binary_parameters(np.eye(2), [1., -1.])
+        self.assertEqual(w.threshold_predictions(np.array([[-1., 1.]]), a, b).tolist(), [w.CLASSES[0]])
+        with self.assertRaises(ValueError):
+            w.threshold_predictions(np.array([[.1, .3]]), 2., 0.)
+        for coef, bias in [(np.eye(3), np.zeros(3)), (np.full((2, 2), np.nan), np.zeros(2))]:
+            with self.assertRaises(ValueError): w.affine_binary_parameters(coef, bias)
+
+    def test_normalized_regularization_is_invariant_to_duplicate_objective_terms(self):
+        scores = np.array([[-2., 2.], [.3, -.3], [-.1, .1], [1.4, -1.4]])
+        labels = np.array([w.CLASSES[1], w.CLASSES[0], w.CLASSES[1], w.CLASSES[0]])
+        first = w.Anchor(w.CLASSES, regularization=.4).fit(scores, labels)
+        repeated = w.Anchor(w.CLASSES, regularization=1.2).fit(np.tile(scores, (3, 1)), np.tile(labels, 3))
+        np.testing.assert_allclose(first.coef_, repeated.coef_, atol=1e-14)
+        np.testing.assert_allclose(first.intercept_, repeated.intercept_, atol=1e-14)
+        fixed = w.Anchor(w.CLASSES, regularization=.4).fit(np.tile(scores, (3, 1)), np.tile(labels, 3))
+        self.assertGreater(np.max(np.abs(first.coef_ - fixed.coef_)), 1e-3)
+        for k in (1, 3, 5, 10, 20): self.assertAlmostEqual((k/5)/(2*k), .1)
+
+    def test_balanced_permutation_or_flip_leaves_bias_only_unchanged_and_preserves_truth(self):
+        labels = np.array([w.CLASSES[0]]*5+[w.CLASSES[1]]*5); original = labels.copy()
+        margins = np.array([-2., -.4, .6, .9, -1.5, .1, 2., 1.1, -.2, .3])
+        scores = np.column_stack([-margins, margins])
+        for draw in (45, 51, 64):
+            perm = w.support_permutation(labels, draw, 5)
+            np.testing.assert_array_equal(perm, w.support_permutation(labels, draw, 5))
+            self.assertEqual(Counter(perm), Counter(labels))
+            np.testing.assert_allclose(w.bias_only(scores, labels), w.bias_only(scores, perm), atol=1e-15)
+        flipped = w.flipped_labels(labels)
+        np.testing.assert_array_equal(w.flipped_labels(flipped), original)
+        np.testing.assert_allclose(w.bias_only(scores, labels), w.bias_only(scores, flipped), atol=1e-15)
+        np.testing.assert_array_equal(labels, original)
+        with self.assertRaises(ValueError): w.flipped_labels(np.array(['unknown']))
+
+    def test_balanced_anchor_threshold_equals_bias_only_for_every_positive_slope_scale_and_permutation(self):
+        margins=np.array([-4.,-2.,-1.,3.,4.,5.]);scores=np.column_stack([-margins,margins])
+        labels=np.array([w.CLASSES[0]]*3+[w.CLASSES[1]]*3)
+        query=np.linspace(-6,6,1201);q=np.column_stack([-query,query])
+        for penalty in (.6,1.,3.):
+            for multiplier in (.1,1.,10.):
+                for draw in (45,46,47):
+                    fit_labels=w.support_permutation(labels,draw,3)
+                    model=w.Anchor(w.CLASSES,regularization=penalty).fit(multiplier*scores,fit_labels)
+                    unit_a,b=w.affine_binary_parameters(model.coef_,model.intercept_);raw_a=multiplier*unit_a
+                    expected_threshold=float(margins.sum()/(len(margins)+penalty))
+                    if abs(raw_a)>1e-12:self.assertAlmostEqual(-b/raw_a,expected_threshold,places=10)
+                    if raw_a>0:
+                        bias=w.bias_only(scores,labels,regularization=penalty)
+                        np.testing.assert_array_equal(model.predict(multiplier*q),np.asarray(w.CLASSES)[np.argmax(q+bias,axis=1)])
+
+    def test_support_only_erm_threshold_and_predeclared_tie_rule(self):
+        scores = np.array([[-2., 2.], [2., -2.], [-1., 1.], [1., -1.]])
+        labels = np.array([w.CLASSES[1], w.CLASSES[0], w.CLASSES[1], w.CLASSES[0]])
+        t, metadata = w.support_erm_threshold(scores, labels)
+        self.assertEqual(t, 0.)
+        self.assertEqual(metadata['support_balanced_error'], 0.)
+        self.assertFalse(metadata['query_statistics_or_labels_used'])
+
+
+    def test_positive_score_units_keep_K0_votes_but_not_fixed_lambda_anchor_mapping(self):
+        margins=np.array([-4.,-2.,-1.,3.]);scores=np.column_stack([-margins,margins])
+        labels=np.array([w.CLASSES[0],w.CLASSES[0],w.CLASSES[1],w.CLASSES[1]])
+        query=np.linspace(-3.,2.,501);query_scores=np.column_stack([-query,query])
+        original=w.Anchor(w.CLASSES,regularization=1).fit(scores,labels)
+        changed=w.Anchor(w.CLASSES,regularization=1).fit(.1*scores,labels)
+        np.testing.assert_array_equal(np.argmax(query_scores,axis=1),np.argmax(.1*query_scores,axis=1))
+        a,b=w.affine_binary_parameters(original.coef_,original.intercept_)
+        unit_a,unit_b=w.affine_binary_parameters(changed.coef_,changed.intercept_)
+        self.assertFalse(np.allclose([a,b],[.1*unit_a,unit_b],atol=1e-10))
+        self.assertGreater(a,0.);self.assertGreater(unit_a,0.)
+        np.testing.assert_array_equal(original.predict(query_scores),changed.predict(.1*query_scores))
+        self.assertAlmostEqual(-b/a,float(margins.sum()/(len(margins)+1)))
+        other_labels=np.array([w.CLASSES[0],w.CLASSES[1],w.CLASSES[1],w.CLASSES[1]])
+        imbalanced=w.Anchor(w.CLASSES,regularization=1).fit(scores,other_labels)
+        imbalanced_scaled=w.Anchor(w.CLASSES,regularization=1).fit(.1*scores,other_labels)
+        self.assertGreater(np.count_nonzero(imbalanced.predict(query_scores)!=imbalanced_scaled.predict(.1*query_scores)),0)
+        source_sd=float(np.std(margins,ddof=0))
+        np.testing.assert_allclose(scores/source_sd,(.1*scores)/(.1*source_sd),atol=1e-15)
+
+    def test_unstratified_equal_prior_control_never_reads_labels_for_selection_or_fit(self):
+        data=manufactured_data();_,_,query,pool=w.fixed_scopes(data,'ZY03')
+        labels_free={'record_ids':data['record_ids']}
+        previous=set()
+        for k in w.KS:
+            chosen=w.unstratified_support(labels_free,pool,45,k)
+            self.assertEqual(len(chosen),2*k);self.assertTrue(previous<=set(chosen));self.assertFalse(set(chosen)&set(query));previous=set(chosen)
+        margins=np.array([-1.,.5,2.,3.]);scores=np.column_stack([-margins,margins])
+        expected=(2-scores.sum(0))/5
+        np.testing.assert_allclose(w.equal_prior_center(scores),expected,atol=1e-15)
+
+
+class ScopeAndDrawTests(unittest.TestCase):
+    def setUp(self): self.data = manufactured_data()
+
+    def test_fixed_query_and_disjoint_support_are_invariant_across_draws_and_nested_K(self):
+        for acid in w.ACID:
+            donor, held, query, pool = w.fixed_scopes(self.data, acid)
+            self.assertEqual([len(x) for x in (donor, held, query, pool)], [246, 270, 135, 135])
+            self.assertFalse(set(donor) & set(query)); self.assertFalse(set(pool) & set(query))
+            original_query = query.copy()
+            for draw in (45, 46, 64):
+                previous = set()
+                for k in w.KS:
+                    selected = w.nested_support(self.data, pool, draw, k)
+                    self.assertEqual(len(selected), 2*k)
+                    self.assertEqual(Counter(self.data['species'][selected]), {c:k for c in w.CLASSES} if k else {})
+                    self.assertTrue(previous <= set(selected)); self.assertTrue(set(selected) <= set(pool))
+                    self.assertFalse(set(selected) & set(query)); previous = set(selected)
+                np.testing.assert_array_equal(query, original_query)
+        with self.assertRaises(ValueError): w.nested_support(self.data, pool, 44, 1)
+        with self.assertRaises(ValueError): w.nested_support(self.data, pool, 45, 4)
+
+    def test_donor_subsets_nested_source_balanced_and_total_class_penalty_normalized(self):
+        for acid in w.ACID:
+            donor, held, _, _ = w.fixed_scopes(self.data, acid)
+            for draw in (45, 49):
+                previous = set()
+                for n in (6, 24, 60):
+                    selected = w.balanced_acid_donors(self.data, donor, n, draw)
+                    self.assertEqual(len(selected), 6+n)
+                    self.assertTrue(previous <= set(selected)); self.assertTrue(set(selected) <= set(donor))
+                    self.assertFalse(set(selected) & set(held))
+                    self.assertEqual(np.count_nonzero(self.data['species'][selected] == w.CLASSES[0]), 6)
+                    counts = [np.count_nonzero(self.data['groups'][selected] == g) for g in w.ACID if g != acid]
+                    self.assertEqual(sum(counts), n); self.assertLessEqual(max(counts)-min(counts), 1)
+                    self.assertAlmostEqual(w.normalized_C(n)*len(selected)/2, 1230.)
+                    previous = set(selected)
+        for n in (0, 7, 240):
+            with self.assertRaises(ValueError): w.normalized_C(n)
+
+    def test_parameter_boundaries_reject_duplicate_unfixed_extra_and_wrong_draws(self):
+        p = {'acid_group':'ZY03','modality':'alpha'}
+        w.validate_parameters('source_scores', p)
+        w.validate_parameters('support_mechanisms', {**p,'draw_seeds':[45,46,47,48,49]})
+        w.validate_parameters('donor_mechanisms', {**p,'draw_seed':49})
+        for operation, bad in [('source_scores',{**p,'query_seed':12}), ('donor_mechanisms',{**p,'draw_seed':44}),
+                    ('support_mechanisms',{**p,'draw_seeds':[45,45,46,47,48]}),
+                    ('support_mechanisms',{**p,'draw_seeds':[45,46,47,48,65]})]:
+            with self.assertRaises(ValueError): w.validate_parameters(operation, bad)
+
+
+class RecorderAndFitTests(unittest.TestCase):
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory(prefix='SYNTHETIC-v3-classical-', dir=ROOT/'.runtime')
+        self.directory = Path(self.temp.name); self.data = manufactured_data(); self.state = state()
+        self.rec = w.Recorder(self.directory, self.state, self.data)
+    def tearDown(self): self.temp.cleanup()
+
+    def test_predictions_fsync_precedes_any_truth_score_and_survives_scoring_failure(self):
+        query = np.array([0,216]); events=[]
+        real_fsync = os.fsync
+        def fsync(fd): events.append('fsync'); return real_fsync(fd)
+        def fail_score(*args):
+            events.append('score'); path=self.directory/'predictions-before-scoring.jsonl.txt'
+            self.assertTrue(path.exists()); raw=json.loads(path.read_text().splitlines()[0])
+            self.assertNotIn('truth',raw); self.assertTrue(raw['truth_not_joined']); self.assertIn('fsync',events)
+            raise RuntimeError('Deliberate scorer failure')
+        with patch.object(w.os,'fsync',side_effect=fsync), patch.object(w.LEG,'metrics',side_effect=fail_score):
+            with self.assertRaisesRegex(RuntimeError,'Deliberate scorer'):
+                self.rec.add('fixed','query',query,[w.CLASSES[0],w.CLASSES[1]])
+        self.assertLess(events.index('fsync'),events.index('score')); self.assertFalse(self.rec.observations)
+
+    def test_bad_prediction_identity_or_length_is_rejected_before_output_or_score(self):
+        with patch.object(w.LEG,'metrics',side_effect=AssertionError('Scoring malformed predictions')) as score:
+            for query,pred in [(np.array([0,216]),[w.CLASSES[0]]),(np.array([0,0]),[w.CLASSES[0]]*2)]:
+                with self.assertRaises(ValueError):self.rec.add('bad','q',query,pred)
+        score.assert_not_called();self.assertFalse((self.directory/'predictions-before-scoring.jsonl.txt').exists())
+
+    def test_fit_scope_rejection_occurs_before_estimator_and_durable_entry(self):
+        class Forbidden:
+            def fit(*args): raise AssertionError('Forbidden fit entered')
+        values = np.ones((2,3)); labels=np.array(w.CLASSES)
+        for idx,allowed in [(np.array([0,0]),np.array([0,1])),(np.array([0,1]),np.array([0]))]:
+            with self.assertRaises(ValueError): w.source_fit(self.rec,'bad',idx,values,labels,Forbidden(),kind='fake',allowed=allowed)
+        self.assertFalse(self.state['new_fitting_entered']);self.assertEqual(self.state['actual_new_model_fit_calls_started'],0)
+        self.data['master_roles'][0]='calibration'
+        with self.assertRaises(ValueError):w.source_fit(self.rec,'bad',np.array([0,1]),values,labels,Forbidden(),kind='fake',allowed=np.array([0,1]))
+        self.assertFalse(self.state['new_fitting_entered'])
+
+    def test_fit_started_is_persisted_before_estimator_failure_and_not_reset_to_zero(self):
+        directory=self.directory
+        class Broken:
+            def fit(inner,values,labels):
+                progress=json.loads((directory/'progress.json').read_text());receipts=json.loads((directory/'fit_receipts.json').read_text())
+                if not progress['new_fitting_entered'] or receipts[0]['status']!='FIT_STARTED':raise AssertionError('Entry was not durable')
+                raise OSError('Deliberate known failure after fit entered')
+        with self.assertRaises(OSError):w.source_fit(self.rec,'broken',np.array([0,1]),np.ones((2,3)),np.array(w.CLASSES),Broken(),kind='fake',allowed=np.array([0,1]))
+        self.assertTrue(self.state['new_fitting_entered']);self.assertEqual(self.state['actual_new_model_fit_calls_started'],1)
+        self.assertEqual(self.state['actual_new_model_fits'],0)
+
+    def test_K_zero_rules_do_not_fit_and_keep_matched_zero_support(self):
+        donor,held,query,pool=w.fixed_scopes(self.data,'ZY03');margins=np.linspace(-2,2,len(held));cache={'ids':self.data['record_ids'][held],'scores':np.column_stack([-margins,margins]),'predictions':np.asarray(w.CLASSES)[(margins>0).astype(int)]}
+        with patch.object(w,'KS',(0,)), patch.object(w,'load_source_cache',return_value=({},cache,{'synthetic':True})), \
+                patch.object(w,'source_fit',side_effect=AssertionError('K0 cannot fit')):
+            w.support_mechanisms(self.rec,{'acid_group':'ZY03','modality':'alpha','draw_seeds':[45]}, {}, {})
+        self.assertEqual(len(self.rec.observations),1+len(w.RULES));self.assertFalse(self.state['new_fitting_entered'])
+        predictions=[o['predictions'] for o in self.rec.observations]
+        self.assertTrue(all(p==predictions[0] for p in predictions))
+
+
+class SourceCacheBoundaryTests(unittest.TestCase):
+    def setUp(self):
+        self.temp=tempfile.TemporaryDirectory(prefix='SYNTHETIC-v3-cache-',dir=ROOT/'.runtime');self.directory=Path(self.temp.name)
+        self.data=manufactured_data();self.params={'acid_group':'ZY03','modality':'alpha'};self.context={'manifest_sha256':'a'*64,'dataset_result':{'synthetic':True},'dependency_states':{'source':'DONE_SEALED'}}
+        donor,held,query,pool=w.fixed_scopes(self.data,'ZY03');self.donor,self.held=donor,held
+        x=w.LEG.features(self.data,donor,'alpha');mean=x.mean(0);scale=x.std(0);scale[scale==0]=1
+        self.cache=self.directory/'cache.npz';margins=np.linspace(-2,2,270);source_margins=np.linspace(-1.5,1.7,246)
+        np.savez_compressed(self.cache,ids=self.data['record_ids'][held],scores=np.column_stack([-margins,margins]),predictions=np.asarray(w.CLASSES)[(margins>0).astype(int)],source_ids=self.data['record_ids'][donor],
+            source_scores=np.column_stack([-source_margins,source_margins]),scaler_mean=mean,scaler_scale=scale,classes=np.asarray(w.CLASSES))
+        self.desc={'schema':w.CACHE_SCHEMA,'dataset_result':self.context['dataset_result'],'manifest_sha256':'a'*64,'source_worker':w.ref(SOURCE),'parameters':self.params,
+            'npz':w.ref(self.cache),'source_ids':self.data['record_ids'][donor].tolist(),'held_ids':self.data['record_ids'][held].tolist(),
+            'fixed_query_ids':self.data['record_ids'][query].tolist(),'support_pool_ids':self.data['record_ids'][pool].tolist(),'scaler_fit_ids':self.data['record_ids'][donor].tolist(),
+            'classes':list(w.CLASSES),'source_labels_sha256':w.digest(self.data['species'][donor].tolist()),'source_vote_scoreargmax_equal':True,'source_margin_std_ddof0':float(np.std(source_margins,ddof=0)),'source_margin_values_sha256':w.array_hash(source_margins),'source_margin_std_fit_ids':self.data['record_ids'][donor].tolist(),'fit_feature_sha256':w.array_hash(x),'gamma_reference':1/(x.shape[1]*((x-mean)/scale).var()),'C_reference':10.}
+        self.descriptor=self.directory/'descriptor.json';self.result=self.directory/'producer.json';self.rebind()
+    def tearDown(self):self.temp.cleanup()
+    def rebind(self):
+        w.save(self.descriptor,self.desc);payload={'status':'COMPLETED','operation':'source_scores','parameters':self.params,'manifest_sha256':'a'*64,'source_worker':w.ref(SOURCE),'source_cache':w.ref(self.descriptor)}
+        w.save(self.result,payload);self.context['dependencies']={'source':w.ref(self.result)}
+    def test_valid_cache_reloads_and_tampered_bytes_are_refused(self):
+        _,cache,_=w.load_source_cache(self.context,{},self.data,self.params)
+        self.assertEqual(cache['scores'].shape,(270,2))
+        with self.cache.open('ab') as f:f.write(b'tampered')
+        with self.assertRaises(ValueError):w.load_source_cache(self.context,{},self.data,self.params)
+    def test_semantic_query_order_source_fingerprint_and_producer_source_are_bound(self):
+        original=copy.deepcopy(self.desc)
+        self.desc['fixed_query_ids']=self.desc['fixed_query_ids'][::-1];self.rebind()
+        with self.assertRaises(ValueError):w.load_source_cache(self.context,{},self.data,self.params)
+        self.desc=original;self.rebind();changed=copy.deepcopy(self.data);changed['alpha_main'][self.donor[0],0]+=.01
+        with self.assertRaises(ValueError):w.load_source_cache(self.context,{},changed,self.params)
+        self.rebind();payload=json.loads(self.result.read_text());payload['source_worker']['sha256']='0'*64;w.save(self.result,payload);self.context['dependencies']['source']=w.ref(self.result)
+        with self.assertRaises(ValueError):w.load_source_cache(self.context,{},self.data,self.params)
+    def test_unsealed_missing_or_multiple_producer_dependencies_are_refused(self):
+        self.context['dependency_states']['source']='RUNNING'
+        with self.assertRaises(ValueError):w.load_source_cache(self.context,{},self.data,self.params)
+        self.context['dependency_states']['source']='DONE_SEALED';self.context['dependencies']['duplicate']=w.ref(self.result);self.context['dependency_states']['duplicate']='DONE_SEALED'
+        with self.assertRaises(ValueError):w.load_source_cache(self.context,{},self.data,self.params)
+        self.context['dependencies']={}
+        with self.assertRaises(ValueError):w.load_source_cache(self.context,{},self.data,self.params)
+
+
+class FakeSubsetScaler:
+    records=[]
+    def fit(self,values):
+        self.mean_=np.asarray(values).mean(0);self.scale_=np.asarray(values).std(0);self.scale_[self.scale_==0]=1.
+        type(self).records.append(np.asarray(values).copy());return self
+    def transform(self,values):return (np.asarray(values)-self.mean_)/self.scale_
+
+
+class FakeFactorSVC:
+    records=[]
+    def __init__(self,C,gamma,class_weight,random_state):self.C,self.gamma=C,gamma;self.classes_=np.asarray(w.CLASSES)
+    def fit(self,values,labels):
+        self._gamma=1/(values.shape[1]*values.var()) if self.gamma=='scale' and values.var()>0 else 1. if self.gamma=='scale' else float(self.gamma)
+        type(self).records.append({'C':self.C,'gamma':self.gamma,'actual_gamma':self._gamma,'x':np.asarray(values).copy(),'y':np.asarray(labels).copy()});return self
+    def decision_function(self,values):return np.asarray(values)[:,0]
+    def predict(self,values):return self.classes_[(self.decision_function(values)>0).astype(int)]
+
+
+class DonorFactorScopeTests(unittest.TestCase):
+    def setUp(self):self.temp=tempfile.TemporaryDirectory(prefix='SYNTHETIC-v3-factors-',dir=ROOT/'.runtime');self.directory=Path(self.temp.name);self.data=manufactured_data()
+    def tearDown(self):self.temp.cleanup()
+    def exercise(self,data,name):
+        donor,held,_,_=w.fixed_scopes(data,'ZY03');x=w.LEG.features(data,donor,'alpha');mean=x.mean(0);scale=x.std(0);scale[scale==0]=1.
+        margin=np.linspace(-2,2,len(held));cache={'scaler_mean':mean,'scaler_scale':scale,'scores':np.column_stack([-margin,margin]),'predictions':np.asarray(w.CLASSES)[(margin>0).astype(int)]}
+        gamma=1/(x.shape[1]*((x-mean)/scale).var());desc={'gamma_reference':gamma};directory=self.directory/name;directory.mkdir();rec=w.Recorder(directory,state(),data)
+        FakeSubsetScaler.records=[];FakeFactorSVC.records=[]
+        with patch.object(w,'load_source_cache',return_value=(desc,cache,{'synthetic':True})),patch.object(w,'StandardScaler',FakeSubsetScaler),patch.object(w,'SVC',FakeFactorSVC):
+            w.donor_mechanisms(rec,{'acid_group':'ZY03','modality':'alpha','draw_seed':45},{},{})
+        return rec,copy.deepcopy(FakeSubsetScaler.records),copy.deepcopy(FakeFactorSVC.records),gamma
+    def test_all_eight_factor_cells_and_single_source_comparators_use_source_only_reference(self):
+        rec,scalers,models,gamma=self.exercise(self.data,'first')
+        self.assertEqual(len(scalers),3);self.assertEqual(len(models),28);self.assertEqual(len(rec.observations),29)
+        self.assertEqual(len(rec.receipts),31)
+        allowed=set(w.fixed_scopes(self.data,'ZY03')[0]);query=set(w.fixed_scopes(self.data,'ZY03')[1])
+        lookup={str(r):i for i,r in enumerate(self.data['record_ids'])}
+        for receipt in rec.receipts:
+            ids={lookup[r] for r in receipt['fit_ids']};self.assertTrue(ids<=allowed);self.assertFalse(ids&query)
+        for n in (6,24,60):
+            selected=[o for o in rec.observations if o['setting'].startswith(f'n{n}/scaler-')]
+            self.assertEqual(len(selected),8)
+            for o in selected:
+                m=o['metadata']
+                if m['gamma_mode']=='full_reference':self.assertEqual(m['actual_gamma'],gamma)
+                if m['C_mode']=='normalized_total_penalty':self.assertAlmostEqual(m['balanced_total_penalty_per_class'],1230.)
+        self.assertEqual(sum(o['setting'].startswith('n24/single_acid_source/') for o in rec.observations),4)
+    def test_held_query_feature_and_truth_interventions_do_not_change_any_learned_input_or_setting(self):
+        _,scalers,models,_=self.exercise(self.data,'original')
+        changed=copy.deepcopy(self.data);held=w.fixed_scopes(changed,'ZY03')[1]
+        changed['alpha_main'][held]=changed['alpha_main'][held]*4+7
+        changed['species'][held]=w.flipped_labels(changed['species'][held])
+        _,newscalers,newmodels,_=self.exercise(changed,'changed-query-only')
+        for a,b in zip(scalers,newscalers):np.testing.assert_array_equal(a,b)
+        for a,b in zip(models,newmodels):
+            self.assertEqual(a['C'],b['C']);self.assertEqual(a['gamma'],b['gamma']);self.assertEqual(a['actual_gamma'],b['actual_gamma'])
+            np.testing.assert_array_equal(a['x'],b['x']);np.testing.assert_array_equal(a['y'],b['y'])
+
+
+class LiveProofGateTests(unittest.TestCase):
+    def setUp(self):
+        self.temp=tempfile.TemporaryDirectory(prefix='SYNTHETIC-v3-proof-',dir=ROOT/'.runtime');self.directory=Path(self.temp.name)
+        supervisor=self.directory/'fake_supervisor.py';supervisor.write_text('# synthetic module, actual import mocked\n')
+        job={'id':'synthetic_source','source':w.ref(SOURCE),'operation':'source_scores','parameters':{'acid_group':'ZY03','modality':'alpha'}}
+        self.manifest=self.directory/'manifest.json';w.save(self.manifest,{'jobs':[job],'supervisor':w.ref(supervisor)})
+        context={'schema':w.CONTEXT_SCHEMA,'manifest_sha256':w.sha(self.manifest),'job_id':job['id'],'job':job,'job_sha256':w.digest(job),'output_directory':str(self.directory/'output')}
+        self.context=self.directory/'context.json';w.save(self.context,context)
+        self.args=argparse.Namespace(manifest=str(self.manifest),manifest_sha256=w.sha(self.manifest),context=str(self.context),context_sha256=w.sha(self.context),job_id=job['id'],output=context['output_directory'],proof=str(self.directory/'proof.json'),execute=True)
+    def tearDown(self):self.temp.cleanup()
+    def test_missing_live_proof_precedes_all_numeric_or_output_entry(self):
+        supervisor=SimpleNamespace(verify_resource_supervision=lambda **kwargs:(_ for _ in ()).throw(ValueError('No live resource proof')))
+        with patch.object(w,'import_file',return_value=supervisor),patch.object(w,'initialize_numerics',side_effect=AssertionError('Numerics entered too soon')) as initialize:
+            with self.assertRaisesRegex(ValueError,'No live resource proof'):w.run(self.args)
+        initialize.assert_not_called();self.assertFalse(Path(self.args.output).exists())
+    def test_changed_context_and_nonexecute_never_enter_fitting(self):
+        self.args.execute=False
+        with patch.object(w,'initialize_numerics',side_effect=AssertionError('Too soon')) as initialize:
+            result=w.run(self.args)
+        self.assertEqual(result['status'],'NOT_RUN');initialize.assert_not_called()
+        payload=json.loads(self.context.read_text());payload['job_sha256']='0'*64;w.save(self.context,payload);self.args.context_sha256=w.sha(self.context);self.args.execute=True
+        with patch.object(w,'initialize_numerics',side_effect=AssertionError('Too soon')):
+            with self.assertRaises(ValueError):w.run(self.args)
+
+
+class ColdSyntheticNoForkTests(unittest.TestCase):
+    def test_tiny_real_svc_scaler_and_anchor_in_fresh_nochild_process(self):
+        code=r'''
+import sys,os,resource,json,importlib.util
+from pathlib import Path
+sys.dont_write_bytecode=True
+for k in ('OMP_NUM_THREADS','OPENBLAS_NUM_THREADS','MKL_NUM_THREADS','NUMEXPR_NUM_THREADS'):os.environ[k]='2'
+resource.setrlimit(resource.RLIMIT_AS,(12*1024**3,)*2)
+attempts=[]
+def nochild(event,args):
+ if event.startswith('subprocess.') or event in ('os.fork','os.forkpty','os.posix_spawn','os.posix_spawnp','os.exec','os.system','os.spawn'):
+  attempts.append(event);raise AssertionError('Synthetic numerical imports/fit cannot fork: '+event)
+sys.addaudithook(nochild)
+p=Path(sys.argv[1]);s=importlib.util.spec_from_file_location('cold_mechanisms',p);w=importlib.util.module_from_spec(s);s.loader.exec_module(w)
+r=w.ROOT/'reports/parallel-cloud-20261106/worker-b/B20261106-01/yanan-cause-followup-v2'
+w.initialize_numerics({'classical':{'legacy_worker':w.ref(r/'preparation/bin/classical_worker.py')},'base_manifest':w.ref(r/'manifest_ROOT_AUTHORIZED.json')})
+np=w.np;x=np.random.default_rng(17).normal(size=(12,8));y=np.asarray(list(w.CLASSES)*6)
+sc=w.StandardScaler().fit(x);z=sc.transform(x);model=w.SVC(C=10,gamma='scale',class_weight='balanced',random_state=42).fit(z,y)
+scores=w.score_matrix(model,z[:4]);a=w.Anchor(w.CLASSES,regularization=1).fit(w.score_matrix(model,z),y)
+aa,bb=w.affine_binary_parameters(a.coef_,a.intercept_)
+assert np.array_equal(w.threshold_predictions(scores,aa,bb),a.predict(scores))
+assert not attempts,attempts
+print(json.dumps({'synthetic_records':12,'features':8,'nochild_attempts':attempts,'real_spectra_read':False}))
+'''
+        completed=subprocess.run([sys.executable,'-c',code,str(SOURCE)],capture_output=True,text=True,timeout=60)
+        self.assertEqual(completed.returncode,0,completed.stdout+completed.stderr)
+        evidence=json.loads(completed.stdout.strip());self.assertFalse(evidence['real_spectra_read']);self.assertEqual(evidence['nochild_attempts'],[])
+
+
+if __name__=='__main__':unittest.main(verbosity=2)

@@ -1,0 +1,261 @@
+{
+  "schema": "research4-b-deep-mechanisms-science-protocol-v3",
+  "status": "ROOT_CANDIDATE_REQUIRES_SOURCE_AND_INDEPENDENT_RELEASE_REVIEW",
+  "created_at_utc": "2026-11-08T11:25:38.465383+00:00",
+  "question": "Discriminate score-threshold calibration, source representation/regularization geometry, and stochastic/BatchNorm transfer mechanisms behind the completed Yanan results.",
+  "authorization_ref": {
+    "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/yanan-cause-followup-v2/deep-mechanisms-v3/preparation/user_authorized_extension_ROOT.json",
+    "sha256": "bdb31425cc03e73702abfa490ca37a470df3618b040939181338d2068d04bfa6",
+    "bytes": 3386
+  },
+  "existing_evidence": {
+    "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/yanan-cause-followup-v2/analysis/independent_final_science_analysis_001.json",
+    "sha256": "5ca1ad8aadee200c801cc78c69bf33acd705ff152e855a87e843956725b99c3b",
+    "bytes": 36774
+  },
+  "labels_and_exposure": {
+    "labels_retained": true,
+    "biological_identity_verified": false,
+    "numeric_pool": "Same sealed999 masterTRAIN only: binary516, auxiliaryHQ241+TM242. CAL334/PRED339 spectra excluded.",
+    "scope": "Further internal, historically exposed-data mechanism exploration. Independent seeds/support draws do not add biological specimens or unseen confirmation.",
+    "no_query_guided_selection_or_exclusion": true,
+    "all_negative_and_missing_results_preserved": true,
+    "origin_batch_confounding_retained": true
+  },
+  "dataset": {
+    "dataset_manifest_ref": {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/yanan-cause-followup-v2/manifest_ROOT_AUTHORIZED.json",
+      "sha256": "d311b693a2fa4f497ecaf6add68a9de168051724f1bd5371d0d59a8aa1c770fc",
+      "bytes": 276508
+    },
+    "main_axis": "exact original612 points0.100708..1.499176THz, no interpolation",
+    "neural_axis": "alpha128 linspace(.21,1.49)THz, no extrapolation",
+    "preprocess": "rowSNV ddof1 per modality; fusion concatenates separately-SNV alpha/n; StandardScaler learned only allowedsource",
+    "loader": "newcontext binds original sealed producer+originalmanifest; original shared loader performs ID/role/species/physical/hash checks. Metadata/orchestration is trusted API scope, not OS filesystem sandbox."
+  },
+  "families": {
+    "source_score_producers": {
+      "jobs": 15,
+      "factors": {
+        "held_acid": [
+          "ZY03",
+          "ZY04",
+          "ZY05",
+          "ZY06",
+          "ZY07"
+        ],
+        "modality": [
+          "alpha",
+          "n",
+          "fusion"
+        ]
+      },
+      "source": "six nonZY01 jujube TRAIN plus240 acid TRAIN from the four unheld acid origins",
+      "model": "SVC C10 gamma=scale class_weight=balanced random_state42, exact legacy score definition[-s,+s] in source class order",
+      "source_only_statistics": [
+        "featureScaler",
+        "gamma_ref=1/(D*variance(fullsource_scaledfeatures))",
+        "source decision-margin standard deviation(ddof0)"
+      ],
+      "cohorts": "fullheld queryZY01210+heldacid60 for donor probes; fixed olddraw42 support-query split yields105ZY01+30acid query, remaining105+30 supportpool",
+      "cache": "fresh15 fixed-source fits produce missing decision-score/coefficient diagnostics; save only sealed local NPZ+small provenance descriptor, no pickle. Subsequent draws reuse scores/context, not new SVC fits.",
+      "SNV_invariance": {
+        "transforms": [
+          [
+            0.5,
+            0
+          ],
+          [
+            2,
+            0
+          ],
+          [
+            1,
+            5
+          ],
+          [
+            2,
+            -5
+          ]
+        ],
+        "test": "positive within-spectrum scale plus constant offset before rowSNV should leave SNV features(allclose atol=rtol1e-10) and same-source model predictions unchanged; no source refit",
+        "qualification": "Mathematical representation sanity, not real thickness/instrument perturbation. Norm association alone cannot establish pure amplitude/constant thickness scaling as the cause of SNV classification errors."
+      }
+    },
+    "support_mechanisms": {
+      "jobs": 60,
+      "chunks": "Each of15 producers has20 support draws seeds45..64, grouped5 perjob; same fixed135query throughout, never reselectquery byerrors",
+      "K_per_class": [
+        0,
+        1,
+        3,
+        5,
+        10,
+        20
+      ],
+      "draw_policy": "label-stratified nested support from fixed105ZY01+30acid nonquery pool. All modalities use same ordered IDs perheldacid/draw/K.",
+      "rules": [
+        "legacy_anchor lambda1",
+        "bias-only residual ridge lambda1",
+        "anchor lambda_K=K/5",
+        "legacy_anchor support labels uniformly permuted preservingK/K counts",
+        "legacy_anchor support labels flipped",
+        "weak anchor lambda1000 blend.05",
+        "support-only ERM decision threshold",
+        "equal-prior unstratified support score centering",
+        "anchor with positive source-score units x0.1",
+        "anchor with positive source-score units x10",
+        "anchor on scores divided by source-only margin std"
+      ],
+      "controls_qualification": [
+        "Balanced K/K bias-only sumtargets=[K,K] is independent of label assignment but depends on labelled balanced sampling. Do not call it wholly unlabelled.",
+        "Unstratified centering draws nested2K IDs without labels from the fixed eligible unionpool; fixedequalclassprior.5, delta_j=(n/2-sum(source_score_j))/(n+1). Pool construction still reflects labelledtaskscope, supports differ from stratified rules.",
+        "Shuffled/flipped labels are explicit null/sensitivity copies only; original labels unchanged. Per-K permutation can equal true labels by chance and must not be forced away.",
+        "Score x.1/x10 are arbitrary decision-score units, not probability or physical spectral units; K0 argmax must be unchanged. SourceSTD uses donors only, no centering/query-derived statistic."
+      ],
+      "regularization_mechanism": "Legacy objective is sum squared residual loss+lambda*||delta||². With2K support, fixedlambda1 weakens per-observation penalty asK grows. lambda_K=K/5 keeps lambda/(2K)=.1, anchored atoldK5; allK retained, nobestKchosen.",
+      "threshold_equivalence": "For binarySVC[-s,s] and affine coefficient matrixC, calibratedclass1-minusclass0=a*s+b witha=C00-C01-C10+C11 andb=b1-b0. Recorda/b/threshold=-b/a, apositive/negative/zero/ties and support condition/residual; compare actuallegacy predictions toderivedrule. a>0 preservesranking/AUC exceptnumericalties; no claim feature geometry adaptation or probability calibration.",
+      "ERM_threshold": "Candidate cutpoints use SUPPORT margins only plusendpoints; minimize support balanced error, tie nearestsource0 thenlowerthreshold. Query labels orquerycandidatecutpoints forbidden.",
+      "full_pipeline_refits": {
+        "K_per_class": [
+          1,
+          5,
+          20
+        ],
+        "scope": "Fresh entire SNV/scaler/SVC on donor+permittedsupport, samequery; separate fromscorecalibration",
+        "total_models": 900
+      },
+      "statistical_scope": "Per-modality repeats135queries over5heldacid×20draws. Count uniqueIDs separately; quantify support-draw variation/ranges and paired changes without treating repeatedpredictions as newN. No confirmatorypvalues orfuture-batch claims."
+    },
+    "donor_geometry_and_penalty": {
+      "jobs": 75,
+      "factors": {
+        "held_acid": 5,
+        "modalities": 3,
+        "draw_seed": [
+          45,
+          46,
+          47,
+          48,
+          49
+        ],
+        "acid_donor_n": [
+          6,
+          24,
+          60
+        ],
+        "scaler": [
+          "current subset",
+          "full246donor"
+        ],
+        "RBF_gamma": [
+          "scale from currenttransformedsubset",
+          "fixedfullsource gamma_ref"
+        ],
+        "SVC_C": [
+          "10",
+          "10*246/(6+n)"
+        ]
+      },
+      "source_coverage": "all six nonZY01jujube donors alwaysretained. Subsample acid donors bynested source-balanced IDhash, noquery stats.",
+      "penalty_rationale": "Underbalancedweights eachclass totalpenalty=C*N/2; C_n=10*246/(6+n) fixes it while acidN varies. The original model was already classweighted.",
+      "fixed_full_donor_baseline": "n240 caseC_n=10, baseline reusedfromproducer, no8 duplicatefits. FullreferenceScaler/gamma learned onallowed246donors, heldgroupsneverincluded.",
+      "diversity_control": "Atn24 useeach of4 singleacid origins24 versus4origins×6; sameN, fullreferenceScaler/gamma_ref/C_n. This separates coverage fromcount moredirectly, still retrospectiveoriginsnotindependentbatches.",
+      "invariance_note": "WhenStandardScaler learned onthe same subset, gamma=scale is approximately1/effectivefeaturecount; gamma-reference factor may algebraicallycollapse inthatbranch. Preserve identical outcomes as controls."
+    },
+    "neural_crossed_rng": {
+      "new_jobs": 790,
+      "encoder_or_pretraining_seed": [
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49
+      ],
+      "target_head_order_dropout_seed": [
+        101,
+        202,
+        303
+      ],
+      "folds": [
+        [
+          "ZY01",
+          "ZY03"
+        ],
+        [
+          "ZY02",
+          "ZY04"
+        ],
+        [
+          "ZR02",
+          "ZY05"
+        ],
+        [
+          "ZR01",
+          "ZY07"
+        ],
+        [
+          "ZR03",
+          "ZY06"
+        ]
+      ],
+      "pretraining_optimizer_steps": [
+        120,
+        480
+      ],
+      "adaptation": [
+        "full",
+        "frozen_native_BN"
+      ],
+      "arms": [
+        "A scratch",
+        "Aextra donor-only originpretraining",
+        "B HQ/TM originpretraining",
+        "Bshuffle within-plant origin-label permutation"
+      ],
+      "job_design": "20 newauxpretrain+50 newtargetpretrain+240 A-cross targetmodels+480 eval-cross(each3 newtargetarms and sealedAdependency). A reused across120/480, not counted twice.",
+      "inherited_pretraining": "Exactly42 old sealed purepretrain producers (12aux+30target;preseed42..44), matchedscope/profile/axis/scalers/sourceIDs/checkpointSHA/raw-wait4/seal. No oldtarget-finetunedweights oroldhead/prediction reuse. No cost refund.",
+      "profile": "Pinned legacy Encoder width12/2blocks/residual/noattention/dropout.35/embedding16, Adam lr.0005 weightdecay.001, target96epochs batch64 inverseclasscount CE; pretrain min(32,poolN) uniform withinbatch no duplicate, separate originheads alternate.",
+      "pairing": "Encoderinitial/pretraining stochasticity depends encoder_seed; targethead/order/dropout depends independenttarget_seed. Withincondition allarms matchheadinitialstate, targetorder andtargetepochs. This separates two aggregate RNGsources, not individual mini-batch versusdropout effects within eachsource.",
+      "qualification": "Equalpretrainingsteps do not equal exposures/FLOPs; fold0Aextra juju pool6 givesbatch6 versus32. Record exposures andactualCPU. Full andfrozen,120 and480 allretained; noonly-positive-cell selection.",
+      "inference": "source-only scaler/gradient APIs; predict ID/logits beforepuretruthjoin; eval/no_grad singleton/reverse/fixedpermutation/batch7/64, allclose atol=rtol1e-5 plusargmax/fullstate invariance, combinedabsoluterelative criterion; frozennoBNresetinmainmatrix"
+    },
+    "BN_probes": {
+      "jobs": 30,
+      "design": "5folds × encoderseed42/43/44 × twointerventions, fixedtargetseed101,480steps,frozen. Native outcomes inheritedfromthe correspondingnewcrossed-RNG endpoints.",
+      "interventions": [
+        "neutral buffers(mean0,var1,count0; affineweightsunchanged)",
+        "source-recalibrated buffers"
+      ],
+      "source_recalibration": "Explicitsource-only learnedoperation: one complete donorbatch, no_grad, dropoutoff, onlyBN.train withmomentum1; allweightparameterSHA unchanged, onlyrunningbuffers deliberatelyupdated. Restoreeval/freeze then96targetheadepochs; entireencoderstate mustremaininvariant duringheadtraining/inference. Query/supportneverestimateBN.",
+      "arms": "A/Aextra/B/Bshuffle allincluded. NeutralA mayreuse nativeA onlyafterexactwholeencoderstate/head/order/scaler equality; no syntheticduplicatefit.",
+      "new_target_models": 105,
+      "qualification": "New explicit mechanismablation, not a change toold keepBN protocol. Apredeclared480condition probeonhistoricallyseen data; changesweightsvsstatistics arequalified controls, not proof oftruebatchcalibration."
+    }
+  },
+  "summary_and_decisions": {
+    "finite_jobs": 971,
+    "completeness": "Source15, support60chunks(all20draws each15sources), donor75(allfixedcells), neural790 andBN30 mustbe checkedperexpectedfactor/config/cohort, notmerelyjobcounts. Missing/partial outcomesremain explicit; no winnerfromavailableblocks.",
+    "factor_variance": "For complete8encoder×3targetseed cross perarm/step/adapt, reportdescriptive encoderfactor/targetfactor/interaction variation on5foldaggregates andpaireddeltasB-A/B-Aextra/B-Bshuffle. Numericseedvariance isnotbiologicalsamplinguncertainty.",
+    "label_information": "Anchor/bias/ranking/scoreunits/real-vs-null support jointlytestmechanism. Improvedclassification consistency cannotauthenticate plantidentity.",
+    "nonmonotone_K": "Separate regularization-per-observation changes, supportselectionvariation, andfeature/sourcegeometry throughfixedquery/normalizedlambda/donorcontrols. Do notselectoptimalK fromqueryresults.",
+    "transfer": "Reportallfourmainconditions andperseed/source results; no generalpositive-transfer claim fromone BNpolicy ormean.",
+    "storage": "Result metadata<=2MiB, per-arm/settingJSONshards orCSV, main summaryindex<=512KiB. Keepallnumericalnegative results; NPZ/PT andbatchtraceslocal, smallimmutable results/proof/sourceTXT onlyreturned."
+  },
+  "execution": {
+    "same_ledger": "Originalcurrent Yanan90000-round ledger. Newextension field literal deep-mechanisms-v3, auxiliaryv3science rows, sidecarjobstate/sealleaves; original220phases/scientificresulttags/publicationv1/v2 remainintact.",
+    "new_CPU_grant": 0,
+    "remaining_before_extension": 87163.59310300004,
+    "deadline_utc": "2026-11-09T08:25:17.730193+00:00",
+    "threads": 2,
+    "address_space_gib": 12,
+    "rss_stop_gib": 8,
+    "single_scientific_worker": true,
+    "retry": "Only evidenced closed operational failure explicitly before anyfit/train canretry finitely. Enteredlearning/partial checkpoints notwholejobrepeated; scientificnegative isvalid outcome. UnknownCPU/treeblocks.",
+    "publication": "OriginalboundedBreturnhelper aftersciencechildclosed, prevalidatedsmallallowlists/stabledata. Stopadditionalpublicationattempts ifunknown/preexistingindex; continueknownhealthy science andrecordpending. Noreset/clean/force/main merge.",
+    "finish": "Originalcap/deadline orfiniteDAGclosure terminates. No hourly chatreport automation. Rootverifiestrue detachedidentity/freshfitprogress thenendssetupturn."
+  }
+}

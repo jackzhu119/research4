@@ -1,0 +1,257 @@
+"""Synthetic isolated runtime integration; no real data, Git or production state."""
+from __future__ import annotations
+import ast
+from copy import deepcopy
+import hashlib
+import importlib.util
+import json
+import os
+from pathlib import Path
+import shutil
+import subprocess
+import sys
+import tempfile
+import unittest
+from unittest import mock
+
+SOURCE = Path(__file__).with_name('deep_mechanisms_supervisor.py')
+ROOT = next(p for p in SOURCE.parents if (p / '.git').exists())
+BASE_REL = Path('reports/parallel-cloud-20261106/worker-b/B20261106-01/yanan-cause-followup-v2')
+ORIGINAL_S = ROOT / BASE_REL / 'preparation/bin/yanan_followup_supervisor.py'
+ORIGINAL_B = ROOT / 'scripts/research4_b_negative_subspace_supervisor_20261108.py'
+
+WORKER = r'''import argparse,importlib.util,json,os,subprocess,sys,time
+from pathlib import Path
+p=argparse.ArgumentParser()
+for name in ('manifest','manifest-sha256','job-id','context','context-sha256','output','proof'):p.add_argument('--'+name,required=True)
+p.add_argument('--execute',action='store_true');a=p.parse_args()
+spec=importlib.util.spec_from_file_location('fixture_actual_v3_supervisor',Path(__file__).with_name('deep_mechanisms_supervisor.py'));e=importlib.util.module_from_spec(spec);spec.loader.exec_module(e)
+proof=e.verify_resource_supervision(expected_worker_path=Path(__file__).resolve(),expected_threads=2,expected_manifest_sha256=a.manifest_sha256,expected_job_id=a.job_id,expected_context_sha256=a.context_sha256,expected_proof_path=a.proof)
+c=e.read(a.context,a.context_sha256);out=Path(a.output);out.mkdir(parents=True)
+assert c['dataset_result']==e.read(e.S.state_path())['results']['prepare_data']
+assert e.read(e.checked(c['dataset_result']))['synthetic_fixture_only'] is True
+r={'schema':'synthetic-deep-v3-result','status':'COMPLETED','job_id':a.job_id,'manifest_sha256':a.manifest_sha256,'context_sha256':a.context_sha256,'resource_supervision':proof,'source_worker':e.ref(__file__),'synthetic_fixture_only':True,'new_fitting_entered':False,'new_training_entered':False,'actual_new_model_fit_calls_started':0,'actual_new_model_fits':0,'actual_train_calls_started':0,'actual_train_calls_completed':0,'dependency_states':c['dependency_states']}
+t=time.process_time()
+while time.process_time()-t<.025:pass
+mode=c['job']['parameters'].get('mode')
+if mode=='descendant':
+ (out/'result.json').write_text(json.dumps(dict(r,status='PARTIAL')))
+ child=subprocess.Popen([sys.executable,'-c','import time;time.sleep(1.5)'])
+ child.wait()
+if c['attempt']==1 and mode in ('prefit','fit-entered','train-entered'):
+ r.update(status='PARTIAL',exception_type='OSError')
+ if mode=='fit-entered':r.update(new_fitting_entered=True,actual_new_model_fit_calls_started=1)
+ if mode=='train-entered':r.update(new_training_entered=True,actual_train_calls_started=1)
+ (out/'result.json').write_text(json.dumps(r));raise SystemExit(2)
+if mode=='wrong-result':r['manifest_sha256']='0'*64
+if mode=='oversized':r['synthetic_padding']='x'*(2*1024**2)
+if c['job'].get('kind')=='summary':
+ r['status']='SUMMARY_COMPLETE' if all(v=='DONE_SEALED' for v in c['dependency_states'].values()) else 'PARTIAL_BLOCKS_PRESERVED'
+ r['winner_selected']=False
+(out/'result.json').write_text(json.dumps(r))
+'''
+
+
+def load(file, name):
+    sp=importlib.util.spec_from_file_location(name,file);m=importlib.util.module_from_spec(sp);sp.loader.exec_module(m);return m
+
+
+def bytes_sha(file): return hashlib.sha256(Path(file).read_bytes()).hexdigest()
+
+
+def simple_ref(file): return {'path':str(file),'sha256':bytes_sha(file)}
+
+
+def write(file, value):
+    Path(file).parent.mkdir(parents=True,exist_ok=True)
+    Path(file).write_text(json.dumps(value,indent=2)+'\n')
+
+
+class DeepControllerTests(unittest.TestCase):
+    def setUp(self):
+        self.temp=tempfile.TemporaryDirectory(prefix='SYNTHETIC-deep-v3-engine-')
+        self.root=Path(self.temp.name);(self.root/'.git').mkdir();(self.root/'scripts').mkdir()
+        shutil.copyfile(ORIGINAL_B,self.root/'scripts'/ORIGINAL_B.name)
+        self.base_work=self.root/BASE_REL;self.work=self.base_work/'deep-mechanisms-v3';self.bin=self.work/'preparation/bin';self.bin.mkdir(parents=True)
+        old=self.base_work/'preparation/bin/yanan_followup_supervisor.py';old.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(ORIGINAL_S,old)
+        self.debit=self.base_work/'preparation/debit.json';write(self.debit,{'synthetic_fixture_only':True})
+        self.base_path=self.base_work/'manifest_ROOT_AUTHORIZED.json'
+        self.base={'boot_id':Path('/proc/sys/kernel/random/boot_id').read_text().strip(),'preparation_debit_ref':simple_ref(self.debit),'jobs':[]}
+        write(self.base_path,self.base);base_sha=bytes_sha(self.base_path)
+        code=SOURCE.read_text().replace("BASE_MANIFEST_SHA = 'd311b693a2fa4f497ecaf6add68a9de168051724f1bd5371d0d59a8aa1c770fc'", 'BASE_MANIFEST_SHA = '+repr(base_sha));tree=ast.parse(code);lines=code.splitlines(keepends=True)
+        changes={
+            'validate_manifest': "def validate_manifest(manifest, manifest_sha, *, check_inputs=True):\n    require(sha(checked(manifest['supervisor']))==sha(SELF), 'Fixture supervisor binding changed')\n    require(sha(checked(manifest['base_manifest']))==BASE_MANIFEST_SHA, 'Fixture base binding changed')\n    return read(BASE_WORK/'manifest_ROOT_AUTHORIZED.json'), read(checked(manifest['authorization_ref']))\n",
+            'validate_base_closed': "def validate_base_closed(base, ledger, state, auth):\n    S.validate_accounting(ledger,state,base,BASE_MANIFEST_SHA)\n    require(not any(r['status']=='RUNNING' for r in ledger['auxiliary_costs']), 'Fixture old child still active')\n    return assert_old_preserved(ledger,state,auth)\n",
+        }
+        for node in sorted((n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name in changes),key=lambda n:n.lineno,reverse=True):
+            lines[node.lineno-1:node.end_lineno]=[changes[node.name]]
+        self.source=self.bin/SOURCE.name;self.source.write_text(''.join(lines));self.m=load(self.source,'synthetic_deep_v3_engine')
+        python=Path(self.m.S.PYTHON);python.parent.mkdir(parents=True,exist_ok=True);python.symlink_to(sys.executable)
+        self.worker=self.bin/'synthetic_worker.py';self.worker.write_text(WORKER)
+        self.dataset=self.base_work/'dataset.json';write(self.dataset,{'synthetic_fixture_only':True,'no_numeric_spectra':True})
+        self.current_allocation=self.base_work/'synthetic_old_allocation.json';write(self.current_allocation,{'synthetic_fixture_only':True,'new_grant':0})
+        self.auth=self.work/'preparation/authorization.json'
+        self.old_ledger=self.work/'preparation/prior_ledger.json';self.old_state=self.work/'preparation/prior_state.json'
+        self.protocol=self.work/'preparation/protocol.json';write(self.protocol,{'synthetic_fixture_only':True})
+        self.ledger={'schema':self.m.S.LEDGER_SCHEMA,'manifest_sha256':base_sha,'supervisor_sha256':bytes_sha(old),'boot_id':self.base['boot_id'],
+            'cpu_cap_seconds':self.m.S.CAP,'round_cpu_cap_seconds':90000,'preparation_conservative_debit_cpu_seconds':1000,
+            'preparation_debit_ref':simple_ref(self.debit),'finalization_hold_seconds':3,'finalization_hold_is_not_measured_CPU':True,
+            'parents':[{'id':'synthetic-prior','status':'CLOSED','self_cpu_seconds':1.0}],'phases':[],'auxiliary_costs':[],
+            'publication_recovery':{'status':'BLOCKED_REQUIRES_FORENSICS','fixture_preserve':True},'publication_recovery_v2':{'status':'FINALIZED','return_pending':[]},
+            'carry':{'actual_closed_cpu_seconds':82727.759434,'budget_charged_cpu_seconds':83728.759434,'permanent_conservative_debit_cpu_seconds':1000,'old_nonmeasured_hold_seconds':1}}
+        self.shared={'manifest_sha256':base_sha,'status':'PUBLICATION_V2_FINALIZED','jobs':{'prior':'unchanged'},'results':{'prepare_data':self.m.ref(self.dataset)},'git_return_attempts':[{'old':'preserve'}],'git_stages':{'old':{'remote_verified':True}}}
+        self.refresh_history()
+        self.manifest={'schema':self.m.SCHEMA,'extension_id':self.m.EXTENSION_ID,'run_id':self.m.S.RUN_ID,'branch':self.m.S.BRANCH,
+            'work_directory':str(self.work),'base_manifest':self.m.ref(self.base_path),'dataset_manifest':self.m.ref(self.base_path),
+            'dataset_result':self.m.ref(self.dataset),'supervisor':self.m.ref(self.source),'source_refs':[self.m.ref(self.source),self.m.ref(self.worker)],
+            'authorization_ref':self.m.ref(self.auth),'protocol_ref':self.m.ref(self.protocol),'inputs':{},'git_return':{'enabled':False},'jobs':[]}
+        self.manifest['jobs']=[self.job('one'),self.job('two',depends=['one']),self.job('summary',depends=['one','two'],kind='summary')]
+        self.manifest_path=self.work/'manifest.json';self.write_manifest()
+
+    def tearDown(self): self.temp.cleanup()
+
+    def refresh_history(self):
+        write(self.old_ledger,self.ledger);write(self.old_state,self.shared)
+        write(self.m.S.ledger_path(),self.ledger);write(self.m.S.state_path(),self.shared)
+        write(self.auth,{'current_allocation_ref':self.m.ref(self.current_allocation),'predecessor_ledger_ref':self.m.ref(self.old_ledger),'predecessor_state_ref':self.m.ref(self.old_state)})
+
+    def job(self,name,depends=(),kind='classical',mode=None,cpu=20):
+        j={'id':name,'kind':kind,'operation':'synthetic','source':self.m.ref(self.worker),'parameters':{} if mode is None else {'mode':mode},
+            'depends_on':list(depends),'cpu_seconds':cpu,'wall_seconds':20,'max_attempts':2,'result_schema':'synthetic-deep-v3-result','success_statuses':['COMPLETED']}
+        if kind=='summary':j.update(allow_partial_dependencies=True,success_statuses=['SUMMARY_COMPLETE','PARTIAL_BLOCKS_PRESERVED'])
+        return j
+
+    def write_manifest(self):
+        write(self.manifest_path,self.manifest);self.manifest_sha=bytes_sha(self.manifest_path)
+
+    def execute(self):
+        self.write_manifest()
+        return subprocess.run([self.m.S.PYTHON,str(self.source),'--manifest',str(self.manifest_path),'--manifest-sha256',self.manifest_sha,'--attempt','synthetic-run','--execute'],cwd=self.root,capture_output=True,text=True,timeout=20)
+
+    def snapshot(self):return self.m.read(self.m.S.ledger_path()),self.m.read(self.m.S.state_path()),self.m.read(self.work/'state.json')
+
+    def test_actual_context_proof_native_limits_wait4_seal_and_done_skip(self):
+        original=self.manifest_path.read_bytes();done=self.execute();self.assertEqual(done.returncode,0,done.stderr)
+        ledger,shared,local=self.snapshot();rows=self.m.extension_rows(ledger,self.manifest_sha)
+        self.assertEqual(len(rows),3);self.assertTrue(all(x['status']=='DONE_SEALED' for x in local['jobs'].values()))
+        self.assertEqual(self.manifest_path.read_bytes(),original)
+        self.assertEqual(ledger['phases'],[]);self.assertEqual(shared['jobs'],self.shared['jobs']);self.assertEqual(shared['results'],self.shared['results'])
+        self.assertEqual(ledger['publication_recovery'],self.ledger['publication_recovery']);self.assertEqual(ledger['parents'][0],self.ledger['parents'][0])
+        self.assertTrue(all('job_id' not in row and row.get('v3_job_id') for row in rows))
+        actual=0
+        for row in rows:
+            receipt=self.m.read_ref(row['wait4_receipt']);cost=receipt['ru_utime_seconds']+receipt['ru_stime_seconds'];actual+=cost
+            self.assertGreater(cost,.025);self.assertAlmostEqual(row['actual_cpu_seconds'],cost)
+            self.assertEqual(row['exit_code'],os.waitstatus_to_exitcode(receipt['raw_wait_status']))
+            result=self.m.read_ref(local['results'][row['v3_job_id']]);proof=result['resource_supervision']['proof']
+            self.assertEqual(proof['threads'],2);self.assertEqual(proof['address_space_bytes'],12*1024**3)
+            self.assertEqual(proof['rss_stop_bytes'],8*1024**3);self.assertEqual(proof['new_CPU_authorization_seconds'],0)
+            self.assertTrue(result['resource_supervision']['live_parent_process_and_source_verified'])
+            seal=self.m.read_ref(local['jobs'][row['v3_job_id']]['seal']);self.assertEqual(seal['closed_row_sha256'],self.m.digest(row))
+        self.assertAlmostEqual(self.m.S.budget_totals(ledger)['wait4_child_cpu_seconds'],actual)
+        self.assertEqual(ledger['finalization_hold_seconds'],4)
+        args=type('Args',(),{'manifest':str(self.manifest_path),'manifest_sha256':self.manifest_sha})()
+        with mock.patch.object(self.m,'run_child',side_effect=AssertionError('DONE must never rerun')):
+            self.m.run_job(args,self.manifest,self.base,ledger,shared,local,self.manifest['jobs'][1])
+        ctx=self.m.read(self.work/'contexts/two/attempt001/resolved_context.json')
+        self.assertEqual(ctx['dependencies'],{'one':local['results']['one']});self.assertEqual(ctx['dataset_manifest'],self.manifest['base_manifest'])
+        result_file=self.m.checked(local['results']['two']);result_file.write_bytes(result_file.read_bytes()+b'\n')
+        with mock.patch.object(self.m,'run_child',side_effect=AssertionError('tampered DONE must not rerun')):
+            with self.assertRaisesRegex(ValueError,'Pinned bytes changed'):
+                self.m.run_job(args,self.manifest,self.base,ledger,shared,local,self.manifest['jobs'][1])
+
+    def test_result_manifest_mismatch_fails_validation_without_retry(self):
+        self.manifest['jobs']=[self.job('mismatch',mode='wrong-result')]
+        done=self.execute();self.assertEqual(done.returncode,0,done.stderr)
+        ledger,_,local=self.snapshot();self.assertEqual(local['jobs']['mismatch']['status'],'FAILED_RESULT_VALIDATION_CLOSED')
+        self.assertEqual(len(self.m.extension_rows(ledger,self.manifest_sha)),1)
+        self.assertNotIn('mismatch',local['results'])
+
+    def test_oversized_result_preserved_and_partial_summary_survives(self):
+        self.manifest['jobs']=[self.job('large',mode='oversized'),self.job('summary',depends=['large'],kind='summary')]
+        done=self.execute();self.assertEqual(done.returncode,0,done.stderr)
+        ledger,_,local=self.snapshot();self.assertEqual(local['jobs']['large']['status'],'FAILED_RESULT_VALIDATION_CLOSED')
+        rows=[r for r in self.m.extension_rows(ledger,self.manifest_sha) if r.get('v3_job_id')=='large'];self.assertEqual(len(rows),1)
+        file=self.m.path(rows[0]['output_directory'])/'result.json';self.assertGreater(file.stat().st_size,2*1024**2)
+        self.assertEqual(bytes_sha(file),rows[0]['result_sha256'])
+        report=self.m.read_ref(local['results']['summary']);self.assertEqual(report['status'],'PARTIAL_BLOCKS_PRESERVED')
+
+    def test_prefit_failure_retries_with_both_actual_costs(self):
+        self.manifest['jobs'][0]['parameters']['mode']='prefit';done=self.execute();self.assertEqual(done.returncode,0,done.stderr)
+        ledger,_,local=self.snapshot();rows=[x for x in self.m.extension_rows(ledger,self.manifest_sha) if x.get('v3_job_id')=='one']
+        self.assertEqual(len(rows),2);self.assertTrue(rows[0]['retry_decision']['allowed']);self.assertEqual(local['jobs']['one']['status'],'DONE_SEALED')
+        self.assertTrue(all(x['actual_cpu_seconds']>.025 for x in rows))
+
+    def test_fit_train_entered_not_retried_partial_dependencies_preserved(self):
+        self.manifest['jobs']=[self.job('fit',mode='fit-entered'),self.job('train',mode='train-entered'),self.job('blocked',depends=['fit']),self.job('summary',depends=['fit','train','blocked'],kind='summary')]
+        done=self.execute();self.assertEqual(done.returncode,0,done.stderr);ledger,_,local=self.snapshot()
+        for name in ('fit','train'):
+            rows=[x for x in self.m.extension_rows(ledger,self.manifest_sha) if x.get('v3_job_id')==name]
+            self.assertEqual(len(rows),1);self.assertFalse(rows[0]['retry_decision']['allowed'])
+        self.assertEqual(local['jobs']['blocked']['status'],'NOT_RUN_DEPENDENCY')
+        r=self.m.read_ref(local['results']['summary']);self.assertEqual(r['status'],'PARTIAL_BLOCKS_PRESERVED');self.assertFalse(r['winner_selected'])
+
+    def test_native_only_guard_retains_real_wait4_before_unknown_block(self):
+        self.manifest['jobs']=[self.job('forbidden_child',mode='descendant')]
+        done=self.execute();self.assertNotEqual(done.returncode,0)
+        ledger,_,_=self.snapshot();rows=self.m.extension_rows(ledger,self.manifest_sha);self.assertEqual(len(rows),1)
+        row=rows[0];self.assertEqual(row['status'],'BLOCKED_UNKNOWN');self.assertTrue(ledger['blocked_unknown_cpu_or_process_tree'])
+        receipt=self.m.read_ref(row['wait4_receipt']);self.assertTrue(receipt['unsupported_tree_observed'])
+        self.assertGreater(receipt['ru_utime_seconds']+receipt['ru_stime_seconds'],.025)
+        self.assertNotEqual(self.m.S.budget_totals(ledger)['unresolved_execution_cpu_reservation_seconds'],0)
+        self.assertFalse(self.m.is_live(row['child_identity']))
+
+    def test_budget_insufficient_normal_job_still_runs_reserved_partial_summary(self):
+        self.ledger['parents'][0]['self_cpu_seconds']=88820.0;self.refresh_history();self.manifest['authorization_ref']=self.m.ref(self.auth)
+        self.manifest['jobs']=[self.job('not_enough',cpu=5),self.job('summary',depends=['not_enough'],kind='summary',cpu=5)]
+        done=self.execute();self.assertEqual(done.returncode,0,done.stderr);ledger,_,local=self.snapshot()
+        self.assertEqual(local['jobs']['not_enough']['status'],'NOT_RUN_RESOURCE_OR_DEADLINE');self.assertEqual(local['jobs']['summary']['status'],'DONE_SEALED')
+        self.assertEqual([x.get('v3_job_id') for x in self.m.extension_rows(ledger,self.manifest_sha)],['summary'])
+
+    def test_live_parent_birth_identity_rejects_duplicate_detach_before_launch(self):
+        current=self.work/'current-launch.json';write(current,{'identity':self.m.identity(os.getpid())});original=current.read_bytes()
+        completed=subprocess.run([self.m.S.PYTHON,str(self.source),'--manifest',str(self.manifest_path),'--manifest-sha256',self.manifest_sha,'--attempt','duplicate-detach','--execute','--detach'],cwd=self.root,capture_output=True,text=True,timeout=10)
+        self.assertNotEqual(completed.returncode,0);self.assertIn('existing extension parent/session is still active',completed.stderr)
+        self.assertFalse((self.work/'launches/duplicate-detach').exists());self.assertEqual(current.read_bytes(),original)
+        self.assertFalse(self.m.CLAIM.exists())
+
+    def test_unsettled_claim_rejects_new_detach_without_overwriting_evidence(self):
+        write(self.m.CLAIM,{'synthetic_fixture_only':True});ledger=deepcopy(self.ledger);ledger[self.m.EXTENSION_ID]={'status':'BLOCKED_PRESERVED'};write(self.m.S.ledger_path(),ledger)
+        before=self.m.CLAIM.read_bytes();completed=subprocess.run([self.m.S.PYTHON,str(self.source),'--manifest',str(self.manifest_path),'--manifest-sha256',self.manifest_sha,'--attempt','unsafe-detach','--execute','--detach'],cwd=self.root,capture_output=True,text=True,timeout=10)
+        self.assertNotEqual(completed.returncode,0);self.assertIn('Unsettled extension accounting',completed.stderr)
+        self.assertEqual(self.m.CLAIM.read_bytes(),before);self.assertFalse((self.work/'launches/unsafe-detach').exists())
+
+    def test_bounded_large_ledger_read_is_not_global_metadata_exception(self):
+        big={'synthetic_padding':'x'*(5*1024**2)};write(self.m.S.ledger_path(),big);other=self.work/'large_untrusted.json';write(other,big)
+        self.assertEqual(len(self.m.read(self.m.S.ledger_path())['synthetic_padding']),5*1024**2)
+        with self.assertRaisesRegex(ValueError,'explicit bounded'):self.m.read(other)
+        self.assertEqual(len(self.m.read(other,limit=8*1024**2)['synthetic_padding']),5*1024**2)
+
+    def test_old_prefix_and_original_science_protection(self):
+        auth=self.m.read(self.auth);self.m.assert_old_preserved(deepcopy(self.ledger),deepcopy(self.shared),auth)
+        changed=deepcopy(self.ledger);changed['parents'][0]['self_cpu_seconds']=0
+        with self.assertRaisesRegex(ValueError,'prefix'):self.m.assert_old_preserved(changed,deepcopy(self.shared),auth)
+        changed=deepcopy(self.shared);changed['jobs']['prior']='changed'
+        with self.assertRaisesRegex(ValueError,'scientific state'):self.m.assert_old_preserved(deepcopy(self.ledger),changed,auth)
+        changed=deepcopy(self.ledger);changed['publication_recovery_v2']['status']='changed'
+        with self.assertRaisesRegex(ValueError,'provenance'):self.m.assert_old_preserved(changed,deepcopy(self.shared),auth)
+
+    def test_deadline_rejects_before_declaring_child(self):
+        args=type('Args',(),{'manifest_sha256':self.manifest_sha})()
+        before=deepcopy(self.ledger)
+        with mock.patch.object(self.m.time,'time',return_value=self.m.datetime.fromisoformat(self.m.S.DEADLINE).timestamp()-9):
+            with self.assertRaisesRegex(ValueError,'deadline'):
+                self.m.run_child(args,self.manifest,self.base,self.ledger,self.shared,{},phase='not-started',command=['never'],cpu=5,wall=20)
+        self.assertEqual(self.ledger,before)
+
+    def test_missing_or_bad_counter_never_enables_retry(self):
+        base={'new_fitting_entered':False,'new_training_entered':False,'actual_new_model_fit_calls_started':0,'actual_new_model_fits':0,'actual_train_calls_started':0,'actual_train_calls_completed':0,'exception_type':'OSError'}
+        self.assertTrue(self.m.retry_decision(base,{},1,2)['allowed'])
+        for key in ('actual_new_model_fit_calls_started','actual_new_model_fits','actual_train_calls_started','actual_train_calls_completed'):
+            for invalid in (None,False,-1,0.0):
+                x=dict(base);x[key]=invalid;self.assertFalse(self.m.retry_decision(x,{},1,2)['allowed'])
+        self.assertFalse(self.m.retry_decision(base,{'stop_reason':'CPU_GUARD'},1,2)['allowed'])
+        self.assertFalse(self.m.retry_decision(base,{},2,2)['allowed'])
+
+
+if __name__=='__main__':unittest.main()

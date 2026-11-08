@@ -1,0 +1,665 @@
+#!/usr/bin/env python3
+"""Bounded v3 source/threshold/support/donor mechanism experiments.
+
+Numerical imports and learned operations follow an actual live resource proof.
+The fixed source/label declarations are retained; no botanical identity is inferred.
+Source-only fitting, inference, prediction persistence and truth scoring are separate.
+"""
+from __future__ import annotations
+
+import argparse
+from collections import Counter
+import hashlib
+import importlib.util
+import json
+import os
+from pathlib import Path
+import resource
+import signal
+import sys
+import time
+import traceback
+import warnings
+
+ROOT = next(p for p in Path(__file__).resolve().parents if (p / 'AGENTS.md').is_file())
+SCHEMA = 'research4-b-classical-mechanisms-result-v3'
+CACHE_SCHEMA = 'research4-b-classical-source-scores-v3'
+CONTEXT_SCHEMA = 'research4-b-deep-mechanisms-context-v3'
+OLD_WORKER_SHA = '239f6fd86a30ec71e14e1ce4ad06059e52ccc7581d172d6eb5b9facb6c7116a0'
+CLASSES = ('枣仁', '酸枣仁')
+ACID = ('ZY03', 'ZY04', 'ZY05', 'ZY06', 'ZY07')
+MODALITIES = ('alpha', 'n', 'fusion')
+KS = (0, 1, 3, 5, 10, 20)
+RULES = ('anchor_lambda1', 'bias_lambda1', 'anchor_lambda_per_sample',
+         'anchor_permuted_labels', 'anchor_flipped_labels', 'weak_lambda1000_blend005',
+         'support_ERM_threshold', 'equal_prior_unstratified_center',
+         'anchor_score_scale01', 'anchor_score_scale10', 'source_std_anchor')
+ZERO = {'new_fitting_entered': False, 'actual_new_model_fit_calls_started': 0,
+        'actual_new_model_fits': 0, 'new_training_entered': False,
+        'actual_train_calls_started': 0, 'actual_train_calls_completed': 0}
+
+
+def require(value, message):
+    if not value:
+        raise ValueError(message)
+
+
+def sha(path):
+    h = hashlib.sha256()
+    with Path(path).open('rb') as f:
+        for block in iter(lambda: f.read(1024 ** 2), b''):
+            h.update(block)
+    return h.hexdigest()
+
+
+def checked(binding):
+    p = Path(binding['path']); p = p if p.is_absolute() else ROOT / p
+    require(not any(q.is_symlink() for q in (p, *p.parents)), 'Symlink input rejected')
+    p = p.resolve()
+    require(p.is_relative_to(ROOT) and p.is_file() and sha(p) == binding['sha256'], 'Frozen input/source mismatch')
+    if 'bytes' in binding:
+        require(p.stat().st_size == binding['bytes'], 'Frozen byte count mismatch')
+    return p
+
+
+def ref(path):
+    p = Path(path).resolve()
+    require(p.is_relative_to(ROOT), 'Artifact escapes B repository')
+    return {'path': str(p.relative_to(ROOT)), 'sha256': sha(p), 'bytes': p.stat().st_size}
+
+
+def read_ref(binding, limit=8 * 1024 ** 2):
+    p = checked(binding); require(p.stat().st_size <= limit, 'Bounded JSON exceeds limit')
+    return json.loads(p.read_text())
+
+
+def save(path, value):
+    p = Path(path); temporary = p.with_name(p.name + '.tmp')
+    with temporary.open('w') as f:
+        json.dump(value, f, ensure_ascii=False, separators=(',', ':'), allow_nan=False)
+        f.write('\n'); f.flush(); os.fsync(f.fileno())
+    require(temporary.stat().st_size <= 2 * 1024 ** 2, 'Split result metadata before exceeding2MiB')
+    os.replace(temporary, p)
+
+
+def import_file(path, name):
+    spec = importlib.util.spec_from_file_location(name, path)
+    module = importlib.util.module_from_spec(spec); sys.modules[name] = module
+    spec.loader.exec_module(module); return module
+
+
+def digest(value):
+    return hashlib.sha256(json.dumps(value, sort_keys=True, allow_nan=False).encode()).hexdigest()
+
+
+def array_hash(x):
+    return hashlib.sha256(np.ascontiguousarray(x, dtype='<f8').tobytes()).hexdigest()
+
+
+def hash_order(ids, seed, domain):
+    return sorted(map(str, ids), key=lambda x: (hashlib.sha256(f'20261108|{seed}|{domain}|{x}'.encode()).hexdigest(), x))
+
+
+def initialize_numerics(manifest):
+    """No fork metadata bootstrap, then exact pinned historical mathematics."""
+    global np, LEG, StandardScaler, SVC, Anchor, roc_auc_score
+    source = manifest['classical']['legacy_worker']
+    require(source['sha256'] == OLD_WORKER_SHA, 'Only reviewed original classical recipe accepted')
+    LEG = import_file(checked(source), '_v3_pinned_original_classical')
+    metadata = LEG.nofork_platform()
+    base = read_ref(manifest['base_manifest'])
+    threadpool = LEG.initialize_numerics(base)
+    np, StandardScaler, SVC = LEG.np, LEG.StandardScaler, LEG.SVC
+    Anchor = LEG.calibration.AnchorScoreCalibrator
+    from sklearn.metrics import roc_auc_score
+    return {'processor': metadata, 'threadpoolctl': threadpool}
+
+
+def validate_parameters(operation, p):
+    require(p.get('acid_group') in ACID and p.get('modality') in MODALITIES, 'Frozen acid/modality required')
+    if operation == 'source_scores':
+        require(set(p) == {'acid_group', 'modality'}, 'Source producer parameter drift')
+    elif operation == 'support_mechanisms':
+        seeds = p.get('draw_seeds')
+        require(set(p) == {'acid_group', 'modality', 'draw_seeds'} and isinstance(seeds, list)
+                and len(seeds) == 5 and len(set(seeds)) == 5 and seeds == sorted(seeds)
+                and all(type(s) is int and 45 <= s <= 64 for s in seeds), 'Exact5 fixed support draws required')
+    elif operation == 'donor_mechanisms':
+        require(set(p) == {'acid_group', 'modality', 'draw_seed'} and type(p['draw_seed']) is int
+                and 45 <= p['draw_seed'] <= 49, 'Frozen donor draw required')
+    else:
+        raise ValueError('Unknown mechanism operation')
+
+
+def fixed_scopes(data, acid_group):
+    donor, held = LEG.split_pair(data, 'ZY01', acid_group)
+    _, query, pool = LEG.support_split(data, acid_group, 42)
+    LEG.assert_split(data, donor, query, pool)
+    require(len(donor) == 246 and len(held) == 270 and len(query) == len(pool) == 135,
+            'Frozen246/270/135/135 scopes changed')
+    require(Counter(map(str, data['species'][donor])) == {CLASSES[0]: 6, CLASSES[1]: 240}, 'Donor kind coverage changed')
+    return donor, held, query, pool
+
+
+def nested_support(data, pool, seed, k):
+    require(type(seed) is int and 45 <= seed <= 64 and k in KS, 'Unknown draw/K')
+    chosen = []; lookup = {str(data['record_ids'][i]): int(i) for i in pool}
+    for c in CLASSES:
+        ids = [str(data['record_ids'][i]) for i in pool if str(data['species'][i]) == c]
+        ordered = hash_order(ids, seed, 'v3-support-' + c)
+        require(len(ordered) >= k, 'Insufficient fixed support pool')
+        chosen.extend(lookup[x] for x in ordered[:k])
+    return np.asarray(chosen, dtype=int)
+
+
+def support_permutation(labels, draw, k):
+    values = np.asarray(labels, dtype=str).copy()
+    return np.random.default_rng(draw + 10000 + k * 100).permutation(values)
+
+
+def unstratified_support(data, pool, seed, k):
+    require(45 <= seed <= 64 and k in KS, 'Frozen unstratified draw/K required')
+    lookup = {str(data['record_ids'][i]): int(i) for i in pool}
+    ordered = hash_order(lookup, seed, 'v3-equal-prior-unstratified')
+    require(2*k <= len(ordered), 'Unstratified support pool insufficient')
+    return np.asarray([lookup[x] for x in ordered[:2*k]], dtype=int)
+
+
+def equal_prior_center(scores, regularization=1.):
+    z = np.asarray(scores, float)
+    require(z.ndim == 2 and z.shape[1] == 2 and len(z) and np.isfinite(z).all()
+            and regularization > 0, 'Finite unlabelled support scores required')
+    return (len(z)/2-z.sum(axis=0))/(len(z)+regularization)
+
+
+def flipped_labels(labels, classes=CLASSES):
+    x = np.asarray(labels, dtype=str)
+    require(set(x.tolist()) <= set(classes) and len(classes) == 2, 'Known binary labels required')
+    return np.where(x == classes[0], classes[1], classes[0])
+
+
+def normalized_C(n, full_n=246):
+    require(n in (6, 24, 60) and full_n == 246, 'Frozen count/C reference required')
+    return 10. * full_n / (6 + n)
+
+
+def balanced_acid_donors(data, donor, count, seed):
+    require(count in (6, 24, 60) and 45 <= seed <= 49, 'Frozen donor count/seed required')
+    groups = sorted(set(map(str, data['groups'][donor])) & set(ACID))
+    require(len(groups) == 4, 'Four donor acid groups required')
+    lookup = {str(data['record_ids'][i]): int(i) for i in donor}
+    ordered = {g: hash_order(data['record_ids'][donor[data['groups'][donor] == g]], seed, 'acid-donor') for g in groups}
+    selected = [int(i) for i in donor if str(data['species'][i]) == CLASSES[0]]
+    for j in range(count):
+        g = groups[j % 4]; selected.append(lookup[ordered[g][j // 4]])
+    return np.asarray(sorted(selected), dtype=int)
+
+
+def affine_binary_parameters(coef, intercept):
+    c, b = np.asarray(coef, float), np.asarray(intercept, float)
+    require(c.shape == (2, 2) and b.shape == (2,) and np.isfinite(c).all() and np.isfinite(b).all(), 'Finite binary affine parameters required')
+    return float(c[0, 0] - c[0, 1] - c[1, 0] + c[1, 1]), float(b[1] - b[0])
+
+
+def threshold_predictions(scores, a, b, classes=CLASSES):
+    z = np.asarray(scores, float)
+    require(np.isfinite([a, b]).all() and z.ndim == 2 and z.shape[1] == 2 and np.isfinite(z).all()
+            and np.array_equal(z[:, 0], -z[:, 1]), 'Exact[-s,s] decision columns required')
+    return np.asarray(classes)[(a * z[:, 1] + b > 0).astype(int)]
+
+
+def bias_only(scores, labels, classes=CLASSES, regularization=1.):
+    z = np.asarray(scores, float); y = np.asarray(labels, dtype=str)
+    require(z.shape == (len(y), 2) and len(y) and np.isfinite(z).all() and np.isfinite(regularization)
+            and regularization > 0 and set(y.tolist()) == set(classes), 'Complete binary support required')
+    onehot = np.column_stack([y == c for c in classes]).astype(float)
+    # Group the sufficient statistics so arbitrary label assignment cannot
+    # change floating summation order when the class counts are identical.
+    return (onehot.sum(axis=0) - z.sum(axis=0)) / (len(y) + regularization)
+
+
+def support_erm_threshold(scores, labels, classes=CLASSES):
+    """Threshold search uses support labels only, with a fixed deterministic tie rule."""
+    z = np.asarray(scores, float); y = np.asarray(labels, dtype=str)
+    require(z.shape == (len(y), 2) and len(y) and np.isfinite(z).all() and set(y.tolist()) == set(classes), 'Complete support required')
+    values = np.unique(z[:, 1]); low = np.nextafter(values[0], -np.inf)
+    require(np.isfinite(low), 'Support margin too extreme for finite endpoint')
+    candidates = sorted(set([0., float(low), float(values[-1]), *map(float, values[:-1]/2 + values[1:]/2)]))
+    trials = []
+    for threshold in candidates:
+        prediction = np.asarray(classes)[(z[:, 1] > threshold).astype(int)]
+        error = sum(float(np.mean(prediction[y == c] != c)) for c in classes) / 2
+        trials.append((error, abs(threshold), threshold))
+    best = min(trials)
+    return best[2], {'support_balanced_error': best[0], 'candidates': len(candidates),
+                      'tie_rule': 'minimum support balanced error, nearest0, then lowest threshold',
+                      'query_statistics_or_labels_used': False}
+
+
+def score_matrix(model, x):
+    margin = np.asarray(model.decision_function(x), float)
+    require(margin.ndim == 1 and np.isfinite(margin).all() and tuple(model.classes_) == CLASSES, 'Pinned binary source score order required')
+    return np.column_stack([-margin, margin])
+
+
+def source_fit(rec, key, indices, values, labels, estimator, *, kind, allowed=None, metadata=None):
+    """The learned API receives only explicitly allowed fit rows/labels."""
+    require(len(indices) == len(values) and len(set(map(int, indices))) == len(indices), 'Fit row identity mismatch')
+    require(allowed is None or set(map(int, indices)) <= set(map(int, allowed)), 'Learned operation escapes permitted source/support')
+    require(set(map(str, rec.data['master_roles'][indices])) == {'train'}, 'NonTRAIN fitting rejected')
+    i = rec.enter(key, indices, kind, values, labels, metadata)
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter('always')
+        if labels is None:
+            estimator.fit(values)
+        else:
+            estimator.fit(values, labels)
+    rec.finish(i, warnings=[{'category': type(w.message).__name__, 'message': str(w.message)} for w in caught])
+    return estimator
+
+
+class Recorder:
+    def __init__(self, output, state, data):
+        self.output, self.state, self.data = Path(output), state, data
+        self.receipts, self.tables, self.observations = [], {}, []
+        self.prediction_parts = []; self.prediction_journal_index = 0
+
+    def persist(self):
+        save(self.output/'fit_receipts.json', self.receipts)
+        if not (self.output/'prediction_matrix.json').exists():
+            self.persist_predictions()
+        save(self.output/'progress.json', self.state)
+
+    def persist_predictions(self):
+        if self.observations:
+            part = (len(self.observations)-1)//50
+            target = self.output/f'prediction_observations_{part:03d}.json'
+            save(target, self.observations[part*50:(part+1)*50])
+            binding = ref(target)
+            if part == len(self.prediction_parts): self.prediction_parts.append(binding)
+            else: self.prediction_parts[part] = binding
+        save(self.output/'prediction_matrix.json', {'schema': 'research4-b-mechanism-prediction-parts-v3',
+            'cohorts': self.tables, 'observation_parts': self.prediction_parts,
+            'observations_count': len(self.observations), 'each_part_max_observations': 50})
+
+    def enter(self, key, indices, kind, values, labels, extra=None):
+        self.state['new_fitting_entered'] = True
+        self.state['actual_new_model_fit_calls_started'] += 1
+        ids = list(map(str, self.data['record_ids'][indices]))
+        self.receipts.append({'setting': key, 'kind': kind, 'status': 'FIT_STARTED', 'fit_ids': ids,
+            'fit_ids_sha256': digest(ids), 'fit_values_sha256': array_hash(values),
+            'fit_labels_sha256': digest(list(map(str, labels))) if labels is not None else None,
+            'master_role': 'train', 'labels_only_permuted_in_explicit_null_copy': bool((extra or {}).get('null_control')),
+            **(extra or {})})
+        self.persist(); return len(self.receipts)-1
+
+    def finish(self, index, **extra):
+        self.receipts[index].update(status='FIT_COMPLETED', **extra)
+        self.state['actual_new_model_fits'] += 1; self.persist()
+
+    def add(self, setting, cohort, query, prediction, scores=None, metadata=None):
+        ids = list(map(str, self.data['record_ids'][query])); pred = list(map(str, prediction))
+        require(len(ids) == len(pred) and len(ids) == len(set(ids)), 'Query/prediction length or identity mismatch')
+        raw = {'setting': setting, 'query_ids': ids, 'prediction': pred,
+               'scores': np.asarray(scores).tolist() if scores is not None else None,
+               'truth_not_joined': True}
+        line = json.dumps(raw, ensure_ascii=False, separators=(',', ':'), allow_nan=False)+'\n'
+        require(len(line.encode()) <= 1024**2, 'One prediction receipt exceeds the bounded journal')
+        name = 'predictions-before-scoring.jsonl.txt' if self.prediction_journal_index == 0 else f'predictions-before-scoring-{self.prediction_journal_index:03d}.jsonl.txt'
+        target = self.output/name
+        if target.exists() and target.stat().st_size+len(line.encode()) > 1024**2:
+            self.prediction_journal_index += 1
+            target = self.output/f'predictions-before-scoring-{self.prediction_journal_index:03d}.jsonl.txt'
+        with target.open('a') as f:
+            f.write(line)
+            f.flush(); os.fsync(f.fileno())
+        truth = self.data['species'][query]
+        if cohort not in self.tables:
+            self.tables[cohort] = {'ids': ids, 'truth': list(map(str, truth)),
+                'groups': list(map(str, self.data['groups'][query]))}
+        require(self.tables[cohort]['ids'] == ids, 'Fixed query changed within cohort')
+        metric = LEG.metrics(truth, pred, self.data['groups'][query])
+        if scores is not None:
+            metric['positive_class_AUC_descriptive'] = (float(roc_auc_score(np.asarray(truth) == CLASSES[1],
+                np.asarray(scores)[:, 1]-np.asarray(scores)[:, 0])) if set(map(str, truth)) == set(CLASSES) else None)
+            metric['AUC_positive_class'] = CLASSES[1]
+        self.observations.append({'setting': setting, 'cohort': cohort, 'predictions': pred,
+                                  'metrics': metric, 'metadata': metadata or {}})
+        self.persist_predictions(); self.persist()
+
+
+def source_scores(rec, p):
+    donor, held, query, pool = fixed_scopes(rec.data, p['acid_group'])
+    x = LEG.features(rec.data, donor, p['modality']); hx = LEG.features(rec.data, held, p['modality'])
+    scaler = source_fit(rec, 'source_scaler', donor, x, None, StandardScaler(), kind='StandardScaler', allowed=donor)
+    tx = scaler.transform(x)
+    model = source_fit(rec, 'source_SVC', donor, tx, rec.data['species'][donor],
+        SVC(C=10., gamma='scale', class_weight='balanced', random_state=42), kind='SVC', allowed=donor)
+    scores = score_matrix(model, scaler.transform(hx)); prediction = model.predict(scaler.transform(hx))
+    rec.add('source_SVC/full246', 'full_source_holdout', held, prediction, scores,
+        {'gamma_reference': float(model._gamma), 'no_support_labels': True})
+    invariance = []
+    held_before_hashes = {key: array_hash(rec.data[key][held]) for key in ('alpha_main', 'n_main')}
+    for a, b in ((.5, 0.), (2., 0.), (1., 5.), (2., -5.)):
+        alpha, n = rec.data['alpha_main'][held], rec.data['n_main'][held]
+        z = LEG.build_features(a*alpha+b, a*n+b, p['modality'], 'snv')
+        invariant = bool(np.allclose(z, hx, atol=1e-10, rtol=1e-10))
+        pred = model.predict(scaler.transform(z))
+        invariance.append({'positive_scale': a, 'additive_shift': b,
+            'feature_allclose_atol_rtol1e10': invariant, 'max_abs_feature_difference': float(np.max(np.abs(z-hx))),
+            'prediction_equal': bool(np.array_equal(pred, prediction)), 'predictions_changed': int(np.count_nonzero(pred != prediction)),
+            'source_arrays_not_modified': True})
+    require(held_before_hashes == {key: array_hash(rec.data[key][held]) for key in held_before_hashes},
+            'Copy-only affine sanity probe changed held data')
+    rec.state['held_arrays_before_after_affine_probe_hashes_equal'] = True
+    cache = rec.output/'source_scores_local.npz'
+    source_decisions = score_matrix(model, tx); source_sd = float(np.std(source_decisions[:, 1], ddof=0))
+    require(np.isfinite(source_sd) and source_sd > np.finfo(float).eps, 'Source margin std is not identifiable')
+    np.savez_compressed(cache, ids=rec.data['record_ids'][held], scores=scores, predictions=prediction,
+        source_ids=rec.data['record_ids'][donor], source_scores=source_decisions,
+        scaler_mean=scaler.mean_, scaler_scale=scaler.scale_, classes=np.asarray(CLASSES))
+    descriptor = {'schema': CACHE_SCHEMA, 'dataset_result': rec.state['dataset_result'],
+        'manifest_sha256': rec.state['manifest_sha256'], 'source_worker': ref(__file__), 'parameters': p,
+        'npz': ref(cache), 'source_ids': list(map(str, rec.data['record_ids'][donor])),
+        'held_ids': list(map(str, rec.data['record_ids'][held])),
+        'fixed_query_ids': list(map(str, rec.data['record_ids'][query])),
+        'support_pool_ids': list(map(str, rec.data['record_ids'][pool])),
+        'classes': list(CLASSES), 'fit_feature_sha256': array_hash(x),
+        'source_labels_sha256': digest(list(map(str, rec.data['species'][donor]))),
+        'source_vote_scoreargmax_equal': bool(np.array_equal(prediction, np.asarray(CLASSES)[np.argmax(scores, axis=1)])),
+        'gamma_reference': float(model._gamma), 'C_reference': 10.,
+        'gamma_reference_definition': 'SVC scale on full donor-only standardized features:1/(n_features*variance), fallback1 if zero variance',
+        'source_margin_std_ddof0': source_sd, 'source_margin_values_sha256': array_hash(source_decisions[:, 1]),
+        'source_margin_std_fit_ids': list(map(str, rec.data['record_ids'][donor])),
+        'scaler_fit_ids': list(map(str, rec.data['record_ids'][donor])),
+        'held_numeric_role': 'prediction_only_after_source_training', 'cache_contains_truth': False,
+        'invariance_sanity': invariance, 'identity_authentication': False}
+    save(rec.output/'source_cache.json', descriptor)
+    rec.state['source_cache'] = ref(rec.output/'source_cache.json')
+    rec.state['positive_affine_SNV_sanity'] = invariance
+
+
+def load_source_cache(context, manifest, data, p):
+    matches = []
+    for job_id, binding in context.get('dependencies', {}).items():
+        require(context.get('dependency_states', {}).get(job_id) == 'DONE_SEALED', 'Unsealed dependency rejected')
+        result = read_ref(binding)
+        if result.get('operation') == 'source_scores' and result.get('parameters') == {k: p[k] for k in ('acid_group', 'modality')}:
+            require(result.get('manifest_sha256') == context['manifest_sha256'] and result.get('status') == 'COMPLETED'
+                    and result.get('source_worker', {}).get('sha256') == sha(__file__), 'Source producer recipe/version changed')
+            descriptor = read_ref(result['source_cache'])
+            require(descriptor['schema'] == CACHE_SCHEMA and descriptor['dataset_result'] == context['dataset_result']
+                    and descriptor['manifest_sha256'] == context['manifest_sha256']
+                    and descriptor['source_worker']['sha256'] == sha(__file__)
+                    and descriptor['parameters'] == {k: p[k] for k in ('acid_group', 'modality')}, 'Source cache binding differs')
+            donor, held, query, pool = fixed_scopes(data, p['acid_group'])
+            for name, indices in [('source_ids', donor), ('held_ids', held), ('fixed_query_ids', query), ('support_pool_ids', pool), ('scaler_fit_ids', donor)]:
+                require(descriptor[name] == list(map(str, data['record_ids'][indices])), 'Source/query/support IDs changed')
+            require(descriptor['fit_feature_sha256'] == array_hash(LEG.features(data, donor, p['modality'])), 'Source feature fingerprint changed')
+            require(descriptor['source_labels_sha256'] == digest(list(map(str, data['species'][donor])))
+                    and descriptor['classes'] == list(CLASSES) and descriptor['C_reference'] == 10.
+                    and np.isfinite(descriptor['gamma_reference']) and descriptor['gamma_reference'] > 0,
+                    'Source labels/classifier recipe differs')
+            with np.load(checked(descriptor['npz']), allow_pickle=False) as archive:
+                require(set(archive.files) == {'ids', 'scores', 'predictions', 'source_ids', 'source_scores', 'scaler_mean', 'scaler_scale', 'classes'}, 'Cache schema differs')
+                cache = {k: archive[k].copy() for k in archive.files}
+            require(cache['ids'].tolist() == descriptor['held_ids'] and cache['source_ids'].tolist() == descriptor['source_ids']
+                    and cache['classes'].tolist() == list(CLASSES), 'Cache identity/class rows changed')
+            require(cache['scores'].shape == (270, 2) and np.isfinite(cache['scores']).all()
+                    and np.array_equal(cache['scores'][:, 0], -cache['scores'][:, 1]), 'Binary source score geometry changed')
+            require(cache['predictions'].shape == (270,) and set(cache['predictions'].tolist()) <= set(CLASSES)
+                    and descriptor['source_vote_scoreargmax_equal'] == bool(np.array_equal(cache['predictions'], np.asarray(CLASSES)[np.argmax(cache['scores'], axis=1)])), 'Source voting control changed')
+            require(cache['source_scores'].shape == (246, 2) and np.isfinite(cache['source_scores']).all()
+                    and np.array_equal(cache['source_scores'][:, 0], -cache['source_scores'][:, 1])
+                    and descriptor['source_margin_values_sha256'] == array_hash(cache['source_scores'][:, 1])
+                    and descriptor['source_margin_std_fit_ids'] == descriptor['source_ids']
+                    and descriptor['source_margin_std_ddof0'] == float(np.std(cache['source_scores'][:, 1], ddof=0))
+                    and descriptor['source_margin_std_ddof0'] > np.finfo(float).eps, 'Source-only score standardization changed')
+            require(cache['scaler_mean'].shape == cache['scaler_scale'].shape == (LEG.features(data, donor[:1], p['modality']).shape[1],)
+                    and np.isfinite(cache['scaler_mean']).all() and np.isfinite(cache['scaler_scale']).all()
+                    and np.all(cache['scaler_scale'] > 0), 'Cached source scaler invalid')
+            matches.append((descriptor, cache, binding))
+    require(len(matches) == 1, 'Exactly one sealed source cache required')
+    return matches[0]
+
+
+def fit_anchor(rec, key, chosen, scores, labels, penalty, *, null_control=False):
+    model = source_fit(rec, key, chosen, scores, labels, Anchor(CLASSES, regularization=penalty),
+        kind='pinned_AnchorScoreCalibrator', allowed=chosen,
+        metadata={'regularization': penalty, 'effective_regularization_per_sample': penalty/len(chosen),
+                  'null_control': null_control, 'support_counts': dict(Counter(map(str, labels)))})
+    return model.coef_.copy(), model.intercept_.copy()
+
+
+def support_mechanisms(rec, p, context, manifest):
+    descriptor, cache, dependency = load_source_cache(context, manifest, rec.data, p)
+    donor, held, query, pool = fixed_scopes(rec.data, p['acid_group'])
+    positions = {str(r): j for j, r in enumerate(cache['ids'])}
+    qscore = cache['scores'][[positions[str(rec.data['record_ids'][i])] for i in query]]
+    rec.state['source_cache_dependency'] = dependency
+    for draw in p['draw_seeds']:
+        source_prediction = cache['predictions'][[positions[str(rec.data['record_ids'][i])] for i in query]]
+        rec.add(f'draw{draw}/source_SVC_vote', 'fixed_query', query, source_prediction, qscore,
+                {'draw_seed': draw, 'no_support': True, 'reused_not_refitted': True,
+                 'matched_scoreargmax_rule_K0_separately_reported': True})
+        for k in KS:
+            chosen = nested_support(rec.data, pool, draw, k)
+            LEG.assert_split(rec.data, donor, query, chosen)
+            supports = cache['scores'][[positions[str(rec.data['record_ids'][i])] for i in chosen]]
+            labels = rec.data['species'][chosen].copy()
+            for rule in RULES:
+                audit_scores, audit_labels = supports, labels
+                query_score_multiplier = 1.
+                key = f'draw{draw}/{rule}/K{k}'; meta = {'draw_seed': draw, 'K_per_class': k,
+                    'support_ids': list(map(str, rec.data['record_ids'][chosen])), 'same_fixed_query_all_rules_draws_K': True,
+                    'source_cache': dependency, 'rule': rule, 'scores_are_probabilities': False}
+                if k == 0:
+                    coef, intercept = np.eye(2), np.zeros(2)
+                elif rule == 'bias_lambda1':
+                    i = rec.enter(key, chosen, 'support_bias_ridge', supports, labels, {'regularization': 1.})
+                    coef, intercept = np.eye(2), bias_only(supports, labels)
+                    rec.finish(i)
+                    permuted_bias = bias_only(supports, support_permutation(labels, draw, k))
+                    meta['balanced_label_permutation_bias_equal'] = bool(np.array_equal(intercept, permuted_bias))
+                    meta['balanced_label_permutation_bias_max_abs_difference'] = float(np.max(np.abs(intercept-permuted_bias)))
+                    meta['balanced_label_permutation_bias_allclose_atol_rtol1e12'] = bool(np.allclose(intercept, permuted_bias, atol=1e-12, rtol=1e-12))
+                    meta['label_information_qualification'] = 'Conditional on label-balanced sample selection, correction depends on score mean and fixed class counts, not individual label assignments; not fully unlabelled sampling'
+                elif rule == 'equal_prior_unstratified_center':
+                    unstratified = unstratified_support(rec.data, pool, draw, k)
+                    LEG.assert_split(rec.data, donor, query, unstratified)
+                    audit_scores = cache['scores'][[positions[str(rec.data['record_ids'][i])] for i in unstratified]]
+                    i = rec.enter(key, unstratified, 'unstratified_equal_prior_score_center', audit_scores, None,
+                        {'fixed_prior': [.5, .5], 'true_labels_read_for_fit': False})
+                    coef, intercept = np.eye(2), equal_prior_center(audit_scores)
+                    rec.finish(i)
+                    audit_labels = rec.data['species'][unstratified].copy()
+                    meta.update(support_ids=list(map(str, rec.data['record_ids'][unstratified])),
+                        K_per_class=None, total_support_n=2*k, nominal_comparable_K=k, fixed_prior=[.5, .5],
+                        true_labels_used_in_fit=False, labels_used_for_sampling=False,
+                        matched_support_ids_to_balanced_rules=False,
+                        pool_qualification='Fixed pool still defined within this known target task; not a claim of completely annotation-free material collection')
+                elif rule == 'support_ERM_threshold':
+                    i = rec.enter(key, chosen, 'support_only_threshold_ERM', supports, labels)
+                    threshold, description = support_erm_threshold(supports, labels)
+                    coef, intercept = np.eye(2), np.asarray([threshold, -threshold])
+                    rec.finish(i); meta.update(description)
+                else:
+                    penalty = k/5 if rule == 'anchor_lambda_per_sample' else 1000. if rule == 'weak_lambda1000_blend005' else 1.
+                    fitlabels = support_permutation(labels, draw, k) if rule == 'anchor_permuted_labels' else flipped_labels(labels) if rule == 'anchor_flipped_labels' else labels.copy()
+                    if rule in ('anchor_score_scale01', 'anchor_score_scale10', 'source_std_anchor'):
+                        query_score_multiplier = .1 if rule == 'anchor_score_scale01' else 10. if rule == 'anchor_score_scale10' else 1/descriptor['source_margin_std_ddof0']
+                        audit_scores = supports*query_score_multiplier
+                        meta.update(score_unit_multiplier=query_score_multiplier,
+                            score_unit_choice='fixed .1 or10, or original donor-only std; never query-derived',
+                            source_std_fit_ids_sha256=digest(descriptor['source_margin_std_fit_ids']))
+                    coef, intercept = fit_anchor(rec, key, chosen, audit_scores, fitlabels, penalty,
+                        null_control=rule in ('anchor_permuted_labels', 'anchor_flipped_labels'))
+                    meta.update(regularization=penalty, effective_regularization_per_sample=penalty/len(chosen),
+                        label_copy_changed_count=int(np.count_nonzero(fitlabels != labels)),
+                        stored_dataset_labels_unchanged=True, fit_label_counts=dict(Counter(map(str, fitlabels))))
+                    if rule == 'weak_lambda1000_blend005':
+                        coef = np.eye(2)+.05*(coef-np.eye(2)); intercept *= .05
+                transformed = (qscore*query_score_multiplier)@coef+intercept
+                prediction = np.asarray(CLASSES)[np.argmax(transformed, axis=1)]
+                unit_a, b = affine_binary_parameters(coef, intercept); a = unit_a*query_score_multiplier
+                replay = threshold_predictions(qscore, a, b)
+                margin = transformed[:, 1]-transformed[:, 0]
+                algebra_margin = a*qscore[:, 1]+b
+                mismatches = np.flatnonzero(replay != prediction)
+                meta.update(affine_coef=coef.tolist(), affine_intercept=intercept.tolist(), slope_a=a, intercept_b=b,
+                    fit_score_slope=unit_a, raw_margin_score_multiplier=query_score_multiplier,
+                    threshold=(-b/a if a != 0 else None), orientation='positive' if a > 0 else 'reversed' if a < 0 else 'constant',
+                    ranking_algebraically_preserved=a > 0, threshold_replay_mismatch_ids=[str(rec.data['record_ids'][query[j]]) for j in mismatches],
+                    max_abs_margin_replay_difference=float(np.max(np.abs(margin-algebra_margin))),
+                    margin_replay_allclose=bool(np.allclose(margin, algebra_margin, atol=1e-10, rtol=1e-10)),
+                    changed_from_source_ids=[str(rec.data['record_ids'][query[j]]) for j in np.flatnonzero(prediction != np.asarray(CLASSES)[np.argmax(qscore, axis=1)])])
+                if k:
+                    penalty = float(meta.get('regularization', 1.))
+                    if rule.startswith('anchor_') or rule in ('source_std_anchor', 'bias_lambda1'):
+                        expected_threshold = float(supports[:, 1].sum()/(len(supports)+penalty))
+                        normal_left = float(a*supports[:, 1].sum())
+                        normal_right = float(-(len(supports)+penalty)*b)
+                        meta['balanced_support_threshold_identity'] = {
+                            'conditions': 'EqualK/K counts, binary[-s,s], identity-anchored residual ridge, common penalty on all coefficients; pure Anchor or bias-only, not weak blending',
+                            'expected_raw_threshold_sum_s_div_n_plus_lambda': expected_threshold,
+                            'individual_label_assignment_does_not_change_this_boundary_when_orientation_positive': True,
+                            'normal_equation_left_a_sum_s': normal_left,
+                            'normal_equation_right_minus_n_plus_lambda_b': normal_right,
+                            'normal_equation_residual': normal_left-normal_right,
+                            'normal_equation_allclose_atol_rtol1e10': bool(np.isclose(normal_left, normal_right, atol=1e-10, rtol=1e-10)),
+                            'positive_orientation': a > 0,
+                            'actual_threshold_minus_expected': float(-b/a-expected_threshold) if a != 0 else None,
+                            'same_predictions_as_expected_positive_boundary': (bool(np.array_equal(prediction, np.asarray(CLASSES)[(qscore[:, 1] > expected_threshold).astype(int)])) if a > 0 else None),
+                            'ties_or_nonpositive_orientation_require_separate_interpretation': True}
+                    if rule.startswith('anchor_') or rule in ('weak_lambda1000_blend005', 'source_std_anchor'):
+                        design = np.column_stack([audit_scores, np.ones(len(audit_scores))])
+                        meta['actual_ridge_normal_matrix_condition_number'] = float(np.linalg.cond(design.T@design+penalty*np.eye(3)))
+                    elif rule in ('bias_lambda1', 'equal_prior_unstratified_center'):
+                        meta['actual_ridge_normal_matrix_condition_number'] = 1.
+                    else:
+                        meta['actual_ridge_normal_matrix_condition_number'] = None
+                    target = np.column_stack([audit_labels == c for c in CLASSES]).astype(float)
+                    meta['support_MSE_against_original_declared_labels_descriptive'] = float(np.mean((audit_scores@coef+intercept-target)**2))
+                rec.add(key, 'fixed_query', query, prediction, transformed, meta)
+            if k in (1, 5, 20):
+                fit = np.concatenate([donor, chosen]); LEG.assert_split(rec.data, fit, query)
+                x = LEG.features(rec.data, fit, p['modality'])
+                sc = source_fit(rec, f'draw{draw}/fullrefit/K{k}/scaler', fit, x, None, StandardScaler(), kind='StandardScaler', allowed=fit)
+                model = source_fit(rec, f'draw{draw}/fullrefit/K{k}/SVC', fit, sc.transform(x), rec.data['species'][fit],
+                    SVC(C=10., gamma='scale', class_weight='balanced', random_state=42), kind='full_pipeline_refit_SVC', allowed=fit)
+                zx = sc.transform(LEG.features(rec.data, query, p['modality']))
+                rec.add(f'draw{draw}/full_pipeline_refit/K{k}', 'fixed_query', query, model.predict(zx), score_matrix(model, zx),
+                    {'K_per_class': k, 'draw_seed': draw, 'method_is_full_pipeline_refit_not_score_calibration': True,
+                     'support_ids': list(map(str, rec.data['record_ids'][chosen]))})
+
+
+def donor_mechanisms(rec, p, context, manifest):
+    descriptor, cache, dependency = load_source_cache(context, manifest, rec.data, p)
+    donor, held, _, _ = fixed_scopes(rec.data, p['acid_group'])
+    x = LEG.features(rec.data, donor, p['modality']); hx = LEG.features(rec.data, held, p['modality'])
+    full_mean, full_scale = cache['scaler_mean'], cache['scaler_scale']; gamma_ref = descriptor['gamma_reference']
+    rec.add('n240/shared_full_baseline', 'full_source_holdout', held, cache['predictions'], cache['scores'],
+            {'source_cache': dependency, 'reused_not_refitted': True, 'source_n': 246})
+    for n in (6, 24, 60):
+        selected = balanced_acid_donors(rec.data, donor, n, p['draw_seed'])
+        LEG.assert_split(rec.data, selected, held)
+        sx = LEG.features(rec.data, selected, p['modality'])
+        sub_scaler = source_fit(rec, f'n{n}/subset_scaler', selected, sx, None, StandardScaler(), kind='StandardScaler', allowed=donor)
+        for scaler_mode in ('subset', 'full'):
+            tx = sub_scaler.transform(sx) if scaler_mode == 'subset' else (sx-full_mean)/full_scale
+            qx = sub_scaler.transform(hx) if scaler_mode == 'subset' else (hx-full_mean)/full_scale
+            for gamma_mode in ('subset_scale', 'full_reference'):
+                for c_mode in ('fixed10', 'normalized_total_penalty'):
+                    c = 10. if c_mode == 'fixed10' else normalized_C(n)
+                    gamma = 'scale' if gamma_mode == 'subset_scale' else gamma_ref
+                    key = f'n{n}/scaler-{scaler_mode}/gamma-{gamma_mode}/C-{c_mode}'
+                    model = source_fit(rec, key, selected, tx, rec.data['species'][selected],
+                        SVC(C=c, gamma=gamma, class_weight='balanced', random_state=42), kind='donor_mechanism_SVC', allowed=donor,
+                        metadata={'scaler_fit_ids': list(map(str, rec.data['record_ids'][selected if scaler_mode == 'subset' else donor])),
+                                  'gamma_mode': gamma_mode, 'C_mode': c_mode, 'C': c})
+                    rec.add(key, 'full_source_holdout', held, model.predict(qx), score_matrix(model, qx),
+                        {'acid_n': n, 'source_n': len(selected), 'draw_seed': p['draw_seed'], 'scaler_mode': scaler_mode,
+                         'gamma_mode': gamma_mode, 'C_mode': c_mode, 'C': c, 'actual_gamma': float(model._gamma),
+                         'balanced_total_penalty_per_class': c*len(selected)/2,
+                         'fit_source_group_counts': dict(Counter(map(str, rec.data['groups'][selected]))),
+                         'full_reference_sources_only': True})
+    source_groups = sorted(set(map(str, rec.data['groups'][donor])) & set(ACID))
+    lookup = {str(rec.data['record_ids'][i]): int(i) for i in donor}
+    juj = [int(i) for i in donor if str(rec.data['species'][i]) == CLASSES[0]]
+    for group in source_groups:
+        ids = hash_order(rec.data['record_ids'][donor[rec.data['groups'][donor] == group]], p['draw_seed'], 'acid-donor')
+        selected = np.asarray(sorted(juj+[lookup[r] for r in ids[:24]]), dtype=int)
+        LEG.assert_split(rec.data, selected, held)
+        tx = (LEG.features(rec.data, selected, p['modality'])-full_mean)/full_scale
+        qx = (hx-full_mean)/full_scale; c = normalized_C(24)
+        key = f'n24/single_acid_source/{group}'
+        model = source_fit(rec, key, selected, tx, rec.data['species'][selected],
+            SVC(C=c, gamma=gamma_ref, class_weight='balanced', random_state=42), kind='single_acid_source_SVC', allowed=donor)
+        rec.add(key, 'full_source_holdout', held, model.predict(qx), score_matrix(model, qx),
+            {'acid_n': 24, 'acid_source': group, 'source_n': 30, 'C': c, 'actual_gamma': float(model._gamma),
+             'matched_mixed_setting': 'n24/scaler-full/gamma-full_reference/C-normalized_total_penalty',
+             'full_reference_source_scaler_gamma_shared': True})
+
+
+def run(args):
+    manifest = read_ref({'path': args.manifest, 'sha256': args.manifest_sha256})
+    context = read_ref({'path': args.context, 'sha256': args.context_sha256})
+    require(context['schema'] == CONTEXT_SCHEMA and context['manifest_sha256'] == args.manifest_sha256
+            and context['job_id'] == args.job_id, 'Resolved context identity differs')
+    job = context['job']; require(job in manifest['jobs'] and job['id'] == args.job_id
+        and digest(job) == context['job_sha256'] and checked(job['source']) == Path(__file__).resolve(), 'Frozen job/worker differs')
+    validate_parameters(job['operation'], job['parameters'])
+    output = Path(args.output).resolve(); require(output == Path(context['output_directory']).resolve()
+        and output.is_relative_to(ROOT) and not any(p.is_symlink() for p in (output, *output.parents)), 'Unsafe/different output')
+    if not args.execute:
+        return {'schema': SCHEMA, 'status': 'NOT_RUN', 'numerical_imports_entered': False, **ZERO}
+    supervisor = import_file(checked(manifest['supervisor']), '_v3_actual_resource_supervisor_classical')
+    proof = supervisor.verify_resource_supervision(expected_worker_path=__file__, expected_threads=2,
+        expected_manifest_sha256=args.manifest_sha256, expected_job_id=args.job_id,
+        expected_context_sha256=args.context_sha256, expected_proof_path=args.proof)
+    require(not output.exists() or not any(output.iterdir()), 'Never overwrite an existing scientific attempt')
+    output.mkdir(parents=True, exist_ok=True)
+    state = {'schema': SCHEMA, 'status': 'RUNNING', 'job_id': args.job_id, 'operation': job['operation'],
+        'parameters': job['parameters'], 'manifest_sha256': args.manifest_sha256, 'context_sha256': args.context_sha256,
+        'source_worker': ref(__file__), 'resource_supervision': proof, 'dataset_result': context['dataset_result'],
+        'output_directory': str(output), 'labels_modified': False, 'CAL_PRED_numeric_accessed': False,
+        'query_model_selection': False, 'quantum_evaluations': 0, **ZERO}
+    save(output/'result.json', state); started=time.process_time(); wall=time.monotonic(); rec=None
+    def stopped(signum, frame):
+        raise RuntimeError('Supervised termination signal '+str(signum))
+    previous = {sig: signal.signal(sig, stopped) for sig in (signal.SIGTERM, signal.SIGINT, signal.SIGXCPU)}
+    try:
+        state['runtime_nofork'] = initialize_numerics(manifest)
+        data = LEG.validate_dataset(supervisor.load_verified_train_dataset(context, manifest))
+        require(len(data['record_ids']) == 999 and len(LEG.binary_indices(data)) == 516, 'Frozen TRAIN universe changed')
+        rec = Recorder(output, state, data)
+        if job['operation'] == 'source_scores': source_scores(rec, job['parameters'])
+        elif job['operation'] == 'support_mechanisms': support_mechanisms(rec, job['parameters'], context, manifest)
+        else: donor_mechanisms(rec, job['parameters'], context, manifest)
+        state.update(status='COMPLETED', prediction_matrix=ref(output/'prediction_matrix.json'), fit_receipts=ref(output/'fit_receipts.json'),
+            interpretation_limits=['Historically exposed TRAIN-only internal exploration; no new botanical authentication',
+                'Repeated support draws/source pairs are not additional independent observations',
+                'Threshold and regularization rules are frozen; query metrics never select K or method',
+                'Normalizer/gamma/C crossings isolate defined algorithmic mechanisms, not unique biological causes'])
+    except BaseException as exc:
+        state.update(status='PARTIAL', exception_type=type(exc).__name__, reason=str(exc))
+        (output/'exception_traceback.txt').write_text(traceback.format_exc())
+    finally:
+        for sig, handler in previous.items(): signal.signal(sig, handler)
+        state.update(process_cpu_seconds=time.process_time()-started, wall_seconds=time.monotonic()-wall,
+            peak_rss_kib=resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
+        if rec is not None: rec.persist()
+        state['output_artifacts'] = [ref(p) for p in sorted(output.iterdir()) if p.is_file() and p.name not in ('result.json', 'progress.json') and not p.name.endswith('.tmp')]
+        save(output/'result.json', state)
+    return state
+
+
+def main():
+    p=argparse.ArgumentParser(description=__doc__)
+    for name in ('manifest', 'manifest-sha256', 'job-id', 'context', 'context-sha256', 'output', 'proof'):
+        p.add_argument('--'+name, required=True)
+    p.add_argument('--execute', action='store_true'); args=p.parse_args(); result=run(args)
+    print(json.dumps({key:result.get(key) for key in ('status', 'job_id', 'actual_new_model_fits', 'reason')}, ensure_ascii=False), flush=True)
+
+
+if __name__ == '__main__': main()

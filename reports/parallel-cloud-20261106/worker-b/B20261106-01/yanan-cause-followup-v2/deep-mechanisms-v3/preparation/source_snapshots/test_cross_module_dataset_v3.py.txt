@@ -1,0 +1,101 @@
+"""Real v3 adapter -> old sealed TRAIN loader -> both actual validators.
+
+All1672 identities and999 numerical rows are fabricated in .runtime/SYNTHETIC;
+no real dataset, model fit, claim or ledger is opened or modified.
+"""
+from __future__ import annotations
+import copy
+import importlib.util
+import os
+from pathlib import Path
+import sys
+import tempfile
+import unittest
+
+for name in ("OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS", "MKL_NUM_THREADS", "NUMEXPR_NUM_THREADS"):
+    os.environ[name] = "2"
+HERE = Path(__file__).resolve().parent
+OLD_BIN = HERE.parents[2] / "preparation/bin"
+sys.path.insert(0, str(OLD_BIN))
+import data_worker
+data_worker.initialize_nofork_cpu_metadata()
+import numpy as np
+import deep_mechanisms_supervisor as engine
+import classical_mechanisms as classical
+import neural_mechanisms as neural
+
+spec = importlib.util.spec_from_file_location("_v3_synthetic_dataset_fixture", HERE / "synthetic_dataset_fixture.py")
+fixture_module = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(fixture_module)
+
+
+class ActualV3DatasetAdapterTests(unittest.TestCase):
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory(prefix="SYNTHETIC-v3-dataset-", dir=data_worker.ROOT / ".runtime")
+        self.directory = Path(self.temp.name)
+        self.fixture = fixture_module.build_synthetic_train_fixture(self.directory)
+        base_ref = data_worker.ref(self.directory / "SYNTHETIC-manifest.json")
+        self.manifest = {"schema": engine.SCHEMA, "base_manifest": base_ref,
+            "dataset_manifest": base_ref, "dataset_result": self.fixture["result_ref"], "SYNTHETIC_TEST_ONLY": True}
+        path = self.directory / "SYNTHETIC-v3-manifest.json"
+        data_worker.save_json(path, self.manifest)
+        self.new_manifest_ref = data_worker.ref(path)
+        self.context = {"schema": engine.CONTEXT_SCHEMA, "manifest_sha256": self.new_manifest_ref["sha256"],
+            "dataset_manifest": base_ref, "dataset_result": self.fixture["result_ref"], "SYNTHETIC_TEST_ONLY": True}
+
+    def tearDown(self):
+        self.temp.cleanup()
+
+    def test_actual_adapter_and_both_actual_validators(self):
+        arrays = engine.load_verified_train_dataset(self.context, self.manifest)
+        self.assertFalse(Path(self.context["dataset_result"]["path"]).is_absolute())
+        # v3 classical's production validator is the pinned LEG.validate_dataset.
+        legacy = engine.import_file(OLD_BIN / "classical_worker.py", "_v3_cross_actual_classical_validator")
+        self.assertEqual(legacy.sha256(OLD_BIN / "classical_worker.py") if hasattr(legacy, "sha256") else engine.sha(OLD_BIN / "classical_worker.py"), classical.OLD_WORKER_SHA)
+        legacy.np = np
+        old_leg = getattr(classical, "LEG", None)
+        classical.LEG = legacy
+        try:
+            cd = classical.LEG.validate_dataset({k: v.copy() for k, v in arrays.items()})
+        finally:
+            if old_leg is None:
+                del classical.LEG
+            else:
+                classical.LEG = old_leg
+        nd = neural.validate_dataset(arrays, np)
+        self.assertEqual(len(cd["record_ids"]), 999)
+        self.assertEqual(cd["alpha_main"].shape, (999, 612))
+        self.assertEqual(nd["X"].shape, (999, 128))
+        self.assertEqual(set(cd["master_roles"]), {"train"})
+        for fold in range(5):
+            donor, query = neural.scopes(nd, fold, np)
+            target = np.isin(cd["species"], neural.TARGET_CLASSES)
+            held = np.isin(cd["origin_group_ids"], neural.FOLDS[fold])
+            self.assertEqual(cd["record_ids"][target & ~held].tolist(), nd["ids"][donor].tolist())
+            self.assertEqual(cd["record_ids"][target & held].tolist(), nd["ids"][query].tolist())
+            self.assertTrue(set(nd["ids"][donor]).isdisjoint(nd["ids"][query]))
+
+    def test_new_manifest_cannot_replace_base_dataset_binding(self):
+        wrong = copy.deepcopy(self.context)
+        wrong["dataset_manifest"] = self.new_manifest_ref
+        with self.assertRaisesRegex(ValueError, "binding differs"):
+            engine.load_verified_train_dataset(wrong, self.manifest)
+        wrong = copy.deepcopy(self.context)
+        wrong["dataset_result"] = self.new_manifest_ref
+        with self.assertRaisesRegex(ValueError, "binding differs"):
+            engine.load_verified_train_dataset(wrong, self.manifest)
+        wrong = copy.deepcopy(self.context)
+        wrong["manifest_sha256"] = ""
+        with self.assertRaisesRegex(ValueError, "binding differs"):
+            engine.load_verified_train_dataset(wrong, self.manifest)
+
+    def test_actual_adapter_rejects_npz_tampering(self):
+        path = data_worker.checked(self.fixture["npz_ref"])
+        with path.open("ab") as stream:
+            stream.write(b"SYNTHETIC-V3-TAMPERING")
+        with self.assertRaisesRegex(ValueError, "byte count|hash differs"):
+            engine.load_verified_train_dataset(self.context, self.manifest)
+
+
+if __name__ == "__main__":
+    unittest.main()

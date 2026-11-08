@@ -1,0 +1,532 @@
+"""Stream complete mechanism blocks to bounded CSV/JSON; no model fitting."""
+from __future__ import annotations
+
+import argparse
+from collections import Counter, defaultdict
+import csv
+from datetime import datetime, timezone
+import hashlib
+import importlib.util
+import io
+import itertools
+import json
+import math
+from pathlib import Path
+import statistics
+import time
+import traceback
+
+ROOT = next(p for p in Path(__file__).resolve().parents if (p / '.git').exists())
+SELF = Path(__file__).resolve()
+SCHEMA = 'research4-b-deep-mechanisms-summary-v3'
+CONTEXT_SCHEMA = 'research4-b-deep-mechanisms-context-v3'
+CLASSES = ('枣仁', '酸枣仁')
+ACID = ('ZY03', 'ZY04', 'ZY05', 'ZY06', 'ZY07')
+MODALITIES = ('alpha', 'n', 'fusion')
+RULES = ('anchor_lambda1','bias_lambda1','anchor_lambda_per_sample','anchor_permuted_labels',
+         'anchor_flipped_labels','weak_lambda1000_blend005','support_ERM_threshold',
+         'equal_prior_unstratified_center','anchor_score_scale01','anchor_score_scale10','source_std_anchor')
+KS = (0,1,3,5,10,20)
+FOLDS = (('ZY01','ZY03'),('ZY02','ZY04'),('ZR02','ZY05'),('ZR01','ZY07'),('ZR03','ZY06'))
+ZERO = {'new_fitting_entered':False,'new_training_entered':False,'actual_new_model_fit_calls_started':0,
+        'actual_new_model_fits':0,'actual_train_calls_started':0,'actual_train_calls_completed':0}
+
+
+def require(value, message):
+    if not value: raise ValueError(message)
+
+
+def utc(): return datetime.now(timezone.utc).isoformat()
+
+
+def local(value):
+    p=Path(value);p=p if p.is_absolute() else ROOT/p
+    require('..' not in p.parts and not any(q.is_symlink() for q in (p,*p.parents)), 'Unsafe summary path')
+    p=p.resolve();require(p.is_relative_to(ROOT),'Summary escapes B repository');return p
+
+
+def sha(file):
+    h=hashlib.sha256()
+    with Path(file).open('rb') as f:
+        for b in iter(lambda:f.read(1024**2),b''):h.update(b)
+    return h.hexdigest()
+
+
+def checked(binding):
+    p=local(binding['path']);require(p.is_file() and sha(p)==binding['sha256'],'Summary input hash changed')
+    if 'bytes' in binding:require(p.stat().st_size==binding['bytes'],'Summary input byte count changed')
+    return p
+
+
+def ref(file):
+    p=local(file);return {'path':str(p.relative_to(ROOT)),'sha256':sha(p),'bytes':p.stat().st_size}
+
+
+def read(file, expected=None, limit=2*1024**2):
+    p=local(file);require(p.stat().st_size<=limit,'Explicit bounded summary input exceeded')
+    if expected:require(sha(p)==expected,'Summary pinned input changed')
+    return json.loads(p.read_bytes())
+
+
+def read_ref(binding, limit=2*1024**2):return read(checked(binding),limit=limit)
+
+
+def save(file, value, limit=512*1024):
+    p=Path(file);data=(json.dumps(value,ensure_ascii=False,separators=(',',':'),allow_nan=False)+'\n').encode()
+    require(len(data)<=limit,'Shard metadata before exceeding its declared size limit')
+    with p.open('xb') as f:f.write(data)
+
+
+def jobhash(value):return hashlib.sha256(json.dumps(value,sort_keys=True,allow_nan=False).encode()).hexdigest()
+
+
+def ordered_ids(ids, seed, domain):
+    return sorted(ids,key=lambda x:(hashlib.sha256(f'20261108|{seed}|{domain}|{x}'.encode()).hexdigest(),x))
+
+
+def metadata(manifest):
+    producer=read_ref(manifest['dataset_result'])
+    require(producer['status']=='COMPLETED' and producer['manifest_sha256']==manifest['dataset_manifest']['sha256'], 'Original TRAIN producer binding differs')
+    descriptor=read_ref(producer['dataset']['metadata'])
+    rows=descriptor['records'];ids=[x['record_id'] for x in rows]
+    require(len(rows)==999 and len(set(ids))==999 and ids==sorted(ids), 'Exactly ordered999TRAIN metadata required')
+    require({x['master_role'] for x in rows}=={'train'} and len({x['physical_sample_id'] for x in rows})==999, 'TRAIN/physical identity metadata differs')
+    return {x['record_id']:x for x in rows}
+
+
+def scopes(meta, params, support=False):
+    binary=[i for i,x in meta.items() if x['species'] in CLASSES]
+    pair=FOLDS[params['fold']] if 'fold' in params else ('ZY01',params['acid_group'])
+    donor=[i for i in binary if meta[i]['origin_group_id'] not in pair]
+    held=[i for i in binary if meta[i]['origin_group_id'] in pair]
+    if not support:return donor,held,[]
+    query=[];pool=[]
+    for group in pair:
+        ordered=ordered_ids([i for i in held if meta[i]['origin_group_id']==group],42,'support-query-'+group)
+        require(len(ordered)%2==0,'Fixed half-query group count changed');cut=len(ordered)//2
+        query+=ordered[:cut];pool+=ordered[cut:]
+    return donor,query,pool
+
+
+def validate_cohort(cohort, expected, meta):
+    ids=cohort['ids'];require(ids==expected and len(ids)==len(set(ids)), 'Exact frozen query IDs/order changed')
+    require(cohort['truth']==[meta[i]['species'] for i in ids]
+            and cohort['groups']==[meta[i]['origin_group_id'] for i in ids], 'Query truth/source identity differs')
+    return cohort
+
+
+class Metrics:
+    def __init__(self):
+        self.counts=Counter();self.ids=Counter();self.groups=defaultdict(Counter)
+    def add(self, ids, truth, predicted, groups):
+        require(len(ids)==len(truth)==len(predicted)==len(groups) and len(ids)==len(set(ids)), 'One endpoint has duplicate or mismatched query rows')
+        for rid,y,p,g in zip(ids,truth,predicted,groups):
+            require(y in CLASSES and p in CLASSES,'Unknown binary class in a prediction')
+            self.counts[(y,p)]+=1;self.ids[rid]+=1;self.groups[g][(y,p)]+=1
+    def result(self):
+        n=sum(self.counts.values());require(n>0,'Missing observations are not zero performance')
+        rows=[]
+        for c in CLASSES:
+            tp=self.counts[(c,c)];support=sum(v for (y,_),v in self.counts.items() if y==c);predicted=sum(v for (_,p),v in self.counts.items() if p==c)
+            rows.append({'class':c,'support':support,'correct':tp,'recall':tp/support if support else None,'f1':2*tp/(support+predicted) if support+predicted else 0.})
+        recalls=[x['recall'] for x in rows if x['recall'] is not None]
+        bygroup={g:{'N':sum(c.values()),'correct':sum(c[(y,y)] for y in CLASSES),
+                    'recall':sum(c[(y,y)] for y in CLASSES)/sum(c.values())} for g,c in self.groups.items()}
+        return {'evaluation_rows':n,'unique_query_ids':len(self.ids),'correct':sum(self.counts[(c,c)] for c in CLASSES),
+                'accuracy':sum(self.counts[(c,c)] for c in CLASSES)/n,'macro_f1':sum(x['f1'] for x in rows)/2,
+                'balanced_accuracy':sum(recalls)/len(recalls),'per_class':rows,'per_source_group':bygroup,
+                'unweighted_source_group_recall':sum(x['recall'] for x in bygroup.values())/len(bygroup),
+                'evaluations_per_ID_histogram':dict(Counter(self.ids.values())), 'repeated_rows_are_not_independent_N':True}
+
+
+def metric_cell(cohort, prediction):
+    m=Metrics();m.add(cohort['ids'],cohort['truth'],prediction,cohort['groups']);return m.result()
+
+
+def paired(cohort, left, right):
+    require(len(left)==len(right)==len(cohort['ids']),'Paired endpoint lengths differ')
+    counts=Counter((a==y,b==y) for a,b,y in zip(left,right,cohort['truth']))
+    return {'evaluation_rows':len(left),'both_correct':counts[(True,True)],'left_only_correct':counts[(True,False)],
+            'right_only_correct':counts[(False,True)],'both_wrong':counts[(False,False)],
+            'accuracy_difference':(counts[(True,False)]-counts[(False,True)])/len(left)}
+
+
+class CSVShards:
+    """Fixed small CSV chunks; large nested metric fields stay in one JSON cell."""
+    def __init__(self, output, prefix):self.output=Path(output);self.prefix=prefix;self.files=[];self.handle=None;self.size=0;self.rows=0
+    def add(self, kind, setting, unit, payload):
+        stream=io.StringIO();csv.writer(stream).writerow([kind,setting,unit,json.dumps(payload,ensure_ascii=False,separators=(',',':'),allow_nan=False)])
+        line=stream.getvalue();encoded=len(line.encode());require(encoded<256*1024,'One summary row is unexpectedly large')
+        if self.handle is None or self.size+encoded>512*1024:
+            self.close();p=self.output/(self.prefix+f'_rows_{len(self.files):03d}.csv');self.handle=p.open('x',newline='');self.files.append(p)
+            header='record_type,setting,replicate_unit,payload_json\r\n';self.handle.write(header);self.size=len(header.encode())
+        self.handle.write(line);self.size+=encoded;self.rows+=1
+    def close(self):
+        if self.handle is not None:self.handle.close();self.handle=None
+    def refs(self):self.close();return [ref(p) for p in self.files]
+
+
+def quantiles(values):
+    values=sorted(float(x) for x in values if x is not None and math.isfinite(float(x)))
+    if not values:return {'N':0}
+    def q(f):
+        x=f*(len(values)-1);i=int(x);return values[i]+(values[min(i+1,len(values)-1)]-values[i])*(x-i)
+    return {'N':len(values),'min':values[0],'q25':q(.25),'median':q(.5),'q75':q(.75),'max':values[-1],'mean':statistics.fmean(values)}
+
+
+def prediction_matrix(result):
+    d=read_ref(result['prediction_matrix']);observations=[]
+    for p in d['observation_parts']:
+        values=read_ref(p);require(isinstance(values,list) and len(values)<=50,'Oversized/invalid prediction shard')
+        observations.extend(values)
+    require(len(observations)==d['observations_count'] and len({x['setting'] for x in observations})==len(observations), 'Prediction descriptor count or unique settings differ')
+    return d['cohorts'],{x['setting']:x for x in observations}
+
+
+def expected_support_settings(draws):
+    return {f'draw{d}/source_SVC_vote' for d in draws}|{f'draw{d}/{rule}/K{k}' for d in draws for rule in RULES for k in KS}|{f'draw{d}/full_pipeline_refit/K{k}' for d in draws for k in (1,5,20)}
+
+
+def expected_donor_settings(acid):
+    return {'n240/shared_full_baseline'}|{f'n{n}/scaler-{s}/gamma-{g}/C-{c}' for n,s,g,c in itertools.product((6,24,60),('subset','full'),('subset_scale','full_reference'),('fixed10','normalized_total_penalty'))}|{f'n24/single_acid_source/{a}' for a in ACID if a!=acid}
+
+
+def validate_fit_receipts(result, job, meta):
+    donor,query,pool=scopes(meta,job['parameters'],job['operation']=='support_mechanisms')
+    receipts=read_ref(result['fit_receipts']);require(len(receipts)==result['actual_new_model_fit_calls_started'],'Actual fit-call count/receipt count differs')
+    require(sum(x['status']=='FIT_COMPLETED' for x in receipts)==result['actual_new_model_fits']==len(receipts),'Completed job has an unfinished fit')
+    for item in receipts:
+        ids=item['fit_ids'];require(ids and len(ids)==len(set(ids)) and set(ids)<=set(meta) and not set(ids)&set(query),'Learned fit escapes TRAIN or enters query')
+        allowed=set(donor)|set(pool) if pool else set(donor)
+        require(set(ids)<=allowed and item['master_role']=='train','Learned fit escapes declared source/support')
+        require(item['fit_ids_sha256']==jobhash(ids),'Fit receipt ID checksum differs')
+        if pool:
+            parts=item['setting'].split('/');draw=int(parts[0][4:]);k=int(parts[2][1:])
+            require(draw in job['parameters']['draw_seeds'] and k in KS[1:],'Fit has an undeclared draw/K')
+            if parts[1]=='equal_prior_unstratified_center':expected=ordered_ids(pool,draw,'v3-equal-prior-unstratified')[:2*k]
+            else:expected=sum((ordered_ids([i for i in pool if meta[i]['species']==c],draw,'v3-support-'+c)[:k] for c in CLASSES),[])
+            if parts[1]=='fullrefit':expected=donor+expected
+            require(ids==expected,'Fit selected a different support draw or full-refit scope')
+        elif job['operation']=='source_scores':require(ids==donor,'Source fit must use exactly246 donor rows')
+    return {'fit_calls_verified':len(receipts),'donor_n':len(donor),'query_n':len(query),'support_pool_n':len(pool)}
+
+
+def export_source_scores(result, job, meta, output):
+    """Bounded score-only replay artifact; source NPZ remains local and unchanged."""
+    import numpy as np
+    descriptor=read_ref(result['source_cache']);p=job['parameters'];donor,held,_=scopes(meta,p);_,query,pool=scopes(meta,p,True)
+    require(descriptor['parameters']==p and descriptor['manifest_sha256']==result['manifest_sha256']
+        and descriptor['source_worker']==result['source_worker'] and descriptor['dataset_result']==result['dataset_result'], 'Score cache source/recipe binding differs')
+    for name,ids in [('source_ids',donor),('held_ids',held),('fixed_query_ids',query),('support_pool_ids',pool),('scaler_fit_ids',donor),('source_margin_std_fit_ids',donor)]:
+        require(descriptor[name]==ids,'Score cache row scope differs')
+    require(descriptor['classes']==list(CLASSES) and descriptor['source_labels_sha256']==jobhash([meta[i]['species'] for i in donor]) and descriptor['cache_contains_truth'] is False,'Score-only source-label/geometry descriptor differs')
+    with np.load(checked(descriptor['npz']),allow_pickle=False) as archive:
+        require(set(archive.files)=={'ids','scores','predictions','source_ids','source_scores','scaler_mean','scaler_scale','classes'},'Unexpected score archive fields')
+        values={k:archive[k].copy() for k in ('ids','scores','predictions','source_ids','source_scores','classes')}
+    require(values['ids'].tolist()==held and values['source_ids'].tolist()==donor and values['classes'].tolist()==list(CLASSES),'Archive identity differs')
+    for name,n in [('scores',270),('source_scores',246)]:
+        x=values[name];require(x.shape==(n,2) and np.isfinite(x).all() and np.array_equal(x[:,0],-x[:,1]),'Non-finite or nonbinary cached margins')
+    require(values['predictions'].shape==(270,) and set(values['predictions'].tolist())<=set(CLASSES),'Cached source vote shape/classes differ')
+    margin=values['source_scores'][:,1];require(hashlib.sha256(np.ascontiguousarray(margin,dtype='<f8').tobytes()).hexdigest()==descriptor['source_margin_values_sha256']
+        and float(np.std(margin,ddof=0))==descriptor['source_margin_std_ddof0']>0,'Source-only margin normalization replay failed')
+    target=Path(output)/f'source_scores_cache_{p["acid_group"]}_{p["modality"]}.csv'
+    with target.open('x',newline='') as f:
+        writer=csv.writer(f);writer.writerow(['record_id','scope','decision_class0','decision_class1','cached_SVC_vote','score_argmax'])
+        for ids,scores,votes,scope in [(donor,values['source_scores'],None,'source_fit'),(held,values['scores'],values['predictions'],'held_prediction_only')]:
+            for ix,(rid,row) in enumerate(zip(ids,scores)):
+                writer.writerow([rid,scope,repr(float(row[0])),repr(float(row[1])),str(votes[ix]) if votes is not None else '',CLASSES[int(np.argmax(row))]])
+    require(target.stat().st_size<=512*1024,'Shard source score export before exceeding512KiB')
+    return {'csv':ref(target),'source_npz':descriptor['npz'],'source_cache':result['source_cache'],'rows':516,'contains_truth':False,'new_fits':0,
+            'source_votes_unavailable_and_not_invented':True,'source_margin_std_ddof0':descriptor['source_margin_std_ddof0'],
+            'invariance_sanity':descriptor['invariance_sanity'],'physical_material_identity_confirmed':False}
+
+
+def classical_block(block, available, jobs, meta, output):
+    sink=CSVShards(output,block['id']);aggregate=defaultdict(Metrics);pairstats=defaultdict(Counter);mechanisms=defaultdict(lambda:defaultdict(list));seen=set();scope_verified=0
+    score_exports=[]
+    conditional_variability=defaultdict(list)
+    try:
+        for jid,result in available.items():
+            j=jobs[jid];p=j['parameters'];scope_verified+=validate_fit_receipts(result,j,meta)['fit_calls_verified']
+            if j['operation']=='source_scores':score_exports.append(export_source_scores(result,j,meta,output))
+            cohorts,obs=prediction_matrix(result);support=j['operation']=='support_mechanisms'
+            _,query,_=scopes(meta,p,support);name='fixed_query' if support else 'full_source_holdout'
+            require(set(cohorts)=={name},'Unknown or extra classical query cohort');cohort=validate_cohort(cohorts[name],query,meta)
+            if support:expected=expected_support_settings(p['draw_seeds'])
+            elif j['operation']=='donor_mechanisms':expected=expected_donor_settings(p['acid_group'])
+            else:expected={'source_SVC/full246'}
+            require(set(obs)==expected,'A completed matrix is missing/adding a frozen mechanism setting')
+            for key,row in obs.items():
+                require(row['cohort']==name,'Setting uses a different query cohort')
+                unit=json.dumps({**p,'job_id':jid,'draw_seed':int(key.split('/')[0][4:]) if support else p.get('draw_seed')},sort_keys=True)
+                short=key.split('/',1)[1] if support else key
+                if j['operation']=='source_scores':short=p['modality']+'/'+short
+                cell=(p['acid_group'],p.get('modality'),row.get('metadata',{}).get('draw_seed',p.get('draw_seed')),short)
+                require(cell not in seen,'Duplicate scientific replicate cell');seen.add(cell)
+                aggregate[short].add(cohort['ids'],cohort['truth'],row['predictions'],cohort['groups'])
+                sink.add('endpoint',short,unit,{'metrics':metric_cell(cohort,row['predictions']),'source_result':result['_result_ref'],'setting':key})
+                if support:conditional_variability[('accuracy',p['acid_group'],short)].append(metric_cell(cohort,row['predictions'])['accuracy'])
+                md=row.get('metadata',{})
+                if support and '/K' in short and not short.startswith('full_pipeline_refit'):
+                    require(md.get('margin_replay_allclose') is True and not md.get('threshold_replay_mismatch_ids'), 'Binary affine threshold replay qualification failed')
+                    for field in ('slope_a','intercept_b','threshold','actual_ridge_normal_matrix_condition_number',
+                                  'support_MSE_against_original_declared_labels_descriptive','effective_regularization_per_sample'):
+                        mechanisms[short][field].append(md.get(field))
+                    mechanisms[short]['positive_slope'].append(int(md.get('slope_a',0)>0));mechanisms[short]['reversed_slope'].append(int(md.get('slope_a',0)<0))
+                    identity=md.get('balanced_support_threshold_identity')
+                    if identity:
+                        require(identity['normal_equation_allclose_atol_rtol1e10'] is True,'Balanced anchor normal equation is inconsistent')
+                        mechanisms[short]['balanced_normal_equation_residual'].append(identity['normal_equation_residual'])
+                        mechanisms[short]['threshold_minus_balanced_expected'].append(identity['actual_threshold_minus_expected'])
+                        mechanisms[short]['positive_boundary_prediction_identity'].append(identity['same_predictions_as_expected_positive_boundary'])
+                    k=int(short.rsplit('K',1)[1]);penalty=md.get('regularization')
+                    if k and penalty is not None:
+                        mechanisms[short]['support_mean_threshold_shrink_factor_n_div_n_plus_lambda'].append(2*k/(2*k+penalty))
+                    sink.add('threshold_mechanism',short,unit,{k:v for k,v in md.items() if k not in ('support_ids','changed_from_source_ids','source_cache')})
+            if support:
+                for draw in p['draw_seeds']:
+                    local={key.split('/',1)[1]:value for key,value in obs.items() if key.startswith(f'draw{draw}/')}
+                    comparisons={(key,baseline) for key in local if key!='source_SVC_vote' for baseline in ('source_SVC_vote','anchor_lambda1/K0') if key!=baseline}
+                    comparisons|={(f'anchor_lambda1/K{k}',f'{rule}/K{k}') for k in KS[1:] for rule in RULES if rule!='anchor_lambda1'}
+                    for k in KS[1:]:
+                        anchor=local[f'anchor_lambda1/K{k}'];a=anchor['metadata']['slope_a']
+                        for rule in ('bias_lambda1','anchor_permuted_labels','anchor_flipped_labels','anchor_score_scale01','anchor_score_scale10','source_std_anchor'):
+                            other=local[f'{rule}/K{k}'];b=other['metadata']['slope_a']
+                            if a>0 and b>0:
+                                mismatches=sum(x!=y for x,y in zip(anchor['predictions'],other['predictions']))
+                                mechanisms[f'{rule}/K{k}']['positive_orientation_anchor_prediction_mismatches'].append(mismatches)
+                                # Near-boundary finite precision/ties are retained as evidence, never thresholded into equality.
+                    for left,right in sorted(comparisons):
+                        val=paired(cohort,local[left]['predictions'],local[right]['predictions']);pairkey=left+' MINUS '+right
+                        for k in ('evaluation_rows','both_correct','left_only_correct','right_only_correct','both_wrong'):pairstats[pairkey][k]+=val[k]
+                        pairstats[pairkey]['positive_cells']+=val['accuracy_difference']>0;pairstats[pairkey]['negative_cells']+=val['accuracy_difference']<0;pairstats[pairkey]['same_cells']+=val['accuracy_difference']==0
+                        conditional_variability[('paired_accuracy_difference',p['acid_group'],pairkey)].append(val['accuracy_difference'])
+                        sink.add('paired',pairkey,f'{p["acid_group"]}|draw{draw}',val)
+            elif j['operation']=='donor_mechanisms':
+                comparisons={(key,'n240/shared_full_baseline') for key in obs if key!='n240/shared_full_baseline'}
+                mixed='n24/scaler-full/gamma-full_reference/C-normalized_total_penalty'
+                comparisons|={(key,mixed) for key in obs if key.startswith('n24/single_acid_source/')}
+                for n in (6,24,60):
+                    for sc,ga,c in itertools.product(('subset','full'),('subset_scale','full_reference'),('fixed10','normalized_total_penalty')):
+                        right=f'n{n}/scaler-{sc}/gamma-{ga}/C-{c}'
+                        for left in (f'n{n}/scaler-full/gamma-{ga}/C-{c}',f'n{n}/scaler-{sc}/gamma-full_reference/C-{c}',f'n{n}/scaler-{sc}/gamma-{ga}/C-normalized_total_penalty'):
+                            if left!=right:comparisons.add((left,right))
+                for left,right in sorted(comparisons):
+                    val=paired(cohort,obs[left]['predictions'],obs[right]['predictions']);pairkey=left+' MINUS '+right
+                    for k in ('evaluation_rows','both_correct','left_only_correct','right_only_correct','both_wrong'):pairstats[pairkey][k]+=val[k]
+                    sink.add('paired',pairkey,jid,val)
+        cards=[]
+        for setting,acc in sorted(aggregate.items()):
+            metric=acc.result();cards.append({'setting':setting,'metrics':metric})
+            sink.add('aggregate',setting,'ALL_DECLARED_CELLS',metric)
+        pairs=[]
+        for key,c in sorted(pairstats.items()):
+            value=dict(c);value['accuracy_difference']=(c['left_only_correct']-c['right_only_correct'])/c['evaluation_rows'];pairs.append({'comparison':key,**value})
+            sink.add('paired_aggregate',key,'ALL_DECLARED_CELLS',value)
+        mech=[]
+        for setting,fields in sorted(mechanisms.items()):mech.append({'setting':setting,'descriptive_distributions':{f:quantiles(v) for f,v in fields.items()}})
+        for (kind,acid,setting),values in sorted(conditional_variability.items()):
+            require(len(values)==20,'Conditional support variability requires all20 draws, never partial-best reporting')
+            sink.add('conditional_support_selection_variability',setting,acid,{'quantity':kind,'draws':20,'distribution':quantiles(values),'fixed_query':True,'new_independent_samples':0})
+        index={'block':block['id'],'status':'COMPLETE_BLOCK','endpoint_settings':len(cards),'fit_receipts_verified':scope_verified,
+               'aggregates':cards,'paired_aggregates':pairs,'mechanism_distributions':mech,
+               'score_replay_exports':score_exports,
+               'details':sink.refs(),'winner_selected':False,'p_values_computed':False,
+               'limits':['Repeated support draws/source pairs do not add independent specimens.','Bias-only is conditional on label-balanced sampling; unstratified centering uses a different support set.','Positive binary affine ridge anchors have threshold/bias/score-unit conditional identities; record slope sign before interpreting.','Full-source normalizer/gamma controls use all246 source vectors even when classifier labels use a smaller subset.']}
+        f=Path(output)/(block['id']+'_index.json');save(f,index,limit=2*1024**2)
+        return {'id':block['id'],'status':'COMPLETE_BLOCK','expected_jobs':len(available),'index':ref(f),'endpoint_settings':len(cards)}
+    finally:sink.close()
+
+
+def read_arm(compact, job, meta, *, native=False):
+    row=read_ref(compact['result']);p=job['parameters'];donor,query,_=scopes(meta,p)
+    require(row['record_ids']==query and row['truth']==[meta[i]['species'] for i in query]
+            and row['origin_group_ids']==[meta[i]['origin_group_id'] for i in query], 'Neural query identity/truth changed')
+    require(row['unique_fit_ids']==donor and row['epochs']==96, 'Neural source scope/target budget changed')
+    for field in ('metrics','initial_head_state_sha256','initial_encoder_state_sha256','final_encoder_state_sha256','target_order_sha256','target_scaler','encoder_unchanged','epochs'):
+        require(compact[field]==row[field],'Compact arm differs from actual hash-bound endpoint')
+    require(row['pointwise_inference_audit']['status']==compact['pointwise_inference_status']=='PASS_FOR_FIXED_QUERY_ONLY','Pointwise fixed-query inference gate missing')
+    checked(row['target_scaler']);checked(row['model_checkpoint']);checked(row['prediction_artifact'])
+    rng=row['rng_contract'];require(rng['encoder_initialization_seed']==p['encoder_seed'] and rng['pretraining_sampling_dropout_seed']==p['encoder_seed'] and rng['target_head_seed']==p['target_seed']+10000
+        and rng['target_dropout_seed']==p['target_seed']+50000 and rng['target_order_seed']==p['target_seed']+60000,'Independent source/target RNG identities changed')
+    intervention=row['bn_intervention'];require(intervention['parameters_unchanged'] is True and not intervention['query_or_support_statistics_used'], 'BN intervention changed weights or used query statistics')
+    if p['adapt']=='frozen':require(row['encoder_unchanged'] and row['initial_encoder_state_sha256']==row['final_encoder_state_sha256'],'Frozen target encoder changed')
+    policy='native' if native else p.get('bn_policy','native')
+    if policy=='neutral' and compact.get('reused_native_prediction'):
+        require(intervention['policy']=='native' and compact.get('reuse_gate'), 'Only exact neutral A gate may reuse native predictions')
+    else:require(intervention['policy']==policy,'BN intervention policy differs')
+    if policy=='source_recal':require(intervention['source_fit_ids']==donor and intervention['source_full_batch_passes']==1 and intervention['all_dropout_eval'] is True,'BN recalibration did not use the single fixed donor batch')
+    else:require(intervention['source_fit_ids']==[] and intervention['source_full_batch_passes']==0,'Native/neutral BN unexpectedly fitted source statistics')
+    if native:require(intervention['policy']=='native','BN native comparator was already changed')
+    return row
+
+
+def seed_variation(values):
+    require(set(values)==set(itertools.product(range(42,50),(101,202,303))),'Full encoder8 x target3 seed matrix required')
+    enc={p:statistics.fmean(v for (pp,_),v in values.items() if pp==p) for p in range(42,50)}
+    target={t:statistics.fmean(v for (_,tt),v in values.items() if tt==t) for t in (101,202,303)}
+    mean=statistics.fmean(values.values())
+    ss_encoder=3*sum((v-mean)**2 for v in enc.values());ss_target=8*sum((v-mean)**2 for v in target.values())
+    ss_interaction=sum((v-enc[p]-target[t]+mean)**2 for (p,t),v in values.items());ss_total=sum((v-mean)**2 for v in values.values())
+    require(math.isclose(ss_encoder+ss_target+ss_interaction,ss_total,abs_tol=1e-12,rel_tol=1e-10),'Crossed descriptive variance does not partition')
+    return {'mean':mean,'min':min(values.values()),'max':max(values.values()),'positive_cells':sum(v>0 for v in values.values()),
+            'zero_cells':sum(v==0 for v in values.values()),'negative_cells':sum(v<0 for v in values.values()),
+            'encoder_means':enc,'target_means':target,'between_encoder_mean_population_variance':statistics.pvariance(enc.values()),
+            'between_target_mean_population_variance':statistics.pvariance(target.values()),
+            'interaction_residual_population_mean_square':ss_interaction/24,
+            'crossed_descriptive_sum_squares':{'encoder':ss_encoder,'target':ss_target,'interaction':ss_interaction,'total':ss_total},
+            'crossed_descriptive_fraction_of_total':{k:(v/ss_total if ss_total>0 else None) for k,v in {'encoder':ss_encoder,'target':ss_target,'interaction':ss_interaction}.items()},
+            'within_encoder_target_population_variance_mean':statistics.fmean(statistics.pvariance(v for (pp,_),v in values.items() if pp==p) for p in enc),
+            'randomization_variation_not_biological_sample_uncertainty':True}
+
+
+def neural_block(block, available, jobs, meta, output):
+    sink=CSVShards(output,block['id']);aggregates=defaultdict(Metrics);replicates=defaultdict(Metrics);pairtotals=defaultdict(Counter);pairrep=defaultdict(Counter);seen=set();audit=Counter();a_refs={}
+    try:
+        for jid,result in available.items():
+            j=jobs[jid];p=j['parameters'];unit=(p['encoder_seed'],p['target_seed'],p['fold'])
+            require(unit not in seen,'Duplicate encoder/target/fold cell');seen.add(unit)
+            require(set(result['arms'])=={'A','Aextra','B','Bshuffle'},'Incomplete neural arm comparison')
+            require(all(not c.get('reused_native_prediction') or (name=='A' and p.get('bn_policy')=='neutral') for name,c in result['arms'].items()),'Only neutral A may reuse the native endpoint')
+            arms={name:read_arm(c,j,meta) for name,c in result['arms'].items()}
+            first=arms['A'];cohort={'ids':first['record_ids'],'truth':first['truth'],'groups':first['origin_group_ids']}
+            for name,row in arms.items():
+                require(row['initial_head_state_sha256']==first['initial_head_state_sha256'] and row['target_order_sha256']==first['target_order_sha256'],'Target heads/order are not paired')
+                require(row['record_ids']==cohort['ids'] and row['truth']==cohort['truth'],'Arms do not share identical query identities')
+                aggregates[name].add(cohort['ids'],cohort['truth'],row['prediction'],cohort['groups'])
+                replicates[(name,p['encoder_seed'],p['target_seed'])].add(cohort['ids'],cohort['truth'],row['prediction'],cohort['groups'])
+                sink.add('endpoint',name,json.dumps(unit),{'metrics':metric_cell(cohort,row['prediction']),'arm_result':result['arms'][name]['result'],
+                    'reused_native_prediction':result['arms'][name].get('reused_native_prediction',False),'BN_policy':row['bn_intervention']['policy']})
+                audit['pointwise_PASS']+=1;audit['frozen_unchanged']+=bool(row['encoder_unchanged']);audit['reused_neutral_A']+=result['arms'][name].get('reused_native_prediction',False)
+            for left,right in [('B','A'),('B','Aextra'),('B','Bshuffle'),('Aextra','A')]:
+                val=paired(cohort,arms[left]['prediction'],arms[right]['prediction']);key=left+' MINUS '+right
+                for field in ('evaluation_rows','both_correct','left_only_correct','right_only_correct','both_wrong'):
+                    pairtotals[key][field]+=val[field];pairrep[(key,p['encoder_seed'],p['target_seed'])][field]+=val[field]
+                sink.add('paired',key,json.dumps(unit),val)
+            if j['operation']=='bn_probe':
+                require(set(result['native_arms'])==set(arms),'BN probe lacks all native comparators')
+                for name,c in result['native_arms'].items():
+                    native=read_arm(c,j,meta,native=True)
+                    val=paired(cohort,arms[name]['prediction'],native['prediction']);key=name+' INTERVENTION_MINUS_NATIVE'
+                    for field in ('evaluation_rows','both_correct','left_only_correct','right_only_correct','both_wrong'):pairtotals[key][field]+=val[field]
+                    sink.add('BN_matched_native_pair',key,json.dumps(unit),val)
+        expected=set(itertools.product(block['encoder_seeds'],block['target_seeds'],block['folds']))
+        require(seen==expected,'Incomplete crossed encoder/target/fold matrix')
+        cards=[{'arm':arm,'metrics':acc.result()} for arm,acc in sorted(aggregates.items())]
+        repvalues=defaultdict(dict)
+        for (arm,p,t),acc in sorted(replicates.items()):
+            value=acc.result();require(value['evaluation_rows']==value['unique_query_ids']==516,'Each encoder/target replicate must contain exactly516 unique held IDs')
+            repvalues[arm][(p,t)]=value['accuracy'];sink.add('fivefold_replicate',arm,f'p{p}|t{t}',value)
+        pairs=[]
+        for key,counts in sorted(pairtotals.items()):
+            value=dict(counts);value['accuracy_difference']=(counts['left_only_correct']-counts['right_only_correct'])/counts['evaluation_rows'];pairs.append({'comparison':key,**value})
+        seedstats={}
+        if block['operation']=='target_eval_cross':
+            for key in pairtotals:
+                values={}
+                for p,t in itertools.product(range(42,50),(101,202,303)):
+                    v=pairrep[(key,p,t)];require(v['evaluation_rows']==516,'Missing per-seed paired query')
+                    values[(p,t)]=(v['left_only_correct']-v['right_only_correct'])/516
+                seedstats[key]=seed_variation(values)
+        index={'block':block['id'],'status':'COMPLETE_BLOCK','aggregates':cards,'paired_aggregates':pairs,'seed_variation':seedstats,
+               'arm_randomization_accuracy_variation':{arm:seed_variation(values) for arm,values in repvalues.items()} if block['operation']=='target_eval_cross' else {},
+               'runtime_qualifications':dict(audit),'details':sink.refs(),'winner_selected':False,'p_values_computed':False,
+               'limits':['The same516 historicalTRAIN IDs are repeated across algorithm seeds; they are not new independent specimens.','A prediction is reused across step budgets, not another target fit.','Frozen means native BN unless a named explicit BN probe.','Pretraining step budgets do not match sample exposures/FLOPs for tiny target donor pools.']}
+        f=Path(output)/(block['id']+'_index.json');save(f,index,limit=512*1024)
+        return {'id':block['id'],'status':'COMPLETE_BLOCK','expected_jobs':len(available),'index':ref(f)}
+    finally:sink.close()
+
+
+def validate_block_design(block, jobs):
+    required=block['required_job_ids'];require(len(required)==len(set(required))==block['expected_count']==block['expected_count_design'],'Block fixed counts differ')
+    require(set(required)<=set(jobs),'Expected job absent from frozen manifest')
+    operation=block['operation'];params=[jobs[i]['parameters'] for i in required]
+    require(all(jobs[i]['operation']==operation for i in required),'Wrong operation in family block')
+    if operation=='source_scores':actual={(p['acid_group'],p['modality']) for p in params};expected=set(itertools.product(ACID,MODALITIES))
+    elif operation=='support_mechanisms':
+        actual={(p['acid_group'],d) for p in params for d in p['draw_seeds']};expected=set(itertools.product(ACID,range(45,65)))
+        require(sum(len(p['draw_seeds']) for p in params)==100 and {p['modality'] for p in params}=={block['id'][8:]},'Support draw/modality grid repeats or drifts')
+    elif operation=='donor_mechanisms':
+        actual={(p['acid_group'],p['draw_seed']) for p in params};expected=set(itertools.product(ACID,range(45,50)))
+        require({p['modality'] for p in params}=={block['id'][6:]},'Donor modality grid drifts')
+    elif operation in ('target_eval_cross','bn_probe'):
+        actual={(p['encoder_seed'],p['target_seed'],p['fold']) for p in params};expected=set(itertools.product(block['encoder_seeds'],block['target_seeds'],block['folds']))
+        require(len(actual)==len(params),'Duplicate fold-seed cells cannot replace missing ones')
+        require({p['steps'] for p in params}=={block['steps']} and {p['adapt'] for p in params}=={block['adapt']},'Neural step/adaptation block condition differs')
+        if operation=='bn_probe':require({p['bn_policy'] for p in params}=={block['bn_policy']},'BN policy block differs')
+    elif operation=='aux_pretrain':
+        actual={(p['encoder_seed'],p['steps'],p['label_mode']) for p in params};expected=set(itertools.product(range(45,50),(120,480),('real','shuffled')))
+    elif operation=='target_pretrain':
+        actual={(p['encoder_seed'],p['steps'],p['fold']) for p in params};expected=set(itertools.product(range(45,50),(120,480),range(5)))
+    elif operation=='source_A_cross':
+        actual={(p['encoder_seed'],p['target_seed'],p['fold'],p['adapt']) for p in params};expected=set(itertools.product(range(42,50),(101,202,303),range(5),('full','frozen')))
+    else:raise ValueError('Unknown declared scientific block')
+    require(len(actual)==len(params) or operation=='support_mechanisms','Repeated scientific factor cell')
+    require(actual==expected,'Incomplete scientific factor grid')
+
+
+def summarize(manifest, context, output):
+    jobs={j['id']:j for j in manifest['jobs']};states=context['dependency_states'];results={}
+    require(len(jobs)==971 and jobs['summary']['id']==context['job_id'],'Exact971 scientific/report jobs required')
+    require(set(states)==set(jobs)-{'summary'} and all(v in ('DONE_SEALED','FAILED_RESULT_VALIDATION_CLOSED','NOT_RUN_DEPENDENCY','NOT_RUN_RESOURCE_OR_DEADLINE','PARTIAL_CLOSED') for v in states.values()),'Report cannot certify an active/unknown or omitted worker')
+    for jid,binding in context['dependencies'].items():
+        row=read_ref(binding);require(row['job_id']==jid and row['manifest_sha256']==context['manifest_sha256']
+            and row['source_worker']['sha256']==jobs[jid]['source']['sha256'],'Dependency result/job/source binding differs')
+        if states.get(jid)=='DONE_SEALED' and row['status'] in ('DONE','COMPLETED'):results[jid]=dict(row,_result_ref=binding)
+    for jid,row in results.items():
+        if jobs[jid]['operation']!='target_eval_cross':continue
+        p=jobs[jid]['parameters'];aid=f'A_f{p["fold"]}_p{p["encoder_seed"]}_t{p["target_seed"]}_{p["adapt"]}'
+        require(aid in results and row['arms']['A']['result']==results[aid]['arms']['A']['result'],'A prediction must reuse the exact same producer across both step budgets')
+    meta=metadata(manifest);blocks=[]
+    for block in manifest['summary_blocks']:
+        validate_block_design(block,jobs);required=block['required_job_ids'];missing=[i for i in required if i not in results]
+        if missing:
+            blocks.append({'id':block['id'],'status':'PARTIAL_BLOCKS_PRESERVED','missing_or_scientifically_partial_job_ids':missing,
+                           'available_jobs':len(required)-len(missing),'expected_jobs':len(required),'aggregate_metrics_emitted':False});continue
+        available={i:results[i] for i in required}
+        if block.get('artifact_only'):
+            blocks.append({'id':block['id'],'status':'COMPLETE_BLOCK','expected_jobs':len(required),'scope':'Artifact/provenance coverage only; no outcome metric inferred'});continue
+        if block['operation'] in ('source_scores','support_mechanisms','donor_mechanisms'):blocks.append(classical_block(block,available,jobs,meta,output))
+        else:blocks.append(neural_block(block,available,jobs,meta,output))
+    return blocks
+
+
+def run(args):
+    manifest=read(args.manifest,args.manifest_sha256,limit=8*1024**2);context=read(args.context,args.context_sha256,limit=2*1024**2)
+    require(context['schema']==CONTEXT_SCHEMA and context['manifest_sha256']==args.manifest_sha256 and context['job_id']==args.job_id,'Exact summary context binding required')
+    job=next(j for j in manifest['jobs'] if j['id']==args.job_id)
+    require(job==context['job'] and context['job_sha256']==jobhash(job) and job['kind']=='summary','Frozen summary job identity differs')
+    require(checked(job['source'])==SELF,'Wrong summary source')
+    output=local(args.output);require(output==local(context['output_directory']),'Bound summary output path differs')
+    if not args.execute:return {'schema':SCHEMA,'status':'NOT_RUN',**ZERO}
+    spec=importlib.util.spec_from_file_location('_deep_v3_live_summary_supervisor',checked(manifest['supervisor']));engine=importlib.util.module_from_spec(spec);spec.loader.exec_module(engine)
+    proof=engine.verify_resource_supervision(expected_worker_path=SELF,expected_threads=2,expected_manifest_sha256=args.manifest_sha256,
+        expected_job_id=args.job_id,expected_context_sha256=args.context_sha256,expected_proof_path=args.proof)
+    require(not output.exists() or not any(output.iterdir()),'Summary cannot overwrite a previous attempt');output.mkdir(parents=True,exist_ok=True)
+    state={'schema':SCHEMA,'status':'RUNNING','job_id':args.job_id,'manifest_sha256':args.manifest_sha256,'context_sha256':args.context_sha256,
+           'job_sha256':context['job_sha256'],'source_worker':ref(SELF),'resource_supervision':proof,'started_at_utc':utc(),**ZERO}
+    save(output/'progress.json',state);start=time.process_time();wall=time.monotonic()
+    try:
+        blocks=summarize(manifest,context,output);complete=all(b['status']=='COMPLETE_BLOCK' for b in blocks)
+        index={'schema':SCHEMA,'blocks':blocks,'all_blocks_complete':complete,'no_model_selection_or_pvalues':True,
+               'historically_exposed_TRAIN_only':True,'labels_retained':True,'botanical_authentication':False}
+        save(output/'summary_index.json',index)
+        state.update(status='SUMMARY_COMPLETE' if complete else 'PARTIAL_BLOCKS_PRESERVED',summary_index=ref(output/'summary_index.json'),
+                     blocks=blocks,all_blocks_complete=complete,original_failed_results_preserved=True)
+    except BaseException as error:
+        state.update(status='PARTIAL',exception_type=type(error).__name__,stop_reason=str(error));(output/'exception_traceback.txt').write_text(traceback.format_exc())
+    state.update(completed_at_utc=utc(),process_cpu_seconds=time.process_time()-start,wall_seconds=time.monotonic()-wall,
+                 output_artifacts=[ref(p) for p in sorted(output.iterdir()) if p.is_file() and p.name not in ('result.json','progress.json')])
+    save(output/'result.json',state);return state
+
+
+def parser():
+    p=argparse.ArgumentParser(description=__doc__)
+    for flag in ('manifest','context','output','proof'):p.add_argument('--'+flag,type=Path,required=flag!='proof')
+    for flag in ('manifest-sha256','context-sha256','job-id'):p.add_argument('--'+flag,required=True)
+    p.add_argument('--execute',action='store_true');return p
+
+
+if __name__=='__main__':
+    result=run(parser().parse_args());print(json.dumps({k:result.get(k) for k in ('schema','status','job_id','stop_reason')},ensure_ascii=False),flush=True)
+    if result['status'] not in ('SUMMARY_COMPLETE','PARTIAL_BLOCKS_PRESERVED','NOT_RUN'):raise SystemExit(2)
