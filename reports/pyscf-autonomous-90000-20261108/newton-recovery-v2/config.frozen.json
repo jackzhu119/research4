@@ -1,0 +1,269 @@
+{
+  "schema": "research4-pyscf-prospective-90000-newton-recovery-config-v2",
+  "created_at_utc": "2026-11-08T11:47:53.806571+00:00",
+  "run_dir": "/workspace/research4/reports/pyscf-autonomous-90000-20261108/newton-recovery-v2",
+  "total_cpu_seconds": 87000,
+  "payload_cpu_seconds_allocated": 75500,
+  "checkpoint_interval_seconds": 900,
+  "jobs": [
+    {
+      "id": "water-controls",
+      "argv": [
+        "/workspace/research4/.venv-pyscf-90000/bin/python",
+        "-B",
+        "/workspace/research4/scripts/pyscf_full_numerical_hessian_20261108_v2.py",
+        "--stage",
+        "controls",
+        "--threads",
+        "2",
+        "--output",
+        "{output}"
+      ],
+      "cpu_seconds": 1000,
+      "wall_seconds": 1200,
+      "depends_on": [],
+      "success_statuses": [
+        "CONTROLS_PASSED"
+      ],
+      "threads": 2,
+      "max_attempts": 1
+    },
+    {
+      "id": "acid-optimize",
+      "argv": [
+        "/workspace/research4/.venv-pyscf-90000/bin/python",
+        "-B",
+        "/workspace/research4/scripts/pyscf_full_numerical_hessian_20261108_v2.py",
+        "--stage",
+        "optimize",
+        "--threads",
+        "2",
+        "--output",
+        "{output}",
+        "--xyz",
+        "/workspace/research4/data/research/pyscf_autonomous_90000_20261108/inputs/protocatechuic_acid.xyz",
+        "--initial-density",
+        "/workspace/research4/reports/pyscf-autonomous-90000-20261108/jobs/acid-optimize/optimization_steps/step-000/density.npy",
+        "--initial-density-sha256",
+        "cc64f7a97e5c309e44d007c4d704a4b691d1486449d1cc720511cb3b45721b4e",
+        "--initial-density-source-result",
+        "/workspace/research4/reports/pyscf-autonomous-90000-20261108/jobs/acid-optimize/optimization_steps/step-000/result.json"
+      ],
+      "cpu_seconds": 8000,
+      "wall_seconds": 9000,
+      "depends_on": [
+        "water-controls"
+      ],
+      "success_statuses": [
+        "OPTIMIZED_GEOMETRY_CERTIFIED"
+      ],
+      "threads": 2,
+      "max_attempts": 1
+    },
+    {
+      "id": "acid-hessian-h001",
+      "argv": [
+        "/workspace/research4/.venv-pyscf-90000/bin/python",
+        "-B",
+        "/workspace/research4/scripts/pyscf_full_numerical_hessian_20261108_v2.py",
+        "--stage",
+        "hessian",
+        "--threads",
+        "2",
+        "--output",
+        "{output}",
+        "--optimization",
+        "/workspace/research4/reports/pyscf-autonomous-90000-20261108/newton-recovery-v2/jobs/acid-optimize/result.json",
+        "--step",
+        "0.001"
+      ],
+      "cpu_seconds": 33000,
+      "wall_seconds": 36000,
+      "depends_on": [
+        "acid-optimize"
+      ],
+      "success_statuses": [
+        "NUMERICAL_HESSIAN_COMPLETE"
+      ],
+      "threads": 2,
+      "max_attempts": 1
+    },
+    {
+      "id": "acid-hessian-h0005",
+      "argv": [
+        "/workspace/research4/.venv-pyscf-90000/bin/python",
+        "-B",
+        "/workspace/research4/scripts/pyscf_full_numerical_hessian_20261108_v2.py",
+        "--stage",
+        "hessian",
+        "--threads",
+        "2",
+        "--output",
+        "{output}",
+        "--optimization",
+        "/workspace/research4/reports/pyscf-autonomous-90000-20261108/newton-recovery-v2/jobs/acid-optimize/result.json",
+        "--step",
+        "0.0005"
+      ],
+      "cpu_seconds": 33000,
+      "wall_seconds": 36000,
+      "depends_on": [
+        "acid-optimize"
+      ],
+      "success_statuses": [
+        "NUMERICAL_HESSIAN_COMPLETE"
+      ],
+      "threads": 2,
+      "max_attempts": 1
+    },
+    {
+      "id": "acid-analyze",
+      "argv": [
+        "/workspace/research4/.venv-pyscf-90000/bin/python",
+        "-B",
+        "/workspace/research4/scripts/pyscf_full_numerical_hessian_20261108_v2.py",
+        "--stage",
+        "analyze",
+        "--threads",
+        "2",
+        "--output",
+        "{output}",
+        "--hessians",
+        "/workspace/research4/reports/pyscf-autonomous-90000-20261108/newton-recovery-v2/jobs/acid-hessian-h001/result.json",
+        "/workspace/research4/reports/pyscf-autonomous-90000-20261108/newton-recovery-v2/jobs/acid-hessian-h0005/result.json"
+      ],
+      "cpu_seconds": 500,
+      "wall_seconds": 600,
+      "depends_on": [
+        "acid-hessian-h001",
+        "acid-hessian-h0005"
+      ],
+      "success_statuses": [
+        "NUMERICAL_HESSIAN_ANALYZED"
+      ],
+      "threads": 2,
+      "max_attempts": 1
+    }
+  ],
+  "frozen_refs": [
+    {
+      "path": "scripts/run_pyscf_autonomous_90000_20261108.py",
+      "sha256": "0986a1356a72f69651074f8c9f7681529248ecad9190526d078d6820a055e8ca"
+    },
+    {
+      "path": "scripts/pyscf_full_numerical_hessian_20261108_v2.py",
+      "sha256": "4a0f2d5a5642e47409803f40ac9314000cf1dc7536f56236456c765ff5803dd5"
+    },
+    {
+      "path": "docs/PYSCF_NEWTON_RECOVERY_90000_20261108.md",
+      "sha256": "82af66a9bc50b3bf29f04986b3cd665b4bd8cee584e88fdf46a88a09ff6e7b47"
+    },
+    {
+      "path": "tests/test_pyscf_autonomous_budget.py",
+      "sha256": "8d7ec00dbe842e2fdf59e01aa947a0673001c54ea9cc0ad05835762be63297b0"
+    },
+    {
+      "path": "tests/test_pyscf_numerical_hessian_v2.py",
+      "sha256": "1bfa6e2f623b42c262e3cdfc5719e77926ddef373bbea33d8932508d9d8632a5"
+    },
+    {
+      "path": "AGENTS.md",
+      "sha256": "1e95f50661b3543e1160e423d68b6515a04466455a6e084bcc0a834b96ac3b58"
+    },
+    {
+      "path": ".gitignore",
+      "sha256": "19f544a078103020b7752a545179a2aedd75a4584b680e4283708e9c4a8527c6"
+    },
+    {
+      "path": "requirements/pyscf-autonomous-90000-20261108.txt",
+      "sha256": "307c461cb50aecdd33159e762fbeba74d4dc5aa6e16ddf653ee36dd94f085a5e"
+    },
+    {
+      "path": "reports/pyscf-autonomous-90000-20261108/authorization.json",
+      "sha256": "602f59c96f2d1d1227262d2dbfc08d6ce7ae3c45b8664999e55b4b60e50ee2a7"
+    },
+    {
+      "path": "reports/pyscf-autonomous-90000-20261108/environment.json",
+      "sha256": "92de452c1a8df362c24038ef082b4b3d64f30fe116c4f162ed6af3bc1e6a2f78"
+    },
+    {
+      "path": "reports/pyscf-autonomous-90000-20261108/ledger.json",
+      "sha256": "6b72b561460278d574bc6f2d490a372e76ba8ed8ab1eeb3f32ec37f39f0333f5"
+    },
+    {
+      "path": "reports/pyscf-autonomous-90000-20261108/grant_accounting.json",
+      "sha256": "a8702baea8225c3d21121fb86854fde495b75a40c222f4245a0f7b5570f0ab6a"
+    },
+    {
+      "path": "data/research/pyscf_autonomous_90000_20261108/inputs/chemical_case.json",
+      "sha256": "d213b401acb7986b876bbf312971ebc039f7e967dae3dcc48278c4ee53cbc850"
+    },
+    {
+      "path": "data/research/pyscf_autonomous_90000_20261108/inputs/historical_cases.json",
+      "sha256": "84f306a6e09a6b162650988d8ba81a34529f58a21accd53626d87e923613d893"
+    },
+    {
+      "path": "data/research/pyscf_autonomous_90000_20261108/inputs/historical_frequency_geometry_bohr.npy",
+      "sha256": "651f9abec3c4b3ac47d2f9ce4d16ac9347e5f90606c2567e9ebc3edc7ba31fc1"
+    },
+    {
+      "path": "data/research/pyscf_autonomous_90000_20261108/inputs/historical_graph_validation.json",
+      "sha256": "321bb9d611757e52c4ca649aab86c94c2397850060f2c349b3c3bdfddf31ffac"
+    },
+    {
+      "path": "data/research/pyscf_autonomous_90000_20261108/inputs/historical_grid3_center_geometry_bohr.npy",
+      "sha256": "651f9abec3c4b3ac47d2f9ce4d16ac9347e5f90606c2567e9ebc3edc7ba31fc1"
+    },
+    {
+      "path": "data/research/pyscf_autonomous_90000_20261108/inputs/historical_grid3_center_result.json",
+      "sha256": "3656b71b4bdd4f432a7303c57919a5598c96d839a4b60e4a67f4e9c6d8a9b173"
+    },
+    {
+      "path": "data/research/pyscf_autonomous_90000_20261108/inputs/historical_optimization_result.json",
+      "sha256": "bd4add0a0f6e407838d0abd2296d5aae0fe79f5479bbce4a84e342a91473248d"
+    },
+    {
+      "path": "data/research/pyscf_autonomous_90000_20261108/inputs/historical_optimized_geometry.json",
+      "sha256": "5899917276101687df3484c7610499c11d9ff8881f041210fc2571c1e5a76f0d"
+    },
+    {
+      "path": "data/research/pyscf_autonomous_90000_20261108/inputs/historical_source_evidence.json",
+      "sha256": "89d96ab55c6dfe9886a2274abf021db91f484ca589f0d2d0883440ec0971242b"
+    },
+    {
+      "path": "data/research/pyscf_autonomous_90000_20261108/inputs/protocatechuic_acid.xyz",
+      "sha256": "5bc771e84703a6ce8ebc28f042c3bab45b903cc6ebe60f939cf96cb7ba3e975f"
+    },
+    {
+      "path": "data/research/pyscf_autonomous_90000_20261108/inputs/source_receipt.json",
+      "sha256": "169577e21147ce949d064c0ffc4e56f86b9e24bd921c47165699b0f108c7ee8b"
+    },
+    {
+      "path": "reports/pyscf-autonomous-90000-20261108/jobs/acid-optimize/optimization_steps/step-000/result.json",
+      "sha256": "0b9f153b0054d3b1b1c89eaf27cf18dbfd4697dfc982ef2186032d5809c2da7f"
+    },
+    {
+      "path": "reports/pyscf-autonomous-90000-20261108/jobs/acid-optimize/optimization_steps/step-000/density.npy",
+      "sha256": "cc64f7a97e5c309e44d007c4d704a4b691d1486449d1cc720511cb3b45721b4e"
+    },
+    {
+      "path": "reports/pyscf-autonomous-90000-20261108/jobs/acid-optimize/optimization_steps/step-000/coordinates_bohr.npy",
+      "sha256": "c9374d9017d877365b480b4ba4e13c770399029c0edee5445a831b99b64c0f71"
+    }
+  ],
+  "git_return": {
+    "enabled": true,
+    "branch": "research/pyscf-autonomous-90000-20261108",
+    "source_files": [
+      "scripts/run_pyscf_autonomous_90000_20261108.py",
+      "scripts/pyscf_full_numerical_hessian_20261108_v2.py",
+      "docs/PYSCF_NEWTON_RECOVERY_90000_20261108.md",
+      "tests/test_pyscf_autonomous_budget.py",
+      "tests/test_pyscf_numerical_hessian_v2.py"
+    ]
+  },
+  "interpretation": "Same original 90000 CPU-second grant, subtract immutable prior closed charge. New bounded Newton seed plus original strict native convergence gates; all failures retained. No new grant, no threshold relaxation, no classifier changes, IR NOT_COMPUTED.",
+  "single_original_grant_maximum_cpu_seconds": 90000,
+  "prior_conservative_charge_cpu_seconds": 2293.033319,
+  "new_grant_created": false
+}
