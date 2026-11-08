@@ -1,0 +1,45 @@
+{
+  "schema": "research4-independent-resource-review-v1",
+  "status": "PASS_STATIC_AND_SYNTHETIC_TESTS_NOT_ACTUAL_LAUNCH",
+  "reviewer": "nextstage_resource_queue/resource_independent_review",
+  "at_utc": "2026-11-08T09:02:16.910003+00:00",
+  "source_sha256": {
+    "scripts/research4_evidence_admission_20261108.py": "ad8922d5ea19b5a007b886c5846a6b7c675df118766f89c523fb3967da8bc202",
+    "scripts/research4_evidence_resources_20261108.py": "ce1294052aaae444b317d980e21dfa457f7b46d4cbc7405a6d21a34402023357",
+    "tests/test_research4_evidence_admission_stdlib_20261108.py": "095ddc6b38d47b1eb902c8d543a7de9433dcabc18e88d53465c6496d9d23ce4c",
+    "tests/test_research4_evidence_resources_stdlib_20261108.py": "ba95528156656cc645c5fdc4729662373e4cd47ee58684ec885a62b7c2d3b9fa",
+    "scripts/species_background_budget.py": "3ca443016719c90697ed9e7f82db2a6205cdb8f07b1f78ad31db117869667874"
+  },
+  "tests": {
+    "command": "python -B -m unittest discover -s tests -p test_research4_evidence*stdlib_20261108.py -q",
+    "exit_code": 0,
+    "tests_passed": 62,
+    "tests_run_seconds_reported": 0.154,
+    "all_child_operations_mocked": true
+  },
+  "invariants_reviewed": [
+    "old queue files and processes read-only; no adoption of old grant or PID",
+    "distinct minted outer/child nonces plus birth, boot and UID ownership scope",
+    "88000 inner +1000 preparation +1000 controller =90000 cumulative CPU ceiling",
+    "deadline bounded to authorization observation plus48h",
+    "admission waits during old summaries/backups and unknown old runtime identity",
+    "at most4 cumulative independently logged resource attempts",
+    "clean external-stop resume requires closure, frozen inputs, finite historical CPU; no refund",
+    "frozen scientific source checked during wait, immediately before spawn and while running",
+    "scientific DONE requires complete receipt plus per-artifact hash validation",
+    "outer CLI returns success only for actual COMPLETED; budget/pause/block states stay distinct"
+  ],
+  "issues_found_and_fixed_before_freeze": [
+    "wait-window scientific source drift checks",
+    "finite prior admission CPU validation",
+    "signal-handler installation after prior-state validation",
+    "outer execution exit-code distinction"
+  ],
+  "remaining_blockers": [],
+  "actual_research_fits_run": 0,
+  "actual_background_launches": 0,
+  "actual_process_signals": 0,
+  "git_operations": 0,
+  "old_run_or_ledger_modified": false,
+  "scope_limit": "This review does not certify an unexecuted pipeline or runtime result. Root must run preflight, detach actual process and verify real identities/costs."
+}

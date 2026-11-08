@@ -1,0 +1,44 @@
+{
+  "schema": "research4-independent-resource-review-v2",
+  "status": "PASS_STATIC_AND_MOCK_TESTS_NOT_ACTUAL_EXECUTION",
+  "reviewer": "nextstage_resource_queue/resource_independent_review",
+  "at_utc": "2026-11-08T09:09:38.323432+00:00",
+  "source_sha256": {
+    "scripts/research4_evidence_admission_20261108.py": "98f27bbda00e8c7b6bdf887ece87357f1e1e439616f01621c56a9743c5723c92",
+    "scripts/research4_evidence_resources_20261108.py": "ce1294052aaae444b317d980e21dfa457f7b46d4cbc7405a6d21a34402023357",
+    "scripts/research4_closed_cache_advice_20261108.py": "e420e0075e36b1a440d462e8875f5fdb6d1c03d076bf111fa5c265ae6c19d2ab",
+    "tests/test_research4_evidence_admission_stdlib_20261108.py": "6282303ca65d530b3f20c0fb40f2de2c1cff67df8e09354a738e841edc269758",
+    "tests/test_research4_evidence_resources_stdlib_20261108.py": "ba95528156656cc645c5fdc4729662373e4cd47ee58684ec885a62b7c2d3b9fa"
+  },
+  "previous_review_preserved": "resource-independent-review-001.json",
+  "scope": "Re-review final admission source, cache-advice integration and healthy old-owner boundary admission; original resource-envelope safeguards remain unchanged.",
+  "tests": {
+    "command": "python -B -m unittest discover -s tests -p test_research4_evidence*stdlib_20261108.py -q",
+    "exit_code": 0,
+    "passed": 65,
+    "reported_seconds": 0.19,
+    "cache_advice_calls_mocked": true,
+    "no_real_scientific_children": true
+  },
+  "reviewed_changes": [
+    "cache helper exact local path and SHA checked before import/call",
+    "only waiting jobs invoke helper; no call when old state unavailable",
+    "new-root flock and same-boot monotonic clock restrict calls to at most once60s",
+    "only new-root cache-advice clock written; no old source bytes or ledger write",
+    "helper uses read-only file descriptors with per-file POSIX_FADV_DONTNEED; no global drop_caches or process signals",
+    "old running owner with matching actual birth/boot and no active child admits only after memory/disk checks; this is not a completion claim",
+    "missing or mismatched old owner stays blocked; old summary/backup stages stay waiting",
+    "new 88000+1000+1000 CPU caps,48h bounds,owned nonce cleanup and finite attempts preserved"
+  ],
+  "remaining_blockers": [],
+  "limitations": [
+    "This static review does not prove real cache reclamation or runtime resource safety; root must monitor actual new/old identities and memory.",
+    "Cache advice is not a new cryptographic data-integrity audit; existing supervisor closure records select eligible files, and source bytes are not rewritten."
+  ],
+  "actual_posix_cache_advice_calls": 0,
+  "actual_process_signals": 0,
+  "actual_research_fits": 0,
+  "actual_background_launches": 0,
+  "git_operations": 0,
+  "old_runtime_or_ledger_modified": false
+}

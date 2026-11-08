@@ -1,0 +1,49 @@
+{
+  "schema": "research4-independent-scientific-code-review-v3",
+  "status": "PASS_FOR_PINNED_SOURCES_NOT_EXPERIMENTAL_RESULTS",
+  "reviewed_at_utc": "2026-11-08T09:02:30.304005+00:00",
+  "reviewer": "nextstage_otherbranches_audit",
+  "source_sha256": {
+    "scripts/research4_matched_feature_validation_20261108.py": "96fc728da02d2917443413ca5ddc8c005983be0695df19aff95a82072ab309d6",
+    "scripts/research4_representation_transfer_validation_20261108.py": "78fcfc7a2c24726a2a855783b6419a0e9aee572561a38713317555b6a4819aa8",
+    "tests/test_research4_matched_feature_validation_20261108.py": "75a00b27e9b2c39c5dc0da64b4fc964e6c538f24d15001f0d8720304c4facc16",
+    "tests/test_research4_representation_transfer_validation_20261108.py": "01c46f10a48a17d444d450fcf38900109d9860cae4bbf8872c1a8a67c4068ef8",
+    "scripts/species_revision_background_neural.py": "d776d682aae3b5606bedaf3ef36b04664e8fd5ec87317a413c2e012a8c13aa4c"
+  },
+  "critical_issues": [],
+  "checks": {
+    "feature_K_C_gamma_weight_selected_from_inner_source_only": true,
+    "outer_truth_used_only_for_frozen_candidate_scoring": true,
+    "all_per_K_outer_scores_are_prespecified_ablation_not_K_selection": true,
+    "modality_weight_applied_after_train_scaling_and_selection_without_refit": true,
+    "mc100_and_5x20_same100_draw500_PLS_budget_for_actual5class_task": true,
+    "block20_reports40_draw_different_cost": true,
+    "both_workers_validate999TRAIN_input_lock_hashes_and_allowlist": true,
+    "nn190source50support60query_vs240source0support60query": true,
+    "nn240_source_disallows_support_calibration": true,
+    "nn128and512_same0p21_to1p49_range_no_extrapolation": true,
+    "auxiliary_species_have_separate_heads_and_class_sets": true,
+    "nn_cache_pins_actual_source_labels_features_axis_new_worker_and_inherited_code": true,
+    "nn144epoch240source576updates_control_registered": true
+  },
+  "interpretation_limits": [
+    "Different families inner-selected primary K need not match; only fixedK rows have equal absolute selected dimensions.",
+    "Borda5x20 streams are training resampling descriptions, not new independent specimens or batches.",
+    "block20 does twice the coefficient streams of singleMC20; no equalFLOPs claim.",
+    "240source144epochs and190source192epochs both have576 optimizer updates but different batch sizes/example exposures, not exact equal compute.",
+    "512 vs128 also changes inherited CNN physical receptive field and compute cost, not an isolated chemistry test.",
+    "All work is exploratory on previously used masterTRAIN; CAL334/PRED339 remain excluded, not new independent confirmation."
+  ],
+  "mock_test_execution": {
+    "status": "PASS",
+    "tests_run": 36,
+    "actual_subprocess_CPU_seconds": 2.829783,
+    "wall_seconds": 2.8313350839998748,
+    "excluded_test": "test_tiny_actual_pls_ranking_invariant_to_class_name_permutation",
+    "reason_excluded": "review requested no real fits; retained all mock/source isolation/cache/serialization tests",
+    "scientific_fits": 0
+  },
+  "source_edited_by_reviewer": false,
+  "scientific_process_signalled": false,
+  "Git_operations": false
+}
