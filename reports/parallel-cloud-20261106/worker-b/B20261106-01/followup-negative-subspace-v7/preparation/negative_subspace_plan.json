@@ -1,0 +1,959 @@
+{
+  "schema": "research4-b-negative-subspace-plan-v7",
+  "jobs": [
+    {
+      "id": "acid-g3-negative-mode02-h0010-minus",
+      "case": "protocatechuic_acid",
+      "operation": "point",
+      "direction": {
+        "type": "mode",
+        "index": 2
+      },
+      "grid_level": 3,
+      "step_bohr": 0.001,
+      "sign": -1,
+      "gradient_response_controls": [
+        false,
+        true
+      ],
+      "inherited_center_id": "acid-g3-regrid-center",
+      "admission_group": "acid-g3-negative-mode02-h0010",
+      "max_attempts": 2,
+      "kind": "basis_point",
+      "depends_on": [
+        "acid-g3-regrid-center"
+      ],
+      "fail_fast_group": "acid-baseline"
+    },
+    {
+      "id": "acid-g3-negative-mode02-h0010-plus",
+      "case": "protocatechuic_acid",
+      "operation": "point",
+      "direction": {
+        "type": "mode",
+        "index": 2
+      },
+      "grid_level": 3,
+      "step_bohr": 0.001,
+      "sign": 1,
+      "gradient_response_controls": [
+        false,
+        true
+      ],
+      "inherited_center_id": "acid-g3-regrid-center",
+      "admission_group": "acid-g3-negative-mode02-h0010",
+      "max_attempts": 2,
+      "kind": "basis_point",
+      "depends_on": [
+        "acid-g3-regrid-center",
+        "acid-g3-negative-mode02-h0010-minus"
+      ],
+      "fail_fast_group": "acid-baseline"
+    },
+    {
+      "id": "acid-g3-negative-mode03-h0010-minus",
+      "case": "protocatechuic_acid",
+      "operation": "point",
+      "direction": {
+        "type": "mode",
+        "index": 3
+      },
+      "grid_level": 3,
+      "step_bohr": 0.001,
+      "sign": -1,
+      "gradient_response_controls": [
+        false,
+        true
+      ],
+      "inherited_center_id": "acid-g3-regrid-center",
+      "admission_group": "acid-g3-negative-mode03-h0010",
+      "max_attempts": 2,
+      "kind": "basis_point",
+      "depends_on": [
+        "acid-g3-regrid-center",
+        "acid-g3-negative-mode02-h0010-plus"
+      ],
+      "fail_fast_group": "acid-baseline"
+    },
+    {
+      "id": "acid-g3-negative-mode03-h0010-plus",
+      "case": "protocatechuic_acid",
+      "operation": "point",
+      "direction": {
+        "type": "mode",
+        "index": 3
+      },
+      "grid_level": 3,
+      "step_bohr": 0.001,
+      "sign": 1,
+      "gradient_response_controls": [
+        false,
+        true
+      ],
+      "inherited_center_id": "acid-g3-regrid-center",
+      "admission_group": "acid-g3-negative-mode03-h0010",
+      "max_attempts": 2,
+      "kind": "basis_point",
+      "depends_on": [
+        "acid-g3-regrid-center",
+        "acid-g3-negative-mode03-h0010-minus"
+      ],
+      "fail_fast_group": "acid-baseline"
+    },
+    {
+      "id": "acid-g3-negative-mode04-h0010-minus",
+      "case": "protocatechuic_acid",
+      "operation": "point",
+      "direction": {
+        "type": "mode",
+        "index": 4
+      },
+      "grid_level": 3,
+      "step_bohr": 0.001,
+      "sign": -1,
+      "gradient_response_controls": [
+        false,
+        true
+      ],
+      "inherited_center_id": "acid-g3-regrid-center",
+      "admission_group": "acid-g3-negative-mode04-h0010",
+      "max_attempts": 2,
+      "kind": "basis_point",
+      "depends_on": [
+        "acid-g3-regrid-center",
+        "acid-g3-negative-mode03-h0010-plus"
+      ],
+      "fail_fast_group": "acid-baseline"
+    },
+    {
+      "id": "acid-g3-negative-mode04-h0010-plus",
+      "case": "protocatechuic_acid",
+      "operation": "point",
+      "direction": {
+        "type": "mode",
+        "index": 4
+      },
+      "grid_level": 3,
+      "step_bohr": 0.001,
+      "sign": 1,
+      "gradient_response_controls": [
+        false,
+        true
+      ],
+      "inherited_center_id": "acid-g3-regrid-center",
+      "admission_group": "acid-g3-negative-mode04-h0010",
+      "max_attempts": 2,
+      "kind": "basis_point",
+      "depends_on": [
+        "acid-g3-regrid-center",
+        "acid-g3-negative-mode04-h0010-minus"
+      ],
+      "fail_fast_group": "acid-baseline"
+    },
+    {
+      "id": "acid-g3-negative-subspace",
+      "case": "protocatechuic_acid",
+      "kind": "subspace_aggregate",
+      "operation": "subspace_aggregate",
+      "mode_indices": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "step_bohr": 0.001,
+      "inherited_center_id": "acid-g3-regrid-center",
+      "point_ids": [
+        "acid-g3-regrid-mode01-h0010-minus",
+        "acid-g3-regrid-mode01-h0010-plus",
+        "acid-g3-negative-mode02-h0010-minus",
+        "acid-g3-negative-mode02-h0010-plus",
+        "acid-g3-negative-mode03-h0010-minus",
+        "acid-g3-negative-mode03-h0010-plus",
+        "acid-g3-negative-mode04-h0010-minus",
+        "acid-g3-negative-mode04-h0010-plus"
+      ],
+      "depends_on": [
+        "acid-g3-regrid-center",
+        "acid-g3-regrid-mode01-h0010-minus",
+        "acid-g3-regrid-mode01-h0010-plus",
+        "acid-g3-negative-mode02-h0010-minus",
+        "acid-g3-negative-mode02-h0010-plus",
+        "acid-g3-negative-mode03-h0010-minus",
+        "acid-g3-negative-mode03-h0010-plus",
+        "acid-g3-negative-mode04-h0010-minus",
+        "acid-g3-negative-mode04-h0010-plus"
+      ],
+      "max_attempts": 2
+    },
+    {
+      "id": "acid-g3-negative-combo-minimum-h0010-minus",
+      "case": "protocatechuic_acid",
+      "kind": "combination_point",
+      "operation": "point",
+      "direction": {
+        "type": "subspace_minimum",
+        "index": 1
+      },
+      "grid_level": 3,
+      "step_bohr": 0.001,
+      "sign": -1,
+      "gradient_response_controls": [
+        false,
+        true
+      ],
+      "inherited_center_id": "acid-g3-regrid-center",
+      "subspace_job_id": "acid-g3-negative-subspace",
+      "admission_group": "acid-g3-negative-combo-minimum-h0010",
+      "depends_on": [
+        "acid-g3-regrid-center",
+        "acid-g3-negative-subspace"
+      ],
+      "max_attempts": 2,
+      "fail_fast_group": "acid-combo"
+    },
+    {
+      "id": "acid-g3-negative-combo-minimum-h0010-plus",
+      "case": "protocatechuic_acid",
+      "kind": "combination_point",
+      "operation": "point",
+      "direction": {
+        "type": "subspace_minimum",
+        "index": 1
+      },
+      "grid_level": 3,
+      "step_bohr": 0.001,
+      "sign": 1,
+      "gradient_response_controls": [
+        false,
+        true
+      ],
+      "inherited_center_id": "acid-g3-regrid-center",
+      "subspace_job_id": "acid-g3-negative-subspace",
+      "admission_group": "acid-g3-negative-combo-minimum-h0010",
+      "depends_on": [
+        "acid-g3-regrid-center",
+        "acid-g3-negative-subspace",
+        "acid-g3-negative-combo-minimum-h0010-minus"
+      ],
+      "max_attempts": 2,
+      "fail_fast_group": "acid-combo"
+    },
+    {
+      "id": "caly-g3-negative-mode02-h0010-minus",
+      "case": "calycosin",
+      "operation": "point",
+      "direction": {
+        "type": "mode",
+        "index": 2
+      },
+      "grid_level": 3,
+      "step_bohr": 0.001,
+      "sign": -1,
+      "gradient_response_controls": [
+        false,
+        true
+      ],
+      "inherited_center_id": "caly-g3-regrid-center",
+      "admission_group": "caly-g3-negative-mode02-h0010",
+      "max_attempts": 2,
+      "kind": "basis_point",
+      "depends_on": [
+        "caly-g3-regrid-center"
+      ],
+      "fail_fast_group": "caly-baseline"
+    },
+    {
+      "id": "caly-g3-negative-mode02-h0010-plus",
+      "case": "calycosin",
+      "operation": "point",
+      "direction": {
+        "type": "mode",
+        "index": 2
+      },
+      "grid_level": 3,
+      "step_bohr": 0.001,
+      "sign": 1,
+      "gradient_response_controls": [
+        false,
+        true
+      ],
+      "inherited_center_id": "caly-g3-regrid-center",
+      "admission_group": "caly-g3-negative-mode02-h0010",
+      "max_attempts": 2,
+      "kind": "basis_point",
+      "depends_on": [
+        "caly-g3-regrid-center",
+        "caly-g3-negative-mode02-h0010-minus"
+      ],
+      "fail_fast_group": "caly-baseline"
+    },
+    {
+      "id": "caly-g3-negative-mode03-h0010-minus",
+      "case": "calycosin",
+      "operation": "point",
+      "direction": {
+        "type": "mode",
+        "index": 3
+      },
+      "grid_level": 3,
+      "step_bohr": 0.001,
+      "sign": -1,
+      "gradient_response_controls": [
+        false,
+        true
+      ],
+      "inherited_center_id": "caly-g3-regrid-center",
+      "admission_group": "caly-g3-negative-mode03-h0010",
+      "max_attempts": 2,
+      "kind": "basis_point",
+      "depends_on": [
+        "caly-g3-regrid-center",
+        "caly-g3-negative-mode02-h0010-plus"
+      ],
+      "fail_fast_group": "caly-baseline"
+    },
+    {
+      "id": "caly-g3-negative-mode03-h0010-plus",
+      "case": "calycosin",
+      "operation": "point",
+      "direction": {
+        "type": "mode",
+        "index": 3
+      },
+      "grid_level": 3,
+      "step_bohr": 0.001,
+      "sign": 1,
+      "gradient_response_controls": [
+        false,
+        true
+      ],
+      "inherited_center_id": "caly-g3-regrid-center",
+      "admission_group": "caly-g3-negative-mode03-h0010",
+      "max_attempts": 2,
+      "kind": "basis_point",
+      "depends_on": [
+        "caly-g3-regrid-center",
+        "caly-g3-negative-mode03-h0010-minus"
+      ],
+      "fail_fast_group": "caly-baseline"
+    },
+    {
+      "id": "caly-g3-negative-mode04-h0010-minus",
+      "case": "calycosin",
+      "operation": "point",
+      "direction": {
+        "type": "mode",
+        "index": 4
+      },
+      "grid_level": 3,
+      "step_bohr": 0.001,
+      "sign": -1,
+      "gradient_response_controls": [
+        false,
+        true
+      ],
+      "inherited_center_id": "caly-g3-regrid-center",
+      "admission_group": "caly-g3-negative-mode04-h0010",
+      "max_attempts": 2,
+      "kind": "basis_point",
+      "depends_on": [
+        "caly-g3-regrid-center",
+        "caly-g3-negative-mode03-h0010-plus"
+      ],
+      "fail_fast_group": "caly-baseline"
+    },
+    {
+      "id": "caly-g3-negative-mode04-h0010-plus",
+      "case": "calycosin",
+      "operation": "point",
+      "direction": {
+        "type": "mode",
+        "index": 4
+      },
+      "grid_level": 3,
+      "step_bohr": 0.001,
+      "sign": 1,
+      "gradient_response_controls": [
+        false,
+        true
+      ],
+      "inherited_center_id": "caly-g3-regrid-center",
+      "admission_group": "caly-g3-negative-mode04-h0010",
+      "max_attempts": 2,
+      "kind": "basis_point",
+      "depends_on": [
+        "caly-g3-regrid-center",
+        "caly-g3-negative-mode04-h0010-minus"
+      ],
+      "fail_fast_group": "caly-baseline"
+    },
+    {
+      "id": "caly-g3-negative-mode05-h0010-minus",
+      "case": "calycosin",
+      "operation": "point",
+      "direction": {
+        "type": "mode",
+        "index": 5
+      },
+      "grid_level": 3,
+      "step_bohr": 0.001,
+      "sign": -1,
+      "gradient_response_controls": [
+        false,
+        true
+      ],
+      "inherited_center_id": "caly-g3-regrid-center",
+      "admission_group": "caly-g3-negative-mode05-h0010",
+      "max_attempts": 2,
+      "kind": "basis_point",
+      "depends_on": [
+        "caly-g3-regrid-center",
+        "caly-g3-negative-mode04-h0010-plus"
+      ],
+      "fail_fast_group": "caly-baseline"
+    },
+    {
+      "id": "caly-g3-negative-mode05-h0010-plus",
+      "case": "calycosin",
+      "operation": "point",
+      "direction": {
+        "type": "mode",
+        "index": 5
+      },
+      "grid_level": 3,
+      "step_bohr": 0.001,
+      "sign": 1,
+      "gradient_response_controls": [
+        false,
+        true
+      ],
+      "inherited_center_id": "caly-g3-regrid-center",
+      "admission_group": "caly-g3-negative-mode05-h0010",
+      "max_attempts": 2,
+      "kind": "basis_point",
+      "depends_on": [
+        "caly-g3-regrid-center",
+        "caly-g3-negative-mode05-h0010-minus"
+      ],
+      "fail_fast_group": "caly-baseline"
+    },
+    {
+      "id": "caly-g3-negative-mode06-h0010-minus",
+      "case": "calycosin",
+      "operation": "point",
+      "direction": {
+        "type": "mode",
+        "index": 6
+      },
+      "grid_level": 3,
+      "step_bohr": 0.001,
+      "sign": -1,
+      "gradient_response_controls": [
+        false,
+        true
+      ],
+      "inherited_center_id": "caly-g3-regrid-center",
+      "admission_group": "caly-g3-negative-mode06-h0010",
+      "max_attempts": 2,
+      "kind": "basis_point",
+      "depends_on": [
+        "caly-g3-regrid-center",
+        "caly-g3-negative-mode05-h0010-plus"
+      ],
+      "fail_fast_group": "caly-baseline"
+    },
+    {
+      "id": "caly-g3-negative-mode06-h0010-plus",
+      "case": "calycosin",
+      "operation": "point",
+      "direction": {
+        "type": "mode",
+        "index": 6
+      },
+      "grid_level": 3,
+      "step_bohr": 0.001,
+      "sign": 1,
+      "gradient_response_controls": [
+        false,
+        true
+      ],
+      "inherited_center_id": "caly-g3-regrid-center",
+      "admission_group": "caly-g3-negative-mode06-h0010",
+      "max_attempts": 2,
+      "kind": "basis_point",
+      "depends_on": [
+        "caly-g3-regrid-center",
+        "caly-g3-negative-mode06-h0010-minus"
+      ],
+      "fail_fast_group": "caly-baseline"
+    },
+    {
+      "id": "caly-g3-negative-mode07-h0010-minus",
+      "case": "calycosin",
+      "operation": "point",
+      "direction": {
+        "type": "mode",
+        "index": 7
+      },
+      "grid_level": 3,
+      "step_bohr": 0.001,
+      "sign": -1,
+      "gradient_response_controls": [
+        false,
+        true
+      ],
+      "inherited_center_id": "caly-g3-regrid-center",
+      "admission_group": "caly-g3-negative-mode07-h0010",
+      "max_attempts": 2,
+      "kind": "basis_point",
+      "depends_on": [
+        "caly-g3-regrid-center",
+        "caly-g3-negative-mode06-h0010-plus"
+      ],
+      "fail_fast_group": "caly-baseline"
+    },
+    {
+      "id": "caly-g3-negative-mode07-h0010-plus",
+      "case": "calycosin",
+      "operation": "point",
+      "direction": {
+        "type": "mode",
+        "index": 7
+      },
+      "grid_level": 3,
+      "step_bohr": 0.001,
+      "sign": 1,
+      "gradient_response_controls": [
+        false,
+        true
+      ],
+      "inherited_center_id": "caly-g3-regrid-center",
+      "admission_group": "caly-g3-negative-mode07-h0010",
+      "max_attempts": 2,
+      "kind": "basis_point",
+      "depends_on": [
+        "caly-g3-regrid-center",
+        "caly-g3-negative-mode07-h0010-minus"
+      ],
+      "fail_fast_group": "caly-baseline"
+    },
+    {
+      "id": "caly-g3-negative-subspace",
+      "case": "calycosin",
+      "kind": "subspace_aggregate",
+      "operation": "subspace_aggregate",
+      "mode_indices": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "step_bohr": 0.001,
+      "inherited_center_id": "caly-g3-regrid-center",
+      "point_ids": [
+        "caly-g3-regrid-mode01-h0010-minus",
+        "caly-g3-regrid-mode01-h0010-plus",
+        "caly-g3-negative-mode02-h0010-minus",
+        "caly-g3-negative-mode02-h0010-plus",
+        "caly-g3-negative-mode03-h0010-minus",
+        "caly-g3-negative-mode03-h0010-plus",
+        "caly-g3-negative-mode04-h0010-minus",
+        "caly-g3-negative-mode04-h0010-plus",
+        "caly-g3-negative-mode05-h0010-minus",
+        "caly-g3-negative-mode05-h0010-plus",
+        "caly-g3-negative-mode06-h0010-minus",
+        "caly-g3-negative-mode06-h0010-plus",
+        "caly-g3-negative-mode07-h0010-minus",
+        "caly-g3-negative-mode07-h0010-plus"
+      ],
+      "depends_on": [
+        "caly-g3-regrid-center",
+        "caly-g3-regrid-mode01-h0010-minus",
+        "caly-g3-regrid-mode01-h0010-plus",
+        "caly-g3-negative-mode02-h0010-minus",
+        "caly-g3-negative-mode02-h0010-plus",
+        "caly-g3-negative-mode03-h0010-minus",
+        "caly-g3-negative-mode03-h0010-plus",
+        "caly-g3-negative-mode04-h0010-minus",
+        "caly-g3-negative-mode04-h0010-plus",
+        "caly-g3-negative-mode05-h0010-minus",
+        "caly-g3-negative-mode05-h0010-plus",
+        "caly-g3-negative-mode06-h0010-minus",
+        "caly-g3-negative-mode06-h0010-plus",
+        "caly-g3-negative-mode07-h0010-minus",
+        "caly-g3-negative-mode07-h0010-plus"
+      ],
+      "max_attempts": 2
+    },
+    {
+      "id": "acid-g3-negative-combo-minimum-h0005-minus",
+      "case": "protocatechuic_acid",
+      "kind": "combination_point",
+      "operation": "point",
+      "direction": {
+        "type": "subspace_minimum",
+        "index": 1
+      },
+      "grid_level": 3,
+      "step_bohr": 0.0005,
+      "sign": -1,
+      "gradient_response_controls": [
+        false,
+        true
+      ],
+      "inherited_center_id": "acid-g3-regrid-center",
+      "subspace_job_id": "acid-g3-negative-subspace",
+      "admission_group": "acid-g3-negative-combo-minimum-h0005",
+      "depends_on": [
+        "acid-g3-regrid-center",
+        "acid-g3-negative-subspace",
+        "acid-g3-negative-combo-minimum-h0010-plus"
+      ],
+      "max_attempts": 2,
+      "fail_fast_group": "acid-combo"
+    },
+    {
+      "id": "acid-g3-negative-combo-minimum-h0005-plus",
+      "case": "protocatechuic_acid",
+      "kind": "combination_point",
+      "operation": "point",
+      "direction": {
+        "type": "subspace_minimum",
+        "index": 1
+      },
+      "grid_level": 3,
+      "step_bohr": 0.0005,
+      "sign": 1,
+      "gradient_response_controls": [
+        false,
+        true
+      ],
+      "inherited_center_id": "acid-g3-regrid-center",
+      "subspace_job_id": "acid-g3-negative-subspace",
+      "admission_group": "acid-g3-negative-combo-minimum-h0005",
+      "depends_on": [
+        "acid-g3-regrid-center",
+        "acid-g3-negative-subspace",
+        "acid-g3-negative-combo-minimum-h0005-minus"
+      ],
+      "max_attempts": 2,
+      "fail_fast_group": "acid-combo"
+    },
+    {
+      "id": "acid-g3-negative-combo-comparison",
+      "case": "protocatechuic_acid",
+      "kind": "combo_aggregate",
+      "operation": "aggregate",
+      "point_ids": [
+        "acid-g3-regrid-center",
+        "acid-g3-negative-combo-minimum-h0010-minus",
+        "acid-g3-negative-combo-minimum-h0010-plus",
+        "acid-g3-negative-combo-minimum-h0005-minus",
+        "acid-g3-negative-combo-minimum-h0005-plus"
+      ],
+      "depends_on": [
+        "acid-g3-regrid-center",
+        "acid-g3-negative-subspace",
+        "acid-g3-negative-combo-minimum-h0010-minus",
+        "acid-g3-negative-combo-minimum-h0010-plus",
+        "acid-g3-negative-combo-minimum-h0005-minus",
+        "acid-g3-negative-combo-minimum-h0005-plus"
+      ],
+      "max_attempts": 2
+    },
+    {
+      "id": "caly-g3-negative-combo-minimum-h0010-minus",
+      "case": "calycosin",
+      "kind": "combination_point",
+      "operation": "point",
+      "direction": {
+        "type": "subspace_minimum",
+        "index": 1
+      },
+      "grid_level": 3,
+      "step_bohr": 0.001,
+      "sign": -1,
+      "gradient_response_controls": [
+        false,
+        true
+      ],
+      "inherited_center_id": "caly-g3-regrid-center",
+      "subspace_job_id": "caly-g3-negative-subspace",
+      "admission_group": "caly-g3-negative-combo-minimum-h0010",
+      "depends_on": [
+        "caly-g3-regrid-center",
+        "caly-g3-negative-subspace"
+      ],
+      "max_attempts": 2,
+      "fail_fast_group": "caly-combo"
+    },
+    {
+      "id": "caly-g3-negative-combo-minimum-h0010-plus",
+      "case": "calycosin",
+      "kind": "combination_point",
+      "operation": "point",
+      "direction": {
+        "type": "subspace_minimum",
+        "index": 1
+      },
+      "grid_level": 3,
+      "step_bohr": 0.001,
+      "sign": 1,
+      "gradient_response_controls": [
+        false,
+        true
+      ],
+      "inherited_center_id": "caly-g3-regrid-center",
+      "subspace_job_id": "caly-g3-negative-subspace",
+      "admission_group": "caly-g3-negative-combo-minimum-h0010",
+      "depends_on": [
+        "caly-g3-regrid-center",
+        "caly-g3-negative-subspace",
+        "caly-g3-negative-combo-minimum-h0010-minus"
+      ],
+      "max_attempts": 2,
+      "fail_fast_group": "caly-combo"
+    },
+    {
+      "id": "caly-g3-negative-combo-minimum-h0005-minus",
+      "case": "calycosin",
+      "kind": "combination_point",
+      "operation": "point",
+      "direction": {
+        "type": "subspace_minimum",
+        "index": 1
+      },
+      "grid_level": 3,
+      "step_bohr": 0.0005,
+      "sign": -1,
+      "gradient_response_controls": [
+        false,
+        true
+      ],
+      "inherited_center_id": "caly-g3-regrid-center",
+      "subspace_job_id": "caly-g3-negative-subspace",
+      "admission_group": "caly-g3-negative-combo-minimum-h0005",
+      "depends_on": [
+        "caly-g3-regrid-center",
+        "caly-g3-negative-subspace",
+        "caly-g3-negative-combo-minimum-h0010-plus"
+      ],
+      "max_attempts": 2,
+      "fail_fast_group": "caly-combo"
+    },
+    {
+      "id": "caly-g3-negative-combo-minimum-h0005-plus",
+      "case": "calycosin",
+      "kind": "combination_point",
+      "operation": "point",
+      "direction": {
+        "type": "subspace_minimum",
+        "index": 1
+      },
+      "grid_level": 3,
+      "step_bohr": 0.0005,
+      "sign": 1,
+      "gradient_response_controls": [
+        false,
+        true
+      ],
+      "inherited_center_id": "caly-g3-regrid-center",
+      "subspace_job_id": "caly-g3-negative-subspace",
+      "admission_group": "caly-g3-negative-combo-minimum-h0005",
+      "depends_on": [
+        "caly-g3-regrid-center",
+        "caly-g3-negative-subspace",
+        "caly-g3-negative-combo-minimum-h0005-minus"
+      ],
+      "max_attempts": 2,
+      "fail_fast_group": "caly-combo"
+    },
+    {
+      "id": "caly-g3-negative-combo-comparison",
+      "case": "calycosin",
+      "kind": "combo_aggregate",
+      "operation": "aggregate",
+      "point_ids": [
+        "caly-g3-regrid-center",
+        "caly-g3-negative-combo-minimum-h0010-minus",
+        "caly-g3-negative-combo-minimum-h0010-plus",
+        "caly-g3-negative-combo-minimum-h0005-minus",
+        "caly-g3-negative-combo-minimum-h0005-plus"
+      ],
+      "depends_on": [
+        "caly-g3-regrid-center",
+        "caly-g3-negative-subspace",
+        "caly-g3-negative-combo-minimum-h0010-minus",
+        "caly-g3-negative-combo-minimum-h0010-plus",
+        "caly-g3-negative-combo-minimum-h0005-minus",
+        "caly-g3-negative-combo-minimum-h0005-plus"
+      ],
+      "max_attempts": 2
+    },
+    {
+      "id": "all-negative-subspace-comparison",
+      "kind": "final_aggregate",
+      "operation": "aggregate",
+      "point_ids": [
+        "acid-g3-regrid-center",
+        "acid-g3-regrid-mode01-h0010-minus",
+        "acid-g3-regrid-mode01-h0010-plus",
+        "acid-g3-regrid-mode01-h0005-minus",
+        "acid-g3-regrid-mode01-h0005-plus",
+        "caly-g3-regrid-center",
+        "caly-g3-regrid-mode01-h0010-minus",
+        "caly-g3-regrid-mode01-h0010-plus",
+        "caly-g3-regrid-mode01-h0005-minus",
+        "caly-g3-regrid-mode01-h0005-plus",
+        "acid-g3-negative-mode02-h0010-minus",
+        "acid-g3-negative-mode02-h0010-plus",
+        "acid-g3-negative-mode03-h0010-minus",
+        "acid-g3-negative-mode03-h0010-plus",
+        "acid-g3-negative-mode04-h0010-minus",
+        "acid-g3-negative-mode04-h0010-plus",
+        "acid-g3-negative-combo-minimum-h0010-minus",
+        "acid-g3-negative-combo-minimum-h0010-plus",
+        "acid-g3-negative-combo-minimum-h0005-minus",
+        "acid-g3-negative-combo-minimum-h0005-plus",
+        "caly-g3-negative-mode02-h0010-minus",
+        "caly-g3-negative-mode02-h0010-plus",
+        "caly-g3-negative-mode03-h0010-minus",
+        "caly-g3-negative-mode03-h0010-plus",
+        "caly-g3-negative-mode04-h0010-minus",
+        "caly-g3-negative-mode04-h0010-plus",
+        "caly-g3-negative-mode05-h0010-minus",
+        "caly-g3-negative-mode05-h0010-plus",
+        "caly-g3-negative-mode06-h0010-minus",
+        "caly-g3-negative-mode06-h0010-plus",
+        "caly-g3-negative-mode07-h0010-minus",
+        "caly-g3-negative-mode07-h0010-plus",
+        "caly-g3-negative-combo-minimum-h0010-minus",
+        "caly-g3-negative-combo-minimum-h0010-plus",
+        "caly-g3-negative-combo-minimum-h0005-minus",
+        "caly-g3-negative-combo-minimum-h0005-plus"
+      ],
+      "depends_on": [
+        "acid-g3-regrid-center",
+        "acid-g3-regrid-mode01-h0010-minus",
+        "acid-g3-regrid-mode01-h0010-plus",
+        "acid-g3-regrid-mode01-h0005-minus",
+        "acid-g3-regrid-mode01-h0005-plus",
+        "caly-g3-regrid-center",
+        "caly-g3-regrid-mode01-h0010-minus",
+        "caly-g3-regrid-mode01-h0010-plus",
+        "caly-g3-regrid-mode01-h0005-minus",
+        "caly-g3-regrid-mode01-h0005-plus",
+        "acid-g3-negative-mode02-h0010-minus",
+        "acid-g3-negative-mode02-h0010-plus",
+        "acid-g3-negative-mode03-h0010-minus",
+        "acid-g3-negative-mode03-h0010-plus",
+        "acid-g3-negative-mode04-h0010-minus",
+        "acid-g3-negative-mode04-h0010-plus",
+        "acid-g3-negative-combo-minimum-h0010-minus",
+        "acid-g3-negative-combo-minimum-h0010-plus",
+        "acid-g3-negative-combo-minimum-h0005-minus",
+        "acid-g3-negative-combo-minimum-h0005-plus",
+        "caly-g3-negative-mode02-h0010-minus",
+        "caly-g3-negative-mode02-h0010-plus",
+        "caly-g3-negative-mode03-h0010-minus",
+        "caly-g3-negative-mode03-h0010-plus",
+        "caly-g3-negative-mode04-h0010-minus",
+        "caly-g3-negative-mode04-h0010-plus",
+        "caly-g3-negative-mode05-h0010-minus",
+        "caly-g3-negative-mode05-h0010-plus",
+        "caly-g3-negative-mode06-h0010-minus",
+        "caly-g3-negative-mode06-h0010-plus",
+        "caly-g3-negative-mode07-h0010-minus",
+        "caly-g3-negative-mode07-h0010-plus",
+        "caly-g3-negative-combo-minimum-h0010-minus",
+        "caly-g3-negative-combo-minimum-h0010-plus",
+        "caly-g3-negative-combo-minimum-h0005-minus",
+        "caly-g3-negative-combo-minimum-h0005-plus"
+      ],
+      "max_attempts": 2
+    }
+  ],
+  "old_successes_reused": [
+    "acid-g3-checkpoint-probe",
+    "acid-g3-fixed-center",
+    "acid-g3-fixed-comparison",
+    "acid-g3-fixed-mode01-h0005-minus",
+    "acid-g3-fixed-mode01-h0005-plus",
+    "acid-g3-fixed-mode01-h0010-minus",
+    "acid-g3-fixed-mode01-h0010-plus",
+    "acid-g3-regrid-center",
+    "acid-g3-regrid-comparison",
+    "acid-g3-regrid-mode01-h0005-minus",
+    "acid-g3-regrid-mode01-h0005-plus",
+    "acid-g3-regrid-mode01-h0010-minus",
+    "acid-g3-regrid-mode01-h0010-plus",
+    "acid-g5-fixed-center",
+    "acid-g5-fixed-comparison",
+    "acid-g5-fixed-mode01-h0005-minus",
+    "acid-g5-fixed-mode01-h0005-plus",
+    "acid-g5-fixed-mode01-h0010-minus",
+    "acid-g5-fixed-mode01-h0010-plus",
+    "acid-g5-regrid-center",
+    "acid-g5-regrid-comparison",
+    "acid-g5-regrid-mode01-h0005-minus",
+    "acid-g5-regrid-mode01-h0005-plus",
+    "acid-g5-regrid-mode01-h0010-minus",
+    "acid-g5-regrid-mode01-h0010-plus",
+    "all-validation-points-comparison",
+    "caly-g3-checkpoint-probe",
+    "caly-g3-regrid-center",
+    "caly-g3-regrid-comparison",
+    "caly-g3-regrid-mode01-h0005-minus",
+    "caly-g3-regrid-mode01-h0005-plus",
+    "caly-g3-regrid-mode01-h0010-minus",
+    "caly-g3-regrid-mode01-h0010-plus",
+    "paper-existing-prediction-validation",
+    "water-cphf-tight-mode01",
+    "water-cphf-tight-translate0",
+    "water-g3-fixed-center",
+    "water-g3-fixed-comparison",
+    "water-g3-fixed-mode01-h0005-minus",
+    "water-g3-fixed-mode01-h0005-plus",
+    "water-g3-fixed-mode01-h0010-minus",
+    "water-g3-fixed-mode01-h0010-plus",
+    "water-g3-fixed-translate0-h0005-minus",
+    "water-g3-fixed-translate0-h0005-plus",
+    "water-g3-fixed-translate0-h0010-minus",
+    "water-g3-fixed-translate0-h0010-plus",
+    "water-g3-regrid-center",
+    "water-g3-regrid-comparison",
+    "water-g3-regrid-mode01-h0005-minus",
+    "water-g3-regrid-mode01-h0005-plus",
+    "water-g3-regrid-mode01-h0010-minus",
+    "water-g3-regrid-mode01-h0010-plus",
+    "water-g3-regrid-translate0-h0005-minus",
+    "water-g3-regrid-translate0-h0005-plus",
+    "water-g3-regrid-translate0-h0010-minus",
+    "water-g3-regrid-translate0-h0010-plus",
+    "water-g5-fixed-center",
+    "water-g5-fixed-comparison",
+    "water-g5-fixed-mode01-h0005-minus",
+    "water-g5-fixed-mode01-h0005-plus",
+    "water-g5-fixed-mode01-h0010-minus",
+    "water-g5-fixed-mode01-h0010-plus",
+    "water-g5-fixed-translate0-h0005-minus",
+    "water-g5-fixed-translate0-h0005-plus",
+    "water-g5-fixed-translate0-h0010-minus",
+    "water-g5-fixed-translate0-h0010-plus",
+    "water-g5-regrid-center",
+    "water-g5-regrid-comparison",
+    "water-g5-regrid-mode01-h0005-minus",
+    "water-g5-regrid-mode01-h0005-plus",
+    "water-g5-regrid-mode01-h0010-minus",
+    "water-g5-regrid-mode01-h0010-plus",
+    "water-g5-regrid-translate0-h0005-minus",
+    "water-g5-regrid-translate0-h0005-plus",
+    "water-g5-regrid-translate0-h0010-minus",
+    "water-g5-regrid-translate0-h0010-plus"
+  ],
+  "additional_cpu_seconds_this_round": 0
+}

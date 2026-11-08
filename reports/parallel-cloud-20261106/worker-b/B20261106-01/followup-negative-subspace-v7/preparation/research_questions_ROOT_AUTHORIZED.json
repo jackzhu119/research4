@@ -1,0 +1,169 @@
+{
+  "schema": "research4-b-negative-subspace-root-protocol-v7",
+  "created_at_utc": "2026-11-08T02:13:33.552107+00:00",
+  "user_instruction": "进一步处理已有问题",
+  "authorization": "Continue the existing authorized result investigation within the explicitly user-approved cumulative90000 CPU-second ceiling. No new extension is issued; no hourly report task is created.",
+  "scope": "Only original Research4 Worker B, same repository/run/branch; no Host A, main, original-result rewrite or complete nuclear Hessian recomputation.",
+  "predecessor": {
+    "manifest": {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-recovery-v6/manifest_ROOT_AUTHORIZED.json",
+      "sha256": "66d7895c76da5df43c55d43961d36035e49092951edbc73eb9c5e649ab59296b",
+      "bytes": 115878
+    },
+    "ledger": {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-recovery-v6/cpu_budget.json",
+      "sha256": "6b8de1922fc8358c576245ac19d5079b90d86f0fc590dd8d2092de5797f55d39",
+      "bytes": 147791
+    },
+    "state": {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-recovery-v6/state.json",
+      "sha256": "1b807edd4ca42199d48e87a7414f8c1e9bd669c4f1ef93171ce9a755a18493f2",
+      "bytes": 108706
+    },
+    "completion_review": {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-recovery-v6/analysis/completion_review_20261108.json",
+      "sha256": "d8e39c3f7a3920595be142ffbd0fb2a3b66e4119eeaea292fc47530b004b18ba",
+      "bytes": 10746
+    },
+    "science_review": {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-recovery-v6/analysis/science_review_20261108.json",
+      "sha256": "847449616cc0ae0e58ab9245b4c4edc12c83080e334554f5567566ece565f900",
+      "bytes": 45873
+    },
+    "cpu_extension_authorization": {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-validation-recovery-v6/preparation/extension_authorization.json",
+      "sha256": "9a12364fa757992654c35e83d77445153bb90350e345d76ba5e4be7737e6b4b9",
+      "bytes": 3472
+    }
+  },
+  "budget": {
+    "cumulative_cap_cpu_seconds": 90000,
+    "actual_closed_cpu_seconds": 62057.944083,
+    "permanent_nonmeasured_conservative_debit_cpu_seconds": 1000,
+    "charged_cpu_seconds": 63057.944083,
+    "remaining_before_launch_cpu_seconds": 26942.055917,
+    "reserve_cpu_seconds": 300,
+    "expected_new_point_CPU_based_on_v6_case_means": 19551.65,
+    "expected_cost_is_not_a_new_grant_or_guarantee": true,
+    "deadline_utc": "2026-11-09T08:25:17.730193+00:00",
+    "new_CPU_extension_seconds": 0
+  },
+  "questions": [
+    {
+      "id": "Q_ALL_OLD_NEGATIVE_DIRECTIONS",
+      "question_zh": "在所有原负频方向中，重建grid3数值导数是否仍有负曲率？",
+      "basis_definition": "Original saved frequency arrays define all negative modes: protocatechuic_acid1..4 and calycosin1..7. Normalize each Cartesian direction to unit Euclidean norm. Do not choose favorable modes from new results.",
+      "new_points": {
+        "protocatechuic_acid": {
+          "modes": [
+            2,
+            3,
+            4
+          ],
+          "h_bohr": 0.001,
+          "signs": [
+            -1,
+            1
+          ]
+        },
+        "calycosin": {
+          "modes": [
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ],
+          "h_bohr": 0.001,
+          "signs": [
+            -1,
+            1
+          ]
+        }
+      },
+      "reused_points": "Each case mode1 uses only frozen v6 grid3 rebuilt-quadrature signed points at identical h=.001, with the same qualified center, physical settings and original-frequency lineage. Never substitute old analytic Hq for a missing numerical column."
+    },
+    {
+      "id": "Q_NEGATIVE_SUBSPACE_COUPLING",
+      "question_zh": "即使单方向曲率为正，模式耦合是否仍会产生负曲率组合？",
+      "definition": "D_j=(g_plus_j-g_minus_j)/(2h); Q has unit Cartesian basis directions in columns; Kraw=Q.T@D; G=Q.T@Q. Keep False and True gradient-response branches separate. Save Kraw, Ksym, antisymmetric part and whitened antisymmetry diagnostics. Solve Ksym v=lambda G v only as a projected diagnostic curvature, not a frequency.",
+      "mandatory_checks": [
+        "All4/7 columns complete, finite and independently SCF-qualified. No missing signed point, duplicate column or zero/analytic fill.",
+        "Qualified center geometry and point geometry must match original geometry +/-h*q, with source hashes, basis/method/grid/direct-screening/SCF qualification settings bound.",
+        "G must be positive definite with min_eig>1e-10*max_eig and condition<1e8; generalized eigen-equation and G-normalization residuals<=1e-10.",
+        "False gradients are nonconservative controls. True regenerated-quadrature set limitations remain explicit. No magnitude of antisymmetry is hidden by symmetrization."
+      ],
+      "free_complement_diagnostic": "Save U_all.T@D_unit@diag(Cartesian_norms_of_U_old_negative) in the original mass-normalized modal basis, with explicit convention/units and positive-complement row labels. This rectangular crossblock can quantify unmeasured-complement coupling but cannot supply the unknown positive-positive block or certify the full Hessian."
+    },
+    {
+      "id": "Q_INDEPENDENT_MIXED_DIRECTION",
+      "question_zh": "投影算子给出的最弱组合方向能否被独立双侧能量/梯度数值检验复现？",
+      "selection_rule": "For each case choose exactly the smallest generalized eigenvector of the True-response Ksym/G branch, regardless of eigenvalue sign. q=Qv, unit Cartesian normalization; make its largest-absolute Cartesian component positive. Freeze the selected q array and source-result hashes once.",
+      "new_points_per_case": {
+        "h_bohr": [
+          0.001,
+          0.0005
+        ],
+        "signs": [
+          -1,
+          1
+        ]
+      },
+      "interpretation": "The selected vector is a diagnostic candidate even when quadrature sets or operator symmetry are limited; such flags propagate to every combination result. Only missing/nonfinite columns or rank/Gram/eigen-algebra failure prevents defining a direction.",
+      "comparisons": [
+        "Measured q.dot(FDgradient) and central energy curvature versus predicted projected eigenvalue.",
+        "Full FDgradient_mix versus D@v, with correct normalization coefficients.",
+        "Both steps, both gradient-response controls, energy-gradient differences, residual first derivative, and all unfavorable observations."
+      ],
+      "decision": "Report signs and absolute/relative differences without changing directions or thresholds after observing results. Sign inconsistency, finite-step instability or prediction disagreement remains UNRESOLVED. Positive sampled/subspace curvature is not a full-dimensional minimum certificate."
+    }
+  ],
+  "frozen_numerics": {
+    "xc": "PBE",
+    "basis": "def2-svp",
+    "grid_level": 3,
+    "density_fitting": false,
+    "dispersion": "NONE_EXPLICIT_NOT_D3",
+    "direct_scf_tol": 1e-15,
+    "SCF_energy_tol": 1e-12,
+    "SCF_internal_orbital_gradient_tol": 1e-09,
+    "independent_final_Fock_norm_limit": 1e-08,
+    "small_rho_cutoff": 0,
+    "angular_pruning": "default",
+    "inner_Newton_AH_tol": 1e-22,
+    "inner_AH_lindep": 1e-24,
+    "gradient_response_controls": [
+      false,
+      true
+    ],
+    "initial_guess": "Qualified same-case grid3 center checkpoint, followed by real target-geometry CDIIS/Newton convergence; never accept inherited convergence as target convergence."
+  },
+  "execution_scope": {
+    "new_quantum_points": 26,
+    "new_base_mode_points": 18,
+    "new_mixed_candidate_points": 8,
+    "derived_jobs_expected": 5,
+    "jobs_expected": 31,
+    "order": "acid6 basis points -> acid subspace -> acid candidate h=.001 pair as new-branch QA -> caly12 basis points -> caly subspace -> acid candidate h=.0005 pair+comparison -> caly candidate both h pairs+comparison -> final comparison.",
+    "failure_dependencies": "Within each case baseline points form a success chain; each case combination branch depends on its own valid subspace plus prior combination success. Acid candidate failure must not block independent Calycosin baseline work. Unknown CPU/process states remain globally blocking.",
+    "pair_admission": "Reserve both unsatisfied point caps plus300 before either sign. Resource/deadline failures are explicit NOT_RUN/BLOCKED, never missing-matrix fill.",
+    "per_point_caps": {
+      "acid": {
+        "cpu_seconds": 600,
+        "wall_seconds": 1200
+      },
+      "calycosin": {
+        "cpu_seconds": 2400,
+        "wall_seconds": 3600
+      }
+    }
+  },
+  "preservation_and_limits": [
+    "Reuse sealed successes and keep all prior failures, checkpoints, ledgers, allocation markers and source bytes unchanged.",
+    "Current boot5e4dd6fb-c532-435f-aa57-687513ec25ef follows closed v6 work; verify immutable closed history and retained v1 conservative-debit exception without pretending old live boot identities match.",
+    "Only v7 new execution binds current boot. The old single-use31200 CPU extension claim is referenced, not reissued.",
+    "This is a4/7-dimensional study at original geometries, not a full vibrational Hessian, new optimization/global minimum, IR spectrum, chemical assignment or classifier result.",
+    "Independent new batches, actual cross-batch calibration and standard-compound/laboratory measurements remain unavailable, not simulated successes."
+  ]
+}

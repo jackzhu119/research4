@@ -1,0 +1,191 @@
+{
+  "schema": "research4-b-v7-independent-static-subspace-science-review-v1",
+  "status": "PASS_STATIC_SCIENCE_AND_SAVED_ARRAY_LINEAR_ALGEBRA_PRELAUNCH",
+  "reviewer": "recovery_science_audit",
+  "observed_at_utc": "2026-11-08T02:21:09.253885+00:00",
+  "worker": {
+    "path": "scripts/research4_b_negative_subspace_worker_20261108.py",
+    "sha256": "e1b012d6d0f2491a041a39bbe780f716777b79f743acb1e8755c0c2b5251f575",
+    "bytes": 138665
+  },
+  "tests": {
+    "path": "scripts/test_research4_b_negative_subspace_worker_20261108.py",
+    "sha256": "0b1c4654371c1a7c1013eabfa20058a8e9c119494ce26d21385dfc7a843c5d1d",
+    "bytes": 26611
+  },
+  "frozen_v6_worker": {
+    "path": "scripts/research4_b_validation_recovery_worker_v6_20261107.py",
+    "sha256": "7fa73772a9e909450454e6f219249cedbad677e3f967df8489e84cb2df942121",
+    "bytes": 106495
+  },
+  "ROOT_protocol": {
+    "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-negative-subspace-v7/preparation/research_questions_ROOT_AUTHORIZED.json",
+    "sha256": "98adefbfcc3b84f9baa56e2e34e4fa754e0d44d7743511b588a5d408cc9d2bf0",
+    "bytes": 9650
+  },
+  "prior_mode1_coupling_evidence": {
+    "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/followup-negative-subspace-v7/preparation/existing_mode1_coupling_evidence.json",
+    "sha256": "94a6aa173c2d452a9f90d31d1e9daae2021a30838bf257880da5a1ff9b382348",
+    "bytes": 8427
+  },
+  "changed_existing_functions": [
+    "validate_request",
+    "point",
+    "point_group_key",
+    "aggregate",
+    "run",
+    "parser"
+  ],
+  "new_functions": [
+    "projected_subspace",
+    "resolve_direction",
+    "subspace_aggregate"
+  ],
+  "unchanged_core_checks": [
+    "settings_for",
+    "configure_scf_tolerance",
+    "independent_scf_qualification",
+    "load_warmstart",
+    "run_warmstart_scf",
+    "checkpoint_probe",
+    "unit_direction",
+    "central_difference",
+    "true_gradient_quadrature",
+    "load_case"
+  ],
+  "independent_nonquantum_math_checks": [
+    {
+      "case": "protocatechuic_acid",
+      "original_frequency_result": {
+        "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/science/protocatechuic_acid-frequency-attempt001/result.json",
+        "sha256": "91366afdfe663abb607d33c970e7b00d0a3d5cbc48df0b220e4c892b102b923c",
+        "bytes": 10153
+      },
+      "mode_indices": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "Gram_eigenvalues": [
+        0.8859441868000837,
+        0.957883289197571,
+        1.0426285029605153,
+        1.1135440210418304
+      ],
+      "Gram_condition_number": 1.256900872123568,
+      "original_projected_generalized_curvatures": [
+        -0.05426194666669758,
+        -0.01402194967793759,
+        -0.013301072360059564,
+        -0.0027302634822506254
+      ],
+      "independent_QR_generalized_spectrum_error": 2.168404344971009e-17,
+      "nonorthogonal_rescaled_basis_spectrum_invariance": true,
+      "Cartesian_selected_q_phase_and_Dc_consistent": true,
+      "nonsymmetric_toy_retains_raw_A_and_only_defines_diagnostic_candidate": true,
+      "original_mass_normalization_max_abs_error": 2.6645352591003757e-15,
+      "mass_rectangular_column_scaling_error": 2.717959321149599e-17
+    },
+    {
+      "case": "calycosin",
+      "original_frequency_result": {
+        "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/science/calycosin-frequency-attempt001/result.json",
+        "sha256": "19a8e0309381e5a4dcf0bf2a6adf7bab05e7678c244f54afde4b4e52b1515cb9",
+        "bytes": 11350
+      },
+      "mode_indices": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "Gram_eigenvalues": [
+        0.613014807986952,
+        0.7501278699764168,
+        0.9147883905330368,
+        0.9842581768343739,
+        1.0545940380718763,
+        1.1435673849416244,
+        1.539649331655718
+      ],
+      "Gram_condition_number": 2.5116021857802977,
+      "original_projected_generalized_curvatures": [
+        -0.04327707065132585,
+        -0.03631214722279405,
+        -0.020330927684344215,
+        -0.014402318171625732,
+        -0.008597029600707297,
+        -0.0036004169014523905,
+        -0.0018763361817838717
+      ],
+      "independent_QR_generalized_spectrum_error": 5.0306980803327406e-17,
+      "nonorthogonal_rescaled_basis_spectrum_invariance": true,
+      "Cartesian_selected_q_phase_and_Dc_consistent": true,
+      "nonsymmetric_toy_retains_raw_A_and_only_defines_diagnostic_candidate": true,
+      "original_mass_normalization_max_abs_error": 2.4424906541753444e-15,
+      "mass_rectangular_column_scaling_error": 1.2401878101791068e-17
+    }
+  ],
+  "resolved_findings": [
+    {
+      "id": "SAME_BRANCH_MIXED_FULL_VECTOR_PREDICTION",
+      "finding": "Initial draft compared both gradient branches to the True D*c, which mixed branch response differences with linearization errors.",
+      "resolution": "Same True-selected coefficients now generate separately saved D_false*c and D_true*c. Each actual branch compares to its own full-vector prediction. The selected True eigenvalue is retained separately as a common diagnostic/energy reference, and the False same-direction predicted scalar is c.T K_false c, not the False minimum eigenvalue."
+    }
+  ],
+  "scientific_checks": {
+    "complete_original_negative_cluster_4_or_7_required": true,
+    "uniform_matrix_column_step_h0010_including_reused_v6_mode1": true,
+    "hash_bound_same_method_center_E0_and_exact_signed_original_geometry": true,
+    "missing_unqualified_duplicate_columns_not_zero_or_analytic_filled": true,
+    "False_True_gradients_separate_and_actual_branch_arrays_used": true,
+    "Q_is_columnwise_unit_Cartesian_and_Gram_not_assumed_identity": true,
+    "G_rank_relative_eig_and_condition_gates_enforced": true,
+    "generalized_eigen_residual_and_G_normalization_gates_enforced": true,
+    "raw_K_A_and_whitened_A_retained_without_symmetry_based_success_claim": true,
+    "phase_and_normalization_changes_apply_to_coefficients_q_and_Dc_consistently": true,
+    "same_True_minimum_candidate_selected_regardless_sign_or_gridset_limit": true,
+    "original_mass_mode_coefficients_are_c_divided_by_each_raw_mode_Cartesian_norm": true,
+    "free_mass_rectangular_crossblock_has_correct_column_scaling_and_units": true,
+    "candidate_q_hash_reconstructed_from_original_Qc_and_geometry_lineage": true,
+    "different_candidate_hashes_cannot_pair": true,
+    "full_vector_mix_comparison_matches_gradient_response_branch": true,
+    "True_lambda_common_reference_and_original_analytic_Hq_baseline_separate": true,
+    "undefined_direction_is_scientific_unavailable_not_fake_matrix_or_minimum": true,
+    "SCF_fresh_Fock_qualification_and_physical_method_controls_not_relaxed": true
+  },
+  "test_evidence": {
+    "author_reported_non_quantum_tests_passed": 75,
+    "this_reviewer_reran_the_author_test_suite": false,
+    "this_reviewer_performed_independent_saved_original_array_linear_algebra": true,
+    "inspected_regressions": [
+      "generalized versus independent orthonormal-QR projection",
+      "rank deficient and poor Gram rejection",
+      "canonical phase and coefficient consistency",
+      "raw skew retained",
+      "incomplete or unqualified source point columns",
+      "geometry/method/direction/candidate hash lineage",
+      "False and True D*c use same True-selected coefficients",
+      "mass-normalized rectangular mapping convention"
+    ]
+  },
+  "runtime_acceptance_required": [
+    "All18 new basis points must be actual solver-converged, fresh-Fock-qualified and wait4-sealed before their case matrix is declared complete.",
+    "The first acid selected mixed direction +/-h=.001 pair must exercise the new point-direction-resolution path through full SCF, both actual nuclear-gradient controls, fresh Fock qualification, real wait4 and seals before treating the new branch as operationally verified.",
+    "Candidate both-step +/- tests must retain qualified same-method E0 and source-selected q; no sign-based reselection or post-outcome threshold changes.",
+    "Compare both scalar energy/gradient curvatures and full vector FDgradient_mix versus each matching D_branch*c. Instability or disagreement remains unresolved."
+  ],
+  "limits": [
+    "Gram/eigensystem qualification is a mathematical integrity gate, not validation that symmetrized finite-gradient columns equal the physical energy Hessian.",
+    "False rebuilt-grid gradients can be nonconservative. True regenerated versus SCF nonzero-grid-set mismatches remain explicit and do not silently become equality.",
+    "Only the full old-negative subspace is sampled, with one common matrix step. Candidate double-step verification is not complete matrix step convergence.",
+    "The mass-normalized rectangular positive-negative crossblock does not provide the missing positive-positive block; no full-dimensional minimum, global electronic state or complete corrected nuclear Hessian is proved.",
+    "Projected generalized eigenvalues with Cartesian Gram G are directional curvatures in Eh/Bohr^2, not new vibrational frequencies. IR stays NOT_COMPUTED; no peak assignment or historical classifier result is changed.",
+    "This review does not independently approve process/accounting/budget/return transport; root and the supervisor reviewer handle those bindings."
+  ],
+  "review_operations": "Static source/AST/hash inspection and small NumPy arithmetic on already saved original molecular matrices/modes only; no SCF/Fock/integral/grid/gradient/Hessian kernel, no Git, no old-file rewrite, no background start."
+}
