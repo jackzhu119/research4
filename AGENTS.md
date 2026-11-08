@@ -72,3 +72,20 @@ two complete numerical Hessians and signed-mode/step validation. Preserve the
 Spinosin and Calycosin backlogs and all historical imaginary modes. IR remains
 NOT_COMPUTED. An independent session can outlive the chat; cloud instance uptime
 is not guaranteed. Unknown unclosed process/CPU identity blocks automatic resume.
+
+## Latest user directive: continuous execution v3 (2026-11-08)
+
+The latest actual user explicitly rejected stopping the pipeline on strict
+scientific thresholds and requested continuous background computation. For NEW
+v3 jobs this supersedes earlier scientific gating/no-retry prescriptions. Read
+`docs/PYSCF_CONTINUOUS_EXECUTION_20261108.md`. Convergence, stationarity and
+numerical consistency are truthful result-quality labels, not execution gates;
+finite unconverged results must retain native false and their warnings. Recover
+individual failures and continue independent points, Hessians and molecules.
+Never manufacture missing data or relabel old results as passed. The original
+90,000 CPU-second authorization still covers all runs: prior charged costs are
+9678.939876, v3 cap 80,000, combined ceiling 89678.939876. Keep actual CPU costs,
+source/input integrity, process cleanup and explicit STOP; never reset costs or
+launch a duplicate live queue. The current driver and ledger are under
+`reports/pyscf-continuous-20261108-v3/`; use its status instead of historical
+v1/v2 ledgers. Do not edit frozen v3 producers while the queue is running.

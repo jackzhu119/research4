@@ -1,0 +1,102 @@
+{
+  "schema": "research4-continuous-v3-independent-review-v1",
+  "reviewed_at_utc": "2026-11-08T13:50:30.853634+00:00",
+  "reviewer_task": "/root/continuous_review_inputs",
+  "status": "PASS_WITH_SCOPE_LIMITS",
+  "review_scope": "Independent static review plus inexpensive mock and real-process supervisor tests; no large quantum calculation launched by reviewer; final runtime config/launch receipt owned by parent.",
+  "reviewed_sources": [
+    {
+      "path": "scripts/pyscf_continuous_science_20261108_v3.py",
+      "sha256": "36b7cb6f36f0be92436bd230473c8483f5bfbb0f255a2d8be3472591761ab9f5",
+      "bytes": 29008
+    },
+    {
+      "path": "scripts/run_pyscf_continuous_20261108_v3.py",
+      "sha256": "8b35b2d85bea10bdf2e87b20e31f06596b710e1f318ff3b7d7d7769e05934555",
+      "bytes": 39675
+    }
+  ],
+  "supporting_receipts": [
+    {
+      "path": "data/research/pyscf_continuous_20261108/inputs/source_receipt.json",
+      "sha256": "cb10b7720ebc413072bb1af014eb9cf096e460a69b532d740b570da4dfa3abe2",
+      "bytes": 4759
+    },
+    {
+      "path": "data/research/pyscf_continuous_20261108/inputs/prior_closed_runs.json",
+      "sha256": "fbdeb813c0838fa738bd0d753c19acbc3fbfa9784ed15547b9daa84df15d7655",
+      "bytes": 2061
+    },
+    {
+      "path": "docs/PYSCF_CONTINUOUS_EXECUTION_20261108.md",
+      "sha256": "1023a0aba24c7aa6316d43e27cb32dde8933bad2bfa8a008125c97e6637ecbf5",
+      "bytes": 5668
+    }
+  ],
+  "findings": [
+    {
+      "id": "SCIENTIFIC_QUALITY_CONTINUITY",
+      "status": "PASS",
+      "evidence": "Native SCF energy/orbital tolerances default 1e-10/1e-7; custom former strict residual and energy audit append warnings only. Finite native_false gradient states continue."
+    },
+    {
+      "id": "HESSIAN_WITHOUT_STRICT_STATIONARITY",
+      "status": "PASS",
+      "evidence": "Optimizer false retains finite geometry; Hessian does not test nuclear thresholds before evaluating coordinates. A hard point error is recorded and later coordinates continue. Partial matrices are never filled with zeros or labeled complete."
+    },
+    {
+      "id": "CROSS_GRID_STATIONARITY_LABEL",
+      "status": "FIXED_AND_RETESTED",
+      "evidence": "Reviewer found grid5 Hessian could inherit grid3 center stationarity evidence. Producer now records source derivative settings and mismatch warning; minimum_verified additionally requires method match. Independent synthetic grid3-zero-gradient/grid5 pair computed all18 points per step with numerical consistency true and minimum_verified false."
+    },
+    {
+      "id": "FINITE_RECOVERY_AND_INPUT_FALLBACK",
+      "status": "PASS",
+      "evidence": "Per-point two recorded attempts and per-job finite configurable attempts; job failure or missing input is recorded and execution continues. Actual available geometry fallback accepted independent of prior quality status."
+    },
+    {
+      "id": "ONE_CUMULATIVE_CPU_GRANT",
+      "status": "PASS",
+      "evidence": "Config rejects prior charge + new cap > original grant. Prior ledgers remain hash-pinned and charged 9678.939876; new cap80000 gives89678.939876 cumulative upper bound. Retry costs aggregate actual wait4 user+system including failures and owned descendants; live global CPU guard remains. Tail reserve30sec."
+    },
+    {
+      "id": "OWNED_PROCESS_CLEANUP",
+      "status": "PASS",
+      "evidence": "Real-process tests cover reaped descendant CPU, total CPU guard and STOP cleanup; process identity retains boot ID/start tick/UID/SID/PGRP checks and uploader isolation; unknown RUNNING accounting blocks unsafe zero-cost resume."
+    },
+    {
+      "id": "PREVIOUS_RUNS_CLOSED",
+      "status": "PASS",
+      "evidence": "Both old ledgers terminal FINITE_QUEUE_COMPLETE without RUNNING jobs, hash checked; historical supervisor identities currently exact matching zombies, historical workers absent. Old result content preserved."
+    }
+  ],
+  "verification": [
+    {
+      "command": ".venv-pyscf-90000/bin/python -m unittest discover -s tests -p test_pyscf_continuous_science_v3.py -v",
+      "result": "PASS",
+      "tests": 11,
+      "large_quantum_calculation": false
+    },
+    {
+      "command": "python -m unittest discover -s tests -p test_pyscf_continuous_budget_v3.py -v",
+      "result": "PASS",
+      "tests": 9,
+      "real_process_guard_tests": true,
+      "large_quantum_calculation": false
+    },
+    {
+      "command": "independent synthetic cross-grid geometry/Hessian/paired analysis exercise",
+      "result": "PASS",
+      "finite_points_each_step": 18,
+      "numerical_quality_diagnostics_passed": true,
+      "minimum_verified": false,
+      "large_quantum_calculation": false
+    }
+  ],
+  "limits": [
+    "This receipt covers the exact source hashes listed; later code edits require revalidation.",
+    "The reviewer has not launched or measured a production quantum calculation and makes no claim of an already completed new Hessian.",
+    "Detach survives chat end but cannot guarantee cloud instance survival; documented boundary remains."
+  ],
+  "blocking_findings_remaining": []
+}

@@ -1,0 +1,439 @@
+#!/usr/bin/env python3
+"""Compute finite PySCF results continuously; scientific quality is metadata.
+
+The budget supervisor owns resource stops. Numerical warnings do not discard
+finite gradients or block later coordinates. Historical producers are untouched.
+"""
+from __future__ import annotations
+import argparse
+from datetime import datetime, timezone
+import hashlib
+import importlib.metadata
+import json
+import math
+import os
+from pathlib import Path
+import sys
+import traceback
+
+SCHEMA = 'research4-continuous-pyscf-science-v3'
+
+
+def utc(): return datetime.now(timezone.utc).isoformat()
+
+
+def sha(path):
+    with Path(path).open('rb') as stream: return hashlib.file_digest(stream, 'sha256').hexdigest()
+
+
+def save(path, value):
+    path = Path(path); path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = path.with_name(path.name + '.tmp')
+    with temporary.open('w') as stream:
+        json.dump(value, stream, indent=2, allow_nan=False); stream.write('\n'); stream.flush(); os.fsync(stream.fileno())
+    os.replace(temporary, path)
+
+
+def array_ref(path, value):
+    import numpy as np
+    path = Path(path); path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = path.with_name(path.name + '.tmp')
+    with temporary.open('wb') as stream:
+        np.save(stream, value, allow_pickle=False); stream.flush(); os.fsync(stream.fileno())
+    os.replace(temporary, path)
+    return {'path': str(path.resolve()), 'sha256': sha(path)}
+
+
+def read_ref(ref):
+    import numpy as np
+    path = Path(ref['path'])
+    if sha(path) != ref['sha256']: raise ValueError('Array content hash changed: ' + str(path))
+    value = np.load(path, allow_pickle=False)
+    if not np.isfinite(value).all(): raise ValueError('Nonfinite array: ' + str(path))
+    return value
+
+
+def settings(args):
+    return {'xc': 'PBE', 'basis': 'def2-SVP', 'grid_level': args.grid_level,
+            'charge': 0, 'spin': 0, 'dispersion': 'NONE_EXPLICIT', 'density_fitting': False,
+            'full_native_veff_every_cycle': True, 'grid_response': True, 'direct_scf_tol': 1e-14,
+            'energy_tolerance_hartree': args.conv_tol, 'orbital_gradient_tolerance': args.conv_grad,
+            'maximum_SCF_cycles': 80, 'newton_recovery_max_cycles': 20,
+            'quality_warnings_block_execution': False}
+
+
+def result(status, cfg):
+    return {'schema': SCHEMA, 'status': status, 'settings': cfg, 'source_sha256': sha(__file__),
+            'at_utc': utc(), 'IR': 'NOT_COMPUTED', 'chemical_assignment': 'NOT_PERFORMED',
+            'classifier_results_modified': False, 'quality_warnings': []}
+
+
+def new_molecule(symbols, coordinates, cfg, unit='Bohr'):
+    import numpy as np
+    from pyscf import gto
+    coordinates = np.asarray(coordinates, dtype=float)
+    if coordinates.shape != (len(symbols), 3) or not np.isfinite(coordinates).all(): raise ValueError('Invalid molecular coordinates')
+    return gto.M(atom=[(s, tuple(map(float, row))) for s, row in zip(symbols, coordinates)],
+                 unit=unit, basis=cfg['basis'], charge=cfg['charge'], spin=cfg['spin'], max_memory=6000, verbose=4)
+
+
+def make_scf(mol, out, cfg):
+    from pyscf import dft
+    from pyscf.dft import rks
+    class FullNativeRKS(dft.rks.RKS):
+        def get_veff(self, mol=None, dm=None, dm_last=None, vhf_last=None, hermi=1):
+            return rks.get_veff(self, mol, dm, dm_last=0, vhf_last=0, hermi=hermi)
+    mf = FullNativeRKS(mol)
+    mf.xc = cfg['xc']; mf.grids.level = cfg['grid_level']; mf.max_memory = 6000
+    mf.direct_scf = True; mf.direct_scf_tol = cfg['direct_scf_tol']
+    mf.conv_tol = cfg['energy_tolerance_hartree']; mf.conv_tol_grad = cfg['orbital_gradient_tolerance']
+    mf.max_cycle = cfg['maximum_SCF_cycles']; mf.chkfile = str(out / 'local-only/rolling.chk')
+    (out / 'local-only').mkdir(exist_ok=True)
+    return mf
+
+
+def fingerprint(mol, cfg, density):
+    import numpy as np
+    payload = {'source_sha256': sha(__file__), 'settings': cfg,
+               'pyscf_version': importlib.metadata.version('pyscf'),
+               'symbols': [mol.atom_symbol(i) for i in range(mol.natm)],
+               'coordinates_sha256': hashlib.sha256(np.asarray(mol.atom_coords(), dtype='<f8').tobytes()).hexdigest(),
+               'initial_density_sha256': None if density is None else hashlib.sha256(np.asarray(density, dtype='<f8').tobytes()).hexdigest()}
+    return hashlib.sha256(json.dumps(payload, sort_keys=True).encode()).hexdigest(), payload
+
+
+def calculate_attempt(mol, out, cfg, dm0, nuclear_gradient, save_density):
+    """Finite convergence attempts. Unconverged finite states remain usable."""
+    import numpy as np
+    out.mkdir(parents=True, exist_ok=True)
+    log = (out / 'pyscf.log').open('a', buffering=1)
+    mol = mol.copy(); mol.stdout = log
+    cfgout = result('POINT_RUNNING', cfg); calls = []
+    try:
+        mf = make_scf(mol, out, cfg)
+        try:
+            energy = float(mf.kernel(dm0=None if dm0 is None else np.array(dm0, copy=True)))
+            calls.append({'solver': 'NATIVE_SCF', 'native_converged': bool(mf.converged)})
+        except Exception as error:
+            calls.append({'solver': 'NATIVE_SCF', 'error': str(error)}); energy = float('nan')
+        if not getattr(mf, 'converged', False):
+            try:
+                seed = mf.newton(); seed.max_cycle = cfg['newton_recovery_max_cycles']; seed.max_cycle_inner = 10
+                seed.max_memory = 6000
+                guess = mf.make_rdm1() if getattr(mf, 'mo_coeff', None) is not None else dm0
+                seed.kernel(dm0=guess)
+                calls.append({'solver': 'NEWTON_RECOVERY', 'native_converged': bool(seed.converged)})
+                seed_density = np.array(seed.make_rdm1(), copy=True)
+                fresh = make_scf(mol, out, cfg); energy = float(fresh.kernel(dm0=seed_density)); mf = fresh
+                calls.append({'solver': 'NATIVE_AFTER_NEWTON', 'native_converged': bool(mf.converged)})
+            except Exception as error:
+                calls.append({'solver': 'NEWTON_RECOVERY', 'error': str(error)})
+        if getattr(mf, 'mo_coeff', None) is None: raise ValueError('No finite molecular-orbital state was produced')
+        dm = np.asarray(mf.make_rdm1())
+        if not np.isfinite(dm).all(): raise ValueError('Nonfinite density')
+        hcore = mf.get_hcore(); veff = mf.get_veff(mol, dm)
+        fresh_energy = float(mf.energy_tot(dm, hcore, veff))
+        if not math.isfinite(fresh_energy): raise ValueError('Nonfinite total energy')
+        if not math.isfinite(energy): energy = fresh_energy
+        audit = {'native_converged': bool(mf.converged), 'fresh_energy_hartree': fresh_energy,
+                 'energy_recheck_difference_hartree': fresh_energy - energy}
+        try:
+            fock = mf.get_fock(hcore, mf.get_ovlp(), veff, dm, cycle=-1, diis=None, level_shift_factor=0)
+            residual = float(np.linalg.norm(mf.get_grad(mf.mo_coeff, mf.mo_occ, fock)))
+            audit['fresh_orbital_gradient_norm'] = residual if math.isfinite(residual) else None
+        except Exception as error: audit['audit_error'] = str(error)
+        warnings = []
+        if not mf.converged: warnings.append('NATIVE_SCF_UNCONVERGED_FINITE_STATE_USED')
+        residual = audit.get('fresh_orbital_gradient_norm')
+        if residual is None or residual > 1e-9: warnings.append('FORMER_STRICT_ORBITAL_TARGET_NOT_MET_OR_UNAVAILABLE')
+        if abs(audit['energy_recheck_difference_hartree']) > 1e-12: warnings.append('FORMER_STRICT_ENERGY_RECHECK_TARGET_NOT_MET')
+        gradient = None
+        if nuclear_gradient:
+            driver = mf.nuc_grad_method(); driver.grid_response = True
+            gradient = np.asarray(driver.kernel())
+            if gradient.shape != (mol.natm, 3) or not np.isfinite(gradient).all(): raise ValueError('No finite complete nuclear gradient')
+            cfgout['gradient'] = array_ref(out / 'gradient.npy', gradient)
+            cfgout['nuclear_gradient_rms'] = float(np.sqrt(np.mean(gradient**2)))
+            cfgout['nuclear_gradient_max'] = float(np.max(np.abs(gradient)))
+        density_path = out / ('density.npy' if save_density else 'local-only/density.npy')
+        cfgout.update(status='POINT_COMPUTED', energy_hartree=fresh_energy, native_energy_hartree=energy, native_pyscf_converged=bool(mf.converged),
+                      calls=calls, diagnostics=audit, quality_warnings=warnings,
+                      coordinates_bohr=array_ref(out / 'coordinates_bohr.npy', mol.atom_coords()),
+                      symbols=[mol.atom_symbol(i) for i in range(mol.natm)], density=array_ref(density_path, dm),
+                      completed_at_utc=utc())
+        save(out / 'result.json', cfgout)
+        return cfgout, dm, gradient
+    except Exception as error:
+        cfgout.update(status='POINT_ERROR', error_type=type(error).__name__, error=str(error), calls=calls)
+        save(out / 'result.json', cfgout); raise
+    finally: log.close()
+
+
+def evaluate_point(mol, output, cfg, dm0=None, nuclear_gradient=True, save_density=False):
+    """Reuse authenticated finite gradients without reading local-only point DM."""
+    out = Path(output); out.mkdir(parents=True, exist_ok=True)
+    digest, inputs = fingerprint(mol, cfg, dm0)
+    target = out / 'result.json'
+    if target.exists():
+        old = json.loads(target.read_text())
+        if old.get('input_fingerprint') != digest: raise ValueError('Point fingerprint changed')
+        if old.get('status') == 'POINT_COMPUTED':
+            gradient = read_ref(old['gradient']) if nuclear_gradient else None
+            density = read_ref(old['density']) if save_density else None
+            return old, density, gradient
+    parent_attempt = max(1, int(os.environ.get('R4_ATTEMPT', '1')))
+    failures = []
+    for number in (1, 2):
+        attempt = out / ('attempt-%03d-%d' % (parent_attempt, number))
+        existed = attempt.exists()
+        input_path = attempt / 'input.json'
+        if existed:
+            if not input_path.exists() or json.loads(input_path.read_text()).get('input_fingerprint') != digest:
+                raise ValueError('Existing attempt input fingerprint is unavailable or changed')
+        else:
+            attempt.mkdir(parents=True)
+            save(input_path, {'input_fingerprint': digest, 'inputs': inputs, 'at_utc': utc()})
+        if (attempt / 'result.json').exists():
+            previous = json.loads((attempt / 'result.json').read_text())
+            if previous.get('status') == 'POINT_COMPUTED':
+                previous.update(input_fingerprint=digest, inputs=inputs); save(target, previous)
+                return previous, read_ref(previous['density']) if save_density else None, read_ref(previous['gradient']) if nuclear_gradient else None
+            failures.append({'attempt': str(attempt), 'error': previous.get('error', 'prior unsuccessful attempt')}); continue
+        if existed:
+            failures.append({'attempt': str(attempt), 'error': 'INTERRUPTED_ATTEMPT_RETAINED_WITHOUT_OVERWRITING'})
+            continue
+        try:
+            point, density, gradient = calculate_attempt(mol, attempt, cfg, dm0, nuclear_gradient, save_density)
+            point.update(input_fingerprint=digest, inputs=inputs, failed_attempts=failures)
+            save(target, point); return point, density if save_density else None, gradient
+        except Exception as error:
+            failures.append({'attempt': str(attempt), 'error_type': type(error).__name__, 'error': str(error)})
+            save(out / 'progress.json', {'status': 'POINT_RETRY_OR_ERROR', 'input_fingerprint': digest, 'failed_attempts': failures})
+    failed = result('POINT_ERROR', cfg); failed.update(input_fingerprint=digest, inputs=inputs, failed_attempts=failures)
+    save(target, failed); raise ValueError('No finite point after two recorded attempts')
+
+
+def load_source(path):
+    import numpy as np
+    record = json.loads(Path(path).read_text())
+    coords = read_ref(record['coordinates_bohr']); density = read_ref(record['density'])
+    symbols = record['symbols']
+    if coords.shape != (len(symbols), 3) or density.ndim != 2 or density.shape[0] != density.shape[1]: raise ValueError('Inconsistent source geometry/density')
+    return record, symbols, coords, density
+
+
+def input_molecule(args, cfg):
+    if args.source_point:
+        old, symbols, coords, density = load_source(args.source_point)
+        return new_molecule(symbols, coords, cfg), density, {'path': str(args.source_point.resolve()), 'sha256': sha(args.source_point), 'scope': 'HISTORICAL_FINITE_STATE_NOT_RETROACTIVELY_CERTIFIED'}
+    if args.xyz:
+        rows = args.xyz.read_text().splitlines(); atoms = [x.split() for x in rows[2:] if x.strip()]
+        if len(atoms) != int(rows[0]) or any(len(x) != 4 for x in atoms): raise ValueError('Invalid XYZ')
+        return new_molecule([x[0] for x in atoms], [[float(v) for v in x[1:]] for x in atoms], cfg, 'Angstrom'), None, {'path': str(args.xyz.resolve()), 'sha256': sha(args.xyz), 'scope': 'TRUSTED_INPUT_XYZ'}
+    raise ValueError('--source-point or --xyz is required')
+
+
+def geometry_record(point, cfg, status='GEOMETRY_AVAILABLE'):
+    record = result(status, cfg)
+    record.update(symbols=point['symbols'], coordinates_bohr=point['coordinates_bohr'], density=point['density'],
+                  quality_warnings=list(point.get('quality_warnings', [])),
+                  nuclear_gradient_rms=point.get('nuclear_gradient_rms'), nuclear_gradient_max=point.get('nuclear_gradient_max'),
+                  native_pyscf_converged=point.get('native_pyscf_converged'), gradient=point.get('gradient'),
+                  derivative_settings=point.get('derivative_settings', point.get('settings')), minimum_verified=False)
+    return record
+
+
+def stage_prepare(args, cfg):
+    mol, density, source = input_molecule(args, cfg)
+    if args.source_point:
+        point = json.loads(args.source_point.read_text())
+        point['density'] = array_ref(args.output / 'center-density.npy', density)
+        point['coordinates_bohr'] = array_ref(args.output / 'center-coordinates.npy', mol.atom_coords())
+        if point.get('gradient'):
+            point['gradient'] = array_ref(args.output / 'center-gradient.npy', read_ref(point['gradient']))
+        point['quality_warnings'] = list(point.get('quality_warnings', [])) + ['HISTORICAL_FINITE_STATE_REUSED_AS_STARTING_GEOMETRY']
+    else:
+        point, _, _ = evaluate_point(mol, args.output / 'center', cfg, density, save_density=True)
+    rec = geometry_record(point, cfg); rec.update(input_source=source, optimizer_converged=False)
+    rec['quality_warnings'].append('GEOMETRY_PREPARED_WITHOUT_OPTIMIZATION')
+    return rec
+
+
+def stage_optimize(args, cfg):
+    import numpy as np
+    from pyscf.geomopt import addons, geometric_solver
+    mol, density, source = input_molecule(args, cfg)
+    latest = {'density': density, 'point': None, 'mol': mol, 'count': 0}
+    history = []; errors = []
+    def scan(actual_mol):
+        i = latest['count']; latest['count'] += 1
+        point, dm, gradient = evaluate_point(actual_mol, args.output / 'optimization_steps' / ('step-%03d' % i), cfg, latest['density'], save_density=True)
+        latest.update(density=dm, point=point, mol=actual_mol.copy()); history.append({'point': i, 'energy_hartree': point['energy_hartree'], 'quality_warnings': point['quality_warnings']})
+        return point['energy_hartree'], gradient
+    converged = False; candidate = mol
+    try:
+        converged, candidate = geometric_solver.kernel(addons.as_pyscf_method(mol, scan), maxsteps=30,
+            convergence_energy=1e-6, convergence_grms=1e-4, convergence_gmax=3e-4,
+            convergence_drms=1.2e-3, convergence_dmax=1.8e-3)
+    except Exception as error: errors.append({'error_type': type(error).__name__, 'error': str(error)})
+    try:
+        point, _, _ = evaluate_point(candidate if converged else latest['mol'], args.output / 'final-center', cfg, latest['density'], save_density=True)
+    except Exception as error:
+        errors.append({'error_type': type(error).__name__, 'error': str(error)})
+        point = latest['point']
+        if point is None and args.source_point:
+            old, symbols, coords, dm = load_source(args.source_point)
+            point = dict(old)
+            point['density'] = array_ref(args.output / 'fallback-center-density.npy', dm)
+            point['coordinates_bohr'] = array_ref(args.output / 'fallback-center-coordinates.npy', coords)
+            point['quality_warnings'] = ['NEW_OPTIMIZATION_FAILED_HISTORICAL_FINITE_GEOMETRY_RETAINED']
+        if point is None: raise ValueError('No finite input or optimization geometry available')
+    rec = geometry_record(point, cfg); rec.update(optimizer_converged=bool(converged), input_source=source,
+        actual_gradient_evaluations=latest['count'], optimization_history=history, nonfatal_optimizer_errors=errors,
+        former_strict_nuclear_targets_met=bool(point.get('nuclear_gradient_rms') is not None and point.get('nuclear_gradient_max') is not None and point['nuclear_gradient_rms'] <= 1e-5 and point['nuclear_gradient_max'] <= 3e-5))
+    if not converged: rec['quality_warnings'].append('OPTIMIZER_NOT_CONVERGED_GEOMETRY_REMAINS_AVAILABLE')
+    return rec
+
+
+def assemble_hessian(plus, minus, step):
+    import numpy as np
+    plus, minus = np.asarray(plus), np.asarray(minus)
+    if plus.shape != minus.shape or plus.ndim != 3 or plus.shape[0] != 3*plus.shape[1] or plus.shape[2] != 3 or not step > 0: raise ValueError('Incomplete central differences')
+    if not np.isfinite(plus).all() or not np.isfinite(minus).all(): raise ValueError('Nonfinite central differences')
+    return ((plus-minus)/(2*step)).reshape(plus.shape[0], -1).T
+
+
+def stage_hessian(args, cfg):
+    import numpy as np
+    if args.geometry is None or not args.step or args.step <= 0: raise ValueError('--geometry and positive --step required')
+    candidates = [args.geometry] + list(getattr(args, 'fallback_geometry', None) or [])
+    geometry_errors = []
+    for candidate in candidates:
+        try:
+            geom, symbols, coords, density = load_source(candidate)
+            actual_geometry = Path(candidate)
+            break
+        except Exception as error:
+            geometry_errors.append({'path': str(candidate), 'error': str(error)})
+    else:
+        raise ValueError('No finite geometry among primary/fallback candidates: ' + str(geometry_errors))
+    derivative_settings = geom.get('derivative_settings') or geom.get('settings', {})
+    method_keys = ('xc', 'basis', 'grid_level', 'dispersion', 'density_fitting', 'full_native_veff_every_cycle', 'grid_response', 'charge', 'spin')
+    stationarity_settings_match = all(derivative_settings.get(key) == cfg.get(key) for key in method_keys)
+    n = len(symbols); dimension = 3*n; gradients = {1: {}, -1: {}}
+    warnings = []; failures = []; point_refs = []; native_false = 0
+    progress = result('HESSIAN_RUNNING', cfg); progress.update(expected_points=2*dimension, actual_finite_points=0)
+    for coordinate in range(dimension):
+        for sign in (1, -1):
+            name = 'c%03d-%s' % (coordinate, 'plus' if sign > 0 else 'minus')
+            displaced = np.array(coords, copy=True); displaced.flat[coordinate] += sign*args.step
+            try:
+                point, _, gradient = evaluate_point(new_molecule(symbols, displaced, cfg), args.output / 'points' / name, cfg, density)
+                gradients[sign][coordinate] = gradient
+                native_false += not bool(point['native_pyscf_converged'])
+                if point['quality_warnings']: warnings.append({'point': name, 'warnings': point['quality_warnings']})
+                p = args.output / 'points' / name / 'result.json'; point_refs.append({'path': str(p.resolve()), 'sha256': sha(p)})
+            except Exception as error: failures.append({'point': name, 'error_type': type(error).__name__, 'error': str(error)})
+            progress.update(actual_finite_points=len(gradients[1])+len(gradients[-1]), failed_points=failures,
+                            points_with_quality_warnings=warnings, native_unconverged_points=native_false)
+            save(args.output / 'progress.json', progress)
+    progress.update(status='HESSIAN_PARTIAL', geometry_result={'path': str(actual_geometry.resolve()), 'sha256': sha(actual_geometry)}, geometry_fallback_warnings=geometry_errors,
+        coordinates_bohr=geom['coordinates_bohr'], symbols=symbols, step_bohr=args.step,
+        center_density_sha256=geom['density']['sha256'], center_optimizer_converged=geom.get('optimizer_converged', False),
+        center_quality_warnings=list(geom.get('quality_warnings', [])) + ([] if stationarity_settings_match else ['CENTER_GRADIENT_METHOD_DIFFERS_FROM_HESSIAN_METHOD']),
+        geometry_source_derivative_settings=derivative_settings, center_stationarity_settings_match=stationarity_settings_match,
+        center_nuclear_gradient_rms=geom.get('nuclear_gradient_rms'), center_nuclear_gradient_max=geom.get('nuclear_gradient_max'),
+        center_strict_stationarity_quality=bool(geom.get('nuclear_gradient_rms', math.inf) is not None and geom.get('nuclear_gradient_max', math.inf) is not None and geom.get('nuclear_gradient_rms', math.inf)<=1e-5 and geom.get('nuclear_gradient_max', math.inf)<=3e-5),
+        point_results=point_refs, completed_at_utc=utc())
+    if progress['actual_finite_points'] == 2*dimension:
+        raw = assemble_hessian([gradients[1][i] for i in range(dimension)], [gradients[-1][i] for i in range(dimension)], args.step)
+        progress.update(status='HESSIAN_COMPUTED', raw_hessian=array_ref(args.output / 'raw_hessian.npy', raw),
+            raw_relative_asymmetry=float(np.linalg.norm(raw-raw.T)/max(np.linalg.norm(raw), 1e-300)), vibrational_modes_expected=dimension-6)
+    return progress
+
+
+def vibrational_modes(matrix, coords, masses):
+    import numpy as np
+    from scipy import constants
+    matrix, coords, masses = map(np.asarray, (matrix, coords, masses)); n = len(masses)
+    if matrix.shape != (3*n, 3*n) or coords.shape != (n, 3) or not np.isfinite(matrix).all() or np.any(masses <= 0): raise ValueError('Invalid mode inputs')
+    center = (coords*masses[:, None]).sum(axis=0)/masses.sum(); shifted = coords-center
+    roots = np.sqrt(masses); ext = []
+    for axis in np.eye(3): ext.append((roots[:, None]*np.broadcast_to(axis, coords.shape)).ravel())
+    for axis in np.eye(3): ext.append((roots[:, None]*np.cross(axis, shifted)).ravel())
+    u, singular, _ = np.linalg.svd(np.array(ext).T, full_matrices=True)
+    rank = int((singular > singular.max()*1e-10).sum()); complement = u[:, rank:]
+    scale = np.repeat(roots, 3); weighted = .5*(matrix+matrix.T)/scale[:, None]/scale[None, :]
+    projected = complement.T@weighted@complement; values, vectors = np.linalg.eigh(projected)
+    conversion = math.sqrt(constants.physical_constants['Hartree energy'][0]/(constants.physical_constants['Bohr radius'][0]**2*constants.physical_constants['atomic mass constant'][0]))/(2*math.pi*constants.c*100)
+    return np.sign(values)*np.sqrt(np.abs(values))*conversion, values, complement@vectors, rank
+
+
+def stage_analyze(args, cfg):
+    import numpy as np
+    from pyscf.data import elements
+    if not args.hessians: raise ValueError('--hessians required')
+    rows = [json.loads(Path(p).read_text()) for p in args.hessians]
+    rec = result('ANALYSIS_COMPUTED', cfg); rec.update(input_hessians=[{'path': str(Path(p).resolve()), 'sha256': sha(p)} for p in args.hessians], minimum_verified=False)
+    if any(x.get('status') != 'HESSIAN_COMPUTED' or 'raw_hessian' not in x for x in rows):
+        rec.update(status='ANALYSIS_PARTIAL', reason='Incomplete finite Hessian; no fabricated full modes', input_statuses=[x.get('status') for x in rows]); return rec
+    coordinates = read_ref(rows[0]['coordinates_bohr']); symbols = rows[0]['symbols']
+    if any(x['coordinates_bohr'] != rows[0]['coordinates_bohr'] or x['symbols'] != symbols or x['center_density_sha256'] != rows[0]['center_density_sha256'] for x in rows): raise ValueError('Different centers cannot form a paired step analysis')
+    masses = np.array([elements.MASSES[elements.charge(s)] for s in symbols]); matrices = [read_ref(x['raw_hessian']) for x in rows]
+    modes = [vibrational_modes(h, coordinates, masses) for h in matrices]; asym = [float(np.linalg.norm(h-h.T)/max(np.linalg.norm(h), 1e-300)) for h in matrices]
+    rec.update(hessian_settings=[x.get('settings') for x in rows], signed_frequencies_cm1=[m[0].tolist() for m in modes], signed_eigenvalues=[m[1].tolist() for m in modes],
+        imaginary_counts=[int((m[0]<0).sum()) for m in modes], vibrational_modes=len(modes[0][0]), external_rank=modes[0][3], raw_relative_asymmetry=asym,
+        point_native_unconverged_counts=[x.get('native_unconverged_points', 0) for x in rows],
+        point_warning_counts=[len(x.get('points_with_quality_warnings', [])) for x in rows])
+    if len(rows) >= 2:
+        scale = np.repeat(np.sqrt(masses), 3); common = modes[0][2]
+        projected = [common.T@(.5*(h+h.T)/scale[:, None]/scale[None, :])@common for h in matrices]
+        difference = projected[1]-projected[0]; uncertainty = float(np.linalg.norm(difference, 2)); relative = float(np.linalg.norm(difference)/max(np.linalg.norm(projected[1]), 1e-300))
+        quality = bool(max(asym)<=1e-3 and relative<=1e-3 and all(np.min(m[1])>uncertainty for m in modes))
+        native_ok = all(x.get('native_unconverged_points', 0)==0 and not x.get('points_with_quality_warnings') for x in rows)
+        center_ok = all(x.get('center_optimizer_converged') and x.get('center_strict_stationarity_quality') and x.get('center_stationarity_settings_match') and not x.get('center_quality_warnings') for x in rows)
+        rec.update(projected_relative_step_difference=relative, empirical_step_uncertainty_margin=uncertainty,
+                   minimum_verified=bool(quality and native_ok and center_ok), numerical_quality_diagnostics_passed=quality)
+    if not rec['minimum_verified']: rec['quality_warnings'].append('MINIMUM_NOT_VERIFIED_RESULTS_RETAINED')
+    for i, mode in enumerate(modes): rec['mass_weighted_modes_%d'%i] = array_ref(args.output / ('mass_weighted_modes_%d.npy'%i), mode[2])
+    return rec
+
+
+def stage_controls(args, cfg):
+    import numpy as np
+    mol = new_molecule(['O','H','H'], [[0,0,0],[.75695,0,.58588],[-.75695,0,.58588]], cfg, 'Angstrom')
+    center, dm, gradient = evaluate_point(mol, args.output/'zero', cfg, save_density=True)
+    directional = float(gradient[1,0]); numerical = []
+    for step in (.001,.0005):
+        energies = []
+        for sign in (1,-1):
+            coords = mol.atom_coords(); coords[1,0] += sign*step
+            point, _, _ = evaluate_point(new_molecule(['O','H','H'], coords, cfg), args.output/('h%s-%s'%(step,sign)), cfg, dm, nuclear_gradient=False)
+            energies.append(point['energy_hartree'])
+        numerical.append(math.fsum((energies[0],-energies[1]))/(2*step))
+    rec = result('CONTROLS_COMPUTED',cfg); rec.update(analytic_directional_gradient=directional, finite_energy_derivatives=numerical,
+        absolute_errors=[abs(x-directional) for x in numerical], diagnostics_within_former_tolerance=bool(max(abs(x-directional) for x in numerical)<=1e-5))
+    if not rec['diagnostics_within_former_tolerance']: rec['quality_warnings'].append('CONTROL_NUMERICAL_DIFFERENCE_REQUIRES_REVIEW')
+    return rec
+
+
+def main(argv=None):
+    p=argparse.ArgumentParser(description=__doc__)
+    p.add_argument('--stage',required=True,choices=['controls','prepare','optimize','hessian','analyze']);p.add_argument('--output',required=True,type=Path)
+    p.add_argument('--source-point',type=Path);p.add_argument('--xyz',type=Path);p.add_argument('--geometry',type=Path)
+    p.add_argument('--fallback-geometry',type=Path,action='append')
+    p.add_argument('--step',type=float);p.add_argument('--hessians',nargs='+');p.add_argument('--grid-level',type=int,default=3)
+    p.add_argument('--conv-tol',type=float,default=1e-10);p.add_argument('--conv-grad',type=float,default=1e-7);p.add_argument('--threads',type=int,default=2)
+    args=p.parse_args(argv);args.output=args.output.resolve();args.output.mkdir(parents=True,exist_ok=True)
+    if args.threads not in (1,2) or args.grid_level not in range(1,10) or not (0<args.conv_tol<1 and 0<args.conv_grad<1):p.error('Invalid resource/method arguments')
+    from pyscf import lib
+    lib.num_threads(args.threads);cfg=settings(args)
+    try:
+        rec={'controls':stage_controls,'prepare':stage_prepare,'optimize':stage_optimize,'hessian':stage_hessian,'analyze':stage_analyze}[args.stage](args,cfg)
+        rec.update(threads=args.threads,pyscf_version=importlib.metadata.version('pyscf'));save(args.output/'result.json',rec)
+        return 0
+    except Exception as error:
+        rec=result('DATA_UNAVAILABLE',cfg);rec.update(error_type=type(error).__name__,error=str(error),traceback=traceback.format_exc());save(args.output/'result.json',rec);return 2
+
+
+if __name__=='__main__':sys.exit(main())

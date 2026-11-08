@@ -1,0 +1,836 @@
+{
+  "schema": "research4-continuous-execution-config-v3",
+  "created_at_utc": "2026-11-08T13:51:04.918249+00:00",
+  "run_dir": "/workspace/research4/reports/pyscf-continuous-20261108-v3",
+  "total_cpu_seconds": 80000,
+  "prior_charged_cpu_seconds": 9678.939876,
+  "original_grant_cpu_seconds": 90000,
+  "maximum_wall_seconds": 604800,
+  "checkpoint_interval_seconds": 900,
+  "jobs": [
+    {
+      "id": "water-diagnostics",
+      "argv": [
+        "/workspace/research4/.venv-pyscf-90000/bin/python",
+        "-B",
+        "/workspace/research4/scripts/pyscf_continuous_science_20261108_v3.py",
+        "--stage",
+        "controls",
+        "--output",
+        "{output}",
+        "--threads",
+        "2",
+        "--grid-level",
+        "3",
+        "--conv-tol",
+        "1e-10",
+        "--conv-grad",
+        "1e-7"
+      ],
+      "max_attempts": 2,
+      "threads": 2,
+      "success_statuses": [
+        "CONTROLS_COMPUTED"
+      ]
+    },
+    {
+      "id": "acid-g3-prepare",
+      "argv": [
+        "/workspace/research4/.venv-pyscf-90000/bin/python",
+        "-B",
+        "/workspace/research4/scripts/pyscf_continuous_science_20261108_v3.py",
+        "--stage",
+        "prepare",
+        "--output",
+        "{output}",
+        "--threads",
+        "2",
+        "--grid-level",
+        "3",
+        "--conv-tol",
+        "1e-10",
+        "--conv-grad",
+        "1e-7",
+        "--source-point",
+        "/workspace/research4/reports/pyscf-autonomous-90000-20261108/newton-recovery-v2/jobs/acid-optimize/optimization_steps/step-006/result.json"
+      ],
+      "max_attempts": 2,
+      "threads": 2,
+      "success_statuses": [
+        "GEOMETRY_AVAILABLE"
+      ]
+    },
+    {
+      "id": "acid-g3-optimize",
+      "argv": [
+        "/workspace/research4/.venv-pyscf-90000/bin/python",
+        "-B",
+        "/workspace/research4/scripts/pyscf_continuous_science_20261108_v3.py",
+        "--stage",
+        "optimize",
+        "--output",
+        "{output}",
+        "--threads",
+        "2",
+        "--grid-level",
+        "3",
+        "--conv-tol",
+        "1e-10",
+        "--conv-grad",
+        "1e-7",
+        "--source-point",
+        "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/acid-g3-prepare/result.json"
+      ],
+      "max_attempts": 2,
+      "threads": 2,
+      "success_statuses": [
+        "GEOMETRY_AVAILABLE"
+      ]
+    },
+    {
+      "id": "acid-g3-h001",
+      "argv": [
+        "/workspace/research4/.venv-pyscf-90000/bin/python",
+        "-B",
+        "/workspace/research4/scripts/pyscf_continuous_science_20261108_v3.py",
+        "--stage",
+        "hessian",
+        "--output",
+        "{output}",
+        "--threads",
+        "2",
+        "--grid-level",
+        "3",
+        "--conv-tol",
+        "1e-10",
+        "--conv-grad",
+        "1e-7",
+        "--geometry",
+        "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/acid-g3-optimize/result.json",
+        "--step",
+        "0.001",
+        "--fallback-geometry",
+        "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/acid-g3-prepare/result.json"
+      ],
+      "max_attempts": 2,
+      "threads": 2,
+      "success_statuses": [
+        "HESSIAN_COMPUTED",
+        "HESSIAN_PARTIAL"
+      ]
+    },
+    {
+      "id": "acid-g3-h0005",
+      "argv": [
+        "/workspace/research4/.venv-pyscf-90000/bin/python",
+        "-B",
+        "/workspace/research4/scripts/pyscf_continuous_science_20261108_v3.py",
+        "--stage",
+        "hessian",
+        "--output",
+        "{output}",
+        "--threads",
+        "2",
+        "--grid-level",
+        "3",
+        "--conv-tol",
+        "1e-10",
+        "--conv-grad",
+        "1e-7",
+        "--geometry",
+        "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/acid-g3-optimize/result.json",
+        "--step",
+        "0.0005",
+        "--fallback-geometry",
+        "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/acid-g3-prepare/result.json"
+      ],
+      "max_attempts": 2,
+      "threads": 2,
+      "success_statuses": [
+        "HESSIAN_COMPUTED",
+        "HESSIAN_PARTIAL"
+      ]
+    },
+    {
+      "id": "acid-g3-analysis",
+      "argv": [
+        "/workspace/research4/.venv-pyscf-90000/bin/python",
+        "-B",
+        "/workspace/research4/scripts/pyscf_continuous_science_20261108_v3.py",
+        "--stage",
+        "analyze",
+        "--output",
+        "{output}",
+        "--threads",
+        "2",
+        "--grid-level",
+        "3",
+        "--conv-tol",
+        "1e-10",
+        "--conv-grad",
+        "1e-7",
+        "--hessians",
+        "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/acid-g3-h001/result.json",
+        "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/acid-g3-h0005/result.json"
+      ],
+      "max_attempts": 2,
+      "threads": 2,
+      "success_statuses": [
+        "ANALYSIS_COMPUTED",
+        "ANALYSIS_PARTIAL"
+      ]
+    },
+    {
+      "id": "caly-g3-prepare",
+      "argv": [
+        "/workspace/research4/.venv-pyscf-90000/bin/python",
+        "-B",
+        "/workspace/research4/scripts/pyscf_continuous_science_20261108_v3.py",
+        "--stage",
+        "prepare",
+        "--output",
+        "{output}",
+        "--threads",
+        "2",
+        "--grid-level",
+        "3",
+        "--conv-tol",
+        "1e-10",
+        "--conv-grad",
+        "1e-7",
+        "--xyz",
+        "/workspace/research4/data/research/pyscf_continuous_20261108/inputs/calycosin.xyz"
+      ],
+      "max_attempts": 2,
+      "threads": 2,
+      "success_statuses": [
+        "GEOMETRY_AVAILABLE"
+      ]
+    },
+    {
+      "id": "caly-g3-optimize",
+      "argv": [
+        "/workspace/research4/.venv-pyscf-90000/bin/python",
+        "-B",
+        "/workspace/research4/scripts/pyscf_continuous_science_20261108_v3.py",
+        "--stage",
+        "optimize",
+        "--output",
+        "{output}",
+        "--threads",
+        "2",
+        "--grid-level",
+        "3",
+        "--conv-tol",
+        "1e-10",
+        "--conv-grad",
+        "1e-7",
+        "--source-point",
+        "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/caly-g3-prepare/result.json"
+      ],
+      "max_attempts": 2,
+      "threads": 2,
+      "success_statuses": [
+        "GEOMETRY_AVAILABLE"
+      ]
+    },
+    {
+      "id": "caly-g3-h001",
+      "argv": [
+        "/workspace/research4/.venv-pyscf-90000/bin/python",
+        "-B",
+        "/workspace/research4/scripts/pyscf_continuous_science_20261108_v3.py",
+        "--stage",
+        "hessian",
+        "--output",
+        "{output}",
+        "--threads",
+        "2",
+        "--grid-level",
+        "3",
+        "--conv-tol",
+        "1e-10",
+        "--conv-grad",
+        "1e-7",
+        "--geometry",
+        "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/caly-g3-optimize/result.json",
+        "--step",
+        "0.001",
+        "--fallback-geometry",
+        "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/caly-g3-prepare/result.json"
+      ],
+      "max_attempts": 2,
+      "threads": 2,
+      "success_statuses": [
+        "HESSIAN_COMPUTED",
+        "HESSIAN_PARTIAL"
+      ]
+    },
+    {
+      "id": "caly-g3-h0005",
+      "argv": [
+        "/workspace/research4/.venv-pyscf-90000/bin/python",
+        "-B",
+        "/workspace/research4/scripts/pyscf_continuous_science_20261108_v3.py",
+        "--stage",
+        "hessian",
+        "--output",
+        "{output}",
+        "--threads",
+        "2",
+        "--grid-level",
+        "3",
+        "--conv-tol",
+        "1e-10",
+        "--conv-grad",
+        "1e-7",
+        "--geometry",
+        "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/caly-g3-optimize/result.json",
+        "--step",
+        "0.0005",
+        "--fallback-geometry",
+        "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/caly-g3-prepare/result.json"
+      ],
+      "max_attempts": 2,
+      "threads": 2,
+      "success_statuses": [
+        "HESSIAN_COMPUTED",
+        "HESSIAN_PARTIAL"
+      ]
+    },
+    {
+      "id": "caly-g3-analysis",
+      "argv": [
+        "/workspace/research4/.venv-pyscf-90000/bin/python",
+        "-B",
+        "/workspace/research4/scripts/pyscf_continuous_science_20261108_v3.py",
+        "--stage",
+        "analyze",
+        "--output",
+        "{output}",
+        "--threads",
+        "2",
+        "--grid-level",
+        "3",
+        "--conv-tol",
+        "1e-10",
+        "--conv-grad",
+        "1e-7",
+        "--hessians",
+        "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/caly-g3-h001/result.json",
+        "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/caly-g3-h0005/result.json"
+      ],
+      "max_attempts": 2,
+      "threads": 2,
+      "success_statuses": [
+        "ANALYSIS_COMPUTED",
+        "ANALYSIS_PARTIAL"
+      ]
+    },
+    {
+      "id": "acid-g5-optimize",
+      "argv": [
+        "/workspace/research4/.venv-pyscf-90000/bin/python",
+        "-B",
+        "/workspace/research4/scripts/pyscf_continuous_science_20261108_v3.py",
+        "--stage",
+        "optimize",
+        "--output",
+        "{output}",
+        "--threads",
+        "2",
+        "--grid-level",
+        "5",
+        "--conv-tol",
+        "1e-10",
+        "--conv-grad",
+        "1e-7",
+        "--source-point",
+        "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/acid-g3-optimize/result.json"
+      ],
+      "max_attempts": 2,
+      "threads": 2,
+      "success_statuses": [
+        "GEOMETRY_AVAILABLE"
+      ]
+    },
+    {
+      "id": "acid-g5-h001",
+      "argv": [
+        "/workspace/research4/.venv-pyscf-90000/bin/python",
+        "-B",
+        "/workspace/research4/scripts/pyscf_continuous_science_20261108_v3.py",
+        "--stage",
+        "hessian",
+        "--output",
+        "{output}",
+        "--threads",
+        "2",
+        "--grid-level",
+        "5",
+        "--conv-tol",
+        "1e-10",
+        "--conv-grad",
+        "1e-7",
+        "--geometry",
+        "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/acid-g5-optimize/result.json",
+        "--step",
+        "0.001",
+        "--fallback-geometry",
+        "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/acid-g3-optimize/result.json",
+        "--fallback-geometry",
+        "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/acid-g3-prepare/result.json"
+      ],
+      "max_attempts": 2,
+      "threads": 2,
+      "success_statuses": [
+        "HESSIAN_COMPUTED",
+        "HESSIAN_PARTIAL"
+      ]
+    },
+    {
+      "id": "acid-g5-h0005",
+      "argv": [
+        "/workspace/research4/.venv-pyscf-90000/bin/python",
+        "-B",
+        "/workspace/research4/scripts/pyscf_continuous_science_20261108_v3.py",
+        "--stage",
+        "hessian",
+        "--output",
+        "{output}",
+        "--threads",
+        "2",
+        "--grid-level",
+        "5",
+        "--conv-tol",
+        "1e-10",
+        "--conv-grad",
+        "1e-7",
+        "--geometry",
+        "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/acid-g5-optimize/result.json",
+        "--step",
+        "0.0005",
+        "--fallback-geometry",
+        "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/acid-g3-optimize/result.json",
+        "--fallback-geometry",
+        "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/acid-g3-prepare/result.json"
+      ],
+      "max_attempts": 2,
+      "threads": 2,
+      "success_statuses": [
+        "HESSIAN_COMPUTED",
+        "HESSIAN_PARTIAL"
+      ]
+    },
+    {
+      "id": "acid-g5-analysis",
+      "argv": [
+        "/workspace/research4/.venv-pyscf-90000/bin/python",
+        "-B",
+        "/workspace/research4/scripts/pyscf_continuous_science_20261108_v3.py",
+        "--stage",
+        "analyze",
+        "--output",
+        "{output}",
+        "--threads",
+        "2",
+        "--grid-level",
+        "5",
+        "--conv-tol",
+        "1e-10",
+        "--conv-grad",
+        "1e-7",
+        "--hessians",
+        "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/acid-g5-h001/result.json",
+        "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/acid-g5-h0005/result.json"
+      ],
+      "max_attempts": 2,
+      "threads": 2,
+      "success_statuses": [
+        "ANALYSIS_COMPUTED",
+        "ANALYSIS_PARTIAL"
+      ]
+    },
+    {
+      "id": "acid-g3-h00025",
+      "argv": [
+        "/workspace/research4/.venv-pyscf-90000/bin/python",
+        "-B",
+        "/workspace/research4/scripts/pyscf_continuous_science_20261108_v3.py",
+        "--stage",
+        "hessian",
+        "--output",
+        "{output}",
+        "--threads",
+        "2",
+        "--grid-level",
+        "3",
+        "--conv-tol",
+        "1e-10",
+        "--conv-grad",
+        "1e-7",
+        "--geometry",
+        "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/acid-g3-optimize/result.json",
+        "--step",
+        "0.00025",
+        "--fallback-geometry",
+        "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/acid-g3-prepare/result.json"
+      ],
+      "max_attempts": 2,
+      "threads": 2,
+      "success_statuses": [
+        "HESSIAN_COMPUTED",
+        "HESSIAN_PARTIAL"
+      ]
+    },
+    {
+      "id": "acid-g3-fine-analysis",
+      "argv": [
+        "/workspace/research4/.venv-pyscf-90000/bin/python",
+        "-B",
+        "/workspace/research4/scripts/pyscf_continuous_science_20261108_v3.py",
+        "--stage",
+        "analyze",
+        "--output",
+        "{output}",
+        "--threads",
+        "2",
+        "--grid-level",
+        "3",
+        "--conv-tol",
+        "1e-10",
+        "--conv-grad",
+        "1e-7",
+        "--hessians",
+        "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/acid-g3-h0005/result.json",
+        "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/acid-g3-h00025/result.json"
+      ],
+      "max_attempts": 2,
+      "threads": 2,
+      "success_statuses": [
+        "ANALYSIS_COMPUTED",
+        "ANALYSIS_PARTIAL"
+      ]
+    },
+    {
+      "id": "caly-g3-h00025",
+      "argv": [
+        "/workspace/research4/.venv-pyscf-90000/bin/python",
+        "-B",
+        "/workspace/research4/scripts/pyscf_continuous_science_20261108_v3.py",
+        "--stage",
+        "hessian",
+        "--output",
+        "{output}",
+        "--threads",
+        "2",
+        "--grid-level",
+        "3",
+        "--conv-tol",
+        "1e-10",
+        "--conv-grad",
+        "1e-7",
+        "--geometry",
+        "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/caly-g3-optimize/result.json",
+        "--step",
+        "0.00025",
+        "--fallback-geometry",
+        "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/caly-g3-prepare/result.json"
+      ],
+      "max_attempts": 2,
+      "threads": 2,
+      "success_statuses": [
+        "HESSIAN_COMPUTED",
+        "HESSIAN_PARTIAL"
+      ]
+    },
+    {
+      "id": "caly-g3-fine-analysis",
+      "argv": [
+        "/workspace/research4/.venv-pyscf-90000/bin/python",
+        "-B",
+        "/workspace/research4/scripts/pyscf_continuous_science_20261108_v3.py",
+        "--stage",
+        "analyze",
+        "--output",
+        "{output}",
+        "--threads",
+        "2",
+        "--grid-level",
+        "3",
+        "--conv-tol",
+        "1e-10",
+        "--conv-grad",
+        "1e-7",
+        "--hessians",
+        "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/caly-g3-h0005/result.json",
+        "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/caly-g3-h00025/result.json"
+      ],
+      "max_attempts": 2,
+      "threads": 2,
+      "success_statuses": [
+        "ANALYSIS_COMPUTED",
+        "ANALYSIS_PARTIAL"
+      ]
+    },
+    {
+      "id": "caly-g5-optimize",
+      "argv": [
+        "/workspace/research4/.venv-pyscf-90000/bin/python",
+        "-B",
+        "/workspace/research4/scripts/pyscf_continuous_science_20261108_v3.py",
+        "--stage",
+        "optimize",
+        "--output",
+        "{output}",
+        "--threads",
+        "2",
+        "--grid-level",
+        "5",
+        "--conv-tol",
+        "1e-10",
+        "--conv-grad",
+        "1e-7",
+        "--source-point",
+        "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/caly-g3-optimize/result.json"
+      ],
+      "max_attempts": 2,
+      "threads": 2,
+      "success_statuses": [
+        "GEOMETRY_AVAILABLE"
+      ]
+    },
+    {
+      "id": "caly-g5-h001",
+      "argv": [
+        "/workspace/research4/.venv-pyscf-90000/bin/python",
+        "-B",
+        "/workspace/research4/scripts/pyscf_continuous_science_20261108_v3.py",
+        "--stage",
+        "hessian",
+        "--output",
+        "{output}",
+        "--threads",
+        "2",
+        "--grid-level",
+        "5",
+        "--conv-tol",
+        "1e-10",
+        "--conv-grad",
+        "1e-7",
+        "--geometry",
+        "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/caly-g5-optimize/result.json",
+        "--step",
+        "0.001",
+        "--fallback-geometry",
+        "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/caly-g3-optimize/result.json",
+        "--fallback-geometry",
+        "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/caly-g3-prepare/result.json"
+      ],
+      "max_attempts": 2,
+      "threads": 2,
+      "success_statuses": [
+        "HESSIAN_COMPUTED",
+        "HESSIAN_PARTIAL"
+      ]
+    },
+    {
+      "id": "caly-g5-h0005",
+      "argv": [
+        "/workspace/research4/.venv-pyscf-90000/bin/python",
+        "-B",
+        "/workspace/research4/scripts/pyscf_continuous_science_20261108_v3.py",
+        "--stage",
+        "hessian",
+        "--output",
+        "{output}",
+        "--threads",
+        "2",
+        "--grid-level",
+        "5",
+        "--conv-tol",
+        "1e-10",
+        "--conv-grad",
+        "1e-7",
+        "--geometry",
+        "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/caly-g5-optimize/result.json",
+        "--step",
+        "0.0005",
+        "--fallback-geometry",
+        "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/caly-g3-optimize/result.json",
+        "--fallback-geometry",
+        "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/caly-g3-prepare/result.json"
+      ],
+      "max_attempts": 2,
+      "threads": 2,
+      "success_statuses": [
+        "HESSIAN_COMPUTED",
+        "HESSIAN_PARTIAL"
+      ]
+    },
+    {
+      "id": "caly-g5-analysis",
+      "argv": [
+        "/workspace/research4/.venv-pyscf-90000/bin/python",
+        "-B",
+        "/workspace/research4/scripts/pyscf_continuous_science_20261108_v3.py",
+        "--stage",
+        "analyze",
+        "--output",
+        "{output}",
+        "--threads",
+        "2",
+        "--grid-level",
+        "5",
+        "--conv-tol",
+        "1e-10",
+        "--conv-grad",
+        "1e-7",
+        "--hessians",
+        "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/caly-g5-h001/result.json",
+        "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/caly-g5-h0005/result.json"
+      ],
+      "max_attempts": 2,
+      "threads": 2,
+      "success_statuses": [
+        "ANALYSIS_COMPUTED",
+        "ANALYSIS_PARTIAL"
+      ]
+    }
+  ],
+  "frozen_refs": [
+    {
+      "path": "scripts/run_pyscf_continuous_20261108_v3.py",
+      "sha256": "8b35b2d85bea10bdf2e87b20e31f06596b710e1f318ff3b7d7d7769e05934555"
+    },
+    {
+      "path": "scripts/pyscf_continuous_science_20261108_v3.py",
+      "sha256": "36b7cb6f36f0be92436bd230473c8483f5bfbb0f255a2d8be3472591761ab9f5"
+    },
+    {
+      "path": "tests/test_pyscf_continuous_budget_v3.py",
+      "sha256": "aef373248e0c1288fdf5590860345d9a1601918ef962c5e57610ab731a45156c"
+    },
+    {
+      "path": "tests/test_pyscf_continuous_science_v3.py",
+      "sha256": "6a30639a858e13b006ef08c49237f0a2bf937a724baed32f11058eae3f9d4a13"
+    },
+    {
+      "path": "docs/PYSCF_CONTINUOUS_EXECUTION_20261108.md",
+      "sha256": "1023a0aba24c7aa6316d43e27cb32dde8933bad2bfa8a008125c97e6637ecbf5"
+    },
+    {
+      "path": "AGENTS.md",
+      "sha256": "dc79b19ea12927e5bb7d032ce41a9ae5decc20f0f55ac627a12f9698b86bacf9"
+    },
+    {
+      "path": "reports/pyscf-continuous-20261108-v3/authorization_and_budget.json",
+      "sha256": "02e9cac8e004cc874f06382837bd442af3cf9e1a7ba6584c830fb6a3d719e359"
+    },
+    {
+      "path": "reports/pyscf-autonomous-90000-20261108/ledger.json",
+      "sha256": "6b72b561460278d574bc6f2d490a372e76ba8ed8ab1eeb3f32ec37f39f0333f5"
+    },
+    {
+      "path": "reports/pyscf-autonomous-90000-20261108/newton-recovery-v2/ledger.json",
+      "sha256": "4b91dd004e1a70aed1a445c0d7d5e03e8d4ae1b790d5af72997b683105522865"
+    },
+    {
+      "path": "data/research/pyscf_continuous_20261108/inputs/acid_latest.json",
+      "sha256": "ea703bb705d8314e3b0da06609cfebe25953e5132dd792e7826e8f5985ae37d7"
+    },
+    {
+      "path": "data/research/pyscf_continuous_20261108/inputs/acid_latest.xyz",
+      "sha256": "e1dba27de3c6cfbf0a958466c2a57dbf188df8bdc3e91c20552552658001f377"
+    },
+    {
+      "path": "data/research/pyscf_continuous_20261108/inputs/acid_latest_coordinates_bohr.npy",
+      "sha256": "4588f20d066812b684711aeb1a72277daa2a2e94c9fd3463d50f80dc778d9c73"
+    },
+    {
+      "path": "data/research/pyscf_continuous_20261108/inputs/acid_latest_density.npy",
+      "sha256": "8e3ff7d321f13988d6469ed7c2727b6bc52df0ccdb60c041a149bb91c0d00c71"
+    },
+    {
+      "path": "data/research/pyscf_continuous_20261108/inputs/acid_latest_gradient.npy",
+      "sha256": "608f424f9431091697e6406626643aea2dccb5c3bb43d18c03ec6942cdc71b98"
+    },
+    {
+      "path": "data/research/pyscf_continuous_20261108/inputs/acid_source_point_result.json",
+      "sha256": "2efc07ff17918d97c4954f3769ecda1dd73612dcf3f50f828a5f08c0083111f2"
+    },
+    {
+      "path": "data/research/pyscf_continuous_20261108/inputs/calycosin.json",
+      "sha256": "cadced82f9a28a3a9dcfc8b66ac16e38601053a06bcef8757ee8049c11f81e73"
+    },
+    {
+      "path": "data/research/pyscf_continuous_20261108/inputs/calycosin.xyz",
+      "sha256": "f01b69779befef65ccc194422fc94dd2c5a1be7687270ba59c9d3422034f0b82"
+    },
+    {
+      "path": "data/research/pyscf_continuous_20261108/inputs/calycosin_historical_frequency_geometry_bohr.npy",
+      "sha256": "32b66200059e5e0b296e7ca2b8f8f54615d55ef5435c579cff3ab76f49e236e1"
+    },
+    {
+      "path": "data/research/pyscf_continuous_20261108/inputs/calycosin_historical_optimization_result.json",
+      "sha256": "9da5490ac2096095dbe2d1dd04835637cf181b85915e1a514929765f4ea4476d"
+    },
+    {
+      "path": "data/research/pyscf_continuous_20261108/inputs/calycosin_historical_optimized_geometry.json",
+      "sha256": "4e615524c8b6418c1ae33e840657ab8f740376cd80eadfffeb51c3133d282e9b"
+    },
+    {
+      "path": "data/research/pyscf_continuous_20261108/inputs/calycosin_supplied_structure.sdf",
+      "sha256": "1bf68cb55ed29ac48017aa13b967b12922581290e89667efbd69bd42d9ac480f"
+    },
+    {
+      "path": "data/research/pyscf_continuous_20261108/inputs/historical_cases.json",
+      "sha256": "84f306a6e09a6b162650988d8ba81a34529f58a21accd53626d87e923613d893"
+    },
+    {
+      "path": "data/research/pyscf_continuous_20261108/inputs/historical_graph_validation.json",
+      "sha256": "321bb9d611757e52c4ca649aab86c94c2397850060f2c349b3c3bdfddf31ffac"
+    },
+    {
+      "path": "data/research/pyscf_continuous_20261108/inputs/historical_source_evidence.json",
+      "sha256": "89d96ab55c6dfe9886a2274abf021db91f484ca589f0d2d0883440ec0971242b"
+    },
+    {
+      "path": "data/research/pyscf_continuous_20261108/inputs/prior_closed_runs.json",
+      "sha256": "fbdeb813c0838fa738bd0d753c19acbc3fbfa9784ed15547b9daa84df15d7655"
+    },
+    {
+      "path": "data/research/pyscf_continuous_20261108/inputs/source_receipt.json",
+      "sha256": "cb10b7720ebc413072bb1af014eb9cf096e460a69b532d740b570da4dfa3abe2"
+    },
+    {
+      "path": "reports/pyscf-autonomous-90000-20261108/newton-recovery-v2/jobs/acid-optimize/optimization_steps/step-006/result.json",
+      "sha256": "2efc07ff17918d97c4954f3769ecda1dd73612dcf3f50f828a5f08c0083111f2"
+    },
+    {
+      "path": "reports/pyscf-autonomous-90000-20261108/newton-recovery-v2/jobs/acid-optimize/optimization_steps/step-006/density.npy",
+      "sha256": "8e3ff7d321f13988d6469ed7c2727b6bc52df0ccdb60c041a149bb91c0d00c71"
+    },
+    {
+      "path": "reports/pyscf-autonomous-90000-20261108/newton-recovery-v2/jobs/acid-optimize/optimization_steps/step-006/coordinates_bohr.npy",
+      "sha256": "4588f20d066812b684711aeb1a72277daa2a2e94c9fd3463d50f80dc778d9c73"
+    },
+    {
+      "path": "reports/pyscf-autonomous-90000-20261108/newton-recovery-v2/jobs/acid-optimize/optimization_steps/step-006/gradient.npy",
+      "sha256": "608f424f9431091697e6406626643aea2dccb5c3bb43d18c03ec6942cdc71b98"
+    }
+  ],
+  "git_return": {
+    "enabled": true,
+    "branch": "research/pyscf-autonomous-90000-20261108",
+    "source_files": [
+      "scripts/run_pyscf_continuous_20261108_v3.py",
+      "scripts/pyscf_continuous_science_20261108_v3.py",
+      "tests/test_pyscf_continuous_budget_v3.py",
+      "tests/test_pyscf_continuous_science_v3.py",
+      "docs/PYSCF_CONTINUOUS_EXECUTION_20261108.md"
+    ]
+  },
+  "quality_policy": "Scientific warnings and legacy threshold failures are labels only. Continue usable finite results, recover failed points, use real geometry fallbacks, and run independent queued work. Never manufacture data or relabel historical failures.",
+  "global_execution_stop_policy": "Original shared CPU grant exhausted, explicit STOP, process/resource containment failure, or all meaningful queued work completed. No scientific-quality cascade stop."
+}
