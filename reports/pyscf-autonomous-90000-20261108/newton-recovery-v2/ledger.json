@@ -7,7 +7,7 @@
   "preparation_cpu_seconds_reserved": 2000.0,
   "preparation_reservation_is_conservative_not_measured_CPU": true,
   "payload_cpu_seconds": 36.590320000000006,
-  "supervisor_cpu_seconds": 0.23836500000000171,
+  "supervisor_cpu_seconds": 13.304499999999997,
   "jobs": {
     "water-controls": {
       "status": "SUCCESS",
@@ -59,6 +59,57 @@
       "wall_seconds": 12.408446535999929,
       "result_status": "CONTROLS_PASSED",
       "result_sha256": "7d238bc3181b0c7a0acf42dcbbd2412df6c9cfbdc9c5421174019806daccf762"
+    },
+    "acid-optimize": {
+      "status": "RUNNING",
+      "started_at_utc": "2026-11-08T11:48:28.642444+00:00",
+      "argv": [
+        "/workspace/research4/.venv-pyscf-90000/bin/python",
+        "-B",
+        "/workspace/research4/scripts/pyscf_full_numerical_hessian_20261108_v2.py",
+        "--stage",
+        "optimize",
+        "--threads",
+        "2",
+        "--output",
+        "/workspace/research4/reports/pyscf-autonomous-90000-20261108/newton-recovery-v2/jobs/acid-optimize",
+        "--xyz",
+        "/workspace/research4/data/research/pyscf_autonomous_90000_20261108/inputs/protocatechuic_acid.xyz",
+        "--initial-density",
+        "/workspace/research4/reports/pyscf-autonomous-90000-20261108/jobs/acid-optimize/optimization_steps/step-000/density.npy",
+        "--initial-density-sha256",
+        "cc64f7a97e5c309e44d007c4d704a4b691d1486449d1cc720511cb3b45721b4e",
+        "--initial-density-source-result",
+        "/workspace/research4/reports/pyscf-autonomous-90000-20261108/jobs/acid-optimize/optimization_steps/step-000/result.json"
+      ],
+      "requested_cpu_seconds": 8000,
+      "sampled_cpu_seconds": 2011.6503260000002,
+      "output_directory": "/workspace/research4/reports/pyscf-autonomous-90000-20261108/newton-recovery-v2/jobs/acid-optimize",
+      "guardian_identity": {
+        "pid": 3267,
+        "ppid": 1,
+        "pgrp": 3267,
+        "sid": 3267,
+        "state": "R",
+        "start_ticks": 165094,
+        "uid": 1000,
+        "boot_id": "a518927f-14ba-467c-8e72-ac5d3ebbe429",
+        "cpu_seconds": 37.26,
+        "rss_bytes": 14548992
+      },
+      "worker_identity": {
+        "pid": 3301,
+        "ppid": 3267,
+        "pgrp": 3301,
+        "sid": 3301,
+        "state": "R",
+        "start_ticks": 166591,
+        "uid": 1000,
+        "boot_id": "a518927f-14ba-467c-8e72-ac5d3ebbe429",
+        "cpu_seconds": 0.0,
+        "rss_bytes": 0
+      },
+      "peak_rss_bytes": 5513555968
     }
   },
   "status": "RUNNING",
@@ -75,8 +126,15 @@
     "rss_bytes": 13766656
   },
   "detachment_survives_host_shutdown": false,
-  "updated_at_utc": "2026-11-08T11:48:26.136573+00:00",
-  "consumed_cpu_seconds": 2036.828689,
-  "actual_observed_cpu_seconds_excluding_preparation_reservation": 36.82868899999994,
-  "remaining_cpu_seconds": 84963.171311
+  "updated_at_utc": "2026-11-08T12:03:24.360354+00:00",
+  "consumed_cpu_seconds": 4061.545148,
+  "actual_observed_cpu_seconds_excluding_preparation_reservation": 2061.545148,
+  "remaining_cpu_seconds": 82938.454852,
+  "git_returns": [
+    {
+      "status": "PUSH_REMOTE_HEAD_VERIFIED",
+      "commit": "f809a4a78d087dd8a2ea24948aa8fd7b4699e81e",
+      "at_utc": "2026-11-08T11:48:28.633473+00:00"
+    }
+  ]
 }
