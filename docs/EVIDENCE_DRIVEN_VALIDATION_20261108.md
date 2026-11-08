@@ -1,5 +1,17 @@
 # Research4: evidence-led validation under a new 90,000 CPU-second grant
 
+Execution update: the current continuation uses
+`data/research/evidence_validation_20261108_v4/`, under the **same** authorization
+and deadline. The V3 pilot completed all10 core families and LDA, then the
+scikit-learn1.8 MLP early-stopping score failed on string labels. Its failed
+attempt,51 completed stage models and actual CPU were preserved. The V4
+scientific source changes only MLP's internal source-label encoding to integers
+and maps predictions back to the unchanged original labels. A real small
+five-string-class early-stopping regression test covers this library behavior.
+The new outer ledger carries V3's22.199928 inner CPU seconds and0.328275
+controller CPU seconds; preparation is accumulated once. No grant is reset or
+expanded. V3 source, manifests and history remain unchanged.
+
 This new stage follows a read-only audit of all13 observed GitHub branches,
 including current corrected-species results and the parallel worker's later
 execution receipts. Its branch is

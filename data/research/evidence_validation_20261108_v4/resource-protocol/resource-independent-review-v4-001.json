@@ -1,0 +1,47 @@
+{
+  "schema": "research4-independent-resource-v4-carry-review-v1",
+  "status": "PASS_READONLY_CARRY_AND_SYNTHETIC_TESTS_NOT_ACTUAL_V4_LAUNCH",
+  "at_utc": "2026-11-08T09:21:58.443916+00:00",
+  "reviewer": "nextstage_resource_queue/resource_independent_review",
+  "source_sha256": "b73793d118a12083e6d8f8dd01a1925ea14d48fccb591c199c1d9a042225fd3e",
+  "tests_sha256": "746601d4405b5071409739c34e6c7ee2f400f9318339a718c4bfd0d31aa16c13",
+  "carry_ref": {
+    "path": "/workspace/research4-nextstage/data/research/evidence_validation_20261108_v4/prior_execution_carry.json",
+    "sha256": "61070af09394315943f9ecf736b11efe2c65634e6e2b7313a17decf9806a4019"
+  },
+  "tests": {
+    "command": "python -B -m unittest discover -s tests -p test_research4_evidence_resources_v4_stdlib_20261108.py -q",
+    "exit_code": 0,
+    "passed": 17,
+    "reported_seconds": 0.05,
+    "fake_children_only": true
+  },
+  "actual_readonly_prior_execution_check": "PASS against real copied closed V3 records, no launch",
+  "actual_cost_preserved": {
+    "controller_spent_cpu_seconds": 0.328275,
+    "inner_actual_spent_cpu_seconds": 22.199928,
+    "wall_seconds": 170.40760327799944,
+    "deadline_utc": "2026-11-10T08:44:13.376487+00:00"
+  },
+  "verified_invariants": [
+    "all3 copied prior refs and original_state hashes match actual files",
+    "prior outer PAUSED_RESOURCE activeNone closure_confirmedTrue and inner paused activeNone",
+    "prior config hash, grant allocations, authorization observation and deadline remain bound",
+    "finite_cost rejects missing,bool,negative,NaN and infinity",
+    "freshV4 cumulative bases are exact prior costs; liveV4 resume uses own totals without adding carry twice",
+    "fresh/live resource checks cannot refund carried controller,inner,wall or preparation",
+    "V3 matching birth/boot identities must be absent or zombie before carrying the same grant",
+    "cumulative grant remains88000inner+1000prep+1000controller; original48h/deadline not extended",
+    "failed scientific V3 result is retained as real cost; no claim of task completion"
+  ],
+  "remaining_blockers": [],
+  "limitations": [
+    "V4 inner state measures V4-local supervisor CPU; same-grant cumulative progress must use the V4 outer ledger with carry.",
+    "This review certifies code and prior-cost checks, not an actual V4 process launch or scientific result."
+  ],
+  "actual_background_launches": 0,
+  "actual_model_fits": 0,
+  "actual_signals_or_cache_advice": 0,
+  "git_operations": 0,
+  "v3_source_or_original_ledger_modified": false
+}

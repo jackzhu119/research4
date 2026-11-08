@@ -1,0 +1,49 @@
+{"event": "FAMILY_COMPLETE", "family": "alpha_raw20", "primaryK": 245, "cpu_seconds": 1.171210046}
+{"event": "FAMILY_COMPLETE", "family": "alpha_snv20", "primaryK": 245, "cpu_seconds": 2.300547583}
+{"event": "FAMILY_COMPLETE", "family": "n_raw20", "primaryK": 62, "cpu_seconds": 3.467917786}
+{"event": "FAMILY_COMPLETE", "family": "n_snv20", "primaryK": 245, "cpu_seconds": 4.654492876}
+{"event": "FAMILY_COMPLETE", "family": "concat_both_snv20", "primaryK": 123, "cpu_seconds": 5.910478033}
+{"event": "FAMILY_COMPLETE", "family": "concat_nraw_asnv20", "primaryK": 245, "cpu_seconds": 7.355888229}
+{"event": "FAMILY_COMPLETE", "family": "block_half_nraw_asnv20", "primaryK": 184, "cpu_seconds": 8.808431461}
+{"event": "FAMILY_COMPLETE", "family": "weighted_concat_nraw_asnv20", "primaryK": 245, "cpu_seconds": 11.537723901}
+{"event": "FAMILY_COMPLETE", "family": "alpha_snv100", "primaryK": 245, "cpu_seconds": 13.643885763}
+{"event": "FAMILY_COMPLETE", "family": "alpha_snv_stability5x20", "primaryK": 245, "cpu_seconds": 15.829921635000002}
+Traceback (most recent call last):
+  File "/workspace/research4-nextstage/scripts/research4_matched_feature_validation_20261108.py", line 478, in <module>
+    if __name__=='__main__':main()
+                            ^^^^^^
+  File "/workspace/research4-nextstage/scripts/research4_matched_feature_validation_20261108.py", line 475, in main
+    with threadpool_limits(limits=1):run(args)
+                                     ^^^^^^^^^
+  File "/workspace/research4-nextstage/scripts/research4_matched_feature_validation_20261108.py", line 421, in run
+    row=checkpoint(out/'checkpoints'/family/('inner%d-%s.json'%(inner,object_sha(config)[:20])),cid,produce)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/research4-nextstage/scripts/research4_matched_feature_validation_20261108.py", line 122, in checkpoint
+    value=produce();value.update(identity=identity,actual_cpu_seconds=time.process_time()-started_cpu,
+          ^^^^^^^^^
+  File "/workspace/research4-nextstage/scripts/research4_matched_feature_validation_20261108.py", line 417, in produce
+    pred,bundle=fit_auxiliary(config,alpha[fit],y[fit],alpha[query],axis)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/research4-nextstage/scripts/research4_matched_feature_validation_20261108.py", line 312, in fit_auxiliary
+    warnings.simplefilter('always',ConvergenceWarning);model.fit(z,y)
+                                                       ^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/sklearn/base.py", line 1336, in wrapper
+    return fit_method(estimator, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/sklearn/neural_network/_multilayer_perceptron.py", line 853, in fit
+    return self._fit(X, y, sample_weight=sample_weight, incremental=False)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/sklearn/neural_network/_multilayer_perceptron.py", line 512, in _fit
+    self._fit_stochastic(
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/sklearn/neural_network/_multilayer_perceptron.py", line 752, in _fit_stochastic
+    self._update_no_improvement_count(
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/sklearn/neural_network/_multilayer_perceptron.py", line 802, in _update_no_improvement_count
+    val_score = self._score(X, y, sample_weight=sample_weight)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/sklearn/neural_network/_multilayer_perceptron.py", line 1293, in _score
+    return super()._score_with_function(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/sklearn/neural_network/_multilayer_perceptron.py", line 868, in _score_with_function
+    if np.isnan(y_pred).any() or np.isinf(y_pred).any():
+       ^^^^^^^^^^^^^^^^
+TypeError: ufunc 'isnan' not supported for the input types, and the inputs could not be safely coerced to any supported types according to the casting rule ''safe''
