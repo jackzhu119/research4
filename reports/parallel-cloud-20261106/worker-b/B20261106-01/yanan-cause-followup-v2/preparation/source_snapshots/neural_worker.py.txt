@@ -1,0 +1,709 @@
+#!/usr/bin/env python3
+"""Finite TRAIN-only whole-source binary transfer jobs; no historical weights.
+
+Heavy numerical imports happen only after the actual supervisor resource proof.
+Only the data producer's verified TRAIN pack is accepted. All optimizer batches
+are audited locally, while compact predictions and fit receipts are returnable.
+"""
+from __future__ import annotations
+
+import argparse
+import ast
+from collections import Counter
+from datetime import datetime, timezone
+import gzip
+import hashlib
+import importlib.util
+import json
+import os
+from pathlib import Path
+import platform
+import re
+import resource
+import signal
+import sys
+import time
+import traceback
+
+SCHEMA = "research4-b-yanan-neural-result-v2"
+ROOT = next(p for p in Path(__file__).resolve().parents if (p / ".git").exists())
+CONTEXT_SCHEMA = "research4-b-yanan-resolved-context-v2"
+LEGACY_SHA = "4ec65e407c197d9f666c72e9f4a5d79eee0045f823787df9e5b22f57dc43e773"
+KINDS = ("枣仁", "酸枣仁", "黄芪", "天麻")
+TARGET_CLASSES = KINDS[:2]
+FOLDS = (("ZY01", "ZY03"), ("ZY02", "ZY04"), ("ZR02", "ZY05"),
+         ("ZR01", "ZY07"), ("ZR03", "ZY06"))
+PROFILE = {"width": 12, "blocks": 2, "dropout": .35, "residual": True,
+           "attention": False, "embedding": 16, "optimizer": "Adam",
+           "learning_rate": .0005, "weight_decay": .001,
+           "target_epochs": 96, "target_batch_size": 64,
+           "pretrain_batch_size_max": 32, "pretrain_batch_policy": "min(32, pool N); no replacement",
+           "target_sampling": "uniform randperm each epoch; no replacement",
+           "loss": "inverse-source-class-count weighted cross_entropy",
+           "batchnorm_reset_before_target": False,
+           "frozen_encoder": "eval; all parameters and buffers unchanged",
+           "axis": "alpha; linspace(.21,1.49,128); rowSNV ddof1 then source-only StandardScaler"}
+COUNTERS = {"new_fitting_entered": False, "actual_new_model_fit_calls_started": 0,
+            "actual_new_model_fits": 0, "new_training_entered": False,
+            "actual_train_calls_started": 0, "actual_train_calls_completed": 0}
+
+
+def require(ok, message):
+    if not ok:
+        raise ValueError(message)
+
+
+def utc():
+    return datetime.now(timezone.utc).isoformat()
+
+
+def sha(path):
+    h = hashlib.sha256()
+    with Path(path).open("rb") as handle:
+        for block in iter(lambda: handle.read(1024 * 1024), b""):
+            h.update(block)
+    return h.hexdigest()
+
+
+def objhash(value):
+    return hashlib.sha256(json.dumps(value, ensure_ascii=False, sort_keys=True,
+                                    separators=(",", ":"), allow_nan=False).encode()).hexdigest()
+
+
+def job_hash(value):
+    # Exact digest serialization used by the frozen supervisor's resolved context.
+    return hashlib.sha256(json.dumps(value, sort_keys=True, allow_nan=False).encode()).hexdigest()
+
+
+def local_path(value):
+    p = Path(value)
+    p = p if p.is_absolute() else ROOT / p
+    require(not any(parent.is_symlink() for parent in (p, *p.parents)), "Symlink paths are forbidden")
+    resolved = p.resolve()
+    require(resolved.is_relative_to(ROOT), "Path escapes authorized B repository")
+    return resolved
+
+
+def checked(ref):
+    require(isinstance(ref, dict) and set(("path", "sha256")) <= set(ref), "Hash-bound file ref required")
+    require(re.fullmatch(r"[0-9a-f]{64}", str(ref["sha256"])), "Frozen SHA256 required")
+    p = local_path(ref["path"])
+    require(p.is_file(), "Regular non-symlink file required")
+    require("bytes" not in ref or p.stat().st_size == int(ref["bytes"]), "File byte count differs")
+    require(sha(p) == ref["sha256"], "File SHA256 differs: " + str(p))
+    return p.resolve()
+
+
+def read(path, digest=None):
+    path = local_path(path)
+    if digest is not None:
+        require(sha(path) == digest, "JSON digest differs")
+    return json.loads(Path(path).read_text(encoding="utf-8"))
+
+
+def ref(path):
+    p = local_path(path)
+    return {"path": str(p.relative_to(ROOT)), "sha256": sha(p), "bytes": p.stat().st_size}
+
+
+def atomic_json(path, value):
+    p = Path(path)
+    temporary = p.with_name(p.name + ".tmp")
+    with temporary.open("w", encoding="utf-8") as h:
+        json.dump(value, h, ensure_ascii=False, separators=(",", ":"), allow_nan=False)
+        h.write("\n")
+        h.flush()
+        os.fsync(h.fileno())
+    os.replace(temporary, p)
+
+
+def import_file(path, name):
+    spec = importlib.util.spec_from_file_location(name, path)
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
+def nofork_metadata():
+    """Avoid platform.processor's uname subprocess before importing Torch/h5py."""
+    processor = os.uname().machine
+    for line in Path("/proc/cpuinfo").read_text(errors="replace").splitlines():
+        if line.startswith("model name") and ":" in line:
+            processor = line.split(":", 1)[1].strip()
+            break
+    platform.processor = lambda: processor
+    platform.uname()
+
+
+def nofork_libc_discovery():
+    """Bind threadpoolctl to actual loaded libc without ldconfig/find_library."""
+    import ctypes
+    import threadpoolctl
+    libc = ctypes.CDLL(None)
+    require(hasattr(libc, "dl_iterate_phdr"), "Current process libc lacks dl_iterate_phdr")
+    threadpoolctl.ThreadpoolController._system_libraries["libc"] = libc
+    module_path = Path(threadpoolctl.__file__).resolve()
+    return {"method": "ctypes.CDLL(None); real loaded dl_iterate_phdr",
+            "threadpoolctl_version": threadpoolctl.__version__,
+            "observed_runtime_module": {"path": str(module_path), "sha256": sha(module_path), "bytes": module_path.stat().st_size},
+            "subprocess_discovery": False}
+
+
+def load_legacy(source_ref, np, torch):
+    p = checked(source_ref)
+    require(source_ref["sha256"] == LEGACY_SHA, "Unexpected historical Encoder source")
+    tree = ast.parse(p.read_text(encoding="utf-8"), filename=str(p))
+    names = ("row_snv", "SE", "Residual", "Encoder")
+    selected = [node for node in tree.body if isinstance(node, (ast.ClassDef, ast.FunctionDef)) and node.name in names]
+    require(tuple(node.name for node in selected) == names, "Historical AST definitions missing or reordered")
+    module = ast.Module(body=selected, type_ignores=[])
+    ast.fix_missing_locations(module)
+    scope = {"np": np, "torch": torch, "nn": torch.nn}
+    exec(compile(module, str(p), "exec"), scope)
+    provenance = {"old_source": ref(p), "extracted_definitions": list(names),
+                  "extracted_ast_sha256": hashlib.sha256(ast.dump(module, include_attributes=False).encode()).hexdigest(),
+                  "architecture": {k: PROFILE[k] for k in ("width", "blocks", "dropout", "residual", "attention", "embedding")},
+                  "reuse_method": "exact pinned definition AST; no historical checkpoint loaded"}
+    return scope["Encoder"], scope["row_snv"], provenance
+
+
+def validate_dataset(pack, np):
+    keys = ("record_ids", "species", "origin_group_ids", "master_roles", "physical_sample_ids", "alpha_transfer", "axis_transfer")
+    require(all(k in pack for k in keys), "TRAIN pack keys missing")
+    ids = pack["record_ids"].astype(str)
+    physical = pack["physical_sample_ids"].astype(str)
+    kinds = pack["species"].astype(str)
+    groups = pack["origin_group_ids"].astype(str)
+    n = len(ids)
+    require(n == 999 and len(set(ids)) == n and len(set(physical)) == n, "Exactly 999 distinct technical/physical TRAIN IDs required")
+    require(all(len(pack[k]) == n for k in keys[:5]), "TRAIN row arrays differ")
+    require(set(pack["master_roles"].astype(str)) == {"train"}, "Only master TRAIN is permitted")
+    require(dict(Counter(kinds)) == {"枣仁": 216, "酸枣仁": 300, "黄芪": 241, "天麻": 242}, "Frozen TRAIN species counts changed")
+    require(set(groups[np.isin(kinds, TARGET_CLASSES)]) == set(sum((list(f) for f in FOLDS), [])), "Target group vocabulary differs")
+    require(np.asarray(pack["alpha_transfer"]).shape == (999, 128), "Only alpha128 representation permitted")
+    require(np.isfinite(pack["alpha_transfer"]).all(), "Nonfinite alpha TRAIN values")
+    require(np.array_equal(pack["axis_transfer"], np.linspace(.21, 1.49, 128)), "Frozen transfer axis changed")
+    for group in set(groups):
+        require(len(set(kinds[groups == group])) == 1, "An origin group belongs to multiple species")
+    for kind in KINDS:
+        expected = 5 if kind in TARGET_CLASSES else 4
+        require(len(set(groups[kinds == kind])) == expected, "Unexpected origin-head class vocabulary")
+    return {"ids": ids, "physical": physical, "kinds": kinds, "groups": groups, "X": pack["alpha_transfer"]}
+
+
+def scopes(data, fold, np):
+    require(isinstance(fold, int) and not isinstance(fold, bool) and fold in range(5), "Fixed whole-source fold required")
+    target = np.isin(data["kinds"], TARGET_CLASSES)
+    held = np.isin(data["groups"], FOLDS[fold])
+    donor, query = np.flatnonzero(target & ~held), np.flatnonzero(target & held)
+    require(len(donor) > 0 and len(query) > 0, "Empty target donor/query")
+    require(set(data["groups"][donor]).isdisjoint(FOLDS[fold]), "Held group leaked to donors")
+    require(set(data["physical"][donor]).isdisjoint(data["physical"][query]), "Physical sample donor/query overlap")
+    for kind in TARGET_CLASSES:
+        require(len(set(data["groups"][donor][data["kinds"][donor] == kind])) == 4, "Each target pretrain task needs four donor origins")
+    return donor, query
+
+
+def validate_parameters(kind, p):
+    require(kind in ("aux_pretrain", "target_pretrain", "source_A", "target_eval"), "Unknown neural job type")
+    require(p.get("seed") in (42, 43, 44), "Undeclared neural seed")
+    if kind != "source_A":
+        require(p.get("steps") in (120, 480), "Pretraining steps must be 120/480 optimization steps")
+    if kind != "aux_pretrain":
+        require(type(p.get("fold")) is int and p["fold"] in range(5), "Fixed paired fold required")
+    if kind in ("source_A", "target_eval"):
+        require(p.get("adapt") in ("full", "frozen"), "Unknown adaptation mode")
+    if kind == "aux_pretrain":
+        require(p.get("label_mode") in ("real", "shuffled"), "Unknown auxiliary label mode")
+
+
+def class_targets(labels, classes, np):
+    encoded = np.asarray([classes.index(str(v)) for v in labels], dtype=np.int64)
+    counts = np.bincount(encoded, minlength=len(classes))
+    require(counts.min() > 0, "Source task lacks a class")
+    return encoded, (len(labels) / (len(classes) * counts)).astype(np.float32), counts
+
+
+def shuffled_labels(labels, seed, ordinal, np):
+    labels = np.asarray(labels).copy()
+    # This function is called on one plant at a time, never mixed taxonomy.
+    shuffled = labels[np.random.RandomState(seed + 70000 + ordinal).permutation(len(labels))]
+    require(Counter(labels.tolist()) == Counter(shuffled.tolist()), "Shuffle changed source class counts")
+    return shuffled
+
+
+def state_hash(model):
+    h = hashlib.sha256()
+    for name, tensor in sorted(model.state_dict().items()):
+        a = tensor.detach().cpu().contiguous().numpy()
+        h.update(name.encode()); h.update(str(a.dtype).encode()); h.update(str(a.shape).encode()); h.update(a.tobytes())
+    return h.hexdigest()
+
+
+def metrics(truth, prediction):
+    require(len(truth) == len(prediction) and len(truth) > 0, "Paired nonempty score arrays required")
+    matrix = [[0, 0], [0, 0]]
+    for t, p in zip(truth, prediction):
+        require(t in TARGET_CLASSES and p in TARGET_CLASSES, "Unexpected binary score label")
+        matrix[TARGET_CLASSES.index(t)][TARGET_CLASSES.index(p)] += 1
+    recalls, f1 = [], []
+    for i in range(2):
+        tp, actual, predicted = matrix[i][i], sum(matrix[i]), sum(row[i] for row in matrix)
+        require(actual > 0, "Whole-source query lacks a binary class")
+        recalls.append(tp / actual)
+        f1.append(2 * tp / (actual + predicted) if actual + predicted else 0.)
+    correct = matrix[0][0] + matrix[1][1]
+    return {"n": len(truth), "correct": correct, "accuracy": correct / len(truth),
+            "balanced_accuracy": sum(recalls) / 2, "macro_f1": sum(f1) / 2,
+            "confusion_matrix": matrix, "class_order": list(TARGET_CLASSES)}
+
+
+def audit_pointwise_inference(score, values, ids, learned_state, np, receipt_path=None):
+    """Check only this fixed query's batch/order independence; never refit."""
+    require(len(values) == len(ids) and len(ids) > 0 and len(set(ids)) == len(ids), "Unique paired pointwise-audit query required")
+    before = learned_state()
+    cases = []
+    receipt = {"status": "RUNNING", "query_record_ids": list(ids),
+        "query_record_ids_sha256": objhash(list(ids)), "query_n": len(ids), "atol": 1e-5, "rtol": 1e-5,
+        "checks": cases, "learned_state_before": before,
+        "scope": "Only these fixed masterTRAIN held-source rows; no conclusion for untested inputs",
+        "training_or_selection_during_audit": False}
+    if receipt_path is not None:
+        atomic_json(receipt_path, receipt)
+    baseline = score(values)
+    valid_logits = np.asarray(baseline).shape == (len(ids), 2) and bool(np.isfinite(baseline).all())
+    unchanged = learned_state() == before
+    receipt.update(baseline_finite_binary_logits=valid_logits, baseline_parameters_and_BN_unchanged=unchanged,
+                   status="RUNNING" if valid_logits and unchanged else "FAIL", learned_state_after=learned_state())
+    if receipt_path is not None:
+        atomic_json(receipt_path, receipt)
+    require(valid_logits, "Finite binary baseline logits required")
+    require(unchanged, "Baseline inference changed parameters/BN buffers")
+    expected = np.argmax(baseline, axis=1)
+
+    def compare(name, observed):
+        require(observed.shape == baseline.shape and np.isfinite(observed).all(), "Invalid pointwise audit logits")
+        difference = float(np.max(np.abs(observed - baseline)))
+        close = bool(np.allclose(observed, baseline, atol=1e-5, rtol=1e-5))
+        same_argmax = bool(np.array_equal(np.argmax(observed, axis=1), expected))
+        same_state = learned_state() == before
+        row = {"case": name, "max_absolute_logit_residual": difference, "logits_allclose": close,
+               "argmax_identical": same_argmax, "parameters_and_BN_unchanged": same_state}
+        cases.append(row)
+        receipt.update(status="RUNNING" if close and same_argmax and same_state else "FAIL",
+                       learned_state_after=learned_state(), max_absolute_logit_residual=max(x["max_absolute_logit_residual"] for x in cases))
+        if receipt_path is not None:
+            atomic_json(receipt_path, receipt)
+        require(close and same_argmax and same_state, "Pointwise inference audit failed: " + name)
+
+    singleton = np.concatenate([score(values[i:i + 1]) for i in range(len(ids))], axis=0)
+    compare("each_sample_alone", singleton)
+    for name, order in (("reverse_order", np.arange(len(ids))[::-1]),
+                        ("fixed_permutation_seed71241", np.random.RandomState(71241).permutation(len(ids)))):
+        changed = score(values[order])
+        compare(name, changed[np.argsort(order)])
+    for size in (7, 64):
+        changed = np.concatenate([score(values[left:left + size]) for left in range(0, len(ids), size)], axis=0)
+        compare("contiguous_batches_" + str(size), changed)
+    receipt.update(status="PASS_FOR_FIXED_QUERY_ONLY", learned_state_after=learned_state())
+    if receipt_path is not None:
+        atomic_json(receipt_path, receipt)
+    return baseline, receipt
+
+
+class Recorder:
+    """Persist fit entry before calls, so interrupted jobs cannot be refit."""
+    def __init__(self, output, state):
+        self.output, self.state = Path(output), state
+        self.save()
+
+    def save(self):
+        atomic_json(self.output / "progress.json", self.state)
+
+    def event(self, event, **fields):
+        with (self.output / "events.jsonl").open("a", encoding="utf-8") as h:
+            h.write(json.dumps({"utc": utc(), "event": event, **fields}, ensure_ascii=False, separators=(",", ":"), allow_nan=False) + "\n")
+            h.flush(); os.fsync(h.fileno())
+
+    def enter(self, stage, name, ids):
+        require(stage in ("fit", "train"), "Unknown recorded stage")
+        require(len(ids) == len(set(ids)), "Fit IDs must be unique")
+        if stage == "fit":
+            self.state["new_fitting_entered"] = True
+            self.state["actual_new_model_fit_calls_started"] += 1
+        else:
+            self.state["new_training_entered"] = True
+            self.state["actual_train_calls_started"] += 1
+        self.state["active_stage"] = {"stage": stage, "name": name, "unique_fit_ids": list(ids), "unique_n": len(ids)}
+        self.save()
+        self.event("stage_entered", **self.state["active_stage"])
+
+    def complete(self, stage, name, **fields):
+        if stage == "fit":
+            self.state["actual_new_model_fits"] += 1
+        else:
+            self.state["actual_train_calls_completed"] += 1
+        self.state.setdefault("completed_stages", []).append({"stage": stage, "name": name, **fields})
+        self.state["active_stage"] = None
+        self.save(); self.event("stage_completed", stage=stage, name=name, **fields)
+
+
+def scale_source(source_values, source_ids, name, output, recorder, row_snv, np, StandardScaler):
+    """Fit preprocessing from an explicit source-only input, never a query pack."""
+    ids = list(source_ids)
+    require(len(ids) == len(source_values) and len(set(ids)) == len(ids), "Unique source-only scaler rows required")
+    x = row_snv(source_values)
+    require(np.isfinite(x).all(), "Nonfinite source-only SNV")
+    recorder.enter("fit", name + ".StandardScaler", ids)
+    scaler = StandardScaler().fit(x)
+    recorder.complete("fit", name + ".StandardScaler", fit_ids_sha256=objhash(ids))
+    receipt = {"name": name, "fit_ids": ids, "unique_n": len(ids), "fit_ids_sha256": objhash(ids),
+               "mean": scaler.mean_.tolist(), "scale": scaler.scale_.tolist(), "var": scaler.var_.tolist(),
+               "n_samples_seen": int(scaler.n_samples_seen_), "snv_ddof": 1}
+    p = Path(output) / (name + "-scaler.json")
+    atomic_json(p, receipt)
+    return scaler, scaler.transform(x).astype(np.float32), ref(p)
+
+
+def trace_batch(handle, data, indices, allowed_ids, stage, name, step, loss):
+    ids = data["ids"][indices].tolist()
+    trace_source_batch(handle, ids, allowed_ids, stage, name, step, loss)
+
+
+def trace_source_batch(handle, ids, allowed_ids, stage, name, step, loss):
+    require(len(ids) == len(set(ids)) and set(ids) <= set(allowed_ids), "Optimizer batch escaped allowed unique IDs")
+    handle.write(json.dumps({"stage": stage, "head": name, "step": step, "actual_ids": ids,
+                             "allowed_ids_sha256": objhash(allowed_ids), "loss": loss}, ensure_ascii=False, separators=(",", ":"), allow_nan=False) + "\n")
+    handle.flush()
+
+
+def loss_summary(losses):
+    require(len(losses) > 0, "Missing training losses")
+    return {"count": len(losses), "first": losses[0], "last": losses[-1],
+            "minimum": min(losses), "maximum": max(losses), "mean": sum(losses) / len(losses)}
+
+
+def _train_prepared_sources(encoder, heads, prepared, seed, steps, output, recorder, torch):
+    """Gradient API accepts only already selected source pools, not a whole pack."""
+    names = list(prepared)
+    require(len(names) == 2, "Exactly two independent source heads required")
+    allowed = [sample for name in names for sample in prepared[name]["ids"]]
+    require(len(set(allowed)) == len(allowed), "Source pretraining identities overlap")
+    optimizer = torch.optim.Adam([*encoder.parameters(), *heads.parameters()], lr=.0005, weight_decay=.001)
+    torch.manual_seed(seed + 40000)
+    recorder.enter("train", "pure_pretraining_encoder", allowed)
+    losses, exposures = [], {name: 0 for name in names}
+    with gzip.open(Path(output) / "pretraining-batches.jsonl.gz", "xt", encoding="utf-8") as trace:
+        for step in range(steps):
+            name = names[step % len(names)]
+            pool = prepared[name]
+            n = min(32, len(pool["ids"]))
+            selected = torch.randperm(len(pool["ids"]), generator=pool["generator"])[:n]
+            encoder.train(); heads.train(); optimizer.zero_grad(set_to_none=True)
+            loss = torch.nn.functional.cross_entropy(heads[name](encoder(pool["x"][selected])), pool["y"][selected], weight=pool["weights"])
+            require(bool(torch.isfinite(loss)), "Nonfinite source pretraining loss")
+            loss.backward(); optimizer.step()
+            value = float(loss.detach()); losses.append(value)
+            ids = [pool["ids"][i] for i in selected.tolist()]
+            trace_source_batch(trace, ids, pool["ids"], "pretrain", name, step, value)
+            exposures[name] += n
+            recorder.state["completed_optimizer_steps"] = step + 1
+            if (step + 1) % 20 == 0:
+                recorder.save()
+    encoder.eval()
+    recorder.complete("train", "pure_pretraining_encoder", optimizer_steps=steps, losses=loss_summary(losses))
+    return losses, exposures
+
+
+def pure_pretrain(data, job_type, p, output, recorder, Encoder, row_snv, np, torch, StandardScaler):
+    seed, steps = p["seed"], p["steps"]
+    torch.manual_seed(seed)
+    encoder = Encoder(12, 2, .35, residual=True, attention=False)
+    initial = state_hash(encoder)
+    if job_type == "aux_pretrain":
+        pools = [(name, np.flatnonzero(data["kinds"] == name)) for name in KINDS[2:]]
+    else:
+        donor, _ = scopes(data, p["fold"], np)
+        pools = [(name, donor[data["kinds"][donor] == name]) for name in TARGET_CLASSES]
+    heads = torch.nn.ModuleDict()
+    prepared, scalers, receipts = {}, {}, {}
+    for ordinal, (name, indices) in enumerate(pools):
+        require(len(indices) > 0, "Empty pretraining source")
+        labels = data["groups"][indices]
+        classes = sorted(set(labels.tolist()))
+        require(len(classes) == 4, "Each pretraining taxonomy must contain four origins")
+        if p.get("label_mode") == "shuffled":
+            labels = shuffled_labels(labels, seed, ordinal, np)
+        scaler, z, scaler_ref = scale_source(data["X"][indices], data["ids"][indices].tolist(), "source" + str(ordinal), output, recorder, row_snv, np, StandardScaler)
+        targets, weight, counts = class_targets(labels, classes, np)
+        with torch.random.fork_rng():
+            torch.manual_seed(seed + 20000 + ordinal)
+            heads[name] = torch.nn.Linear(16, len(classes))
+        prepared[name] = {"ids": data["ids"][indices].tolist(), "x": torch.as_tensor(z), "y": torch.as_tensor(targets),
+                          "weights": torch.as_tensor(weight), "generator": torch.Generator().manual_seed(seed + 30000 + ordinal)}
+        scalers[name] = scaler_ref
+        receipts[name] = {"classes": classes, "class_counts": counts.tolist(), "label_mode": p.get("label_mode", "real"),
+                          "original_labels_sha256": objhash(data["groups"][indices].tolist()),
+                          "training_labels_sha256": objhash(labels.tolist()), "unique_fit_ids": data["ids"][indices].tolist(),
+                          "unique_n": len(indices), "batch_size": min(32, len(indices)), "batch_exposure_count": 0}
+    allowed = [x for name, _ in pools for x in receipts[name]["unique_fit_ids"]]
+    losses, exposures = _train_prepared_sources(encoder, heads, prepared, seed, steps, output, recorder, torch)
+    for name in receipts:
+        receipts[name]["batch_exposure_count"] = exposures[name]
+    path = Path(output) / "pure-encoder.pt"
+    torch.save({k: v.detach().cpu().clone() for k, v in encoder.state_dict().items()}, path)
+    atomic_json(Path(output) / "pretraining-losses.json", losses)
+    return {"checkpoint_role": "pure_pretrained_encoder", "encoder_checkpoint": ref(path),
+            "initial_encoder_state_sha256": initial, "encoder_state_sha256": state_hash(encoder),
+            "source_scalers": scalers, "source_tasks": receipts, "loss_summary": loss_summary(losses),
+            "optimizer_steps": steps, "unique_fit_ids": allowed, "unique_n": len(allowed),
+            "not_target_finetuned": True, "target_query_seen": False}
+
+
+def dependencies(context, manifest_sha):
+    results = []
+    for job_id, result_ref in context.get("dependencies", {}).items():
+        p = checked(result_ref)
+        row = read(p)
+        # Data preparation is not a neural producer; its validation belongs to shared loader.
+        if row.get("schema") != SCHEMA:
+            continue
+        require(row.get("manifest_sha256") == manifest_sha and row.get("job_id") == job_id and row.get("status") == "DONE", "Unsealed/different neural producer")
+        require(context.get("dependency_states", {}).get(job_id) == "DONE_SEALED", "Neural dependency not DONE_SEALED")
+        row = dict(row, _result_ref=result_ref)
+        results.append(row)
+    return results
+
+
+def pick_dependency(rows, kind, params):
+    matches = [r for r in rows if r.get("job_type") == kind and all(r.get("params", {}).get(k) == v for k, v in params.items())]
+    require(len(matches) == 1, "Expected one exact sealed dependency for " + kind + " " + str(params))
+    return matches[0]
+
+
+def load_pure_encoder(producer, encoder, expected_fit_ids, torch):
+    require(producer.get("checkpoint_role") == "pure_pretrained_encoder" and producer.get("not_target_finetuned") is True and producer.get("target_query_seen") is False, "Only fresh pure-pretraining producer allowed")
+    require(set(producer["unique_fit_ids"]) == set(expected_fit_ids) and producer["unique_n"] == len(expected_fit_ids), "Pretraining producer fit scope changed")
+    p = checked(producer["encoder_checkpoint"])
+    root = local_path(producer["output_directory"])
+    require(p.is_relative_to(root), "Checkpoint escaped sealed producer directory")
+    state = torch.load(p, map_location="cpu", weights_only=True)
+    require(isinstance(state, dict) and all(isinstance(k, str) and torch.is_tensor(v) for k, v in state.items()), "Only tensor-only encoder state_dict allowed")
+    encoder.load_state_dict(state, strict=True)
+    require(state_hash(encoder) == producer["encoder_state_sha256"], "Pure encoder state hash mismatch")
+
+
+def _train_binary_donors(encoder, head, features, targets, class_weights, fit_ids,
+                         seed, adapt, arm, output, recorder, torch):
+    """Gradient-only API: donor tensors, labels and IDs; no query or whole pack."""
+    require(len(features) == len(targets) == len(fit_ids) and len(set(fit_ids)) == len(fit_ids),
+            "Unique paired donor-only training rows required")
+    require(adapt in ("full", "frozen") and seed in (42, 43, 44), "Fixed target training profile required")
+    initial_encoder, initial_head = state_hash(encoder), state_hash(head)
+    frozen = adapt == "frozen"
+    for parameter in encoder.parameters():
+        parameter.requires_grad_(not frozen)
+    optimizer = torch.optim.Adam(list(head.parameters()) if frozen else [*encoder.parameters(), *head.parameters()], lr=.0005, weight_decay=.001)
+    torch.manual_seed(seed + 50000)
+    generator = torch.Generator().manual_seed(seed + 60000)
+    recorder.enter("train", arm + ".binary_target", fit_ids)
+    losses, steps = [], 0
+    order_hash = hashlib.sha256()
+    with gzip.open(Path(output) / (arm + "-target-batches.jsonl.gz"), "xt", encoding="utf-8") as trace:
+        for epoch in range(96):
+            order = torch.randperm(len(fit_ids), generator=generator)
+            order_hash.update(order.numpy().tobytes())
+            encoder.eval() if frozen else encoder.train()
+            head.train(); total = 0.
+            for left in range(0, len(fit_ids), 64):
+                selected = order[left:left + 64]
+                optimizer.zero_grad(set_to_none=True)
+                if frozen:
+                    with torch.no_grad():
+                        representation = encoder(features[selected])
+                else:
+                    representation = encoder(features[selected])
+                loss = torch.nn.functional.cross_entropy(head(representation), targets[selected], weight=class_weights)
+                require(bool(torch.isfinite(loss)), "Nonfinite target loss")
+                loss.backward(); optimizer.step()
+                value = float(loss.detach())
+                ids = [fit_ids[i] for i in selected.tolist()]
+                trace_source_batch(trace, ids, fit_ids, "target", arm, steps, value)
+                total += value * len(selected); steps += 1
+            losses.append(total / len(fit_ids))
+            recorder.state["active_target_epoch"] = epoch + 1
+            recorder.state["completed_optimizer_steps"] = steps
+            recorder.save()
+    encoder.eval(); head.eval()
+    final_encoder = state_hash(encoder)
+    require(not frozen or final_encoder == initial_encoder, "Frozen encoder parameters/BN buffers changed")
+    recorder.complete("train", arm + ".binary_target", epochs=96, optimizer_steps=steps, losses=loss_summary(losses))
+    atomic_json(Path(output) / (arm + "-epoch-losses.json"), losses)
+    return {"initial_encoder_state_sha256": initial_encoder, "initial_head_state_sha256": initial_head,
+            "final_encoder_state_sha256": final_encoder, "final_head_state_sha256": state_hash(head),
+            "encoder_unchanged": final_encoder == initial_encoder, "target_order_sha256": order_hash.hexdigest(),
+            "loss_summary": loss_summary(losses), "epochs": 96, "optimizer_steps": steps,
+            "training_api_scope": "donor-only tensors, encoded labels and fit IDs; no query inputs"}
+
+
+def _infer_binary_query(encoder, head, query_values, query_ids, origin_ids, arm, output, np, torch):
+    """Inference-only API has no truth or fit operation, and writes predictions first."""
+    require(np.isfinite(query_values).all(), "Nonfinite query transform")
+    require(len(query_ids) == len(origin_ids) == len(query_values), "Inference metadata length differs")
+    encoder.eval(); head.eval()
+    def score(values):
+        with torch.no_grad():
+            return head(encoder(torch.as_tensor(values))).numpy()
+    logits, inference_audit = audit_pointwise_inference(score, query_values, query_ids,
+        lambda: (state_hash(encoder), state_hash(head)), np, Path(output) / (arm + "-pointwise-inference.json"))
+    prediction = [TARGET_CLASSES[i] for i in np.argmax(logits, axis=1)]
+    inferred = {"record_ids": list(query_ids), "origin_group_ids": list(origin_ids),
+                "prediction": prediction, "logits": logits.tolist(), "classes": list(TARGET_CLASSES),
+                "pointwise_inference_audit": inference_audit, "truth_available_to_inference": False}
+    path = Path(output) / (arm + "-query-predictions.json")
+    atomic_json(path, inferred)
+    inferred["prediction_artifact"] = ref(path)
+    return inferred
+
+
+def _score_binary_predictions(inference, truth):
+    """Pure score join, after prediction bytes have been written; no learned model."""
+    return {"truth": list(truth), "metrics": metrics(list(truth), inference["prediction"]),
+            "prediction_frozen_before_truth_scoring": True}
+
+
+def fit_target(data, p, arm, producer, output, recorder, Encoder, row_snv, np, torch, StandardScaler):
+    """Orchestrate explicit donor-only training, then query inference, then scoring."""
+    donor, query = scopes(data, p["fold"], np)
+    seed = p["seed"]
+    fit_ids = data["ids"][donor].tolist()
+    scaler, z, scaler_ref = scale_source(data["X"][donor], fit_ids, arm + "-target", output, recorder, row_snv, np, StandardScaler)
+    targets, weights, counts = class_targets(data["kinds"][donor], list(TARGET_CLASSES), np)
+    torch.manual_seed(seed)
+    encoder = Encoder(12, 2, .35, residual=True, attention=False)
+    if producer is not None:
+        indices = donor if arm == "Aextra" else np.flatnonzero(np.isin(data["kinds"], KINDS[2:]))
+        load_pure_encoder(producer, encoder, data["ids"][indices].tolist(), torch)
+    with torch.random.fork_rng():
+        torch.manual_seed(seed + 10000)
+        head = torch.nn.Linear(16, 2)
+    trained = _train_binary_donors(encoder, head, torch.as_tensor(z), torch.as_tensor(targets),
+        torch.as_tensor(weights), fit_ids, seed, p["adapt"], arm, output, recorder, torch)
+    weights_path = Path(output) / (arm + "-binary.pt")
+    torch.save({"encoder": encoder.state_dict(), "head": head.state_dict()}, weights_path)
+    # Query numeric values are materialized only after all target gradient work.
+    qx = scaler.transform(row_snv(data["X"][query])).astype(np.float32)
+    inferred = _infer_binary_query(encoder, head, qx, data["ids"][query].tolist(),
+        data["groups"][query].tolist(), arm, output, np, torch)
+    # No truth crosses the inference API or any fitting/training API.
+    scored = _score_binary_predictions(inferred, data["kinds"][query].tolist())
+    return {**trained, **inferred, **scored, "unique_fit_ids": fit_ids, "unique_n": len(donor),
+            "class_counts": counts.tolist(), "target_scaler": scaler_ref, "model_checkpoint": ref(weights_path),
+            "pretraining_dependency": producer["_result_ref"] if producer else None}
+
+
+def neural_execute(manifest, context, state, recorder, output):
+    # Proof was verified in run before this point; no numerical import at module load.
+    nofork_metadata()
+    state["nofork_libc_discovery"] = nofork_libc_discovery()
+    import numpy as np
+    import torch
+    from sklearn.preprocessing import StandardScaler
+    import data_worker
+    torch.set_num_threads(2)
+    torch.set_num_interop_threads(1)
+    torch.use_deterministic_algorithms(True)
+    Encoder, row_snv, reuse = load_legacy(manifest["neural"]["legacy_encoder_source"], np, torch)
+    state.update(reuse=reuse, profile=PROFILE, runtime={"python": sys.version, "torch": torch.__version__, "numpy": np.__version__,
+                 "torch_threads": torch.get_num_threads(), "torch_interop_threads": torch.get_num_interop_threads(), "dataloader_workers": 0})
+    recorder.save()
+    data = validate_dataset(data_worker.load_verified_train_dataset(context, manifest), np)
+    p, kind = state["params"], state["job_type"]
+    if kind in ("aux_pretrain", "target_pretrain"):
+        state.update(pure_pretrain(data, kind, p, output, recorder, Encoder, row_snv, np, torch, StandardScaler))
+    elif kind == "source_A":
+        state["arms"] = {"A": fit_target(data, p, "A", None, output, recorder, Encoder, row_snv, np, torch, StandardScaler)}
+    else:
+        deps = dependencies(context, state["manifest_sha256"])
+        base = pick_dependency(deps, "source_A", {k: p[k] for k in ("fold", "seed", "adapt")})
+        donor, query = scopes(data, p["fold"], np)
+        a = base["arms"]["A"]
+        checked(a["model_checkpoint"])
+        checked(a["target_scaler"])
+        require(a["record_ids"] == data["ids"][query].tolist() and a["truth"] == data["kinds"][query].tolist(), "A dependency query alignment changed")
+        require(a["unique_fit_ids"] == data["ids"][donor].tolist() and a["epochs"] == 96, "A dependency donor/budget mismatch")
+        arms = {"A": dict(a, source_result=base["_result_ref"], reused_prediction_not_refitted=True)}
+        spec = (("Aextra", "target_pretrain", {"fold": p["fold"]}), ("B", "aux_pretrain", {"label_mode": "real"}),
+                ("Bshuffle", "aux_pretrain", {"label_mode": "shuffled"}))
+        for arm, producer_kind, extra in spec:
+            producer = pick_dependency(deps, producer_kind, {"seed": p["seed"], "steps": p["steps"], **extra})
+            arms[arm] = fit_target(data, p, arm, producer, output, recorder, Encoder, row_snv, np, torch, StandardScaler)
+            require(arms[arm]["initial_head_state_sha256"] == a["initial_head_state_sha256"] and arms[arm]["target_order_sha256"] == a["target_order_sha256"], "Paired target head/order mismatched")
+            state["arms"] = arms; recorder.save()
+        state["arms"] = arms
+    state["status"] = "DONE"
+
+
+def run(args):
+    manifest = read(args.manifest, args.manifest_sha256)
+    context = read(args.context, args.context_sha256)
+    require(context.get("schema") == CONTEXT_SCHEMA and context.get("manifest_sha256") == args.manifest_sha256 and context.get("job_id") == args.job_id, "Frozen context binding differs")
+    job = context["job"]
+    require(job["id"] == args.job_id and job_hash(job) == context["job_sha256"], "Frozen job identity/hash differs")
+    require(any(j == job for j in manifest["jobs"]), "Context job absent from frozen manifest")
+    require(checked(job["source"]) == Path(__file__).resolve(), "Worker source ref mismatch")
+    kind, params = job["operation"], job["parameters"]
+    validate_parameters(kind, params)
+    output = local_path(args.output)
+    require(output == local_path(context["output_directory"]), "Output directory/context differs")
+    state = {"schema": SCHEMA, "status": "VALIDATED_ONLY", "job_id": args.job_id, "job_type": kind,
+             "params": params, "parameters": params, "operation": kind, "source_worker": ref(__file__),
+             "manifest_sha256": args.manifest_sha256, "context_sha256": args.context_sha256,
+             "output_directory": str(output), "created_at_utc": utc(), **COUNTERS}
+    if not args.execute:
+        return state
+    supervisor = import_file(checked(manifest["supervisor"]), "yanan_followup_supervisor")
+    proof = supervisor.verify_resource_supervision(expected_worker_path=Path(__file__).resolve(), expected_threads=2,
+        expected_manifest_sha256=args.manifest_sha256, expected_job_id=args.job_id,
+        expected_context_sha256=args.context_sha256, expected_proof_path=args.proof)
+    require(not output.exists() or not any(output.iterdir()), "Never reexecute a nonempty neural job output directory")
+    output.mkdir(parents=True, exist_ok=True)
+    state.update(status="RUNNING", execution_proof=proof, resource_supervision=proof,
+                 quantum_evaluations=0, labels_modified=False, CAL_PRED_spectra_accessed=False,
+                 negative_scientific_results_are_valid=True)
+    recorder = Recorder(output, state)
+    started, cpu = time.perf_counter(), time.process_time()
+    def stop(signum, _):
+        raise RuntimeError("Supervised neural termination signal " + str(signum))
+    previous = {sig: signal.signal(sig, stop) for sig in (signal.SIGTERM, signal.SIGINT, signal.SIGXCPU)}
+    try:
+        neural_execute(manifest, context, state, recorder, output)
+    except BaseException as exc:
+        state.update(status="PARTIAL", exception_type=type(exc).__name__, stop_reason=str(exc))
+        (output / "exception_traceback.txt").write_text(traceback.format_exc())
+    finally:
+        for sig, handler in previous.items():
+            signal.signal(sig, handler)
+        state.update(completed_at_utc=utc(), process_cpu_seconds=time.process_time() - cpu,
+                     wall_seconds=time.perf_counter() - started, peak_rss_kib=resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
+        state["output_artifacts"] = [ref(p) for p in sorted(output.iterdir()) if p.is_file() and p.name not in ("result.json", "progress.json")]
+        recorder.save(); atomic_json(output / "result.json", state)
+    return state
+
+
+def parser():
+    p = argparse.ArgumentParser(description=__doc__)
+    p.add_argument("--manifest", type=Path, required=True); p.add_argument("--manifest-sha256", required=True)
+    p.add_argument("--job-id", required=True); p.add_argument("--context", type=Path, required=True)
+    p.add_argument("--context-sha256", required=True); p.add_argument("--output", type=Path, required=True)
+    p.add_argument("--proof", type=Path); p.add_argument("--execute", action="store_true")
+    return p
+
+
+if __name__ == "__main__":
+    args = parser().parse_args()
+    result = run(args)
+    print(json.dumps({k: result.get(k) for k in ("schema", "status", "job_id", "stop_reason")}, ensure_ascii=False), flush=True)
+    if args.execute and result["status"] != "DONE":
+        raise SystemExit(2)

@@ -1,0 +1,284 @@
+"""Synthetic-only tests: no production spectrum is decoded and no fit runs."""
+from __future__ import annotations
+
+import csv
+import importlib.util
+import io
+import json
+from pathlib import Path
+import tempfile
+import unittest
+from unittest.mock import patch
+from xml.etree import ElementTree as ET
+from zipfile import ZipFile
+
+import data_worker as worker
+
+worker.initialize_nofork_cpu_metadata()
+import numpy as np
+
+READER = (worker.ROOT / "reports/parallel-cloud-20261106/worker-b/B20261106-01/"
+          "species-misuse-audit-v1/remote_snapshot/21d6edab24d198dc60b1ad4ef50e83602c9ecfa7/"
+          "scripts/prepare_species_revision_features.py")
+MAIN = "{http://schemas.openxmlformats.org/spreadsheetml/2006/main}"
+REL = "{http://schemas.openxmlformats.org/officeDocument/2006/relationships}"
+
+
+def letters(number):
+    result = ""
+    while number:
+        number, digit = divmod(number - 1, 26)
+        result = chr(65 + digit) + result
+    return result
+
+
+def write_workbook(path, axis, *, n_axis=None, wrong_n_header=False, nonfinite=False):
+    """B and E are TRAIN. C/D intentionally contain undecodable holdout cells."""
+    if n_axis is None:
+        n_axis = axis
+    book = ET.Element(MAIN + "workbook")
+    sheets = ET.SubElement(book, MAIN + "sheets")
+    relations = ET.Element("{http://schemas.openxmlformats.org/package/2006/relationships}Relationships")
+    with ZipFile(path, "w") as workbook:
+        for number, (name, coordinates) in enumerate((("吸收系数", axis), ("折射率", n_axis)), 1):
+            ET.SubElement(sheets, MAIN + "sheet", {"name": name, "sheetId": str(number), REL + "id": "rId" + str(number)})
+            ET.SubElement(relations, "Relationship", {"Id": "rId" + str(number), "Target": "worksheets/sheet" + str(number) + ".xml"})
+            sheet = ET.Element(MAIN + "worksheet")
+            data = ET.SubElement(sheet, MAIN + "sheetData")
+            header = ET.SubElement(data, MAIN + "row", {"r": "1"})
+            for col, value in (("A", "frequency"), ("B", "train-1"), ("E", "train-2")):
+                if name == "折射率" and wrong_n_header and col == "B":
+                    value = "wrong"
+                cell = ET.SubElement(header, MAIN + "c", {"r": col + "1", "t": "inlineStr"})
+                ET.SubElement(ET.SubElement(cell, MAIN + "is"), MAIN + "t").text = value
+            for ordinal, coordinate in enumerate(coordinates, 2):
+                row = ET.SubElement(data, MAIN + "row", {"r": str(ordinal)})
+                values = {"A": coordinate, "B": coordinate + number, "E": coordinate * 2 + number}
+                if nonfinite and ordinal == 3:
+                    values["B"] = float("nan")
+                for col in ("A", "B", "C", "D", "E"):
+                    attributes = {"r": col + str(ordinal)}
+                    if col in ("C", "D"):
+                        # If either held-out value reaches cell_value, the helper
+                        # tries to resolve missing shared string999999 and fails.
+                        attributes["t"] = "s"
+                        value = "999999"
+                    else:
+                        value = repr(float(values[col]))
+                    cell = ET.SubElement(row, MAIN + "c", attributes)
+                    ET.SubElement(cell, MAIN + "v").text = value
+            workbook.writestr("xl/worksheets/sheet" + str(number) + ".xml", ET.tostring(sheet))
+        workbook.writestr("xl/workbook.xml", ET.tostring(book))
+        workbook.writestr("xl/_rels/workbook.xml.rels", ET.tostring(relations))
+
+
+def pair_rows(path="synthetic.xlsx", group="ZY01"):
+    return [{"record_id": group + "-001", "physical_sample_id": group + "-001", "excel_column": "B",
+             "scan_header": "train-1", "source_workbook": path, "species": "枣仁", "origin_group_id": group},
+            {"record_id": group + "-004", "physical_sample_id": group + "-004", "excel_column": "E",
+             "scan_header": "train-2", "source_workbook": path, "species": "枣仁", "origin_group_id": group}]
+
+
+def synthetic_identity():
+    """18 fake workbooks/1672 fake IDs with the frozen role-count structure."""
+    groups = [("ZY01", "枣仁", 350, 210, 70), ("ZY02", "枣仁", 5, 3, 1)]
+    groups += [("ZY0" + str(number), "酸枣仁", 100, 60, 20) for number in range(3, 8)]
+    groups += [("ZR0" + str(number), "枣仁", 3, 1, 1) for number in range(1, 4)]
+    groups += [("HQ01", "黄芪", 100, 60, 20), ("HQ02", "黄芪", 100, 60, 20),
+               ("HQ03", "黄芪", 100, 60, 20), ("HQ04", "黄芪", 103, 61, 20)]
+    groups += [("TM01", "天麻", 100, 60, 20), ("TM02", "天麻", 100, 60, 20),
+               ("TM03", "天麻", 100, 60, 20), ("TM04", "天麻", 105, 62, 20)]
+    entries, metadata, split, historical = [], [], [], []
+    for group, species, count, training, calibration in groups:
+        source = "synthetic/" + group + ".xlsx"
+        entry = {"path": source, "sha256": "0" * 64, "origin_group_id": group,
+                 "species": species, "origin": group, "record_count": count}
+        entries.append(entry)
+        for number in range(1, count + 1):
+            identifier = group + "-" + str(number).zfill(3)
+            row = {"record_id": identifier, "physical_sample_id": identifier,
+                   "source_workbook": source, "sheet": "吸收系数", "origin_group_id": group,
+                   "species": species, "origin": group, "excel_column": letters(number + 1),
+                   "scan_header": "sample-" + str(number), "dataset_version": "synthetic-v1", "batch_id": ""}
+            role = "train" if number <= training else "calibration" if number <= training + calibration else "prediction"
+            metadata.append(row)
+            split.append({**row, "role": role})
+            if group.startswith("ZY"):
+                historical.append({key: {**row, "role": "training" if role == "train" else role}[key] for key in
+                    ("record_id", "physical_sample_id", "origin_group_id", "source_workbook", "role")})
+    return {"workbooks": entries, "total_active_records": 1672}, metadata, split, {"records": historical}
+
+
+def write_csv(path, rows):
+    with path.open("w", encoding="utf-8-sig", newline="") as stream:
+        writer = csv.DictWriter(stream, fieldnames=list(rows[0]))
+        writer.writeheader()
+        writer.writerows(rows)
+
+
+class TrainBoundaryTests(unittest.TestCase):
+    def setUp(self):
+        self.temporary = tempfile.TemporaryDirectory()
+        self.root = Path(self.temporary.name)
+        self.reader = worker.load_module(READER, "synthetic_xml_reader_" + str(id(self)))
+
+    def tearDown(self):
+        self.temporary.cleanup()
+
+    def test_only_train_columns_are_decoded_despite_poisoned_holdouts(self):
+        path = self.root / "synthetic.xlsx"
+        axis = np.linspace(.1, 1.5, 612)
+        write_workbook(path, axis)
+        actual_axis, alpha, refractive, audit = worker.read_train_pair(self.reader, path, pair_rows())
+        self.assertTrue(np.array_equal(actual_axis, axis))
+        self.assertEqual(alpha.shape, (2, 612))
+        self.assertEqual(refractive.shape, (2, 612))
+        self.assertEqual(audit["nontrain_cells_decoded"], 0)
+        self.assertEqual(audit["decoded_cell_counts"]["train_sample"], 2 * 2 * 613)
+
+    def test_alpha_n_header_mismatch_is_rejected(self):
+        path = self.root / "bad.xlsx"
+        write_workbook(path, np.linspace(.1, 1.5, 612), wrong_n_header=True)
+        with self.assertRaisesRegex(ValueError, "headers"):
+            worker.read_train_pair(self.reader, path, pair_rows())
+
+    def test_alpha_n_axis_mismatch_is_rejected(self):
+        path = self.root / "bad.xlsx"
+        axis = np.linspace(.1, 1.5, 612)
+        write_workbook(path, axis, n_axis=axis + 1e-8)
+        with self.assertRaisesRegex(ValueError, "coordinates"):
+            worker.read_train_pair(self.reader, path, pair_rows())
+
+    def test_nonfinite_train_value_is_rejected(self):
+        path = self.root / "bad.xlsx"
+        write_workbook(path, np.linspace(.1, 1.5, 612), nonfinite=True)
+        with self.assertRaisesRegex(ValueError, "Nonfinite"):
+            worker.read_train_pair(self.reader, path, pair_rows())
+
+    def test_nonmonotonic_axis_is_rejected(self):
+        path = self.root / "bad.xlsx"
+        axis = np.linspace(.1, 1.5, 612)
+        axis[5] = axis[4]
+        write_workbook(path, axis)
+        with self.assertRaisesRegex(ValueError, "strictly increasing"):
+            worker.read_train_pair(self.reader, path, pair_rows())
+
+    def test_different_workbook_main_axes_cannot_silently_interpolate(self):
+        sources, entries, train = {}, [], []
+        for number in (1, 2):
+            name = "book" + str(number) + ".xlsx"
+            path = self.root / name
+            axis = np.linspace(.1, 1.5, 612)
+            if number == 2:
+                axis[5] += 1e-8
+            write_workbook(path, axis)
+            rows = pair_rows(name, "G" + str(number))
+            train.extend(rows)
+            with patch.object(worker, "ROOT", self.root):
+                binding = worker.ref(path)
+            sources[name] = binding
+            entries.append({"path": name, "sha256": binding["sha256"], "origin_group_id": "G" + str(number), "species": "枣仁"})
+        with patch.object(worker, "ROOT", self.root), self.assertRaisesRegex(ValueError, "Main axes differ"):
+            worker.build_train_arrays(train, entries, sources, self.reader)
+
+    def test_transfer_extrapolation_is_rejected(self):
+        path = self.root / "bad.xlsx"
+        write_workbook(path, np.linspace(.3, 1.5, 612))
+        with patch.object(worker, "ROOT", self.root):
+            binding = worker.ref(path)
+            entry = {"path": "bad.xlsx", "sha256": binding["sha256"], "origin_group_id": "ZY01", "species": "枣仁"}
+            with self.assertRaisesRegex(ValueError, "extrapolate"):
+                worker.build_train_arrays(pair_rows("bad.xlsx"), [entry], {"bad.xlsx": binding}, self.reader)
+
+    def test_wrong_original_main_length_is_rejected(self):
+        path = self.root / "bad.xlsx"
+        write_workbook(path, np.linspace(.1, 1.5, 611))
+        with patch.object(worker, "ROOT", self.root):
+            binding = worker.ref(path)
+            entry = {"path": "bad.xlsx", "sha256": binding["sha256"], "origin_group_id": "ZY01", "species": "枣仁"}
+            with self.assertRaisesRegex(ValueError, "612"):
+                worker.build_train_arrays(pair_rows("bad.xlsx"), [entry], {"bad.xlsx": binding}, self.reader)
+
+    def test_exact_identity_counts_and_historical_roles(self):
+        registry, metadata, split, historical = synthetic_identity()
+        train, _, audit = worker.validate_identity(registry, metadata, split, historical)
+        self.assertEqual(len(train), 999)
+        self.assertEqual(audit["historical_roles_verified"], 855)
+        self.assertEqual(audit["master_role_counts"], worker.EXPECTED_ROLES)
+        historical["records"][0]["role"] = "prediction"
+        with self.assertRaisesRegex(ValueError, "Historical"):
+            worker.validate_identity(registry, metadata, split, historical)
+
+    def test_species_conflict_is_rejected(self):
+        registry, metadata, split, historical = synthetic_identity()
+        metadata[0]["species"] = "酸枣仁"
+        with self.assertRaisesRegex(ValueError, "identity disagreement"):
+            worker.validate_identity(registry, metadata, split, historical)
+
+    def test_repeated_physical_specimen_is_rejected(self):
+        registry, metadata, split, historical = synthetic_identity()
+        metadata[1]["physical_sample_id"] = metadata[0]["physical_sample_id"]
+        with self.assertRaisesRegex(ValueError, "physical"):
+            worker.validate_identity(registry, metadata, split, historical)
+
+    def test_nontrain_array_scope_is_rejected(self):
+        records = [{"record_id": "x", "species": "枣仁", "origin_group_id": "ZY01", "physical_sample_id": "x", "excel_column": "B"}]
+        arrays = {"record_ids": np.array(["x"]), "species": np.array(["枣仁"]), "origin_group_ids": np.array(["ZY01"]),
+                  "physical_sample_ids": np.array(["x"]), "excel_columns": np.array(["B"]), "master_roles": np.array(["prediction"]),
+                  "axis_main": np.linspace(.1, 1.5, 612), "axis_transfer": np.linspace(.21, 1.49, 128),
+                  "alpha_main": np.zeros((1, 612)), "n_main": np.zeros((1, 612)),
+                  "alpha_transfer": np.zeros((1, 128)), "n_transfer": np.zeros((1, 128))}
+        with self.assertRaisesRegex(ValueError, "CAL/PRED"):
+            worker.validate_arrays(arrays, records, production=False)
+
+    def test_shared_loader_accepts_sealed_synthetic_train_and_rejects_tampering(self):
+        registry, metadata, split, historical = synthetic_identity()
+        train, _, _ = worker.validate_identity(registry, metadata, split, historical)
+        with patch.object(worker, "ROOT", self.root):
+            inputs = {}
+            for name, value in (("registry", registry), ("historical_split", historical)):
+                path = self.root / (name + ".json")
+                worker.save_json(path, value)
+                inputs[name] = worker.ref(path)
+            for name, value in (("metadata", metadata), ("split", split)):
+                path = self.root / (name + ".csv")
+                write_csv(path, value)
+                inputs[name] = worker.ref(path)
+            source = self.root / "frozen_producer.py"
+            source.write_text("# synthetic source binding only\n")
+            inputs["data_worker"] = worker.ref(source)
+            manifest = {"inputs": inputs, "jobs": [{"id": "prepare_data"}]}
+            output = self.root / "science"
+            output.mkdir()
+            arrays = {key: np.asarray([row[field] for row in train]) for key, field in
+                (("record_ids", "record_id"), ("species", "species"), ("origin_group_ids", "origin_group_id"),
+                 ("physical_sample_ids", "physical_sample_id"), ("excel_columns", "excel_column"))}
+            arrays.update(master_roles=np.asarray(["train"] * 999), axis_main=np.linspace(.1, 1.5, 612),
+                          axis_transfer=np.linspace(.21, 1.49, 128), alpha_main=np.zeros((999, 612)), n_main=np.ones((999, 612)),
+                          alpha_transfer=np.zeros((999, 128)), n_transfer=np.ones((999, 128)))
+            npz = output / "featurepack.npz"
+            np.savez_compressed(npz, **arrays)
+            records = [{**{key: row[key] for key in ("record_id", "physical_sample_id", "species", "origin_group_id",
+                       "source_workbook", "excel_column", "scan_header")}, "master_role": "train",
+                       "content_sha256": worker.row_content_hash(arrays, index)} for index, row in enumerate(train)]
+            descriptor = {"schema": worker.DATA_SCHEMA, "manifest_sha256": "a" * 64, "source_inputs": inputs,
+                          "npz": worker.ref(npz), "records": records, "numeric_scope": "master_train_only", "nontrain_numeric_cells_decoded": 0}
+            descriptor_path = output / "dataset_metadata.json"
+            worker.save_json(descriptor_path, descriptor)
+            result = {"schema": worker.SCHEMA, "status": "COMPLETED", "operation": "prepare_data", "job_id": "prepare_data",
+                      "manifest_sha256": "a" * 64, "source_worker": inputs["data_worker"],
+                      "resource_supervision": {"synthetic_test_only": True}, "dataset": {"records": 999,
+                      "master_roles": ["train"], "npz": worker.ref(npz), "metadata": worker.ref(descriptor_path)}}
+            result_path = output / "result.json"
+            worker.save_json(result_path, result)
+            context = {"dataset_result": worker.ref(result_path), "manifest_sha256": "a" * 64}
+            actual = worker.load_verified_train_dataset(context, manifest)
+            self.assertEqual(actual["alpha_main"].shape, (999, 612))
+            with npz.open("ab") as stream:
+                stream.write(b"tampered")
+            with self.assertRaisesRegex(ValueError, "byte count|hash differs"):
+                worker.load_verified_train_dataset(context, manifest)
+
+
+if __name__ == "__main__":
+    unittest.main()

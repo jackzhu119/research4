@@ -1,0 +1,80 @@
+{
+  "calibration_or_prediction_numeric_exported": false,
+  "consumer_api": "data_worker.load_verified_train_dataset(context, manifest) -> dict[str,numpy.ndarray]",
+  "input_template": {
+    "bytes": 9503,
+    "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/yanan-cause-followup-v2/preparation/data_producer_inputs.json",
+    "sha256": "0d263b6839d73eb49ec7304e2699cd97df87f7be03eebf2199327c9eeb7b375a"
+  },
+  "job_contract": {
+    "dependencies": [],
+    "id": "prepare_data",
+    "parameters": {},
+    "result_schema": "research4-b-yanan-cause-result-v2",
+    "source": {
+      "bytes": 28003,
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/yanan-cause-followup-v2/preparation/bin/data_worker.py",
+      "sha256": "6801cfc590f829a6b2a32b20424959fdcb5a598aa515995d4978a136ca7686da"
+    },
+    "success_statuses": [
+      "COMPLETED"
+    ]
+  },
+  "metadata_only_validation": {
+    "audit": {
+      "all_id_species_group_source_column_role_checks": true,
+      "all_record_metadata_count": 1672,
+      "historical_roles_verified": 855,
+      "labels_changed": false,
+      "master_role_counts": {
+        "calibration": 334,
+        "prediction": 339,
+        "train": 999
+      },
+      "train_species_counts": {
+        "天麻": 242,
+        "枣仁": 216,
+        "酸枣仁": 300,
+        "黄芪": 241
+      }
+    },
+    "real_spectrum_numeric_cells_decoded": 0,
+    "result": "PASS",
+    "train_records": 999,
+    "workbooks": 18
+  },
+  "npz_keys": [
+    "record_ids",
+    "species",
+    "origin_group_ids",
+    "master_roles",
+    "physical_sample_ids",
+    "excel_columns",
+    "alpha_main",
+    "n_main",
+    "axis_main",
+    "alpha_transfer",
+    "n_transfer",
+    "axis_transfer"
+  ],
+  "production_execution": "NOT_RUN",
+  "schema": "research4-b-yanan-data-producer-readiness-v2",
+  "source_worker": {
+    "bytes": 28003,
+    "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/yanan-cause-followup-v2/preparation/bin/data_worker.py",
+    "sha256": "6801cfc590f829a6b2a32b20424959fdcb5a598aa515995d4978a136ca7686da"
+  },
+  "synthetic_tests": {
+    "command": "python -m unittest -v test_data_worker.py",
+    "failed": 0,
+    "new_fits": 0,
+    "passed": 13,
+    "real_spectrum_numeric_cells_decoded": 0,
+    "source": {
+      "bytes": 16182,
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/yanan-cause-followup-v2/preparation/bin/test_data_worker.py",
+      "sha256": "724855795b774a0dddb57c40b9d373c859a924072e1885881a711119b1f01ac1"
+    },
+    "synthetic_only": true
+  }
+}

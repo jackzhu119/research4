@@ -1,0 +1,145 @@
+"""Synthetic complete/partial block tests; no estimator, Torch or fitting."""
+import importlib.util
+from pathlib import Path
+import unittest
+
+sp = importlib.util.spec_from_file_location("summary_pure_tests", Path(__file__).with_name("summary_worker.py"))
+S = importlib.util.module_from_spec(sp); sp.loader.exec_module(S)
+
+
+def job(name, operation="group_pair", params=None, neural=False):
+    return {"id": name, "kind": "neural" if neural else "classical", "operation": operation, "parameters": params or {}}
+
+
+def matrix(ids, truth, groups, settings):
+    return {"cohorts": {"locked": {"ids": ids, "truth": truth, "groups": groups}},
+        "settings": {key: {"cohort": "locked", "predictions": pred} for key, pred in settings.items()}}
+
+
+def summarize(block, jobs, results, matrices):
+    states = {key: "DONE_SEALED" for key in jobs}
+    return S.summarize_blocks([block], results, states, jobs, lambda binding: matrices[binding["path"]])
+
+
+class SummaryTests(unittest.TestCase):
+    def pair_fixture(self):
+        jobs, results, matrices = {}, {}, {}
+        jgroups = [[f"J{g}-{i}" for i in range(n)] for g, n in enumerate((210, 3, 1, 1, 1))]
+        agroups = [[f"A{g}-{i}" for i in range(60)] for g in range(5)]
+        for j in range(5):
+            for a in range(5):
+                key = f"pair{j}{a}"; ids = jgroups[j] + agroups[a]
+                truth = ["J"] * len(jgroups[j]) + ["A"] * len(agroups[a])
+                groups = [f"J{j}"] * len(jgroups[j]) + [f"A{a}"] * len(agroups[a])
+                settings = {"S": truth}
+                if j == 0: settings["donor"] = truth
+                jobs[key] = job(key, params={"jujube_group": j, "acid_group": a})
+                matrices[key] = matrix(ids, truth, groups, settings)
+                results[key] = {"status": "COMPLETED", "prediction_matrix": {"path": key}}
+        return jobs, results, matrices
+
+    def test_complete25_reports2580_evaluations_but516_unique(self):
+        jobs, results, matrices = self.pair_fixture()
+        block = {"id": "main", "required_job_ids": list(jobs), "expected_count": 25, "expected_settings": ["S"],
+            "expected_design": {"jujube_group": list(range(5)), "acid_group": list(range(5))}}
+        blocks, complete = summarize(block, jobs, results, matrices)
+        self.assertTrue(complete); m = blocks[0]["aggregate_metrics"][0]["metrics"]
+        self.assertEqual(m["evaluation_rows"], 2580); self.assertEqual(m["unique_record_ids"], 516)
+        self.assertEqual(m["evaluations_per_record_histogram"], {"5": 516})
+        self.assertEqual(len(blocks[0]["aggregate_metrics"][0]["per_pair_or_fold_seed"]), 25)
+        self.assertEqual(blocks[0]["ignored_out_of_block_settings"], ["donor"])
+        self.assertFalse(blocks[0]["winner_selected"])
+
+    def test_donor_controls_are_complete5_without_polluting_complete25(self):
+        jobs, results, matrices = self.pair_fixture(); selected = [key for key in jobs if key.startswith("pair0")]
+        block = {"id": "donor", "required_job_ids": selected, "expected_count": 5, "expected_settings": ["S", "donor"],
+            "expected_design": {"acid_group": list(range(5))}, "paired_comparisons": [{"left": "donor", "right": "S"}]}
+        blocks, complete = summarize(block, jobs, results, matrices); self.assertTrue(complete)
+        for table in blocks[0]["aggregate_metrics"]:
+            self.assertEqual(table["metrics"]["evaluation_rows"], 1350)
+            self.assertEqual(table["metrics"]["unique_record_ids"], 510)
+            self.assertEqual(table["metrics"]["evaluations_per_record_histogram"], {"1": 300, "5": 210})
+        self.assertEqual(blocks[0]["paired_comparisons"][0]["evaluation_rows"], 1350)
+
+    def test_missing_required_job_suppresses_pooled_metrics_and_comparison(self):
+        jobs, results, matrices = self.pair_fixture(); del results["pair44"]
+        block = {"id": "partial", "required_job_ids": list(jobs), "expected_count": 25, "expected_settings": ["S"]}
+        blocks, complete = summarize(block, jobs, results, matrices); self.assertFalse(complete)
+        self.assertEqual(blocks[0]["status"], "PARTIAL_BLOCKS_PRESERVED")
+        self.assertEqual(blocks[0]["aggregate_metrics"], []); self.assertEqual(blocks[0]["paired_comparisons"], [])
+        self.assertEqual(blocks[0]["missing_or_scientifically_blocked_job_ids"], ["pair44"])
+
+    def test_scientific_blocked_seal_is_not_complete_prediction_block(self):
+        jobs, results, matrices = self.pair_fixture(); results["pair44"]["status"] = "SCIENTIFIC_BLOCKED"
+        block = {"id": "negative", "required_job_ids": list(jobs), "expected_count": 25, "expected_settings": ["S"]}
+        blocks, complete = summarize(block, jobs, results, matrices)
+        self.assertFalse(complete); self.assertEqual(blocks[0]["aggregate_metrics"], [])
+
+    def test_entire_missing_modality_stratum_is_detected(self):
+        jobs = {m: job(m, "coverage", {"modality": m}) for m in ("alpha", "n")}
+        results = {m: {"status": "COMPLETED", "prediction_matrix": {"path": m}} for m in jobs}
+        matrices = {"alpha": matrix(["x"], ["J"], ["J0"], {"S": ["J"]}), "n": matrix(["x"], ["J"], ["J0"], {})}
+        block = {"id": "modalities", "required_job_ids": list(jobs), "expected_count": 2, "expected_settings": ["S"]}
+        blocks, complete = summarize(block, jobs, results, matrices)
+        self.assertFalse(complete); self.assertEqual(blocks[0]["aggregate_metrics"], [])
+        self.assertTrue(any(gap["reason"] == "EXPECTED_CONFIGURATION_STRATUM_ABSENT" for gap in blocks[0]["configuration_gaps"]))
+
+    def test_different_coverage_queries_are_not_paired(self):
+        jobs = {"one": job("one", "coverage", {"modality": "alpha"})}
+        matrices = {"m": {"cohorts": {"ordinal": {"ids": ["a"], "truth": ["J"], "groups": ["J0"]},
+            "random": {"ids": ["b"], "truth": ["J"], "groups": ["J0"]}},
+            "settings": {"B0": {"cohort": "ordinal", "predictions": ["J"]}, "R42": {"cohort": "random", "predictions": ["J"]}}}}
+        results = {"one": {"status": "COMPLETED", "prediction_matrix": {"path": "m"}}}
+        block = {"id": "coverage", "required_job_ids": ["one"], "expected_count": 1, "expected_settings": ["B0", "R42"],
+            "paired_comparisons": [{"left": "R42", "right": "B0"}]}
+        blocks, complete = summarize(block, jobs, results, matrices); self.assertTrue(complete)
+        self.assertEqual(blocks[0]["paired_comparisons"][0]["status"], "NOT_COMPARABLE_DIFFERENT_QUERY_OR_MISSING_SETTING")
+
+    def neural_fixture(self, steps=(120, 480)):
+        jobs, results = {}, {}
+        for budget in steps:
+            for fold in range(5):
+                for seed in (42, 43, 44):
+                    key = f"b{budget}f{fold}s{seed}"; params = {"fold": fold, "seed": seed, "steps": budget, "adapt": "full"}
+                    jobs[key] = job(key, "target_eval", params, True)
+                    arm = {"record_ids": [f"J{fold}", f"A{fold}"], "truth": ["J", "A"],
+                        "prediction": ["J", "A"], "origin_group_ids": [f"jg{fold}", f"ag{fold}"]}
+                    results[key] = {"status": "DONE", "arms": {name: dict(arm) for name in ("A", "Aextra", "B", "Bshuffle")}}
+        return jobs, results
+
+    def test_A_reuse_across_budgets_is_not_extra_independent_evaluation(self):
+        jobs, results = self.neural_fixture()
+        block = {"id": "both", "required_job_ids": list(jobs), "expected_count": 30, "expected_settings": ["A", "Aextra", "B", "Bshuffle"],
+            "expected_design": {"fold": list(range(5)), "seed": [42, 43, 44], "steps": [120, 480]},
+            "paired_comparisons": [{"left": "B", "right": "A"}]}
+        blocks, complete = summarize(block, jobs, results, {}); self.assertTrue(complete)
+        a = next(t for t in blocks[0]["aggregate_metrics"] if t["setting"] == "A")
+        self.assertEqual(a["metrics"]["evaluation_rows"], 30); self.assertEqual(a["metrics"]["unique_record_ids"], 10)
+        self.assertEqual(a["duplicate_reused_rows_removed"], 30)
+        self.assertEqual(len(blocks[0]["paired_comparisons"]), 2)
+        self.assertTrue(all(value["evaluation_rows"] == 30 for value in blocks[0]["paired_comparisons"]))
+
+    def test_fifteen_jobs_with_duplicate_fold_seed_is_not_a_complete_grid(self):
+        jobs, results = self.neural_fixture((120,)); last = list(jobs)[-1]
+        jobs[last]["parameters"].update(fold=0, seed=42)
+        block = {"id": "grid", "required_job_ids": list(jobs), "expected_count": 15, "expected_settings": ["A", "B"],
+            "expected_design": {"fold": list(range(5)), "seed": [42, 43, 44]}}
+        blocks, complete = summarize(block, jobs, results, {})
+        self.assertFalse(complete); self.assertEqual(blocks[0]["aggregate_metrics"], [])
+
+    def test_neural_changed_query_is_not_silently_intersected(self):
+        jobs, results = self.neural_fixture((120,)); key = list(jobs)[0]
+        results[key]["arms"]["B"] = {**results[key]["arms"]["B"], "record_ids": ["other", "A0"]}
+        block = {"id": "pairing", "required_job_ids": list(jobs), "expected_count": 15, "expected_settings": ["A", "B"],
+            "paired_comparisons": [{"left": "B", "right": "A"}]}
+        blocks, complete = summarize(block, jobs, results, {}); self.assertFalse(complete)
+        self.assertEqual(blocks[0]["aggregate_metrics"], []); self.assertEqual(blocks[0]["paired_comparisons"], [])
+
+    def test_all_six_fit_and_train_counters_are_explicit_zero(self):
+        self.assertEqual(len(S.ZERO_COUNTERS), 6)
+        self.assertIs(S.ZERO_COUNTERS["new_fitting_entered"], False); self.assertIs(S.ZERO_COUNTERS["new_training_entered"], False)
+        for key, value in S.ZERO_COUNTERS.items():
+            if not key.endswith("entered"): self.assertIs(type(value), int); self.assertEqual(value, 0)
+
+
+if __name__ == "__main__": unittest.main()

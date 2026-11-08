@@ -1,0 +1,66 @@
+{
+  "schema": "research4-b-yanan-runtime-v2",
+  "python": "/workspace/research4-worker-b/.runtime/worker-b-yanan-cause-v2/venv/bin/python",
+  "python_sha256": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7",
+  "versions": {
+    "numpy": "2.3.5",
+    "scipy": "1.17.0",
+    "sklearn": "1.8.0",
+    "openpyxl": "3.1.5",
+    "torch": "2.9.0+cpu"
+  },
+  "pyvenv_cfg_sha256": "b3a4b3d7ced4df2b5a397ed1b33704b2f983e863203556a43cfc8ff34522e69f",
+  "threadpools": [
+    {
+      "user_api": "blas",
+      "internal_api": "openblas",
+      "num_threads": 2,
+      "prefix": "libscipy_openblas",
+      "filepath": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/numpy.libs/libscipy_openblas64_-fdde5778.so",
+      "version": "0.3.30",
+      "threading_layer": "pthreads",
+      "architecture": "SkylakeX"
+    },
+    {
+      "user_api": "blas",
+      "internal_api": "openblas",
+      "num_threads": 2,
+      "prefix": "libscipy_openblas",
+      "filepath": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/scipy.libs/libscipy_openblas-6cdc3b4a.so",
+      "version": "0.3.30",
+      "threading_layer": "pthreads",
+      "architecture": "SkylakeX"
+    },
+    {
+      "user_api": "openmp",
+      "internal_api": "openmp",
+      "num_threads": 2,
+      "prefix": "libgomp",
+      "filepath": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/scikit_learn.libs/libgomp-e985bcbb.so.1.0.0",
+      "version": null
+    },
+    {
+      "user_api": "openmp",
+      "internal_api": "openmp",
+      "num_threads": 2,
+      "prefix": "libgomp",
+      "filepath": "/workspace/research4-worker-b/.runtime/worker-b-yanan-cause-v2/venv/lib/python3.12/site-packages/torch/lib/libgomp.so.1",
+      "version": null
+    }
+  ],
+  "torch_threads": 2,
+  "torch_interop_threads": 1,
+  "blocked_child_events": [],
+  "real_fit_or_training_started": false,
+  "no_fork_runtime_bootstrap": {
+    "processor_source": "/proc/cpuinfo fallback os.uname",
+    "threadpoolctl_libc_source": "ctypes.CDLL(None), already-loaded dl_iterate_phdr",
+    "changes_scientific_function": false
+  },
+  "prelaunch_candidate_failure": {
+    "operation": "threadpoolctl.threadpool_info cold inspection",
+    "exception": "audit blocked subprocess.Popen /sbin/ldconfig -p during first libc find_library",
+    "real_fit": false,
+    "resolution": "use actual already-loaded libc handle before numerical library inspection"
+  }
+}

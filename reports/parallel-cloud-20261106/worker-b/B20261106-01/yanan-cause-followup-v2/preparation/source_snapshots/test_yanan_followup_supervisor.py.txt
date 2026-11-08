@@ -1,0 +1,177 @@
+"""Real short controller/context/proof/wait4 DAGs; no fitting or Git."""
+import ast
+import importlib.util
+import json
+import os
+from pathlib import Path
+import shutil
+import subprocess
+import sys
+import tempfile
+import unittest
+from unittest import mock
+
+SOURCE = Path(__file__).with_name("yanan_followup_supervisor.py")
+ROOT = next(parent for parent in SOURCE.parents if (parent / ".git").exists())
+WORK_REL = Path("reports/parallel-cloud-20261106/worker-b/B20261106-01/yanan-cause-followup-v2")
+FROZEN = ROOT / "scripts/research4_b_negative_subspace_supervisor_20261108.py"
+
+WORKER = '''import argparse,importlib.util,json,os,time
+from pathlib import Path
+p=argparse.ArgumentParser()
+for key in ('manifest','manifest-sha256','job-id','context','context-sha256','output','proof'):p.add_argument('--'+key,required=True)
+p.add_argument('--execute',action='store_true');a=p.parse_args()
+source=Path(__file__).with_name('yanan_followup_supervisor.py');sp=importlib.util.spec_from_file_location('fixture_real_yanan_proof',source);s=importlib.util.module_from_spec(sp);sp.loader.exec_module(s)
+proof=s.verify_resource_supervision(expected_worker_path=Path(__file__).resolve(),expected_threads=2,expected_manifest_sha256=a.manifest_sha256,expected_job_id=a.job_id,expected_context_sha256=a.context_sha256,expected_proof_path=a.proof)
+c=s.read(a.context,a.context_sha256);out=Path(a.output);out.mkdir(parents=True)
+t=time.process_time()
+while time.process_time()-t<.03:pass
+zeros={'new_fitting_entered':False,'actual_new_model_fit_calls_started':0,'actual_new_model_fits':0,'new_training_entered':False,'actual_train_calls_started':0,'actual_train_calls_completed':0}
+r={'schema':'fixture-yanan-result-v2','status':'COMPLETED','job_id':a.job_id,'context_sha256':a.context_sha256,'resource_supervision':proof,'source_worker':s.ref(__file__),'no_real_fitting_or_training':True,**zeros}
+if c['job']['kind']=='data':
+ assert c['dataset_result'] is None
+ f=out/'fixture_local_only.npz';f.write_bytes(('not-real-data-runtime-pid-'+str(os.getpid())).encode());r['dataset']={'npz':s.ref(f),'test_only_fake_bytes':True}
+else:
+ assert c['dataset_result']==c['dependencies']['prepare_data']
+ dataset=s.read(s.checked(c['dataset_result']));npz=dataset['dataset']['npz'];s.checked(npz)
+ r['dynamic_dataset_sha_verified']=npz['sha256'];r['dataset_result']=c['dataset_result'];r['dependency_states']=c['dependency_states']
+mode=c['job']['parameters'].get('mode')
+if c['attempt']==1 and mode in ('fit-entered','train-entered','pre-fit-error'):
+ r.update(status='PARTIAL',exception_type='OSError')
+ if mode=='fit-entered':r.update(new_fitting_entered=True,actual_new_model_fit_calls_started=1)
+ if mode=='train-entered':r.update(new_training_entered=True,actual_train_calls_started=1)
+ (out/'result.json').write_text(json.dumps(r));raise SystemExit(2)
+if c['job']['kind']=='summary':
+ r['status']='SUMMARY_COMPLETE' if all(v=='DONE_SEALED' for v in c['dependency_states'].values()) else 'PARTIAL_BLOCKS_PRESERVED';r['winner_selected']=False
+(out/'result.json').write_text(json.dumps(r))
+'''
+
+
+def load(file, name):
+    sp = importlib.util.spec_from_file_location(name, file); m = importlib.util.module_from_spec(sp); sp.loader.exec_module(m); return m
+
+
+class ControllerTests(unittest.TestCase):
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory(prefix="yanan-controller-test-"); self.root = Path(self.temp.name)
+        (self.root / ".git").mkdir(); (self.root / "scripts").mkdir(); shutil.copyfile(FROZEN, self.root / "scripts" / FROZEN.name)
+        self.work = self.root / WORK_REL; self.bin = self.work / "preparation/bin"; self.bin.mkdir(parents=True)
+        code = SOURCE.read_text(); tree = ast.parse(code)
+        node = next(n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name == "validate_closed_carry")
+        lines = code.splitlines(keepends=True); lines[node.lineno-1:node.end_lineno] = [
+            "def validate_closed_carry(manifest):\n", "    return read(WORK / 'preparation/closed_history_fixture.json')\n"]
+        self.source = self.bin / SOURCE.name; self.source.write_text("".join(lines)); self.m = load(self.source, "isolated_yanan_controller")
+        self.python = Path(self.m.PYTHON); self.python.parent.mkdir(parents=True); self.python.symlink_to(sys.executable)
+        self.worker = self.bin / "fake_yanan_worker.py"; self.worker.write_text(WORKER)
+        self.protocol = self.work / "preparation/protocol.json"; self.m.save(self.protocol, {"fixture": True})
+        self.authorization = self.work / "preparation/grant.json"; self.m.save(self.authorization, {"fixture": True})
+        self.debit = self.work / "preparation/preparation_debit.json"; self.m.save(self.debit, {"fixture": True, "conservative_debit_cpu_seconds": 1000, "actual_cpu_seconds": None})
+        pred = {}
+        for key in ("manifest", "ledger", "state", "claim", "supervisor"):
+            p = self.work / "preparation" / ("old_" + key + ".json"); self.m.save(p, {"fixture": key}); pred[key] = self.m.ref(p)
+        carry = {"old_audit": pred, "actual_closed_cpu_seconds": self.m.PREVIOUS_ACTUAL,
+            "budget_charged_cpu_seconds": self.m.PREVIOUS_CHARGED, "permanent_conservative_debit_cpu_seconds": 1000,
+            "old_nonmeasured_hold_seconds": 1, "old_unused_cpu_seconds_discarded": 90000-self.m.PREVIOUS_CHARGED,
+            "round_cpu_cap_seconds": 90000, "aggregate_budget_charged_ceiling_seconds": self.m.CAP,
+            "authorization_ref": self.m.ref(self.authorization), "grant_id": "TEST-ONLY-new90000", "new_round_authorized_once": True,
+            "preparation_debit_ref": self.m.ref(self.debit), "new_preparation_conservative_debit_cpu_seconds": 1000,
+            "test_only_compiled_closed_history_stub": True}
+        self.history = self.work / "preparation/closed_history_fixture.json"; self.m.save(self.history, carry)
+        self.manifest = {"schema": self.m.SCHEMA, "run_id": self.m.RUN_ID, "audit_id": self.m.AUDIT_ID,
+            "branch": self.m.BRANCH, "work_directory": str(self.work), "source_python": self.m.PYTHON,
+            "new_round_cpu_cap_seconds": 90000, "aggregate_budget_charged_ceiling_seconds": self.m.CAP,
+            "threads": 2, "memory_gib": 12, "rss_stop_gib": 8, "reserve_cpu_seconds": 300,
+            "deadline_utc": self.m.DEADLINE, "boot_id": self.m.boot_id(), "authorization_ref": self.m.ref(self.authorization),
+            "preparation_debit_ref": self.m.ref(self.debit), "protocol_ref": self.m.ref(self.protocol),
+            "supervisor": self.m.ref(self.source), "source_refs": [self.m.ref(self.source), self.m.ref(self.worker)],
+            "input_refs": [self.m.ref(self.history)], "inputs": {}, "predecessor": pred, "dataset_job_id": "prepare_data",
+            "jobs": [], "git_return": {"enabled": False}}
+        self.manifest["jobs"] = [self.job("prepare_data", "data", []), self.job("consumer", "classical", ["prepare_data"]),
+            self.job("summary", "summary", ["prepare_data", "consumer"])]
+        self.manifest_path = self.work / "manifest.json"; self.write_manifest()
+
+    def tearDown(self): self.temp.cleanup()
+
+    def job(self, name, kind, depends, mode=None, cpu=20):
+        j = {"id": name, "kind": kind, "operation": kind, "source": self.m.ref(self.worker),
+            "parameters": {} if mode is None else {"mode": mode}, "depends_on": depends, "cpu_seconds": cpu,
+            "wall_seconds": 20, "max_attempts": 2, "result_schema": "fixture-yanan-result-v2",
+            "success_statuses": ["COMPLETED"]}
+        if kind == "summary": j.update(allow_partial_dependencies=True, success_statuses=["SUMMARY_COMPLETE", "PARTIAL_BLOCKS_PRESERVED"])
+        return j
+
+    def write_manifest(self):
+        self.m.save(self.manifest_path, self.manifest); self.manifest_sha = self.m.sha(self.manifest_path)
+
+    def execute(self):
+        self.write_manifest()
+        return subprocess.run([self.m.PYTHON, str(self.source), "--manifest", str(self.manifest_path),
+            "--manifest-sha256", self.manifest_sha, "--attempt", "fixture-round", "--execute"],
+            cwd=self.root, text=True, capture_output=True, timeout=10)
+
+    def snapshot(self): return self.m.read(self.m.ledger_path()), self.m.read(self.m.state_path())
+
+    def test_real_three_job_dynamic_dataset_context_proof_wait4_and_done_skip(self):
+        before = self.manifest_path.read_text(); complete = self.execute(); self.assertEqual(complete.returncode, 0, complete.stderr)
+        ledger, state = self.snapshot(); self.assertEqual(len(ledger["phases"]), 3)
+        self.assertTrue(all(v["status"] == "DONE_SEALED" for v in state["jobs"].values()))
+        data = self.m.read(self.m.checked(state["results"]["prepare_data"])); npz_sha = data["dataset"]["npz"]["sha256"]
+        self.assertNotIn(npz_sha, before); self.assertEqual(before, self.manifest_path.read_text())
+        consumer = self.m.read(self.m.checked(state["results"]["consumer"]))
+        self.assertEqual(consumer["dynamic_dataset_sha_verified"], npz_sha)
+        context = self.m.read(self.m.checked(state["jobs"]["consumer"]["context"]))
+        self.assertEqual(context["dataset_result"], state["results"]["prepare_data"])
+        self.assertEqual(context["dependencies"]["prepare_data"], state["results"]["prepare_data"])
+        actual = 0.
+        for row in ledger["phases"]:
+            receipt = self.m.read(self.m.checked(row["wait4_receipt"]))
+            cost = receipt["ru_utime_seconds"] + receipt["ru_stime_seconds"]
+            self.assertGreater(cost, .03); self.assertEqual(row["actual_cpu_seconds"], cost); actual += cost
+        totals = self.m.validate_accounting(ledger, state, self.manifest, self.manifest_sha)
+        self.assertAlmostEqual(totals["wait4_child_cpu_seconds"], actual)
+        self.assertAlmostEqual(totals["round_budget_charged_cpu_seconds"]-totals["round_actual_cpu_seconds"], 1001)
+        self.assertAlmostEqual(ledger["aggregate_budget_charged_cpu_seconds"], 83728.759434+totals["round_budget_charged_cpu_seconds"])
+        self.assertEqual(ledger["carry"]["permanent_conservative_debit_cpu_seconds"], 1000)
+        self.assertEqual(ledger["carry"]["old_nonmeasured_hold_seconds"], 1)
+        args = type("Args", (), {"manifest": str(self.manifest_path), "manifest_sha256": self.manifest_sha})()
+        with mock.patch.object(self.m, "run_child", side_effect=AssertionError("DONE cannot re-execute")):
+            self.m.run_job(args, self.manifest, ledger, state, self.manifest["jobs"][1])
+
+    def test_entered_fit_and_training_are_not_retried_and_partial_report_survives(self):
+        self.manifest["jobs"] = [self.job("prepare_data", "data", []),
+            self.job("fit_entry", "classical", ["prepare_data"], "fit-entered"),
+            self.job("train_entry", "neural", ["prepare_data"], "train-entered"),
+            self.job("summary", "summary", ["prepare_data", "fit_entry", "train_entry"])]
+        complete = self.execute(); self.assertEqual(complete.returncode, 0, complete.stderr)
+        ledger, state = self.snapshot(); self.assertEqual(len(ledger["phases"]), 4)
+        for key in ("fit_entry", "train_entry"):
+            rows = [r for r in ledger["phases"] if r["job_id"] == key]
+            self.assertEqual(len(rows), 1); self.assertFalse(rows[0]["retry_decision"]["allowed"])
+            self.assertNotEqual(state["jobs"][key]["status"], "DONE_SEALED")
+        summary = self.m.read(self.m.checked(state["results"]["summary"]))
+        self.assertEqual(summary["status"], "PARTIAL_BLOCKS_PRESERVED"); self.assertFalse(summary["winner_selected"])
+
+    def test_explicit_six_zero_prefit_failure_retries_once_with_both_real_costs(self):
+        self.manifest["jobs"][1]["parameters"]["mode"] = "pre-fit-error"
+        complete = self.execute(); self.assertEqual(complete.returncode, 0, complete.stderr)
+        ledger, state = self.snapshot(); rows = [r for r in ledger["phases"] if r["job_id"] == "consumer"]
+        self.assertEqual(len(rows), 2); self.assertTrue(rows[0]["retry_decision"]["allowed"])
+        self.assertTrue(all(r["actual_cpu_seconds"] > .03 for r in rows)); self.assertEqual(state["jobs"]["consumer"]["status"], "DONE_SEALED")
+        self.assertEqual(len(ledger["phases"]), 4)
+
+    def test_budget_not_run_large_job_preserves_independent_cheap_job_and_summary(self):
+        self.manifest["jobs"] = [self.job("prepare_data", "data", []),
+            self.job("too_large", "classical", ["prepare_data"], cpu=90000),
+            self.job("cheap", "classical", ["prepare_data"], cpu=5),
+            self.job("summary", "summary", ["prepare_data", "too_large", "cheap"], cpu=5)]
+        complete = self.execute(); self.assertEqual(complete.returncode, 0, complete.stderr)
+        ledger, state = self.snapshot()
+        self.assertEqual(state["jobs"]["too_large"]["status"], "NOT_RUN_RESOURCE_OR_DEADLINE")
+        self.assertEqual(state["jobs"]["cheap"]["status"], "DONE_SEALED")
+        self.assertEqual([row["job_id"] for row in ledger["phases"]], ["prepare_data", "cheap", "summary"])
+        summary = self.m.read(self.m.checked(state["results"]["summary"]))
+        self.assertEqual(summary["status"], "PARTIAL_BLOCKS_PRESERVED"); self.assertFalse(summary["winner_selected"])
+        self.assertNotIn("too_large", self.m.read(self.m.checked(state["jobs"]["summary"]["context"]))["dependencies"])
+
+
+if __name__ == "__main__": unittest.main()

@@ -1,0 +1,101 @@
+"""Explicitly synthetic cross-module dataset fixture; never production input.
+
+No real workbook is opened. The identity universe, spectra, proof marker and
+manifest are all fabricated for interface tests under a temporary SYNTHETIC
+directory. These outputs have no scientific or resource-accounting meaning.
+"""
+from __future__ import annotations
+
+import json
+from pathlib import Path
+
+import data_worker
+
+
+def write_synthetic_identity_inputs(directory, base_inputs=None):
+    """First phase for a controller harness that freezes its own manifest."""
+    from test_data_worker import synthetic_identity, write_csv
+    directory = data_worker.local_path(directory)
+    if not any("SYNTHETIC" in part for part in directory.parts):
+        raise ValueError("Synthetic fixture must be explicitly named SYNTHETIC")
+    directory.mkdir(parents=True, exist_ok=True)
+    registry, metadata, split, historical = synthetic_identity()
+    inputs = dict(base_inputs or {})
+    for name, value in (("registry", registry), ("historical_split", historical)):
+        path = directory / (name + ".json")
+        data_worker.save_json(path, value)
+        inputs[name] = data_worker.ref(path)
+    for name, value in (("metadata", metadata), ("split", split)):
+        path = directory / (name + ".csv")
+        write_csv(path, value)
+        inputs[name] = data_worker.ref(path)
+    inputs["data_worker"] = data_worker.ref(data_worker.__file__)
+    return inputs
+
+
+def write_synthetic_dataset(directory, manifest, manifest_sha256, *, producer_job_id="prepare_data",
+                            resource_supervision=None):
+    """Second phase: bind all fabricated rows/hashes to an existing test manifest."""
+    import numpy as np
+    directory = data_worker.local_path(directory)
+    if not any("SYNTHETIC" in part for part in directory.parts):
+        raise ValueError("Synthetic fixture must be explicitly named SYNTHETIC")
+    directory.mkdir(parents=True, exist_ok=True)
+    inputs = manifest["inputs"]
+    train, _, audit = data_worker.validate_identity(
+        json.loads(data_worker.checked(inputs["registry"]).read_text()),
+        data_worker.csv_rows(data_worker.checked(inputs["metadata"])),
+        data_worker.csv_rows(data_worker.checked(inputs["split"])),
+        json.loads(data_worker.checked(inputs["historical_split"]).read_text()))
+    arrays = {key: np.asarray([row[field] for row in train]) for key, field in
+        (("record_ids", "record_id"), ("species", "species"), ("origin_group_ids", "origin_group_id"),
+         ("physical_sample_ids", "physical_sample_id"), ("excel_columns", "excel_column"))}
+    main = np.linspace(.1, 1.5, 612)
+    transfer = np.linspace(.21, 1.49, 128)
+    ordinal = np.arange(999, dtype=np.float64)[:, None]
+    # Numerical identities are deliberately synthetic and unrelated to herbs.
+    arrays.update(master_roles=np.asarray(["train"] * 999), axis_main=main, axis_transfer=transfer,
+                  alpha_main=np.sin(main[None, :] * (1 + ordinal % 7)) + ordinal * 1e-5,
+                  n_main=1 + main[None, :] * .01 + ordinal * 1e-6,
+                  alpha_transfer=np.sin(transfer[None, :] * (1 + ordinal % 7)) + ordinal * 1e-5,
+                  n_transfer=1 + transfer[None, :] * .01 + ordinal * 1e-6)
+    npz = directory / "SYNTHETIC-featurepack.npz"
+    np.savez_compressed(npz, **arrays)
+    records = [{**{key: row[key] for key in ("record_id", "physical_sample_id", "species", "origin_group_id",
+                "source_workbook", "excel_column", "scan_header")}, "master_role": "train",
+                "content_sha256": data_worker.row_content_hash(arrays, index)} for index, row in enumerate(train)]
+    descriptor = {"schema": data_worker.DATA_SCHEMA, "manifest_sha256": manifest_sha256,
+        "source_inputs": inputs, "npz": data_worker.ref(npz), "records": records,
+        "numeric_scope": "master_train_only", "nontrain_numeric_cells_decoded": 0,
+        "identity_audit": audit, "SYNTHETIC_TEST_ONLY": True, "scientific_result": False}
+    metadata_path = directory / "SYNTHETIC-dataset_metadata.json"
+    data_worker.save_json(metadata_path, descriptor)
+    result = {"schema": data_worker.SCHEMA, "status": "COMPLETED", "operation": "prepare_data",
+        "job_id": producer_job_id, "manifest_sha256": manifest_sha256,
+        "source_worker": inputs["data_worker"],
+        "resource_supervision": resource_supervision or {"SYNTHETIC_UNSUPERVISED_TEST_MARKER": True},
+        "dataset": {"records": 999, "master_roles": ["train"], "npz": data_worker.ref(npz),
+                    "metadata": data_worker.ref(metadata_path)}, "SYNTHETIC_TEST_ONLY": True,
+        "scientific_result": False, **data_worker.zero_fit_counters()}
+    result_path = directory / "SYNTHETIC-result.json"
+    data_worker.save_json(result_path, result)
+    result_ref = data_worker.ref(result_path)
+    context = {"schema": "research4-b-yanan-resolved-context-v2", "manifest_sha256": manifest_sha256,
+        "dataset_result": result_ref, "dependencies": {producer_job_id: result_ref},
+        "dependency_states": {producer_job_id: "DONE_SEALED"}, "SYNTHETIC_TEST_ONLY": True}
+    context_path = directory / "SYNTHETIC-consumer-context.json"
+    data_worker.save_json(context_path, context)
+    return {"manifest": manifest, "context": context, "result": result,
+            "result_ref": result_ref, "context_ref": data_worker.ref(context_path),
+            "descriptor_ref": data_worker.ref(metadata_path), "npz_ref": data_worker.ref(npz)}
+
+
+def build_synthetic_train_fixture(directory):
+    """Standalone all-fabricated fixture for the real sharedloader/validators."""
+    directory = data_worker.local_path(directory)
+    inputs = write_synthetic_identity_inputs(directory)
+    manifest = {"schema": "SYNTHETIC-interface-test-only", "inputs": inputs,
+                "jobs": [{"id": "prepare_data"}], "SYNTHETIC_TEST_ONLY": True}
+    manifest_path = directory / "SYNTHETIC-manifest.json"
+    data_worker.save_json(manifest_path, manifest)
+    return write_synthetic_dataset(directory, manifest, data_worker.sha256(manifest_path))

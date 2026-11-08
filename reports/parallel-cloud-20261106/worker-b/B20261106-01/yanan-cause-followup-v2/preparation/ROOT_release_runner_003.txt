@@ -1,0 +1,27 @@
+from pathlib import Path
+import subprocess,sys,os,json,hashlib,time,datetime,resource
+repo=Path.cwd().resolve()
+r=repo/'reports/parallel-cloud-20261106/worker-b/B20261106-01/yanan-cause-followup-v2/preparation'
+b=r/'bin'
+def sha(p):return hashlib.sha256(Path(p).read_bytes()).hexdigest()
+def refs():return [{'path':str(p.relative_to(repo)),'sha256':sha(p),'bytes':p.stat().st_size} for p in sorted(b.glob('*.py'))]
+resource.setrlimit(resource.RLIMIT_AS,(12*1024**3,)*2)
+before=refs();started=time.monotonic();cpu=time.process_time();start_children=resource.getrusage(resource.RUSAGE_CHILDREN)
+modules=[]
+child_code='''import sys,unittest,resource,json,time\nresource.setrlimit(resource.RLIMIT_AS,(12*1024**3,)*2)\nsys.path.insert(0,sys.argv[1])\nstart=time.process_time()\nsuite=unittest.defaultTestLoader.loadTestsFromName(sys.argv[2])\nresult=unittest.TextTestRunner(stream=sys.stdout,verbosity=2).run(suite)\nprint('__ROOT_TEST_RESULT__'+json.dumps({'testsRun':result.testsRun,'failures':len(result.failures),'errors':len(result.errors),'skipped':len(result.skipped),'success':result.wasSuccessful(),'process_cpu_seconds':time.process_time()-start}))\nsys.exit(0 if result.wasSuccessful() else 1)'''
+for p in sorted(b.glob('test_*.py')):
+ log=r/('ROOT_release_003_'+p.stem+'.txt')
+ with log.open('x') as f:
+  completed=subprocess.run([sys.executable,'-c',child_code,str(b),p.stem],cwd=repo,env=dict(os.environ,OMP_NUM_THREADS='2',OPENBLAS_NUM_THREADS='2',MKL_NUM_THREADS='2',NUMEXPR_NUM_THREADS='2'),stdout=f,stderr=subprocess.STDOUT,timeout=180)
+  f.flush();os.fsync(f.fileno())
+ sentinels=[line for line in log.read_text().splitlines() if line.startswith('__ROOT_TEST_RESULT__')]
+ stats=json.loads(sentinels[-1][len('__ROOT_TEST_RESULT__'):]) if sentinels else {'testsRun':0,'failures':0,'errors':1,'success':False,'missing_result_sentinel':True}
+ modules.append({'module':p.stem,'exit_code':completed.returncode,**stats,'log':{'path':str(log.relative_to(repo)),'sha256':sha(log),'bytes':log.stat().st_size}})
+ print(json.dumps({'module':p.stem,'exit_code':completed.returncode,'testsRun':stats['testsRun'],'success':stats['success']}),flush=True)
+after=refs();usage=resource.getrusage(resource.RUSAGE_CHILDREN)
+success=before==after and all(m['success'] and m['exit_code']==0 for m in modules)
+d={'schema':'research4-b-yanan-root-isolated-release-tests-v2','created_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'status':'PASS' if success else 'FAIL','testsRun':sum(m['testsRun'] for m in modules),'failures':sum(m['failures'] for m in modules),'errors':sum(m['errors'] for m in modules),'modules':modules,'wasSuccessful':success,'source_hashes_unchanged_during_tests':before==after,'sources':before,'method':'Each test module runs in a fresh Python process. Deliberate nonremovable nochild audit hooks remain confined to their module; controller tests intentionally need child execution. Production already uses one fresh worker process per job.','previous_failed_test_report':'ROOT_release_synthetic_tests_002.json remains unchanged: four controller tests blocked by synthetic neural global audit hook in one shared test process, no production fault or scientific fit.','real_spectra_read':False,'real_sample_training':False,'synthetic_only':True,'process_limits':{'address_space_bytes':12*1024**3,'numerical_threads_environment':2},'process_cpu_seconds':time.process_time()-cpu,'waited_children_cpu_seconds':usage.ru_utime+usage.ru_stime-start_children.ru_utime-start_children.ru_stime,'wall_seconds':time.monotonic()-started,'included_in_prelaunch_conservative_debit':True,'runner':{'path':str(Path(__file__).resolve().relative_to(repo)),'sha256':sha(__file__)},'production_accounting_exists':any((r.parent/name).exists() for name in ['cpu_budget.json','state.json','manifest_ROOT_AUTHORIZED.json'])}
+p=r/'ROOT_release_synthetic_tests_003.json'
+with p.open('x') as f:json.dump(d,f,ensure_ascii=False,indent=2,allow_nan=False);f.write('\n')
+print(json.dumps({'status':d['status'],'testsRun':d['testsRun'],'failures':d['failures'],'errors':d['errors'],'unchanged':before==after,'production_accounting_exists':d['production_accounting_exists'],'sha256':sha(p)}),flush=True)
+if not success or d['production_accounting_exists']:raise SystemExit(1)

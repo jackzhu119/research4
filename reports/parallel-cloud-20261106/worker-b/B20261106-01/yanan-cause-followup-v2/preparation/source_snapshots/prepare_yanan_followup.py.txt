@@ -1,0 +1,307 @@
+"""Build inspectable Yanan follow-up metadata; never fit, train, launch or Git.
+
+--write-draft writes a non-executable joblist for scientific review. A final
+--build-spec pins the then-current sources/protocol, and --spec/--spec-sha256
+prepares its manifest after supervisor validation. Outputs are exclusive.
+"""
+from __future__ import annotations
+
+import argparse
+from copy import deepcopy
+import hashlib
+import importlib.util
+import json
+import os
+from pathlib import Path
+
+SELF = Path(__file__).resolve()
+ROOT = next(parent for parent in SELF.parents if (parent / ".git").exists())
+RUN_ID = "B20261106-01"
+AUDIT_ID = "yanan-cause-followup-v2"
+BASE = ROOT / "reports/parallel-cloud-20261106/worker-b" / RUN_ID
+WORK = BASE / AUDIT_ID
+BIN = WORK / "preparation/bin"
+SUPERVISOR = BIN / "yanan_followup_supervisor.py"
+HELPER = ROOT / "scripts/research4_parallel_b_git_return_20261106.py"
+CLAIM = ROOT / ".runtime/worker-b-yanan-cause-v2-allocation.json"
+SPEC_SCHEMA = "research4-b-yanan-cause-spec-v2"
+MANIFEST_SCHEMA = "research4-b-yanan-cause-manifest-v2"
+CAUSE_SCHEMA = "research4-b-yanan-cause-result-v2"
+NEURAL_SCHEMA = "research4-b-yanan-neural-result-v2"
+JUJUBE = ("ZY01", "ZY02", "ZR01", "ZR02", "ZR03")
+ACID = ("ZY03", "ZY04", "ZY05", "ZY06", "ZY07")
+OLD_PAIRS = (("ZY01", "ZY03"), ("ZY02", "ZY04"), ("ZR02", "ZY05"), ("ZR01", "ZY07"), ("ZR03", "ZY06"))
+MODALITIES = ("alpha", "n", "fusion")
+SEEDS = (42, 43, 44)
+BUDGETS = (120, 480)
+ADAPT = ("full", "frozen")
+LIMITS = {"prepare_data": (300, 900), "diagnose": (120, 300), "group_pair": (900, 1200),
+    "coverage": (300, 600), "support": (900, 1200), "aux_pretrain": (480, 600),
+    "target_pretrain": (480, 600), "source_A": (480, 600), "target_eval": (1440, 1800), "summary": (120, 300)}
+
+
+def require(value, message):
+    if not value: raise ValueError(message)
+
+
+def path(value):
+    p = Path(value); p = p if p.is_absolute() else ROOT / p
+    p = Path(os.path.abspath(p)); require(p.is_relative_to(ROOT), "Metadata outside this checkout")
+    require(not any(q.is_symlink() for q in (p, *p.parents) if q.is_relative_to(ROOT)), "Symlink metadata rejected")
+    return p
+
+
+def sha(file):
+    h = hashlib.sha256()
+    with Path(file).open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 ** 2), b""): h.update(chunk)
+    return h.hexdigest()
+
+
+def ref(file):
+    p = path(file); return {"path": str(p.relative_to(ROOT)), "sha256": sha(p), "bytes": p.stat().st_size}
+
+
+def read(file, expected=None):
+    p = path(file)
+    if expected: require(sha(p) == expected, "Pinned metadata changed: " + str(p))
+    return json.loads(p.read_text())
+
+
+def save(file, value):
+    p = path(file); p.parent.mkdir(parents=True, exist_ok=True)
+    with p.open("x") as handle: json.dump(value, handle, ensure_ascii=False, indent=2, allow_nan=False); handle.write("\n")
+
+
+def references(value):
+    if isinstance(value, dict):
+        if isinstance(value.get("path"), str) and isinstance(value.get("sha256"), str): yield value
+        else:
+            for child in value.values(): yield from references(child)
+    elif isinstance(value, list):
+        for child in value: yield from references(child)
+
+
+def unique_refs(values):
+    found = {}
+    for value in values:
+        p = str(path(value["path"]).relative_to(ROOT)); normalized = ref(p)
+        require(normalized["sha256"] == value["sha256"], "Pinned input changed: " + p)
+        if p in found: require(found[p] == normalized, "Conflicting refs: " + p)
+        found[p] = normalized
+    return list(found.values())
+
+
+def job_template(job_id, kind, operation, source, parameters, depends_on, *, cpu_seconds=None, wall_seconds=None, partial=False):
+    cpu, wall = LIMITS[operation]
+    item = {"id": job_id, "kind": kind, "operation": operation, "source": deepcopy(source),
+        "parameters": deepcopy(parameters), "depends_on": list(dict.fromkeys(depends_on)),
+        "cpu_seconds": cpu if cpu_seconds is None else cpu_seconds,
+        "wall_seconds": wall if wall_seconds is None else wall_seconds, "max_attempts": 2,
+        "result_schema": NEURAL_SCHEMA if kind == "neural" else CAUSE_SCHEMA,
+        "success_statuses": ["DONE"] if kind == "neural" else ["COMPLETED"]}
+    if kind == "summary":
+        item.update(success_statuses=["SUMMARY_COMPLETE", "PARTIAL_BLOCKS_PRESERVED"], allow_partial_dependencies=True)
+    require(not partial or kind == "summary", "Only summary accepts partial dependencies")
+    return item
+
+
+def build_job_templates(sources):
+    """Pure frozen parameter cross-products; no artifact hash is invented."""
+    jobs = [job_template("prepare_data", "data", "prepare_data", sources["data"], {}, [])]
+    jobs.append(job_template("diagnose", "classical", "diagnose", sources["classical"], {}, ["prepare_data"]))
+    pairs = [*OLD_PAIRS, *[(j, a) for j in JUJUBE for a in ACID if (j, a) not in OLD_PAIRS]]
+    for j, a in pairs:
+        jobs.append(job_template(f"pair_{j}_{a}", "classical", "group_pair", sources["classical"],
+            {"jujube_group": j, "acid_group": a}, ["prepare_data"]))
+    for block, (_, acid) in enumerate(OLD_PAIRS):
+        for modality in MODALITIES:
+            jobs.append(job_template(f"coverage_b{block}_{modality}", "classical", "coverage", sources["classical"],
+                {"block_index": block, "acid_group": acid, "modality": modality}, ["prepare_data", f"pair_ZY01_{acid}"]))
+    for acid in ACID:
+        for modality in MODALITIES:
+            for seed in SEEDS:
+                jobs.append(job_template(f"support_{acid}_{modality}_s{seed}", "classical", "support", sources["classical"],
+                    {"acid_group": acid, "modality": modality, "draw_seed": seed}, ["prepare_data"]))
+    for mode in ("real", "shuffled"):
+        for seed in SEEDS:
+            for steps in BUDGETS:
+                jobs.append(job_template(f"aux_{mode}_s{seed}_b{steps}", "neural", "aux_pretrain", sources["neural"],
+                    {"seed": seed, "steps": steps, "label_mode": mode}, ["prepare_data"]))
+    for fold in range(5):
+        for seed in SEEDS:
+            for steps in BUDGETS:
+                jobs.append(job_template(f"target_f{fold}_s{seed}_b{steps}", "neural", "target_pretrain", sources["neural"],
+                    {"fold": fold, "seed": seed, "steps": steps}, ["prepare_data"]))
+    for fold in range(5):
+        for seed in SEEDS:
+            for adapt in ADAPT:
+                jobs.append(job_template(f"sourceA_f{fold}_s{seed}_{adapt}", "neural", "source_A", sources["neural"],
+                    {"fold": fold, "seed": seed, "adapt": adapt}, ["prepare_data"]))
+    for steps in BUDGETS:
+        for adapt in ADAPT:
+            for fold in range(5):
+                for seed in SEEDS:
+                    jobs.append(job_template(f"eval_f{fold}_s{seed}_b{steps}_{adapt}", "neural", "target_eval", sources["neural"],
+                        {"fold": fold, "seed": seed, "steps": steps, "adapt": adapt}, ["prepare_data",
+                            f"aux_real_s{seed}_b{steps}", f"aux_shuffled_s{seed}_b{steps}",
+                            f"target_f{fold}_s{seed}_b{steps}", f"sourceA_f{fold}_s{seed}_{adapt}"]))
+    jobs.append(job_template("summary", "summary", "summary", sources["summary"], {}, [j["id"] for j in jobs], partial=True))
+    require(len(jobs) == 220 and len({j["id"] for j in jobs}) == 220, "Exact220-job plan required")
+    seen = set()
+    for job in jobs: require(set(job["depends_on"]) <= seen, "DAG dependency follows its job"); seen.add(job["id"])
+    return jobs
+
+
+def summary_blocks(jobs):
+    blocks = []
+    def add(name, selected, kind="predictions", comparisons=()):
+        ids = [j["id"] for j in jobs if selected(j)]
+        blocks.append({"id": name, "required_job_ids": ids, "expected_count": len(ids), "block_type": kind,
+            "paired_comparisons": [{"left": left, "right": right} for left, right in comparisons]})
+    add("data_and_diagnose", lambda j: j["operation"] in ("prepare_data", "diagnose"), "artifact_only")
+    add("group_pairs_complete25", lambda j: j["operation"] == "group_pair", comparisons=[("alpha/snv/svc/balanced", "alpha/raw/svc/balanced")])
+    base_settings = [f"{mod}/{prep}/{learner}/" + ("none" if learner == "plsda2" else "balanced")
+        for mod in MODALITIES for prep in ("raw", "snv") for learner in ("svc", "logreg", "plsda2")]
+    blocks[-1].update(expected_settings=base_settings, setting_cohorts={key: "held_pair" for key in base_settings},
+        expected_design={"jujube_group": list(JUJUBE), "acid_group": list(ACID)})
+    donor_settings = [f"{mod}/snv/svc/acid{n}/seed{seed}" for mod in MODALITIES for n in (6, 24, 60) for seed in SEEDS]
+    donor_settings += [f"{mod}/snv/svc/all240/unweighted" for mod in MODALITIES]
+    donor_baselines = [f"{mod}/snv/svc/balanced" for mod in MODALITIES]
+    add("ZY01_donor_controls_complete5", lambda j: j["operation"] == "group_pair" and j["parameters"]["jujube_group"] == "ZY01",
+        comparisons=[(name, name.split("/")[0] + "/snv/svc/balanced") for name in donor_settings])
+    blocks[-1].update(expected_settings=[*donor_baselines, *donor_settings],
+        setting_cohorts={key: "held_pair" for key in [*donor_baselines, *donor_settings]}, expected_design={"acid_group": list(ACID)})
+    add("coverage_complete15", lambda j: j["operation"] == "coverage", comparisons=[("B1/otherZY01", "B0/noZY01")])
+    blocks[-1].update(expected_settings=["B0/noZY01", "B1/otherZY01", *[f"R{s}/random_sameN" for s in SEEDS]],
+        setting_cohorts={"B0/noZY01": "ordinal_query", "B1/otherZY01": "ordinal_query", **{f"R{s}/random_sameN": f"random_query_{s}" for s in SEEDS}},
+        expected_design={"block_index": list(range(5)), "modality": list(MODALITIES)})
+    support_settings = ["source_svc", "source_score_argmax/K0", *[f"{method}/K{k}" for method in ("legacy_anchor", "weak_anchor", "full_pipeline_refit") for k in (0, 1, 3, 5, 10, 20)]]
+    add("support_complete45", lambda j: j["operation"] == "support", comparisons=[(name, baseline)
+        for name in support_settings[2:] for baseline in ("source_svc", "source_score_argmax/K0")])
+    blocks[-1].update(expected_settings=support_settings, setting_cohorts={key: "locked_query" for key in support_settings},
+        expected_design={"acid_group": list(ACID), "modality": list(MODALITIES), "draw_seed": list(SEEDS)})
+    add("aux_pretrain_complete12", lambda j: j["operation"] == "aux_pretrain", "artifact_only")
+    blocks[-1]["expected_design"] = {"label_mode": ["real", "shuffled"], "seed": list(SEEDS), "steps": list(BUDGETS)}
+    add("target_pretrain_complete30", lambda j: j["operation"] == "target_pretrain", "artifact_only")
+    blocks[-1]["expected_design"] = {"fold": list(range(5)), "seed": list(SEEDS), "steps": list(BUDGETS)}
+    for adapt in ADAPT:
+        add("source_A_" + adapt, lambda j, a=adapt: j["operation"] == "source_A" and j["parameters"]["adapt"] == a)
+        blocks[-1].update(expected_settings=["A"], setting_cohorts={"A": "locked_target_query"}, expected_design={"fold": list(range(5)), "seed": list(SEEDS)})
+        for steps in BUDGETS:
+            add(f"neural_b{steps}_{adapt}", lambda j, a=adapt, s=steps: j["operation"] == "target_eval"
+                and j["parameters"]["adapt"] == a and j["parameters"]["steps"] == s,
+                comparisons=[("B", "A"), ("B", "Aextra"), ("B", "Bshuffle"), ("Aextra", "A")])
+            blocks[-1].update(expected_settings=["A", "Aextra", "B", "Bshuffle"],
+                setting_cohorts={key: "locked_target_query" for key in ("A", "Aextra", "B", "Bshuffle")},
+                expected_design={"fold": list(range(5)), "seed": list(SEEDS)})
+    return blocks
+
+
+def build_candidate(*, draft):
+    def source(name):
+        p = BIN / name
+        if p.is_file(): return ref(p)
+        require(draft, "Missing final source: " + str(p)); return {"path": str(p.relative_to(ROOT)), "sha256": None, "pending_source": True}
+    sources = {kind: source(file) for kind, file in (("data", "data_worker.py"), ("classical", "classical_worker.py"),
+        ("neural", "neural_worker.py"), ("summary", "summary_worker.py"))}
+    jobs = build_job_templates(sources); grant_path = WORK / "preparation/user_authorization_new_round_ROOT.json"; grant = read(grant_path)
+    data_inputs = read(WORK / "preparation/data_producer_inputs.json"); data_inputs["data_worker"] = sources["data"]
+    inputs = {**data_inputs, **read(WORK / "preparation/classical_inputs.json")}
+    runtime = read(WORK / "preparation/runtime_environment_ROOT.json")
+    old = grant["old_audit"]; old_manifest = read(old["manifest"]["path"], old["manifest"]["sha256"])
+    protocol_path = WORK / "preparation/scientific_protocol_ROOT.json"
+    m = {"schema": MANIFEST_SCHEMA, "run_id": RUN_ID, "audit_id": AUDIT_ID, "branch": old_manifest["branch"],
+        "work_directory": str(WORK.relative_to(ROOT)), "ledger": str((WORK / "cpu_budget.json").relative_to(ROOT)),
+        "source_python": runtime["python"], "new_round_cpu_cap_seconds": grant["new_round_cpu_cap_seconds"],
+        "aggregate_budget_charged_ceiling_seconds": grant["aggregate_budget_charged_ceiling_seconds"],
+        "deadline_utc": grant["deadline_utc"], "threads": 2, "memory_gib": 12, "rss_stop_gib": 8,
+        "reserve_cpu_seconds": 300, "boot_id": grant["boot_id"], "authorization_ref": ref(grant_path),
+        "preparation_debit_ref": ref(WORK / "preparation/preparation_debit_ROOT.json"), "protocol_ref": ref(protocol_path),
+        "runtime_ref": ref(WORK / "preparation/runtime_environment_ROOT.json"), "supervisor": source("yanan_followup_supervisor.py"),
+        "source_refs": [value for value in [*sources.values(), source("yanan_followup_supervisor.py"), ref(SELF)] if value.get("sha256")],
+        "input_refs": [], "inputs": inputs, "neural": {"legacy_encoder_source": ref(WORK / "legacy_source/src/herb_spectra/upgrade_neural.py")},
+        "predecessor": {**old, "supervisor": old_manifest["supervisor"]}, "dataset_job_id": "prepare_data", "jobs": jobs,
+        "summary_blocks": summary_blocks(jobs)}
+    m["source_refs"] = unique_refs([*m["source_refs"], *(ref(p) for p in sorted(BIN.glob("*.py")))])
+    documents = [ref(p) for p in sorted((WORK / "preparation").glob("*")) if p.suffix in (".json", ".txt") and "candidate" not in p.name and not p.name.startswith("draft_")]
+    documents.extend(ref(p) for p in sorted((WORK / "analysis").glob("*")) if p.suffix in (".json", ".csv"))
+    m["input_refs"] = unique_refs([*references(inputs), *documents, *references(m["predecessor"]), m["neural"]["legacy_encoder_source"]])
+    groups = [("data_diagnose", [j["id"] for j in jobs if j["operation"] in ("prepare_data", "diagnose")], None)]
+    for op in ("group_pair", "coverage", "support"):
+        ids = [j["id"] for j in jobs if j["operation"] == op]
+        for start in range(0, len(ids), 5): groups.append((f"{op}_{start//5+1:02d}", ids[start:start+5], None))
+    for op, pattern in (("aux_pretrain", "aux_*"), ("target_pretrain", "target_*"), ("source_A", "sourceA_*")):
+        groups.append((op, [j["id"] for j in jobs if j["operation"] == op], [pattern]))
+    for steps in BUDGETS:
+        groups.append(("target_eval_b" + str(steps), [j["id"] for j in jobs if j["operation"] == "target_eval" and j["parameters"]["steps"] == steps], [f"eval_*_b{steps}_*"]))
+    groups.append(("summary", ["summary"], None))
+    m["git_return"] = {"enabled": True, "helper": ref(HELPER), "stage_specs": [{"id": name, "after_job_ids": ids,
+        "allowlist": return_allowlist(patterns or ids)} for name, ids, patterns in groups],
+        "pre_allowlist": return_allowlist([], include_analysis=True), "post_allowlist": return_allowlist(["summary"])}
+    return {"schema": SPEC_SCHEMA, "draft_only": draft, "manifest": m,
+        "notice": "DRAFT_NOT_EXECUTABLE; no job data/model hash is guessed" if draft else "PINNED_SPEC_NOT_LAUNCHED"}
+
+
+def return_allowlist(job_ids, include_analysis=False):
+    prefix = AUDIT_ID + "/"
+    patterns = [prefix + "preparation/**/*.json", prefix + "preparation/**/*.txt", prefix + "manifest_ROOT_AUTHORIZED.json"]
+    if include_analysis: patterns.extend([prefix + "analysis/*.json", prefix + "analysis/*.csv"])
+    for job_id in job_ids:
+        stem = job_id if "*" in job_id else job_id + "*"
+        for extension in ("json", "csv", "txt", "log"):
+            patterns.append(prefix + "science/" + stem + "/**/*." + extension)
+        for extension in ("wait4.json", "proof.json", "context.json"):
+            patterns.append(prefix + "execution/" + stem + "." + extension)
+        patterns.append(prefix + "contexts/" + stem + "/**/*.json")
+    require(len(patterns) <= 64, "Each return stage has at most64 explicit globs")
+    return patterns
+
+
+def prepare(spec_path, expected):
+    spec_path = path(spec_path); spec = read(spec_path, expected)
+    require(spec.get("schema") == SPEC_SCHEMA and spec.get("draft_only") is False, "Only an explicitly final pinned spec may prepare a manifest")
+    require(not CLAIM.exists() and not any((WORK / p).exists() for p in ("cpu_budget.json", "state.json", "manifest_ROOT_AUTHORIZED.json")), "Existing allocation/manifest requires preservation, never reset")
+    m = deepcopy(spec["manifest"]); m["input_refs"] = unique_refs([*m["input_refs"], ref(spec_path)])
+    for value in [*m["source_refs"], *references(m["jobs"])]: require(sha(path(value["path"])) == value["sha256"], "Source changed since final spec")
+    snapshots = []
+    for value in m["source_refs"]:
+        p = path(value["path"]); out = WORK / "preparation/source_snapshots" / (p.name + ".txt"); out.parent.mkdir(parents=True, exist_ok=True)
+        with out.open("xb") as handle: handle.write(p.read_bytes())
+        snapshots.append({"source": value, "exact_byte_snapshot": ref(out)})
+    snapshot_ref = WORK / "preparation/source_snapshots/source_refs.json"; save(snapshot_ref, {"files": snapshots})
+    m["input_refs"] = unique_refs([*m["input_refs"], ref(snapshot_ref), *[item["exact_byte_snapshot"] for item in snapshots]])
+    cfg = m["git_return"]; helper = cfg["helper"]; stage_specs = cfg["stage_specs"]
+    def return_plan(label, allowlist, ledger):
+        output = WORK / "preparation" / ("return_" + label + "_manifest.json")
+        selected = [*allowlist, AUDIT_ID + "/snapshots/" + label + "/closed_round_snapshot.json"]
+        require(len(selected) <= 64, "Finite per-stage return scope required")
+        save(output, {"schema": "research4-b-yanan-return-manifest-v2", "role": "B", "run_id": RUN_ID,
+            "work_directory": str(BASE.relative_to(ROOT)), "ledger": ledger, "upload": {"branch": m["branch"], "allowlist": selected}})
+        return ref(output)
+    pre = return_plan("pre", cfg["pre_allowlist"], m["predecessor"]["ledger"]["path"])
+    post = return_plan("post", cfg["post_allowlist"], m["ledger"])
+    stages = [{"id": item["id"], "after_job_ids": item["after_job_ids"],
+        "manifest": return_plan(item["id"], item["allowlist"], m["ledger"])} for item in stage_specs]
+    m["git_return"] = {"enabled": True, "helper": helper, "pre_manifest": pre, "post_manifest": post, "stage_manifests": stages}
+    m["input_refs"] = unique_refs([*m["input_refs"], pre, post, *[item["manifest"] for item in stages]])
+    sp = importlib.util.spec_from_file_location("yanan_prepare_supervisor", SUPERVISOR); s = importlib.util.module_from_spec(sp); sp.loader.exec_module(s)
+    s.validate_manifest(m, "0" * 64, check_inputs=True)
+    output = WORK / "manifest_ROOT_AUTHORIZED.json"; save(output, m); s.validate_manifest(m, sha(output), check_inputs=True)
+    return {"status": "PREPARED_NOT_RUN", "manifest": ref(output), "jobs": len(m["jobs"]), "new_fits": 0, "new_train_calls": 0, "git_commands": 0}
+
+
+def main():
+    p = argparse.ArgumentParser(description=__doc__); p.add_argument("--spec"); p.add_argument("--spec-sha256")
+    p.add_argument("--write-draft"); p.add_argument("--build-spec")
+    a = p.parse_args()
+    if a.write_draft or a.build_spec:
+        require(not a.spec and not a.spec_sha256 and not (a.write_draft and a.build_spec), "Use one preparation mode")
+        output = path(a.write_draft or a.build_spec); spec = build_candidate(draft=bool(a.write_draft)); save(output, spec)
+        result = {"status": "DRAFT_NOT_EXECUTABLE" if a.write_draft else "PINNED_SPEC_NOT_RUN", "spec": ref(output), "jobs": len(spec["manifest"]["jobs"])}
+    else:
+        require(a.spec and a.spec_sha256, "Pinned --spec and --spec-sha256 required"); result = prepare(a.spec, a.spec_sha256)
+    print(json.dumps(result, ensure_ascii=False, indent=2))
+
+
+if __name__ == "__main__": main()

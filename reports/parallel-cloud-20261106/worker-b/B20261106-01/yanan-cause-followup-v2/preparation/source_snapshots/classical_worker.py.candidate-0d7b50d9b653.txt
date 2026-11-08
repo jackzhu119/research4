@@ -1,0 +1,804 @@
+#!/usr/bin/env python3
+"""Frozen TRAIN-only source/coverage/support diagnostics. No label correction.
+
+Imports and every fitting operation are behind the live resource proof. The
+functions below also support synthetic/fake-estimator tests without real fits.
+"""
+import argparse
+from collections import Counter
+import csv
+import hashlib
+import importlib.util
+import importlib.metadata
+import json
+import os
+from pathlib import Path
+import platform
+import sys
+import time
+import traceback
+import warnings
+
+SCHEMA = 'research4-b-yanan-cause-result-v2'
+JUJUBE = ('ZY01', 'ZY02', 'ZR01', 'ZR02', 'ZR03')
+ACID = ('ZY03', 'ZY04', 'ZY05', 'ZY06', 'ZY07')
+OLD_PAIRS = (('ZY01', 'ZY03'), ('ZY02', 'ZY04'), ('ZR02', 'ZY05'),
+             ('ZR01', 'ZY07'), ('ZR03', 'ZY06'))
+CLASSES = ('枣仁', '酸枣仁')
+MODALITIES = ('alpha', 'n', 'fusion')
+SUPPORT_K = (0, 1, 3, 5, 10, 20)
+ROOT = Path(__file__).resolve().parents[7]
+
+
+class ScientificBlocked(ValueError):
+    """A frozen scientific control cannot be defined; never replace it by a fit."""
+
+
+def sha(path):
+    h = hashlib.sha256()
+    with Path(path).open('rb') as f:
+        for block in iter(lambda: f.read(1024 * 1024), b''):
+            h.update(block)
+    return h.hexdigest()
+
+
+def ref(path):
+    p = Path(path).resolve()
+    return {'path': str(p.relative_to(ROOT)) if p.is_relative_to(ROOT) else str(p), 'sha256': sha(p), 'bytes': p.stat().st_size}
+
+
+def checked(value):
+    p = Path(value['path'])
+    p = p if p.is_absolute() else ROOT / p
+    if any(v.is_symlink() for v in (p, *p.parents)):
+        raise ValueError('Symlink source/input forbidden')
+    p = p.resolve()
+    if (not p.is_relative_to(ROOT) or not p.is_file() or sha(p) != value['sha256']
+            or ('bytes' in value and p.stat().st_size != int(value['bytes']))):
+        raise ValueError('Input/source hash mismatch: ' + str(p))
+    return p
+
+
+def read_json(value):
+    return json.loads(checked(value).read_text())
+
+
+def write_json(path, value):
+    p = Path(path)
+    tmp = p.with_suffix(p.suffix + '.tmp')
+    tmp.write_text(json.dumps(value, ensure_ascii=False, indent=2, allow_nan=False) + '\n')
+    tmp.replace(p)
+
+
+def import_file(path, name):
+    spec = importlib.util.spec_from_file_location(name, path)
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
+def nofork_platform():
+    source = Path('/proc/cpuinfo')
+    value = None
+    if source.is_file():
+        for line in source.read_text().splitlines():
+            if line.startswith(('model name', 'Hardware')) and ':' in line:
+                value = line.split(':', 1)[1].strip()
+                if value:
+                    break
+    if not value:
+        value = os.uname().machine
+    platform._Processor.get = staticmethod(lambda: value)
+    platform._platform_cache.clear()
+    platform._uname_cache = None
+    if platform.processor() != value:
+        raise RuntimeError('Truthful nofork platform initialization failed')
+    return {'value': value, 'source': '/proc/cpuinfo' if source.is_file() else 'os.uname().machine',
+            'cpuinfo_sha256': sha(source) if source.is_file() else None,
+            'platform_source': ref(platform.__file__), 'no_subprocess': True}
+
+
+def initialize_numerics(manifest):
+    global np, StandardScaler, SVC, LogisticRegression, PCA, PLSDAClassifier, calibration
+    threadpool_metadata = prime_threadpoolctl_nofork()
+    import numpy as np
+    from sklearn.preprocessing import StandardScaler
+    from sklearn.svm import SVC
+    from sklearn.linear_model import LogisticRegression
+    from sklearn.decomposition import PCA
+    sources = manifest['inputs']['legacy_sources']
+    paths = [checked(v) for v in sources]
+    package = next(p.parent.parent for p in paths if p.name == 'conservative_calibration.py')
+    required = {'__init__.py', 'benchmark.py', 'calibration.py', 'conservative_calibration.py'}
+    if not required.issubset({p.name for p in paths}):
+        raise ValueError('Legacy implementation sources are incomplete')
+    # Every module in this dedicated package tree must have an exact source ref.
+    allowed = {p.resolve() for p in paths}
+    if any(p.resolve() not in allowed for p in (package / 'herb_spectra').glob('*.py')):
+        raise ValueError('Unbound legacy package source')
+    sys.path.insert(0, str(package))
+    from herb_spectra.benchmark import PLSDAClassifier
+    from herb_spectra import conservative_calibration as calibration
+    if any(Path(m.__file__).resolve() not in allowed for name, m in sys.modules.items()
+           if (name == 'herb_spectra' or name.startswith('herb_spectra.')) and getattr(m, '__file__', None)):
+        raise ValueError('Legacy import resolved outside exact pinned source files')
+    return threadpool_metadata
+
+
+def prime_threadpoolctl_nofork():
+    """Use the process's real loaded libc instead of find_library's ldconfig child."""
+    import ctypes
+    import threadpoolctl
+    libc = ctypes.CDLL(None)
+    if not hasattr(libc, 'dl_iterate_phdr'):
+        raise RuntimeError('Loaded libc lacks required dl_iterate_phdr; no subprocess fallback allowed')
+    threadpoolctl.ThreadpoolController._system_libraries['libc'] = libc
+    return {'provider': 'ctypes.CDLL(None)', 'symbol_verified': 'dl_iterate_phdr',
+            'threadpoolctl_source': ref(threadpoolctl.__file__), 'no_find_library_or_subprocess': True}
+
+
+def array_hash(values):
+    return hashlib.sha256(np.ascontiguousarray(values, dtype='<f8').tobytes()).hexdigest()
+
+
+def labels_hash(labels):
+    return hashlib.sha256(json.dumps(list(map(str, labels)), ensure_ascii=False).encode()).hexdigest()
+
+
+def validate_dataset(data):
+    aliases = {'groups': 'origin_group_ids', 'roles': 'master_roles', 'ids': 'record_ids'}
+    for target, source in aliases.items():
+        if target not in data and source in data:
+            data[target] = data[source]
+    ids = list(map(str, data['record_ids']))
+    n = len(ids)
+    if len(set(ids)) != n or set(map(str, data['master_roles'])) != {'train'}:
+        raise ValueError('Unique master-TRAIN IDs required')
+    if any(len(data[k]) != n for k in ('species', 'groups', 'physical_sample_ids', 'master_roles')):
+        raise ValueError('Dataset identity arrays do not align')
+    if len(set(map(str, data['physical_sample_ids']))) != n:
+        raise ValueError('Repeated physical specimens are not independent TRAIN rows')
+    if any(str(r).split('-')[0] != str(g) for r, g in zip(ids, data['groups'])):
+        raise ValueError('ID/source group disagreement')
+    axis = np.asarray(data['axis_main'])
+    if axis.ndim != 1 or len(axis) < 2 or not np.isfinite(axis).all() or np.any(np.diff(axis) <= 0):
+        raise ValueError('Finite strictly increasing original axis required')
+    for key in ('alpha_main', 'n_main'):
+        x = np.asarray(data[key])
+        if x.ndim != 2 or x.shape != (n, len(data['axis_main'])):
+            raise ValueError('Modality/axis/identity mismatch')
+        if not np.isfinite(x).all():
+            raise ScientificBlocked('Nonfinite TRAIN spectrum: retain QC; no silent exclusion')
+    data['record_ids'] = np.asarray(ids)
+    for key in ('species', 'groups', 'master_roles'):
+        data[key] = np.asarray(data[key], dtype=str)
+    return data
+
+
+def binary_indices(data):
+    return np.flatnonzero(np.isin(data['groups'], JUJUBE + ACID))
+
+
+def split_pair(data, jujube_group, acid_group):
+    if jujube_group not in JUJUBE or acid_group not in ACID:
+        raise ValueError('Unknown paired source group')
+    candidates = binary_indices(data)
+    held = np.isin(data['groups'][candidates], [jujube_group, acid_group])
+    fit, query = candidates[~held], candidates[held]
+    assert_split(data, fit, query)
+    return fit, query
+
+
+def assert_split(data, fit, query, support=()):
+    pools = [list(map(int, v)) for v in (fit, query, support)]
+    if any(i < 0 or i >= len(data['record_ids']) for v in pools for i in v):
+        raise ValueError('Pool row index outside dataset')
+    if any(len(v) != len(set(v)) for v in pools):
+        raise ValueError('Repeated row in a fitting/query/support pool')
+    if any(set(pools[i]) & set(pools[j]) for i in range(3) for j in range(i)):
+        raise ValueError('Fit, query and support must be disjoint')
+    if any(str(data['master_roles'][i]) != 'train' for v in pools for i in v):
+        raise ValueError('Only master TRAIN is permitted')
+
+
+def ordinal_bin(record_id):
+    if not str(record_id).startswith('ZY01-'):
+        raise ValueError('Ordinal bins are defined only for ZY01')
+    value = int(str(record_id).split('-')[-1])
+    if not 1 <= value <= 350:
+        raise ValueError('ZY01 ordinal outside frozen 1..350')
+    return (value - 1) // 70
+
+
+def snv(values):
+    x = np.asarray(values, dtype=float)
+    sd = x.std(axis=1, ddof=1, keepdims=True)
+    if not np.isfinite(x).all() or np.any(sd <= np.finfo(float).eps):
+        raise ScientificBlocked('SNV requires finite nonflat spectra; no exclusion or fallback')
+    return (x - x.mean(axis=1, keepdims=True)) / sd
+
+
+def build_features(alpha, n, modality, preprocessing):
+    if modality not in MODALITIES or preprocessing not in ('raw', 'snv'):
+        raise ValueError('Unknown frozen modality/preprocessing')
+    blocks = [alpha] if modality == 'alpha' else [n] if modality == 'n' else [alpha, n]
+    values = [snv(b) if preprocessing == 'snv' else np.asarray(b, dtype=float) for b in blocks]
+    if any(v.ndim != 2 or len(v) != len(values[0]) or not np.isfinite(v).all() for v in values):
+        raise ValueError('Finite aligned modality matrices required')
+    return np.concatenate(values, axis=1)
+
+
+def features(data, indices, modality, preprocessing='snv'):
+    return build_features(data['alpha_main'][indices], data['n_main'][indices], modality, preprocessing)
+
+
+def hash_order(ids, seed, domain):
+    return sorted(map(str, ids), key=lambda rid: (hashlib.sha256(
+        f'{20261108}|{seed}|{domain}|{rid}'.encode()).hexdigest(), rid))
+
+
+def support_split(data, acid_group, seed):
+    if acid_group not in ACID or seed not in (42, 43, 44):
+        raise ValueError('Unknown support source/seed')
+    fit, held = split_pair(data, 'ZY01', acid_group)
+    lookup = {str(v): i for i, v in enumerate(data['record_ids'])}
+    query, support = [], []
+    for group in ('ZY01', acid_group):
+        ordered = hash_order(data['record_ids'][held[data['groups'][held] == group]], seed, 'support-query-' + group)
+        if len(ordered) % 2:
+            raise ScientificBlocked('Support/query fixed half split requires an even source count')
+        cut = len(ordered) // 2
+        query += [lookup[r] for r in ordered[:cut]]
+        support += [lookup[r] for r in ordered[cut:]]
+    query, support = np.asarray(query, dtype=int), np.asarray(support, dtype=int)
+    assert_split(data, fit, query, support)
+    return fit, query, support
+
+
+def nested_support(data, support, k):
+    if k not in SUPPORT_K:
+        raise ValueError('Unfrozen support K')
+    chosen = []
+    for label in CLASSES:
+        pool = [int(i) for i in support if str(data['species'][i]) == label]
+        if len(pool) < k:
+            raise ScientificBlocked('Insufficient disjoint support for frozen K')
+        chosen += pool[:k]
+    return np.asarray(chosen, dtype=int)
+
+
+def balanced_acid_donors(data, donor, count, seed):
+    if count not in (6, 24, 60) or seed not in (42, 43, 44):
+        raise ValueError('Unfrozen donor count/seed')
+    groups = sorted(set(data['groups'][donor]) & set(ACID))
+    if len(groups) != 4:
+        raise ValueError('Exactly four donor acid sources required')
+    bygroup = {g: list(map(int, donor[data['groups'][donor] == g])) for g in groups}
+    for g in groups:
+        bygroup[g].sort(key=lambda i: (hashlib.sha256(f'20261108|{seed}|acid-donor|{data["record_ids"][i]}'.encode()).hexdigest(), str(data['record_ids'][i])))
+    selected = [int(i) for i in donor if data['groups'][i] in JUJUBE]
+    take = {g: 0 for g in groups}
+    for j in range(count):
+        g = groups[j % 4]
+        if take[g] >= len(bygroup[g]):
+            raise ScientificBlocked('Insufficient source-balanced acid donor pool')
+        selected.append(bygroup[g][take[g]])
+        take[g] += 1
+    return np.asarray(sorted(selected), dtype=int)
+
+
+def coverage_split(data, block_index, acid_group, random_seed=None):
+    if block_index not in range(5):
+        raise ValueError('Unfrozen ordinal block')
+    expected_acid = OLD_PAIRS[block_index][1]
+    if acid_group != expected_acid:
+        raise ValueError('Ordinal block/acid-source mapping differs from frozen folds')
+    donor, held = split_pair(data, 'ZY01', acid_group)
+    zy = held[data['groups'][held] == 'ZY01']
+    block = np.asarray([i for i in zy if ordinal_bin(data['record_ids'][i]) == block_index], dtype=int)
+    if random_seed is not None:
+        if random_seed not in (42, 43, 44):
+            raise ValueError('Unfrozen random-coverage seed')
+        ordered = hash_order(data['record_ids'][zy], random_seed, 'coverage-' + str(block_index))
+        lookup = {str(data['record_ids'][i]): int(i) for i in zy}
+        block = np.asarray([lookup[r] for r in ordered[:len(block)]], dtype=int)
+    query = np.concatenate([block, held[data['groups'][held] == acid_group]])
+    augmented = np.concatenate([donor, np.asarray([i for i in zy if i not in set(block)], dtype=int)])
+    assert_split(data, donor, query)
+    assert_split(data, augmented, query)
+    return donor, augmented, query
+
+
+def metrics(truth, prediction, groups=None):
+    truth, prediction = list(map(str, truth)), list(map(str, prediction))
+    if not truth or len(truth) != len(prediction) or not set(prediction).issubset(CLASSES) or not set(truth).issubset(CLASSES):
+        raise ValueError('Aligned binary truth/predictions required')
+    result = {'N': len(truth), 'correct_count': sum(a == b for a, b in zip(truth, prediction))}
+    recalls, f1 = [], []
+    for c in CLASSES:
+        tp = sum(a == c and b == c for a, b in zip(truth, prediction))
+        n = truth.count(c)
+        p = prediction.count(c)
+        recalls.append(tp / n if n else None)
+        f1.append(2 * tp / (n + p) if n + p else 0.)
+    result.update(accuracy=result['correct_count'] / len(truth), macro_f1=sum(f1) / 2,
+                  balanced_accuracy=sum(r for r in recalls if r is not None) / sum(r is not None for r in recalls),
+                  per_class_recall=dict(zip(CLASSES, recalls)))
+    if groups is not None:
+        rows = []
+        for g in sorted(set(map(str, groups))):
+            select = [j for j, v in enumerate(groups) if str(v) == g]
+            correct = sum(truth[j] == prediction[j] for j in select)
+            rows.append({'group': g, 'N': len(select), 'correct_count': correct, 'recall': correct / len(select)})
+        result['per_source_group'] = rows
+        result['unweighted_source_group_recall'] = sum(r['recall'] for r in rows) / len(rows)
+    return result
+
+
+class Recorder:
+    def __init__(self, output, state, data):
+        self.output, self.state, self.data = Path(output), state, data
+        self.matrix = {'cohorts': {}, 'settings': {}, 'unique_specimen_N': 0,
+                       'repeated_predictions_are_independent_samples': False}
+        self.receipts = []
+
+    def persist(self):
+        write_json(self.output / 'prediction_matrix.json', self.matrix)
+        write_json(self.output / 'fit_receipts.json', self.receipts)
+        write_json(self.output / 'progress.json', self.state)
+
+    def cohort(self, name, indices):
+        item = {'ids': list(map(str, self.data['record_ids'][indices])),
+                'truth': list(map(str, self.data['species'][indices])),
+                'groups': list(map(str, self.data['groups'][indices]))}
+        if len(set(item['ids'])) != len(item['ids']):
+            raise ValueError('A cohort cannot repeat specimens')
+        if name in self.matrix['cohorts'] and self.matrix['cohorts'][name] != item:
+            raise ValueError('Cohort name reused with different query identities')
+        self.matrix['cohorts'][name] = item
+        self.matrix['unique_specimen_N'] = len({r for c in self.matrix['cohorts'].values() for r in c['ids']})
+
+    def add(self, key, cohort, query, predictions, receipt, metadata=None):
+        if key in self.matrix['settings']:
+            raise ValueError('Duplicate setting would hide a result')
+        self.cohort(cohort, query)
+        value = list(map(str, predictions))
+        m = metrics(self.data['species'][query], value, self.data['groups'][query])
+        self.matrix['settings'][key] = {'cohort': cohort, 'predictions': value, 'metrics': m,
+                                       'receipt_index': receipt, 'metadata': metadata or {}}
+        self.persist()
+
+    def start(self, key, fit, query, *, kind='classifier', extra=None):
+        assert_split(self.data, fit, query)
+        self.state['new_fitting_entered'] = True
+        self.state['actual_new_model_fit_calls_started'] += 1
+        item = {'setting': key, 'kind': kind, 'status': 'FIT_STARTED', 'fit_ids': list(map(str, self.data['record_ids'][fit])),
+                'allowed_fit_ids': list(map(str, self.data['record_ids'][fit])),
+                'used_ids': list(map(str, self.data['record_ids'][fit])),
+                'labels': list(map(str, self.data['species'][fit])), 'query_ids': list(map(str, self.data['record_ids'][query])),
+                'fit_kind_counts': dict(Counter(map(str, self.data['species'][fit]))),
+                'fit_source_group_counts': dict(Counter(map(str, self.data['groups'][fit]))),
+                'query_kind_counts': dict(Counter(map(str, self.data['species'][query]))),
+                'preprocess_fit_ids': list(map(str, self.data['record_ids'][fit])),
+                'fit_labels_permuted': False, 'master_roles': ['train'], 'cpu_started': time.process_time(), **(extra or {})}
+        self.receipts.append(item)
+        self.persist()
+        return len(self.receipts) - 1
+
+    def finish(self, index, **extra):
+        receipt = self.receipts[index]
+        receipt.update(status='FIT_COMPLETED', process_cpu_seconds=time.process_time() - receipt['cpu_started'], **extra)
+        self.state['actual_new_model_fits'] += 1
+        self.persist()
+
+
+def estimator(learner, class_weight='balanced'):
+    if learner == 'svc':
+        return SVC(C=10, gamma='scale', class_weight=class_weight, random_state=42,
+                   decision_function_shape='ovr', break_ties=False)
+    if learner == 'logreg':
+        return LogisticRegression(C=1, class_weight='balanced', max_iter=2000, random_state=42)
+    if learner == 'plsda2':
+        return PLSDAClassifier(n_components=2)
+    raise ValueError('Unfrozen learner')
+
+
+def fit_model(rec, key, fit, query, modality, preprocessing='snv', learner='svc', class_weight='balanced'):
+    index = rec.start(key, fit, query, extra={'modality': modality, 'preprocessing': preprocessing,
+                      'learner': learner, 'class_weight': class_weight if learner == 'svc' else 'balanced' if learner == 'logreg' else None})
+    x = features(rec.data, fit, modality, preprocessing)
+    q = features(rec.data, query, modality, preprocessing)
+    scaler = StandardScaler()
+    rec.receipts[index]['transform_fit_started'] = True
+    rec.persist()
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter('always')
+        tx = scaler.fit_transform(x)
+        model = estimator(learner, class_weight)
+        model.fit(tx, rec.data['species'][fit])
+    prediction = model.predict(scaler.transform(q))
+    rec.finish(index, fit_feature_sha256=array_hash(x), fit_labels_sha256=labels_hash(rec.data['species'][fit]),
+               scaler_fit_ids=list(map(str, rec.data['record_ids'][fit])),
+               scaler_mean_sha256=array_hash(scaler.mean_), scaler_scale_sha256=array_hash(scaler.scale_),
+               warnings=[{'category': type(w.message).__name__, 'message': str(w.message)} for w in caught],
+               converged_warning_policy='All returned outcomes retained; no performance threshold or parameter search')
+    return prediction, index, (model, scaler, tx)
+
+
+def load_old_baseline(manifest, data):
+    inputs = manifest['inputs']['old_baseline']
+    result = read_json(inputs['result'])
+    old_manifest = read_json(inputs['manifest'])
+    if result['status'] != 'SPECIES_AUDIT_COMPLETE' or result['source_worker']['sha256'] != inputs['worker']['sha256']:
+        raise ScientificBlocked('Historical baseline is not the sealed scientific recipe')
+    checked(inputs['worker'])
+    if result['manifest']['sha256'] != inputs['manifest']['sha256']:
+        raise ScientificBlocked('Historical baseline manifest binding differs')
+    artifacts = {v['sha256'] for v in result['output_artifacts'] if isinstance(v, dict) and 'sha256' in v}
+    for name in ('predictions', 'receipts', 'feature_access', 'axis'):
+        checked(inputs[name])
+        if inputs[name]['sha256'] not in artifacts:
+            raise ScientificBlocked('Historical baseline artifact is not result-bound: ' + name)
+    axis = np.load(checked(inputs['axis']), allow_pickle=False)
+    if not np.array_equal(axis, data['axis_main']):
+        raise ScientificBlocked('Old baseline axis is not exactly the same original 612-point axis')
+    protocol = read_json(old_manifest['inputs']['protocol'])
+    old_pipeline = protocol['group_control']['fixed_pipeline']
+    expected_svc = {'C': 10.0, 'gamma': 'scale', 'class_weight': 'balanced',
+                    'decision_function_shape': 'ovr', 'break_ties': False, 'random_state': 42}
+    if (result.get('SNV_implementation', {}).get('std_ddof') != 1
+            or old_pipeline['SNV'].get('std_ddof') != 1 or old_pipeline['SVC'] != expected_svc
+            or protocol['group_control']['no_parameter_search'] is not True):
+        raise ScientificBlocked('Old SNV recipe cannot be proved identical')
+    if old_manifest['inputs']['feature_reader']['sha256'] != manifest['inputs']['feature_reader']['sha256']:
+        raise ScientificBlocked('Original spectral XML reader source differs')
+    access = read_json(inputs['feature_access'])
+    raw_sources = {r['registry_path']: r.get('source', r) for r in manifest['inputs']['raw_workbooks']}
+    old_ids = set()
+    lookup = {str(rid): i for i, rid in enumerate(data['record_ids'])}
+    for workbook in access['workbooks']:
+        current = raw_sources.get(workbook['registry_path'])
+        if not current or current['sha256'] != workbook['source']['sha256']:
+            raise ScientificBlocked('Historical alpha source workbook content differs')
+        ids = workbook['TRAIN_ids']
+        columns = workbook['TRAIN_excel_columns']
+        if len(ids) != len(columns) or any(rid not in lookup or str(data['excel_columns'][lookup[rid]]) != column for rid, column in zip(ids, columns)):
+            raise ScientificBlocked('Historical alpha TRAIN column/ID mapping differs')
+        old_ids.update(ids)
+    if old_ids != set(map(str, data['record_ids'][binary_indices(data)])):
+        raise ScientificBlocked('Historical alpha extracted identity coverage differs')
+    receipts = read_json(inputs['receipts'])
+    with checked(inputs['predictions']).open(newline='') as f:
+        rows = [r for r in csv.DictReader(f) if r['control'] == 'real']
+    if len(rows) != 516 or len({r['record_id'] for r in rows}) != 516:
+        raise ScientificBlocked('Historical real OOF identity cardinality differs')
+    return {'rows': rows, 'receipts': receipts, 'refs': inputs, 'manifest': old_manifest, 'versions': result.get('versions'),
+            'recipe_source': old_manifest['inputs']['protocol']}
+
+
+def reuse_old_pair(old, data, fit, query, pair):
+    matches = [r for r in old['receipts'] if r['control'] == 'real' and set(r['held_out_groups']) == set(pair)]
+    if len(matches) != 1:
+        raise ScientificBlocked('Unique original real baseline receipt required')
+    receipt = matches[0]
+    fit_ids, query_ids = list(map(str, data['record_ids'][fit])), list(map(str, data['record_ids'][query]))
+    if fit_ids != receipt['train_ids'] or query_ids != receipt['test_ids']:
+        raise ScientificBlocked('Historical baseline fitting/query IDs or order differ')
+    if labels_hash(data['species'][fit]) != receipt['fit_labels_sha256'] or array_hash(features(data, fit, 'alpha')) != receipt['fit_spectra_sha256']:
+        raise ScientificBlocked('Historical baseline labels/processed numerical features differ')
+    byid = {r['record_id']: r for r in old['rows']}
+    predictions = []
+    for i in query:
+        rid = str(data['record_ids'][i])
+        r = byid.get(rid)
+        if not r or r['y_true'] != str(data['species'][i]) or r['origin_group_id'] != str(data['groups'][i]) or r['master_role'] != 'train' or r['y_predicted'] not in CLASSES:
+            raise ScientificBlocked('Historical OOF identity/truth/source mismatch')
+        predictions.append(r['y_predicted'])
+    return predictions, {'status': 'REUSED_SEALED_BASELINE_NO_FIT', 'original_receipt': receipt,
+                         'source_refs': old['refs'], 'no_refund_of_original_CPU': True,
+                         'original_runtime_versions': old.get('versions'),
+                         'used_ids': fit_ids, 'query_ids': query_ids, 'preprocess_fit_ids': fit_ids,
+                         'reuse_checks': ['same_recipe_source', 'same612axis', 'sameorderedIDs', 'samefitSNVbytes', 'samelabelbytes', 'sealedpredictions']}
+
+
+def group_pair(rec, params, old):
+    jujube, acid = params['jujube_group'], params['acid_group']
+    fit, query = split_pair(rec.data, jujube, acid)
+    # Gate reuse before any new fit, so incompatible original cells cannot be silently replaced.
+    reused = reuse_old_pair(old, rec.data, fit, query, (jujube, acid)) if (jujube, acid) in OLD_PAIRS else None
+    for modality in MODALITIES:
+        for prep in ('raw', 'snv'):
+            for learner in ('svc', 'logreg', 'plsda2'):
+                key = f'{modality}/{prep}/{learner}/' + ('none' if learner == 'plsda2' else 'balanced')
+                if reused is not None and key == 'alpha/snv/svc/balanced':
+                    prediction, receipt = reused
+                    rec.receipts.append(receipt)
+                    index = len(rec.receipts) - 1
+                else:
+                    prediction, index, _ = fit_model(rec, key, fit, query, modality, prep, learner)
+                rec.add(key, 'held_pair', query, prediction, index, {'held_groups': [jujube, acid], 'pairing_unit': 'sourcepair', 'unique_binary_TRAIN_N': 516})
+    if jujube == 'ZY01':
+        for modality in MODALITIES:
+            for n_acid in (6, 24, 60):
+                for seed in (42, 43, 44):
+                    chosen = balanced_acid_donors(rec.data, fit, n_acid, seed)
+                    key = f'{modality}/snv/svc/acid{n_acid}/seed{seed}'
+                    prediction, index, _ = fit_model(rec, key, chosen, query, modality)
+                    rec.add(key, 'held_pair', query, prediction, index, {'acid_donor_count': n_acid, 'seed': seed, 'balanced_class_weights_already_used': True})
+            key = f'{modality}/snv/svc/all240/unweighted'
+            prediction, index, _ = fit_model(rec, key, fit, query, modality, class_weight=None)
+            rec.add(key, 'held_pair', query, prediction, index, {'class_weight': None, 'donor_count_control_not_first_classweight_correction': True})
+
+
+def dependency_prediction(context, params, modality, data, query):
+    matches = []
+    for value in context.get('dependencies', {}).values():
+        r = read_json(value)
+        if r.get('operation') == 'group_pair' and r.get('parameters') == {'jujube_group': 'ZY01', 'acid_group': params['acid_group']} and r.get('status') == 'COMPLETED':
+            if (r.get('dataset_result') != context.get('dataset_result')
+                    or r.get('source_worker', {}).get('sha256') != sha(__file__)):
+                raise ScientificBlocked('Reused group-pair data/source recipe differs')
+            matrix = read_json(r['prediction_matrix'])
+            setting = matrix['settings'][f'{modality}/snv/svc/balanced']
+            cohort = matrix['cohorts'][setting['cohort']]
+            byid = {rid: (truth, pred) for rid, truth, pred in zip(cohort['ids'], cohort['truth'], setting['predictions'])}
+            prediction = []
+            for i in query:
+                rid = str(data['record_ids'][i])
+                if rid not in byid or byid[rid][0] != str(data['species'][i]):
+                    raise ScientificBlocked('Reused group-pair query does not contain the same identities/truth')
+                prediction.append(byid[rid][1])
+            matches.append((prediction, value, setting['receipt_index']))
+    if len(matches) != 1:
+        raise ScientificBlocked('Unique sealed matching group_pair dependency is required for coverage B0')
+    return matches[0]
+
+
+def coverage(rec, params, context):
+    block, acid, modality = params['block_index'], params['acid_group'], params['modality']
+    donor, augmented, query = coverage_split(rec.data, block, acid)
+    prediction, source_ref, source_receipt = dependency_prediction(context, params, modality, rec.data, query)
+    rec.receipts.append({'status': 'REUSED_SEALED_GROUP_PAIR_SUBSET_NO_FIT', 'result': source_ref, 'source_receipt_index': source_receipt,
+                         'fit_ids': list(map(str, rec.data['record_ids'][donor])), 'query_ids': list(map(str, rec.data['record_ids'][query]))})
+    rec.add('B0/noZY01', 'ordinal_query', query, prediction, len(rec.receipts)-1, {'paired_with': 'B1/otherZY01', 'block_index': block})
+    prediction, index, _ = fit_model(rec, 'B1/otherZY01', augmented, query, modality)
+    rec.add('B1/otherZY01', 'ordinal_query', query, prediction, index, {'paired_with': 'B0/noZY01', 'block_index': block})
+    for seed in (42, 43, 44):
+        _, fit, random_query = coverage_split(rec.data, block, acid, seed)
+        key = f'R{seed}/random_sameN'
+        prediction, index, _ = fit_model(rec, key, fit, random_query, modality)
+        rec.add(key, f'random_query_{seed}', random_query, prediction, index,
+                {'same_N_as_ordinal': True, 'paired_with_ordinal': False, 'seed': seed, 'ordinal_is_acquisition_time': False})
+
+
+def score_matrix(model, transformed):
+    score = np.asarray(model.decision_function(transformed))
+    if score.ndim == 1:
+        score = np.column_stack([-score, score])
+    if score.shape != (len(transformed), len(model.classes_)) or not np.isfinite(score).all():
+        raise ValueError('Finite class-aligned source decision scores required')
+    return score
+
+
+def support(rec, params):
+    modality = params['modality']
+    donor, query, pool = support_split(rec.data, params['acid_group'], params['draw_seed'])
+    prediction, index, (model, scaler, source_x) = fit_model(rec, 'source_svc', donor, query, modality)
+    rec.add('source_svc', 'locked_query', query, prediction, index, {'K': 0, 'query_constant_all_K': True})
+    query_x = scaler.transform(features(rec.data, query, modality))
+    source_scores, query_scores = score_matrix(model, source_x), score_matrix(model, query_x)
+    argmax = np.asarray(model.classes_)[np.argmax(query_scores, axis=1)]
+    rec.add('source_score_argmax/K0', 'locked_query', query, argmax, index,
+            {'K': 0, 'standard_predict_separate': True, 'scores_not_probabilities': True})
+    # PCA context is fit exclusively on donor spectra, never query/support.
+    rec.state['new_fitting_entered'] = True
+    rec.state['fitted_transform_calls_started'] = rec.state.get('fitted_transform_calls_started', 0) + 1
+    rec.persist()
+    context = calibration.build_context(source_x, source_scores, rec.data['species'][donor], model.classes_, seed=42)
+    rec.state['fitted_transform_calls_completed'] = rec.state.get('fitted_transform_calls_completed', 0) + 1
+    rec.receipts.append({'kind': 'legacy_source_context_PCA', 'status': 'FIT_COMPLETED', 'fit_ids': list(map(str, rec.data['record_ids'][donor])),
+                         'query_statistics_used': False, 'support_statistics_used': False})
+    rec.persist()
+    for k in SUPPORT_K:
+        chosen = nested_support(rec.data, pool, k)
+        assert_split(rec.data, donor, query, chosen)
+        for name, candidate in [('legacy_anchor', {'family': 'legacy_anchor', 'regularization': 1.}),
+                                ('weak_anchor', {'family': 'damped_anchor', 'regularization': 1000., 'blend': .05})]:
+            key = f'{name}/K{k}'
+            if k:
+                adapter_index = rec.start(key, chosen, query, kind='pinned_score_adapter', extra={
+                    'source_fit_ids': list(map(str, rec.data['record_ids'][donor])), 'preprocess_fit_ids': list(map(str, rec.data['record_ids'][donor])),
+                    'candidate': candidate, 'support_ids': list(map(str, rec.data['record_ids'][chosen]))})
+                sx = scaler.transform(features(rec.data, chosen, modality))
+                adapter = calibration.fit_candidate(context, candidate, sx, score_matrix(model, sx), rec.data['species'][chosen])
+                adapted = adapter.predict_scores(query_x, query_scores)
+                rec.finish(adapter_index)
+            else:
+                adapter_index = index
+                adapted = query_scores
+            pred = np.asarray(model.classes_)[np.argmax(adapted, axis=1)]
+            rec.add(key, 'locked_query', query, pred, adapter_index,
+                    {'K_per_class': k, 'candidate': candidate, 'matched_zero_support': 'source_score_argmax/K0',
+                     'support_ids': list(map(str, rec.data['record_ids'][chosen])), 'calibration_improvement_is_label_authentication': False})
+        key = f'full_pipeline_refit/K{k}'
+        if k:
+            fit = np.concatenate([donor, chosen])
+            pred, fit_index, _ = fit_model(rec, key, fit, query, modality)
+        else:
+            pred, fit_index = prediction, index
+        rec.add(key, 'locked_query', query, pred, fit_index, {'K_per_class': k, 'support_ids': list(map(str, rec.data['record_ids'][chosen])),
+                'fixed_C': 10, 'no_query_parameter_selection': True})
+
+
+def descriptive(values):
+    a = np.asarray(values, dtype=float)
+    a = a[np.isfinite(a)]
+    if not len(a):
+        return {'N': 0, 'finite_summary': None}
+    return {'N': len(a), 'min': float(a.min()), 'q25': float(np.quantile(a, .25)), 'median': float(np.median(a)),
+            'q75': float(np.quantile(a, .75)), 'max': float(a.max()), 'mean': float(a.mean())}
+
+
+def diagnose(rec, old):
+    data = rec.data
+    wrong = {r['record_id'] for r in old['rows'] if r['y_true'] != r['y_predicted']}
+    if len(wrong) != 23 or any(not rid.startswith('ZY01-') for rid in wrong):
+        raise ScientificBlocked('Frozen original 23-error identity set differs')
+    binary = binary_indices(data)
+    zy = binary[data['groups'][binary] == 'ZY01']
+    reference = binary[data['groups'][binary] != 'ZY01']
+    result = {'posthoc': True, 'labels_preserved': True, 'independent_species_authentication': False,
+              'ordinal_is_verified_acquisition_time': False, 'p_values': 'NOT_COMPUTED', 'error_ids': sorted(wrong),
+              'reference_ids': list(map(str, data['record_ids'][reference])), 'modalities': {}}
+    for modality in ('alpha', 'n'):
+        raw = features(data, binary, modality, 'raw')
+        rows = []
+        for i, x in zip(binary, raw):
+            finite = np.isfinite(x)
+            finite_x = x[finite]
+            rows.append({'id': str(data['record_ids'][i]), 'group': str(data['groups'][i]), 'old_error': str(data['record_ids'][i]) in wrong,
+                         'nonfinite_fraction': float(1-finite.mean()), 'negative_fraction': float(np.mean(finite_x < 0)) if len(finite_x) else None,
+                         'spectrum_norm': float(np.linalg.norm(finite_x)), 'std_ddof1': float(np.std(finite_x, ddof=1)) if len(finite_x)>1 else None,
+                         'range': float(np.ptp(finite_x)) if len(finite_x) else None,
+                         'flat': bool(len(finite_x) < 2 or np.std(finite_x, ddof=1) <= np.finfo(float).eps)})
+        transformed = {}
+        for prep in ('raw', 'snv'):
+            try:
+                reference_features = features(data, reference, modality, prep)
+                zy_features = features(data, zy, modality, prep)
+            except ScientificBlocked as exc:
+                transformed[prep] = {'status': 'SCIENTIFIC_BLOCKED', 'reason': str(exc),
+                                     'no_rows_excluded': True, 'no_fallback_preprocessing': True}
+                continue
+            rec.state['new_fitting_entered'] = True
+            rec.state['fitted_transform_calls_started'] = rec.state.get('fitted_transform_calls_started', 0) + 2
+            ri = {'kind': 'descriptive_reference_scaler_PCA', 'status': 'FIT_STARTED', 'modality': modality, 'preprocessing': prep,
+                  'fit_ids': list(map(str, data['record_ids'][reference])), 'query_ids': list(map(str, data['record_ids'][zy]))}
+            rec.receipts.append(ri)
+            rec.persist()
+            scaler = StandardScaler()
+            rx = scaler.fit_transform(reference_features)
+            zx = scaler.transform(zy_features)
+            pca = PCA(n_components=min(3, len(reference)-1, rx.shape[1]), svd_solver='full')
+            rp, zp = pca.fit_transform(rx), pca.transform(zx)
+            distances = {}
+            for label in CLASSES:
+                centroid = rx[data['species'][reference] == label].mean(axis=0)
+                distances[label] = np.linalg.norm(zx-centroid, axis=1)
+            transformed[prep] = {'PCA_reference_explained_variance_ratio': pca.explained_variance_ratio_.tolist(),
+                                 'ZY01': [{'id': str(data['record_ids'][i]), 'old_error': str(data['record_ids'][i]) in wrong,
+                                          'ordinal_bin': ordinal_bin(data['record_ids'][i]), 'PCA': zp[j].tolist(),
+                                          'centroid_distances': {c: float(distances[c][j]) for c in CLASSES}} for j,i in enumerate(zy)],
+                                 'reference_PCA': rp.tolist()}
+            ri['status'] = 'FIT_COMPLETED'
+            rec.state['fitted_transform_calls_completed'] = rec.state.get('fitted_transform_calls_completed', 0) + 2
+            rec.persist()
+        summaries = {}
+        for label, subset in [('ZY01_error', [r for r in rows if r['group']=='ZY01' and r['old_error']]),
+                              ('ZY01_nonerror', [r for r in rows if r['group']=='ZY01' and not r['old_error']])]:
+            summaries[label] = {k: descriptive([r[k] for r in subset if r[k] is not None]) for k in ('negative_fraction','spectrum_norm','std_ddof1','range')}
+        bins = [{'block_index': b, 'ordinal_range': [b*70+1,(b+1)*70], 'N': sum(ordinal_bin(data['record_ids'][i])==b for i in zy),
+                 'old_errors': sum(ordinal_bin(data['record_ids'][i])==b and str(data['record_ids'][i]) in wrong for i in zy)} for b in range(5)]
+        result['modalities'][modality] = {'quality_rows': rows, 'descriptive_summaries': summaries, 'ordinal_bins': bins, 'reference_only_geometry': transformed}
+        write_json(rec.output / 'diagnosis.json', result)
+    rec.state['diagnosis'] = ref(rec.output / 'diagnosis.json')
+
+
+def run(args):
+    manifest_path = checked({'path': args.manifest, 'sha256': args.manifest_sha256})
+    context_path = checked({'path': args.context, 'sha256': args.context_sha256})
+    manifest, context = json.loads(manifest_path.read_text()), json.loads(context_path.read_text())
+    if context['job_id'] != args.job_id or context['manifest_sha256'] != args.manifest_sha256:
+        raise ValueError('Resolved context identity differs')
+    job = context['job']
+    if checked(job['source']).resolve() != Path(__file__).resolve():
+        raise ValueError('Frozen job points to another worker')
+    output = Path(args.output).resolve()
+    if context.get('output_directory') and Path(context['output_directory']).resolve() != output:
+        raise ValueError('Resolved output differs')
+    if not args.execute:
+        return {'schema': SCHEMA, 'status': 'PREFLIGHT_ONLY', 'job_id': args.job_id,
+                'numerical_imports_entered': False, 'new_fitting_entered': False}
+    supervisor = import_file(checked(manifest['supervisor']), '_yanan_live_supervisor_classical')
+    proof = supervisor.verify_resource_supervision(expected_worker_path=__file__, expected_threads=2,
+                expected_manifest_sha256=args.manifest_sha256, expected_job_id=args.job_id,
+                expected_context_sha256=args.context_sha256, expected_proof_path=args.proof)
+    output.mkdir(parents=True, exist_ok=True)
+    state = {'schema': SCHEMA, 'status': 'RUNNING', 'job_id': args.job_id, 'operation': job['operation'],
+             'manifest_sha256': args.manifest_sha256, 'job_sha256': context.get('job_sha256'),
+             'parameters': job.get('parameters', {}), 'source_worker': ref(__file__), 'context_sha256': args.context_sha256,
+             'resource_supervision': proof, 'manifest': ref(manifest_path), 'output_directory': str(output),
+             'new_fitting_entered': False, 'actual_new_model_fit_calls_started': 0, 'actual_new_model_fits': 0,
+             'new_training_entered': False, 'actual_train_calls_started': 0, 'actual_train_calls_completed': 0,
+             'quantum_evaluations': 0, 'labels_modified': False, 'CAL_PRED_spectra_accessed': False,
+             'negative_scientific_results_are_valid': True, 'started_cpu': time.process_time()}
+    state['fixed_pipeline'] = {'axis': 'original 612-point alpha/n; no interpolation', 'SNV_std_ddof': 1,
+             'fusion_SNV': 'independently per modality before concatenation', 'scaler': 'StandardScaler fit donor only',
+             'svc': {'C': 10, 'gamma': 'scale', 'class_weight': 'balanced except explicitly unweighted', 'random_state': 42,
+                     'decision_function_shape': 'ovr', 'break_ties': False},
+             'logreg': {'C': 1, 'class_weight': 'balanced', 'max_iter': 2000, 'solver': 'lbfgs', 'random_state': 42},
+             'plsda2': 'exact pinned benchmark.PLSDAClassifier(n_components=2); one-hot PLS2 scale=False argmax',
+             'support_candidates': [{'family': 'legacy_anchor', 'regularization': 1.},
+                                    {'family': 'damped_anchor', 'regularization': 1000., 'blend': .05}],
+             'classical_fit_counter_unit': 'classifier/adapter pipeline fit calls; source-only scaler/PCA transforms separately declared'}
+    write_json(output/'result.json', state)
+    rec = None
+    try:
+        state['platform_processor_nofork'] = nofork_platform()
+        state['threadpoolctl_nofork'] = initialize_numerics(manifest)
+        state['versions'] = {'python': platform.python_version(), **{p: importlib.metadata.version(p) for p in ('numpy','scipy','scikit-learn')},
+                             'numerical_threads': 2}
+        loader = import_file(checked(manifest['inputs']['data_worker']), '_yanan_verified_data_classical')
+        data = validate_dataset(loader.load_verified_train_dataset(context, manifest))
+        state['dataset_result'] = context['dataset_result']
+        selected = binary_indices(data)
+        state['binary_pool_counts'] = {'unique_N': len(selected), 'kind_counts': dict(Counter(map(str, data['species'][selected]))),
+                                      'source_group_counts': dict(Counter(map(str, data['groups'][selected])))}
+        rec = Recorder(output, state, data)
+        operation, params = job['operation'], job.get('parameters', {})
+        if operation in ('group_pair', 'diagnose'):
+            old = load_old_baseline(manifest, data)
+        if operation == 'group_pair':
+            group_pair(rec, params, old)
+        elif operation == 'coverage':
+            coverage(rec, params, context)
+        elif operation == 'support':
+            support(rec, params)
+        elif operation == 'diagnose':
+            diagnose(rec, old)
+        else:
+            raise ValueError('Unknown classical operation')
+        rec.persist()
+        state.update(status='COMPLETED', prediction_matrix=ref(output/'prediction_matrix.json'), fit_receipts=ref(output/'fit_receipts.json'),
+                     unique_binary_TRAIN_N=len(binary_indices(data)), model_selection_on_query=False,
+                     interpretation_limits=['TRAIN-only source diagnostics; no independent botanical identification',
+                       'Repeated source-pair predictions do not increase independent specimen N',
+                       'Support calibration is adaptation, not unseen-source performance or proof of label truth',
+                       'Ordinal IDs do not establish acquisition time'])
+    except ScientificBlocked as exc:
+        state.update(status='SCIENTIFIC_BLOCKED', reason=str(exc))
+    except Exception as exc:
+        state.update(status='PARTIAL', error_type=type(exc).__name__, reason=str(exc), traceback=traceback.format_exc())
+    finally:
+        state['process_cpu_seconds'] = time.process_time()-state['started_cpu']
+        if rec is not None:
+            rec.persist()
+        state['output_artifacts'] = [ref(p) for p in sorted(output.iterdir()) if p.is_file() and p.name != 'result.json' and not p.name.endswith('.tmp')]
+        write_json(output/'result.json', state)
+    return state
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    for name in ('manifest', 'manifest-sha256', 'job-id', 'context', 'context-sha256', 'output', 'proof'):
+        parser.add_argument('--'+name, required=True)
+    parser.add_argument('--execute', action='store_true')
+    args = parser.parse_args()
+    result = run(args)
+    print(json.dumps({k: result.get(k) for k in ('status','job_id','actual_new_model_fits')}, ensure_ascii=False))
+    return 0 if result['status'] in ('COMPLETED','SCIENTIFIC_BLOCKED','PREFLIGHT_ONLY') else 2
+
+
+if __name__ == '__main__':
+    sys.exit(main())

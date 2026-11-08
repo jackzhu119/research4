@@ -1,0 +1,281 @@
+"""Independent synthetic accounting/admission contracts; no real fits or Git.
+
+Only the supervisor module is read from the B checkout. Every function that
+can write is redirected to a fresh tempfile root before it is called. Child
+launches are replaced by Python callbacks, never subprocesses. Kernel proof
+and wait4 integration are covered separately by the supervisor author's tests.
+"""
+from __future__ import annotations
+
+from copy import deepcopy
+from datetime import datetime
+import hashlib
+import importlib.util
+import json
+from pathlib import Path
+import tempfile
+from types import SimpleNamespace
+import unittest
+from unittest import mock
+
+SOURCE = Path(__file__).with_name("yanan_followup_supervisor.py")
+
+
+class AdmittedWithoutLaunching(Exception):
+    """A synthetic admission reached the boundary before any real launch."""
+
+
+class IndependentResourceEdges(unittest.TestCase):
+    def setUp(self):
+        spec = importlib.util.spec_from_file_location("independent_yanan_edges_" + str(id(self)), SOURCE)
+        self.s = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(self.s)
+        self.temp = tempfile.TemporaryDirectory(prefix="yanan-independent-resource-edges-")
+        self.root = Path(self.temp.name).resolve()
+        self.s.ROOT = self.root
+        self.s.WORK = self.root / "round"
+        self.s.ORIGINAL = self.root / "original"
+        self.s.CLAIM = self.root / ".runtime/allocation.json"
+        self.s.WORK.mkdir()
+
+        def local_path(value):
+            p = Path(value)
+            p = (p if p.is_absolute() else self.root / p).resolve()
+            if not p.is_relative_to(self.root):
+                raise AssertionError("Synthetic fixture attempted production filesystem access: " + str(p))
+            return p
+
+        def save(value, data, exclusive=False):
+            p = local_path(value)
+            p.parent.mkdir(parents=True, exist_ok=True)
+            with p.open("x" if exclusive else "w") as stream:
+                json.dump(data, stream, allow_nan=False)
+
+        def read(value, expected_sha=None):
+            p = local_path(value)
+            if expected_sha is not None:
+                self.assertEqual(hashlib.sha256(p.read_bytes()).hexdigest(), expected_sha)
+            return json.loads(p.read_text())
+
+        def ref(value):
+            p = local_path(value)
+            return {"path": str(p.relative_to(self.root)), "sha256": hashlib.sha256(p.read_bytes()).hexdigest()}
+
+        def checked(binding):
+            p = local_path(binding["path"])
+            self.assertEqual(hashlib.sha256(p.read_bytes()).hexdigest(), binding["sha256"])
+            return p
+
+        self.s.path, self.s.save, self.s.read, self.s.ref, self.s.checked = local_path, save, read, ref, checked
+        self.s.self_cpu = lambda: 2.0
+        self.args = SimpleNamespace(manifest="manifest.json", manifest_sha256="f" * 64, attempt="synthetic-edge")
+        self.carry = {
+            "actual_closed_cpu_seconds": 82727.759434,
+            "budget_charged_cpu_seconds": 83728.759434,
+            "permanent_conservative_debit_cpu_seconds": 1000,
+            "old_nonmeasured_hold_seconds": 1,
+        }
+        self.deadline_epoch = datetime.fromisoformat(self.s.DEADLINE).timestamp()
+
+    def tearDown(self):
+        self.temp.cleanup()
+
+    def ledger(self, remaining=None):
+        parent = 2.0 if remaining is None else self.s.ROUND_CAP - 1000 - 1 - remaining
+        return {
+            "parents": [{"self_cpu_seconds": parent}], "phases": [], "auxiliary_costs": [],
+            "carry": deepcopy(self.carry), "preparation_conservative_debit_cpu_seconds": 1000,
+            "finalization_hold_seconds": 1.0,
+        }
+
+    @staticmethod
+    def state():
+        return {"jobs": {}, "results": {}}
+
+    def fake_file(self, name, content="{}"): 
+        p = self.root / name
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_text(content)
+        return self.s.ref(p)
+
+    def return_manifest(self, summary=True):
+        helper = self.fake_file("helper.py", "# never executed\n")
+        plan = self.fake_file("return.json")
+        return {"jobs": [{"id": "summary", "kind": "summary", "cpu_seconds": 120}] if summary else [],
+                "git_return": {"enabled": True, "helper": helper, "pre_manifest": plan,
+                               "post_manifest": plan, "stage_manifests": []}}
+
+    def failed_git_callback(self, ledger, calls):
+        def callback(args, manifest, passed_ledger, state, **kwargs):
+            self.assertIs(passed_ledger, ledger)
+            calls.append(kwargs)
+            row = {"phase": kwargs["phase"], "status": "FAILED_CLOSED", "actual_cpu_seconds": .25}
+            ledger["auxiliary_costs"].append(row)
+            return row
+        return callback
+
+    def test_old_1001_new_preparation_1000_and_tail_are_separate_from_actual(self):
+        ledger, state = self.ledger(), self.state()
+        ledger["phases"].append({"phase": "scientific", "status": "EXITED", "actual_cpu_seconds": 3.0})
+        ledger["auxiliary_costs"].append({"phase": "git", "status": "FAILED_CLOSED", "actual_cpu_seconds": .5})
+        original_carry = deepcopy(ledger["carry"])
+        self.s.checkpoint(ledger, state, "SYNTHETIC")
+        self.assertEqual(ledger["round_actual_cpu_seconds"], 5.5)
+        self.assertEqual(ledger["round_budget_charged_cpu_seconds"], 1006.5)
+        self.assertAlmostEqual(ledger["aggregate_observed_actual_cpu_seconds"], 82727.759434 + 5.5)
+        self.assertAlmostEqual(ledger["aggregate_budget_charged_cpu_seconds"], 83728.759434 + 1006.5)
+        self.assertAlmostEqual(ledger["aggregate_budget_charged_cpu_seconds"] - ledger["aggregate_observed_actual_cpu_seconds"], 2002)
+        self.assertEqual(ledger["carry"], original_carry)
+        self.assertAlmostEqual(self.s.CAP, 173728.759434)
+        self.assertAlmostEqual(self.s.PREVIOUS_CPU_CAP - self.s.PREVIOUS_CHARGED, 6271.240566)
+
+    def test_parent_checkpoints_overwrite_observation_instead_of_adding_it(self):
+        ledger, state = self.ledger(), self.state()
+        self.s.self_cpu = lambda: 3.0
+        self.s.checkpoint(ledger, state, "ONE")
+        first = ledger["round_actual_cpu_seconds"]
+        self.s.checkpoint(ledger, state, "TWO")
+        self.assertEqual(first, 3.0)
+        self.assertEqual(ledger["round_actual_cpu_seconds"], first)
+        self.assertEqual(len(ledger["parents"]), 1)
+
+    def test_unknown_reservation_is_not_promoted_to_measured_actual(self):
+        ledger = self.ledger()
+        ledger["phases"].append({"phase": "unknown", "status": "BLOCKED_UNKNOWN", "cpu_seconds": 50,
+                                  "observed_wait4_cpu_seconds": 60., "peak_observed_group_cpu_seconds": 70.})
+        total = self.s.budget_totals(ledger)
+        self.assertEqual(total["round_actual_cpu_seconds"], 2.)
+        self.assertEqual(total["unresolved_observed_wait4_cpu_lower_bound_seconds"], 60.)
+        self.assertEqual(total["unresolved_execution_cpu_reservation_seconds"], 70.)
+        self.assertEqual(total["round_budget_charged_cpu_seconds"], 1073.)
+
+    def test_running_cpu_is_guarded_separately_not_added_to_closed_cost(self):
+        ledger = self.ledger(remaining=40)
+        ledger["phases"].append({"phase": "live", "status": "RUNNING", "actual_cpu_seconds": None,
+                                  "cpu_seconds": 100, "peak_observed_group_cpu_seconds": 39.})
+        total = self.s.budget_totals(ledger)
+        self.assertAlmostEqual(self.s.remaining_cpu(ledger), 40.)
+        self.assertEqual(total["wait4_child_cpu_seconds"], 0.)
+        self.assertTrue(self.s.remaining_cpu(ledger) <= 39. + 2)  # controller's live stop predicate
+
+    def test_remaining_cpu_does_not_silently_deduct_admission_reserve(self):
+        self.assertAlmostEqual(self.s.remaining_cpu(self.ledger(remaining=145)), 145.)
+
+    def admission(self, remaining, kind, cpu, should_admit):
+        ledger, state = self.ledger(remaining), self.state()
+        job = {"id": "edge-" + kind, "kind": kind, "cpu_seconds": cpu, "wall_seconds": 100,
+               "depends_on": [], "max_attempts": 1}
+        self.s.self_cpu = lambda: ledger["parents"][-1]["self_cpu_seconds"]
+        with mock.patch.object(self.s, "validate_accounting"), \
+             mock.patch.object(self.s, "resolve_context", return_value={"path": "unused", "sha256": "0" * 64}), \
+             mock.patch.object(self.s, "scientific_argv", return_value=["NEVER_EXECUTED"]), \
+             mock.patch.object(self.s, "run_child", side_effect=AdmittedWithoutLaunching) as child, \
+             mock.patch.object(self.s.time, "time", return_value=self.deadline_epoch - 100):
+            if should_admit:
+                with self.assertRaises(AdmittedWithoutLaunching):
+                    self.s.run_job(self.args, {"reserve_cpu_seconds": 300}, ledger, state, job)
+                child.assert_called_once()
+            else:
+                self.s.run_job(self.args, {"reserve_cpu_seconds": 300}, ledger, state, job)
+                child.assert_not_called()
+                self.assertEqual(state["jobs"][job["id"]]["status"], "NOT_RUN_RESOURCE_OR_DEADLINE")
+
+    def test_scientific_job_admission_reserves_300_once(self):
+        self.admission(399, "classical", 100, False)
+        self.admission(400, "classical", 100, True)
+
+    def test_summary_120_plus_25_admission_has_no_hidden_300(self):
+        self.admission(144, "summary", 120, False)
+        self.admission(145, "summary", 120, True)
+
+    @staticmethod
+    def unused_result():
+        return {"new_fitting_entered": False, "new_training_entered": False,
+                "actual_new_model_fit_calls_started": 0, "actual_new_model_fits": 0,
+                "actual_train_calls_started": 0, "actual_train_calls_completed": 0,
+                "exception_type": "OSError"}
+
+    def test_retry_requires_explicit_unused_fit_and_training_counters(self):
+        good = self.unused_result()
+        self.assertTrue(self.s.worker_retry_decision(good, {}, 1)["allowed"])
+        self.assertFalse(self.s.worker_retry_decision(good, {}, 2)["allowed"])
+        self.assertFalse(self.s.worker_retry_decision(good, {"stop_reason": "ACTUAL_CPU_GUARD"}, 1)["allowed"])
+        bad = [{**good, "new_fitting_entered": True}, {**good, "new_training_entered": True},
+               {**good, "actual_new_model_fit_calls_started": 1}, {**good, "actual_train_calls_started": 1},
+               {**good, "actual_train_calls_completed": 1}, {**good, "actual_new_model_fits": 1},
+               {"exception_type": "OSError"}, {**good, "actual_train_calls_started": False},
+               {**good, "status": "SCIENTIFIC_BLOCKED"}, {**good, "status": "CLASSICAL_BLOCKED"}]
+        for result in bad:
+            with self.subTest(result=result):
+                self.assertFalse(self.s.worker_retry_decision(result, {}, 1)["allowed"])
+
+    def claim_manifest(self):
+        binding = {"path": "fake.json", "sha256": "0" * 64}
+        return {"boot_id": "synthetic-boot", "predecessor": {"manifest": binding},
+                "authorization_ref": binding, "preparation_debit_ref": binding}
+
+    def install_fake_claim(self):
+        self.s.save(self.s.ledger_path(), {})
+        self.s.save(self.s.state_path(), {})
+        self.s.claim_allocation(self.claim_manifest(), "f" * 64)
+
+    def test_claim_with_missing_fake_ledger_never_reinitializes(self):
+        self.install_fake_claim()
+        before = self.s.CLAIM.read_bytes()
+        self.s.ledger_path().unlink()
+        with self.assertRaisesRegex(ValueError, "ledger/state is missing"):
+            self.s.claim_allocation(self.claim_manifest(), "f" * 64)
+        self.assertEqual(self.s.CLAIM.read_bytes(), before)
+        self.assertFalse(self.s.ledger_path().exists())
+
+    def test_fixed_claim_rejects_another_state_directory_and_manifest(self):
+        self.install_fake_claim()
+        before = self.s.CLAIM.read_bytes()
+        with self.assertRaisesRegex(ValueError, "cannot move/reset"):
+            self.s.claim_allocation(self.claim_manifest(), "e" * 64)
+        self.s.WORK = self.root / "different-state-directory"
+        self.s.save(self.s.ledger_path(), {})
+        self.s.save(self.s.state_path(), {})
+        with self.assertRaisesRegex(ValueError, "cannot move/reset"):
+            self.s.claim_allocation(self.claim_manifest(), "f" * 64)
+        self.assertEqual(self.s.CLAIM.read_bytes(), before)
+
+    def test_git_known_failures_have_one_then_two_remaining_attempts_only(self):
+        ledger, state, calls = self.ledger(), self.state(), []
+        manifest = self.return_manifest(summary=False)
+        with mock.patch.object(self.s, "run_child", side_effect=self.failed_git_callback(ledger, calls)):
+            self.assertFalse(self.s.git_return(self.args, manifest, ledger, state, "pre"))
+            self.assertEqual(len(calls), 1)
+            self.assertFalse(self.s.git_return(self.args, manifest, ledger, state, "pre", final=True))
+            self.assertEqual(len(calls), 3)
+            self.assertFalse(self.s.git_return(self.args, manifest, ledger, state, "pre", final=True))
+            self.assertEqual(len(calls), 3)
+        self.assertEqual(len(state["git_return_attempts"]), 3)
+        self.assertEqual(len({row["phase"] for row in ledger["auxiliary_costs"]}), 3)
+        self.assertEqual(self.s.budget_totals(ledger)["wait4_child_cpu_seconds"], .75)
+        self.assertFalse(state["git_stages"]["pre"]["remote_verified"])
+
+    def test_git_reserves_unscanned_120_summary_plus25_at_178_179_edge(self):
+        ledger, state, calls = self.ledger(), self.state(), []
+        manifest = self.return_manifest(summary=True)
+        with mock.patch.object(self.s, "run_child", side_effect=self.failed_git_callback(ledger, calls)), \
+             mock.patch.object(self.s, "remaining_cpu", return_value=178):
+            self.assertFalse(self.s.git_return(self.args, manifest, ledger, state, "pre"))
+        self.assertEqual(calls, [])
+        with mock.patch.object(self.s, "run_child", side_effect=self.failed_git_callback(ledger, calls)), \
+             mock.patch.object(self.s, "remaining_cpu", return_value=179):
+            self.assertFalse(self.s.git_return(self.args, manifest, ledger, state, "pre"))
+        self.assertEqual(len(calls), 1)
+        self.assertEqual(calls[0]["cpu"], 30)
+
+    def test_unknown_git_cost_is_not_downgraded_to_return_pending(self):
+        ledger, state = self.ledger(), self.state()
+        manifest = self.return_manifest(summary=False)
+        with mock.patch.object(self.s, "run_child", side_effect=RuntimeError("UNKNOWN_CPU_TREE")):
+            with self.assertRaisesRegex(RuntimeError, "UNKNOWN_CPU_TREE"):
+                self.s.git_return(self.args, manifest, ledger, state, "pre")
+        self.assertFalse(state.get("git_return_attempts"))
+
+
+if __name__ == "__main__":
+    unittest.main()

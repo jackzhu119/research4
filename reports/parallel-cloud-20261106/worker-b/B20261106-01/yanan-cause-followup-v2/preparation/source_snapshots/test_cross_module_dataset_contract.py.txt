@@ -1,0 +1,63 @@
+"""Actual loader -> classical/neural validation, with only fabricated spectra."""
+from __future__ import annotations
+
+import os
+import tempfile
+import unittest
+from pathlib import Path
+
+for variable in ("OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS", "MKL_NUM_THREADS", "NUMEXPR_NUM_THREADS"):
+    os.environ[variable] = "2"
+
+import data_worker
+data_worker.initialize_nofork_cpu_metadata()
+import numpy as np
+import classical_worker
+import neural_worker
+from synthetic_dataset_fixture import build_synthetic_train_fixture
+
+
+class ActualSharedDatasetContractTests(unittest.TestCase):
+    def test_actual_loader_relative_refs_and_both_actual_validators(self):
+        with tempfile.TemporaryDirectory(prefix="SYNTHETIC-cross-module-", dir=data_worker.ROUND_ROOT / "preparation") as temp:
+            fixture = build_synthetic_train_fixture(temp)
+            context, manifest = fixture["context"], fixture["manifest"]
+            self.assertFalse(Path(context["dataset_result"]["path"]).is_absolute())
+            # All calls below are actual production functions: no mocked loader,
+            # file resolver, numerical matrix, validation result, or hash check.
+            arrays = data_worker.load_verified_train_dataset(context, manifest)
+            self.assertEqual(classical_worker.checked(context["dataset_result"]),
+                             data_worker.checked(context["dataset_result"]))
+            self.assertEqual(neural_worker.checked(context["dataset_result"]),
+                             data_worker.checked(context["dataset_result"]))
+            old_np = getattr(classical_worker, "np", None)
+            classical_worker.np = np
+            try:
+                classical = classical_worker.validate_dataset({key: value.copy() for key, value in arrays.items()})
+            finally:
+                if old_np is None:
+                    del classical_worker.np
+                else:
+                    classical_worker.np = old_np
+            neural = neural_worker.validate_dataset(arrays, np)
+            self.assertEqual(len(classical["record_ids"]), 999)
+            self.assertEqual(len(neural["ids"]), 999)
+            self.assertEqual(classical["record_ids"].tolist(), neural["ids"].tolist())
+            self.assertEqual(set(classical["master_roles"]), {"train"})
+            for fold in range(5):
+                donor, query = neural_worker.scopes(neural, fold, np)
+                held = np.isin(classical["origin_group_ids"], neural_worker.FOLDS[fold])
+                target = np.isin(classical["species"], neural_worker.TARGET_CLASSES)
+                self.assertEqual(classical["record_ids"][target & ~held].tolist(), neural["ids"][donor].tolist())
+                self.assertEqual(classical["record_ids"][target & held].tolist(), neural["ids"][query].tolist())
+                self.assertTrue(set(neural["ids"][donor]).isdisjoint(neural["ids"][query]))
+            # Prove sharedloader hash verification remains active in this bridge.
+            npz_path = data_worker.checked(fixture["npz_ref"])
+            with npz_path.open("ab") as stream:
+                stream.write(b"SYNTHETIC-TAMPERING-CHECK")
+            with self.assertRaisesRegex(ValueError, "byte count|hash differs"):
+                data_worker.load_verified_train_dataset(context, manifest)
+
+
+if __name__ == "__main__":
+    unittest.main()

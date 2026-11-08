@@ -1,0 +1,328 @@
+"""Summarize only complete, frozen evaluation blocks; no fitting or training."""
+from __future__ import annotations
+
+import argparse
+from collections import Counter, defaultdict
+from datetime import datetime, timezone
+import csv
+import hashlib
+import importlib.util
+import itertools
+import json
+import math
+from pathlib import Path
+import time
+
+SELF = Path(__file__).resolve()
+ROOT = next(parent for parent in SELF.parents if (parent / ".git").exists())
+SUPERVISOR = SELF.with_name("yanan_followup_supervisor.py")
+SCHEMA = "research4-b-yanan-cause-result-v2"
+CONTEXT_SCHEMA = "research4-b-yanan-resolved-context-v2"
+COMPLETE_STATUSES = {"COMPLETED", "DONE"}
+ZERO_COUNTERS = {"new_fitting_entered": False, "actual_new_model_fit_calls_started": 0, "actual_new_model_fits": 0,
+    "new_training_entered": False, "actual_train_calls_started": 0, "actual_train_calls_completed": 0}
+
+
+def require(value, message):
+    if not value: raise ValueError(message)
+
+
+def utc(): return datetime.now(timezone.utc).isoformat()
+
+
+def sha(file):
+    h = hashlib.sha256()
+    with Path(file).open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 ** 2), b""): h.update(chunk)
+    return h.hexdigest()
+
+
+def path(value):
+    p = Path(value); p = p if p.is_absolute() else ROOT / p
+    require(p.is_relative_to(ROOT) and ".." not in p.parts, "Summary input outside this checkout")
+    require(not any(q.is_symlink() for q in (p, *p.parents) if q.is_relative_to(ROOT)), "Symlink summary input rejected")
+    return p
+
+
+def ref(file):
+    p = path(file); return {"path": str(p.relative_to(ROOT)), "sha256": sha(p), "bytes": p.stat().st_size}
+
+
+def read(file, expected=None):
+    p = path(file); require(p.stat().st_size <= 32 * 1024 ** 2, "Summary metadata exceeds32MiB")
+    if expected: require(sha(p) == expected, "Pinned summary input changed")
+    return json.loads(p.read_text())
+
+
+def read_ref(binding): return read(binding["path"], binding["sha256"])
+
+
+def state_status(value): return value if isinstance(value, str) else value.get("status")
+
+
+def terminal_status(status):
+    return bool(status) and status not in {"PENDING", "READY", "RUNNING", "WAITING", "BLOCKED_UNKNOWN", "BLOCKED_REQUIRES_FORENSICS"}
+
+
+def classification_metrics(rows):
+    """Counts are evaluation rows; unique IDs are reported separately."""
+    require(rows, "Cannot replace an empty/missing evaluation block by zero metrics")
+    classes = sorted({r["truth"] for r in rows} | {r["prediction"] for r in rows})
+    matrix = [[sum(r["truth"] == t and r["prediction"] == p for r in rows) for p in classes] for t in classes]
+    n = len(rows); correct = sum(r["truth"] == r["prediction"] for r in rows); per_class = {}
+    f1, recalls = [], []
+    for index, label in enumerate(classes):
+        tp = matrix[index][index]; support = sum(matrix[index]); predicted = sum(row[index] for row in matrix)
+        recall = tp / support if support else None
+        if recall is not None: recalls.append(recall)
+        score = 2 * tp / (support + predicted) if support + predicted else 0.
+        f1.append(score); per_class[label] = {"support_rows": support, "correct": tp, "recall": recall, "f1": score}
+    exposure = Counter(r["record_id"] for r in rows)
+    source_groups = {}
+    for group in sorted({r["group"] for r in rows}):
+        selected = [r for r in rows if r["group"] == group]
+        source_groups[group] = {"evaluation_rows": len(selected), "unique_record_ids": len({r["record_id"] for r in selected}),
+            "correct": sum(r["truth"] == r["prediction"] for r in selected),
+            "recall": sum(r["truth"] == r["prediction"] for r in selected) / len(selected)}
+    return {"evaluation_rows": n, "unique_record_ids": len(exposure), "correct": correct, "accuracy": correct / n,
+        "balanced_accuracy": sum(recalls) / len(recalls), "macro_f1": sum(f1) / len(f1), "classes": classes,
+        "confusion_matrix": matrix, "per_class": per_class, "per_source_group": source_groups,
+        "unweighted_mean_source_group_recall": sum(v["recall"] for v in source_groups.values()) / len(source_groups),
+        "evaluations_per_record_histogram": {str(k): v for k, v in sorted(Counter(exposure.values()).items())},
+        "evaluation_rows_are_not_independent_N": True, "independent_specimen_count_not_inferred": True}
+
+
+def paired_counts(left, right):
+    require(set(left) == set(right), "Paired comparison requires identical query identities and replicate units")
+    units = defaultdict(list); both = left_only = right_only = neither = 0
+    for key in left:
+        a, b = left[key], right[key]
+        require(a["truth"] == b["truth"] and a["group"] == b["group"], "Paired query truth/source differs")
+        ca, cb = a["prediction"] == a["truth"], b["prediction"] == b["truth"]
+        both += ca and cb; left_only += ca and not cb; right_only += cb and not ca; neither += not ca and not cb
+        units[a["unit"]].append(int(ca) - int(cb))
+    require(left, "Empty comparisons are not zero-effect evidence")
+    return {"evaluation_rows": len(left), "unique_record_ids": len({r["record_id"] for r in left.values()}),
+        "both_correct": both, "left_only_correct": left_only, "right_only_correct": right_only, "both_wrong": neither,
+        "accuracy_difference_left_minus_right": (left_only - right_only) / len(left),
+        "per_pair_or_fold_seed_differences": [{"unit": unit, "evaluation_rows": len(values), "accuracy_difference": sum(values)/len(values)}
+            for unit, values in sorted(units.items())],
+        "descriptive_paired_counts_only": True, "p_value_computed": False,
+        "repeated_record_or_seed_rows_do_not_increase_independent_N": True}
+
+
+def _append_table(tables, setting, cohort, stratum, ids, truth, prediction, groups, job_id, unit):
+    require(len(ids) == len(truth) == len(prediction) == len(groups) and len(ids) == len(set(map(str, ids))), "Prediction identity/array lengths differ or repeat within one cohort")
+    key = json.dumps([setting, cohort, stratum], sort_keys=True, ensure_ascii=False)
+    table = tables.setdefault(key, {"setting": setting, "cohort": cohort, "stratum": stratum,
+        "rows": {}, "job_ids": set(), "duplicate_reused_rows_removed": 0})
+    table["job_ids"].add(job_id)
+    for rid, target, pred, group in zip(ids, truth, prediction, groups):
+        row = {"record_id": str(rid), "truth": str(target), "prediction": str(pred), "group": str(group), "unit": unit, "job_id": job_id}
+        row_key = json.dumps([unit, cohort, str(rid)], ensure_ascii=False)
+        if row_key in table["rows"]:
+            prior = table["rows"][row_key]
+            require(all(prior[k] == row[k] for k in ("record_id", "truth", "prediction", "group", "unit")), "Reused baseline prediction changed across budgets")
+            table["duplicate_reused_rows_removed"] += 1
+        else: table["rows"][row_key] = row
+
+
+def prediction_stratum(job, setting):
+    params = job.get("parameters", {}); operation = job["operation"]
+    if job.get("kind") == "neural" or operation in ("source_A", "target_eval"):
+        st = {"family": "neural", "operation": "endpoint", "adapt": params["adapt"]}
+        if setting != "A" and "steps" in params: st["steps"] = params["steps"]
+        return st
+    st = {"family": "classical", "operation": operation}
+    if "modality" in params: st["modality"] = params["modality"]
+    return st
+
+
+def collect_tables(results, jobs, matrix_reader):
+    tables = {}
+    for job_id, result in results.items():
+        job = jobs[job_id]; params = job.get("parameters", {}); operation = job["operation"]
+        if "prediction_matrix" in result:
+            matrix = matrix_reader(result["prediction_matrix"])
+            for setting, observation in matrix["settings"].items():
+                cohort_name = observation["cohort"]; cohort = matrix["cohorts"][cohort_name]
+                stratum = prediction_stratum(job, setting)
+                _append_table(tables, setting, cohort_name, stratum, cohort["ids"], cohort["truth"], observation["predictions"],
+                    cohort["groups"], job_id, job_id)
+        if "arms" in result:
+            require("fold" in params and "seed" in params and "adapt" in params, "Neural endpoint needs frozen fold/seed/adapt identities")
+            unit = json.dumps({"fold": params["fold"], "seed": params["seed"], "adapt": params["adapt"]}, sort_keys=True)
+            for arm, observation in result["arms"].items():
+                stratum = prediction_stratum(job, arm)
+                _append_table(tables, arm, "locked_target_query", stratum, observation["record_ids"], observation["truth"],
+                    observation["prediction"], observation["origin_group_ids"], job_id, unit)
+    return list(tables.values())
+
+
+def expected_table_jobs(block, table, jobs):
+    declared = block.get("setting_scopes", {}).get(table["setting"], block["required_job_ids"])
+    selected = []
+    for job_id in declared:
+        job = jobs[job_id]; params = job.get("parameters", {}); st = table["stratum"]
+        if st["family"] == "classical" and job["operation"] != st["operation"]: continue
+        if any(key in st and params.get(key) != st[key] for key in ("modality", "adapt", "steps")): continue
+        selected.append(job_id)
+    return set(selected)
+
+
+def compatible_strata(left, right):
+    return left["cohort"] == right["cohort"] and all(left["stratum"][key] == right["stratum"][key]
+        for key in set(left["stratum"]) & set(right["stratum"]))
+
+
+def summarize_blocks(blocks, results, dependency_states, jobs, matrix_reader):
+    require(all(terminal_status(state_status(v)) for v in dependency_states.values()), "Summary cannot certify unfinished or unknown process states")
+    output = []; all_complete = True
+    for block in blocks:
+        required = block["required_job_ids"]
+        require(required and len(required) == len(set(required)) == block["expected_count"] and set(required) <= set(jobs), "Frozen block scope/count is inconsistent")
+        available = {key: results[key] for key in required if key in results and state_status(dependency_states.get(key, {})) == "DONE_SEALED"
+            and results[key].get("status") in COMPLETE_STATUSES}
+        missing = [key for key in required if key not in available]
+        item = {"id": block["id"], "expected_count": block["expected_count"], "complete_job_count": len(available),
+            "required_job_ids": required, "missing_or_scientifically_blocked_job_ids": missing,
+            "aggregate_metrics": [], "paired_comparisons": [], "configuration_gaps": []}
+        for key, result in available.items():
+            if "arms" not in result: continue
+            reference_query = None
+            for arm, observation in result["arms"].items():
+                ids = observation["record_ids"]; truth = observation["truth"]; groups = observation["origin_group_ids"]
+                if len(ids) != len(truth) or len(ids) != len(groups) or len(set(ids)) != len(ids):
+                    item["configuration_gaps"].append({"job_id": key, "arm": arm, "reason": "INVALID_NEURAL_QUERY_IDENTITIES"}); continue
+                query = {rid: (label, group) for rid, label, group in zip(ids, truth, groups)}
+                if reference_query is None: reference_query = query
+                elif reference_query != query:
+                    item["configuration_gaps"].append({"job_id": key, "arm": arm, "reason": "NEURAL_ARMS_DO_NOT_SHARE_FROZEN_QUERY"})
+        design = block.get("expected_design", {})
+        if design:
+            fields = sorted(design)
+            require(all(design[key] and len(design[key]) == len(set(design[key])) for key in fields), "Frozen design has repeated/empty factor levels")
+            expected_cells = set(itertools.product(*(design[key] for key in fields)))
+            observed_cells = Counter(tuple(jobs[key].get("parameters", {}).get(field) for field in fields) for key in required)
+            if len(expected_cells) != block["expected_count"] or set(observed_cells) != expected_cells or any(n != 1 for n in observed_cells.values()):
+                item["configuration_gaps"].append({"reason": "FROZEN_CARTESIAN_DESIGN_NOT_COMPLETE_ONCE", "design_fields": fields})
+        if missing or item["configuration_gaps"]:
+            item.update(status="PARTIAL_BLOCKS_PRESERVED", original_available_job_ids=sorted(available),
+                reason="A missing/partial/scientifically blocked result is not replaced by zero or an available-model winner")
+            output.append(item); all_complete = False; continue
+        if block.get("block_type") == "artifact_only":
+            item.update(status="COMPLETE_BLOCK", aggregation="Artifact/provenance coverage only; no prediction metric inferred")
+            output.append(item); continue
+        tables = collect_tables(available, jobs, matrix_reader)
+        if block.get("expected_settings"):
+            allowed = set(block["expected_settings"])
+            item["ignored_out_of_block_settings"] = sorted({table["setting"] for table in tables if table["setting"] not in allowed})
+            tables = [table for table in tables if table["setting"] in allowed]
+        observed = {table["setting"] for table in tables}
+        for name in block.get("expected_settings", []):
+            if name not in observed: item["configuration_gaps"].append({"setting": name, "reason": "EXPECTED_CONFIGURATION_ABSENT"})
+            required_strata = {}
+            for job_id in block.get("setting_scopes", {}).get(name, required):
+                stratum = prediction_stratum(jobs[job_id], name)
+                key = json.dumps(stratum, sort_keys=True); required_strata[key] = stratum
+            for stratum in required_strata.values():
+                cohort = block.get("setting_cohorts", {}).get(name)
+                if not any(table["setting"] == name and table["stratum"] == stratum
+                           and (cohort is None or table["cohort"] == cohort) for table in tables):
+                    item["configuration_gaps"].append({"setting": name, "stratum": stratum,
+                        "expected_cohort": cohort, "reason": "EXPECTED_CONFIGURATION_STRATUM_ABSENT"})
+        for table in tables:
+            expected = expected_table_jobs(block, table, jobs)
+            if not expected or table["job_ids"] != expected:
+                item["configuration_gaps"].append({"setting": table["setting"], "cohort": table["cohort"], "stratum": table["stratum"],
+                    "missing_job_ids": sorted(expected - table["job_ids"]), "unexpected_job_ids": sorted(table["job_ids"] - expected)})
+        if not tables: item["configuration_gaps"].append({"reason": "NO_PREDICTION_BEARING_RESULTS"})
+        if item["configuration_gaps"]:
+            item.update(status="PARTIAL_BLOCKS_PRESERVED", reason="Incomplete configuration block: no pooled metrics or comparisons emitted")
+            output.append(item); all_complete = False; continue
+        for table in tables:
+            rows = list(table["rows"].values()); units = defaultdict(list)
+            for row in rows: units[row["unit"]].append(row)
+            item["aggregate_metrics"].append({"setting": table["setting"], "cohort": table["cohort"], "stratum": table["stratum"],
+                "contributing_job_ids": sorted(table["job_ids"]), "duplicate_reused_rows_removed": table["duplicate_reused_rows_removed"],
+                "metrics": classification_metrics(rows), "per_pair_or_fold_seed": [{"unit": key, "metrics": classification_metrics(value)} for key, value in sorted(units.items())]})
+        for comparison in block.get("paired_comparisons", []):
+            lefts = [t for t in tables if t["setting"] == comparison["left"]]; rights = [t for t in tables if t["setting"] == comparison["right"]]
+            matched = False
+            for left in lefts:
+                for right in rights:
+                    if not compatible_strata(left, right): continue
+                    matched = True; value = {"left": comparison["left"], "right": comparison["right"], "cohort": left["cohort"], "left_stratum": left["stratum"], "right_stratum": right["stratum"]}
+                    try: value.update(status="PAIRED_DESCRIPTIVE_COMPLETE", **paired_counts(left["rows"], right["rows"]))
+                    except ValueError as error: value.update(status="NOT_COMPARABLE_QUERY_MISMATCH", reason=str(error))
+                    item["paired_comparisons"].append(value)
+            if not matched: item["paired_comparisons"].append({"left": comparison["left"], "right": comparison["right"], "status": "NOT_COMPARABLE_DIFFERENT_QUERY_OR_MISSING_SETTING"})
+        item.update(status="COMPLETE_BLOCK", winner_selected=False, significance_test_performed=False); output.append(item)
+    return output, all_complete
+
+
+def write_csv(file, rows):
+    if not rows: return
+    fields = list(dict.fromkeys(key for row in rows for key in row))
+    with file.open("x", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=fields); writer.writeheader(); writer.writerows(rows)
+
+
+def run(args):
+    manifest = read(args.manifest, args.manifest_sha256); context = read(args.context, args.context_sha256)
+    require(context.get("schema") == CONTEXT_SCHEMA and context["manifest_sha256"] == args.manifest_sha256
+        and context["job_id"] == args.job_id, "Resolved context/manifest/job binding differs")
+    job = next(item for item in manifest["jobs"] if item["id"] == args.job_id)
+    require(job == context["job"] and job["kind"] == "summary" and job.get("allow_partial_dependencies") is True,
+        "Exact frozen summary job with partial-dependency reporting required")
+    if not args.execute: return {"schema": SCHEMA, "status": "NOT_RUN", "job_id": args.job_id, **ZERO_COUNTERS}
+    spec = importlib.util.spec_from_file_location("yanan_summary_live_supervision", SUPERVISOR)
+    supervisor = importlib.util.module_from_spec(spec); spec.loader.exec_module(supervisor)
+    supervision = supervisor.verify_resource_supervision(expected_worker_path=SELF, expected_threads=2,
+        expected_manifest_sha256=args.manifest_sha256, expected_job_id=args.job_id,
+        expected_context_sha256=args.context_sha256, expected_proof_path=args.proof)
+    out = path(args.output); require(str(out) == str(path(context["output_directory"])) and not out.exists(), "Fresh context-bound output required")
+    out.mkdir(parents=True); started = time.process_time()
+    result = {"schema": SCHEMA, "status": "PARTIAL_BLOCKS_PRESERVED", "operation": "summary", "job_id": args.job_id,
+        "job_sha256": context["job_sha256"], "job": job, "manifest": ref(args.manifest), "manifest_sha256": args.manifest_sha256,
+        "context": ref(args.context), "context_sha256": args.context_sha256, "source_worker": ref(SELF),
+        "resource_supervision": supervision, "output_directory": str(out), "started_at_utc": utc(), **ZERO_COUNTERS}
+    states = context["dependency_states"]; deprefs = context["dependencies"]; jobs = {j["id"]: j for j in manifest["jobs"]}
+    require(set(deprefs) <= set(job["depends_on"]) and set(states) == set(job["depends_on"]), "Summary context must retain every declared dependency state")
+    results = {}
+    for key, binding in deprefs.items():
+        value = read_ref(binding)
+        require(value.get("job_id") == key, "Producer result belongs to another job")
+        results[key] = value
+    blocks, complete = summarize_blocks(manifest["summary_blocks"], results, states, jobs, read_ref)
+    all_successful = all(state_status(value) == "DONE_SEALED" and key in results and results[key].get("status") in COMPLETE_STATUSES for key, value in states.items())
+    result.update(status="SUMMARY_COMPLETE" if complete and all_successful else "PARTIAL_BLOCKS_PRESERVED", blocks=blocks,
+        dependency_inventory=[{"job_id": key, "state": state_status(states[key]), "result": deprefs.get(key), "scientific_status": results.get(key, {}).get("status")} for key in sorted(states)],
+        all_declared_dependencies_scientifically_complete=all_successful, all_blocks_complete=complete,
+        selection_performed=False, inferential_p_values_computed=False,
+        interpretation=["Evaluation rows, unique record IDs and pair/fold/seed units are separate counts; repeated evaluations are not additional independent specimens.",
+            "A predictions reused across pretraining budgets are deduplicated by fold/seed/adaptation/record; no repeated A fitting is inferred.",
+            "Aextra matches declared optimizer-step budgets only. Fold0 jujube batches may contain6 versus32 elsewhere; sample exposure and FLOPs are not claimed equal.",
+            "Only complete frozen blocks/configurations contribute pooled metrics and paired descriptive counts; partial raw artifacts remain referenced without choosing a winner."])
+    metrics = []; comparisons = []
+    for block in blocks:
+        for table in block["aggregate_metrics"]:
+            m = table["metrics"]; metrics.append({"block": block["id"], "setting": table["setting"], "cohort": table["cohort"],
+                "stratum": json.dumps(table["stratum"], sort_keys=True), **{key:m[key] for key in ("evaluation_rows", "unique_record_ids", "correct", "accuracy", "balanced_accuracy", "macro_f1")}})
+        for comparison in block["paired_comparisons"]:
+            comparisons.append({"block": block["id"], **{key:value for key,value in comparison.items() if not isinstance(value,(list,dict))}})
+    write_csv(out / "complete_block_metrics.csv", metrics); write_csv(out / "paired_descriptive_comparisons.csv", comparisons)
+    result.update(completed_at_utc=utc(), process_cpu_seconds=time.process_time()-started,
+        output_artifacts=[ref(p) for p in sorted(out.iterdir()) if p.is_file()])
+    with (out / "result.json").open("x") as handle: json.dump(result, handle, ensure_ascii=False, indent=2, allow_nan=False); handle.write("\n")
+    return result
+
+
+def main():
+    p = argparse.ArgumentParser(description=__doc__)
+    for name in ("manifest", "manifest-sha256", "job-id", "context", "context-sha256", "output", "proof"): p.add_argument("--"+name, required=True)
+    p.add_argument("--execute", action="store_true"); args = p.parse_args(); result = run(args)
+    print(json.dumps({"schema": result["schema"], "status": result["status"], "job_id": args.job_id}, ensure_ascii=False))
+
+
+if __name__ == "__main__": main()

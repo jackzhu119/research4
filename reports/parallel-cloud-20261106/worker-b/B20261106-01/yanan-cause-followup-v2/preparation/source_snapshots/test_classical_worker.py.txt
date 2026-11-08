@@ -1,0 +1,463 @@
+"""Synthetic boundary tests for the frozen TRAIN-only classical diagnostics.
+
+Business operations use fake models only. One separately authorized cold-child
+test fits tiny manufactured matrices to exercise real threadpool discovery.
+No real spectra, live queue or scientific output is fitted or modified.
+"""
+from __future__ import annotations
+
+import argparse
+import copy
+import csv
+import importlib.util
+import json
+from pathlib import Path
+import subprocess
+import sys
+import tempfile
+from types import SimpleNamespace
+import unittest
+from unittest.mock import patch
+
+import numpy as np
+
+SOURCE = Path(__file__).with_name("classical_worker.py")
+ROUND_ROOT = Path(__file__).resolve().parents[2]
+
+
+def load(path, name):
+    spec = importlib.util.spec_from_file_location(name, path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+worker = load(SOURCE, "classical_worker_test_subject")
+worker.np = np
+
+
+def manufactured_data():
+    groups, species, identifiers = [], [], []
+    for group in worker.JUJUBE + worker.ACID:
+        ordinals = ([block * 70 + index for block in range(5) for index in range(1, 43)] if group == "ZY01"
+                    else list(range(1, 4)) if group == "ZY02" else [1] if group.startswith("ZR")
+                    else list(range(1, 61)))
+        for ordinal in ordinals:
+            identifiers.append(f"{group}-{ordinal:03d}")
+            groups.append(group)
+            species.append(worker.CLASSES[0] if group in worker.JUJUBE else worker.CLASSES[1])
+    axis = np.linspace(.1, 1.5, 612)
+    index = np.arange(len(identifiers))[:, None]
+    alpha = np.sin(axis[None, :] * (1 + index % 7 / 11)) + .002 * index * axis[None, :] ** 2
+    refractive = 100 + 25 * np.cos(axis[None, :] * (.7 + index % 9 / 10)) + .004 * index * np.sin(2 * axis[None, :])
+    data = {"record_ids": np.array(identifiers), "species": np.array(species), "origin_group_ids": np.array(groups),
+            "master_roles": np.full(len(identifiers), "train"), "physical_sample_ids": np.array(identifiers),
+            "alpha_main": alpha, "n_main": refractive, "axis_main": axis,
+            "private_numeric_label": np.arange(len(identifiers)) + 9999999}
+    return worker.validate_dataset(data)
+
+
+def state():
+    return {"new_fitting_entered": False, "actual_new_model_fit_calls_started": 0, "actual_new_model_fits": 0}
+
+
+def old_pair(data, pair=("ZY01", "ZY03")):
+    fit, query = worker.split_pair(data, *pair)
+    receipt = {"control": "real", "held_out_groups": list(pair),
+               "train_ids": data["record_ids"][fit].tolist(), "test_ids": data["record_ids"][query].tolist(),
+               "fit_labels_sha256": worker.labels_hash(data["species"][fit]),
+               "fit_spectra_sha256": worker.array_hash(worker.features(data, fit, "alpha"))}
+    rows = [{"control": "real", "record_id": str(data["record_ids"][i]), "y_true": str(data["species"][i]),
+             "y_predicted": str(data["species"][i]), "origin_group_id": str(data["groups"][i]), "master_role": "train"}
+            for i in query]
+    return {"rows": rows, "receipts": [receipt], "refs": {}}
+
+
+class DatasetAndFeatureTests(unittest.TestCase):
+    def setUp(self):
+        self.data = manufactured_data()
+
+    def test_dataset_aliases_preserve_unique_master_train_identity(self):
+        self.assertEqual(len(self.data["record_ids"]), 516)
+        np.testing.assert_array_equal(self.data["groups"], self.data["origin_group_ids"])
+        np.testing.assert_array_equal(self.data["roles"], self.data["master_roles"])
+        for key, value in (("record_ids", self.data["record_ids"][0]),
+                           ("physical_sample_ids", self.data["physical_sample_ids"][0])):
+            wrong = copy.deepcopy(self.data); wrong[key][1] = value
+            with self.assertRaises(ValueError):
+                worker.validate_dataset(wrong)
+
+    def test_dataset_rejects_wrong_roles_misaligned_modalities_and_nonfinite_values(self):
+        for key, value in (("master_roles", np.array(["train"])),
+                           ("master_roles", np.array(["calibration"] * 516)),
+                           ("n_main", np.zeros((515, 612))),
+                           ("axis_main", self.data["axis_main"][::-1])):
+            wrong = copy.deepcopy(self.data); wrong[key] = value
+            with self.assertRaises(ValueError):
+                worker.validate_dataset(wrong)
+        wrong = copy.deepcopy(self.data); wrong["alpha_main"][0, 0] = np.nan
+        with self.assertRaises(worker.ScientificBlocked):
+            worker.validate_dataset(wrong)
+
+    def test_fusion_snv_is_per_modality_block_and_never_uses_private_fields(self):
+        alpha, refractive = self.data["alpha_main"][:4], self.data["n_main"][:4]
+        actual = worker.build_features(alpha, refractive, "fusion", "snv")
+        expected = np.concatenate([worker.snv(alpha), worker.snv(refractive)], axis=1)
+        np.testing.assert_array_equal(actual, expected)
+        self.assertEqual(actual.shape, (4, 1224))
+        self.assertGreater(np.linalg.norm(actual - worker.snv(np.concatenate([alpha, refractive], axis=1))), 1.)
+        np.testing.assert_array_equal(worker.build_features(alpha, refractive, "alpha", "raw"), alpha)
+        np.testing.assert_array_equal(worker.build_features(alpha, refractive, "n", "raw"), refractive)
+
+    def test_snv_uses_sample_deviation_and_refuses_flat_rows(self):
+        values = np.array([[1., 2., 4.], [-2., 0., 5.]])
+        np.testing.assert_allclose(worker.snv(values), (values - values.mean(1, keepdims=True)) / values.std(1, ddof=1, keepdims=True))
+        with self.assertRaises(worker.ScientificBlocked):
+            worker.snv(np.ones((2, 612)))
+
+
+class SplitAndSupportTests(unittest.TestCase):
+    def setUp(self):
+        self.data = manufactured_data()
+
+    def test_all_twenty_five_source_pairs_keep_groups_disjoint(self):
+        for jujube in worker.JUJUBE:
+            for acid in worker.ACID:
+                fit, query = worker.split_pair(self.data, jujube, acid)
+                self.assertFalse(set(fit) & set(query))
+                self.assertEqual(set(self.data["groups"][query]), {jujube, acid})
+                self.assertFalse(set(self.data["groups"][fit]) & set(self.data["groups"][query]))
+                self.assertEqual(len(fit) + len(query), 516)
+
+    def test_split_guards_duplicates_overlap_nontrain_and_invalid_indices(self):
+        for fit, query, support in (([0, 0], [1], []), ([0], [0], []), ([0], [1], [0]),
+                                    ([-1], [515], []), ([516], [0], [])):
+            with self.assertRaises(ValueError):
+                worker.assert_split(self.data, fit, query, support)
+        wrong = copy.deepcopy(self.data); wrong["master_roles"][0] = "calibration"
+        with self.assertRaises(ValueError):
+            worker.assert_split(wrong, [0], [1])
+
+    def test_hashed_support_query_pools_are_105_105_and_30_30_and_k_is_nested(self):
+        donor, query, pool = worker.support_split(self.data, "ZY03", 42)
+        self.assertEqual(len(donor), 246)
+        for group, count in (("ZY01", 105), ("ZY03", 30)):
+            self.assertEqual(sum(self.data["groups"][query] == group), count)
+            self.assertEqual(sum(self.data["groups"][pool] == group), count)
+        previous = set()
+        for k in worker.SUPPORT_K:
+            chosen = worker.nested_support(self.data, pool, k)
+            self.assertEqual(len(chosen), 2 * k)
+            self.assertTrue(previous <= set(chosen))
+            self.assertFalse(set(chosen) & set(query))
+            self.assertFalse(set(chosen) & set(donor))
+            self.assertEqual(sum(self.data["species"][chosen] == worker.CLASSES[0]), k)
+            previous = set(chosen)
+        with self.assertRaises(ValueError):
+            worker.nested_support(self.data, pool, 2)
+        with self.assertRaises(worker.ScientificBlocked):
+            worker.nested_support(self.data, pool[:2], 20)
+
+    def test_hash_splits_depend_on_ids_instead_of_current_array_order(self):
+        _, query, pool = worker.support_split(self.data, "ZY03", 43)
+        order = np.arange(516)[::-1]
+        changed = {key: value[order] if isinstance(value, np.ndarray) and value.ndim > 0 and len(value) == 516 else value.copy()
+                   if isinstance(value, np.ndarray) else value for key, value in self.data.items()}
+        _, q2, p2 = worker.support_split(changed, "ZY03", 43)
+        self.assertEqual(set(self.data["record_ids"][query]), set(changed["record_ids"][q2]))
+        self.assertEqual(set(self.data["record_ids"][pool]), set(changed["record_ids"][p2]))
+
+    def test_coverage_adds_only_nonquery_zy01_and_random_controls_have_equal_n(self):
+        for block, (_, acid) in enumerate(worker.OLD_PAIRS):
+            donor, augmented, query = worker.coverage_split(self.data, block, acid)
+            added = set(augmented) - set(donor)
+            self.assertTrue(added)
+            self.assertEqual(set(self.data["groups"][list(added)]), {"ZY01"})
+            self.assertFalse(set(augmented) & set(query))
+            zyquery = query[self.data["groups"][query] == "ZY01"]
+            self.assertTrue(all(worker.ordinal_bin(rid) == block for rid in self.data["record_ids"][zyquery]))
+            for seed in (42, 43, 44):
+                _, random_fit, random_query = worker.coverage_split(self.data, block, acid, seed)
+                self.assertEqual(len(random_query), len(query))
+                self.assertEqual(len(random_fit), len(augmented))
+                self.assertFalse(set(random_fit) & set(random_query))
+
+    def test_acid_size_controls_preserve_jujube_ids_and_balance_sources_without_replacement(self):
+        donor, _ = worker.split_pair(self.data, "ZY01", "ZY03")
+        original_jujube = {i for i in donor if self.data["groups"][i] in worker.JUJUBE}
+        for count in (6, 24, 60):
+            selected = worker.balanced_acid_donors(self.data, donor, count, 42)
+            self.assertEqual(len(selected), len(set(selected)))
+            self.assertEqual({i for i in selected if self.data["groups"][i] in worker.JUJUBE}, original_jujube)
+            acid_counts = [sum(self.data["groups"][selected] == group) for group in ("ZY04", "ZY05", "ZY06", "ZY07")]
+            self.assertEqual(sum(acid_counts), count)
+            self.assertLessEqual(max(acid_counts) - min(acid_counts), 1)
+
+
+class RecorderAndReuseTests(unittest.TestCase):
+    def setUp(self):
+        self.data = manufactured_data()
+        self.temp = tempfile.TemporaryDirectory(prefix="classical-unit-", dir=ROUND_ROOT / "preparation")
+        self.directory = Path(self.temp.name)
+        self.state = state()
+        self.rec = worker.Recorder(self.directory, self.state, self.data)
+
+    def tearDown(self):
+        self.temp.cleanup()
+
+    def test_compact_matrix_stores_identity_once_and_repetition_does_not_increase_n(self):
+        query = np.array([0, 1, 216, 217])
+        truth = self.data["species"][query]
+        self.rec.add("model-A", "fixed-query", query, truth, None)
+        self.rec.add("model-B", "fixed-query", query, truth[::-1], None)
+        matrix = json.loads((self.directory / "prediction_matrix.json").read_text())
+        self.assertEqual(len(matrix["cohorts"]), 1)
+        self.assertEqual(matrix["unique_specimen_N"], 4)
+        self.assertFalse(matrix["repeated_predictions_are_independent_samples"])
+        self.assertNotIn("ids", matrix["settings"]["model-A"])
+        self.assertNotIn("truth", matrix["settings"]["model-A"])
+        with self.assertRaises(ValueError):
+            self.rec.add("model-A", "fixed-query", query, truth, None)
+        with self.assertRaises(ValueError):
+            self.rec.cohort("fixed-query", np.array([0, 1]))
+        with self.assertRaises(ValueError):
+            self.rec.cohort("repeated", np.array([0, 0]))
+
+    def test_zero_accuracy_is_a_valid_recorded_outcome(self):
+        query = np.array([0, 216])
+        truth = self.data["species"][query]
+        wrong = [worker.CLASSES[1] if label == worker.CLASSES[0] else worker.CLASSES[0] for label in truth]
+        self.rec.add("negative-result", "query", query, wrong, None)
+        self.assertEqual(self.rec.matrix["settings"]["negative-result"]["metrics"]["accuracy"], 0.)
+
+    def test_predictions_are_fsynced_without_truth_before_scoring_failure(self):
+        query = np.array([0, 216])
+        predictions = [worker.CLASSES[1], worker.CLASSES[0]]
+        target = self.directory / "predictions-before-scoring.jsonl.txt"
+
+        def failing_metrics(*args, **kwargs):
+            self.assertTrue(synced.called)
+            self.assertTrue(target.is_file())
+            saved = json.loads(target.read_text(encoding="utf-8").strip())
+            self.assertEqual(set(saved), {"setting", "query_ids", "predictions", "source_receipt_index", "score_status"})
+            self.assertEqual(saved["query_ids"], self.data["record_ids"][query].tolist())
+            self.assertEqual(saved["predictions"], predictions)
+            self.assertEqual(saved["source_receipt_index"], 7)
+            self.assertEqual(saved["score_status"], "NOT_SAVED_SEPARATELY_AT_RECORDER_ADD")
+            self.assertNotIn("truth", saved)
+            raise RuntimeError("Deliberate synthetic scoring failure")
+
+        with patch.object(worker.os, "fsync", wraps=worker.os.fsync) as synced:
+            with patch.object(worker, "metrics", side_effect=failing_metrics):
+                with self.assertRaisesRegex(RuntimeError, "synthetic scoring failure"):
+                    self.rec.add("unscored-model", "held-query", query, predictions, 7)
+        synced.assert_called_once()
+        self.assertEqual(len(target.read_text().splitlines()), 1)
+        self.assertNotIn("unscored-model", self.rec.matrix["settings"])
+
+    def test_misaligned_prediction_lengths_are_rejected_before_persistence_or_scoring(self):
+        query = np.array([0, 216])
+        target = self.directory / "predictions-before-scoring.jsonl.txt"
+        with patch.object(worker, "metrics", side_effect=AssertionError("Scoring malformed output is forbidden")) as scorer:
+            for predictions in ([worker.CLASSES[0]], [worker.CLASSES[0]] * 3):
+                with self.assertRaisesRegex(ValueError, "IDs and predictions must align"):
+                    self.rec.add("bad-length", "held-query", query, predictions, 0)
+        scorer.assert_not_called()
+        self.assertFalse(target.exists())
+        self.assertEqual(self.rec.matrix["cohorts"], {})
+
+    def test_old_baseline_reuse_has_no_fit_and_mismatched_order_labels_or_snv_bytes_is_blocked(self):
+        old = old_pair(self.data)
+        fit, query = worker.split_pair(self.data, "ZY01", "ZY03")
+        prediction, receipt = worker.reuse_old_pair(old, self.data, fit, query, ("ZY01", "ZY03"))
+        self.assertEqual(prediction, self.data["species"][query].tolist())
+        self.assertEqual(receipt["status"], "REUSED_SEALED_BASELINE_NO_FIT")
+        self.assertFalse(self.state["new_fitting_entered"])
+        with self.assertRaises(worker.ScientificBlocked):
+            worker.reuse_old_pair(old, self.data, fit[::-1], query, ("ZY01", "ZY03"))
+        altered = copy.deepcopy(old); altered["receipts"][0]["fit_labels_sha256"] = "0" * 64
+        with self.assertRaises(worker.ScientificBlocked):
+            worker.reuse_old_pair(altered, self.data, fit, query, ("ZY01", "ZY03"))
+        altered = copy.deepcopy(self.data); altered["alpha_main"][fit[0], 0] += .1
+        with self.assertRaises(worker.ScientificBlocked):
+            worker.reuse_old_pair(old, altered, fit, query, ("ZY01", "ZY03"))
+
+    def test_mismatched_legacy_cell_is_never_replaced_by_a_new_fit(self):
+        old = old_pair(self.data); old["receipts"][0]["fit_spectra_sha256"] = "0" * 64
+        with patch.object(worker, "fit_model", side_effect=AssertionError("Fallback fitting is forbidden")) as fitter:
+            with self.assertRaises(worker.ScientificBlocked):
+                worker.group_pair(self.rec, {"jujube_group": "ZY01", "acid_group": "ZY03"}, old)
+        fitter.assert_not_called()
+
+
+class FakeScaler:
+    fitted = []
+    def fit_transform(self, values):
+        self.mean_, self.scale_ = np.zeros(values.shape[1]), np.ones(values.shape[1])
+        self.fitted.append(values.copy())
+        return values.copy()
+    def transform(self, values):
+        return values.copy()
+
+
+class FakeModel:
+    def __init__(self):
+        self.classes_ = np.array(worker.CLASSES)
+    def fit(self, values, labels):
+        self.fit_values, self.fit_labels = values.copy(), labels.copy()
+        return self
+    def predict(self, values):
+        return np.full(len(values), worker.CLASSES[0])
+    def decision_function(self, values):
+        return np.tile([-1., 1.], (len(values), 1))
+
+
+class FakeModelScopeTests(RecorderAndReuseTests):
+    def test_feature_scaler_and_model_fit_see_only_allowed_source_rows(self):
+        fit, query = worker.split_pair(self.data, "ZY02", "ZY03")
+        model = FakeModel(); FakeScaler.fitted = []
+        with patch.object(worker, "StandardScaler", FakeScaler, create=True), \
+                patch.object(worker, "estimator", return_value=model):
+            _, _, _ = worker.fit_model(self.rec, "fake", fit, query, "fusion")
+        expected = worker.features(self.data, fit, "fusion")
+        np.testing.assert_array_equal(FakeScaler.fitted[0], expected)
+        np.testing.assert_array_equal(model.fit_values, expected)
+        np.testing.assert_array_equal(model.fit_labels, self.data["species"][fit])
+        self.assertEqual(self.rec.receipts[0]["scaler_fit_ids"], self.data["record_ids"][fit].tolist())
+
+    def test_support_zero_k_controls_and_refits_preserve_disjoint_nested_pools(self):
+        calls, adapter_calls, context_calls = [], [], []
+        def fake_fit(rec, key, fit, query, modality, preprocessing="snv", learner="svc", class_weight="balanced"):
+            receipt = rec.start(key, fit, query); rec.finish(receipt)
+            calls.append((key, np.array(fit), np.array(query)))
+            scaler = FakeScaler(); source_x = scaler.fit_transform(worker.features(rec.data, fit, modality, preprocessing))
+            model = FakeModel()
+            return model.predict(worker.features(rec.data, query, modality, preprocessing)), receipt, (model, scaler, source_x)
+        def build_context(source_x, source_scores, labels, classes, seed):
+            context_calls.append((len(source_x), len(labels))); return {"source_rows": len(source_x)}
+        def fit_candidate(context, candidate, x, scores, labels):
+            adapter_calls.append((candidate.copy(), len(labels)))
+            return SimpleNamespace(predict_scores=lambda qx, qs: qs.copy())
+        calibration = SimpleNamespace(build_context=build_context, fit_candidate=fit_candidate)
+        with patch.object(worker, "fit_model", side_effect=fake_fit), patch.object(worker, "calibration", calibration, create=True):
+            worker.support(self.rec, {"modality": "fusion", "acid_group": "ZY03", "draw_seed": 42})
+        settings = self.rec.matrix["settings"]
+        self.assertEqual(settings["legacy_anchor/K0"]["predictions"], settings["source_score_argmax/K0"]["predictions"])
+        self.assertEqual(settings["weak_anchor/K0"]["predictions"], settings["source_score_argmax/K0"]["predictions"])
+        self.assertEqual(settings["full_pipeline_refit/K0"]["predictions"], settings["source_svc"]["predictions"])
+        self.assertEqual(len(calls), 6)
+        self.assertEqual(context_calls, [(246, 246)])
+        self.assertEqual(len(adapter_calls), 10)
+        for key, fit, query in calls:
+            self.assertFalse(set(fit) & set(query))
+            if key.startswith("full_pipeline_refit/K"):
+                k = int(key.rsplit("K", 1)[1]); self.assertEqual(len(fit), 246 + 2 * k)
+        self.assertTrue(all(row["candidate"]["regularization"] in (1., 1000.) for row in self.rec.receipts if row["kind"] == "pinned_score_adapter"))
+        self.assertTrue(all(setting["cohort"] == "locked_query" for setting in settings.values()))
+
+
+class LiveProofBoundaryTests(unittest.TestCase):
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory(prefix="classical-proof-unit-", dir=ROUND_ROOT / "preparation")
+        self.directory = Path(self.temp.name)
+        supervisor = self.directory / "fake_supervisor.py"; supervisor.write_text("# Test fixture; import is mocked\n")
+        self.manifest = self.directory / "manifest.json"
+        self.manifest.write_text(json.dumps({"supervisor": worker.ref(supervisor), "inputs": {}}))
+        self.context = self.directory / "context.json"
+        self.payload = {"job_id": "unit-job", "manifest_sha256": worker.sha(self.manifest),
+                        "output_directory": str(self.directory / "output"),
+                        "job": {"source": worker.ref(SOURCE), "operation": "group_pair", "parameters": {}}}
+        self.context.write_text(json.dumps(self.payload))
+        self.args = argparse.Namespace(manifest=str(self.manifest), manifest_sha256=worker.sha(self.manifest),
+                    context=str(self.context), context_sha256=worker.sha(self.context), job_id="unit-job",
+                    output=str(self.directory / "output"), proof=str(self.directory / "proof.json"), execute=True)
+
+    def tearDown(self):
+        self.temp.cleanup()
+
+    def test_failed_live_proof_prevents_numeric_initialization_and_outputs(self):
+        supervisor = SimpleNamespace(verify_resource_supervision=lambda **kwargs: (_ for _ in ()).throw(ValueError("No live proof")))
+        with patch.object(worker, "import_file", return_value=supervisor), \
+                patch.object(worker, "initialize_numerics", side_effect=AssertionError("Too early")) as initialize, \
+                patch.object(worker, "nofork_platform", side_effect=AssertionError("Too early")) as nofork:
+            with self.assertRaisesRegex(ValueError, "No live proof"):
+                worker.run(self.args)
+        initialize.assert_not_called(); nofork.assert_not_called()
+        self.assertFalse(Path(self.args.output).exists())
+
+    def test_changed_manifest_or_resolved_context_never_reaches_fitting(self):
+        self.context.write_text(json.dumps({**self.payload, "job_id": "changed"}))
+        with patch.object(worker, "initialize_numerics", side_effect=AssertionError("Too early")) as initialize:
+            with self.assertRaises(ValueError):
+                worker.run(self.args)
+        initialize.assert_not_called()
+        self.assertFalse(Path(self.args.output).exists())
+
+    def test_preflight_has_no_numerical_imports_or_fits(self):
+        self.args.execute = False
+        with patch.object(worker, "initialize_numerics", side_effect=AssertionError("Too early")):
+            result = worker.run(self.args)
+        self.assertEqual(result["status"], "PREFLIGHT_ONLY")
+        self.assertFalse(result["numerical_imports_entered"])
+        self.assertFalse(result["new_fitting_entered"])
+        self.assertFalse(Path(self.args.output).exists())
+
+
+class ColdActualTinyFitNoForkTests(unittest.TestCase):
+    def test_actual_tiny_svc_lr_pls_and_pca_fits_cannot_fork_after_threadpool_priming(self):
+        code = r'''
+import importlib.util,json,os,sys
+from pathlib import Path
+sys.dont_write_bytecode=True
+for name in ('OMP_NUM_THREADS','OPENBLAS_NUM_THREADS','MKL_NUM_THREADS','NUMEXPR_NUM_THREADS','VECLIB_MAXIMUM_THREADS'):
+    os.environ[name]='1'
+attempts=[]
+def audit(event,args):
+    if event.startswith('subprocess.') or event in ('os.fork','os.forkpty','os.posix_spawn','os.posix_spawnp','os.exec','os.system','os.spawn'):
+        attempts.append(event);raise AssertionError('PROCESS CREATION FORBIDDEN: '+event)
+sys.addaudithook(audit)
+source=Path(sys.argv[1])
+spec=importlib.util.spec_from_file_location('cold_classical_tiny_fit_test',source)
+worker=importlib.util.module_from_spec(spec);spec.loader.exec_module(worker)
+worker.nofork_platform()
+worker.prime_threadpoolctl_nofork()
+legacy=source.resolve().parents[2]/'legacy_source/src/herb_spectra'
+manifest={'inputs':{'legacy_sources':[worker.ref(path) for path in sorted(legacy.glob('*.py'))]}}
+worker.initialize_numerics(manifest)
+from threadpoolctl import threadpool_limits,ThreadpoolController
+import numpy as np
+libc=ThreadpoolController._system_libraries['libc']
+assert hasattr(libc,'dl_iterate_phdr')
+rng=np.random.default_rng(31415)
+X=rng.normal(size=(12,8));y=np.array(['枣仁','酸枣仁']*6)
+with threadpool_limits(limits=1):
+    scaler=worker.StandardScaler().fit(X)
+    values=scaler.transform(X)
+    for learner in ('svc','logreg','plsda2'):
+        model=worker.estimator(learner)
+        model.fit(values,y)
+        predicted=model.predict(values[:3])
+        assert len(predicted)==3
+    pca=worker.PCA(n_components=2,svd_solver='full').fit(values)
+    assert pca.transform(values[:3]).shape==(3,2)
+assert not attempts,attempts
+print(json.dumps({'process_creation_attempts':attempts,'synthetic_samples':12,'synthetic_features':8,'actual_tiny_models':['svc','logreg','plsda2','pca'],'real_spectra_read':False}))
+'''
+        result = subprocess.run([sys.executable, "-c", code, str(SOURCE)], capture_output=True, text=True, timeout=60)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        observation = json.loads(result.stdout.strip())
+        self.assertEqual(observation["process_creation_attempts"], [])
+        self.assertFalse(observation["real_spectra_read"])
+
+
+def suite():
+    result = unittest.TestSuite(); loader = unittest.defaultTestLoader
+    for cls in (DatasetAndFeatureTests, SplitAndSupportTests, RecorderAndReuseTests, LiveProofBoundaryTests,
+                ColdActualTinyFitNoForkTests):
+        result.addTests(loader.loadTestsFromTestCase(cls))
+    result.addTests(FakeModelScopeTests(name) for name in FakeModelScopeTests.__dict__ if name.startswith("test_"))
+    return result
+
+
+if __name__ == "__main__":
+    raise SystemExit(0 if unittest.TextTestRunner(verbosity=2).run(suite()).wasSuccessful() else 1)

@@ -1,0 +1,523 @@
+#!/usr/bin/env python3
+"""Supervised, TRAIN-only spectral producer and sealed-dataset consumer.
+
+Imports which initialize numerical libraries are deliberately inside the
+resource-verified execution path. Identity metadata may cover every record;
+numeric decoding is restricted to coordinate A and explicit master TRAIN
+columns. User labels are provenance, not botanical authentication.
+"""
+from __future__ import annotations
+
+import argparse
+from collections import Counter, defaultdict
+import csv
+import hashlib
+import importlib.util
+import json
+import os
+from pathlib import Path
+import re
+import resource
+import signal
+import sys
+import time
+from zipfile import ZipFile
+
+SCHEMA = "research4-b-yanan-cause-result-v2"
+DATA_SCHEMA = "research4-b-yanan-train-dataset-v2"
+ROOT = next(p for p in Path(__file__).resolve().parents if (p / "AGENTS.md").is_file())
+ROUND_ROOT = Path(__file__).resolve().parents[2]
+NPZ_KEYS = ("record_ids", "species", "origin_group_ids", "master_roles",
+            "physical_sample_ids", "excel_columns", "alpha_main", "n_main",
+            "axis_main", "alpha_transfer", "n_transfer", "axis_transfer")
+ROLE_MAP = {"train": "train", "training": "train", "calibration": "calibration", "prediction": "prediction"}
+EXPECTED_ROLES = {"train": 999, "calibration": 334, "prediction": 339}
+EXPECTED_SPECIES = {"枣仁": 364, "酸枣仁": 500, "黄芪": 403, "天麻": 405}
+EXPECTED_TRAIN_SPECIES = {"枣仁": 216, "酸枣仁": 300, "黄芪": 241, "天麻": 242}
+
+
+def sha256(path):
+    h = hashlib.sha256()
+    with Path(path).open("rb") as stream:
+        for block in iter(lambda: stream.read(1024 * 1024), b""):
+            h.update(block)
+    return h.hexdigest()
+
+
+def local_path(value):
+    path = Path(value)
+    path = path if path.is_absolute() else ROOT / path
+    if any(p.is_symlink() for p in (path, *path.parents)):
+        raise ValueError("Symlink input/output paths are forbidden")
+    resolved = path.resolve()
+    if not resolved.is_relative_to(ROOT):
+        raise ValueError("Path escapes the authorized B repository")
+    return resolved
+
+
+def checked(binding):
+    if not isinstance(binding, dict) or not re.fullmatch(r"[0-9a-f]{64}", str(binding.get("sha256", ""))):
+        raise ValueError("Missing frozen SHA256 reference")
+    path = local_path(binding["path"])
+    if not path.is_file() or path.stat().st_size > 256 * 1024 * 1024:
+        raise ValueError("Missing or oversized input")
+    if "bytes" in binding and path.stat().st_size != int(binding["bytes"]):
+        raise ValueError("Frozen byte count differs")
+    if sha256(path) != binding["sha256"]:
+        raise ValueError("Frozen input hash differs: " + str(path))
+    return path
+
+
+def ref(path):
+    path = local_path(path)
+    return {"path": str(path.relative_to(ROOT)), "sha256": sha256(path), "bytes": path.stat().st_size}
+
+
+def save_json(path, value):
+    path = Path(path)
+    temporary = path.with_name(path.name + ".tmp-" + str(os.getpid()))
+    with temporary.open("x", encoding="utf-8") as stream:
+        json.dump(value, stream, ensure_ascii=False, sort_keys=True, indent=2, allow_nan=False)
+        stream.write("\n")
+        stream.flush()
+        os.fsync(stream.fileno())
+    os.replace(temporary, path)
+
+
+def load_module(path, name):
+    spec = importlib.util.spec_from_file_location(name, path)
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
+def initialize_nofork_cpu_metadata():
+    import platform
+    value = os.uname().machine
+    cpuinfo = Path("/proc/cpuinfo").read_bytes()
+    if len(cpuinfo) > 4 * 1024 * 1024:
+        raise ValueError("Unexpected CPU metadata size")
+    for line in cpuinfo.decode(errors="replace").splitlines():
+        if line.split(":", 1)[0].strip() == "model name":
+            value = line.split(":", 1)[1].strip() or value
+            break
+    platform._Processor.get = classmethod(lambda cls: value)
+    platform._uname_cache = None
+    if platform.processor() != value:
+        raise ValueError("No-fork CPU initialization failed")
+    return {"method": "proc_cpuinfo_or_os_uname", "processor": value,
+            "subprocess_used": False, "cpuinfo_sha256": hashlib.sha256(cpuinfo).hexdigest()}
+
+
+def column_number(value):
+    if not re.fullmatch("[A-Z]+", value):
+        raise ValueError("Invalid Excel sample column")
+    number = 0
+    for character in value:
+        number = number * 26 + ord(character) - 64
+    if number < 2 or number > 16384:
+        raise ValueError("Sample column must follow coordinate A")
+    return number
+
+
+def csv_rows(path):
+    with Path(path).open(encoding="utf-8-sig", newline="") as stream:
+        return list(csv.DictReader(stream))
+
+
+def unique_by(rows, key):
+    result = {}
+    for row in rows:
+        value = row[key]
+        if not value or value in result:
+            raise ValueError("Duplicate/missing " + key)
+        result[value] = row
+    return result
+
+
+def validate_identity(registry, metadata, split, historical, *, production=True):
+    """Validate all ID metadata, then return TRAIN metadata only (no spectra)."""
+    entries = registry["workbooks"]
+    by_path = unique_by(entries, "path")
+    meta = unique_by(metadata, "record_id")
+    roles = unique_by(split, "record_id")
+    if set(meta) != set(roles):
+        raise ValueError("Metadata/split record universe differs")
+    if len({r["physical_sample_id"] for r in metadata}) != len(metadata):
+        raise ValueError("Repeated physical sample IDs")
+    if set(r["source_workbook"] for r in metadata) != set(by_path):
+        raise ValueError("Registry/metadata workbook universe differs")
+    label_fields = ("source_workbook", "physical_sample_id", "origin_group_id", "species",
+                    "excel_column", "scan_header", "origin", "dataset_version", "batch_id")
+    groups = defaultdict(list)
+    for identifier, row in meta.items():
+        split_row = roles[identifier]
+        if any(row.get(field, "") != split_row.get(field, "") for field in label_fields):
+            raise ValueError("Metadata/split identity disagreement: " + identifier)
+        if split_row["role"] not in ROLE_MAP or row["sheet"] != "吸收系数":
+            raise ValueError("Unknown role or metadata spectral sheet")
+        entry = by_path[row["source_workbook"]]
+        if (row["species"] != entry["species"] or row["origin_group_id"] != entry["origin_group_id"]
+                or row.get("origin", "") != entry.get("origin", "")):
+            raise ValueError("Metadata/registry label disagreement")
+        column_number(row["excel_column"])
+        groups[row["source_workbook"]].append(row)
+    for path, rows in groups.items():
+        if len(rows) != int(by_path[path]["record_count"]):
+            raise ValueError("Workbook sample count differs")
+        if len({row["excel_column"] for row in rows}) != len(rows):
+            raise ValueError("Repeated workbook sample column")
+        if len({row["scan_header"] for row in rows}) != len(rows):
+            raise ValueError("Repeated metadata sample header")
+    old_rows = historical["records"]
+    unique_by(old_rows, "record_id")
+    for old in old_rows:
+        identifier = old["record_id"]
+        if identifier not in roles:
+            raise ValueError("Lost historical record")
+        current = roles[identifier]
+        if (ROLE_MAP.get(old["role"]) != ROLE_MAP[current["role"]] or
+                any(old[key] != current[key] for key in ("physical_sample_id", "origin_group_id"))):
+            raise ValueError("Historical ID/role changed")
+        entry = by_path[current["source_workbook"]]
+        if old["source_workbook"] not in (entry["path"], entry.get("previous_active_path")):
+            raise ValueError("Historical source rename lacks provenance")
+    if production:
+        if len(entries) != 18 or len(meta) != 1672 or registry["total_active_records"] != 1672:
+            raise ValueError("Expected frozen 18-workbook/1672-record universe")
+        if Counter(r["species"] for r in metadata) != EXPECTED_SPECIES:
+            raise ValueError("Frozen kind counts differ")
+        if Counter(r["role"] for r in split) != EXPECTED_ROLES:
+            raise ValueError("Frozen master role counts differ")
+        if len(old_rows) != 855 or Counter(r["role"] for r in old_rows) != {"training": 513, "calibration": 171, "prediction": 171}:
+            raise ValueError("Historical 855 roles differ")
+    train = sorted((row for row in metadata if ROLE_MAP[roles[row["record_id"]]["role"]] == "train"), key=lambda row: row["record_id"])
+    if production and Counter(r["species"] for r in train) != EXPECTED_TRAIN_SPECIES:
+        raise ValueError("Frozen TRAIN species counts differ")
+    return train, groups, {"all_record_metadata_count": len(meta), "historical_roles_verified": len(old_rows),
+        "master_role_counts": dict(Counter(r["role"] for r in split)),
+        "train_species_counts": dict(Counter(r["species"] for r in train)),
+        "labels_changed": False, "all_id_species_group_source_column_role_checks": True}
+
+
+def read_train_pair(reader, path, rows):
+    """Use the pinned XML helper while forbidding decoding any held-out column."""
+    import numpy as np
+    columns = [column_number(row["excel_column"]) for row in rows]
+    permitted = {1, *columns}
+    original = reader.cell_value
+    decoded = Counter()
+
+    def train_only_cell_value(cell, strings):
+        address = cell.get("r", "")
+        match = re.fullmatch(r"([A-Z]+)([0-9]+)", address)
+        if match is None:
+            raise ValueError("Malformed XML cell address")
+        letters = match.group(1)
+        col = 1 if letters == "A" else column_number(letters)
+        if col not in permitted:
+            raise ValueError("Attempted to decode a non-TRAIN sample cell")
+        decoded["coordinate" if col == 1 else "train_sample"] += 1
+        return original(cell, strings)
+
+    reader.cell_value = train_only_cell_value
+    try:
+        with ZipFile(path) as workbook:
+            members = reader.sheet_members(workbook)
+            strings = reader.shared_strings(workbook)
+            ah, aa, alpha, ar = reader.read_sheet(workbook, members["吸收系数"], strings, columns)
+            nh, na, refractive, nr = reader.read_sheet(workbook, members["折射率"], strings, columns)
+    finally:
+        reader.cell_value = original
+    if ah != nh or ah[1:] != [row["scan_header"] for row in rows]:
+        raise ValueError("Alpha/n/metadata headers are not exactly paired")
+    if not np.array_equal(aa, na) or ar != nr:
+        raise ValueError("Alpha/n coordinates or row numbers differ")
+    if not np.isfinite(aa).all() or not np.isfinite(alpha).all() or not np.isfinite(refractive).all():
+        raise ValueError("Nonfinite TRAIN spectra or coordinates")
+    if not np.all(np.diff(aa) > 0):
+        raise ValueError("Nonmonotonic spectral coordinates")
+    return aa, alpha, refractive, {"train_columns": [row["excel_column"] for row in rows],
+        "decoded_cell_counts": dict(decoded), "nontrain_cells_decoded": 0,
+        "header_coordinate_pairing": "exact", "numeric_rows": len(aa)}
+
+
+def row_content_hash(arrays, index):
+    import numpy as np
+    h = hashlib.sha256()
+    for key in ("alpha_main", "n_main", "alpha_transfer", "n_transfer"):
+        h.update(key.encode("ascii") + b"\0")
+        h.update(np.asarray(arrays[key][index], dtype="<f8").tobytes())
+    return h.hexdigest()
+
+
+def build_train_arrays(train, entries, source_map, reader, *, main_points=612, progress=None):
+    """Numerical stage; caller must already have verified the real proof."""
+    import numpy as np
+    transfer_axis = np.linspace(.21, 1.49, 128, dtype=np.float64)
+    selected = defaultdict(list)
+    for row in train:
+        selected[row["source_workbook"]].append(row)
+    extracted = {}
+    audits = []
+    axis = None
+    for entry in entries:
+        path = entry["path"]
+        rows = sorted(selected[path], key=lambda row: column_number(row["excel_column"]))
+        if not rows:
+            raise ValueError("Frozen workbook has no TRAIN sample")
+        source = source_map[path]
+        if source["sha256"] != entry["sha256"]:
+            raise ValueError("Registry and source SHA disagree")
+        actual_path = checked(source)
+        full_axis, alpha, refractive, audit = read_train_pair(reader, actual_path, rows)
+        mask = (full_axis >= .1) & (full_axis <= 1.5)
+        current_axis = full_axis[mask]
+        if len(current_axis) != main_points:
+            raise ValueError("Expected original 612-point main axis")
+        if axis is None:
+            axis = current_axis.copy()
+        elif not np.array_equal(axis, current_axis):
+            raise ValueError("Main axes differ; implicit interpolation is forbidden")
+        if full_axis[0] > transfer_axis[0] or full_axis[-1] < transfer_axis[-1]:
+            raise ValueError("Transfer interpolation would extrapolate")
+        for index, row in enumerate(rows):
+            extracted[row["record_id"]] = (alpha[index, mask], refractive[index, mask],
+                np.interp(transfer_axis, full_axis, alpha[index]),
+                np.interp(transfer_axis, full_axis, refractive[index]))
+        audit.update({"registry_path": path, "source": source, "origin_group_id": entry["origin_group_id"],
+            "species": entry["species"], "train_records": len(rows), "main_points": len(current_axis),
+            "main_axis_min": float(current_axis[0]), "main_axis_max": float(current_axis[-1]),
+            "finite": True, "strictly_increasing": True, "no_extrapolation": True})
+        audits.append(audit)
+        if progress:
+            progress("workbook_complete", {"origin_group_id": entry["origin_group_id"], "records": len(rows)})
+    arrays = {"record_ids": np.asarray([r["record_id"] for r in train]),
+        "species": np.asarray([r["species"] for r in train]),
+        "origin_group_ids": np.asarray([r["origin_group_id"] for r in train]),
+        "physical_sample_ids": np.asarray([r["physical_sample_id"] for r in train]),
+        "excel_columns": np.asarray([r["excel_column"] for r in train]),
+        "master_roles": np.asarray(["train"] * len(train)), "axis_main": axis, "axis_transfer": transfer_axis}
+    for position, key in enumerate(("alpha_main", "n_main", "alpha_transfer", "n_transfer")):
+        arrays[key] = np.stack([extracted[row["record_id"]][position] for row in train])
+    return arrays, audits
+
+
+def validate_arrays(arrays, records, *, production=True):
+    import numpy as np
+    if set(arrays) != set(NPZ_KEYS):
+        raise ValueError("Dataset NPZ keys differ from frozen schema")
+    count = len(records)
+    if production and count != 999:
+        raise ValueError("Only exactly999 TRAIN records may be loaded")
+    string_keys = ("record_ids", "species", "origin_group_ids", "master_roles", "physical_sample_ids", "excel_columns")
+    if any(arrays[key].shape != (count,) or arrays[key].dtype.kind not in "US" for key in string_keys):
+        raise ValueError("Invalid identity arrays")
+    for key, field in (("record_ids", "record_id"), ("species", "species"), ("origin_group_ids", "origin_group_id"),
+                       ("physical_sample_ids", "physical_sample_id"), ("excel_columns", "excel_column")):
+        if list(arrays[key]) != [row[field] for row in records]:
+            raise ValueError("Sealed numerical/metadata row identity differs")
+    if any(value != "train" for value in arrays["master_roles"]):
+        raise ValueError("CAL/PRED records in TRAIN featurepack")
+    if len(set(arrays["record_ids"])) != count or len(set(arrays["physical_sample_ids"])) != count:
+        raise ValueError("Duplicated record/physical IDs")
+    for key, points in (("alpha_main", 612), ("n_main", 612), ("alpha_transfer", 128), ("n_transfer", 128)):
+        if arrays[key].shape != (count, points) or arrays[key].dtype.kind != "f" or not np.isfinite(arrays[key]).all():
+            raise ValueError("Invalid finite TRAIN numeric matrix: " + key)
+    axis = arrays["axis_main"]
+    if axis.shape != (612,) or not np.isfinite(axis).all() or not np.all(np.diff(axis) > 0) or axis[0] < .1 or axis[-1] > 1.5:
+        raise ValueError("Invalid original shared main axis")
+    if not np.array_equal(arrays["axis_transfer"], np.linspace(.21, 1.49, 128)):
+        raise ValueError("Transfer axis differs")
+    for index, row in enumerate(records):
+        if "content_sha256" in row and row_content_hash(arrays, index) != row["content_sha256"]:
+            raise ValueError("Row content hash differs")
+    return arrays
+
+
+def load_verified_train_dataset(context, manifest):
+    """Consumer API: return arrays only from the supervised, sealed TRAIN producer.
+
+    The consumer must itself verify its supervision before calling this function.
+    It passes the exact resolved context and manifest checked by its CLI.
+    """
+    import numpy as np
+    result_path = checked(context["dataset_result"])
+    result = json.loads(result_path.read_text(encoding="utf-8"))
+    producer_source = manifest["inputs"]["data_worker"]
+    checked(producer_source)
+    if result.get("schema") != SCHEMA or result.get("status") != "COMPLETED" or result.get("operation") != "prepare_data":
+        raise ValueError("Dependency is not a completed TRAIN producer")
+    if result.get("manifest_sha256") != context["manifest_sha256"]:
+        raise ValueError("Dataset belongs to a different manifest")
+    if result.get("job_id") not in {job["id"] for job in manifest["jobs"]}:
+        raise ValueError("Producer job is absent from frozen DAG")
+    if result.get("source_worker") != producer_source:
+        raise ValueError("Dataset producer source binding differs")
+    if not isinstance(result.get("resource_supervision"), dict) or not result["resource_supervision"]:
+        raise ValueError("Dataset lacks resource-supervision proof")
+    dataset = result["dataset"]
+    if dataset.get("records") != 999 or dataset.get("master_roles") != ["train"]:
+        raise ValueError("Dataset master scope is not TRAIN999")
+    metadata_path = checked(dataset["metadata"])
+    descriptor = json.loads(metadata_path.read_text(encoding="utf-8"))
+    if descriptor.get("schema") != DATA_SCHEMA or descriptor.get("manifest_sha256") != context["manifest_sha256"]:
+        raise ValueError("Dataset descriptor provenance differs")
+    if descriptor.get("numeric_scope") != "master_train_only" or descriptor.get("nontrain_numeric_cells_decoded") != 0:
+        raise ValueError("Numeric TRAIN boundary was not proved")
+    if descriptor["npz"] != dataset["npz"] or descriptor["source_inputs"] != manifest["inputs"]:
+        raise ValueError("Dataset source bindings differ")
+    inputs = manifest["inputs"]
+    train, _, _ = validate_identity(json.loads(checked(inputs["registry"]).read_text()),
+        csv_rows(checked(inputs["metadata"])), csv_rows(checked(inputs["split"])),
+        json.loads(checked(inputs["historical_split"]).read_text()))
+    identity_fields = ("record_id", "physical_sample_id", "species", "origin_group_id",
+                       "source_workbook", "excel_column", "scan_header")
+    records = descriptor["records"]
+    if len(records) != len(train) or any(row.get("master_role") != "train" or
+            any(row.get(key) != expected[key] for key in identity_fields)
+            for row, expected in zip(records, train)):
+        raise ValueError("Dataset row identities differ from the frozen TRAIN split")
+    npz_path = checked(dataset["npz"])
+    if not npz_path.is_relative_to(result_path.parent) or not metadata_path.is_relative_to(result_path.parent):
+        raise ValueError("Dataset escapes its sealed producer output")
+    with np.load(npz_path, allow_pickle=False) as archive:
+        arrays = {key: archive[key].copy() for key in archive.files}
+    validate_arrays(arrays, records)
+    return arrays
+
+
+def zero_fit_counters():
+    return {"new_fitting_entered": False, "actual_new_model_fit_calls_started": 0,
+        "actual_new_model_fits": 0, "new_training_entered": False,
+        "actual_train_calls_started": 0, "actual_train_calls_completed": 0,
+        "fit_started": 0, "fit_completed": 0, "new_fits": False}
+
+
+def execute(args):
+    manifest_path = checked({"path": args.manifest, "sha256": args.manifest_sha256})
+    context_path = checked({"path": args.context, "sha256": args.context_sha256})
+    manifest = json.loads(manifest_path.read_text())
+    context = json.loads(context_path.read_text())
+    jobs = {job["id"]: job for job in manifest["jobs"]}
+    if context.get("schema") != "research4-b-yanan-resolved-context-v2" or context["manifest_sha256"] != args.manifest_sha256:
+        raise ValueError("Resolved context manifest differs")
+    if context["job_id"] != args.job_id or context["job"] != jobs[args.job_id] or context["inputs"] != manifest["inputs"]:
+        raise ValueError("Resolved job/inputs differ")
+    own_source = manifest["inputs"]["data_worker"]
+    if checked(own_source) != Path(__file__).resolve():
+        raise ValueError("Worker source binding differs")
+    output = local_path(args.output)
+    if output != local_path(context["output_directory"]) or not output.is_relative_to(ROUND_ROOT):
+        raise ValueError("Output directory differs from bound round context")
+    if not args.execute:
+        return {"status": "NOT_RUN", "operation": "prepare_data", **zero_fit_counters()}
+    supervisor_ref = manifest.get("supervisor", manifest.get("supervisor_source"))
+    if supervisor_ref is None:
+        supervisor_ref = manifest["inputs"]["supervisor"]
+    supervisor = load_module(checked(supervisor_ref), "yanan_data_verified_supervisor")
+    proof = supervisor.verify_resource_supervision(expected_worker_path=__file__, expected_threads=2,
+        expected_manifest_sha256=args.manifest_sha256, expected_job_id=args.job_id,
+        expected_context_sha256=args.context_sha256, expected_proof_path=args.proof)
+    cpu_metadata = initialize_nofork_cpu_metadata()
+    import numpy as np
+    output.mkdir(parents=True, exist_ok=True)
+    if (output / "result.json").exists() or (output / "featurepack.npz").exists():
+        raise ValueError("Producer output already exists")
+    started_wall = time.time()
+    started_cpu = time.process_time()
+    result = {"schema": SCHEMA, "status": "FAILED", "operation": "prepare_data", "job_id": args.job_id,
+        "manifest_sha256": args.manifest_sha256, "context_sha256": args.context_sha256,
+        "source_worker": own_source, "resource_supervision": proof, "cpu_metadata": cpu_metadata,
+        "input_refs": manifest["inputs"], **zero_fit_counters()}
+
+    def progress(event, detail):
+        save_json(output / "progress.json", {"event": event, "detail": detail, "job_id": args.job_id,
+            "wall_seconds": time.time() - started_wall, "process_cpu_seconds": time.process_time() - started_cpu})
+
+    def interrupted(signum, _frame):
+        raise RuntimeError("Supervised data worker interrupted by signal " + str(signum))
+
+    for signum in (signal.SIGTERM, signal.SIGINT, signal.SIGXCPU):
+        signal.signal(signum, interrupted)
+    try:
+        inputs = manifest["inputs"]
+        registry = json.loads(checked(inputs["registry"]).read_text())
+        metadata = csv_rows(checked(inputs["metadata"]))
+        split = csv_rows(checked(inputs["split"]))
+        historical = json.loads(checked(inputs["historical_split"]).read_text())
+        train, _, identity = validate_identity(registry, metadata, split, historical)
+        raw = inputs["raw_workbooks"]
+        source_map = {entry["registry_path"]: entry.get("source", entry) for entry in raw}
+        if len(source_map) != len(raw) or set(source_map) != {entry["path"] for entry in registry["workbooks"]}:
+            raise ValueError("Raw source mapping is not exactly the active registry")
+        for entry in registry["workbooks"]:
+            binding = source_map[entry["path"]]
+            checked(binding)
+            if binding["sha256"] != entry["sha256"]:
+                raise ValueError("Registry/source hash differs")
+        reader = load_module(checked(inputs["feature_reader"]), "yanan_pinned_xml_reader")
+        arrays, audits = build_train_arrays(train, registry["workbooks"], source_map, reader, progress=progress)
+        validate_arrays(arrays, train)
+        npz_path = output / "featurepack.npz"
+        temporary = output / ("featurepack.tmp-" + str(os.getpid()) + ".npz")
+        with temporary.open("xb") as stream:
+            np.savez_compressed(stream, **arrays)
+            stream.flush()
+            os.fsync(stream.fileno())
+        os.replace(temporary, npz_path)
+        records = [{**{key: row[key] for key in ("record_id", "physical_sample_id", "species", "origin_group_id",
+            "source_workbook", "excel_column", "scan_header")}, "master_role": "train",
+            "content_sha256": row_content_hash(arrays, index)} for index, row in enumerate(train)]
+        duplicate_buckets = defaultdict(list)
+        for row in records:
+            duplicate_buckets[row["content_sha256"]].append(row["record_id"])
+        duplicate_groups = sorted(ids for ids in duplicate_buckets.values() if len(ids) > 1)
+        descriptor = {"schema": DATA_SCHEMA, "manifest_sha256": args.manifest_sha256,
+            "source_inputs": inputs, "npz": ref(npz_path), "records": records, "identity_audit": identity,
+            "numeric_scope": "master_train_only", "nontrain_numeric_cells_decoded": 0,
+            "data_quality": {"all_values_finite": True, "all_axes_strictly_increasing": True,
+                "all_main_axes_exactly_equal": True, "alpha_n_header_axis_row_pairing": "exact",
+                "train_exact_joint_duplicate_record_groups": duplicate_groups,
+                "duplicate_policy": "report_and_preserve_original_records_labels_and_roles"},
+            "workbook_audits": audits, "main_axis_policy": "original_exact_shared_612_points_0.1_to_1.5_no_interpolation",
+            "transfer_axis_policy": "128_linear_points_0.21_to_1.49_no_extrapolation",
+            "axis_main_float64_sha256": hashlib.sha256(np.asarray(arrays["axis_main"], dtype="<f8").tobytes()).hexdigest(),
+            "no_scaling_snv_or_model_fit": True, "botanical_authentication": "NOT_ESTABLISHED",
+            "duplicate_uploaded_yanan_aliases_added_as_samples": False}
+        metadata_path = output / "dataset_metadata.json"
+        save_json(metadata_path, descriptor)
+        result.update(status="COMPLETED", dataset={"npz": ref(npz_path), "metadata": ref(metadata_path),
+            "records": len(train), "master_roles": ["train"], "label_columns": ["species", "origin_group_ids"],
+            "npz_keys": list(NPZ_KEYS)}, artifacts=[ref(npz_path), ref(metadata_path)])
+        progress("COMPLETED", {"records": len(train), "master_roles": ["train"]})
+    except BaseException as exc:
+        result["error"] = {"type": type(exc).__name__, "message": str(exc)}
+        raise
+    finally:
+        usage = resource.getrusage(resource.RUSAGE_SELF)
+        result["worker_observed_resources"] = {"wall_seconds": time.time() - started_wall,
+            "process_cpu_seconds": time.process_time() - started_cpu, "max_rss_kib": usage.ru_maxrss,
+            "accounting_authority": "parent_wait4_not_this_self_observation"}
+        save_json(output / "result.json", result)
+    return result
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    for name in ("manifest", "manifest-sha256", "job-id", "context", "context-sha256", "output", "proof"):
+        parser.add_argument("--" + name, required=True)
+    parser.add_argument("--execute", action="store_true")
+    args = parser.parse_args()
+    try:
+        result = execute(args)
+        print(json.dumps({"status": result["status"], "job_id": args.job_id}, ensure_ascii=False))
+        return 0
+    except BaseException as exc:
+        print(type(exc).__name__ + ": " + str(exc), file=sys.stderr)
+        return 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

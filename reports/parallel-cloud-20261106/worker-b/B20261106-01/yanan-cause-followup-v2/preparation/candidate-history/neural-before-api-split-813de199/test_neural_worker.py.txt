@@ -1,0 +1,353 @@
+"""Synthetic-only boundary, pairing, provenance and durable-entry tests."""
+import copy
+import importlib.util
+import json
+from pathlib import Path
+import sys
+import tempfile
+import unittest
+from unittest.mock import patch
+
+import numpy as np
+
+HERE = Path(__file__).resolve().parent
+spec = importlib.util.spec_from_file_location("neural_worker_under_test", HERE / "neural_worker.py")
+w = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(w)
+
+
+def synthetic_pack():
+    rows = []
+    for kind, groups in (("枣仁", (("ZY01", 210), ("ZY02", 2), ("ZR02", 1), ("ZR01", 1), ("ZR03", 2))),
+                         ("酸枣仁", tuple((x, 60) for x in ("ZY03", "ZY04", "ZY05", "ZY07", "ZY06"))),
+                         ("黄芪", (("HQ01", 61), ("HQ02", 60), ("HQ03", 60), ("HQ04", 60))),
+                         ("天麻", (("TM01", 61), ("TM02", 61), ("TM03", 60), ("TM04", 60)))):
+        for group, count in groups:
+            rows.extend((kind, group) for _ in range(count))
+    n = len(rows)
+    axis = np.linspace(.21, 1.49, 128)
+    return {"record_ids": np.asarray([f"synthetic_{i}" for i in range(n)]),
+            "physical_sample_ids": np.asarray([f"physical_{i}" for i in range(n)]),
+            "species": np.asarray([row[0] for row in rows]),
+            "origin_group_ids": np.asarray([row[1] for row in rows]),
+            "master_roles": np.asarray(["train"] * n), "axis_transfer": axis,
+            "alpha_transfer": np.stack([np.sin(axis * (1 + i % 9)) + axis * .05 for i in range(n)])}
+
+
+class Boundaries(unittest.TestCase):
+    def setUp(self):
+        self.pack = synthetic_pack()
+
+    def test_five_source_folds_cover_target_exactly_once(self):
+        data = w.validate_dataset(self.pack, np)
+        query_ids = []
+        for fold in range(5):
+            donor, query = w.scopes(data, fold, np)
+            self.assertTrue(set(data["ids"][donor]).isdisjoint(data["ids"][query]))
+            self.assertTrue(set(data["groups"][donor]).isdisjoint(w.FOLDS[fold]))
+            self.assertEqual(len(donor) + len(query), 516)
+            query_ids.extend(data["ids"][query])
+        self.assertEqual(len(query_ids), 516)
+        self.assertEqual(len(set(query_ids)), 516)
+
+    def test_fold0_real_imbalance_not_balanced_by_copying(self):
+        data = w.validate_dataset(self.pack, np)
+        donor, query = w.scopes(data, 0, np)
+        self.assertEqual((data["kinds"][donor] == "枣仁").sum(), 6)
+        self.assertEqual((data["kinds"][donor] == "酸枣仁").sum(), 240)
+        self.assertEqual(len(query), 270)
+        _, weights, counts = w.class_targets(data["kinds"][donor], list(w.TARGET_CLASSES), np)
+        np.testing.assert_array_equal(counts, [6, 240])
+        self.assertAlmostEqual(float(weights[0] / weights[1]), 40.)
+
+    def test_cal_pred_role_rejected(self):
+        self.pack["master_roles"][0] = "pred"
+        with self.assertRaisesRegex(ValueError, "Only master TRAIN"):
+            w.validate_dataset(self.pack, np)
+
+    def test_duplicate_physical_rejected(self):
+        self.pack["physical_sample_ids"][1] = self.pack["physical_sample_ids"][0]
+        with self.assertRaisesRegex(ValueError, "distinct technical/physical"):
+            w.validate_dataset(self.pack, np)
+
+    def test_axis_change_and_nonfinite_rejected(self):
+        self.pack["axis_transfer"][0] += 1e-5
+        with self.assertRaisesRegex(ValueError, "axis"):
+            w.validate_dataset(self.pack, np)
+        self.pack = synthetic_pack()
+        self.pack["alpha_transfer"][0, 0] = np.nan
+        with self.assertRaisesRegex(ValueError, "Nonfinite"):
+            w.validate_dataset(self.pack, np)
+
+    def test_origin_taxonomy_cannot_span_species(self):
+        self.pack["origin_group_ids"][216] = "ZY01"
+        with self.assertRaisesRegex(ValueError, "multiple species"):
+            w.validate_dataset(self.pack, np)
+
+    def test_undeclared_seed_budget_adapt_rejected(self):
+        for kind, parameters in (("source_A", {"seed": 45, "fold": 0, "adapt": "full"}),
+                                 ("target_pretrain", {"seed": 42, "fold": 0, "steps": 121}),
+                                 ("source_A", {"seed": 42, "fold": 0, "adapt": "partial"}),
+                                 ("aux_pretrain", {"seed": 42, "steps": 120, "label_mode": "mixed_species"})):
+            with self.subTest(kind=kind, parameters=parameters), self.assertRaises(ValueError):
+                w.validate_parameters(kind, parameters)
+
+
+class ProvenanceAndMetrics(unittest.TestCase):
+    def test_supervisor_relative_source_context_and_dependency_refs(self):
+        supervisor = w.import_file(HERE / "yanan_followup_supervisor.py", "synthetic_neural_contract_supervisor")
+        data_worker = w.import_file(HERE / "data_worker.py", "synthetic_neural_contract_data")
+        with tempfile.TemporaryDirectory(dir=w.ROOT / ".runtime") as directory:
+            root = Path(directory)
+            job = {"id": "synthetic_source", "operation": "source_A", "source": supervisor.ref(HERE / "neural_worker.py"),
+                   "parameters": {"seed": 42, "fold": 0, "adapt": "frozen"}}
+            self.assertFalse(Path(job["source"]["path"]).is_absolute())
+            self.assertEqual(w.checked(job["source"]), data_worker.checked(job["source"]))
+            self.assertEqual(w.job_hash(job), supervisor.digest(job))
+            mp = root / "manifest.json"
+            supervisor.save(mp, {"jobs": [job], "supervisor": supervisor.ref(HERE / "yanan_followup_supervisor.py")})
+            context = {"schema": w.CONTEXT_SCHEMA, "manifest_sha256": supervisor.sha(mp), "job_id": job["id"],
+                       "job": job, "job_sha256": supervisor.digest(job), "output_directory": str(root / "output")}
+            cp = root / "context.json"
+            supervisor.save(cp, context)
+            args = w.parser().parse_args(["--manifest", supervisor.ref(mp)["path"], "--manifest-sha256", supervisor.sha(mp),
+                "--job-id", job["id"], "--context", supervisor.ref(cp)["path"], "--context-sha256", supervisor.sha(cp),
+                "--output", str(root / "output")])
+            self.assertEqual(w.run(args)["status"], "VALIDATED_ONLY")
+            producer = root / "producer.json"
+            supervisor.save(producer, {"schema": w.SCHEMA, "status": "DONE", "manifest_sha256": supervisor.sha(mp),
+                "job_id": "synthetic_pretrain", "job_type": "aux_pretrain", "params": {"seed": 42, "steps": 120, "label_mode": "real"}})
+            dep_context = {"dependencies": {"synthetic_pretrain": supervisor.ref(producer)},
+                           "dependency_states": {"synthetic_pretrain": "DONE_SEALED"}}
+            rows = w.dependencies(dep_context, supervisor.sha(mp))
+            self.assertEqual(w.pick_dependency(rows, "aux_pretrain", {"seed": 42})["job_id"], "synthetic_pretrain")
+
+    def test_relative_and_absolute_paths_confined_without_symlink_escape(self):
+        with tempfile.TemporaryDirectory(dir=w.ROOT / ".runtime") as directory:
+            root = Path(directory)
+            p = root / "input.json"
+            p.write_text("{}")
+            r = w.ref(p)
+            self.assertEqual(w.checked(r), p)
+            self.assertEqual(w.checked(dict(r, path=str(p))), p)
+            link = root / "linked"
+            link.symlink_to(p)
+            with self.assertRaisesRegex(ValueError, "Symlink"):
+                w.checked(dict(r, path=str(link)))
+            with self.assertRaisesRegex(ValueError, "escapes"):
+                w.local_path(w.ROOT.parent / "outside.json")
+            with self.assertRaisesRegex(ValueError, "escapes"):
+                w.local_path("../outside.json")
+
+    def test_pointwise_audit_validates_fixed_scope_and_detects_batch_dependence(self):
+        x = np.arange(20, dtype=float).reshape(10, 2)
+        ids = ["synthetic_query_" + str(i) for i in range(len(x))]
+        good = lambda v: np.column_stack([v[:, 0], -v[:, 0]])
+        logits, audit = w.audit_pointwise_inference(good, x, ids, lambda: ("fixed_encoder", "fixed_head"), np)
+        self.assertEqual(audit["status"], "PASS_FOR_FIXED_QUERY_ONLY")
+        self.assertEqual(audit["query_record_ids"], ids)
+        self.assertEqual(len(audit["checks"]), 5)
+        self.assertEqual(audit["max_absolute_logit_residual"], 0.)
+        with tempfile.TemporaryDirectory(dir=w.ROOT / ".runtime") as directory:
+            path = Path(directory) / "audit.json"
+            bad = lambda v: v - v.mean(axis=0, keepdims=True)
+            with self.assertRaisesRegex(ValueError, "Pointwise inference audit failed"):
+                w.audit_pointwise_inference(bad, x, ids, lambda: "fixed_state", np, path)
+            saved = json.loads(path.read_text())
+            self.assertEqual(saved["status"], "FAIL")
+            self.assertGreater(saved["max_absolute_logit_residual"], 0.)
+
+    def test_pointwise_audit_rejects_mutating_learned_state(self):
+        state = [0]
+        def mutating(v):
+            state[0] += 1
+            return v
+        with self.assertRaisesRegex(ValueError, "changed parameters/BN"):
+            w.audit_pointwise_inference(mutating, np.ones((3, 2)), ["a", "b", "c"], lambda: state[0], np)
+
+    def test_rejected_resource_proof_precedes_all_numerical_entry(self):
+        with tempfile.TemporaryDirectory(dir=w.ROOT / ".runtime") as directory:
+            root = Path(directory)
+            source = root / "fake-supervisor.py"
+            source.write_text("# synthetic proof rejector")
+            job = {"id": "synthetic_job", "operation": "source_A", "source": w.ref(HERE / "neural_worker.py"),
+                   "parameters": {"seed": 42, "fold": 0, "adapt": "frozen"}}
+            manifest = {"jobs": [job], "supervisor": w.ref(source)}
+            mp = root / "manifest.json"
+            mp.write_text(json.dumps(manifest))
+            output = root / "output"
+            context = {"schema": w.CONTEXT_SCHEMA, "manifest_sha256": w.sha(mp), "job_id": job["id"],
+                       "job": job, "job_sha256": w.job_hash(job), "output_directory": str(output)}
+            cp = root / "context.json"
+            cp.write_text(json.dumps(context))
+            args = w.parser().parse_args(["--manifest", str(mp), "--manifest-sha256", w.sha(mp),
+                "--job-id", job["id"], "--context", str(cp), "--context-sha256", w.sha(cp),
+                "--output", str(output), "--proof", str(root / "proof.json"), "--execute"])
+            class RejectingSupervisor:
+                @staticmethod
+                def verify_resource_supervision(**kwargs):
+                    raise RuntimeError("synthetic resource proof rejected")
+            with patch.object(w, "import_file", return_value=RejectingSupervisor), patch.object(w, "neural_execute") as execute:
+                with self.assertRaisesRegex(RuntimeError, "proof rejected"):
+                    w.run(args)
+                execute.assert_not_called()
+                self.assertFalse(output.exists())
+
+    def test_within_plant_shuffle_preserves_counts_and_seed(self):
+        labels = np.asarray(["HQ01"] * 7 + ["HQ02"] * 3 + ["HQ03"] * 4 + ["HQ04"] * 5)
+        original = labels.copy()
+        a = w.shuffled_labels(labels, 42, 0, np)
+        b = w.shuffled_labels(labels, 42, 0, np)
+        c = w.shuffled_labels(labels, 43, 0, np)
+        np.testing.assert_array_equal(labels, original)
+        np.testing.assert_array_equal(a, b)
+        self.assertFalse(np.array_equal(a, c))
+        self.assertEqual(sorted(a.tolist()), sorted(original.tolist()))
+        self.assertTrue(set(a) <= set(labels))
+
+    def test_metrics_are_binary_not_accuracy_only(self):
+        truth = ["枣仁"] * 6 + ["酸枣仁"] * 240
+        result = w.metrics(truth, ["酸枣仁"] * 246)
+        self.assertEqual(result["correct"], 240)
+        self.assertAlmostEqual(result["balanced_accuracy"], .5)
+        self.assertLess(result["macro_f1"], .5)
+        self.assertEqual(result["confusion_matrix"], [[0, 6], [0, 240]])
+
+    def test_hash_bound_files_detect_tampering(self):
+        with tempfile.TemporaryDirectory(dir=w.ROOT / ".runtime") as directory:
+            p = Path(directory) / "result.json"
+            p.write_text("{}")
+            r = w.ref(p)
+            self.assertEqual(w.checked(r), p)
+            p.write_text('{"changed":true}')
+            with self.assertRaisesRegex(ValueError, "SHA256|byte count"):
+                w.checked(r)
+
+    def test_dependency_must_be_done_sealed_same_manifest_and_params(self):
+        with tempfile.TemporaryDirectory(dir=w.ROOT / ".runtime") as directory:
+            p = Path(directory) / "result.json"
+            row = {"schema": w.SCHEMA, "status": "DONE", "job_id": "producer", "manifest_sha256": "m",
+                   "job_type": "aux_pretrain", "params": {"seed": 42, "steps": 120, "label_mode": "real"}}
+            p.write_text(json.dumps(row))
+            context = {"dependencies": {"producer": w.ref(p)}, "dependency_states": {"producer": "DONE_SEALED"}}
+            rows = w.dependencies(context, "m")
+            self.assertEqual(w.pick_dependency(rows, "aux_pretrain", {"seed": 42})["job_id"], "producer")
+            with self.assertRaisesRegex(ValueError, "exact sealed"):
+                w.pick_dependency(rows, "aux_pretrain", {"seed": 43})
+            context["dependency_states"]["producer"] = "PARTIAL"
+            with self.assertRaisesRegex(ValueError, "not DONE_SEALED"):
+                w.dependencies(context, "m")
+
+    def test_old_finetuned_checkpoint_rejected_before_torch_load(self):
+        producer = {"checkpoint_role": "target_finetuned_encoder", "not_target_finetuned": False}
+        class ForbiddenTorch:
+            @staticmethod
+            def load(*args, **kwargs):
+                raise AssertionError("Old checkpoint loader must never be entered")
+        with self.assertRaisesRegex(ValueError, "fresh pure"):
+            w.load_pure_encoder(producer, object(), [], ForbiddenTorch)
+
+    def test_train_entry_is_durable_before_training_call(self):
+        with tempfile.TemporaryDirectory(dir=w.ROOT / ".runtime") as directory:
+            state = {**w.COUNTERS}
+            recorder = w.Recorder(directory, state)
+            recorder.enter("train", "synthetic", ["id1", "id2"])
+            persisted = json.loads((Path(directory) / "progress.json").read_text())
+            self.assertIs(persisted["new_training_entered"], True)
+            self.assertEqual(persisted["actual_train_calls_started"], 1)
+            self.assertEqual(persisted["actual_train_calls_completed"], 0)
+            self.assertEqual(persisted["active_stage"]["unique_n"], 2)
+            recorder.complete("train", "synthetic", optimizer_steps=3)
+            self.assertEqual(state["actual_train_calls_completed"], 1)
+
+    def test_batch_ids_must_not_duplicate_or_escape(self):
+        import io
+        data = {"ids": np.asarray(["a", "b", "forbidden"])}
+        for indices in (np.asarray([0, 0]), np.asarray([0, 2])):
+            with self.assertRaisesRegex(ValueError, "escaped allowed"):
+                w.trace_batch(io.StringIO(), data, indices, ["a", "b"], "train", "head", 0, 1.)
+
+    def test_legacy_encoder_ast_exact_and_snv_ddof1(self):
+        source = HERE.parent.parent / "legacy_source/src/herb_spectra/upgrade_neural.py"
+        class FakeNN:
+            Module = object
+        class FakeTorch:
+            nn = FakeNN
+        encoder, row_snv, provenance = w.load_legacy(w.ref(source), np, FakeTorch)
+        self.assertEqual(encoder.__name__, "Encoder")
+        self.assertEqual(provenance["architecture"]["embedding"], 16)
+        self.assertEqual(provenance["old_source"]["sha256"], w.LEGACY_SHA)
+        x = np.asarray([[1., 3., 5.]])
+        np.testing.assert_array_equal(row_snv(x), [[-1., 0., 1.]])
+        with self.assertRaisesRegex(ValueError, "Constant"):
+            row_snv(np.ones((2, 4)))
+
+
+@unittest.skipUnless(importlib.util.find_spec("torch"), "Dedicated CPU Torch venv required for synthetic gradient smoke")
+class SyntheticTorchIntegration(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        w.nofork_metadata()
+        w.nofork_libc_discovery()
+        def forbid_child_process(event, _):
+            if event in ("subprocess.Popen", "os.fork", "os.forkpty", "os.posix_spawn", "os.system"):
+                raise AssertionError("Synthetic neural smoke must not spawn: " + event)
+        sys.addaudithook(forbid_child_process)
+        import torch
+        from sklearn.preprocessing import StandardScaler
+        torch.set_num_threads(2)
+        torch.set_num_interop_threads(1)
+        torch.use_deterministic_algorithms(True)
+        cls.torch, cls.Scaler = torch, StandardScaler
+        source = HERE.parent.parent / "legacy_source/src/herb_spectra/upgrade_neural.py"
+        cls.Encoder, snv, _ = w.load_legacy(w.ref(source), np, torch)
+        cls.snv = staticmethod(snv)
+        full = w.validate_dataset(synthetic_pack(), np)
+        # Exactly one fabricated row per source, never a real spectral row.
+        indices = [int(np.flatnonzero(full["groups"] == group)[0]) for group in sorted(set(full["groups"]))]
+        cls.data = {key: value[indices] for key, value in full.items()}
+
+    def test_target_frozen_preserves_bn_and_parameters_and_excludes_query(self):
+        with tempfile.TemporaryDirectory(dir=w.ROOT / ".runtime") as directory:
+            recorder = w.Recorder(directory, {**w.COUNTERS})
+            result = w.fit_target(self.data, {"fold": 0, "seed": 42, "adapt": "frozen"}, "A", None,
+                                  directory, recorder, self.Encoder, self.snv, np, self.torch, self.Scaler)
+            self.assertTrue(result["encoder_unchanged"])
+            self.assertEqual(result["initial_encoder_state_sha256"], result["final_encoder_state_sha256"])
+            self.assertEqual(result["epochs"], 96)
+            self.assertEqual(result["optimizer_steps"], 96)
+            self.assertEqual(result["unique_n"], 8)
+            self.assertTrue(set(result["unique_fit_ids"]).isdisjoint(result["record_ids"]))
+            scaler = json.loads(w.checked(result["target_scaler"]).read_text())
+            self.assertEqual(scaler["fit_ids"], result["unique_fit_ids"])
+            self.assertEqual(recorder.state["actual_train_calls_started"], 1)
+            self.assertEqual(recorder.state["actual_train_calls_completed"], 1)
+
+    def test_pure_pretrain_minibatch_and_safe_encoder_only_load_then_full_fit(self):
+        with tempfile.TemporaryDirectory(dir=w.ROOT / ".runtime") as directory:
+            pre = Path(directory) / "pre"
+            pre.mkdir()
+            recorder = w.Recorder(pre, {**w.COUNTERS})
+            producer = w.pure_pretrain(self.data, "target_pretrain", {"fold": 0, "seed": 42, "steps": 120},
+                                       pre, recorder, self.Encoder, self.snv, np, self.torch, self.Scaler)
+            producer.update(output_directory=str(pre), _result_ref={"path": "synthetic producer"})
+            self.assertEqual(producer["unique_n"], 8)
+            self.assertEqual(producer["optimizer_steps"], 120)
+            for task in producer["source_tasks"].values():
+                self.assertEqual(task["batch_size"], 4)
+                self.assertEqual(task["batch_exposure_count"], 240)
+            encoder = self.Encoder(12, 2, .35, residual=True, attention=False)
+            w.load_pure_encoder(producer, encoder, producer["unique_fit_ids"], self.torch)
+            self.assertEqual(w.state_hash(encoder), producer["encoder_state_sha256"])
+            fit = Path(directory) / "fit"
+            fit.mkdir()
+            fitrec = w.Recorder(fit, {**w.COUNTERS})
+            result = w.fit_target(self.data, {"fold": 0, "seed": 42, "adapt": "full"}, "Aextra", producer,
+                                  fit, fitrec, self.Encoder, self.snv, np, self.torch, self.Scaler)
+            self.assertFalse(result["encoder_unchanged"])
+            self.assertEqual(result["initial_encoder_state_sha256"], producer["encoder_state_sha256"])
+            self.assertEqual(result["metrics"]["n"], 2)
+
+
+if __name__ == "__main__":
+    unittest.main()
