@@ -1,0 +1,1 @@
+Prepared31 full-grid XC jobs:diag0,deriv2_0,diag1..19,deriv2_1..10. The root grant is DISABLED. Existing cumulative CPU cap/deadline apply;request ceilings do not allocate or guarantee completion. No Q executed. Root must audit,supply enabled grant and fresh serial resource gate.

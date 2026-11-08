@@ -1,0 +1,70 @@
+{
+  "schema": "research4-conservative-transfer-v2-independent-review-v1",
+  "status": "PASS_IMPLEMENTATION_ONLY",
+  "created_at_utc": "2026-11-04T09:08:31.078421+00:00",
+  "reviewer": "/root/transfer_pilot_72h/pilot_protocol_review",
+  "frozen_v1_source_sha256": "a0aed48133444a8b77abf79de3aca324efed5239914769ad5d033108c8af23c4",
+  "frozen_v2_source_sha256": "d7eb20ac813185f777de8cd4ab63b360bbbecead6cf7219790a6df4e4209f78f",
+  "test_source_sha256": "cb8ab7eef039b5de9f4a4779fa710deb2b91f40e9dc81e7291e3dc61f8e84242",
+  "original_v1_sealed_index_sha256": "15ee1e7764c1bb98472d119867a949356fdfc2068374b9583de09c1099e0eee4",
+  "actual_software_tests": {
+    "passed": 8,
+    "failed": 0,
+    "unittest_seconds": 1.42,
+    "exit_code": 0,
+    "command": "OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 NUMEXPR_NUM_THREADS=1 .runtime/bin/python -m unittest discover -s tests -p test_conservative_cross_plant_pilot_20261104_v2.py -v",
+    "temporary_registration_only": true
+  },
+  "AST_identical_functions": [
+    "sha",
+    "objhash",
+    "utc",
+    "read",
+    "save",
+    "dependencies",
+    "verify_inputs",
+    "assert_membership",
+    "encoder_l2_sp",
+    "verified_truth",
+    "score",
+    "monitor_owned_child",
+    "supervise",
+    "supervise_locked",
+    "register",
+    "main"
+  ],
+  "fit_body_after_reversing_only_maximum_epoch_guard_matches_v1": true,
+  "expected_changed_functions": [
+    "protocol",
+    "select_epoch",
+    "fit",
+    "worker"
+  ],
+  "learning_schedule_change": "maximum source-selected target epochs48→96; fixed architecture/optimizer/L2SP.001/pretraining120/seeds/inputs/splits unchanged",
+  "resource_change": {
+    "new_separately_authorized_run_CPU_seconds": 900,
+    "wall_seconds": 2400,
+    "threads": 1,
+    "best_effort_RSS_GiB": 1.5,
+    "v1_costs_and_artifacts_not_modified": true
+  },
+  "prefix_gate_scope": {
+    "prior_reference_files": "only sealed inner-source training.json, predictions.npz, target-scaler.npz; full sealed index metadata is read but no outer array/label values",
+    "checks": [
+      "prior source files match frozen index hashes and sizes",
+      "source/query IDs, raw source fingerprint and initial encoder/head equal",
+      "source-fitted scaler mean/scale elementwise equal",
+      "first48 source-query logits elementwise equal",
+      "first48 source training losses equal"
+    ],
+    "failure_stops_before_outer": true,
+    "new_model_fits_created_by_gate": 0,
+    "uses_outer_truth_or_scores": false,
+    "equality_note": "np.array_equal checks exact element values, not a universal bit-pattern distinction between plus/minus zero."
+  },
+  "research_scope": "Continued exposed-data DEVELOPMENT_NOT_NEW_CONFIRMATION. Source-boundary maximum check is not proof of underfitting; no old outer scores are used by the registered epoch selector. Historical96.02 is not a direct comparison baseline.",
+  "quantum_calls_by_reviewer": 0,
+  "research_fits_by_reviewer": 0,
+  "Git_operations_by_reviewer": 0,
+  "all_v1_bytes_left_unchanged_by_reviewer": true
+}

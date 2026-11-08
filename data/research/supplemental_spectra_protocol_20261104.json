@@ -1,0 +1,611 @@
+{
+  "schema": "research4-supplemental-spectra-protocol-v1",
+  "protocol_id": "supplemental-spectra-20261104-v1",
+  "dataset_version": "legacy1663-plus-new9-20261104-v2",
+  "registered_at_utc": "2026-11-04T15:27:50.009108+00:00",
+  "registered_at_client": "2026-11-04T23:27:50.009108+08:00",
+  "client_timezone": "Asia/Shanghai",
+  "status": "RECIPE_LOCKED_BEFORE_ANY_NEW_TRAINING_OR_QUERY_SCORING",
+  "authority": "User: organize latest24workbooks anonymously, preserve raw/provenance, split source/support/query, perform bounded algorithm tests and calibration, continue research without asking. Root technical authorization fixes21 candidates and6000 actual MLCPU seconds.",
+  "intake_manifest": "data/supplemental/teacher_20261104_v2/merged_registry.json",
+  "intake_sources": "data/supplemental/teacher_20261104_v2/sources.json",
+  "intake_metadata": "data/supplemental/teacher_20261104_v2/sample_metadata.csv",
+  "legacy_database": "data/multiplant_database",
+  "legacy_zaoren_split": "data/processed/zaoren_threeway_20261031_v1/split_manifest.csv",
+  "split_output": "data/splits/supplemental_spectra_20261104_v1",
+  "seeds": [
+    42,
+    43,
+    44
+  ],
+  "split_seed": 20261104,
+  "candidate_order": [
+    "mcuve_svm",
+    "svm",
+    "shrinkage_lda",
+    "mlp"
+  ],
+  "candidates": {
+    "mcuve_svm": [
+      {
+        "id": "MC_legacy20_snv_C10",
+        "kind": "svm",
+        "family": "mcuve_svm",
+        "preprocessing": "snv",
+        "mc": {
+          "runs": 20,
+          "components": 2,
+          "ratio": 0.1
+        },
+        "C": 10.0,
+        "gamma": "scale",
+        "class_weight": "balanced"
+      },
+      {
+        "id": "MC_legacy20_snv_C100",
+        "kind": "svm",
+        "family": "mcuve_svm",
+        "preprocessing": "snv",
+        "mc": {
+          "runs": 20,
+          "components": 2,
+          "ratio": 0.1
+        },
+        "C": 100.0,
+        "gamma": "scale",
+        "class_weight": "balanced"
+      },
+      {
+        "id": "MC_MC50_snv_C10",
+        "kind": "svm",
+        "family": "mcuve_svm",
+        "preprocessing": "snv",
+        "mc": {
+          "runs": 50,
+          "components": 2,
+          "ratio": 0.1
+        },
+        "C": 10.0,
+        "gamma": "scale",
+        "class_weight": "balanced"
+      },
+      {
+        "id": "MC_MC50_snv_C100",
+        "kind": "svm",
+        "family": "mcuve_svm",
+        "preprocessing": "snv",
+        "mc": {
+          "runs": 50,
+          "components": 2,
+          "ratio": 0.1
+        },
+        "C": 100.0,
+        "gamma": "scale",
+        "class_weight": "balanced"
+      },
+      {
+        "id": "MC_LV3_snv_C10",
+        "kind": "svm",
+        "family": "mcuve_svm",
+        "preprocessing": "snv",
+        "mc": {
+          "runs": 20,
+          "components": 3,
+          "ratio": 0.1
+        },
+        "C": 10.0,
+        "gamma": "scale",
+        "class_weight": "balanced"
+      },
+      {
+        "id": "MC_LV3_snv_C100",
+        "kind": "svm",
+        "family": "mcuve_svm",
+        "preprocessing": "snv",
+        "mc": {
+          "runs": 20,
+          "components": 3,
+          "ratio": 0.1
+        },
+        "C": 100.0,
+        "gamma": "scale",
+        "class_weight": "balanced"
+      },
+      {
+        "id": "MC_ratio20_snv_C10",
+        "kind": "svm",
+        "family": "mcuve_svm",
+        "preprocessing": "snv",
+        "mc": {
+          "runs": 20,
+          "components": 2,
+          "ratio": 0.2
+        },
+        "C": 10.0,
+        "gamma": "scale",
+        "class_weight": "balanced"
+      },
+      {
+        "id": "MC_ratio20_snv_C100",
+        "kind": "svm",
+        "family": "mcuve_svm",
+        "preprocessing": "snv",
+        "mc": {
+          "runs": 20,
+          "components": 2,
+          "ratio": 0.2
+        },
+        "C": 100.0,
+        "gamma": "scale",
+        "class_weight": "balanced"
+      },
+      {
+        "id": "MC_legacy20_sg1_snv_C10",
+        "kind": "svm",
+        "family": "mcuve_svm",
+        "preprocessing": "sg1_snv",
+        "mc": {
+          "runs": 20,
+          "components": 2,
+          "ratio": 0.1
+        },
+        "C": 10.0,
+        "gamma": "scale",
+        "class_weight": "balanced"
+      },
+      {
+        "id": "MC_legacy20_sg1_snv_C100",
+        "kind": "svm",
+        "family": "mcuve_svm",
+        "preprocessing": "sg1_snv",
+        "mc": {
+          "runs": 20,
+          "components": 2,
+          "ratio": 0.1
+        },
+        "C": 100.0,
+        "gamma": "scale",
+        "class_weight": "balanced"
+      }
+    ],
+    "svm": [
+      {
+        "id": "SVM_snv_C1_scale",
+        "kind": "svm",
+        "family": "svm",
+        "preprocessing": "snv",
+        "mc": null,
+        "C": 1.0,
+        "gamma": "scale",
+        "class_weight": "balanced"
+      },
+      {
+        "id": "SVM_snv_C1_scale_x0.1",
+        "kind": "svm",
+        "family": "svm",
+        "preprocessing": "snv",
+        "mc": null,
+        "C": 1.0,
+        "gamma": "scale_x0.1",
+        "class_weight": "balanced"
+      },
+      {
+        "id": "SVM_snv_C10_scale",
+        "kind": "svm",
+        "family": "svm",
+        "preprocessing": "snv",
+        "mc": null,
+        "C": 10.0,
+        "gamma": "scale",
+        "class_weight": "balanced"
+      },
+      {
+        "id": "SVM_snv_C10_scale_x0.1",
+        "kind": "svm",
+        "family": "svm",
+        "preprocessing": "snv",
+        "mc": null,
+        "C": 10.0,
+        "gamma": "scale_x0.1",
+        "class_weight": "balanced"
+      },
+      {
+        "id": "SVM_snv_C100_scale",
+        "kind": "svm",
+        "family": "svm",
+        "preprocessing": "snv",
+        "mc": null,
+        "C": 100.0,
+        "gamma": "scale",
+        "class_weight": "balanced"
+      },
+      {
+        "id": "SVM_snv_C100_scale_x0.1",
+        "kind": "svm",
+        "family": "svm",
+        "preprocessing": "snv",
+        "mc": null,
+        "C": 100.0,
+        "gamma": "scale_x0.1",
+        "class_weight": "balanced"
+      }
+    ],
+    "shrinkage_lda": [
+      {
+        "id": "LDA_shrink_auto",
+        "kind": "lda",
+        "family": "shrinkage_lda",
+        "preprocessing": "snv",
+        "mc": null,
+        "solver": "lsqr",
+        "shrinkage": "auto",
+        "priors": "empirical"
+      },
+      {
+        "id": "LDA_shrink_0.1",
+        "kind": "lda",
+        "family": "shrinkage_lda",
+        "preprocessing": "snv",
+        "mc": null,
+        "solver": "lsqr",
+        "shrinkage": 0.1,
+        "priors": "empirical"
+      },
+      {
+        "id": "LDA_shrink_0.5",
+        "kind": "lda",
+        "family": "shrinkage_lda",
+        "preprocessing": "snv",
+        "mc": null,
+        "solver": "lsqr",
+        "shrinkage": 0.5,
+        "priors": "empirical"
+      }
+    ],
+    "mlp": [
+      {
+        "id": "MLP_32",
+        "kind": "mlp",
+        "family": "mlp",
+        "preprocessing": "snv",
+        "mc": null,
+        "alpha": 0.001,
+        "max_iter": 300,
+        "early_stopping": false,
+        "solver": "adam",
+        "activation": "relu",
+        "learning_rate_init": 0.001,
+        "batch_size": 64,
+        "class_weight": "none",
+        "hidden": [
+          32
+        ],
+        "tol": 0.0,
+        "n_iter_no_change": 301
+      },
+      {
+        "id": "MLP_64_32",
+        "kind": "mlp",
+        "family": "mlp",
+        "preprocessing": "snv",
+        "mc": null,
+        "alpha": 0.001,
+        "max_iter": 300,
+        "early_stopping": false,
+        "solver": "adam",
+        "activation": "relu",
+        "learning_rate_init": 0.001,
+        "batch_size": 64,
+        "class_weight": "none",
+        "hidden": [
+          64,
+          32
+        ],
+        "tol": 0.0,
+        "n_iter_no_change": 301
+      }
+    ]
+  },
+  "selection": {
+    "source_cv_folds_requested": 3,
+    "fold_seed": 20261104,
+    "minimum_folds": 2,
+    "rule": "Eachcandidate produces exactlyone sourceOOF prediction per eligible sourceentity per seed. Select one shared configuration per family using meanacross seeds of pooledsourceOOF MacroF1, then Accuracy, then BalancedAccuracy, then candidate declarationorder. No query/support values/labels in selection.",
+    "fit_order": "per-spectrum presetpreprocessing; currentfit StandardScaler; currentfit unchanged MCUVESelector(classificationonehotPLS) ifdeclared; currentfit estimator",
+    "preprocessing": {
+      "SG_window": 15,
+      "SG_polyorder": 3,
+      "SG_delta": "verified uniform original THz spacing",
+      "MSC": "not searched in this bounded21candidate core",
+      "feature_window_THz": [
+        0.1,
+        1.5
+      ],
+      "expected_points": 612,
+      "quantity": "absorption_coefficient_alpha;physical_length_unit_UNVERIFIED",
+      "axis_hash_definition": "src.herb_spectra.leakage_guard.array_fingerprint(float64axis): JSONshape/dtype pluscontiguousbytes"
+    },
+    "selection_budget_is_not_equal_across_families": true,
+    "no_query_guided_candidate_change": true,
+    "no_test_seed_selection": true,
+    "source_transform_cache_identity": [
+      "dataset_version",
+      "quantity",
+      "axis_fingerprint",
+      "ordered_source_ids",
+      "source_values_and_labels",
+      "fold_id",
+      "preprocessing",
+      "MCruns",
+      "MCcomponents",
+      "seed",
+      "code_hash"
+    ]
+  },
+  "split": {
+    "roles": [
+      "source",
+      "support",
+      "query"
+    ],
+    "default_ratios": [
+      0.6,
+      0.2,
+      0.2
+    ],
+    "dedup_policy": "Useintakev2 entity/legacymappings; eachmeasuremententityinonerole acrossallaliases/modalities. Exactbytealiasesnotnewsamples/batches; numericalidentityaloneisnotbiologicalindependenceproof. Anycrossroleentity/fingerprintconflictblocksmodelrun, notsilentlydeletesaquery.",
+    "allocation": "Forordinaryauxiliaryclasses: sortclassandentityIDs, PCG64(splitseed) classwisepermutation; source=floor(.6n), support=max(1,floor(.2n)), query=remainder>=1. n<3 blocksallthreewayroles. Preserveold855roleIDs exactly; addnovel3recordclasses oneperrole.",
+    "truth_isolation": "query.npz containsno y/labels; truth.csv(record_id,y,entity_id,stratum) isscoringonly. Paths/IDs discloseanonymousclassbutneverfeatures. APIseparationisnotanOSsandbox.",
+    "no_new_confirmation": true,
+    "role_export_max_sample_columns": 50,
+    "role_export_modalities": [
+      "time",
+      "frequency",
+      "n",
+      "alpha"
+    ],
+    "raw_reference_columns": "preservefromeachincomingmodality; notfeatures"
+  },
+  "calibration": {
+    "primary_family": "mcuve_svm",
+    "traditional": {
+      "kind": "AnchorScoreCalibrator",
+      "regularization": 1.0,
+      "source_pipeline_refit": false,
+      "decision_wrapper": "native_rank_change_guard; report as Anchorreg1 plus guarded decision, not exact unwrapped historical prediction rule"
+    },
+    "conservative": {
+      "implementation": "src.herb_spectra.paper_c_calibration.fit_limited",
+      "candidate_grid": [
+        {
+          "id": "cap0.05_q0.5_m1",
+          "cap_fraction": 0.05,
+          "source_gate_quantile": 0.5,
+          "minimum_support_errors": 1,
+          "blend": 0.25
+        },
+        {
+          "id": "cap0.05_q0.5_m2",
+          "cap_fraction": 0.05,
+          "source_gate_quantile": 0.5,
+          "minimum_support_errors": 2,
+          "blend": 0.25
+        },
+        {
+          "id": "cap0.05_q0.75_m1",
+          "cap_fraction": 0.05,
+          "source_gate_quantile": 0.75,
+          "minimum_support_errors": 1,
+          "blend": 0.25
+        },
+        {
+          "id": "cap0.05_q0.75_m2",
+          "cap_fraction": 0.05,
+          "source_gate_quantile": 0.75,
+          "minimum_support_errors": 2,
+          "blend": 0.25
+        },
+        {
+          "id": "cap0.1_q0.5_m1",
+          "cap_fraction": 0.1,
+          "source_gate_quantile": 0.5,
+          "minimum_support_errors": 1,
+          "blend": 0.25
+        },
+        {
+          "id": "cap0.1_q0.5_m2",
+          "cap_fraction": 0.1,
+          "source_gate_quantile": 0.5,
+          "minimum_support_errors": 2,
+          "blend": 0.25
+        },
+        {
+          "id": "cap0.1_q0.75_m1",
+          "cap_fraction": 0.1,
+          "source_gate_quantile": 0.75,
+          "minimum_support_errors": 1,
+          "blend": 0.25
+        },
+        {
+          "id": "cap0.1_q0.75_m2",
+          "cap_fraction": 0.1,
+          "source_gate_quantile": 0.75,
+          "minimum_support_errors": 2,
+          "blend": 0.25
+        },
+        {
+          "id": "cap0.25_q0.5_m1",
+          "cap_fraction": 0.25,
+          "source_gate_quantile": 0.5,
+          "minimum_support_errors": 1,
+          "blend": 0.25
+        },
+        {
+          "id": "cap0.25_q0.5_m2",
+          "cap_fraction": 0.25,
+          "source_gate_quantile": 0.5,
+          "minimum_support_errors": 2,
+          "blend": 0.25
+        },
+        {
+          "id": "cap0.25_q0.75_m1",
+          "cap_fraction": 0.25,
+          "source_gate_quantile": 0.75,
+          "minimum_support_errors": 1,
+          "blend": 0.25
+        },
+        {
+          "id": "cap0.25_q0.75_m2",
+          "cap_fraction": 0.25,
+          "source_gate_quantile": 0.75,
+          "minimum_support_errors": 2,
+          "blend": 0.25
+        }
+      ],
+      "source_episode_count": 6,
+      "source_episode_model_seed": 42,
+      "source_episode_seed_base": 20261204,
+      "selection_episodes": [
+        0,
+        1,
+        2
+      ],
+      "guard_episodes": [
+        3,
+        4,
+        5
+      ],
+      "episode_rule": "Withincurrentfinalsourceonly, reserveasource-onlymaxshotpoolperclass, pseudoquery=max(1,floor(.2*nclass)), basegetsremainder>=1. N=3,K=1usesallsixlexicographicpermutationsofsortedIDs across6episodes. OtherclassesusefixedPCG64seeds. NestedshotfirstKfromsamepool. Wholemaxpoolandpseudoqueryexcludedfrombasefit.",
+      "selection_rule": "Reusechoose_developmentdeterministictieorder: choosecandidatefromselectiononly; enabledonlyifAccuracygain>.001, MacroF1gain>.001, BalancedAccuracygain>=-.005 onbothselectionandguard. Otherwiseidentity. Sourceepisodevariationisnotindependentbatchvalidation.",
+      "zero_support_and_zero_label_prediction": "exactnativebaseprediction; no hiddenSVCOVRargmaxtiebreakgain",
+      "unchanged_score_rows": "Preservenativebasepredictionunlesslabel-inducedcorrectionisnonzeroANDargmax(correctedscores)differsfromargmax(rawscores). ConstantshiftorunchangedranknevertriggersOVRtiebreakswitch.",
+      "score_rule_diagnostic": "SaveoriginalSVCvoteandrawOVRargmaxdifferencesseparately; neverlabelunchangedheadchoiceascalibrationgain.",
+      "expanded10_policy": "globalidentity: newlyenrolledclasses haveonlyone sourceentity, insufficientdisjointbase/support/queryforevidence. Traditionalone-shotstillruns."
+    },
+    "shots_requested": [
+      0,
+      1,
+      3,
+      5
+    ],
+    "support_draws": 10,
+    "support_draw_seed": 20261104,
+    "draw_rule": "PerdrawandclassPCG64(seed+drawid) shufflefixedsupportpool; allmodels/seedsreuseIDs andfirstKnested. Noreplacementwithinadraw; recurringIDsacrossdrawsnotadditionalphysicalspecimens.",
+    "same_query_all_arms": true,
+    "report_corrected_harmed": true,
+    "unavailable_shot_action": "BLOCKED_INSUFFICIENT_DISTINCT_SUPPORT; nooversamplingorclassdropping",
+    "score_head_diagnostics": [
+      "raw_score_argmax_zero_label_head_control",
+      "unwrapped_legacy_anchor_argmax_if_scores_available_without_extra_fit"
+    ]
+  },
+  "resources": {
+    "actual_cpu_seconds_total": 6000,
+    "wall_seconds_total": 14400,
+    "threads": 1,
+    "rss_limit_gib": 1.5,
+    "device": "cpu",
+    "quantum_priority": true,
+    "source_episode_fits_included": true,
+    "execution_order": [
+      "zaoren_legacy7",
+      "zaoren_expanded10",
+      "huangqi_legacy4",
+      "tianma_legacy4"
+    ],
+    "budget_exhaustion": "Keepallcompletedandfailedsourceoutputs; remainingtaskssignedNOT_RUN_RESOURCE_LIMITbeforeevaluationrelease. Do notdropcandidatesbecausequeryscoresarelow; donotselectawinnerfromincompletesearch.",
+    "cpu_seconds": 6000,
+    "wall_seconds": 14400,
+    "rss_bytes": 1610612736,
+    "evaluation_cpu_reserve_seconds": 120,
+    "evaluation_wall_reserve_seconds": 120,
+    "source_cpu_stop_seconds": 5880,
+    "source_wall_stop_seconds": 14280,
+    "limit_semantics": "CumulativeactualprocessCPU/RSScheckedbeforeandafterfits; best-effortentrychecksnotOSsandbox. Rootmustexternallymonitorlongfits. Noadditionalcomputecredit."
+  },
+  "evaluation": {
+    "metrics": [
+      "accuracy",
+      "macro_f1",
+      "balanced_accuracy",
+      "per_class_precision",
+      "per_class_recall",
+      "per_class_f1",
+      "confusion_matrix",
+      "fit_wall_seconds",
+      "actual_cpu_seconds",
+      "peak_RSS",
+      "selected_feature_count"
+    ],
+    "all_seeds_required": true,
+    "scoring_release": "Allcompletedtasksourceconfigurationlocks/finalmodelhashesandplannedNOT_RUNstatusesmustbefrozenbeforeanyquerytruthjoin. Onceallplannedpredictionsaresavedandhashed, independentprocessscoresallpredeclaredarms. Noquerybasednewrounds.",
+    "gain_unit": "percentagepoints; optionalrelativepercentreportedseparately",
+    "target_draw_summary": [
+      "all10draws",
+      "mean",
+      "population_SD",
+      "min",
+      "max"
+    ],
+    "small_new_group_warning": "Expanded10new3subsethas3queryspecimens total, oneperclass; descriptiveonly, noscientificaccuracygainorindependentcrossbatchclaim."
+  },
+  "code_files": {},
+  "tasks": [
+    {
+      "id": "zaoren_legacy7",
+      "species": "zaoren",
+      "selection_mode": "source_cv",
+      "exposure": "RETROSPECTIVE_EXPOSED_855_WITHIN_BATCH",
+      "expected_roles": {
+        "source": 513,
+        "support": 171,
+        "query": 171
+      },
+      "input": "legacy_database/zaoren/alpha.npz",
+      "role_policy": "preserve_registered_legacy855_threeway_memberships",
+      "classes_expected": 7,
+      "inherit_selection_from": null
+    },
+    {
+      "id": "zaoren_expanded10",
+      "species": "zaoren",
+      "selection_mode": "inherit_source_selected_configuration_no_new_class_cv",
+      "exposure": "EXPLORATORY_ONE_SHOT_NEW_GROUP_ENROLMENT_PLUS_EXPOSED_LEGACY",
+      "expected_roles": {
+        "source": 516,
+        "support": 174,
+        "query": 174
+      },
+      "role_policy": "preservelegacyroles_addnovelthreegroupsoneperrole",
+      "classes_expected": 10,
+      "inherit_selection_from": "zaoren_legacy7",
+      "source_calibration_episodes": [],
+      "conservative_fallback_reason": "NEW_CLASSES_HAVE_ONLY_ONE_SOURCE_ENTITY_NO_DISJOINT_SOURCE_CALIBRATION_EVIDENCE"
+    },
+    {
+      "id": "huangqi_legacy4",
+      "species": "huangqi",
+      "selection_mode": "source_cv",
+      "exposure": "RETROSPECTIVE_EXACT_LEGACY_REUPLOAD_NO_NEW_SPECIMENS",
+      "role_policy": "fixed_seed_60_20_20",
+      "classes_expected": 4,
+      "inherit_selection_from": null
+    },
+    {
+      "id": "tianma_legacy4",
+      "species": "tianma",
+      "selection_mode": "source_cv",
+      "exposure": "RETROSPECTIVE_EXACT_LEGACY_REUPLOAD_NO_NEW_SPECIMENS",
+      "role_policy": "fixed_seed_60_20_20",
+      "classes_expected": 4,
+      "inherit_selection_from": null
+    }
+  ],
+  "candidate_counts": {
+    "mcuve_svm": 10,
+    "svm": 6,
+    "shrinkage_lda": 3,
+    "mlp": 2
+  },
+  "recipe_schema_note": "Pretraining schema compatibility aligned with supplemental_benchmark: shrinkage_lda, hidden, fixedbatch64; no data performance used."
+}

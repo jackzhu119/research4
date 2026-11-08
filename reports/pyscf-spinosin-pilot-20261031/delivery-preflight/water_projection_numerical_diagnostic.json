@@ -1,0 +1,62 @@
+{
+  "status": "DONE_SAVED_SMALL_MATRIX_NUMERICAL_DIAGNOSTIC_ONLY",
+  "completed_at_utc": "2026-11-01T04:56:21.647588+00:00",
+  "new_SCF_gradient_Hessian_or_optimization_evaluations": 0,
+  "active_Spinosin_checkpoint_read": false,
+  "versions": {
+    "pyscf": "2.14.0",
+    "numpy": "2.3.5"
+  },
+  "script_sha256": "c8dc348b0d2fdf6e909a9ffda1ee8652dc7320336253a1c63048b0402c1ed000",
+  "input_evidence_sha256": {
+    "result.json": "62cfbf03a41a19070028f6bef15de8ed63a168860cef5c504729db8fb74a310a",
+    "optimized.xyz": "58f01d9f8ffd97303b565db566eb2530dfd4bd851d0c69440890685ef2ef32b3",
+    "calculation.chk": "09dbc0e0d1c7de91480a923c378edb81991510d1464873ad2dc2797b28a5fc28",
+    "hessian_hartree_per_bohr2.npy": "23f8c736e5a8352910fef445bd4b25e1d66a8bc2da5bbedf7c07bc6ae1d9dfd8",
+    "frequencies.csv": "97e1745fc6efe4165404361f55237ba7692034574c6f6914d8a4d7b439d2ed6a"
+  },
+  "input_artifacts_unchanged_after_diagnostic": true,
+  "saved_water_result_checkpoint_sha256_matches_actual": true,
+  "source_harmonic_analysis": {
+    "path": "/workspace/research4/.runtime/quantum-upgrade-site/pyscf/hessian/thermo.py",
+    "sha256": "8143ebed7653bd79b4b8d7b2f5933671a33285b11aba47cf0d8134c229a031f8"
+  },
+  "original_hessian_max_asymmetry_hartree_per_bohr2": 1.0404410910602735e-07,
+  "xyz_vs_checkpoint_max_coordinate_difference_bohr": 9.048317650695026e-13,
+  "original_saved_frequencies_cm1": [
+    1605.3559866136668,
+    3688.836299052794,
+    3787.669529187483
+  ],
+  "original_hessian_checkpoint_recomputed_cm1": [
+    1605.3559866136668,
+    3688.836299052794,
+    3787.669529187483
+  ],
+  "original_hessian_xyz_reprojected_cm1": [
+    1605.3561223435563,
+    3688.836239984105,
+    3787.669529187464
+  ],
+  "original_hessian_xyz_vs_checkpoint_max_frequency_difference_cm1": 0.0001357298895072745,
+  "diagnostic_only_symmetrized_checkpoint_cm1": [
+    1605.3559994446964,
+    3688.836293468906,
+    3787.669529187399
+  ],
+  "diagnostic_only_symmetrized_xyz_cm1": [
+    1605.3559994446953,
+    3688.8362934689067,
+    3787.6695291873984
+  ],
+  "symmetrized_hessian_xyz_vs_checkpoint_max_frequency_difference_cm1": 1.1368683772161603e-12,
+  "original_vs_symmetrized_checkpoint_max_frequency_difference_cm1": 1.283102960769611e-05,
+  "interpretation": [
+    "Original water frequencies are the actual PySCF outputs and remain unchanged; this diagnostic does not replace any historical array or reported frequency.",
+    "The original Hessian is slightly non-symmetric. PySCF projects it into a geometry-dependent basis before numpy.linalg.eigh, which assumes symmetry and by default consumes the lower triangle.",
+    "Removing the antisymmetric part suppresses the geometry-roundtrip reprojection discrepancy from about1.36e-4 to about1e-12cm^-1 in this saved matrix.",
+    "This supports a numerical projection/basis and Hessian-asymmetry explanation; do not describe it as evidence that physical water frequencies are sensitive to1e-12Bohr coordinate rounding.",
+    "No finite-difference Hessian, grid-convergence study, physical frequency uncertainty or new Spinosin vibrational calculation was performed."
+  ],
+  "IR_intensities": "NOT_COMPUTED"
+}

@@ -1,0 +1,1 @@
+NOT_RUN: no Spinosin molecular arrays or frequencies have been read. After actual complete healthy V5 closure, pass --result and its explicit SHA to this script. --control-validation is limited to actual closed water/ethanol software controls. No empty frequency table is presented as a target result.

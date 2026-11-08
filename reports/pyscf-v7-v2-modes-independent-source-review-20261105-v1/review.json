@@ -1,0 +1,71 @@
+{
+  "schema": "research4-v7-v2-postprocessing-interface-independent-review-v1",
+  "created_at_utc": "2026-11-05T01:30:53.643561+00:00",
+  "reviewer": "/root/v7_staged_consumer",
+  "status": "PASS_MINIMAL_INTERFACE_FIX_SOURCE_STDLIB_ONLY",
+  "source_files": [
+    {
+      "path": "scripts/analyze_pyscf_staged_modes_20261105_v7.py",
+      "sha256": "9eaf4a08b7073b39aca7ce5b91dd483ba3119ab83d8064b5f98aea2901067b23",
+      "bytes": 62169
+    },
+    {
+      "path": "scripts/analyze_pyscf_staged_modes_20261105_v7_v2.py",
+      "sha256": "76e2eddebf681f9adf2ab7c5f9fa0bdc126b0c93f081cc93a606009f31c94705",
+      "bytes": 62169
+    },
+    {
+      "path": "tests/test_analyze_pyscf_staged_modes_v7_v2_stdlib.py",
+      "sha256": "7c83d23cfaca24298823367acd505f5af01acab61bbfa93b85e598e1223b8628",
+      "bytes": 21121
+    },
+    {
+      "path": "scripts/pyscf_molecular_state_worker_20261104_v5.py",
+      "sha256": "be4727b76d59a0b0dd3defba249ef833ee8ef0ea89473e390dcef389728415c8",
+      "bytes": 41377
+    },
+    {
+      "path": "scripts/pyscf_staged_consumer_20261105_v7.py",
+      "sha256": "6e9b835f4b49329cd52162b5862da14b3dcd87c80390c1e09b3cf62e14c07dbe",
+      "bytes": 41227
+    }
+  ],
+  "actual_failure_reported_by_root": {
+    "analyzer_source_sha256": "9eaf4a08b7073b39aca7ce5b91dd483ba3119ab83d8064b5f98aea2901067b23",
+    "failure": "KeyError: mo_occ in first actual water numerical replay; source interface incorrectly used lowercase MO keys",
+    "expensive_H1_response_global_calculations_unchanged": true
+  },
+  "independently_checked_diff": {
+    "exactly_two_changes": true,
+    "subscript_replacements": {
+      "source_arrays[mo_occ]": "source_arrays[MO_occ]",
+      "source_arrays[mo_coeff]": "source_arrays[MO_coeff]"
+    },
+    "all_other_source_bytes_equal": true
+  },
+  "real_frozen_snapshot_interface": {
+    "frozen_state_sha256": "be4727b76d59a0b0dd3defba249ef833ee8ef0ea89473e390dcef389728415c8",
+    "loader_preserves_manifest_array_names": true,
+    "used_keys": [
+      "MO_coeff",
+      "MO_occ",
+      "coordinates_angstrom",
+      "gradient"
+    ],
+    "all_used_keys_present_in_real_snapshot_arrays_AST": true
+  },
+  "independent_tests": {
+    "passed": 21,
+    "elapsed_seconds": 0.197,
+    "command": "python -B -S -m unittest discover -s tests -p 'test_analyze_pyscf_staged_modes_v7_v2_stdlib.py' -v",
+    "new_regression_coverage": "frozen producer schema, case-sensitive sentinel access, exact minimal diff, intentionally rejected lowercase regression"
+  },
+  "old_executed_analyzer_or_failure_logs_modified": false,
+  "A_core_consumer_or_DFT_outputs_modified": false,
+  "numerical_imports": false,
+  "scientific_arrays_read": false,
+  "Q_or_numerical_replay_run_by_review": false,
+  "Git_executed": false,
+  "actual_3_21_replay_result": "ROOT_MUST_EXECUTE_REAL_REPLAY_WITH_NEW_SOURCE_AND_FRESH_OUTPUT",
+  "prior_source_review_limit": "Old17 stdlib checks did not exercise this producer-payload lookup interface; old source review remains history and is superseded for production by this minimal fix plus actual replay."
+}

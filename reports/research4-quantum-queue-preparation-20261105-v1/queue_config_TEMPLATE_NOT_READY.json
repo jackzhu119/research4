@@ -1,0 +1,88 @@
+{
+  "schema": "research4-materialized-quantum-queue-v1",
+  "status": "NOT_READY_TEMPLATE_DO_NOT_EXECUTE",
+  "queue_directory": "reports/research4-quantum-queue-preparation-20261105-v1/queue-template-NOT_READY",
+  "state": "reports/research4-quantum-queue-preparation-20261105-v1/queue-template-NOT_READY/state.json",
+  "monitor": "reports/research4-quantum-queue-preparation-20261105-v1/queue-template-NOT_READY/monitor.jsonl",
+  "ledger": "reports/pyscf-spinosin-staged-20261105-v6b/cpu_budget.json",
+  "original_quantum_cpu_cap_seconds": 216000,
+  "original_quantum_deadline_at_utc": "2026-11-05T23:20:50.391742+00:00",
+  "python_executable": ".runtime/bin/python",
+  "pythonpath": [
+    ".runtime/quantum-pilot-site",
+    ".runtime/quantum-upgrade-site"
+  ],
+  "monitor_interval_seconds": 1800,
+  "source_refs": [
+    {
+      "path": "scripts/run_pyscf_continuation_budget_20261105_v6b.py",
+      "sha256": "b985d6d6e20f5e4a48387094461f19b133dae761338664e88836c62051f993a5"
+    },
+    {
+      "path": "scripts/pyscf_xc_chunk_checkpoint_20261105_v7.py",
+      "sha256": "da1e2b0267c48e748a2bcb7d3f2ee3110d8e2288aa340d23dab7a12c994ddf8e"
+    },
+    {
+      "path": "scripts/pyscf_xc_chunk_worker_20261105_v7.py",
+      "sha256": "00e710eb0d637dbd073939bea5d4496993cb68f29efad1439322df3972415f02"
+    }
+  ],
+  "jobs": [
+    {
+      "id": "REPLACE_ROOT_JOB_ID",
+      "phase": "REPLACE_FRESH_UNIQUE_PHASE",
+      "worker": {
+        "path": "scripts/pyscf_xc_chunk_worker_20261105_v7.py",
+        "sha256": "00e710eb0d637dbd073939bea5d4496993cb68f29efad1439322df3972415f02"
+      },
+      "stage": "xc-diag-chunk",
+      "success_status": "XC_CHUNK_COMPUTED",
+      "result_schema": "research4-staged-full-rks-hessian-result-v7",
+      "result": "reports/pyscf-spinosin-grid-checkpoint-20261105-v7/REPLACE_FRESH_APPROVED_XC_OUTPUT/result.json",
+      "log": "reports/pyscf-spinosin-grid-checkpoint-20261105-v7/execution/REPLACE_NEW_PHASE.log",
+      "threads": 2,
+      "memory_gib": 24,
+      "cpu_seconds": 1800,
+      "wall_seconds": 1800,
+      "payload_argv": [
+        ".runtime/bin/python",
+        "scripts/pyscf_xc_chunk_worker_20261105_v7.py",
+        "--execute",
+        "--stage",
+        "xc-diag-chunk",
+        "--threads",
+        "2",
+        "--snapshot",
+        "REPLACE_EXACT_APPROVED_SNAPSHOT_DIRECTORY",
+        "--snapshot-manifest-sha256",
+        "REPLACE_ACTUAL_SNAPSHOT_SHA",
+        "--gradient-check-result",
+        "REPLACE_ACTUAL_GRADIENT_RESULT_JSON",
+        "--gradient-check-result-sha256",
+        "REPLACE_ACTUAL_GRADIENT_SHA",
+        "--plan-result",
+        "REPLACE_HEALTHY_PLAN_RESULT_JSON",
+        "--plan-result-sha256",
+        "REPLACE_ACTUAL_PLAN_SHA",
+        "--start-block",
+        "0",
+        "--block-count",
+        "1",
+        "--control-release",
+        "REPLACE_ACTUAL_ROOT_CONTROL_RELEASE_JSON",
+        "--control-release-sha256",
+        "REPLACE_ACTUAL_CONTROL_RELEASE_SHA",
+        "--output",
+        "reports/pyscf-spinosin-grid-checkpoint-20261105-v7/REPLACE_FRESH_APPROVED_XC_OUTPUT"
+      ],
+      "inputs": [
+        {
+          "path": "REPLACE_HEALTHY_PLAN_RESULT_JSON",
+          "sha256": "REPLACE_ACTUAL_PLAN_SHA"
+        }
+      ],
+      "existing_seal": null
+    }
+  ],
+  "downstream_consumer_and_analyzer": "REQUIRE_ROOT_FINAL_SOURCE_PINS_NO_COMPATIBILITY_ASSUMED"
+}

@@ -1,0 +1,60 @@
+{
+  "blockers_found": [],
+  "critical_review": {
+    "SCF": "One bounded native DIIS call per point, max_cycle80 plus the native final extra check. Every iteration full native VEFF; strict1e-12Eh AND1e-9 orbital residual. Actual consecutive-density full endpoint audit, true unshifted Fock residual, electron/orthogonality checks and three exact-same-current-DM full energy repeats reused from frozen f93 numerical helper.",
+    "Spinosin": "Fresh rebuilt grid1 or3 zero SCF from authenticated checkpoint DM used only as initial guess. Optional mode1 +/- .005Bohr energies start from the same fresh grid-specific zero density. Archived Hessian comparison is explicitly CROSS_DEFINITION_AND_CROSS_QUADRATURE, not a same-method Hessian error.",
+    "cleanup": "Checks original restored MF/molecule fingerprints and native driver restoration, preserves actual failures and partial status; nuclear minimum, full Hessian, optimization, frequencies and IR remain unperformed.",
+    "control_gates": {
+      "actual_point_energies_bound_to_replayed_control": true,
+      "both_true_gradient_FD_component_errors_max_hartree_per_bohr": 1e-05,
+      "nontrivial_center_component_min_exclusive": 1e-08,
+      "norm_of_sum_atomic_gradient_vectors_max_hartree_per_bohr": 1e-06,
+      "scope": "Translation balance, not max atomic force, stationary geometry or minimum verification.",
+      "two_step_derivative_difference_max_hartree_per_bohr": 1e-05
+    },
+    "control_geometries": "Water and ethanol center moves atom0 x by+.01Bohr. Four independent points are center plus/minus .002 and .001Bohr, each projected from the same freshly certified center density; both sign pairs are compared with the center true nuclear gradient component.",
+    "fresh_grids": "Creates a standard new Grids on each actual mf.mol; copies original grid configuration before selecting level1 or3 and building geometry-specific masks. No original fixed grid coordinate/weight arrays are attached. small_rho_cutoff=0, full native direct PBE cutoffs, noDF/noERI/noNLC, coordinates/weights/settings fingerprints recorded and checked after SCF.",
+    "gradients": "Full finite nuclear gradient arrays with grid_response=True and False saved at the fresh centers/Spinosin zero, with gmax/RMS and vector-sum diagnostics. Open new gradient log is attached to returned MF/molecule before evaluation.",
+    "input_release": "Both actual healthy closed f93 water and ethanol control results are required and raw control parity is replayed. Spinosin additionally requires an authenticated f93 certified zero as initial guess and an actual healthy closed new moving-grid control result.",
+    "source_and_guard": "New result/point schemas and own producer source identity are used. Actual new72h supervision and live sole phase must bind this script and output. Frozen f93 supplies authenticated read-only inputs and numerical helpers, without producer relabelling.",
+    "storage_and_partial_results": "Retains compact full rolling checkpoint, actual previous DM, orbital residual vector, refreshed small MO-energy vector and small geometry/gradient arrays. Omitted full matrices explicitly have fingerprints only. Each point <=12MiB and global preflight reserves all remaining points plus64MiB. Checkpoints are atomic; no automatic retry or old-file deletion."
+  },
+  "frozen_files_sha256": {
+    "scripts/research4_full_native_checkpoint_worker_20261107.py": "f93bc6eab66d1d3d1909edff25bc01b2231e1cfa49b23d45bba51e2e6706b03a",
+    "scripts/research4_full_native_veff_restart_helpers_20261107.py": "ea2e3b6c130cbc68f189fc7c721b93aeb5600ec197a3df591e7f3b464f0d9d6b",
+    "scripts/research4_rebuilt_grid_diagnostics_20261107.py": "edfb5f5000007ca985c6c145885dff4da092a08c1336bb10bea29730193edcd0",
+    "scripts/run_research4_research72h_budget_20261107.py": "643a431b7229eca94ac50645d467e6c3472f976b8ac48cc2f36be68241319e68",
+    "tests/test_rebuilt_grid_diagnostics_stdlib_20261107.py": "05362241862ec1691cdba0e002952c7b24faf1f2f257af487c7fbb84fd031d48"
+  },
+  "interpretation_limits": [
+    "Total nuclear-gradient vector balance is valid at an intentionally nonstationary geometry and cannot certify a minimum.",
+    "SCF certification concerns the electronic endpoint, separately from nuclear gradient stationarity.",
+    "Grid3 changes quadrature; moving-grid total energy derivatives differ from the archived fixed-grid-response approximation.",
+    "A local directional energy result is not a new full Hessian, frequency assignment, orbital stability or chemical-mechanism proof.",
+    "Synthetic tests do not establish that the actual moving-grid controls or Spinosin jobs will pass."
+  ],
+  "reviewed_at_utc": "2026-11-07T03:55:28.645516+00:00",
+  "reviewer": "/root/fixed_grid_design_audit",
+  "runtime_prerequisites": [
+    "Root registered finite new72h phase grants and exact source bindings must be valid.",
+    "Actual fixed-grid f93 control and zero dependencies must pass their healthy closure gates.",
+    "Actual new moving-grid water and ethanol controls must pass before any Spinosin rebuilt-grid diagnostic."
+  ],
+  "schema": "research4-rebuilt-grid-independent-source-review-v1",
+  "scope": {
+    "critical_independent_source_review": true,
+    "fake_grid_and_metadata_tests": true,
+    "git_actions": false,
+    "quantum_evaluations": 0,
+    "real_checkpoint_array_loads": false,
+    "source_edits": false
+  },
+  "status": "APPROVED_FROZEN_SOURCE_AND_METADATA_TESTS_ONLY",
+  "test_evidence": {
+    "command": "PYTHONPATH=src .runtime/bin/python -m unittest discover -s tests -p 'test_rebuilt_grid_diagnostics_stdlib_20261107.py' -v",
+    "exit_code": 0,
+    "tests_failed": 0,
+    "tests_passed": 13,
+    "unittest_reported_seconds": 0.033
+  }
+}

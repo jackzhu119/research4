@@ -1,0 +1,100 @@
+{
+  "schema": "research4.independent-group-participation-review.v1",
+  "reviewer": "/root/chemical_sources_72h",
+  "reviewed_at_utc": "2026-11-04T11:43:41.479835+00:00",
+  "status": "PASS_NO_BLOCKING_FINDINGS",
+  "blocking_findings": [],
+  "source_sha256": "b997a51f1d57b29cb2f05b67209bf993d1882af504a4af164c6912ed497c2dcd",
+  "tests_sha256": "638637e9153a81298695d37345fe23b5794b7c5fd9a7f2703bf37c7f81b061ba",
+  "test_execution_receipt": "execution_receipt.json",
+  "pure_test_count": 17,
+  "pure_tests_passed": 17,
+  "formula_review": {
+    "status": "PASS",
+    "PySCF_norm_mode": "Cartesian displacement d_i = q_i / sqrt(m_i), where q is the mass-weighted orthonormal eigenvector",
+    "PySCF_thermo_source_sha256": "8143ebed7653bd79b4b8d7b2f5933671a33285b11aba47cf0d8134c229a031f8",
+    "PySCF_thermo_source_lines": [
+      47,
+      48,
+      55,
+      80,
+      81,
+      95,
+      96,
+      97
+    ],
+    "mass_table_source_sha256": "a0cb75c2e6383d969f6415f02b6e3baa0ad4642eacfbfc7c1da0c368c0291338",
+    "mass_table_lines": [
+      210,
+      212,
+      217,
+      219
+    ],
+    "isotope_average_mass_amu": {
+      "H": 1.008,
+      "C": 12.011,
+      "O": 15.999
+    },
+    "reviewed_share_formula": "s_G = sum_{i in G}(m_i * ||d_i||^2) / sum_i(m_i * ||d_i||^2)",
+    "equivalent_q_space_formula": "s_G = sum_{i in G}(||q_i||^2) / sum_i(||q_i||^2)",
+    "partition_sum": "Four disjoint groups cover all 75 atoms exactly once, hence their per-mode shares sum to one.",
+    "overlap_scope": "The other 18 groups overlap and their aggregate sum is not constrained to one.",
+    "numerical_guards": [
+      "Per-mode maximum absolute rescaling before squaring",
+      "Reject zero, complex, nonfinite, wrong-shape modes and invalid masses",
+      "Reject duplicate/out-of-range/noninteger indices and bad partitions",
+      "Require final Cartesian mass normalization and four-partition sum within stated tolerances"
+    ],
+    "interpretation_limits": [
+      "Shares describe mass-weighted squared coordinate components, not vibrational energy or IR intensity.",
+      "Sign and global display scaling do not change shares.",
+      "Individual shares can change under rotation of a degenerate normal-mode basis.",
+      "No displacement phase or torsion/bending assignment follows from shares alone.",
+      "OH participation does not prove hydrogen bonding or a chemical peak identity."
+    ]
+  },
+  "atom_order_review": {
+    "status": "PASS",
+    "static_package_index_sha256": "5ecf8bbe7c5317d5ef0d18070f01307542c366f0700bcbaf43e5e7849a5aa246",
+    "source_C001_SDF_sha256": "02dc923dce2f225ede414341229f3090967e569f6075165a41685b3a5d8da2f7",
+    "prepared_XYZ_sha256": "f7c69d098159254cf22260b3c11c6b63a865839ce942e5a7ca0982da1ec73e39",
+    "trusted_identity_map_rows": 75,
+    "disjoint_partition_count": 4,
+    "overlapping_subgroup_count": 18,
+    "new_uploaded_SDF_indices_used": false,
+    "runtime_geometry_to_static_C001_comparison_required": true
+  },
+  "gate_review": {
+    "status": "PASS",
+    "order_before_target_NPY_hash_or_load": [
+      "Bind the frozen a2 analyzer and its closed report artifact index/checks.",
+      "Strictly require genuine Spinosin case, 75 atoms, 219 modes, qualified_for_mechanism=true, and all-real-positive flags.",
+      "Verify original full Hessian/normal-mode completion metadata and positive finite frequency metadata.",
+      "Reverify healthy closed exact producer execution and unchanged MF state.",
+      "Requalify the frozen fresh-gradient receipt against the original computation boot and source snapshot.",
+      "Reverify healthy closed exact source SCF producer.",
+      "Only then bind exported artifacts and target mode/geometry hashes and np.load them."
+    ],
+    "reviewed_dependency_functions": [
+      "pyscf_resumable_hessian_worker_20261104_v5.verify_closed_execution",
+      "pyscf_resumable_hessian_worker_20261104_v5.qualify_gradient_receipt",
+      "pyscf_molecular_state_worker_20261104_v5.validate_closed_producer"
+    ],
+    "dependency_review_scope": "Read source text only; these closure functions inspect metadata/proofs/logs/results and do not load target NPY or CHK.",
+    "pure_tests_verify_gates_before_np_load": true,
+    "preflight_has_no_numeric_target_CSV": true
+  },
+  "execution_scope": {
+    "real_target_modes_read": false,
+    "real_target_frequencies_read": false,
+    "real_target_geometry_NPY_read": false,
+    "active_Hessian_or_CHK_read": false,
+    "actual_Spinosin_participation_computed": false,
+    "PySCF_engine_imported_or_run": false,
+    "QM_jobs": 0,
+    "classifier_fits": 0,
+    "Git_operations": 0,
+    "source_tests_or_prior_sealed_files_modified": false
+  },
+  "remaining_condition": "Actual target postprocessing remains NOT_RUN until the frozen a2 analyzer has a healthy closed complete positive-frequency Spinosin result. Pure synthetic tests are not evidence of Spinosin vibrational shares."
+}

@@ -1,0 +1,89 @@
+{
+  "schema": "research4-fixed-grid-energy-independent-source-review-v1",
+  "status": "STATIC_CODE_METHOD_PROVENANCE_REVIEW_PASS_ACTUAL_QUANTUM_NOT_RUN",
+  "created_at_utc": "2026-11-07T01:19:01.261830+00:00",
+  "reviewed_worker": {
+    "path": "/workspace/research4/scripts/research4_fixed_grid_energy_curvature_20261107.py",
+    "sha256": "5c93bdeacae3e91d78c47ccfc3a73d1e715ab9ec0dd53391e3f7274536d7a6bf",
+    "bytes": 69435
+  },
+  "reviewed_tests": {
+    "path": "/workspace/research4/tests/test_fixed_grid_energy_curvature_stdlib_20261107.py",
+    "sha256": "47b897ae7e68a08420719d21a245caefc748e29b24f333f70bc9de9770e20725",
+    "bytes": 17274
+  },
+  "root_precision": {
+    "SCF_energy_drift_tolerance_hartree": 1e-12,
+    "orbital_gradient_tolerance": 1e-09,
+    "both_required_in_normal_and_extra_cycles": true,
+    "step_bohr": 0.0003125
+  },
+  "checks": {
+    "fresh_zero_plus_minus_are_three_real_SCFs": true,
+    "archived_E0_never_substituted_in_curvature": true,
+    "both_displacements_project_same_preserved_fresh_zero_density": true,
+    "all_atoms_75_all_AO_MO_762_and_electrons_preserved": true,
+    "no_nuclear_gradient_Hessian_frequency_or_IR_computation": true,
+    "energy_numerator": "math.fsum([Eplus,Eminus,-2*FRESH_Ezero])",
+    "all_three_points_must_complete_before_curvature": true,
+    "partial_results_keep_actual_completed_energies_without_inventing_missing_values": true,
+    "source_and_fresh_zero_MF_immutability_checked": true,
+    "authentic_new_current_boot_water_control_worker_and_closed_parent_required": true,
+    "raw_control_release_replay": "31 distinct completed fresh SCF/gradient children; five small NPY matrix hashes per child;15 full-vector/energy comparisons;12 adjacent halvings.",
+    "water_gate": "Prespecified finest-two vector/error/halving gates plus energy-curvature error<=1e-4 at actual Spinosin h=.0003125.",
+    "exact_AST_preservation_from_cab_worker": [
+      "frozen_grid_type",
+      "grid_payload_fingerprints",
+      "attach_fixed_quadrature",
+      "sole_phase",
+      "source_gate",
+      "qualify_source",
+      "read_schedule",
+      "validate_appended_rows"
+    ],
+    "all_argparse_attributes_defined": true,
+    "fixed_array_mask_molecule_cutoff_and_original_provenance_checks_preserved": true,
+    "phase_CPU_hard_cap_seconds": 7500,
+    "actual_stop_threshold_max_seconds": 7380,
+    "whole_guardian_wall_envelope_before_deadline_utc": "2026-11-09T08:25:17.730193Z",
+    "automatic_retry": false
+  },
+  "precision_and_interpretation": {
+    "expected_original_mode1_second_energy_difference_hartree": -3.6642874045451994e-09,
+    "nominal_4_times_drift_tolerance_over_h2_Eh_per_Bohr2": 4.096e-05,
+    "binary64_ulp_near_minus2210_Eh": 4.547473508864641e-13,
+    "drift_and_ulp_scales_are_not_rigorous_energy_error_bounds": true,
+    "water_passing_does_not_bound_Spinosin_specific_truncation": true,
+    "Spinosin_step_convergence_verified": false,
+    "electronic_orbital_stability_and_branch_continuity_not_verified": true,
+    "fresh_zero_SCF_can_refine_archived_finite_tolerance_state": true,
+    "fresh_zero_and_archived_energies_and_cycle_logs_are_preserved": true,
+    "no_unique_Hessian_bug_or_cause_claim_supported": true,
+    "diagnostic_status": "ENERGY_ONLY_LOCAL_DIAGNOSTIC_NOT_FULL_HESSIAN_MINIMUM_FREQUENCY"
+  },
+  "validation": {
+    "independent_source_and_test_inspection": "PASS",
+    "independent_AST_and_argparse_checks": "PASS",
+    "independent_numerical_path_subreview": "PASS",
+    "implementation_agent_reported_tests": "13 new stdlib +12 prior tests PASS; tests inspected, not duplicated by this review.",
+    "actual_new_water_controls": "NOT_RUN_BY_REVIEW",
+    "actual_Spinosin_triplet": "NOT_RUN_BY_REVIEW",
+    "real_PySCF_behavior_remains_subject_to_guarded_execution": true
+  },
+  "preservation": {
+    "failed_A005_coarse_controls_unchanged": true,
+    "prior_workers_and_results_unchanged": true,
+    "cumulative_cap_and_deadline_not_extended": true,
+    "minimum_verified": false,
+    "IR_intensities": "NOT_COMPUTED",
+    "historical_classifier_accuracy_percent": 96.0234
+  },
+  "review_side_effects": {
+    "new_quantum_evaluations": 0,
+    "numerical_package_imports": false,
+    "large_array_or_checkpoint_loads": false,
+    "Git_or_network_actions": false,
+    "ledger_or_source_modifications": false
+  },
+  "approval_scope": "Exact reviewed source only. Root may freeze and externally qualify this distinct protocol; this record does not launch Q, establish water PASS or grant new budget."
+}

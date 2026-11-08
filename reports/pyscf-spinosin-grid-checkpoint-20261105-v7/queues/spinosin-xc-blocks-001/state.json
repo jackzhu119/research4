@@ -1,0 +1,129 @@
+{
+  "schema": "research4-materialized-quantum-queue-v1",
+  "config_sha256": "e169a0798a993464d47e47bc272c90175ec6ddd5f5b1596b54c5b63cf51ef9cb",
+  "grant_sha256": "4aa05ed2074e9a26340fe1ab73ed52e9b9ebfdd2725ccda835bd3d7c9de300b4",
+  "invocations": [
+    {
+      "id": "root-invocation-001",
+      "status": "BLOCKED_REQUIRES_ROOT_REVIEW",
+      "pid": 30631,
+      "started_at_utc": "2026-11-05T02:07:55.751157+00:00",
+      "per_invocation_self_CPU_cap_seconds": 600,
+      "wall_deadline_utc": "2026-11-05T23:20:50.391742+00:00",
+      "own_CPU_envelope_not_quantum_CPU_or_observed_actual_cost": true,
+      "boot_id": "50ca0010-b743-43c7-bc0f-b6bcbc47c68d",
+      "start_ticks": 7031565,
+      "self_CPU_observed_seconds": 3.548921136,
+      "reason": "ValueError: Actual guardian failed; keep failed cost and stop without retry",
+      "ended_observed_at_utc": "2026-11-05T02:31:29.313822+00:00",
+      "elapsed_wall_observed_seconds": 1413.562737671993
+    }
+  ],
+  "jobs": {
+    "spinosin-C001-xc-diag-000-001": {
+      "status": "HEALTHY_CLOSED",
+      "actual_guardian_returncode": 0,
+      "seal": [
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-grid-checkpoint-20261105-v7/execution/v7-spinosin-C001-xc-diag-000-001.log",
+          "sha256": "8374094cf6b86fd93123adf0eda230ff140d19b3299c7f68616af2b142396251",
+          "bytes": 91
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-grid-checkpoint-20261105-v7/execution/v7-spinosin-C001-xc-diag-000-001.log.supervisor-proof.json",
+          "sha256": "6bfb43c620191ece58d18a5f729f3e6709479f9a47942a3ff8917cb2e852efb6",
+          "bytes": 1799
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-grid-checkpoint-20261105-v7/spinosin-C001-xc-diag-000-001/input.json",
+          "sha256": "ec90e950303ccd7583ad281ebd15b96b63f4473631aaea807a251a0cef1be9ad",
+          "bytes": 6786
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-grid-checkpoint-20261105-v7/spinosin-C001-xc-diag-000-001/result.json",
+          "sha256": "0a2043a480810ec9c257690150b4b36b877fdf27fb1e55bc845886369c327988",
+          "bytes": 55575
+        },
+        {
+          "path": "/workspace/research4/reports/pyscf-spinosin-grid-checkpoint-20261105-v7/spinosin-C001-xc-diag-000-001/stage-cache/contracted_XC_partial.npy",
+          "sha256": "72ce2d9889266c55a53595b87e654fb50c7ba40140e1505e65de5e4e63905450",
+          "bytes": 405128
+        }
+      ]
+    },
+    "spinosin-C001-xc-deriv2-000-001": {
+      "status": "GUARDIAN_EXITED_UNVERIFIED",
+      "actual_guardian_argv": [
+        "/workspace/research4/.runtime/bin/python",
+        "/workspace/research4/scripts/run_pyscf_continuation_budget_20261105_v6b.py",
+        "run",
+        "--ledger",
+        "/workspace/research4/reports/pyscf-spinosin-staged-20261105-v6b/cpu_budget.json",
+        "--phase",
+        "v7-spinosin-C001-xc-deriv2-000-001",
+        "--cpu-seconds",
+        "7200",
+        "--wall-seconds",
+        "10800",
+        "--threads",
+        "2",
+        "--memory-gib",
+        "24",
+        "--log",
+        "/workspace/research4/reports/pyscf-spinosin-grid-checkpoint-20261105-v7/execution/v7-spinosin-C001-xc-deriv2-000-001.log",
+        "--",
+        "/workspace/research4/.runtime/bin/python",
+        "/workspace/research4/scripts/pyscf_xc_chunk_worker_20261105_v7.py",
+        "--execute",
+        "--stage",
+        "xc-deriv2-chunk",
+        "--threads",
+        "2",
+        "--snapshot",
+        "/workspace/research4/reports/pyscf-spinosin-resumable-20261104-v5/v5-spinosin-C001-prepare-001/exact-mf-snapshot",
+        "--snapshot-manifest-sha256",
+        "3089d6014ba2d2283540eb13cc7dbcdbbf284721042e7250b624197fc15c3311",
+        "--gradient-check-result",
+        "/workspace/research4/reports/pyscf-spinosin-resumable-20261104-v5/v5-spinosin-C001-restore-gradient-001/result.json",
+        "--gradient-check-result-sha256",
+        "6b143defc238471bc815857df08fc4034a9d8454a00567f3b084907a54a5c403",
+        "--control-release",
+        "/workspace/research4/reports/pyscf-spinosin-grid-checkpoint-20261105-v7/resource-protocol/actual-water-ethanol-numerical-control-release-001.json",
+        "--control-release-sha256",
+        "82d2138c8e7e514b20dd574b411a1093b8506f29f2698be0474c1c5aebe9b029",
+        "--output",
+        "/workspace/research4/reports/pyscf-spinosin-grid-checkpoint-20261105-v7/spinosin-C001-xc-deriv2-000-001",
+        "--xc-max-memory-mb",
+        "2000",
+        "--plan-result",
+        "/workspace/research4/reports/pyscf-spinosin-grid-checkpoint-20261105-v7/spinosin-C001-xc-plan-001/result.json",
+        "--plan-result-sha256",
+        "48779691b02168a0e2f351efed7910e7fd2a2a1e65ea3afbcb97a31ec3997e0d",
+        "--start-block",
+        "0",
+        "--block-count",
+        "1"
+      ],
+      "guardian_pid": 30638,
+      "actual_guardian_returncode": 1
+    }
+  },
+  "resume_argv": [
+    "/workspace/research4/.runtime/bin/python",
+    "/workspace/research4/scripts/research4_quantum_queue_20261105.py",
+    "--config",
+    "/workspace/research4/reports/pyscf-spinosin-grid-checkpoint-20261105-v7/queue-configs/spinosin-xc-blocks-001/config.json",
+    "--config-sha256",
+    "e169a0798a993464d47e47bc272c90175ec6ddd5f5b1596b54c5b63cf51ef9cb",
+    "--grant",
+    "/workspace/research4/reports/pyscf-spinosin-grid-checkpoint-20261105-v7/queue-configs/spinosin-xc-blocks-001/root_grant.json",
+    "--grant-sha256",
+    "4aa05ed2074e9a26340fe1ab73ed52e9b9ebfdd2725ccda835bd3d7c9de300b4",
+    "--attempt",
+    "root-invocation-001-resume",
+    "--execute"
+  ],
+  "resume_requires_environment_ready_and_no_unresolved_invocation_or_Q_phase": true,
+  "next_stage": "spinosin-C001-xc-deriv2-000-001",
+  "last_event": "QUEUE_INVOCATION_CLOSED_OR_BLOCKED"
+}

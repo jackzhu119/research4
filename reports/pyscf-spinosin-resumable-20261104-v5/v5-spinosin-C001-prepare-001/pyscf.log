@@ -1,0 +1,986 @@
+#INFO: **** input file is /workspace/research4/scripts/pyscf_molecular_state_worker_20261104_v5.py ****
+"""Supervised neutral CHO PBE state preparation; exact, pickle-free MF snapshots.
+
+This entry does not compute a Hessian. A snapshot is eligible for a later
+Hessian only after its *parent* V5 phase has exited cleanly and all source,
+array, molecule and actual quadrature fingerprints have been checked.
+"""
+from __future__ import annotations
+
+import argparse
+from collections import Counter
+from datetime import datetime, timezone
+import hashlib
+import importlib
+import importlib.metadata
+import importlib.util
+import inspect
+import json
+import math
+import os
+from pathlib import Path
+import resource
+import shutil
+import signal
+import sys
+import time
+import traceback
+
+import numpy as np
+
+ROOT = Path(__file__).resolve().parents[1]
+BASE_PATH = ROOT / "scripts/pyscf_spinosin_parallel_hessian_worker_20261031.py"
+SUPERVISOR_PATH = ROOT / "scripts/run_pyscf_actual_cpu_budget_20261104_v5.py"
+BASE_SHA = "acfe7708748ac237c9912aa9b1d98e047d842794fd0c6f08b1a67b993f5b277d"
+SUPERVISOR_SHA = "33f1dc3db5280f16c9898c561e345143614730dc052b171b4f11fbbb079cdeee"
+INPUT_SCHEMA = "research4-molecular-input-v1"
+SNAPSHOT_SCHEMA = "research4-exact-pbe-mf-snapshot-v1"
+RESULT_SCHEMA = "research4-molecular-state-result-v1"
+ATOMIC_NUMBERS = {"H": 1, "C": 6, "O": 8}
+GRID_ATTRIBUTES = ("level", "atom_grid", "alignment", "cutoff", "radi_cutoff",
+                   "radi_method", "becke_scheme", "prune", "radii_adjust", "atomic_radii")
+
+
+def utc():
+    return datetime.now(timezone.utc).isoformat()
+
+
+def sha(path):
+    digest = hashlib.sha256()
+    with Path(path).open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def canonical(value):
+    return json.dumps(value, sort_keys=True, separators=(",", ":"), allow_nan=False)
+
+
+def document_hash(value):
+    return hashlib.sha256(canonical(value).encode()).hexdigest()
+
+
+def save_json(path, value, *, exclusive=False):
+    path = Path(path)
+    if exclusive and path.exists():
+        raise FileExistsError("Immutable artifact exists: " + str(path))
+    temporary = path.with_name(path.name + ".writing" + ("." + str(os.getpid()) if exclusive else ""))
+    with temporary.open("x" if exclusive else "w") as handle:
+        handle.write(json.dumps(value, indent=2, allow_nan=False) + "\n")
+        handle.flush()
+        os.fsync(handle.fileno())
+    if exclusive:
+        try:
+            os.link(temporary, path)  # atomic no-replace; never overwrite a winner
+        finally:
+            temporary.unlink(missing_ok=True)
+    else:
+        os.replace(temporary, path)
+    fd = os.open(path.parent, os.O_RDONLY | os.O_DIRECTORY)
+    try:
+        os.fsync(fd)
+    finally:
+        os.close(fd)
+
+
+def json_safe(value):
+    if isinstance(value, np.ndarray):
+        return value.tolist()
+    if isinstance(value, np.generic):
+        return value.item()
+    if isinstance(value, dict):
+        return {str(key): json_safe(item) for key, item in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [json_safe(item) for item in value]
+    if isinstance(value, (str, int, float, bool)) or value is None:
+        return value
+    raise ValueError("Unsupported non-JSON molecular state: " + type(value).__name__)
+
+
+def save_immutable_npy(path, value):
+    """Close/fsync bytes, publish with atomic no-replace, then fsync directory."""
+    path = Path(path)
+    temporary = path.with_name(path.name + ".writing." + str(os.getpid()))
+    try:
+        with temporary.open("xb") as handle:
+            np.save(handle, value, allow_pickle=False)
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.link(temporary, path)
+        descriptor = os.open(path.parent, os.O_RDONLY | os.O_DIRECTORY)
+        try:
+            os.fsync(descriptor)
+        finally:
+            os.close(descriptor)
+    finally:
+        temporary.unlink(missing_ok=True)
+
+
+def load_frozen(path, expected, name):
+    if sha(path) != expected:
+        raise ValueError(name + " source SHA differs from reviewed source")
+    spec = importlib.util.spec_from_file_location(name, path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def frozen_base():
+    return load_frozen(BASE_PATH, BASE_SHA, "research4_frozen_v8_state_dependency")
+
+
+def install_sites():
+    for relative in (".runtime/quantum-pilot-site", ".runtime/quantum-upgrade-site"):
+        location = str(ROOT / relative)
+        if location not in sys.path:
+            sys.path.insert(0, location)
+
+
+def resolve_path(value):
+    path = Path(value)
+    return path.resolve() if path.is_absolute() else (ROOT / path).resolve()
+
+
+def artifact_record(path):
+    path = Path(path).resolve()
+    return {"path": str(path), "sha256": sha(path), "bytes": path.stat().st_size}
+
+
+def checked_artifact(record, *, max_bytes=64 * 1024**2):
+    if not isinstance(record, dict) or set(record) - {"path", "sha256", "bytes"}:
+        raise ValueError("Explicit artifact path/hash/size record required")
+    path = resolve_path(record.get("path", ""))
+    if not path.is_file() or path.stat().st_size > max_bytes:
+        raise ValueError("Artifact missing or oversized: " + str(path))
+    if record.get("bytes") is not None and record["bytes"] != path.stat().st_size:
+        raise ValueError("Artifact byte count changed")
+    if record.get("sha256") != sha(path):
+        raise ValueError("Artifact SHA changed: " + str(path))
+    return path
+
+
+def validate_input(manifest_path, expected_sha):
+    manifest_path = Path(manifest_path).resolve()
+    if not expected_sha or sha(manifest_path) != expected_sha:
+        raise ValueError("Explicit input manifest SHA required")
+    manifest = json.loads(manifest_path.read_text())
+    if manifest.get("schema") != INPUT_SCHEMA:
+        raise ValueError("Unsupported molecular input schema")
+    symbols = manifest.get("atom_symbols")
+    if not isinstance(symbols, list) or not symbols or any(s not in ATOMIC_NUMBERS for s in symbols):
+        raise ValueError("Only fully explicit CHO input atoms are supported")
+    if manifest.get("composition") != dict(Counter(symbols)):
+        raise ValueError("Declared composition differs from exact atom order")
+    counts = Counter(symbols)
+    order = [key for key in ("C", "H", "O") if key in counts] if "C" in counts else sorted(counts)
+    formula = "".join(symbol + (str(counts[symbol]) if counts[symbol] != 1 else "") for symbol in order)
+    if manifest.get("formula") != formula:
+        raise ValueError("Molecular formula differs from explicit atom composition")
+    if not isinstance(manifest.get("molecule_id"), str) or not manifest["molecule_id"].strip():
+        raise ValueError("Explicit molecule ID required")
+    if (manifest.get("charge") != 0 or manifest.get("spin_2S") != 0
+            or manifest.get("multiplicity") != 1 or manifest.get("radical_electrons") != 0):
+        raise ValueError("This pilot supports neutral nonradical singlets only")
+    electrons = sum(ATOMIC_NUMBERS[s] for s in symbols)
+    if manifest.get("electron_count") != electrons or electrons % 2:
+        raise ValueError("Electron count inconsistent with composition")
+    if manifest.get("connectivity_verified") is not True or manifest.get("stereochemistry_checked") is not True:
+        raise ValueError("Connectivity and stereochemistry checks required")
+    xyz = checked_artifact(manifest["input_xyz"])
+    npy = checked_artifact(manifest["coordinates_angstrom_npy"])
+    base = frozen_base()
+    read_symbols, displayed = base.read_xyz(xyz, Counter(symbols))
+    if read_symbols != symbols:
+        raise ValueError("XYZ atom order differs; chemical identity does not imply AO identity")
+    coordinates = np.load(npy, allow_pickle=False)
+    if coordinates.dtype.kind != "f" or coordinates.shape != (len(symbols), 3) or not np.isfinite(coordinates).all():
+        raise ValueError("Invalid exact coordinate array")
+    if not np.allclose(coordinates, displayed, atol=5e-12, rtol=0):
+        raise ValueError("Exact coordinates disagree with bound XYZ")
+    for source in manifest.get("source_artifacts", []):
+        checked_artifact(source)
+    initial_checkpoint = manifest.get("initial_checkpoint")
+    if initial_checkpoint is not None:
+        checked_artifact(initial_checkpoint, max_bytes=32 * 1024**2)
+        order_binding = manifest.get("initial_checkpoint_atom_order_sha256")
+        if order_binding != document_hash(symbols):
+            raise ValueError("Warmstart checkpoint lacks exact atom-order binding")
+        if manifest.get("initial_checkpoint_geometry_npy_sha256") != manifest["coordinates_angstrom_npy"]["sha256"]:
+            raise ValueError("Warmstart checkpoint lacks matching full-precision geometry")
+    return manifest, symbols, coordinates
+
+
+def method_settings(threads=4, maxsteps=35):
+    if type(threads) is not int or not 1 <= threads <= 4:
+        raise ValueError("One through four supervised threads required")
+    if type(maxsteps) is not int or not 1 <= maxsteps <= 100:
+        raise ValueError("Bounded optimizer steps required")
+    return {"xc": "PBE", "basis": "def2-svp", "grid_level": 1,
+            "dispersion": "NONE_EXPLICIT_PBE_PILOT_NOT_D3", "density_fitting": False,
+            "auxbasis": None, "density_fit_backend": "SCREENED_DIRECT_RKS_V4",
+            "direct_scf": True, "direct_scf_tol": 1e-13,
+            "global_four_center_ERI_cache_allowed": False,
+            "scf_conv_tol_hartree": 1e-8, "scf_max_cycle": 80,
+            "hessian_conv_tol_cpscf": 1e-8, "max_memory_mb": 8000,
+            "threads": threads, "native_direct_driver_threads": threads,
+            "charge": 0, "spin_2S": 0, "multiplicity": 1,
+            "optimizer_maxsteps": maxsteps, "optimizer_thresholds": dict(frozen_base().THRESHOLDS),
+            "gradient_grid_response": False,
+            "engineering_worker_version": "EXACT_MOLECULAR_STATE_V1_NO_HESSIAN"}
+
+
+def validate_optimized_source(manifest, settings):
+    path = checked_artifact(manifest.get("optimized_source_result", {}))
+    old = json.loads(path.read_text())
+    for key in ("geometry_optimized", "optimizer_converged", "scf_converged", "final_gradient_thresholds_passed"):
+        if old.get(key) is not True:
+            raise ValueError("Prepared geometry lacks original optimized evidence: " + key)
+    if old.get("status") != "DONE":
+        raise ValueError("Original optimization not DONE")
+    if old.get("optimized_coordinates_angstrom_npy_sha256") != manifest["coordinates_angstrom_npy"]["sha256"]:
+        raise ValueError("Original optimized full precision coordinates changed")
+    if manifest.get("initial_checkpoint") and manifest["initial_checkpoint"]["sha256"] != old.get("checkpoint_sha256"):
+        raise ValueError("Warmstart is not the checkpoint bound by the original optimization")
+    for key in ("xc", "basis", "grid_level", "dispersion", "density_fitting", "direct_scf", "direct_scf_tol",
+                "scf_conv_tol_hartree", "charge", "spin_2S", "multiplicity", "optimizer_thresholds"):
+        if old.get("settings", {}).get(key) != settings[key]:
+            raise ValueError("Prepared method differs from original optimization: " + key)
+    return {"result": artifact_record(path), "original_optimizer_converged": True,
+            "new_optimizer_run": False}
+
+
+def callable_record(function):
+    if function is None:
+        return None
+    if not callable(function) or not getattr(function, "__module__", "").startswith("pyscf."):
+        raise ValueError("Only importable PySCF grid callables are supported")
+    name = function.__qualname__
+    if "<" in name:
+        raise ValueError("Non-importable grid function")
+    source = inspect.getsourcefile(function)
+    return {"module": function.__module__, "qualname": name,
+            "source_sha256": sha(source) if source else None}
+
+
+def resolve_callable(record):
+    if record is None:
+        return None
+    if not record.get("module", "").startswith("pyscf.") or any(part.startswith("_") for part in record.get("qualname", "").split(".")):
+        raise ValueError("Unreviewed grid callable")
+    value = importlib.import_module(record["module"])
+    for part in record["qualname"].split("."):
+        value = getattr(value, part)
+    if callable_record(value) != record:
+        raise ValueError("Grid callable source changed")
+    return value
+
+
+def grid_settings(grids):
+    result = {}
+    for name in GRID_ATTRIBUTES:
+        if not hasattr(grids, name):
+            continue
+        value = getattr(grids, name)
+        result[name] = {"callable": callable_record(value)} if callable(value) else {"value": json_safe(value)}
+    return result
+
+
+def environment_identity():
+    install_sites()
+    import pyscf
+    import scipy
+    from scipy.linalg import _fblas
+    from pyscf import gto
+    from pyscf.gto import moleintor
+    from pyscf.dft import gen_grid, numint, rks, libxc
+    from pyscf.grad import rks as grad_rks
+    from pyscf.scf import _vhf, hf
+    sources = {module.__name__: sha(inspect.getsourcefile(module))
+               for module in (gto.mole, gen_grid, numint, rks, grad_rks, hf, _vhf)}
+    for name, binary in (("libcvhf", _vhf.libcvhf._name), ("libcgto", moleintor.libcgto._name),
+                         ("libdft", numint.libdft._name), ("libxc_itrf", libxc._itrf._name),
+                         ("numpy_multiarray", np._core._multiarray_umath.__file__),
+                         ("scipy_fblas", _fblas.__file__)):
+        sources[name + "_binary"] = sha(binary)
+    dependency_dir = Path(pyscf.__file__).parent / "lib/deps/lib"
+    for pattern in ("libcint.so*", "libxc.so*"):
+        for binary in sorted(dependency_dir.glob(pattern)):
+            sources[binary.name] = sha(binary)
+    return {"python": sys.version.split()[0], "numpy": np.__version__,
+            "pyscf": pyscf.__version__, "scipy": scipy.__version__, "geometric": importlib.metadata.version("geometric"),
+            "sources": sources}
+
+
+def molecule_document(mol):
+    """Use JSON native state; unlike gto.loads, restoration does not use eval."""
+    document = json.loads(mol.dumps())
+    for name in ("atom", "basis", "ecp", "pseudo"):
+        document[name] = json_safe(getattr(mol, name))
+    if mol.symmetry or mol.has_ecp() or mol.cart:
+        raise ValueError("Snapshot limited to nonsymmetric all-electron spherical molecules")
+    document.pop("output", None)
+    document.pop("stdout", None)
+    return document
+
+
+def molecule_physical_fingerprint(mol):
+    base = frozen_base()
+    env = np.array(mol._env, copy=True)
+    if len(env) <= 17 or not np.isfinite(env[17]) or int(env[17]) != env[17] or not 0 <= env[17] < mol.natm:
+        raise ValueError("Unknown PySCF last-rinv atom bookkeeping marker")
+    env[17] = 0
+    return {"atm": base.array_fingerprint(mol._atm), "bas": base.array_fingerprint(mol._bas),
+            "env_except_transient17": base.array_fingerprint(env),
+            "coordinates_bohr": base.array_fingerprint(mol.atom_coords(unit="Bohr")),
+            "charges": base.array_fingerprint(mol.atom_charges()), "natm": int(mol.natm),
+            "nao": int(mol.nao_nr()), "nbas": int(mol.nbas), "charge": int(mol.charge), "spin": int(mol.spin),
+            "nelectron": int(mol.nelectron), "cart": bool(mol.cart),
+            "excluded_transient_env_indices": [17]}
+
+
+def validate_arrays(arrays, natm, nao, electrons, nbas=None):
+    required = {"MO_coeff", "MO_energy", "MO_occ", "grid_coordinates", "grid_weights", "coordinates_angstrom", "gradient"}
+    if not required.issubset(arrays):
+        raise ValueError("Missing complete snapshot arrays")
+    if set(arrays) - required - {"grid_non0tab", "grid_screen_index", "grid_atm_idx", "grid_quadrature_weights"}:
+        raise ValueError("Unexpected snapshot array")
+    for name, value in arrays.items():
+        value = np.asarray(value)
+        if value.dtype.kind not in "fiu" or not np.isfinite(value).all():
+            raise ValueError("Invalid real numeric array: " + name)
+    coeff, energy, occ = (arrays[key] for key in ("MO_coeff", "MO_energy", "MO_occ"))
+    if coeff.shape != (nao, nao) or energy.shape != (nao,) or occ.shape != (nao,):
+        raise ValueError("Complete square AO/MO dimensions required")
+    if not np.isin(occ, [0, 2]).all() or float(occ.sum()) != electrons:
+        raise ValueError("Invalid restricted closed-shell occupations")
+    coords, weights = arrays["grid_coordinates"], arrays["grid_weights"]
+    if coords.ndim != 2 or coords.shape[1] != 3 or weights.shape != (coords.shape[0],) or not len(weights):
+        raise ValueError("Actual full quadrature coordinates/weights required")
+    if arrays["coordinates_angstrom"].shape != (natm, 3) or arrays["gradient"].shape != (natm, 3):
+        raise ValueError("Invalid geometry/gradient dimensions")
+    for name in ("grid_non0tab", "grid_screen_index"):
+        if name in arrays:
+            a = arrays[name]
+            if a.dtype != np.uint8 or a.ndim != 2 or not a.size:
+                raise ValueError("Invalid actual grid screen table")
+            if nbas is not None and a.shape != ((len(weights) + 55) // 56, nbas):
+                raise ValueError("Grid screen table dimensions disagree with BLKSIZE56/full basis")
+    if "grid_non0tab" in arrays and "grid_screen_index" in arrays:
+        if not np.array_equal(arrays["grid_non0tab"], arrays["grid_screen_index"]):
+            raise ValueError("PySCF non0tab/screen_index aliases disagree")
+    if "grid_atm_idx" in arrays:
+        value = arrays["grid_atm_idx"]
+        if value.shape != weights.shape or value.dtype.kind not in "iu" or np.any((value < -1) | (value >= natm)):
+            raise ValueError("Invalid grid atom attribution")
+    if "grid_quadrature_weights" in arrays and arrays["grid_quadrature_weights"].shape != weights.shape:
+        raise ValueError("Grid quadrature-weight dimensions disagree")
+
+
+def snapshot_arrays(mf, gradient):
+    arrays = {"MO_coeff": np.asarray(mf.mo_coeff), "MO_energy": np.asarray(mf.mo_energy),
+              "MO_occ": np.asarray(mf.mo_occ), "grid_coordinates": np.asarray(mf.grids.coords),
+              "grid_weights": np.asarray(mf.grids.weights),
+              "coordinates_angstrom": mf.mol.atom_coords(unit="Angstrom"), "gradient": np.asarray(gradient)}
+    for attribute, name in (("non0tab", "grid_non0tab"), ("screen_index", "grid_screen_index"),
+                            ("atm_idx", "grid_atm_idx"), ("quadrature_weights", "grid_quadrature_weights")):
+        value = getattr(mf.grids, attribute, None)
+        if value is not None:
+            arrays[name] = np.asarray(value)
+    validate_arrays(arrays, mf.mol.natm, mf.mol.nao_nr(), mf.mol.nelectron, mf.mol.nbas)
+    return arrays
+
+
+def save_snapshot(directory, mf, gradient, state):
+    directory = Path(directory).resolve()
+    if directory.exists():
+        raise FileExistsError("Exact snapshot directories are immutable")
+    if (state.get("scf_converged") is not True or state.get("geometry_optimized") is not True
+            or not mf.converged or not np.isfinite(mf.e_tot)):
+        raise ValueError("SCF/optimized geometry not verified")
+    if not frozen_base().stationary_checks(gradient)["final_gradient_thresholds_passed"]:
+        raise ValueError("Fresh same-method gradient not stationary")
+    frozen_base().direct_integral_policy(mf)
+    directory.mkdir()
+    arrays = snapshot_arrays(mf, gradient)
+    files = {}
+    for name, array in arrays.items():
+        target = directory / (name + ".npy")
+        save_immutable_npy(target, array)
+        files[name] = {"file": target.name, "sha256": sha(target), **frozen_base().array_fingerprint(array)}
+    doc = molecule_document(mf.mol)
+    save_json(directory / "molecule.json", doc, exclusive=True)
+    manifest = {"schema": SNAPSHOT_SCHEMA, "created_at_utc": utc(), "status": "EXACT_SCF_GRADIENT_STATE_SAVED",
+                "source_worker": artifact_record(__file__), "frozen_V8_sha256": BASE_SHA,
+                "supervisor_sha256": SUPERVISOR_SHA,
+                "environment": state["versions"], "molecule": {"file": "molecule.json", "sha256": sha(directory / "molecule.json")},
+                "molecule_fingerprint": molecule_physical_fingerprint(mf.mol),
+                "arrays": files, "grid_settings": grid_settings(mf.grids),
+                "energy_hartree": float(mf.e_tot), "settings": state["settings"],
+                "MF_small_rho_cutoff": float(mf.small_rho_cutoff),
+                "MF_grid_initialized": True, "MF_nlc": mf.nlc, "MF_disp": getattr(mf, "disp", None),
+                "numint_cutoff": float(mf._numint.cutoff),
+                "numint_omega": json_safe(mf._numint.omega),
+                "producer": {"result_path": str(directory.parent / "result.json"),
+                             "resource_supervision": state["resource_supervision"],
+                             "input_manifest": state["input_manifest"],
+                             "identity": state["identity"], "fresh_gradient_checks": frozen_base().stationary_checks(gradient),
+                             "geometry_optimized": True, "scf_converged": True},
+                "frequencies_status": "NOT_RUN", "IR_intensities_status": "NOT_COMPUTED"}
+    save_json(directory / "manifest.json", manifest, exclusive=True)
+    return artifact_record(directory / "manifest.json")
+
+
+def validate_closed_producer(manifest, manifest_path):
+    producer = manifest["producer"]
+    supervision = producer["resource_supervision"]
+    proof_path = resolve_path(supervision["proof_path"])
+    if sha(proof_path) != supervision["proof_sha256"]:
+        raise ValueError("Producer supervision proof changed")
+    proof = json.loads(proof_path.read_text())
+    if proof != supervision["proof"] or proof.get("schema") != "research4-pyscf-actual-cpu-supervisor-proof-v5":
+        raise ValueError("Producer proof mismatch")
+    if proof.get("supervisor_script_sha256") != SUPERVISOR_SHA:
+        raise ValueError("Producer supervisor dependency changed")
+    ledger = json.loads(resolve_path(proof["ledger_path"]).read_text())
+    if ledger.get("schema") != "research4-pyscf-actual-cpu-budget-v5" or ledger.get("runner_sha256") != SUPERVISOR_SHA:
+        raise ValueError("Producer ledger schema/source mismatch")
+    rows = [row for row in ledger.get("phases", []) if row.get("phase") == proof.get("phase")]
+    if len(rows) != 1:
+        raise ValueError("Producer phase is not unique")
+    row = rows[0]
+    if (row.get("status") != "EXITED" or row.get("exit_code") != 0 or not row.get("ended_at_utc")
+            or any(row.get(key) is not False for key in ("wall_terminated", "memory_terminated", "cpu_terminated", "monitor_failed", "hard_killed"))
+            or row.get("residual_processes_require_review_after_main_payload_exit")):
+        raise ValueError("Producer parent has not closed cleanly")
+    if row.get("supervisor_proof_sha256") != sha(proof_path) or resolve_path(row["supervisor_proof_path"]) != proof_path:
+        raise ValueError("Closed producer row does not bind immutable proof")
+    if not math.isfinite(row.get("actual_cpu_seconds", float("nan"))) or row["actual_cpu_seconds"] < 0:
+        raise ValueError("Producer CPU cost not measured")
+    log = resolve_path(row["log"])
+    if row.get("log_sha256") != sha(log):
+        raise ValueError("Closed producer log changed")
+    result_path = resolve_path(producer["result_path"])
+    result = json.loads(result_path.read_text())
+    if (result.get("schema") != RESULT_SCHEMA or result.get("status") != "DONE"
+            or result.get("snapshot_manifest", {}).get("sha256") != sha(manifest_path)
+            or resolve_path(result.get("snapshot_manifest", {}).get("path", "")) != Path(manifest_path).resolve()
+            or result.get("resource_supervision") != supervision
+            or result.get("source_worker") != manifest["source_worker"]
+            or result.get("settings") != manifest["settings"]
+            or result.get("versions") != manifest["environment"]
+            or result.get("input_manifest") != producer["input_manifest"]
+            or result.get("energy_hartree") != manifest["energy_hartree"]):
+        raise ValueError("Snapshot lacks matching DONE producer result")
+    for name in ("geometry_optimized", "scf_converged", "final_gradient_thresholds_passed"):
+        if result.get(name) is not True:
+            raise ValueError("Producer convergence evidence incomplete")
+    if result.get("native_direct_driver_control", {}).get("original_driver_restored") is not True:
+        raise ValueError("Producer native guard not restored")
+    if result.get("native_direct_driver_control", {}).get("restoration_failures") != 0:
+        raise ValueError("Producer native guard restoration failed")
+    source = resolve_path(manifest["source_worker"]["path"])
+    command = row.get("command", [])
+    if str(source) not in [str(resolve_path(token)) for token in command if isinstance(token, str) and token.endswith(".py")]:
+        raise ValueError("Producer command does not invoke the bound state worker")
+    return {"phase": row["phase"], "closed_result_sha256": sha(result_path),
+            "proof_sha256": sha(proof_path), "log_sha256": sha(log),
+            "actual_cpu_seconds": row["actual_cpu_seconds"],
+            "closed_row_sha256": document_hash(row)}
+
+
+def load_snapshot_payload(directory, *, expected_manifest_sha256=None, require_closed_producer=True):
+    directory = Path(directory).resolve()
+    manifest_path = directory / "manifest.json"
+    if expected_manifest_sha256 and sha(manifest_path) != expected_manifest_sha256:
+        raise ValueError("Snapshot manifest SHA differs from expected frozen state")
+    manifest = json.loads(manifest_path.read_text())
+    if manifest.get("schema") != SNAPSHOT_SCHEMA or manifest.get("status") != "EXACT_SCF_GRADIENT_STATE_SAVED":
+        raise ValueError("Unsupported/incomplete snapshot manifest")
+    source = checked_artifact(manifest["source_worker"])
+    if source != Path(__file__).resolve() or manifest["frozen_V8_sha256"] != BASE_SHA or manifest["supervisor_sha256"] != SUPERVISOR_SHA:
+        raise ValueError("Snapshot source/dependencies differ")
+    frozen_base()
+    load_frozen(SUPERVISOR_PATH, SUPERVISOR_SHA, "research4_v5_snapshot_verifier_dependency")
+    producer_evidence = validate_closed_producer(manifest, manifest_path) if require_closed_producer else None
+    mol_record = manifest["molecule"]
+    if mol_record.get("file") != "molecule.json" or mol_record.get("sha256") != sha(directory / "molecule.json"):
+        raise ValueError("Molecule document SHA changed")
+    molecule = json.loads((directory / "molecule.json").read_text())
+    arrays = {}
+    for name, record in manifest["arrays"].items():
+        if record.get("file") != name + ".npy" or not name.replace("_", "").isalnum():
+            raise ValueError("Unexpected array filename")
+        path = directory / record["file"]
+        if path.stat().st_size > 64 * 1024**2 or sha(path) != record["sha256"]:
+            raise ValueError("Snapshot array byte SHA changed")
+        array = np.load(path, allow_pickle=False)
+        if frozen_base().array_fingerprint(array) != {key: record[key] for key in ("shape", "dtype", "payload_bytes", "payload_sha256_C_order")}:
+            raise ValueError("Snapshot payload fingerprint changed")
+        arrays[name] = array
+    physical = manifest["molecule_fingerprint"]
+    validate_arrays(arrays, physical["natm"], physical["nao"], physical["nelectron"], physical.get("nbas"))
+    if not frozen_base().stationary_checks(arrays["gradient"])["final_gradient_thresholds_passed"]:
+        raise ValueError("Stored gradient is not stationary")
+    binding = {"schema": SNAPSHOT_SCHEMA, "snapshot_manifest_sha256": sha(manifest_path),
+               "snapshot_directory": str(directory), "producer": manifest["producer"],
+               "molecule_fingerprint": physical, "arrays": manifest["arrays"],
+               "environment": manifest["environment"], "method_settings": manifest["settings"],
+               "source_worker": manifest["source_worker"], "closed_producer": producer_evidence}
+    return manifest, molecule, arrays, binding
+
+
+def restore_snapshot(directory, *, expected_manifest_sha256=None, expected_source_sha256=None,
+                     require_closed_producer=True, stdout=None):
+    """Restore original converged MOs and grids, without a new SCF or grid build.
+
+    Scientific consumers must use the default closed-producer gate. The optional
+    false value is for pure fixture inspection only and cannot restore a live MF.
+    """
+    if not require_closed_producer:
+        raise ValueError("Scientific MF restoration always requires a closed producer")
+    manifest, molecule, arrays, binding = load_snapshot_payload(
+        directory, expected_manifest_sha256=expected_manifest_sha256, require_closed_producer=True)
+    if expected_source_sha256 and expected_source_sha256 != manifest["source_worker"]["sha256"]:
+        raise ValueError("Unexpected snapshot producer source")
+    if environment_identity() != manifest["environment"]:
+        raise ValueError("Snapshot PySCF/dependency environment changed")
+    from pyscf import dft, gto
+    from pyscf.scf.hf import SCF
+    mol = gto.Mole()
+    mol.__dict__.update(molecule)
+    for key, dtype in (("_atm", np.int32), ("_bas", np.int32), ("_env", np.float64), ("_ecpbas", np.int32)):
+        setattr(mol, key, np.asarray(getattr(mol, key), dtype=dtype))
+    if not mol._ecpbas.size:
+        mol._ecpbas = mol._ecpbas.reshape(0, 8)
+    mol.stdout = stdout if stdout is not None else sys.stdout
+    mol.output = None
+    mol.incore_anyway = False
+    if molecule_physical_fingerprint(mol) != manifest["molecule_fingerprint"]:
+        raise ValueError("Restored molecule differs from source physical state")
+    if not np.array_equal(mol.atom_coords(unit="Angstrom"), arrays["coordinates_angstrom"]):
+        raise ValueError("Molecule and snapshot geometry differ")
+    mf = make_scf(mol, manifest["settings"], None)
+    for name, record in manifest["grid_settings"].items():
+        if name not in GRID_ATTRIBUTES:
+            raise ValueError("Unknown grid setting")
+        value = resolve_callable(record["callable"]) if "callable" in record else record["value"]
+        if name == "atomic_radii":
+            value = np.asarray(value, float)
+        setattr(mf.grids, name, value)
+    mf.grids.coords = arrays["grid_coordinates"]
+    mf.grids.weights = arrays["grid_weights"]
+    for name, key in (("non0tab", "grid_non0tab"), ("screen_index", "grid_screen_index"),
+                      ("atm_idx", "grid_atm_idx"), ("quadrature_weights", "grid_quadrature_weights")):
+        if key in arrays:
+            setattr(mf.grids, name, arrays[key])
+    mf.mo_coeff, mf.mo_energy, mf.mo_occ = (arrays[key] for key in ("MO_coeff", "MO_energy", "MO_occ"))
+    mf.e_tot = manifest["energy_hartree"]
+    mf.converged = True
+    mf.small_rho_cutoff = manifest["MF_small_rho_cutoff"]
+    mf.nlc = manifest["MF_nlc"]
+    mf.disp = manifest["MF_disp"]
+    mf._numint.cutoff = manifest["numint_cutoff"]
+    mf._numint.omega = manifest["numint_omega"]
+    mf.chkfile = None
+    if grid_settings(mf.grids) != manifest["grid_settings"]:
+        raise ValueError("Restored grid settings differ from source")
+    for key, value in snapshot_arrays(mf, arrays["gradient"]).items():
+        if frozen_base().array_fingerprint(value) != frozen_base().array_fingerprint(arrays[key]):
+            raise ValueError("Restored actual quadrature/MO payload changed")
+    mf._research4_restoration_status = "RESTORED_FROM_VERIFIED_SOURCE_SCF"
+    mf._research4_snapshot_binding = binding
+    return mf, binding
+
+
+def make_scf(mol, settings, checkpoint):
+    from pyscf import dft
+    from pyscf.scf.hf import SCF
+    base = frozen_base()
+    cls = base.screened_direct_rks_type(dft.rks.RKS, SCF.get_jk)
+    mf = cls(mol)
+    mf.xc = settings["xc"]
+    mf.disp = None
+    mf.max_memory = settings["max_memory_mb"]
+    mf.direct_scf = True
+    mf.direct_scf_tol = settings["direct_scf_tol"]
+    mf.conv_tol_cpscf = settings["hessian_conv_tol_cpscf"]
+    mf.conv_tol = settings["scf_conv_tol_hartree"]
+    mf.max_cycle = settings["scf_max_cycle"]
+    mf.grids.level = settings["grid_level"]
+    mf._eri = None
+    mol.incore_anyway = False
+    mf.chkfile = str(checkpoint) if checkpoint else None
+    if checkpoint and Path(checkpoint).exists():
+        mf.init_guess = "chkfile"
+    base.direct_integral_policy(mf)
+    return mf
+
+
+def execute(args):
+    supervisor = load_frozen(SUPERVISOR_PATH, SUPERVISOR_SHA, "research4_v5_molecular_state_supervisor")
+    supervision = supervisor.verify_resource_supervision(expected_threads=args.threads)
+    manifest, symbols, coordinates = validate_input(args.input_manifest, args.input_manifest_sha256)
+    settings = method_settings(args.threads, args.maxsteps)
+    old_optimization = validate_optimized_source(manifest, settings) if args.phase == "prepare-state" else None
+    install_sites()
+    from pyscf import gto, lib
+    from pyscf.scf import _vhf
+    from pyscf.grad.rks import Gradients
+    from pyscf.geomopt import geometric_solver
+    lib.num_threads(args.threads)
+    out = args.output.resolve()
+    if out.exists():
+        raise FileExistsError("Use a fresh molecular state output directory")
+    out.mkdir(parents=True)
+    started_wall, started_cpu = time.perf_counter(), time.process_time()
+    state = {"schema": RESULT_SCHEMA, "status": "PARTIAL", "phase": args.phase,
+             "identity": manifest["molecule_id"], "started_at_utc": utc(),
+             "settings": settings, "input_manifest": artifact_record(args.input_manifest),
+             "source_worker": artifact_record(__file__), "resource_supervision": supervision,
+             "versions": environment_identity(), "original_optimization": old_optimization,
+             "scf_converged": False, "geometry_optimized": False, "optimizer_converged": False,
+             "frequencies_status": "NOT_RUN", "IR_intensities_status": "NOT_COMPUTED"}
+    save_json(out / "input.json", {**state, "molecular_input": manifest}, exclusive=True)
+    shutil.copy2(checked_artifact(manifest["input_xyz"]), out / "input.xyz")
+    frozen_base().atomic_npy(out / "input_coordinates_angstrom.npy", coordinates)
+    checkpoint = out / "calculation.chk"
+    if manifest.get("initial_checkpoint"):
+        shutil.copy2(checked_artifact(manifest["initial_checkpoint"]), checkpoint)
+    log = (out / "pyscf.log").open("x", buffering=1)
+    def emit(event, details=None, **kwargs):
+        record = {"utc": utc(), "event": event, "process_cpu_seconds": time.process_time() - started_cpu,
+                  "wall_seconds": time.perf_counter() - started_wall, **(details or {}), **kwargs}
+        with (out / "events.jsonl").open("a") as handle:
+            handle.write(json.dumps(record, allow_nan=False) + "\n")
+        save_json(out / "progress.json", {**state, **record})
+    gradient_cls = frozen_base().direct_gradient_type(Gradients, emit, memory_mb=lambda: lib.current_memory()[0])
+    def gradient_method(mf):
+        gradient = gradient_cls(mf)
+        gradient.grid_response = False
+        return gradient
+    def stop(sig, _frame):
+        raise frozen_base().BudgetStop("Received supervised signal " + str(sig))
+    old_handlers = {sig: signal.signal(sig, stop) for sig in (signal.SIGTERM, signal.SIGINT, signal.SIGXCPU)}
+    guard = frozen_base().NativeDirectDriverThreadGuard(_vhf, lib.with_omp_threads, lib.num_threads,
+            native_threads=args.threads, emit=lambda details: emit("native_driver_signature", details))
+    try:
+        guard.install()
+        mol = gto.Mole()
+        mol.stdout = log
+        mol.build(atom=list(zip(symbols, coordinates)), unit="Angstrom", basis=settings["basis"],
+                  charge=0, spin=0, symmetry=False, max_memory=settings["max_memory_mb"], verbose=4)
+        mol.incore_anyway = False
+        if mol.nelectron != manifest["electron_count"]:
+            raise ValueError("Built molecule electron count differs")
+        mf = make_scf(mol, settings, checkpoint)
+        mf.callback = lambda env: emit("scf_cycle", cycle=int(env.get("cycle", -1)), energy_hartree=float(env["e_tot"]))
+        if args.phase == "optimize-state":
+            (out / "geometry_steps").mkdir()
+            def geometry_callback(env):
+                cycle = int(env["self"].cycle)
+                step = out / "geometry_steps" / f"step_{cycle:04d}"
+                coords = env["mol"].atom_coords(unit="Angstrom")
+                gradient = np.asarray(env["gradients"])
+                step.with_suffix(".xyz").write_text(frozen_base().xyz_text(symbols, coords, "Optimization intermediate, not a minimum certificate"))
+                frozen_base().atomic_npy(step.with_suffix(".coordinates_angstrom.npy"), coords)
+                frozen_base().atomic_npy(step.with_suffix(".gradient.npy"), gradient)
+                info = {"cycle": cycle, "energy_hartree": float(env["energy"]),
+                        "scf_converged": bool(env["g_scanner"].converged), **frozen_base().stationary_checks(gradient)}
+                save_json(step.with_suffix(".json"), info, exclusive=True)
+                emit("geometry_cycle", info)
+            emit("geometry_optimization_started")
+            converged, mol = geometric_solver.kernel(gradient_method(mf), maxsteps=args.maxsteps,
+                    assert_convergence=True, callback=geometry_callback, **frozen_base().THRESHOLDS)
+            state["optimizer_converged"] = bool(converged)
+            if not converged:
+                raise RuntimeError("Optimizer returned without convergence")
+        else:
+            state["optimizer_converged"] = True
+            state["optimizer_convergence_basis"] = "VERIFIED_ORIGINAL_OPTIMIZATION_NO_NEW_OPT_RUN"
+        coords = mol.atom_coords(unit="Angstrom")
+        (out / "optimized.xyz").write_text(frozen_base().xyz_text(symbols, coords, "Inspect result.json for fresh gradient and optimization evidence"))
+        frozen_base().atomic_npy(out / "optimized_coordinates_angstrom.npy", coords)
+        state["optimized_xyz_sha256"] = sha(out / "optimized.xyz")
+        state["optimized_coordinates_angstrom_npy_sha256"] = sha(out / "optimized_coordinates_angstrom.npy")
+        # Fresh SCF at the final geometry; no optimizer gradient is reused.
+        mf = make_scf(mol, settings, checkpoint)
+        mf.callback = lambda env: emit("final_scf_cycle", cycle=int(env.get("cycle", -1)), energy_hartree=float(env["e_tot"]))
+        state["energy_hartree"] = float(mf.kernel())
+        state["scf_converged"] = bool(mf.converged)
+        if not mf.converged or not np.isfinite(mf.e_tot):
+            raise RuntimeError("Final same-method SCF not converged")
+        gradient = np.asarray(gradient_method(mf).kernel())
+        frozen_base().atomic_npy(out / "gradient_hartree_per_bohr.npy", gradient)
+        state.update(frozen_base().stationary_checks(gradient))
+        state["geometry_optimized"] = bool(state["optimizer_converged"] and state["final_gradient_thresholds_passed"])
+        state.update(atoms=mol.natm, electrons=mol.nelectron, basis_functions=mol.nao_nr())
+        if not state["geometry_optimized"]:
+            raise RuntimeError("Fresh gradient did not pass stationarity thresholds")
+        state["snapshot_manifest"] = save_snapshot(out / "exact-mf-snapshot", mf, gradient, state)
+        state["status"] = "DONE"
+        emit("exact_snapshot_published", snapshot_manifest=state["snapshot_manifest"])
+    except BaseException as exc:
+        state.update(status="PARTIAL", stop_reason=str(exc), exception_type=type(exc).__name__)
+        (out / "exception_traceback.txt").write_text(traceback.format_exc())
+    finally:
+        guard.restore()
+        state["native_direct_driver_control"] = guard.summary()
+        if state["native_direct_driver_control"]["restoration_failures"]:
+            state.update(status="PARTIAL", stop_reason="Native driver context restoration failed")
+        for sig, handler in old_handlers.items():
+            signal.signal(sig, handler)
+        state.update(completed_at_utc=utc(), process_cpu_seconds=time.process_time()-started_cpu,
+                     wall_seconds=time.perf_counter()-started_wall,
+                     peak_rss_kib=resource.getrusage(resource.RUSAGE_SELF).ru_maxrss,
+                     checkpoint=artifact_record(checkpoint) if checkpoint.exists() else None)
+        log.flush()
+        log.close()
+        save_json(out / "result.json", state, exclusive=True)
+    print(json.dumps({key: state.get(key) for key in ("status", "identity", "phase", "energy_hartree", "geometry_optimized", "stop_reason")}))
+    return state
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--phase", choices=("prepare-state", "optimize-state"), required=True)
+    parser.add_argument("--input-manifest", type=Path, required=True)
+    parser.add_argument("--input-manifest-sha256", required=True)
+    parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--threads", type=int, default=4)
+    parser.add_argument("--maxsteps", type=int, default=35)
+    args = parser.parse_args()
+    state = execute(args)
+    raise SystemExit(0 if state["status"] == "DONE" else 2)
+
+
+if __name__ == "__main__":
+    main()
+#INFO: ******************** input file end ********************
+
+
+System: uname_result(system='Linux', node='9da42e29cdc2', release='6.18.57', version='#1 SMP Tue Oct 20 21:56:04 UTC 2026', machine='x86_64')  Threads 4
+Python 3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]
+numpy 2.3.5  scipy 1.17.0  h5py 3.16.0
+Date: Wed Nov  4 08:16:18 2026
+PySCF version 2.14.0
+PySCF path  /workspace/research4/.runtime/quantum-upgrade-site/pyscf
+
+[CONFIG] conf_file None
+[INPUT] verbose = 4
+[INPUT] num. atoms = 75
+[INPUT] num. electrons = 320
+[INPUT] charge = 0
+[INPUT] spin (= nelec alpha-beta = 2S) = 0
+[INPUT] symmetry False subgroup None
+[INPUT] Mole.unit = Angstrom
+[INPUT] Symbol           X                Y                Z      unit          X                Y                Z       unit  Magmom
+[INPUT]  1 C     -4.137284064827  -1.065194257750   0.905743663845 AA   -7.818333782050  -2.012925416607   1.711607463728 Bohr   0.0
+[INPUT]  2 O     -3.327613617256   0.033838613017   0.529404423781 AA   -6.288278384987   0.063945711037   1.000429370080 Bohr   0.0
+[INPUT]  3 C     -2.193657855075  -0.184671507166  -0.185730048865 AA   -4.145412557093  -0.348978571554  -0.350978925458 Bohr   0.0
+[INPUT]  4 C     -1.798039509817  -1.480131505115  -0.582839372476 AA   -3.397802234702  -2.797043173009  -1.101406788593 Bohr   0.0
+[INPUT]  5 C     -0.608525179959  -1.608782264963  -1.303992940242 AA   -1.149945930025  -3.040157874838  -2.464189525423 Bohr   0.0
+[INPUT]  6 O     -0.228078447802  -2.876958541574  -1.667914180720 AA   -0.431005801261  -5.436663715304  -3.151901000840 Bohr   0.0
+[INPUT]  7 C      0.924115943605  -3.096270778291  -2.359044238409 AA    1.746326040758  -5.851103778465  -4.457947526326 Bohr   0.0
+[INPUT]  8 C      1.131719354213  -4.519156307434  -2.673047734398 AA    2.138639629332  -8.539967735152  -5.051328135901 Bohr   0.0
+[INPUT]  9 C      0.294352428755  -5.511359553217  -2.111316947895 AA    0.556245474447 -10.414960129586  -3.989810793674 Bohr   0.0
+[INPUT] 10 C      0.481913504055  -6.864812720702  -2.403952763403 AA    0.910684538394 -12.972615938556  -4.542812339223 Bohr   0.0
+[INPUT] 11 C      1.515358838488  -7.267717451411  -3.275152128653 AA    2.863613185181 -13.733995533889  -6.189140539440 Bohr   0.0
+[INPUT] 12 O      1.744536957899  -8.563476827192  -3.600480601027 AA    3.296697064611 -16.182625877452  -6.803922252750 Bohr   0.0
+[INPUT] 13 C      2.357452285054  -6.287980308318  -3.846385329300 AA    4.454939170481 -11.882560659378  -7.268614841921 Bohr   0.0
+[INPUT] 14 C      2.163638900020  -4.940608684922  -3.548438134959 AA    4.088684953493  -9.336397303150  -6.705576245034 Bohr   0.0
+[INPUT] 15 C      1.761855184552  -2.056089790791  -2.695903808353 AA    3.329423769949  -3.885446592109  -5.094519855958 Bohr   0.0
+[INPUT] 16 C      1.437780725056  -0.684798284960  -2.355784254936 AA    2.717011797534  -1.294081209146  -4.451787050392 Bohr   0.0
+[INPUT] 17 O      2.196474068710   0.289048844365  -2.636089255273 AA    4.150734429571   0.546223152473  -4.981486732374 Bohr   0.0
+[INPUT] 18 C      0.181165454911  -0.498539487288  -1.653084279153 AA    0.342353093013  -0.942103093255  -3.123876548423 Bohr   0.0
+[INPUT] 19 C     -0.242373636369   0.809159834559  -1.248580087918 AA   -0.458019792552   1.529090478316  -2.359474410751 Bohr   0.0
+[INPUT] 20 O      0.521808097440   1.852027784638  -1.571386195380 AA    0.986074393742   3.499825288052  -2.969489545191 Bohr   0.0
+[INPUT] 21 C     -1.428966630798   0.973247808532  -0.500825455580 AA   -2.700355573350   1.839171809458  -0.946422947257 Bohr   0.0
+[INPUT] 22 C     -1.850319657473   2.331408606712   0.002011521861 AA   -3.496597395524   4.405723751139   0.003801225410 Bohr   0.0
+[INPUT] 23 O     -2.089182051145   3.196592035665  -1.116771138190 AA   -3.947981901021   6.040683479372  -2.110391594997 Bohr   0.0
+[INPUT] 24 C     -2.589618332459   4.482714990372  -0.753434515405 AA   -4.893669415501   8.471103626285  -1.423784886909 Bohr   0.0
+[INPUT] 25 C     -2.914207922030   5.172817872186  -2.077339831698 AA   -5.507054842674   9.775209070686  -3.925603349560 Bohr   0.0
+[INPUT] 26 O     -3.792201334927   4.393186406314  -2.851814351828 AA   -7.166221932223   8.301919122095  -5.389148083059 Bohr   0.0
+[INPUT] 27 C     -1.547614855695   5.205020100072   0.111839753039 AA   -2.924568223572   9.836062461992   0.211346503082 Bohr   0.0
+[INPUT] 28 O     -1.988290255159   6.480406158372   0.582828248589 AA   -3.757324038392  12.246192815268   1.101385767494 Bohr   0.0
+[INPUT] 29 C     -1.243722277727   4.371589784221   1.359364314377 AA   -2.350294479924   8.261107421124   2.568826257679 Bohr   0.0
+[INPUT] 30 O     -0.237075155958   4.978672542851   2.145170284133 AA   -0.448007115700   9.408327569880   4.053784327567 Bohr   0.0
+[INPUT] 31 C     -0.806817382114   2.965140836336   0.960565377938 AA   -1.524663884735   5.603304101440   1.815205489042 Bohr   0.0
+[INPUT] 32 O     -0.720404894747   2.127953908567   2.119792165420 AA   -1.361367949869   4.021250092889   4.005826633642 Bohr   0.0
+[INPUT] 33 C      0.569125701707   1.805761989049   2.548442606725 AA    1.075491706677   3.412395605453   4.815858570882 Bohr   0.0
+[INPUT] 34 O      1.167196082385   0.919042692076   1.615505736486 AA    2.205680929372   1.736738984806   3.052863394622 Bohr   0.0
+[INPUT] 35 C      2.490843484953   0.530372372471   1.983021462441 AA    4.707012005718   1.002258528007   3.747367463147 Bohr   0.0
+[INPUT] 36 C      3.111577135791  -0.246331862810   0.833074596464 AA    5.880028602104  -0.465499756465   1.574282828650 Bohr   0.0
+[INPUT] 37 O      2.387787251961  -1.447428571033   0.613774360919 AA    4.512263949935  -2.735243584124   1.159865444416 Bohr   0.0
+[INPUT] 38 C      2.442425182365  -0.246173710379   3.311131507013 AA    4.615514674410  -0.465200891684   6.257131710674 Bohr   0.0
+[INPUT] 39 O      3.757556912605  -0.599243461347   3.698349430010 AA    7.100753462290  -1.132406023882   6.988867535660 Bohr   0.0
+[INPUT] 40 C      1.786741586294   0.630750680818   4.377629180857 AA    3.376452253466   1.191946039628   8.272520226724 Bohr   0.0
+[INPUT] 41 O      1.712343349448  -0.125864407452   5.577955108504 AA    3.235859961677  -0.237849258915  10.540807490192 Bohr   0.0
+[INPUT] 42 C      0.423268162825   1.128197844697   3.915099290019 AA    0.799860904986   2.131984940802   7.398465408615 Bohr   0.0
+[INPUT] 43 O     -0.076681813805   2.016231078272   4.899374049971 AA   -0.144907626827   3.810124541771   9.258475136245 Bohr   0.0
+[INPUT] 44 H     -4.528598951496  -1.614029048758   0.020533081989 AA   -8.557811746321  -3.050072859245   0.038801901453 Bohr   0.0
+[INPUT] 45 H     -3.587004661971  -1.778267139843   1.558514119908 AA   -6.778456418664  -3.360437870617   2.945164847894 Bohr   0.0
+[INPUT] 46 H     -4.988697169714  -0.643184418240   1.471143448270 AA   -9.427271369152  -1.215442398062   2.780058207178 Bohr   0.0
+[INPUT] 47 H     -2.376675082187  -2.377840736016  -0.340010929295 AA   -4.491264992411  -4.493467758904  -0.642527535726 Bohr   0.0
+[INPUT] 48 H     -0.513226395886  -5.209797280879  -1.430812855477 AA   -0.969857328122  -9.845090025365  -2.703844432359 Bohr   0.0
+[INPUT] 49 H     -0.180234601764  -7.622019405197  -1.952226278221 AA   -0.340594035504 -14.403529191942  -3.689172999017 Bohr   0.0
+[INPUT] 50 H      1.091775459248  -9.124944657277  -3.141155555246 AA    2.063156607499 -17.243646304067  -5.935923714070 Bohr   0.0
+[INPUT] 51 H      3.154920191655  -6.610761331557  -4.530875039970 AA    5.961935107089 -12.492528391509  -8.562112930170 Bohr   0.0
+[INPUT] 52 H      2.822953138749  -4.198008586902  -4.020274342027 AA    5.334608294716  -7.933086497817  -7.597217452047 Bohr   0.0
+[INPUT] 53 H      2.696842610575  -2.239289269617  -3.239997453856 AA    5.096293935044  -4.231643433253  -6.122707832077 Bohr   0.0
+[INPUT] 54 H      1.336351686009   1.442240685056  -2.059509011998 AA    2.525338692658   2.725439900461  -3.891907983750 Bohr   0.0
+[INPUT] 55 H     -2.794108904867   2.214172255251   0.581482883719 AA   -5.280100592407   4.184179155035   1.098843396351 Bohr   0.0
+[INPUT] 56 H     -3.535115300317   4.373001764633  -0.163735611492 AA   -6.680399736359   8.263775677395  -0.309415462559 Bohr   0.0
+[INPUT] 57 H     -3.406184503461   6.147403854735  -1.871371409305 AA   -6.436755841280  11.616909662546  -3.536379440927 Bohr   0.0
+[INPUT] 58 H     -1.949203719767   5.383361526393  -2.608886357459 AA   -3.683461191342  10.173078914404  -4.930080705711 Bohr   0.0
+[INPUT] 59 H     -3.416508958779   3.489514182030  -2.803824110748 AA   -6.456266234215   6.594226111822  -5.298459670766 Bohr   0.0
+[INPUT] 60 H     -0.603984879507   5.298864001060  -0.476727686261 AA   -1.141366005646  10.013401733320  -0.900884763031 Bohr   0.0
+[INPUT] 61 H     -1.825008650546   7.134642228023  -0.118948886885 AA   -3.448766524494  13.482519807721  -0.224780819035 Bohr   0.0
+[INPUT] 62 H     -2.201100150678   4.281252558086   1.937032382730 AA   -4.159476457520   8.090394804877   3.660460697773 Bohr   0.0
+[INPUT] 63 H     -0.505989513740   5.917775185243   2.206732436578 AA   -0.956181602871  11.182974366857   4.170119935327 Bohr   0.0
+[INPUT] 64 H      0.173401000626   3.015340383353   0.445527408048 AA    0.327680400909   5.698167496878   0.841924782198 Bohr   0.0
+[INPUT] 65 H      1.194211641691   2.731681667525   2.648777871669 AA    2.256732937564   5.162130211118   5.005464742262 Bohr   0.0
+[INPUT] 66 H      3.129992858651   1.436312715637   2.143562156939 AA    5.914829274695   2.714237661784   4.050745407596 Bohr   0.0
+[INPUT] 67 H      4.173073404902  -0.441106562482   1.114549725958 AA    7.885965832970  -0.833570594839   2.106193734269 Bohr   0.0
+[INPUT] 68 H      3.099678015013   0.408703231471  -0.069891618457 AA    5.857542522709   0.772337173705  -0.132076017287 Bohr   0.0
+[INPUT] 69 H      2.846370389169  -1.937619653958  -0.091181535996 AA    5.378860484602  -3.661570479555  -0.172308130650 Bohr   0.0
+[INPUT] 70 H      1.807432935656  -1.150034699761   3.146945156637 AA    3.415553236908  -2.173250616295   5.946864475070 Bohr   0.0
+[INPUT] 71 H      3.678156493498  -0.883474804512   4.630454374923 AA    6.950708416002  -1.669525418482   8.750290600899 Bohr   0.0
+[INPUT] 72 H      2.440130561927   1.528781710625   4.524414707373 AA    4.611178470223   2.888978737325   8.549904670889 Bohr   0.0
+[INPUT] 73 H      1.251787097619   0.442015651047   6.225217835327 AA    2.365534780763   0.835288523250  11.763956774527 Bohr   0.0
+[INPUT] 74 H     -0.250400322340   0.247990224819   3.768032751534 AA   -0.473188030726   0.468633606477   7.120549928791 Bohr   0.0
+[INPUT] 75 H     -0.857453147947   2.446097149165   4.498519055006 AA   -1.620351614267   4.622453686001   8.500968980099 Bohr   0.0
+
+nuclear repulsion = 5655.28905211434
+number of shells = 354
+number of NR pGTOs = 1256
+number of NR cGTOs = 762
+basis = def2-svp
+ecp = {}
+CPU time:         0.63
+
+
+******** <class 'research4_frozen_v8_state_dependency.screened_direct_rks_type.<locals>.ScreenedDirectRKS'> ********
+method = ScreenedDirectRKS
+initial guess = chkfile
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-08
+SCF conv_tol_grad = None
+SCF max_cycles = 80
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /workspace/research4/reports/pyscf-spinosin-resumable-20261104-v5/v5-spinosin-C001-prepare-001/calculation.chk
+max_memory 8000 MB (current use 116 MB)
+XC library pyscf.dft.libxc version 7.0.0
+    S. Lehtola, C. Steigemann, M. J.T. Oliveira, and M. A.L. Marques.,  SoftwareX 7, 1–5 (2018)
+XC functionals = PBE
+    J. P. Perdew, K. Burke, and M. Ernzerhof.,  Phys. Rev. Lett. 77, 3865 (1996)
+    J. P. Perdew, K. Burke, and M. Ernzerhof.,  Phys. Rev. Lett. 78, 1396 (1997)
+    J. P. Perdew, K. Burke, and M. Ernzerhof.,  Phys. Rev. Lett. 77, 3865 (1996)
+    J. P. Perdew, K. Burke, and M. Ernzerhof.,  Phys. Rev. Lett. 78, 1396 (1997)
+radial grids: 
+    Treutler-Ahlrichs [JCP 102, 346 (1995); DOI:10.1063/1.469408] (M4) radial grids
+    
+becke partition: Becke, JCP 88, 2547 (1988); DOI:10.1063/1.454033
+pruning grids: <function nwchem_prune at 0x7f74a7fb34c0>
+grids dens level: 1
+symmetrized grids: False
+atomic radii adjust function: <function treutler_atomic_radii_adjust at 0x7f74a7fb39c0>
+small_rho_cutoff = 0
+Set gradient conv threshold to 0.0001
+tot grids = 301848
+init E= -2210.44552197047
+  HOMO = -0.19013004326553  LUMO = -0.0978397806598923  gap/eV = 2.51135
+cycle= 1 E= -2210.44552196987  delta_E= 5.97e-10  |g|= 5.24e-05  |ddm|= 8.61e-05
+  HOMO = -0.190126653633832  LUMO = -0.0978380840760731  gap/eV = 2.51130
+Extra cycle  E= -2210.44552196444  delta_E= 5.44e-09  |g|= 0.000157  |ddm|= 0.00026
+converged SCF energy = -2210.44552196444
+
+
+******** <class 'research4_frozen_v8_state_dependency.direct_gradient_type.<locals>.ScreenedDirectRKSGradients'> for <class 'research4_frozen_v8_state_dependency.screened_direct_rks_type.<locals>.ScreenedDirectRKS'> ********
+unit = Eh/Bohr
+max_memory 8000 MB (current use 170 MB)
+grid_response = False
+--------------- ScreenedDirectRKS gradients ---------------
+         x                y                z
+0 C    -0.0000353447    -0.0000120306    -0.0000565265
+1 O     0.0000473612    -0.0000275791     0.0000948898
+2 C     0.0000129808     0.0000089771    -0.0000278945
+3 C    -0.0000383453    -0.0000117585     0.0000077775
+4 C    -0.0000086585     0.0000094616     0.0000109546
+5 O    -0.0000246908    -0.0000129159    -0.0000312386
+6 C    -0.0000129055     0.0000101593    -0.0000143804
+7 C    -0.0000176646    -0.0000087087     0.0000042452
+8 C     0.0000145537     0.0000067984     0.0000215844
+9 C    -0.0000165546    -0.0000067397    -0.0000103216
+10 C    -0.0000137463     0.0000300310    -0.0000008676
+11 O     0.0000078928     0.0000008764    -0.0000302046
+12 C    -0.0000009236    -0.0000008868    -0.0000088492
+13 C    -0.0000095354     0.0000107112    -0.0000316879
+14 C     0.0000264736     0.0000294883     0.0000170027
+15 C    -0.0000276696    -0.0000081171    -0.0000101341
+16 O     0.0000088850    -0.0000226026    -0.0000122383
+17 C     0.0000090150     0.0000122673     0.0000164535
+18 C    -0.0000292199    -0.0000064787    -0.0000231060
+19 O    -0.0000209928     0.0000193259     0.0000359148
+20 C    -0.0001035058    -0.0000031930     0.0000257310
+21 C    -0.0000190837    -0.0000703660     0.0000928956
+22 O     0.0001076162    -0.0000176422    -0.0000090102
+23 C    -0.0000062619    -0.0000167774     0.0000189639
+24 C     0.0000093215    -0.0000019217     0.0000028569
+25 O    -0.0000411786     0.0000226771     0.0000077939
+26 C     0.0000286465    -0.0000001944     0.0000334213
+27 O    -0.0000134189    -0.0000092419     0.0000526776
+28 C     0.0000022321    -0.0000272788     0.0000255297
+29 O    -0.0000595202    -0.0000541251     0.0001200224
+30 C     0.0000144391    -0.0000125324     0.0001361713
+31 O     0.0001228909    -0.0001049835    -0.0000737329
+32 C    -0.0000447929    -0.0000251876     0.0000012705
+33 O    -0.0000061837    -0.0000263639     0.0000185245
+34 C     0.0000013858    -0.0000205421     0.0000225791
+35 C     0.0000095271    -0.0000008436     0.0000211716
+36 O    -0.0000707368     0.0000278754    -0.0000528152
+37 C     0.0000003719     0.0000169744     0.0000089615
+38 O    -0.0000189025    -0.0000451126    -0.0000204990
+39 C    -0.0000193958    -0.0000215129    -0.0000016765
+40 O    -0.0000225360    -0.0000401153    -0.0000200517
+41 C     0.0000060329     0.0000266301     0.0000036593
+42 O    -0.0000731782    -0.0001086966     0.0000662925
+43 H     0.0000074185    -0.0000104471    -0.0000056461
+44 H    -0.0000233826     0.0000068177     0.0000104302
+45 H    -0.0000218779    -0.0000016439    -0.0000174266
+46 H    -0.0000038818    -0.0000011173     0.0000031644
+47 H    -0.0000115917     0.0000049009    -0.0000098076
+48 H    -0.0000058246     0.0000037235    -0.0000164661
+49 H    -0.0000197642    -0.0000042112    -0.0000072793
+50 H    -0.0000107629     0.0000041680    -0.0000075218
+51 H    -0.0000168952     0.0000001146    -0.0000071075
+52 H    -0.0000074467     0.0000007955     0.0000162506
+53 H     0.0000082007    -0.0000074214    -0.0000051750
+54 H    -0.0000463680     0.0001124269    -0.0000454978
+55 H    -0.0000301023     0.0000338196    -0.0000147334
+56 H     0.0000045874     0.0000064230     0.0000048552
+57 H    -0.0000009464    -0.0000133658     0.0000098074
+58 H     0.0000127988    -0.0000064138     0.0000040555
+59 H    -0.0000174105     0.0000335991     0.0000051812
+60 H    -0.0000081248    -0.0000025479     0.0000069941
+61 H    -0.0000637282    -0.0000143684    -0.0000789334
+62 H    -0.0000011966     0.0000084697    -0.0000087390
+63 H    -0.0001101558     0.0001094023    -0.0001321872
+64 H    -0.0000209878     0.0000003325    -0.0000066376
+65 H    -0.0000276000    -0.0000046876     0.0000043536
+66 H    -0.0000066795    -0.0000166254    -0.0000024274
+67 H    -0.0000093789     0.0000044117     0.0000225522
+68 H     0.0000253256    -0.0000296666     0.0000441108
+69 H    -0.0000238441    -0.0000002731    -0.0000073176
+70 H    -0.0000150310     0.0000045112     0.0000293886
+71 H    -0.0000282340    -0.0000034073     0.0000146034
+72 H    -0.0000039056     0.0000031509     0.0000263228
+73 H    -0.0000127973    -0.0000221616     0.0000430882
+74 H     0.0000488746     0.0000770575    -0.0000450409
+----------------------------------------------

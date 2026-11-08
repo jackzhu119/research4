@@ -1,0 +1,3833 @@
+{
+  "schema": "research4-water-initial-convergence-independent-diagnosis-v1",
+  "status": "DIAGNOSIS_COMPLETE_ORIGINAL_SCIENTIFIC_GATE_REMAINS_FAILED",
+  "created_at_utc": "2026-11-07T01:23:08.708780+00:00",
+  "sources": {
+    "suite_result": {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/result.json",
+      "sha256": "6c15e71854a2701928521f7358cd9ac7e17330600f5e3a91484430172d1041cd",
+      "bytes": 68192
+    },
+    "frozen_worker": {
+      "path": "scripts/research4_fixed_grid_water_convergence_20261107.py",
+      "sha256": "f9658ae6146b3f6ef340771d2916dc8b9d41debc0af88a8c096ee804fcef5fc3",
+      "bytes": 60229
+    },
+    "native_scf_source": {
+      "path": ".runtime/quantum-upgrade-site/pyscf/scf/hf.py",
+      "sha256": "34ea1a9057da3a2d5aa37fe51d4e7305580bcb8e0118a5f17ba95ba5bb36c22f",
+      "bytes": 94652
+    },
+    "launch_proof": {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/execution/water-step-convergence-attempt001.log.supervisor-proof.json",
+      "sha256": "35a172a9f23e0e31988edbcfb98e5ca820bd5f8f313ce2986a6b003b03ce57cd",
+      "bytes": 1827
+    },
+    "closed_phase_log": {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/execution/water-step-convergence-attempt001.log",
+      "sha256": "3766aa21078ccd5119a6427bc750ad54232bf05d598324a1199d9beb4c388bb6",
+      "bytes": 1753
+    },
+    "ledger_snapshot": {
+      "path": "reports/pyscf-spinosin-96h-continuation-20261105-v8/cpu_budget.json",
+      "sha256": "5ed4c61a72f2e8b18f4355748aac23daab2530cc169acf5e0459fca0d63c75b2",
+      "bytes": 774256
+    }
+  },
+  "scope": {
+    "new_quantum_evaluations": 0,
+    "Git_commands": 0,
+    "checkpoint_or_numpy_array_contents_loaded": false,
+    "child_files_hashed_without_scientific_execution": true,
+    "authorization_or_upload_receipt_claims": "NONE"
+  },
+  "attempt_summary": {
+    "attempted_points": 31,
+    "strict_success_points": 16,
+    "failed_points": 15,
+    "completed_pairs": 5,
+    "prescribed_pairs": 15,
+    "all_failed_points_accepted_ordinary_cycle_before_rejected_extra_cycle": true,
+    "failed_last_gate_categories": {
+      "ENERGY_ONLY": 6,
+      "ORBITAL_GRADIENT_ONLY": 6,
+      "ENERGY_AND_ORBITAL_GRADIENT": 3
+    },
+    "actual_closed_phase_CPU_seconds": 13.712143,
+    "closed_phase_status": "PARTIAL_OR_FAILED",
+    "closed_phase_exit_code": 2,
+    "resource_termination_flags": {
+      "wall_terminated": false,
+      "hard_killed": false,
+      "memory_terminated": false,
+      "monitor_failed": false,
+      "cpu_terminated": false
+    },
+    "original_suite_status": "WATER_FIXED_GRID_STEP_CONVERGENCE_INCOMPLETE",
+    "all_31_prescribed_points_completed": false,
+    "finest_pair_passed": false,
+    "same_spinosin_step_energy_passed": false,
+    "all_original_thresholds_retained": {
+      "FD_Hq_max_abs_error_Eh_per_Bohr2": 0.0001,
+      "h_halving_FD_Hq_max_abs_difference_Eh_per_Bohr2": 5e-05,
+      "central_energy_curvature_abs_error_Eh_per_Bohr2": 0.0001
+    },
+    "strict_SCF_energy_tolerance_hartree": 1e-13,
+    "strict_SCF_orbital_gradient_tolerance": 1e-09
+  },
+  "hash_verification": {
+    "all_31_child_result_refs_match_recorded_hashes_and_sizes": true,
+    "all_31_child_inputs_match_recorded_hashes": true,
+    "all_declared_child_saved_arrays_and_success_checkpoint_refs_match_hashes_and_sizes": true,
+    "unique_declared_local_array_or_checkpoint_files_verified": 156,
+    "all_child_source_worker_records_match_frozen_f965_worker": true,
+    "all_current_point_child_files_hashed": 326,
+    "current_only_hashes_are_not_relabelled_as_old_producer_hashes": true
+  },
+  "findings": [
+    {
+      "finding": "All failed endpoints were rejected in the final extra cycle after an ordinary iteration met the strict AND condition. Native hf.py exits after that extra cycle without restarting the ordinary loop.",
+      "evidence": "All 15 penultimate decisions accepted; all last decisions rejected; actual ordinary cycles 6\u201321 below configured maximum 80.",
+      "implication": "A bounded continuation or stationarity refinement may address endpoint convergence without changing the strict test. Failed endpoints must remain excluded until new successful calculations exist."
+    },
+    {
+      "finding": "Six failures are energy-only; six gradient-only and three both. The nine gradient failures are coordinate 4, with final orbital gradients about 1.015e-9 to 1.708e-9.",
+      "implication": "The recorded failures are real under the declared strict criterion, although close to its boundary; no basis exists to relabel them as passing."
+    },
+    {
+      "finding": "The central-energy checker uses math.fsum and correctly recomputes the represented total-energy curvature. No formula/indexing error was found.",
+      "evidence": "Independent scalar replay agrees exactly for all 5 completed pairs.",
+      "implication": "The finest coordinate-8 energy failure is distinct from missing endpoints and requires new trustworthy energy measurements."
+    },
+    {
+      "finding": "The finest coordinate-8 completed pair has energy-curvature error 1.1870118011625408e-4 despite full-Hq error 2.921680407989846e-6.",
+      "evidence": "Energy numerator 7.673861546209082e-13 Eh (54 E0 ULPs); analytic expected numerator about 4.289164639181823e-14 Eh; residual 7.244945082779179e-13 Eh versus allowed 6.103515625e-13 Eh.",
+      "implication": "Small-step total-energy noise is amplified by 1/h\u00b2. The discrepancy exceeds final stored-double/summation rounding alone; the specific upstream SCF/energy-evaluation source is not proven."
+    },
+    {
+      "finding": "Completed coordinate-0 results show much smaller full-Hq error at the finest step than at the coarsest; coordinate-8 gradient errors stay around 3e-6, but its energy curvature worsens at the finest step.",
+      "implication": "The successful subset gives useful directional evidence but does not establish all-coordinate, adjacent-step convergence or release Spinosin."
+    }
+  ],
+  "floating_point_context": {
+    "fresh_zero_energy_hartree": -76.27253454049124,
+    "one_E0_ULP_hartree": 1.4210854715202004e-14,
+    "finest_step_bohr": 7.8125e-05,
+    "one_E0_ULP_curvature_at_finest_Eh_per_Bohr2": 2.3283064365386963e-06,
+    "no_new_uncertainty_PASS_threshold_applied": true
+  },
+  "completed_pair_scalar_replays": [
+    {
+      "coordinate_index_0based": 0,
+      "step_bohr": 0.00125,
+      "analytic_directional_curvature_Eh_per_Bohr2": 0.5491843308693187,
+      "FD_gradient_directional_curvature_Eh_per_Bohr2": 0.5506121944730914,
+      "FD_Hq_max_abs_error_Eh_per_Bohr2": 0.0014278636037726722,
+      "central_energy_curvature_Eh_per_Bohr2": 0.5498975406226236,
+      "central_energy_curvature_abs_error_Eh_per_Bohr2": 0.0007132097533049109,
+      "numerator_hartree": 8.592149072228494e-07,
+      "energy_error_numerator_hartree": 1.1143902395389233e-09,
+      "numerator_in_E0_ULPs": 60461874.0,
+      "one_E0_ULP_curvature_Eh_per_Bohr2": 9.094947017729282e-09,
+      "allowed_energy_numerator_error_hartree": 1.5625000000000003e-10,
+      "FD_Hq_original_check_passed": false,
+      "energy_original_check_passed": false
+    },
+    {
+      "coordinate_index_0based": 0,
+      "step_bohr": 7.8125e-05,
+      "analytic_directional_curvature_Eh_per_Bohr2": 0.5491843308693187,
+      "FD_gradient_directional_curvature_Eh_per_Bohr2": 0.5491861236722065,
+      "FD_Hq_max_abs_error_Eh_per_Bohr2": 2.0138010021764075e-06,
+      "central_energy_curvature_Eh_per_Bohr2": 0.5491566844284534,
+      "central_energy_curvature_abs_error_Eh_per_Bohr2": 2.7646440865281008e-05,
+      "numerator_hartree": 3.35178640398226e-09,
+      "energy_error_numerator_hartree": -1.6874048379688115e-13,
+      "numerator_in_E0_ULPs": 235861.0,
+      "one_E0_ULP_curvature_Eh_per_Bohr2": 2.3283064365386963e-06,
+      "allowed_energy_numerator_error_hartree": 6.103515625000001e-13,
+      "FD_Hq_original_check_passed": true,
+      "energy_original_check_passed": true
+    },
+    {
+      "coordinate_index_0based": 8,
+      "step_bohr": 0.00125,
+      "analytic_directional_curvature_Eh_per_Bohr2": 7.0273674568355204e-06,
+      "FD_gradient_directional_curvature_Eh_per_Bohr2": 4.476641422227617e-06,
+      "FD_Hq_max_abs_error_Eh_per_Bohr2": 3.001247232559817e-06,
+      "central_energy_curvature_Eh_per_Bohr2": 4.447429091669619e-06,
+      "central_energy_curvature_abs_error_Eh_per_Bohr2": 2.5799383651659014e-06,
+      "numerator_hartree": 6.94910795573378e-12,
+      "energy_error_numerator_hartree": -4.031153695571722e-12,
+      "numerator_in_E0_ULPs": 489.0,
+      "one_E0_ULP_curvature_Eh_per_Bohr2": 9.094947017729282e-09,
+      "allowed_energy_numerator_error_hartree": 1.5625000000000003e-10,
+      "FD_Hq_original_check_passed": true,
+      "energy_original_check_passed": true
+    },
+    {
+      "coordinate_index_0based": 8,
+      "step_bohr": 0.0003125,
+      "analytic_directional_curvature_Eh_per_Bohr2": 7.0273674568355204e-06,
+      "FD_gradient_directional_curvature_Eh_per_Bohr2": 4.352701803416598e-06,
+      "FD_Hq_max_abs_error_Eh_per_Bohr2": 3.136058327139063e-06,
+      "central_energy_curvature_Eh_per_Bohr2": 2.0372681319713593e-06,
+      "central_energy_curvature_abs_error_Eh_per_Bohr2": 4.990099324864161e-06,
+      "numerator_hartree": 1.9895196601282805e-13,
+      "energy_error_numerator_hartree": -4.873143871937657e-13,
+      "numerator_in_E0_ULPs": 14.0,
+      "one_E0_ULP_curvature_Eh_per_Bohr2": 1.4551915228366852e-07,
+      "allowed_energy_numerator_error_hartree": 9.765625000000002e-12,
+      "FD_Hq_original_check_passed": true,
+      "energy_original_check_passed": true
+    },
+    {
+      "coordinate_index_0based": 8,
+      "step_bohr": 7.8125e-05,
+      "analytic_directional_curvature_Eh_per_Bohr2": 7.0273674568355204e-06,
+      "FD_gradient_directional_curvature_Eh_per_Bohr2": 4.433456829173316e-06,
+      "FD_Hq_max_abs_error_Eh_per_Bohr2": 2.921680407989846e-06,
+      "central_energy_curvature_Eh_per_Bohr2": 0.0001257285475730896,
+      "central_energy_curvature_abs_error_Eh_per_Bohr2": 0.00011870118011625408,
+      "numerator_hartree": 7.673861546209082e-13,
+      "energy_error_numerator_hartree": 7.244945075454962e-13,
+      "numerator_in_E0_ULPs": 54.0,
+      "one_E0_ULP_curvature_Eh_per_Bohr2": 2.3283064365386963e-06,
+      "allowed_energy_numerator_error_hartree": 6.103515625000001e-13,
+      "FD_Hq_original_check_passed": true,
+      "energy_original_check_passed": false
+    }
+  ],
+  "all_31_point_endpoints": [
+    {
+      "name": "fresh-zero-scf-gradient",
+      "native_result": {
+        "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/fresh-zero-scf-gradient/native_result.json",
+        "sha256": "5017cb242b333ad8a2c0d5139ea9a9f03a749441e68fb8bdeac28d3410e6c3ac",
+        "bytes": 17706
+      },
+      "status": "WATER_FIXED_GRID_TIGHT_SCF_GRADIENT_COMPUTED",
+      "scf_converged": true,
+      "gradient_completed": true,
+      "displacement": {
+        "mode_index_1based": null,
+        "coordinate_index_0based": null,
+        "step_bohr": 0.0,
+        "sign": 0,
+        "direction_normalization": "EUCLIDEAN_CARTESIAN_UNIT_NORM"
+      },
+      "energy_hartree": -76.27253454049124,
+      "ordinary_SCF_cycles_logged": 4,
+      "configured_max_cycle": 80,
+      "strict_checks_recorded": 5,
+      "accepted_checks": 2,
+      "penultimate_check": {
+        "energy_delta_abs_hartree": 4.263256414560601e-14,
+        "orbital_gradient_norm": 3.1736111238791503e-10,
+        "accepted": true,
+        "energy_tolerance_hartree": 1e-13,
+        "orbital_gradient_tolerance": 1e-09,
+        "acceptance_rule": "STRICT_ENERGY_AND_ORBITAL_GRADIENT_INCLUDING_FINAL_EXTRA_CYCLE"
+      },
+      "last_extra_cycle_check": {
+        "energy_delta_abs_hartree": 2.842170943040401e-14,
+        "orbital_gradient_norm": 5.112269688435594e-10,
+        "accepted": true,
+        "energy_tolerance_hartree": 1e-13,
+        "orbital_gradient_tolerance": 1e-09,
+        "acceptance_rule": "STRICT_ENERGY_AND_ORBITAL_GRADIENT_INCLUDING_FINAL_EXTRA_CYCLE"
+      },
+      "last_extra_cycle_log": "Extra cycle  E= -76.2725345404912  delta_E= 2.84e-14  |g|= 5.11e-10  |ddm|= 6.09e-10",
+      "failed_gate_component": null,
+      "error": null,
+      "worker_CPU_seconds": 0.2626911860000001
+    },
+    {
+      "name": "c0-h0.00125000-minus",
+      "native_result": {
+        "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00125000-minus/native_result.json",
+        "sha256": "02f63e32a1b9b2e927dc793098129e6cc39596f294ffa97554398acc6edad682",
+        "bytes": 21870
+      },
+      "status": "WATER_FIXED_GRID_TIGHT_SCF_GRADIENT_COMPUTED",
+      "scf_converged": true,
+      "gradient_completed": true,
+      "displacement": {
+        "mode_index_1based": null,
+        "coordinate_index_0based": 0,
+        "step_bohr": 0.00125,
+        "sign": -1,
+        "direction_normalization": "EUCLIDEAN_CARTESIAN_UNIT_NORM"
+      },
+      "energy_hartree": -76.27253411088381,
+      "ordinary_SCF_cycles_logged": 17,
+      "configured_max_cycle": 80,
+      "strict_checks_recorded": 18,
+      "accepted_checks": 2,
+      "penultimate_check": {
+        "energy_delta_abs_hartree": 5.684341886080802e-14,
+        "orbital_gradient_norm": 3.0117043443961365e-10,
+        "accepted": true,
+        "energy_tolerance_hartree": 1e-13,
+        "orbital_gradient_tolerance": 1e-09,
+        "acceptance_rule": "STRICT_ENERGY_AND_ORBITAL_GRADIENT_INCLUDING_FINAL_EXTRA_CYCLE"
+      },
+      "last_extra_cycle_check": {
+        "energy_delta_abs_hartree": 0.0,
+        "orbital_gradient_norm": 4.3593595061264144e-10,
+        "accepted": true,
+        "energy_tolerance_hartree": 1e-13,
+        "orbital_gradient_tolerance": 1e-09,
+        "acceptance_rule": "STRICT_ENERGY_AND_ORBITAL_GRADIENT_INCLUDING_FINAL_EXTRA_CYCLE"
+      },
+      "last_extra_cycle_log": "Extra cycle  E= -76.2725341108838  delta_E=    0  |g|= 4.36e-10  |ddm|= 5.33e-10",
+      "failed_gate_component": null,
+      "error": null,
+      "worker_CPU_seconds": 0.6187645020000001
+    },
+    {
+      "name": "c0-h0.00125000-plus",
+      "native_result": {
+        "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00125000-plus/native_result.json",
+        "sha256": "c133601fdfc02619a8a3c5c3e77c37178aafa798901181f2b1ab6b1f981f0a0a",
+        "bytes": 22516
+      },
+      "status": "WATER_FIXED_GRID_TIGHT_SCF_GRADIENT_COMPUTED",
+      "scf_converged": true,
+      "gradient_completed": true,
+      "displacement": {
+        "mode_index_1based": null,
+        "coordinate_index_0based": 0,
+        "step_bohr": 0.00125,
+        "sign": 1,
+        "direction_normalization": "EUCLIDEAN_CARTESIAN_UNIT_NORM"
+      },
+      "energy_hartree": -76.27253411088375,
+      "ordinary_SCF_cycles_logged": 19,
+      "configured_max_cycle": 80,
+      "strict_checks_recorded": 20,
+      "accepted_checks": 2,
+      "penultimate_check": {
+        "energy_delta_abs_hartree": 2.842170943040401e-14,
+        "orbital_gradient_norm": 3.264299239521448e-10,
+        "accepted": true,
+        "energy_tolerance_hartree": 1e-13,
+        "orbital_gradient_tolerance": 1e-09,
+        "acceptance_rule": "STRICT_ENERGY_AND_ORBITAL_GRADIENT_INCLUDING_FINAL_EXTRA_CYCLE"
+      },
+      "last_extra_cycle_check": {
+        "energy_delta_abs_hartree": 0.0,
+        "orbital_gradient_norm": 2.4788618418642664e-10,
+        "accepted": true,
+        "energy_tolerance_hartree": 1e-13,
+        "orbital_gradient_tolerance": 1e-09,
+        "acceptance_rule": "STRICT_ENERGY_AND_ORBITAL_GRADIENT_INCLUDING_FINAL_EXTRA_CYCLE"
+      },
+      "last_extra_cycle_log": "Extra cycle  E= -76.2725341108838  delta_E=    0  |g|= 2.48e-10  |ddm|= 4.35e-10",
+      "failed_gate_component": null,
+      "error": null,
+      "worker_CPU_seconds": 0.6620196539999998
+    },
+    {
+      "name": "c0-h0.00062500-minus",
+      "native_result": {
+        "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00062500-minus/native_result.json",
+        "sha256": "4c5ded1f958238dba8e3ba2ba35ecabf50761f1f387600d240e8a2da01294010",
+        "bytes": 19940
+      },
+      "status": "WATER_FIXED_GRID_TIGHT_SCF_GRADIENT_COMPUTED",
+      "scf_converged": true,
+      "gradient_completed": true,
+      "displacement": {
+        "mode_index_1based": null,
+        "coordinate_index_0based": 0,
+        "step_bohr": 0.000625,
+        "sign": -1,
+        "direction_normalization": "EUCLIDEAN_CARTESIAN_UNIT_NORM"
+      },
+      "energy_hartree": -76.27253443319432,
+      "ordinary_SCF_cycles_logged": 11,
+      "configured_max_cycle": 80,
+      "strict_checks_recorded": 12,
+      "accepted_checks": 2,
+      "penultimate_check": {
+        "energy_delta_abs_hartree": 2.842170943040401e-14,
+        "orbital_gradient_norm": 5.725085088062873e-10,
+        "accepted": true,
+        "energy_tolerance_hartree": 1e-13,
+        "orbital_gradient_tolerance": 1e-09,
+        "acceptance_rule": "STRICT_ENERGY_AND_ORBITAL_GRADIENT_INCLUDING_FINAL_EXTRA_CYCLE"
+      },
+      "last_extra_cycle_check": {
+        "energy_delta_abs_hartree": 4.263256414560601e-14,
+        "orbital_gradient_norm": 2.4566579544747697e-10,
+        "accepted": true,
+        "energy_tolerance_hartree": 1e-13,
+        "orbital_gradient_tolerance": 1e-09,
+        "acceptance_rule": "STRICT_ENERGY_AND_ORBITAL_GRADIENT_INCLUDING_FINAL_EXTRA_CYCLE"
+      },
+      "last_extra_cycle_log": "Extra cycle  E= -76.2725344331943  delta_E= -4.26e-14  |g|= 2.46e-10  |ddm|= 4.39e-10",
+      "failed_gate_component": null,
+      "error": null,
+      "worker_CPU_seconds": 0.409840247
+    },
+    {
+      "name": "c0-h0.00062500-plus",
+      "native_result": {
+        "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00062500-plus/native_result.json",
+        "sha256": "783be73ee6503153fee4c4857b97cec99b4ea8039d76745c9e6737804d488721",
+        "bytes": 16140
+      },
+      "status": "FAILED_DIAGNOSTIC",
+      "scf_converged": false,
+      "gradient_completed": false,
+      "displacement": {
+        "mode_index_1based": null,
+        "coordinate_index_0based": 0,
+        "step_bohr": 0.000625,
+        "sign": 1,
+        "direction_normalization": "EUCLIDEAN_CARTESIAN_UNIT_NORM"
+      },
+      "energy_hartree": -76.2725344331942,
+      "ordinary_SCF_cycles_logged": 11,
+      "configured_max_cycle": 80,
+      "strict_checks_recorded": 12,
+      "accepted_checks": 1,
+      "penultimate_check": {
+        "energy_delta_abs_hartree": 9.947598300641403e-14,
+        "orbital_gradient_norm": 5.725041463571397e-10,
+        "accepted": true,
+        "energy_tolerance_hartree": 1e-13,
+        "orbital_gradient_tolerance": 1e-09,
+        "acceptance_rule": "STRICT_ENERGY_AND_ORBITAL_GRADIENT_INCLUDING_FINAL_EXTRA_CYCLE"
+      },
+      "last_extra_cycle_check": {
+        "energy_delta_abs_hartree": 1.8474111129762605e-13,
+        "orbital_gradient_norm": 2.455777943619404e-10,
+        "accepted": false,
+        "energy_tolerance_hartree": 1e-13,
+        "orbital_gradient_tolerance": 1e-09,
+        "acceptance_rule": "STRICT_ENERGY_AND_ORBITAL_GRADIENT_INCLUDING_FINAL_EXTRA_CYCLE"
+      },
+      "last_extra_cycle_log": "Extra cycle  E= -76.2725344331942  delta_E= 1.85e-13  |g|= 2.46e-10  |ddm|= 4.39e-10",
+      "failed_gate_component": "ENERGY_ONLY",
+      "error": "SCF did not satisfy strict energy AND orbital-gradient convergence",
+      "worker_CPU_seconds": 0.34418835299999984
+    },
+    {
+      "name": "c0-h0.00031250-minus",
+      "native_result": {
+        "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00031250-minus/native_result.json",
+        "sha256": "63a80cc0dd7cc4ddd024e48eddd39b4bd1b3a16d6ab2072d4ee99b76561e8d1c",
+        "bytes": 18980
+      },
+      "status": "WATER_FIXED_GRID_TIGHT_SCF_GRADIENT_COMPUTED",
+      "scf_converged": true,
+      "gradient_completed": true,
+      "displacement": {
+        "mode_index_1based": null,
+        "coordinate_index_0based": 0,
+        "step_bohr": 0.0003125,
+        "sign": -1,
+        "direction_normalization": "EUCLIDEAN_CARTESIAN_UNIT_NORM"
+      },
+      "energy_hartree": -76.27253451367366,
+      "ordinary_SCF_cycles_logged": 8,
+      "configured_max_cycle": 80,
+      "strict_checks_recorded": 9,
+      "accepted_checks": 2,
+      "penultimate_check": {
+        "energy_delta_abs_hartree": 4.263256414560601e-14,
+        "orbital_gradient_norm": 3.634781955580876e-10,
+        "accepted": true,
+        "energy_tolerance_hartree": 1e-13,
+        "orbital_gradient_tolerance": 1e-09,
+        "acceptance_rule": "STRICT_ENERGY_AND_ORBITAL_GRADIENT_INCLUDING_FINAL_EXTRA_CYCLE"
+      },
+      "last_extra_cycle_check": {
+        "energy_delta_abs_hartree": 5.684341886080802e-14,
+        "orbital_gradient_norm": 1.5339393198617096e-10,
+        "accepted": true,
+        "energy_tolerance_hartree": 1e-13,
+        "orbital_gradient_tolerance": 1e-09,
+        "acceptance_rule": "STRICT_ENERGY_AND_ORBITAL_GRADIENT_INCLUDING_FINAL_EXTRA_CYCLE"
+      },
+      "last_extra_cycle_log": "Extra cycle  E= -76.2725345136737  delta_E= 5.68e-14  |g|= 1.53e-10  |ddm|= 2.55e-10",
+      "failed_gate_component": null,
+      "error": null,
+      "worker_CPU_seconds": 0.302353004
+    },
+    {
+      "name": "c0-h0.00031250-plus",
+      "native_result": {
+        "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00031250-plus/native_result.json",
+        "sha256": "76df747e507d6241f28ad30a30632088d684b9db9fe1e9456f9247f2e3b42935",
+        "bytes": 15164
+      },
+      "status": "FAILED_DIAGNOSTIC",
+      "scf_converged": false,
+      "gradient_completed": false,
+      "displacement": {
+        "mode_index_1based": null,
+        "coordinate_index_0based": 0,
+        "step_bohr": 0.0003125,
+        "sign": 1,
+        "direction_normalization": "EUCLIDEAN_CARTESIAN_UNIT_NORM"
+      },
+      "energy_hartree": -76.27253451367359,
+      "ordinary_SCF_cycles_logged": 8,
+      "configured_max_cycle": 80,
+      "strict_checks_recorded": 9,
+      "accepted_checks": 1,
+      "penultimate_check": {
+        "energy_delta_abs_hartree": 5.684341886080802e-14,
+        "orbital_gradient_norm": 3.634921028155105e-10,
+        "accepted": true,
+        "energy_tolerance_hartree": 1e-13,
+        "orbital_gradient_tolerance": 1e-09,
+        "acceptance_rule": "STRICT_ENERGY_AND_ORBITAL_GRADIENT_INCLUDING_FINAL_EXTRA_CYCLE"
+      },
+      "last_extra_cycle_check": {
+        "energy_delta_abs_hartree": 1.2789769243681803e-13,
+        "orbital_gradient_norm": 1.534049501009422e-10,
+        "accepted": false,
+        "energy_tolerance_hartree": 1e-13,
+        "orbital_gradient_tolerance": 1e-09,
+        "acceptance_rule": "STRICT_ENERGY_AND_ORBITAL_GRADIENT_INCLUDING_FINAL_EXTRA_CYCLE"
+      },
+      "last_extra_cycle_log": "Extra cycle  E= -76.2725345136736  delta_E= 1.28e-13  |g|= 1.53e-10  |ddm|= 2.55e-10",
+      "failed_gate_component": "ENERGY_ONLY",
+      "error": "SCF did not satisfy strict energy AND orbital-gradient convergence",
+      "worker_CPU_seconds": 0.260220184
+    },
+    {
+      "name": "c0-h0.00015625-minus",
+      "native_result": {
+        "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00015625-minus/native_result.json",
+        "sha256": "3cdafa4aa4f3c0337654045a3ac545da75e8c1cbc29b20d0def0797e376fd8ce",
+        "bytes": 15813
+      },
+      "status": "FAILED_DIAGNOSTIC",
+      "scf_converged": false,
+      "gradient_completed": false,
+      "displacement": {
+        "mode_index_1based": null,
+        "coordinate_index_0based": 0,
+        "step_bohr": 0.00015625,
+        "sign": -1,
+        "direction_normalization": "EUCLIDEAN_CARTESIAN_UNIT_NORM"
+      },
+      "energy_hartree": -76.27253453378715,
+      "ordinary_SCF_cycles_logged": 10,
+      "configured_max_cycle": 80,
+      "strict_checks_recorded": 11,
+      "accepted_checks": 1,
+      "penultimate_check": {
+        "energy_delta_abs_hartree": 9.947598300641403e-14,
+        "orbital_gradient_norm": 1.4474306043874145e-10,
+        "accepted": true,
+        "energy_tolerance_hartree": 1e-13,
+        "orbital_gradient_tolerance": 1e-09,
+        "acceptance_rule": "STRICT_ENERGY_AND_ORBITAL_GRADIENT_INCLUDING_FINAL_EXTRA_CYCLE"
+      },
+      "last_extra_cycle_check": {
+        "energy_delta_abs_hartree": 1.4210854715202004e-13,
+        "orbital_gradient_norm": 5.277157431452106e-11,
+        "accepted": false,
+        "energy_tolerance_hartree": 1e-13,
+        "orbital_gradient_tolerance": 1e-09,
+        "acceptance_rule": "STRICT_ENERGY_AND_ORBITAL_GRADIENT_INCLUDING_FINAL_EXTRA_CYCLE"
+      },
+      "last_extra_cycle_log": "Extra cycle  E= -76.2725345337872  delta_E= 1.42e-13  |g|= 5.28e-11  |ddm|= 1.31e-10",
+      "failed_gate_component": "ENERGY_ONLY",
+      "error": "SCF did not satisfy strict energy AND orbital-gradient convergence",
+      "worker_CPU_seconds": 0.32727141599999987
+    },
+    {
+      "name": "c0-h0.00015625-plus",
+      "native_result": {
+        "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00015625-plus/native_result.json",
+        "sha256": "a16511ebbbe70fe1d7bbbd05d495f9efd830203bc6cfc55d644679309440aa3d",
+        "bytes": 19943
+      },
+      "status": "WATER_FIXED_GRID_TIGHT_SCF_GRADIENT_COMPUTED",
+      "scf_converged": true,
+      "gradient_completed": true,
+      "displacement": {
+        "mode_index_1based": null,
+        "coordinate_index_0based": 0,
+        "step_bohr": 0.00015625,
+        "sign": 1,
+        "direction_normalization": "EUCLIDEAN_CARTESIAN_UNIT_NORM"
+      },
+      "energy_hartree": -76.2725345337872,
+      "ordinary_SCF_cycles_logged": 11,
+      "configured_max_cycle": 80,
+      "strict_checks_recorded": 12,
+      "accepted_checks": 2,
+      "penultimate_check": {
+        "energy_delta_abs_hartree": 7.105427357601002e-14,
+        "orbital_gradient_norm": 2.8530192061114447e-10,
+        "accepted": true,
+        "energy_tolerance_hartree": 1e-13,
+        "orbital_gradient_tolerance": 1e-09,
+        "acceptance_rule": "STRICT_ENERGY_AND_ORBITAL_GRADIENT_INCLUDING_FINAL_EXTRA_CYCLE"
+      },
+      "last_extra_cycle_check": {
+        "energy_delta_abs_hartree": 2.842170943040401e-14,
+        "orbital_gradient_norm": 1.5049931144665865e-10,
+        "accepted": true,
+        "energy_tolerance_hartree": 1e-13,
+        "orbital_gradient_tolerance": 1e-09,
+        "acceptance_rule": "STRICT_ENERGY_AND_ORBITAL_GRADIENT_INCLUDING_FINAL_EXTRA_CYCLE"
+      },
+      "last_extra_cycle_log": "Extra cycle  E= -76.2725345337872  delta_E= 2.84e-14  |g|= 1.5e-10  |ddm|= 2.37e-10",
+      "failed_gate_component": null,
+      "error": null,
+      "worker_CPU_seconds": 0.4325690060000005
+    },
+    {
+      "name": "c0-h0.00007813-minus",
+      "native_result": {
+        "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00007813-minus/native_result.json",
+        "sha256": "eedcba3a2920fef3860a52440dc447ace32229e3a197db23c39be815da98ee0c",
+        "bytes": 19965
+      },
+      "status": "WATER_FIXED_GRID_TIGHT_SCF_GRADIENT_COMPUTED",
+      "scf_converged": true,
+      "gradient_completed": true,
+      "displacement": {
+        "mode_index_1based": null,
+        "coordinate_index_0based": 0,
+        "step_bohr": 7.8125e-05,
+        "sign": -1,
+        "direction_normalization": "EUCLIDEAN_CARTESIAN_UNIT_NORM"
+      },
+      "energy_hartree": -76.27253453881538,
+      "ordinary_SCF_cycles_logged": 11,
+      "configured_max_cycle": 80,
+      "strict_checks_recorded": 12,
+      "accepted_checks": 2,
+      "penultimate_check": {
+        "energy_delta_abs_hartree": 4.263256414560601e-14,
+        "orbital_gradient_norm": 1.947660687906896e-10,
+        "accepted": true,
+        "energy_tolerance_hartree": 1e-13,
+        "orbital_gradient_tolerance": 1e-09,
+        "acceptance_rule": "STRICT_ENERGY_AND_ORBITAL_GRADIENT_INCLUDING_FINAL_EXTRA_CYCLE"
+      },
+      "last_extra_cycle_check": {
+        "energy_delta_abs_hartree": 1.4210854715202004e-14,
+        "orbital_gradient_norm": 1.5264396346288758e-10,
+        "accepted": true,
+        "energy_tolerance_hartree": 1e-13,
+        "orbital_gradient_tolerance": 1e-09,
+        "acceptance_rule": "STRICT_ENERGY_AND_ORBITAL_GRADIENT_INCLUDING_FINAL_EXTRA_CYCLE"
+      },
+      "last_extra_cycle_log": "Extra cycle  E= -76.2725345388154  delta_E= -1.42e-14  |g|= 1.53e-10  |ddm|= 1.88e-10",
+      "failed_gate_component": null,
+      "error": null,
+      "worker_CPU_seconds": 0.40250306399999936
+    },
+    {
+      "name": "c0-h0.00007813-plus",
+      "native_result": {
+        "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00007813-plus/native_result.json",
+        "sha256": "a016380593706b85985f56cea8db8bacf46968a8526d2838a4fc3443d852fa45",
+        "bytes": 19948
+      },
+      "status": "WATER_FIXED_GRID_TIGHT_SCF_GRADIENT_COMPUTED",
+      "scf_converged": true,
+      "gradient_completed": true,
+      "displacement": {
+        "mode_index_1based": null,
+        "coordinate_index_0based": 0,
+        "step_bohr": 7.8125e-05,
+        "sign": 1,
+        "direction_normalization": "EUCLIDEAN_CARTESIAN_UNIT_NORM"
+      },
+      "energy_hartree": -76.27253453881531,
+      "ordinary_SCF_cycles_logged": 11,
+      "configured_max_cycle": 80,
+      "strict_checks_recorded": 12,
+      "accepted_checks": 2,
+      "penultimate_check": {
+        "energy_delta_abs_hartree": 2.842170943040401e-14,
+        "orbital_gradient_norm": 1.9476377442607148e-10,
+        "accepted": true,
+        "energy_tolerance_hartree": 1e-13,
+        "orbital_gradient_tolerance": 1e-09,
+        "acceptance_rule": "STRICT_ENERGY_AND_ORBITAL_GRADIENT_INCLUDING_FINAL_EXTRA_CYCLE"
+      },
+      "last_extra_cycle_check": {
+        "energy_delta_abs_hartree": 4.263256414560601e-14,
+        "orbital_gradient_norm": 1.526466498855964e-10,
+        "accepted": true,
+        "energy_tolerance_hartree": 1e-13,
+        "orbital_gradient_tolerance": 1e-09,
+        "acceptance_rule": "STRICT_ENERGY_AND_ORBITAL_GRADIENT_INCLUDING_FINAL_EXTRA_CYCLE"
+      },
+      "last_extra_cycle_log": "Extra cycle  E= -76.2725345388153  delta_E= 4.26e-14  |g|= 1.53e-10  |ddm|= 1.88e-10",
+      "failed_gate_component": null,
+      "error": null,
+      "worker_CPU_seconds": 0.39867428500000024
+    },
+    {
+      "name": "c4-h0.00125000-minus",
+      "native_result": {
+        "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00125000-minus/native_result.json",
+        "sha256": "0b09f82741d4df98d8b0a09de176c094040043452590cafe096c39315dca748a",
+        "bytes": 19348
+      },
+      "status": "FAILED_DIAGNOSTIC",
+      "scf_converged": false,
+      "gradient_completed": false,
+      "displacement": {
+        "mode_index_1based": null,
+        "coordinate_index_0based": 4,
+        "step_bohr": 0.00125,
+        "sign": -1,
+        "direction_normalization": "EUCLIDEAN_CARTESIAN_UNIT_NORM"
+      },
+      "energy_hartree": -76.27253436215233,
+      "ordinary_SCF_cycles_logged": 21,
+      "configured_max_cycle": 80,
+      "strict_checks_recorded": 22,
+      "accepted_checks": 1,
+      "penultimate_check": {
+        "energy_delta_abs_hartree": 1.4210854715202004e-14,
+        "orbital_gradient_norm": 6.207027615727187e-10,
+        "accepted": true,
+        "energy_tolerance_hartree": 1e-13,
+        "orbital_gradient_tolerance": 1e-09,
+        "acceptance_rule": "STRICT_ENERGY_AND_ORBITAL_GRADIENT_INCLUDING_FINAL_EXTRA_CYCLE"
+      },
+      "last_extra_cycle_check": {
+        "energy_delta_abs_hartree": 4.263256414560601e-14,
+        "orbital_gradient_norm": 1.0873182001899012e-09,
+        "accepted": false,
+        "energy_tolerance_hartree": 1e-13,
+        "orbital_gradient_tolerance": 1e-09,
+        "acceptance_rule": "STRICT_ENERGY_AND_ORBITAL_GRADIENT_INCLUDING_FINAL_EXTRA_CYCLE"
+      },
+      "last_extra_cycle_log": "Extra cycle  E= -76.2725343621523  delta_E= -4.26e-14  |g|= 1.09e-09  |ddm|= 1.09e-09",
+      "failed_gate_component": "ORBITAL_GRADIENT_ONLY",
+      "error": "SCF did not satisfy strict energy AND orbital-gradient convergence",
+      "worker_CPU_seconds": 0.6465900800000002
+    },
+    {
+      "name": "c4-h0.00125000-plus",
+      "native_result": {
+        "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00125000-plus/native_result.json",
+        "sha256": "a47276507684593d2f391e3e6eb91095f40cda9530e67596ab867515f80a9f79",
+        "bytes": 19358
+      },
+      "status": "FAILED_DIAGNOSTIC",
+      "scf_converged": false,
+      "gradient_completed": false,
+      "displacement": {
+        "mode_index_1based": null,
+        "coordinate_index_0based": 4,
+        "step_bohr": 0.00125,
+        "sign": 1,
+        "direction_normalization": "EUCLIDEAN_CARTESIAN_UNIT_NORM"
+      },
+      "energy_hartree": -76.27253439041219,
+      "ordinary_SCF_cycles_logged": 21,
+      "configured_max_cycle": 80,
+      "strict_checks_recorded": 22,
+      "accepted_checks": 1,
+      "penultimate_check": {
+        "energy_delta_abs_hartree": 4.263256414560601e-14,
+        "orbital_gradient_norm": 5.968855002756785e-10,
+        "accepted": true,
+        "energy_tolerance_hartree": 1e-13,
+        "orbital_gradient_tolerance": 1e-09,
+        "acceptance_rule": "STRICT_ENERGY_AND_ORBITAL_GRADIENT_INCLUDING_FINAL_EXTRA_CYCLE"
+      },
+      "last_extra_cycle_check": {
+        "energy_delta_abs_hartree": 2.842170943040401e-14,
+        "orbital_gradient_norm": 1.0454491991650922e-09,
+        "accepted": false,
+        "energy_tolerance_hartree": 1e-13,
+        "orbital_gradient_tolerance": 1e-09,
+        "acceptance_rule": "STRICT_ENERGY_AND_ORBITAL_GRADIENT_INCLUDING_FINAL_EXTRA_CYCLE"
+      },
+      "last_extra_cycle_log": "Extra cycle  E= -76.2725343904122  delta_E= -2.84e-14  |g|= 1.05e-09  |ddm|= 1.05e-09",
+      "failed_gate_component": "ORBITAL_GRADIENT_ONLY",
+      "error": "SCF did not satisfy strict energy AND orbital-gradient convergence",
+      "worker_CPU_seconds": 0.6381675289999995
+    },
+    {
+      "name": "c4-h0.00062500-minus",
+      "native_result": {
+        "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00062500-minus/native_result.json",
+        "sha256": "63e7f43df9c25bf004daf4a2c2b3c22746b733b0b135ea05d3162f9b23e67dd9",
+        "bytes": 18723
+      },
+      "status": "FAILED_DIAGNOSTIC",
+      "scf_converged": false,
+      "gradient_completed": false,
+      "displacement": {
+        "mode_index_1based": null,
+        "coordinate_index_0based": 4,
+        "step_bohr": 0.000625,
+        "sign": -1,
+        "direction_normalization": "EUCLIDEAN_CARTESIAN_UNIT_NORM"
+      },
+      "energy_hartree": -76.27253449239808,
+      "ordinary_SCF_cycles_logged": 19,
+      "configured_max_cycle": 80,
+      "strict_checks_recorded": 20,
+      "accepted_checks": 1,
+      "penultimate_check": {
+        "energy_delta_abs_hartree": 4.263256414560601e-14,
+        "orbital_gradient_norm": 8.509607068880682e-10,
+        "accepted": true,
+        "energy_tolerance_hartree": 1e-13,
+        "orbital_gradient_tolerance": 1e-09,
+        "acceptance_rule": "STRICT_ENERGY_AND_ORBITAL_GRADIENT_INCLUDING_FINAL_EXTRA_CYCLE"
+      },
+      "last_extra_cycle_check": {
+        "energy_delta_abs_hartree": 2.842170943040401e-14,
+        "orbital_gradient_norm": 1.4943011611667936e-09,
+        "accepted": false,
+        "energy_tolerance_hartree": 1e-13,
+        "orbital_gradient_tolerance": 1e-09,
+        "acceptance_rule": "STRICT_ENERGY_AND_ORBITAL_GRADIENT_INCLUDING_FINAL_EXTRA_CYCLE"
+      },
+      "last_extra_cycle_log": "Extra cycle  E= -76.2725344923981  delta_E= -2.84e-14  |g|= 1.49e-09  |ddm|= 1.47e-09",
+      "failed_gate_component": "ORBITAL_GRADIENT_ONLY",
+      "error": "SCF did not satisfy strict energy AND orbital-gradient convergence",
+      "worker_CPU_seconds": 0.5041196239999994
+    },
+    {
+      "name": "c4-h0.00062500-plus",
+      "native_result": {
+        "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00062500-plus/native_result.json",
+        "sha256": "032321447bdc25405d6b8f4aa3845e5efd2210bff852c4269f3dd72888f2531c",
+        "bytes": 18376
+      },
+      "status": "FAILED_DIAGNOSTIC",
+      "scf_converged": false,
+      "gradient_completed": false,
+      "displacement": {
+        "mode_index_1based": null,
+        "coordinate_index_0based": 4,
+        "step_bohr": 0.000625,
+        "sign": 1,
+        "direction_normalization": "EUCLIDEAN_CARTESIAN_UNIT_NORM"
+      },
+      "energy_hartree": -76.27253450647987,
+      "ordinary_SCF_cycles_logged": 18,
+      "configured_max_cycle": 80,
+      "strict_checks_recorded": 19,
+      "accepted_checks": 1,
+      "penultimate_check": {
+        "energy_delta_abs_hartree": 2.842170943040401e-14,
+        "orbital_gradient_norm": 9.803574612209781e-10,
+        "accepted": true,
+        "energy_tolerance_hartree": 1e-13,
+        "orbital_gradient_tolerance": 1e-09,
+        "acceptance_rule": "STRICT_ENERGY_AND_ORBITAL_GRADIENT_INCLUDING_FINAL_EXTRA_CYCLE"
+      },
+      "last_extra_cycle_check": {
+        "energy_delta_abs_hartree": 1.4210854715202004e-13,
+        "orbital_gradient_norm": 1.7082477989711868e-09,
+        "accepted": false,
+        "energy_tolerance_hartree": 1e-13,
+        "orbital_gradient_tolerance": 1e-09,
+        "acceptance_rule": "STRICT_ENERGY_AND_ORBITAL_GRADIENT_INCLUDING_FINAL_EXTRA_CYCLE"
+      },
+      "last_extra_cycle_log": "Extra cycle  E= -76.2725345064799  delta_E= 1.42e-13  |g|= 1.71e-09  |ddm|= 1.68e-09",
+      "failed_gate_component": "ENERGY_AND_ORBITAL_GRADIENT",
+      "error": "SCF did not satisfy strict energy AND orbital-gradient convergence",
+      "worker_CPU_seconds": 0.5332555709999998
+    },
+    {
+      "name": "c4-h0.00031250-minus",
+      "native_result": {
+        "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00031250-minus/native_result.json",
+        "sha256": "209e60074e7c48b9fb3a25c1c411d0d6ffcd3e8fb8b40c6a87f49227f6972ca5",
+        "bytes": 17427
+      },
+      "status": "FAILED_DIAGNOSTIC",
+      "scf_converged": false,
+      "gradient_completed": false,
+      "displacement": {
+        "mode_index_1based": null,
+        "coordinate_index_0based": 4,
+        "step_bohr": 0.0003125,
+        "sign": -1,
+        "direction_normalization": "EUCLIDEAN_CARTESIAN_UNIT_NORM"
+      },
+      "energy_hartree": -76.27253452671081,
+      "ordinary_SCF_cycles_logged": 15,
+      "configured_max_cycle": 80,
+      "strict_checks_recorded": 16,
+      "accepted_checks": 1,
+      "penultimate_check": {
+        "energy_delta_abs_hartree": 0.0,
+        "orbital_gradient_norm": 7.549613363788329e-10,
+        "accepted": true,
+        "energy_tolerance_hartree": 1e-13,
+        "orbital_gradient_tolerance": 1e-09,
+        "acceptance_rule": "STRICT_ENERGY_AND_ORBITAL_GRADIENT_INCLUDING_FINAL_EXTRA_CYCLE"
+      },
+      "last_extra_cycle_check": {
+        "energy_delta_abs_hartree": 1.2789769243681803e-13,
+        "orbital_gradient_norm": 1.014644716667642e-09,
+        "accepted": false,
+        "energy_tolerance_hartree": 1e-13,
+        "orbital_gradient_tolerance": 1e-09,
+        "acceptance_rule": "STRICT_ENERGY_AND_ORBITAL_GRADIENT_INCLUDING_FINAL_EXTRA_CYCLE"
+      },
+      "last_extra_cycle_log": "Extra cycle  E= -76.2725345267108  delta_E= -1.28e-13  |g|= 1.01e-09  |ddm|= 1.2e-09",
+      "failed_gate_component": "ENERGY_AND_ORBITAL_GRADIENT",
+      "error": "SCF did not satisfy strict energy AND orbital-gradient convergence",
+      "worker_CPU_seconds": 0.3953241169999995
+    },
+    {
+      "name": "c4-h0.00031250-plus",
+      "native_result": {
+        "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00031250-plus/native_result.json",
+        "sha256": "bbe041cd007a0ba7aab6ed090e854d92b9eb802399ac433bc0e767cf74e3c67d",
+        "bytes": 18359
+      },
+      "status": "FAILED_DIAGNOSTIC",
+      "scf_converged": false,
+      "gradient_completed": false,
+      "displacement": {
+        "mode_index_1based": null,
+        "coordinate_index_0based": 4,
+        "step_bohr": 0.0003125,
+        "sign": 1,
+        "direction_normalization": "EUCLIDEAN_CARTESIAN_UNIT_NORM"
+      },
+      "energy_hartree": -76.2725345337457,
+      "ordinary_SCF_cycles_logged": 18,
+      "configured_max_cycle": 80,
+      "strict_checks_recorded": 19,
+      "accepted_checks": 1,
+      "penultimate_check": {
+        "energy_delta_abs_hartree": 4.263256414560601e-14,
+        "orbital_gradient_norm": 9.897638638275332e-10,
+        "accepted": true,
+        "energy_tolerance_hartree": 1e-13,
+        "orbital_gradient_tolerance": 1e-09,
+        "acceptance_rule": "STRICT_ENERGY_AND_ORBITAL_GRADIENT_INCLUDING_FINAL_EXTRA_CYCLE"
+      },
+      "last_extra_cycle_check": {
+        "energy_delta_abs_hartree": 0.0,
+        "orbital_gradient_norm": 1.6733980078568336e-09,
+        "accepted": false,
+        "energy_tolerance_hartree": 1e-13,
+        "orbital_gradient_tolerance": 1e-09,
+        "acceptance_rule": "STRICT_ENERGY_AND_ORBITAL_GRADIENT_INCLUDING_FINAL_EXTRA_CYCLE"
+      },
+      "last_extra_cycle_log": "Extra cycle  E= -76.2725345337457  delta_E=    0  |g|= 1.67e-09  |ddm|= 1.64e-09",
+      "failed_gate_component": "ORBITAL_GRADIENT_ONLY",
+      "error": "SCF did not satisfy strict energy AND orbital-gradient convergence",
+      "worker_CPU_seconds": 0.47762849600000123
+    },
+    {
+      "name": "c4-h0.00015625-minus",
+      "native_result": {
+        "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00015625-minus/native_result.json",
+        "sha256": "c81e29543eee55f872be8bd390d71bcf7b21fe9d1d3c3ea91686a92b53de8a13",
+        "bytes": 17728
+      },
+      "status": "FAILED_DIAGNOSTIC",
+      "scf_converged": false,
+      "gradient_completed": false,
+      "displacement": {
+        "mode_index_1based": null,
+        "coordinate_index_0based": 4,
+        "step_bohr": 0.00015625,
+        "sign": -1,
+        "direction_normalization": "EUCLIDEAN_CARTESIAN_UNIT_NORM"
+      },
+      "energy_hartree": -76.27253453616707,
+      "ordinary_SCF_cycles_logged": 16,
+      "configured_max_cycle": 80,
+      "strict_checks_recorded": 17,
+      "accepted_checks": 1,
+      "penultimate_check": {
+        "energy_delta_abs_hartree": 8.526512829121202e-14,
+        "orbital_gradient_norm": 8.579585592556977e-10,
+        "accepted": true,
+        "energy_tolerance_hartree": 1e-13,
+        "orbital_gradient_tolerance": 1e-09,
+        "acceptance_rule": "STRICT_ENERGY_AND_ORBITAL_GRADIENT_INCLUDING_FINAL_EXTRA_CYCLE"
+      },
+      "last_extra_cycle_check": {
+        "energy_delta_abs_hartree": 1.1368683772161603e-13,
+        "orbital_gradient_norm": 1.2131447758563556e-09,
+        "accepted": false,
+        "energy_tolerance_hartree": 1e-13,
+        "orbital_gradient_tolerance": 1e-09,
+        "acceptance_rule": "STRICT_ENERGY_AND_ORBITAL_GRADIENT_INCLUDING_FINAL_EXTRA_CYCLE"
+      },
+      "last_extra_cycle_log": "Extra cycle  E= -76.2725345361671  delta_E= 1.14e-13  |g|= 1.21e-09  |ddm|= 1.38e-09",
+      "failed_gate_component": "ENERGY_AND_ORBITAL_GRADIENT",
+      "error": "SCF did not satisfy strict energy AND orbital-gradient convergence",
+      "worker_CPU_seconds": 0.4467273349999985
+    },
+    {
+      "name": "c4-h0.00015625-plus",
+      "native_result": {
+        "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00015625-plus/native_result.json",
+        "sha256": "731fa8e4509f35b0a7372fd2c3133434f3b5497a4229d1f361df7b1c14b87246",
+        "bytes": 18083
+      },
+      "status": "FAILED_DIAGNOSTIC",
+      "scf_converged": false,
+      "gradient_completed": false,
+      "displacement": {
+        "mode_index_1based": null,
+        "coordinate_index_0based": 4,
+        "step_bohr": 0.00015625,
+        "sign": 1,
+        "direction_normalization": "EUCLIDEAN_CARTESIAN_UNIT_NORM"
+      },
+      "energy_hartree": -76.27253453968395,
+      "ordinary_SCF_cycles_logged": 17,
+      "configured_max_cycle": 80,
+      "strict_checks_recorded": 18,
+      "accepted_checks": 1,
+      "penultimate_check": {
+        "energy_delta_abs_hartree": 9.947598300641403e-14,
+        "orbital_gradient_norm": 8.04434177152768e-10,
+        "accepted": true,
+        "energy_tolerance_hartree": 1e-13,
+        "orbital_gradient_tolerance": 1e-09,
+        "acceptance_rule": "STRICT_ENERGY_AND_ORBITAL_GRADIENT_INCLUDING_FINAL_EXTRA_CYCLE"
+      },
+      "last_extra_cycle_check": {
+        "energy_delta_abs_hartree": 2.842170943040401e-14,
+        "orbital_gradient_norm": 1.2236767325017155e-09,
+        "accepted": false,
+        "energy_tolerance_hartree": 1e-13,
+        "orbital_gradient_tolerance": 1e-09,
+        "acceptance_rule": "STRICT_ENERGY_AND_ORBITAL_GRADIENT_INCLUDING_FINAL_EXTRA_CYCLE"
+      },
+      "last_extra_cycle_log": "Extra cycle  E= -76.2725345396839  delta_E= 2.84e-14  |g|= 1.22e-09  |ddm|= 1.37e-09",
+      "failed_gate_component": "ORBITAL_GRADIENT_ONLY",
+      "error": "SCF did not satisfy strict energy AND orbital-gradient convergence",
+      "worker_CPU_seconds": 0.49149950699999856
+    },
+    {
+      "name": "c4-h0.00007813-minus",
+      "native_result": {
+        "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00007813-minus/native_result.json",
+        "sha256": "65db23249b8a0e0a452f8ae7ea70e2df96cb7a681ea997b9134bd37462d614c7",
+        "bytes": 21868
+      },
+      "status": "WATER_FIXED_GRID_TIGHT_SCF_GRADIENT_COMPUTED",
+      "scf_converged": true,
+      "gradient_completed": true,
+      "displacement": {
+        "mode_index_1based": null,
+        "coordinate_index_0based": 4,
+        "step_bohr": 7.8125e-05,
+        "sign": -1,
+        "direction_normalization": "EUCLIDEAN_CARTESIAN_UNIT_NORM"
+      },
+      "energy_hartree": -76.27253453897063,
+      "ordinary_SCF_cycles_logged": 17,
+      "configured_max_cycle": 80,
+      "strict_checks_recorded": 18,
+      "accepted_checks": 2,
+      "penultimate_check": {
+        "energy_delta_abs_hartree": 4.263256414560601e-14,
+        "orbital_gradient_norm": 3.9264870711099683e-10,
+        "accepted": true,
+        "energy_tolerance_hartree": 1e-13,
+        "orbital_gradient_tolerance": 1e-09,
+        "acceptance_rule": "STRICT_ENERGY_AND_ORBITAL_GRADIENT_INCLUDING_FINAL_EXTRA_CYCLE"
+      },
+      "last_extra_cycle_check": {
+        "energy_delta_abs_hartree": 2.842170943040401e-14,
+        "orbital_gradient_norm": 4.3784424854291517e-10,
+        "accepted": true,
+        "energy_tolerance_hartree": 1e-13,
+        "orbital_gradient_tolerance": 1e-09,
+        "acceptance_rule": "STRICT_ENERGY_AND_ORBITAL_GRADIENT_INCLUDING_FINAL_EXTRA_CYCLE"
+      },
+      "last_extra_cycle_log": "Extra cycle  E= -76.2725345389706  delta_E= 2.84e-14  |g|= 4.38e-10  |ddm|= 6.54e-10",
+      "failed_gate_component": null,
+      "error": null,
+      "worker_CPU_seconds": 0.5269660919999986
+    },
+    {
+      "name": "c4-h0.00007813-plus",
+      "native_result": {
+        "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00007813-plus/native_result.json",
+        "sha256": "f5af9c67294dd92cd4f9844d759d8a15537555534b729019334969dc090b7aea",
+        "bytes": 17712
+      },
+      "status": "FAILED_DIAGNOSTIC",
+      "scf_converged": false,
+      "gradient_completed": false,
+      "displacement": {
+        "mode_index_1based": null,
+        "coordinate_index_0based": 4,
+        "step_bohr": 7.8125e-05,
+        "sign": 1,
+        "direction_normalization": "EUCLIDEAN_CARTESIAN_UNIT_NORM"
+      },
+      "energy_hartree": -76.27253454072901,
+      "ordinary_SCF_cycles_logged": 16,
+      "configured_max_cycle": 80,
+      "strict_checks_recorded": 17,
+      "accepted_checks": 1,
+      "penultimate_check": {
+        "energy_delta_abs_hartree": 2.842170943040401e-14,
+        "orbital_gradient_norm": 8.181737139024176e-10,
+        "accepted": true,
+        "energy_tolerance_hartree": 1e-13,
+        "orbital_gradient_tolerance": 1e-09,
+        "acceptance_rule": "STRICT_ENERGY_AND_ORBITAL_GRADIENT_INCLUDING_FINAL_EXTRA_CYCLE"
+      },
+      "last_extra_cycle_check": {
+        "energy_delta_abs_hartree": 2.842170943040401e-14,
+        "orbital_gradient_norm": 1.2400459276418075e-09,
+        "accepted": false,
+        "energy_tolerance_hartree": 1e-13,
+        "orbital_gradient_tolerance": 1e-09,
+        "acceptance_rule": "STRICT_ENERGY_AND_ORBITAL_GRADIENT_INCLUDING_FINAL_EXTRA_CYCLE"
+      },
+      "last_extra_cycle_log": "Extra cycle  E= -76.272534540729  delta_E= 2.84e-14  |g|= 1.24e-09  |ddm|= 1.37e-09",
+      "failed_gate_component": "ORBITAL_GRADIENT_ONLY",
+      "error": "SCF did not satisfy strict energy AND orbital-gradient convergence",
+      "worker_CPU_seconds": 0.42136268799999854
+    },
+    {
+      "name": "c8-h0.00125000-minus",
+      "native_result": {
+        "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00125000-minus/native_result.json",
+        "sha256": "9cb148e0e2448325cec11097d92c022258279ec0d5f3d25a6f1990f904a0f442",
+        "bytes": 19305
+      },
+      "status": "WATER_FIXED_GRID_TIGHT_SCF_GRADIENT_COMPUTED",
+      "scf_converged": true,
+      "gradient_completed": true,
+      "displacement": {
+        "mode_index_1based": null,
+        "coordinate_index_0based": 8,
+        "step_bohr": 0.00125,
+        "sign": -1,
+        "direction_normalization": "EUCLIDEAN_CARTESIAN_UNIT_NORM"
+      },
+      "energy_hartree": -76.27253454048775,
+      "ordinary_SCF_cycles_logged": 9,
+      "configured_max_cycle": 80,
+      "strict_checks_recorded": 10,
+      "accepted_checks": 2,
+      "penultimate_check": {
+        "energy_delta_abs_hartree": 2.842170943040401e-14,
+        "orbital_gradient_norm": 2.391028494811785e-10,
+        "accepted": true,
+        "energy_tolerance_hartree": 1e-13,
+        "orbital_gradient_tolerance": 1e-09,
+        "acceptance_rule": "STRICT_ENERGY_AND_ORBITAL_GRADIENT_INCLUDING_FINAL_EXTRA_CYCLE"
+      },
+      "last_extra_cycle_check": {
+        "energy_delta_abs_hartree": 9.947598300641403e-14,
+        "orbital_gradient_norm": 8.153923557621818e-11,
+        "accepted": true,
+        "energy_tolerance_hartree": 1e-13,
+        "orbital_gradient_tolerance": 1e-09,
+        "acceptance_rule": "STRICT_ENERGY_AND_ORBITAL_GRADIENT_INCLUDING_FINAL_EXTRA_CYCLE"
+      },
+      "last_extra_cycle_log": "Extra cycle  E= -76.2725345404878  delta_E= -9.95e-14  |g|= 8.15e-11  |ddm|= 3.94e-10",
+      "failed_gate_component": null,
+      "error": null,
+      "worker_CPU_seconds": 0.31083805200000114
+    },
+    {
+      "name": "c8-h0.00125000-plus",
+      "native_result": {
+        "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00125000-plus/native_result.json",
+        "sha256": "ffffce47fdafb0da625374c94bd53e6e2fdc577795c0e53a354fc80efb1d3bf9",
+        "bytes": 18975
+      },
+      "status": "WATER_FIXED_GRID_TIGHT_SCF_GRADIENT_COMPUTED",
+      "scf_converged": true,
+      "gradient_completed": true,
+      "displacement": {
+        "mode_index_1based": null,
+        "coordinate_index_0based": 8,
+        "step_bohr": 0.00125,
+        "sign": 1,
+        "direction_normalization": "EUCLIDEAN_CARTESIAN_UNIT_NORM"
+      },
+      "energy_hartree": -76.27253454048777,
+      "ordinary_SCF_cycles_logged": 8,
+      "configured_max_cycle": 80,
+      "strict_checks_recorded": 9,
+      "accepted_checks": 2,
+      "penultimate_check": {
+        "energy_delta_abs_hartree": 2.842170943040401e-14,
+        "orbital_gradient_norm": 3.351654562251201e-10,
+        "accepted": true,
+        "energy_tolerance_hartree": 1e-13,
+        "orbital_gradient_tolerance": 1e-09,
+        "acceptance_rule": "STRICT_ENERGY_AND_ORBITAL_GRADIENT_INCLUDING_FINAL_EXTRA_CYCLE"
+      },
+      "last_extra_cycle_check": {
+        "energy_delta_abs_hartree": 2.842170943040401e-14,
+        "orbital_gradient_norm": 1.1798413130952104e-10,
+        "accepted": true,
+        "energy_tolerance_hartree": 1e-13,
+        "orbital_gradient_tolerance": 1e-09,
+        "acceptance_rule": "STRICT_ENERGY_AND_ORBITAL_GRADIENT_INCLUDING_FINAL_EXTRA_CYCLE"
+      },
+      "last_extra_cycle_log": "Extra cycle  E= -76.2725345404878  delta_E= -2.84e-14  |g|= 1.18e-10  |ddm|= 5.51e-10",
+      "failed_gate_component": null,
+      "error": null,
+      "worker_CPU_seconds": 0.28154806600000093
+    },
+    {
+      "name": "c8-h0.00062500-minus",
+      "native_result": {
+        "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00062500-minus/native_result.json",
+        "sha256": "0fbf0fef466bbd457df5134c68921584a8948d8d2b14b404008825291da53caf",
+        "bytes": 14535
+      },
+      "status": "FAILED_DIAGNOSTIC",
+      "scf_converged": false,
+      "gradient_completed": false,
+      "displacement": {
+        "mode_index_1based": null,
+        "coordinate_index_0based": 8,
+        "step_bohr": 0.000625,
+        "sign": -1,
+        "direction_normalization": "EUCLIDEAN_CARTESIAN_UNIT_NORM"
+      },
+      "energy_hartree": -76.27253454049058,
+      "ordinary_SCF_cycles_logged": 6,
+      "configured_max_cycle": 80,
+      "strict_checks_recorded": 7,
+      "accepted_checks": 1,
+      "penultimate_check": {
+        "energy_delta_abs_hartree": 5.684341886080802e-14,
+        "orbital_gradient_norm": 5.940535633955187e-10,
+        "accepted": true,
+        "energy_tolerance_hartree": 1e-13,
+        "orbital_gradient_tolerance": 1e-09,
+        "acceptance_rule": "STRICT_ENERGY_AND_ORBITAL_GRADIENT_INCLUDING_FINAL_EXTRA_CYCLE"
+      },
+      "last_extra_cycle_check": {
+        "energy_delta_abs_hartree": 2.1316282072803006e-13,
+        "orbital_gradient_norm": 2.3485317984306365e-10,
+        "accepted": false,
+        "energy_tolerance_hartree": 1e-13,
+        "orbital_gradient_tolerance": 1e-09,
+        "acceptance_rule": "STRICT_ENERGY_AND_ORBITAL_GRADIENT_INCLUDING_FINAL_EXTRA_CYCLE"
+      },
+      "last_extra_cycle_log": "Extra cycle  E= -76.2725345404906  delta_E= -2.13e-13  |g|= 2.35e-10  |ddm|= 9.76e-10",
+      "failed_gate_component": "ENERGY_ONLY",
+      "error": "SCF did not satisfy strict energy AND orbital-gradient convergence",
+      "worker_CPU_seconds": 0.18890302899999867
+    },
+    {
+      "name": "c8-h0.00062500-plus",
+      "native_result": {
+        "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00062500-plus/native_result.json",
+        "sha256": "c1f9e849d4e0473d004e44072865a86ed69f0dadd7f56f2fc50b98ac27c8b631",
+        "bytes": 14527
+      },
+      "status": "FAILED_DIAGNOSTIC",
+      "scf_converged": false,
+      "gradient_completed": false,
+      "displacement": {
+        "mode_index_1based": null,
+        "coordinate_index_0based": 8,
+        "step_bohr": 0.000625,
+        "sign": 1,
+        "direction_normalization": "EUCLIDEAN_CARTESIAN_UNIT_NORM"
+      },
+      "energy_hartree": -76.27253454049051,
+      "ordinary_SCF_cycles_logged": 6,
+      "configured_max_cycle": 80,
+      "strict_checks_recorded": 7,
+      "accepted_checks": 1,
+      "penultimate_check": {
+        "energy_delta_abs_hartree": 9.947598300641403e-14,
+        "orbital_gradient_norm": 5.940534506326344e-10,
+        "accepted": true,
+        "energy_tolerance_hartree": 1e-13,
+        "orbital_gradient_tolerance": 1e-09,
+        "acceptance_rule": "STRICT_ENERGY_AND_ORBITAL_GRADIENT_INCLUDING_FINAL_EXTRA_CYCLE"
+      },
+      "last_extra_cycle_check": {
+        "energy_delta_abs_hartree": 1.9895196601282805e-13,
+        "orbital_gradient_norm": 2.348526349245917e-10,
+        "accepted": false,
+        "energy_tolerance_hartree": 1e-13,
+        "orbital_gradient_tolerance": 1e-09,
+        "acceptance_rule": "STRICT_ENERGY_AND_ORBITAL_GRADIENT_INCLUDING_FINAL_EXTRA_CYCLE"
+      },
+      "last_extra_cycle_log": "Extra cycle  E= -76.2725345404905  delta_E= -1.99e-13  |g|= 2.35e-10  |ddm|= 9.76e-10",
+      "failed_gate_component": "ENERGY_ONLY",
+      "error": "SCF did not satisfy strict energy AND orbital-gradient convergence",
+      "worker_CPU_seconds": 0.1812640880000007
+    },
+    {
+      "name": "c8-h0.00031250-minus",
+      "native_result": {
+        "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00031250-minus/native_result.json",
+        "sha256": "442812c8e91d9182f1ed841c96e0b606bdf162c9045b16c9efd39a8eea8ea355",
+        "bytes": 18322
+      },
+      "status": "WATER_FIXED_GRID_TIGHT_SCF_GRADIENT_COMPUTED",
+      "scf_converged": true,
+      "gradient_completed": true,
+      "displacement": {
+        "mode_index_1based": null,
+        "coordinate_index_0based": 8,
+        "step_bohr": 0.0003125,
+        "sign": -1,
+        "direction_normalization": "EUCLIDEAN_CARTESIAN_UNIT_NORM"
+      },
+      "energy_hartree": -76.27253454049114,
+      "ordinary_SCF_cycles_logged": 6,
+      "configured_max_cycle": 80,
+      "strict_checks_recorded": 7,
+      "accepted_checks": 2,
+      "penultimate_check": {
+        "energy_delta_abs_hartree": 0.0,
+        "orbital_gradient_norm": 2.8199796066847373e-10,
+        "accepted": true,
+        "energy_tolerance_hartree": 1e-13,
+        "orbital_gradient_tolerance": 1e-09,
+        "acceptance_rule": "STRICT_ENERGY_AND_ORBITAL_GRADIENT_INCLUDING_FINAL_EXTRA_CYCLE"
+      },
+      "last_extra_cycle_check": {
+        "energy_delta_abs_hartree": 5.684341886080802e-14,
+        "orbital_gradient_norm": 1.0039810556166102e-10,
+        "accepted": true,
+        "energy_tolerance_hartree": 1e-13,
+        "orbital_gradient_tolerance": 1e-09,
+        "acceptance_rule": "STRICT_ENERGY_AND_ORBITAL_GRADIENT_INCLUDING_FINAL_EXTRA_CYCLE"
+      },
+      "last_extra_cycle_log": "Extra cycle  E= -76.2725345404911  delta_E= -5.68e-14  |g|= 1e-10  |ddm|= 4.68e-10",
+      "failed_gate_component": null,
+      "error": null,
+      "worker_CPU_seconds": 0.27148216199999986
+    },
+    {
+      "name": "c8-h0.00031250-plus",
+      "native_result": {
+        "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00031250-plus/native_result.json",
+        "sha256": "916924968a029038528c4c3b5519a9dd6cfa30a8aa05cd2d895e8cacb8d29938",
+        "bytes": 18634
+      },
+      "status": "WATER_FIXED_GRID_TIGHT_SCF_GRADIENT_COMPUTED",
+      "scf_converged": true,
+      "gradient_completed": true,
+      "displacement": {
+        "mode_index_1based": null,
+        "coordinate_index_0based": 8,
+        "step_bohr": 0.0003125,
+        "sign": 1,
+        "direction_normalization": "EUCLIDEAN_CARTESIAN_UNIT_NORM"
+      },
+      "energy_hartree": -76.27253454049114,
+      "ordinary_SCF_cycles_logged": 7,
+      "configured_max_cycle": 80,
+      "strict_checks_recorded": 8,
+      "accepted_checks": 2,
+      "penultimate_check": {
+        "energy_delta_abs_hartree": 0.0,
+        "orbital_gradient_norm": 1.3842531769638654e-10,
+        "accepted": true,
+        "energy_tolerance_hartree": 1e-13,
+        "orbital_gradient_tolerance": 1e-09,
+        "acceptance_rule": "STRICT_ENERGY_AND_ORBITAL_GRADIENT_INCLUDING_FINAL_EXTRA_CYCLE"
+      },
+      "last_extra_cycle_check": {
+        "energy_delta_abs_hartree": 5.684341886080802e-14,
+        "orbital_gradient_norm": 4.789926644060255e-11,
+        "accepted": true,
+        "energy_tolerance_hartree": 1e-13,
+        "orbital_gradient_tolerance": 1e-09,
+        "acceptance_rule": "STRICT_ENERGY_AND_ORBITAL_GRADIENT_INCLUDING_FINAL_EXTRA_CYCLE"
+      },
+      "last_extra_cycle_log": "Extra cycle  E= -76.2725345404911  delta_E= 5.68e-14  |g|= 4.79e-11  |ddm|= 2.3e-10",
+      "failed_gate_component": null,
+      "error": null,
+      "worker_CPU_seconds": 0.34546489800000124
+    },
+    {
+      "name": "c8-h0.00015625-minus",
+      "native_result": {
+        "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00015625-minus/native_result.json",
+        "sha256": "edf52e10be137857a413fc3d881529824f7203784e1b1ddd8a3bb94a6bffd5ec",
+        "bytes": 14858
+      },
+      "status": "FAILED_DIAGNOSTIC",
+      "scf_converged": false,
+      "gradient_completed": false,
+      "displacement": {
+        "mode_index_1based": null,
+        "coordinate_index_0based": 8,
+        "step_bohr": 0.00015625,
+        "sign": -1,
+        "direction_normalization": "EUCLIDEAN_CARTESIAN_UNIT_NORM"
+      },
+      "energy_hartree": -76.27253454049118,
+      "ordinary_SCF_cycles_logged": 7,
+      "configured_max_cycle": 80,
+      "strict_checks_recorded": 8,
+      "accepted_checks": 1,
+      "penultimate_check": {
+        "energy_delta_abs_hartree": 5.684341886080802e-14,
+        "orbital_gradient_norm": 9.347693071583525e-11,
+        "accepted": true,
+        "energy_tolerance_hartree": 1e-13,
+        "orbital_gradient_tolerance": 1e-09,
+        "acceptance_rule": "STRICT_ENERGY_AND_ORBITAL_GRADIENT_INCLUDING_FINAL_EXTRA_CYCLE"
+      },
+      "last_extra_cycle_check": {
+        "energy_delta_abs_hartree": 1.1368683772161603e-13,
+        "orbital_gradient_norm": 2.997590663997543e-11,
+        "accepted": false,
+        "energy_tolerance_hartree": 1e-13,
+        "orbital_gradient_tolerance": 1e-09,
+        "acceptance_rule": "STRICT_ENERGY_AND_ORBITAL_GRADIENT_INCLUDING_FINAL_EXTRA_CYCLE"
+      },
+      "last_extra_cycle_log": "Extra cycle  E= -76.2725345404912  delta_E= 1.14e-13  |g|= 3e-11  |ddm|= 1.57e-10",
+      "failed_gate_component": "ENERGY_ONLY",
+      "error": "SCF did not satisfy strict energy AND orbital-gradient convergence",
+      "worker_CPU_seconds": 0.21369211099999852
+    },
+    {
+      "name": "c8-h0.00015625-plus",
+      "native_result": {
+        "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00015625-plus/native_result.json",
+        "sha256": "578ccf97eef51d0c8eb37d6b43396df8a5fb2039b8488dd4ed72c6a9355efa84",
+        "bytes": 18976
+      },
+      "status": "WATER_FIXED_GRID_TIGHT_SCF_GRADIENT_COMPUTED",
+      "scf_converged": true,
+      "gradient_completed": true,
+      "displacement": {
+        "mode_index_1based": null,
+        "coordinate_index_0based": 8,
+        "step_bohr": 0.00015625,
+        "sign": 1,
+        "direction_normalization": "EUCLIDEAN_CARTESIAN_UNIT_NORM"
+      },
+      "energy_hartree": -76.27253454049121,
+      "ordinary_SCF_cycles_logged": 8,
+      "configured_max_cycle": 80,
+      "strict_checks_recorded": 9,
+      "accepted_checks": 2,
+      "penultimate_check": {
+        "energy_delta_abs_hartree": 1.4210854715202004e-14,
+        "orbital_gradient_norm": 7.709419549573097e-11,
+        "accepted": true,
+        "energy_tolerance_hartree": 1e-13,
+        "orbital_gradient_tolerance": 1e-09,
+        "acceptance_rule": "STRICT_ENERGY_AND_ORBITAL_GRADIENT_INCLUDING_FINAL_EXTRA_CYCLE"
+      },
+      "last_extra_cycle_check": {
+        "energy_delta_abs_hartree": 7.105427357601002e-14,
+        "orbital_gradient_norm": 2.7061187639488e-11,
+        "accepted": true,
+        "energy_tolerance_hartree": 1e-13,
+        "orbital_gradient_tolerance": 1e-09,
+        "acceptance_rule": "STRICT_ENERGY_AND_ORBITAL_GRADIENT_INCLUDING_FINAL_EXTRA_CYCLE"
+      },
+      "last_extra_cycle_log": "Extra cycle  E= -76.2725345404912  delta_E= 7.11e-14  |g|= 2.71e-11  |ddm|= 1.28e-10",
+      "failed_gate_component": null,
+      "error": null,
+      "worker_CPU_seconds": 0.32458372999999874
+    },
+    {
+      "name": "c8-h0.00007813-minus",
+      "native_result": {
+        "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00007813-minus/native_result.json",
+        "sha256": "338a801ad9a173b0db78a682e7048a6f2c0e022fd39e9548c8fe73a7816d9758",
+        "bytes": 18990
+      },
+      "status": "WATER_FIXED_GRID_TIGHT_SCF_GRADIENT_COMPUTED",
+      "scf_converged": true,
+      "gradient_completed": true,
+      "displacement": {
+        "mode_index_1based": null,
+        "coordinate_index_0based": 8,
+        "step_bohr": 7.8125e-05,
+        "sign": -1,
+        "direction_normalization": "EUCLIDEAN_CARTESIAN_UNIT_NORM"
+      },
+      "energy_hartree": -76.27253454049098,
+      "ordinary_SCF_cycles_logged": 8,
+      "configured_max_cycle": 80,
+      "strict_checks_recorded": 9,
+      "accepted_checks": 2,
+      "penultimate_check": {
+        "energy_delta_abs_hartree": 2.842170943040401e-14,
+        "orbital_gradient_norm": 8.701544958629872e-10,
+        "accepted": true,
+        "energy_tolerance_hartree": 1e-13,
+        "orbital_gradient_tolerance": 1e-09,
+        "acceptance_rule": "STRICT_ENERGY_AND_ORBITAL_GRADIENT_INCLUDING_FINAL_EXTRA_CYCLE"
+      },
+      "last_extra_cycle_check": {
+        "energy_delta_abs_hartree": 5.684341886080802e-14,
+        "orbital_gradient_norm": 2.3418455770166565e-10,
+        "accepted": true,
+        "energy_tolerance_hartree": 1e-13,
+        "orbital_gradient_tolerance": 1e-09,
+        "acceptance_rule": "STRICT_ENERGY_AND_ORBITAL_GRADIENT_INCLUDING_FINAL_EXTRA_CYCLE"
+      },
+      "last_extra_cycle_log": "Extra cycle  E= -76.272534540491  delta_E= 5.68e-14  |g|= 2.34e-10  |ddm|= 1.44e-09",
+      "failed_gate_component": null,
+      "error": null,
+      "worker_CPU_seconds": 0.37141485099999905
+    },
+    {
+      "name": "c8-h0.00007813-plus",
+      "native_result": {
+        "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00007813-plus/native_result.json",
+        "sha256": "ba39eb9c4ac9b0400d5504816b17e24f4a9b4817775304bc262668a9526e073e",
+        "bytes": 19956
+      },
+      "status": "WATER_FIXED_GRID_TIGHT_SCF_GRADIENT_COMPUTED",
+      "scf_converged": true,
+      "gradient_completed": true,
+      "displacement": {
+        "mode_index_1based": null,
+        "coordinate_index_0based": 8,
+        "step_bohr": 7.8125e-05,
+        "sign": 1,
+        "direction_normalization": "EUCLIDEAN_CARTESIAN_UNIT_NORM"
+      },
+      "energy_hartree": -76.27253454049072,
+      "ordinary_SCF_cycles_logged": 11,
+      "configured_max_cycle": 80,
+      "strict_checks_recorded": 12,
+      "accepted_checks": 2,
+      "penultimate_check": {
+        "energy_delta_abs_hartree": 1.4210854715202004e-14,
+        "orbital_gradient_norm": 1.414290740818727e-10,
+        "accepted": true,
+        "energy_tolerance_hartree": 1e-13,
+        "orbital_gradient_tolerance": 1e-09,
+        "acceptance_rule": "STRICT_ENERGY_AND_ORBITAL_GRADIENT_INCLUDING_FINAL_EXTRA_CYCLE"
+      },
+      "last_extra_cycle_check": {
+        "energy_delta_abs_hartree": 1.4210854715202004e-14,
+        "orbital_gradient_norm": 1.5689059499836606e-10,
+        "accepted": true,
+        "energy_tolerance_hartree": 1e-13,
+        "orbital_gradient_tolerance": 1e-09,
+        "acceptance_rule": "STRICT_ENERGY_AND_ORBITAL_GRADIENT_INCLUDING_FINAL_EXTRA_CYCLE"
+      },
+      "last_extra_cycle_log": "Extra cycle  E= -76.2725345404907  delta_E= -1.42e-14  |g|= 1.57e-10  |ddm|= 2.28e-10",
+      "failed_gate_component": null,
+      "error": null,
+      "worker_CPU_seconds": 0.42579725100000054
+    }
+  ],
+  "plot": {
+    "path": "reports/fixed-quadrature-convergence-20261107-v2/independent-analysis/initial-attempt-001/completed_pair_errors.png",
+    "sha256": "3a8646e8d0c8b498ee722ad73c8317dfd054f3399b751260e6bcf06a945a756c",
+    "bytes": 74307
+  },
+  "current_point_child_file_hashes": [
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/fresh-zero-scf-gradient/analytic_H_times_direction.npy",
+      "sha256": "4f8fe05f6953c4939ac4a3b69210b7f9a410b36b5b0de4d71a3e05a157b9caf5",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/fresh-zero-scf-gradient/direction_cartesian_unit.npy",
+      "sha256": "4f8fe05f6953c4939ac4a3b69210b7f9a410b36b5b0de4d71a3e05a157b9caf5",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/fresh-zero-scf-gradient/displaced_coordinates_bohr.npy",
+      "sha256": "179dd4459f012e80942a8879799e3cb333a1025ac57663ea139826618252d1c0",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/fresh-zero-scf-gradient/events.jsonl",
+      "sha256": "8976bd649487222821cfcfc98244f4d8176a2fed2c5ba08a2223bc131967a350",
+      "bytes": 4223,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/fresh-zero-scf-gradient/gradient_hartree_per_bohr.npy",
+      "sha256": "31668dbe15c2b00274bdcee0d8791ce17850c64f0b2ce1c3b538a89876e3f935",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/fresh-zero-scf-gradient/input.json",
+      "sha256": "13ed670e46d3b7332081389a2c81c97606a01870f9a4d17c2ef2c3890d541c8d",
+      "bytes": 9799,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/fresh-zero-scf-gradient/native_result.json",
+      "sha256": "5017cb242b333ad8a2c0d5139ea9a9f03a749441e68fb8bdeac28d3410e6c3ac",
+      "bytes": 17706,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/fresh-zero-scf-gradient/progress.json",
+      "sha256": "1fed96f349fa3ac0799500d98399411f836e09eea8b8364916a79dde056f7b6b",
+      "bytes": 15930,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/fresh-zero-scf-gradient/pyscf.log",
+      "sha256": "a5490887c9aac2484c4e6ce00507afab93303e6a83a73d735483c3bc5c985ba1",
+      "bytes": 3103,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/fresh-zero-scf-gradient/scf.chk",
+      "sha256": "061e9aee4d9d6e92f9ff3dd6926ae17021c13f3bcebedaa5a3e1eb488251b90c",
+      "bytes": 18960,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/fresh-zero-scf-gradient/source_coordinates_bohr.npy",
+      "sha256": "179dd4459f012e80942a8879799e3cb333a1025ac57663ea139826618252d1c0",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00125000-minus/analytic_H_times_direction.npy",
+      "sha256": "1dcad38e701c15c9a5b0a08bf66f8ad941c21be7856dcd3b39127d291e740c1f",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00125000-minus/direction_cartesian_unit.npy",
+      "sha256": "1691aa71fe3bd349852d320ebd964224ee3a4d749b8828092d269f7ea42dd88c",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00125000-minus/displaced_coordinates_bohr.npy",
+      "sha256": "da2fe17924e39377567025e11d98fd3f798823a7967b043b7afbe6110f60e4a1",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00125000-minus/events.jsonl",
+      "sha256": "9102c89ac4533ff1c8ca1c1b67c17f575018e3a11d2c588fd3a36c011e9f161e",
+      "bytes": 12317,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00125000-minus/gradient_hartree_per_bohr.npy",
+      "sha256": "e488c73049fc8afb14f17e5eb25e744c9765438ec07a6a4928640383e4d0e2c9",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00125000-minus/input.json",
+      "sha256": "24a58b61dc01e5090def41859e0dabb57bbf2a689a5360a089517a12000e3f50",
+      "bytes": 9799,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00125000-minus/native_result.json",
+      "sha256": "02f63e32a1b9b2e927dc793098129e6cc39596f294ffa97554398acc6edad682",
+      "bytes": 21870,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00125000-minus/progress.json",
+      "sha256": "f8f629d154bb92cb10bb0760dbb62438d7bd47b88338fdc19ebc2287913a2d74",
+      "bytes": 20115,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00125000-minus/pyscf.log",
+      "sha256": "f3327a0f49a91f93d5efcc8761f96b48b9c5cd9709113c33f76c0587aa1b0858",
+      "bytes": 4966,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00125000-minus/scf.chk",
+      "sha256": "3786cbafb81f50f25c8127ec97fe2be20e228b75436ec70a7d75d7dea4ef746c",
+      "bytes": 18960,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00125000-minus/source_coordinates_bohr.npy",
+      "sha256": "179dd4459f012e80942a8879799e3cb333a1025ac57663ea139826618252d1c0",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00125000-plus/analytic_H_times_direction.npy",
+      "sha256": "1dcad38e701c15c9a5b0a08bf66f8ad941c21be7856dcd3b39127d291e740c1f",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00125000-plus/direction_cartesian_unit.npy",
+      "sha256": "1691aa71fe3bd349852d320ebd964224ee3a4d749b8828092d269f7ea42dd88c",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00125000-plus/displaced_coordinates_bohr.npy",
+      "sha256": "38c2b23d3c1c36dba9786717fc2afa9cb367dba113d4455733b30cec7b23d95e",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00125000-plus/events.jsonl",
+      "sha256": "9ec4a8c2f542c48b638813530e86ad322556b9835254bd0092a10edd537d294f",
+      "bytes": 13575,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00125000-plus/gradient_hartree_per_bohr.npy",
+      "sha256": "2655d6f288223aaea2427a0ed576c0fda9b7d064d4b4cbc9b161653f7bafe5bb",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00125000-plus/input.json",
+      "sha256": "b1e53e86916f90d29ebd43a6dc1b13b199dac66cb3b29f5024c0266d8583681d",
+      "bytes": 9797,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00125000-plus/native_result.json",
+      "sha256": "c133601fdfc02619a8a3c5c3e77c37178aafa798901181f2b1ab6b1f981f0a0a",
+      "bytes": 22516,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00125000-plus/progress.json",
+      "sha256": "f90b3ca86cbf3092d34d711495c6a3666b76fa5c045130d6b67570b19b03c7ea",
+      "bytes": 20766,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00125000-plus/pyscf.log",
+      "sha256": "beda898c87b1e8f278ac0913e4caf74e82c0edc38c5ab6f47e16e2140523ecc5",
+      "bytes": 5271,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00125000-plus/scf.chk",
+      "sha256": "68b52ed1c65458f6cc5e5730da2d9a69bc5b94cf469578db3374d86598161706",
+      "bytes": 18960,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00125000-plus/source_coordinates_bohr.npy",
+      "sha256": "179dd4459f012e80942a8879799e3cb333a1025ac57663ea139826618252d1c0",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00062500-minus/analytic_H_times_direction.npy",
+      "sha256": "1dcad38e701c15c9a5b0a08bf66f8ad941c21be7856dcd3b39127d291e740c1f",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00062500-minus/direction_cartesian_unit.npy",
+      "sha256": "1691aa71fe3bd349852d320ebd964224ee3a4d749b8828092d269f7ea42dd88c",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00062500-minus/displaced_coordinates_bohr.npy",
+      "sha256": "e4ac1e30994598dadf092c02db350a9b62015d253ac33644b744d3b8328b4719",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00062500-minus/events.jsonl",
+      "sha256": "f01e5f72c2df74a7698302a894a47637376a866cb86550a81f42394af4edb031",
+      "bytes": 8584,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00062500-minus/gradient_hartree_per_bohr.npy",
+      "sha256": "53b9ab26cc6efb50f90f1b95a168ed79ace26b8b538cd50305653cf113a0751d",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00062500-minus/input.json",
+      "sha256": "89150f851224762b5285887f35a040a992a890e9de53a82c63bffac308632722",
+      "bytes": 9800,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00062500-minus/native_result.json",
+      "sha256": "4c5ded1f958238dba8e3ba2ba35ecabf50761f1f387600d240e8a2da01294010",
+      "bytes": 19940,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00062500-minus/progress.json",
+      "sha256": "8223658d26db9d710f2b0330dc0a2b22bb03f0b50d25bb005065ec503bafed00",
+      "bytes": 18185,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00062500-minus/pyscf.log",
+      "sha256": "96674d14f225d85c50e5680a6fca62434daa7945b7aebcb75cabd06880b035d5",
+      "bytes": 4037,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00062500-minus/scf.chk",
+      "sha256": "13e29d140d40ca0f698a35f9696ed0297697be3a8ef936bbaa72f404bad1bb6c",
+      "bytes": 18960,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00062500-minus/source_coordinates_bohr.npy",
+      "sha256": "179dd4459f012e80942a8879799e3cb333a1025ac57663ea139826618252d1c0",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00062500-plus/analytic_H_times_direction.npy",
+      "sha256": "1dcad38e701c15c9a5b0a08bf66f8ad941c21be7856dcd3b39127d291e740c1f",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00062500-plus/direction_cartesian_unit.npy",
+      "sha256": "1691aa71fe3bd349852d320ebd964224ee3a4d749b8828092d269f7ea42dd88c",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00062500-plus/displaced_coordinates_bohr.npy",
+      "sha256": "c25b6ee7771245ae5883fe5df534d40c3e3c8e91cc1eda113a5aaeaf95ec2c8d",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00062500-plus/events.jsonl",
+      "sha256": "c04ccedd04a77d83a57e7a7e8e2a17dda6c45cb2a4ca1fcab537e566776a847a",
+      "bytes": 8325,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00062500-plus/input.json",
+      "sha256": "8496c9774a64976ef3a3960962beaa2cf5df041ead63210df3703cdb925c4d9b",
+      "bytes": 9798,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00062500-plus/native_result.json",
+      "sha256": "783be73ee6503153fee4c4857b97cec99b4ea8039d76745c9e6737804d488721",
+      "bytes": 16140,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00062500-plus/progress.json",
+      "sha256": "660a06649715a5cf11c54fc1f5892e8ba00bd3661dc776505d5c99ce8065893e",
+      "bytes": 14733,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00062500-plus/pyscf.log",
+      "sha256": "b160bce3e0cdd4083b9ac1e949cd2908c5baf30c8cb85b6ab831773e04a2778b",
+      "bytes": 3427,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00062500-plus/scf.chk",
+      "sha256": "439d969b76a4c71a98ca03350e5fe06861d3aa5b53d5449d1345191b211ee08a",
+      "bytes": 18960,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00062500-plus/source_coordinates_bohr.npy",
+      "sha256": "179dd4459f012e80942a8879799e3cb333a1025ac57663ea139826618252d1c0",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00031250-minus/analytic_H_times_direction.npy",
+      "sha256": "1dcad38e701c15c9a5b0a08bf66f8ad941c21be7856dcd3b39127d291e740c1f",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00031250-minus/direction_cartesian_unit.npy",
+      "sha256": "1691aa71fe3bd349852d320ebd964224ee3a4d749b8828092d269f7ea42dd88c",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00031250-minus/displaced_coordinates_bohr.npy",
+      "sha256": "f2ef8abecd4502bac827cefe77dcfb3687d2cf81423c7f1bd305e7d78aec0052",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00031250-minus/events.jsonl",
+      "sha256": "a5c7b107dc58d29055e7e213f5ae7ab12e43007054768d077bdbca18da8c4e5e",
+      "bytes": 6716,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00031250-minus/gradient_hartree_per_bohr.npy",
+      "sha256": "2b91f23c8e941669eb01d4793c33d4ba6d3ff9f5ff1ae00cca69d7a3bfd836db",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00031250-minus/input.json",
+      "sha256": "5b4078184ee4383f2229dbf0b4a5dedf0de71ba7e3c206c3b2d06957719bb5c4",
+      "bytes": 9801,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00031250-minus/native_result.json",
+      "sha256": "63a80cc0dd7cc4ddd024e48eddd39b4bd1b3a16d6ab2072d4ee99b76561e8d1c",
+      "bytes": 18980,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00031250-minus/progress.json",
+      "sha256": "3986d303967055825a8333a53f3bbaa9d2263f08e065f07fd8d302f28fb98974",
+      "bytes": 17226,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00031250-minus/pyscf.log",
+      "sha256": "6113e91344d9f0054c75a161f1b0bb1830a8590716aed9fb2fb8c0d5e17e3519",
+      "bytes": 3576,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00031250-minus/scf.chk",
+      "sha256": "fb7b885fe28942f0a59e9a6187a1d3cce15e7a79562c7b66566b017e68417d1b",
+      "bytes": 18960,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00031250-minus/source_coordinates_bohr.npy",
+      "sha256": "179dd4459f012e80942a8879799e3cb333a1025ac57663ea139826618252d1c0",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00031250-plus/analytic_H_times_direction.npy",
+      "sha256": "1dcad38e701c15c9a5b0a08bf66f8ad941c21be7856dcd3b39127d291e740c1f",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00031250-plus/direction_cartesian_unit.npy",
+      "sha256": "1691aa71fe3bd349852d320ebd964224ee3a4d749b8828092d269f7ea42dd88c",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00031250-plus/displaced_coordinates_bohr.npy",
+      "sha256": "dc1d8329686b6f7861cec51d5c8d714e6a1335b48b359f2ead4792083253364d",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00031250-plus/events.jsonl",
+      "sha256": "ea58233c3b31789831cfc6fd1b013c7dc4db4572b81ac1b4df51cbe676e75fca",
+      "bytes": 6447,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00031250-plus/input.json",
+      "sha256": "9e408a9ad262462523ba6bfdf686b0fb59d264cc43e703ccbee8db3d48f9cda5",
+      "bytes": 9799,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00031250-plus/native_result.json",
+      "sha256": "76df747e507d6241f28ad30a30632088d684b9db9fe1e9456f9247f2e3b42935",
+      "bytes": 15164,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00031250-plus/progress.json",
+      "sha256": "0f38fc441ff252eb6d87ca9222e2aa3bbdb011385952b0454fc627e4cb422315",
+      "bytes": 13758,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00031250-plus/pyscf.log",
+      "sha256": "2178277548ab9f2caefbc856e2d77d2fffa111d16cacfc5a2cdfe67ab9e0fafe",
+      "bytes": 2961,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00031250-plus/scf.chk",
+      "sha256": "10c2fcfc79738ed02cbacbaba6d523beccfcbc4d444aee83e5487ef123559fa2",
+      "bytes": 18960,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00031250-plus/source_coordinates_bohr.npy",
+      "sha256": "179dd4459f012e80942a8879799e3cb333a1025ac57663ea139826618252d1c0",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00015625-minus/analytic_H_times_direction.npy",
+      "sha256": "1dcad38e701c15c9a5b0a08bf66f8ad941c21be7856dcd3b39127d291e740c1f",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00015625-minus/direction_cartesian_unit.npy",
+      "sha256": "1691aa71fe3bd349852d320ebd964224ee3a4d749b8828092d269f7ea42dd88c",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00015625-minus/displaced_coordinates_bohr.npy",
+      "sha256": "aaca978bec08859fafe70964bde182a0b5c14457a2731a34fa3e80b82473ff40",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00015625-minus/events.jsonl",
+      "sha256": "cb1542dad29bc7fef81e2777153a56508598e8b60d28f4b797ac19155a78fcdd",
+      "bytes": 7698,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00015625-minus/input.json",
+      "sha256": "3fe20a8c26bc88dfe7f1ad75d09d1821d83a88160182e668145af0f0a7096c53",
+      "bytes": 9802,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00015625-minus/native_result.json",
+      "sha256": "3cdafa4aa4f3c0337654045a3ac545da75e8c1cbc29b20d0def0797e376fd8ce",
+      "bytes": 15813,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00015625-minus/progress.json",
+      "sha256": "8a144da63bec916b5fa31e287dceaafb8367bfa769819bbf2ec1610323830c67",
+      "bytes": 14401,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00015625-minus/pyscf.log",
+      "sha256": "b8921ab8e630e3d50b9c68e98d515ca699ee7af5f3ac738ba5630f8935b86e9a",
+      "bytes": 3267,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00015625-minus/scf.chk",
+      "sha256": "d750f56290b7c021dd18afd85ef598b3bd3cfceec1ffd92bf001703d38767bdb",
+      "bytes": 18960,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00015625-minus/source_coordinates_bohr.npy",
+      "sha256": "179dd4459f012e80942a8879799e3cb333a1025ac57663ea139826618252d1c0",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00015625-plus/analytic_H_times_direction.npy",
+      "sha256": "1dcad38e701c15c9a5b0a08bf66f8ad941c21be7856dcd3b39127d291e740c1f",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00015625-plus/direction_cartesian_unit.npy",
+      "sha256": "1691aa71fe3bd349852d320ebd964224ee3a4d749b8828092d269f7ea42dd88c",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00015625-plus/displaced_coordinates_bohr.npy",
+      "sha256": "21310db21701cef5d717d66491359ffcc67c398a22adc0857ee8e80c089e3805",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00015625-plus/events.jsonl",
+      "sha256": "acfe1ce10856c53c76c75144b3c325bf973705553425728e15e3f8c8a800a258",
+      "bytes": 8613,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00015625-plus/gradient_hartree_per_bohr.npy",
+      "sha256": "5f365f900b51e4037eec0680a54666737b3690f24d91b642f3959760e1296247",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00015625-plus/input.json",
+      "sha256": "b8a1c13bebed985032b6b8b03ae482e9a68e2375a1e727c7610b2412f01acf72",
+      "bytes": 9800,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00015625-plus/native_result.json",
+      "sha256": "a16511ebbbe70fe1d7bbbd05d495f9efd830203bc6cfc55d644679309440aa3d",
+      "bytes": 19943,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00015625-plus/progress.json",
+      "sha256": "868962d61394b4c8406feda4f28f37f8299b01422e60d3b3ccc6b6ba56ab8dad",
+      "bytes": 18194,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00015625-plus/pyscf.log",
+      "sha256": "7f6f4f9ba284f0f94fc99501a2bb6548651884a675e5c0b7eb5fa30f4f2b6cd0",
+      "bytes": 4034,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00015625-plus/scf.chk",
+      "sha256": "c6e93ce1ee7294b35ec06f82bf44451727cfa6045386dc02eec155ced8c89fa4",
+      "bytes": 18960,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00015625-plus/source_coordinates_bohr.npy",
+      "sha256": "179dd4459f012e80942a8879799e3cb333a1025ac57663ea139826618252d1c0",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00007813-minus/analytic_H_times_direction.npy",
+      "sha256": "1dcad38e701c15c9a5b0a08bf66f8ad941c21be7856dcd3b39127d291e740c1f",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00007813-minus/direction_cartesian_unit.npy",
+      "sha256": "1691aa71fe3bd349852d320ebd964224ee3a4d749b8828092d269f7ea42dd88c",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00007813-minus/displaced_coordinates_bohr.npy",
+      "sha256": "4b6b60f5825d970076437ec43fb6efb552bb315dfb42ed49a88ea1f56738a59b",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00007813-minus/events.jsonl",
+      "sha256": "f330b252a050d25c4d310bfa4c91de6ce25207204ccb1f9c2e48f5df5cba948d",
+      "bytes": 8636,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00007813-minus/gradient_hartree_per_bohr.npy",
+      "sha256": "a4497cc5471ffaf8b8325513edd947b2dc1d3d6b24c033f69dfccd570f5972db",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00007813-minus/input.json",
+      "sha256": "46900cc424e1fa72ab1c8c0f5ba4d0bbc776803838e64bfa59ed88b5012f1ef8",
+      "bytes": 9802,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00007813-minus/native_result.json",
+      "sha256": "eedcba3a2920fef3860a52440dc447ace32229e3a197db23c39be815da98ee0c",
+      "bytes": 19965,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00007813-minus/progress.json",
+      "sha256": "b36ec6745f487697be898a8a08367cceea2c96a50851d4b3522791da6fecd288",
+      "bytes": 18211,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00007813-minus/pyscf.log",
+      "sha256": "5f419a7ed5b2a18dbf0c95706db63740fe8e0663657de8ec629113693ee1b380",
+      "bytes": 4041,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00007813-minus/scf.chk",
+      "sha256": "94638c30cdbd1c09acae4b022240da0a98822bf2d1e7ff444118432ad589fbc6",
+      "bytes": 18960,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00007813-minus/source_coordinates_bohr.npy",
+      "sha256": "179dd4459f012e80942a8879799e3cb333a1025ac57663ea139826618252d1c0",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00007813-plus/analytic_H_times_direction.npy",
+      "sha256": "1dcad38e701c15c9a5b0a08bf66f8ad941c21be7856dcd3b39127d291e740c1f",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00007813-plus/direction_cartesian_unit.npy",
+      "sha256": "1691aa71fe3bd349852d320ebd964224ee3a4d749b8828092d269f7ea42dd88c",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00007813-plus/displaced_coordinates_bohr.npy",
+      "sha256": "7568205f522d206e81c1a749874e4607fc7728159edd30c52b5c5430b79a8e94",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00007813-plus/events.jsonl",
+      "sha256": "22a8e85aebd243c47edd8813150e511a2bbedf0f4727ce77780761983c4b6fcf",
+      "bytes": 8591,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00007813-plus/gradient_hartree_per_bohr.npy",
+      "sha256": "43783cbfce9ec51306120d1422d993ad7d8f6f23eec75c276f05a6a4e61adb98",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00007813-plus/input.json",
+      "sha256": "f85490a5f6e3012491f3672989b6676ed080c80c33113ecb12c390c58bf2013f",
+      "bytes": 9800,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00007813-plus/native_result.json",
+      "sha256": "a016380593706b85985f56cea8db8bacf46968a8526d2838a4fc3443d852fa45",
+      "bytes": 19948,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00007813-plus/progress.json",
+      "sha256": "1a0759456cf5fac4a15e8ae0b06a1ae099a686ee03e5a4608d2db6963db7232f",
+      "bytes": 18197,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00007813-plus/pyscf.log",
+      "sha256": "9a9354215ea623a030f6ded5bd1f9a5e5b0f7c412a569909dc06ff8e6d32e59c",
+      "bytes": 4039,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00007813-plus/scf.chk",
+      "sha256": "733b9099fee666d49483cf6ce254a8138d854b14200ce8fec711b7a46ac1f406",
+      "bytes": 18960,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c0-h0.00007813-plus/source_coordinates_bohr.npy",
+      "sha256": "179dd4459f012e80942a8879799e3cb333a1025ac57663ea139826618252d1c0",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00125000-minus/analytic_H_times_direction.npy",
+      "sha256": "8516603b6aeec00828b77e4fbc815ee16c5e391461ace2bf023628b8274dc7c2",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00125000-minus/direction_cartesian_unit.npy",
+      "sha256": "6ca1ddfafad6a26a761e953d67a6098d8cab6750498b55ff8151dde0288d46de",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00125000-minus/displaced_coordinates_bohr.npy",
+      "sha256": "0a89708080bbaf6086bc71e1acb25951b44615a1739148be36b3a75dcfb2b2f0",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00125000-minus/events.jsonl",
+      "sha256": "b0e8a244f8166be207a1bef21f6548a9ef03e97b1782735551de2e8a73362d0c",
+      "bytes": 14583,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00125000-minus/input.json",
+      "sha256": "7b7b53f00aac6eff11497f24eec6ca5b94b243604d281553a8e890de112a0307",
+      "bytes": 9799,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00125000-minus/native_result.json",
+      "sha256": "0b09f82741d4df98d8b0a09de176c094040043452590cafe096c39315dca748a",
+      "bytes": 19348,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00125000-minus/progress.json",
+      "sha256": "d1bda33b281d7cacdddad7e861afbc1af2cf2ac9643619fcdfdfd741eb395e2b",
+      "bytes": 17937,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00125000-minus/pyscf.log",
+      "sha256": "d69df02f12c74494bf777f116b1a6ac791b8aca85d8ea08a49ae84b65980708d",
+      "bytes": 4963,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00125000-minus/scf.chk",
+      "sha256": "c7fcb02bd67647e8b223d62880fbf7daf4839a8cbe582c79cccaf6c6fec38b6d",
+      "bytes": 18960,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00125000-minus/source_coordinates_bohr.npy",
+      "sha256": "179dd4459f012e80942a8879799e3cb333a1025ac57663ea139826618252d1c0",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00125000-plus/analytic_H_times_direction.npy",
+      "sha256": "8516603b6aeec00828b77e4fbc815ee16c5e391461ace2bf023628b8274dc7c2",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00125000-plus/direction_cartesian_unit.npy",
+      "sha256": "6ca1ddfafad6a26a761e953d67a6098d8cab6750498b55ff8151dde0288d46de",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00125000-plus/displaced_coordinates_bohr.npy",
+      "sha256": "f3442883aa51145e1110c550e2c1d22f1722e7dd48dbc7b306d9db7f07ff217a",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00125000-plus/events.jsonl",
+      "sha256": "831cf4ebe340bdf5ddd18eb2bde8b1bf8b853aacbcee62c95d07fb995546005e",
+      "bytes": 14578,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00125000-plus/input.json",
+      "sha256": "1dfa9c1a8c3f74e4c397ddf3f6d2e55e5977971c6f6b4587ae50ef26f7765482",
+      "bytes": 9797,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00125000-plus/native_result.json",
+      "sha256": "a47276507684593d2f391e3e6eb91095f40cda9530e67596ab867515f80a9f79",
+      "bytes": 19358,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00125000-plus/progress.json",
+      "sha256": "d769a15be0527ea1d2154e8f6f3b0c27d5eddd5f889f93b94ea42f170200ab88",
+      "bytes": 17951,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00125000-plus/pyscf.log",
+      "sha256": "5d6f5d79a453d51d5d853e6903419121ac67f0327f838cb493315fd42f0cb3c5",
+      "bytes": 4969,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00125000-plus/scf.chk",
+      "sha256": "ece94f7444e7bfabf5ca2e7d739877fdfca1b9758a4073122ca201c34bb72df1",
+      "bytes": 18960,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00125000-plus/source_coordinates_bohr.npy",
+      "sha256": "179dd4459f012e80942a8879799e3cb333a1025ac57663ea139826618252d1c0",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00062500-minus/analytic_H_times_direction.npy",
+      "sha256": "8516603b6aeec00828b77e4fbc815ee16c5e391461ace2bf023628b8274dc7c2",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00062500-minus/direction_cartesian_unit.npy",
+      "sha256": "6ca1ddfafad6a26a761e953d67a6098d8cab6750498b55ff8151dde0288d46de",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00062500-minus/displaced_coordinates_bohr.npy",
+      "sha256": "257e2753bd03216d32c46191409720bfde308a9aa1f1c8b32f91ceaa538772c2",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00062500-minus/events.jsonl",
+      "sha256": "952f918625c02a61c8cb773ed442e97fc84b0d7a53822c18eee8b4fb6de55244",
+      "bytes": 13343,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00062500-minus/input.json",
+      "sha256": "58e7c1901764507817b360601177c51cb4398e2a496e17c3401bbb6718cb8519",
+      "bytes": 9800,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00062500-minus/native_result.json",
+      "sha256": "63e7f43df9c25bf004daf4a2c2b3c22746b733b0b135ea05d3162f9b23e67dd9",
+      "bytes": 18723,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00062500-minus/progress.json",
+      "sha256": "c6bda99acfb82acac90bac820f9ea9e0e035b5aa1d500c169ef848df7ee98c79",
+      "bytes": 17312,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00062500-minus/pyscf.log",
+      "sha256": "564c101f7acb1f31bd38971f87d5fe7f44bbdbf2615945d9cebfd611f28b85f6",
+      "bytes": 4651,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00062500-minus/scf.chk",
+      "sha256": "9ef89a5ddd61db4d1f5d2527141692c9b73517c727e0226f5fee020add2babf9",
+      "bytes": 18960,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00062500-minus/source_coordinates_bohr.npy",
+      "sha256": "179dd4459f012e80942a8879799e3cb333a1025ac57663ea139826618252d1c0",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00062500-plus/analytic_H_times_direction.npy",
+      "sha256": "8516603b6aeec00828b77e4fbc815ee16c5e391461ace2bf023628b8274dc7c2",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00062500-plus/direction_cartesian_unit.npy",
+      "sha256": "6ca1ddfafad6a26a761e953d67a6098d8cab6750498b55ff8151dde0288d46de",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00062500-plus/displaced_coordinates_bohr.npy",
+      "sha256": "b0315a7cb70ecd4202edc1ed904e175a682a78ff7d3d77911a3b692c3db253b6",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00062500-plus/events.jsonl",
+      "sha256": "9313a2275e74dfe0e66b16d0f455db9fa7f4c7abfaeaf51a346cdb449f66ca3f",
+      "bytes": 12711,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00062500-plus/input.json",
+      "sha256": "e133d7364f37330de99337e0f18a433c827491a1db266d984f44148be1ebd85a",
+      "bytes": 9798,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00062500-plus/native_result.json",
+      "sha256": "032321447bdc25405d6b8f4aa3845e5efd2210bff852c4269f3dd72888f2531c",
+      "bytes": 18376,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00062500-plus/progress.json",
+      "sha256": "437e7e063bb629a5804ceffaea2d6104294652d5b7549d37c806c199776506e3",
+      "bytes": 16968,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00062500-plus/pyscf.log",
+      "sha256": "94edbe6ae04d2304936c8db122f973dd8dcc2ced633d5cbbf1ffd46096a184f7",
+      "bytes": 4486,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00062500-plus/scf.chk",
+      "sha256": "810a7c989b1a00521d30bc6571b970fed19f23c4fd4fd8961050d4e3933c0f95",
+      "bytes": 18960,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00062500-plus/source_coordinates_bohr.npy",
+      "sha256": "179dd4459f012e80942a8879799e3cb333a1025ac57663ea139826618252d1c0",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00031250-minus/analytic_H_times_direction.npy",
+      "sha256": "8516603b6aeec00828b77e4fbc815ee16c5e391461ace2bf023628b8274dc7c2",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00031250-minus/direction_cartesian_unit.npy",
+      "sha256": "6ca1ddfafad6a26a761e953d67a6098d8cab6750498b55ff8151dde0288d46de",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00031250-minus/displaced_coordinates_bohr.npy",
+      "sha256": "006cfaeb726ac7a12b193a4eefb43c954c0be70517e13d2fd8b07fe0c47d4595",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00031250-minus/events.jsonl",
+      "sha256": "48e4ef11ad0872873e28e8ac3667f0ea0908e766fb6c8664f5b2b94da5496667",
+      "bytes": 10840,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00031250-minus/input.json",
+      "sha256": "a2a269337bbf8fbb02ee9361ebab4cf065e0f85d06e61fce78058a0aeaeb8a13",
+      "bytes": 9801,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00031250-minus/native_result.json",
+      "sha256": "209e60074e7c48b9fb3a25c1c411d0d6ffcd3e8fb8b40c6a87f49227f6972ca5",
+      "bytes": 17427,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00031250-minus/progress.json",
+      "sha256": "f3181bf8efd1975a9caac532630613ce653eb9928a5b2466fbc218cf2d278ae7",
+      "bytes": 16016,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00031250-minus/pyscf.log",
+      "sha256": "db8187813068a0fae64fd9a24b59d7f4a007798d3a91fc357dffdbbbe94568fe",
+      "bytes": 4038,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00031250-minus/scf.chk",
+      "sha256": "d67b9d2d84cf096962b865b385b1130879f26de534a411f0bf8eeb3a04fca924",
+      "bytes": 18960,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00031250-minus/source_coordinates_bohr.npy",
+      "sha256": "179dd4459f012e80942a8879799e3cb333a1025ac57663ea139826618252d1c0",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00031250-plus/analytic_H_times_direction.npy",
+      "sha256": "8516603b6aeec00828b77e4fbc815ee16c5e391461ace2bf023628b8274dc7c2",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00031250-plus/direction_cartesian_unit.npy",
+      "sha256": "6ca1ddfafad6a26a761e953d67a6098d8cab6750498b55ff8151dde0288d46de",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00031250-plus/displaced_coordinates_bohr.npy",
+      "sha256": "0d98866f423d1b1324fe8323fed8bbd1cd6aa2d529862a6c5ca1f307b0ad2fd0",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00031250-plus/events.jsonl",
+      "sha256": "305774cdd7d10198f0398ab01c396199927bdab7678db61d119919a7d2b0dd82",
+      "bytes": 12703,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00031250-plus/input.json",
+      "sha256": "c6e561f65eb8a564bbb5816d90310847ab584260594746e3293e655ff5058be2",
+      "bytes": 9799,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00031250-plus/native_result.json",
+      "sha256": "bbe041cd007a0ba7aab6ed090e854d92b9eb802399ac433bc0e767cf74e3c67d",
+      "bytes": 18359,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00031250-plus/progress.json",
+      "sha256": "f4c426981b327d3f39e42a6b48e42fdb500d458ee395c1341ab406ed51d9c2de",
+      "bytes": 16952,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00031250-plus/pyscf.log",
+      "sha256": "59ec1f53a1fcda878f7c568e4a36209cbc257d568834eae29aaba6c6a6a50243",
+      "bytes": 4496,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00031250-plus/scf.chk",
+      "sha256": "d132ca78a24f01984c40f098c6aaac6d232a45d6a3675088d48815ec2f509bfe",
+      "bytes": 18960,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00031250-plus/source_coordinates_bohr.npy",
+      "sha256": "179dd4459f012e80942a8879799e3cb333a1025ac57663ea139826618252d1c0",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00015625-minus/analytic_H_times_direction.npy",
+      "sha256": "8516603b6aeec00828b77e4fbc815ee16c5e391461ace2bf023628b8274dc7c2",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00015625-minus/direction_cartesian_unit.npy",
+      "sha256": "6ca1ddfafad6a26a761e953d67a6098d8cab6750498b55ff8151dde0288d46de",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00015625-minus/displaced_coordinates_bohr.npy",
+      "sha256": "912baa4ba767450233aaf50abeb4c2b43a7619a2addb90fb7c29c6b57697f4a5",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00015625-minus/events.jsonl",
+      "sha256": "74997a52d38adbdaf622b4f9a3666c296e95ff525a9618279c51b6707c9bc65e",
+      "bytes": 11429,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00015625-minus/input.json",
+      "sha256": "8ba2bcf46c3eb69f6e49ae360d83905394c9ab0689ab16420e898162e5985d48",
+      "bytes": 9802,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00015625-minus/native_result.json",
+      "sha256": "c81e29543eee55f872be8bd390d71bcf7b21fe9d1d3c3ea91686a92b53de8a13",
+      "bytes": 17728,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00015625-minus/progress.json",
+      "sha256": "7b2e5aaf69dafed0618cd8e7c123450ddc5348bc281827cd4f933e85bf6f788e",
+      "bytes": 16318,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00015625-minus/pyscf.log",
+      "sha256": "e11faffb6d14d164d4247e010a91f63492ca016535146a583808a6c9014302e6",
+      "bytes": 4197,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00015625-minus/scf.chk",
+      "sha256": "f78046ca1a41302d87dbee4bb4f1cd0dff5035a372c0d43ec52766a13092fd66",
+      "bytes": 18960,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00015625-minus/source_coordinates_bohr.npy",
+      "sha256": "179dd4459f012e80942a8879799e3cb333a1025ac57663ea139826618252d1c0",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00015625-plus/analytic_H_times_direction.npy",
+      "sha256": "8516603b6aeec00828b77e4fbc815ee16c5e391461ace2bf023628b8274dc7c2",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00015625-plus/direction_cartesian_unit.npy",
+      "sha256": "6ca1ddfafad6a26a761e953d67a6098d8cab6750498b55ff8151dde0288d46de",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00015625-plus/displaced_coordinates_bohr.npy",
+      "sha256": "daf8eb4cb806847251186ea9c19cd0c28bb52764e5c3d8b8a318e5729dd9fa75",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00015625-plus/events.jsonl",
+      "sha256": "a996e941f01c3d953dc5c710187a35ca4d8b07a53885e1eefe43d334bbecdf64",
+      "bytes": 12109,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00015625-plus/input.json",
+      "sha256": "de737fbe33844ad571dadd849b40889f790ebbc45f39113ba5c63eecce6b7a51",
+      "bytes": 9800,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00015625-plus/native_result.json",
+      "sha256": "731fa8e4509f35b0a7372fd2c3133434f3b5497a4229d1f361df7b1c14b87246",
+      "bytes": 18083,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00015625-plus/progress.json",
+      "sha256": "89fad6836c0c1493640d5f67908b9571abbf5f94576438426b40e2014f4180c3",
+      "bytes": 16677,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00015625-plus/pyscf.log",
+      "sha256": "6876792fa24a41150c6c020605a2ebd8e47bdd4b93f706d4ec52ead0e3ab0780",
+      "bytes": 4353,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00015625-plus/scf.chk",
+      "sha256": "29c9204df30d768ccefc988696fe40094a2fc03f3d592e1e8dde12bf9491d02d",
+      "bytes": 18960,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00015625-plus/source_coordinates_bohr.npy",
+      "sha256": "179dd4459f012e80942a8879799e3cb333a1025ac57663ea139826618252d1c0",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00007813-minus/analytic_H_times_direction.npy",
+      "sha256": "8516603b6aeec00828b77e4fbc815ee16c5e391461ace2bf023628b8274dc7c2",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00007813-minus/direction_cartesian_unit.npy",
+      "sha256": "6ca1ddfafad6a26a761e953d67a6098d8cab6750498b55ff8151dde0288d46de",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00007813-minus/displaced_coordinates_bohr.npy",
+      "sha256": "d1f227cbae724ae58dc004a5dbf3be78447787b98045c66dda87d2676f8d7961",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00007813-minus/events.jsonl",
+      "sha256": "2bbf21c4fe8aef35c1294c2ca1ede9d8815790128f7b79b27577a6c2fe1a10a9",
+      "bytes": 12365,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00007813-minus/gradient_hartree_per_bohr.npy",
+      "sha256": "dcf06d092d67748a3b2c3013551efb8e65df2c25b94a32f05390f39ad087a206",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00007813-minus/input.json",
+      "sha256": "2c0327c66ab15244d1a983596ef60a404f0be0e5dad360fa5c9c7acf4cdd71a8",
+      "bytes": 9802,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00007813-minus/native_result.json",
+      "sha256": "65db23249b8a0e0a452f8ae7ea70e2df96cb7a681ea997b9134bd37462d614c7",
+      "bytes": 21868,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00007813-minus/progress.json",
+      "sha256": "9354b06434dce88aada623fcfe533e664256fe6b02dd847a3e7afde30e84db75",
+      "bytes": 20113,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00007813-minus/pyscf.log",
+      "sha256": "0dbf8fac4c62f3f4aff3f240b4a5348def0ac3a569649ebcf4c738f6f9ed7b4f",
+      "bytes": 4958,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00007813-minus/scf.chk",
+      "sha256": "c4918c79b410ca3d06f3d4f4ca4d6051f8c11bf3f0d9a198db8643ba40c9d2e3",
+      "bytes": 18960,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00007813-minus/source_coordinates_bohr.npy",
+      "sha256": "179dd4459f012e80942a8879799e3cb333a1025ac57663ea139826618252d1c0",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00007813-plus/analytic_H_times_direction.npy",
+      "sha256": "8516603b6aeec00828b77e4fbc815ee16c5e391461ace2bf023628b8274dc7c2",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00007813-plus/direction_cartesian_unit.npy",
+      "sha256": "6ca1ddfafad6a26a761e953d67a6098d8cab6750498b55ff8151dde0288d46de",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00007813-plus/displaced_coordinates_bohr.npy",
+      "sha256": "b635eb0c92e95293e22c40285c863e7af710c2fa4c2c8b595aa79d7e9be56180",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00007813-plus/events.jsonl",
+      "sha256": "95c33a1c8d67cb01064d6d0b647290d30011bcd78afc65f19a9622ecb0569152",
+      "bytes": 11444,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00007813-plus/input.json",
+      "sha256": "484b8f5a93dfd00796d4090819c957f423b27614eceb1a6796e52017b6a94c1b",
+      "bytes": 9800,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00007813-plus/native_result.json",
+      "sha256": "f5af9c67294dd92cd4f9844d759d8a15537555534b729019334969dc090b7aea",
+      "bytes": 17712,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00007813-plus/progress.json",
+      "sha256": "6d78e748a8a155035d3af472dc92b64fe6aa8bbe5a9d3c291cc933bdcdafec41",
+      "bytes": 16305,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00007813-plus/pyscf.log",
+      "sha256": "861f9a7e629b2a9144fccd3a22b375753524504f332cfbc36b814c5afdf2fbb2",
+      "bytes": 4179,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00007813-plus/scf.chk",
+      "sha256": "383041af2d4b82c8e40c0b3d4585e620b83ac3d3e85d5f86dcc2f9a3bebb8fed",
+      "bytes": 18960,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c4-h0.00007813-plus/source_coordinates_bohr.npy",
+      "sha256": "179dd4459f012e80942a8879799e3cb333a1025ac57663ea139826618252d1c0",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00125000-minus/analytic_H_times_direction.npy",
+      "sha256": "20c663348dcee82d9485317b01109fb6837241133a0a50c0416f3cf83e2a96ea",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00125000-minus/direction_cartesian_unit.npy",
+      "sha256": "541b6935ce41afd14c258a8caae9b3d4e413eb364f663ccd63c19257b232c2c5",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00125000-minus/displaced_coordinates_bohr.npy",
+      "sha256": "108681083b2c974a4329be6550ab7a3e3e5d3d88219e0211c0a8652a1b3b08bc",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00125000-minus/events.jsonl",
+      "sha256": "2d4d3e79237cd7b42cd8d2d22170cd92816d9b2301c6d5aeedd08dcef117027f",
+      "bytes": 7368,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00125000-minus/gradient_hartree_per_bohr.npy",
+      "sha256": "1dfac86f9bbb7ec1047da9586c7a29efb069e5c4ec017e995d080708aaa17bd5",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00125000-minus/input.json",
+      "sha256": "3a6770d2931350a4fe30043165cd086adb7a786c5788dcdc7cd87f65641d09ef",
+      "bytes": 9799,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00125000-minus/native_result.json",
+      "sha256": "9cb148e0e2448325cec11097d92c022258279ec0d5f3d25a6f1990f904a0f442",
+      "bytes": 19305,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00125000-minus/progress.json",
+      "sha256": "05d03d43bcb945d78dbccfcc8bbcd669ad816bf4ed57be1a44ee4c9fe2c41ab8",
+      "bytes": 17552,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00125000-minus/pyscf.log",
+      "sha256": "568eeea765b79eba7dae92bbfa6b6df6260a84a28ea387e1c1597c9917397915",
+      "bytes": 3734,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00125000-minus/scf.chk",
+      "sha256": "90348ae0a8a18267f8c999287d126a4d6a08b9b2863ffd02f74a972b9ab9d9e0",
+      "bytes": 18960,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00125000-minus/source_coordinates_bohr.npy",
+      "sha256": "179dd4459f012e80942a8879799e3cb333a1025ac57663ea139826618252d1c0",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00125000-plus/analytic_H_times_direction.npy",
+      "sha256": "20c663348dcee82d9485317b01109fb6837241133a0a50c0416f3cf83e2a96ea",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00125000-plus/direction_cartesian_unit.npy",
+      "sha256": "541b6935ce41afd14c258a8caae9b3d4e413eb364f663ccd63c19257b232c2c5",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00125000-plus/displaced_coordinates_bohr.npy",
+      "sha256": "3a632cc4f31be58f609bc4bc5d143b0eb122c4eaaeb201fc8d4d1889935b998b",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00125000-plus/events.jsonl",
+      "sha256": "6cec9fc3c4929c6ebb16da01c57126feedfdf4a6bd623e2546276e010305fed0",
+      "bytes": 6747,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00125000-plus/gradient_hartree_per_bohr.npy",
+      "sha256": "2c6b1e525843162d7d84372bd781d5c4c94208b809ac9cf4e0fe570ec2da08b8",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00125000-plus/input.json",
+      "sha256": "46d6a1e2ec24ec448212bf4aef298ee297e29cb23a42f33bf78f6e3655716672",
+      "bytes": 9797,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00125000-plus/native_result.json",
+      "sha256": "ffffce47fdafb0da625374c94bd53e6e2fdc577795c0e53a354fc80efb1d3bf9",
+      "bytes": 18975,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00125000-plus/progress.json",
+      "sha256": "f2e76b41172345cfc79e2d4e12cf2894b069f63d1bbb5334235285d4aa3060d3",
+      "bytes": 17226,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00125000-plus/pyscf.log",
+      "sha256": "156e134d2a70c00927329eb920348f01422f27c1575d71e243b7014d6243633e",
+      "bytes": 3579,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00125000-plus/scf.chk",
+      "sha256": "e471995a25803384c7c271cab9aac3270028fa5b52d879c8134f271ab18baee1",
+      "bytes": 18960,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00125000-plus/source_coordinates_bohr.npy",
+      "sha256": "179dd4459f012e80942a8879799e3cb333a1025ac57663ea139826618252d1c0",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00062500-minus/analytic_H_times_direction.npy",
+      "sha256": "20c663348dcee82d9485317b01109fb6837241133a0a50c0416f3cf83e2a96ea",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00062500-minus/direction_cartesian_unit.npy",
+      "sha256": "541b6935ce41afd14c258a8caae9b3d4e413eb364f663ccd63c19257b232c2c5",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00062500-minus/displaced_coordinates_bohr.npy",
+      "sha256": "073ce512718788b480073b7a05e0aabba14029c8c69d29af68323af1913afb3a",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00062500-minus/events.jsonl",
+      "sha256": "d0552f445c18698a6e720a3cb6e94a202703e7858462fe48e930bb8c1632cdce",
+      "bytes": 5213,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00062500-minus/input.json",
+      "sha256": "09dcb446e52fddc7e754ac8e8f6b9b45bd23873b12f4900edce6f9756b5e4b09",
+      "bytes": 9800,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00062500-minus/native_result.json",
+      "sha256": "0fbf0fef466bbd457df5134c68921584a8948d8d2b14b404008825291da53caf",
+      "bytes": 14535,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00062500-minus/progress.json",
+      "sha256": "e93197d178324442e14d36d54df9fa81ff444878970c337f5db75cd518456691",
+      "bytes": 13123,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00062500-minus/pyscf.log",
+      "sha256": "9be677cac3d63b64663642d125efe39d9b20ce503b13225e8c8fd73ff76aabcb",
+      "bytes": 2654,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00062500-minus/scf.chk",
+      "sha256": "570221cbc3a97859e143d6bcd928e904e328e06ce6ebaa57b4a7d38856cc792c",
+      "bytes": 18960,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00062500-minus/source_coordinates_bohr.npy",
+      "sha256": "179dd4459f012e80942a8879799e3cb333a1025ac57663ea139826618252d1c0",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00062500-plus/analytic_H_times_direction.npy",
+      "sha256": "20c663348dcee82d9485317b01109fb6837241133a0a50c0416f3cf83e2a96ea",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00062500-plus/direction_cartesian_unit.npy",
+      "sha256": "541b6935ce41afd14c258a8caae9b3d4e413eb364f663ccd63c19257b232c2c5",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00062500-plus/displaced_coordinates_bohr.npy",
+      "sha256": "2feea78a8d4632c39a1f31c60c4bc40f1a6bfc5b575fcab6a79dc411748cd0e7",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00062500-plus/events.jsonl",
+      "sha256": "7b73d0ebb6df6f1fa1cfe441b65071e1530622816f5812391624aff8dd08b4e8",
+      "bytes": 5206,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00062500-plus/input.json",
+      "sha256": "5bd11fc37f3a9cc04765bd51f1a3bb15e5c4f72e712e00ea40a7bc617e7b3dff",
+      "bytes": 9798,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00062500-plus/native_result.json",
+      "sha256": "c1f9e849d4e0473d004e44072865a86ed69f0dadd7f56f2fc50b98ac27c8b631",
+      "bytes": 14527,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00062500-plus/progress.json",
+      "sha256": "e892c88ce0bf8e2e730e4adaf5435375ce583d7b2b5b704c972516f7062d1ed0",
+      "bytes": 13120,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00062500-plus/pyscf.log",
+      "sha256": "9fb878c2699db285e9383abc2d0c0a1c97f7f348940e3cb7b366f9a6b0b9bdf3",
+      "bytes": 2655,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00062500-plus/scf.chk",
+      "sha256": "d039704abe4e938fc58abcd164b7bd754dc720abb1f7acd58ae506c5efccbaa9",
+      "bytes": 18960,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00062500-plus/source_coordinates_bohr.npy",
+      "sha256": "179dd4459f012e80942a8879799e3cb333a1025ac57663ea139826618252d1c0",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00031250-minus/analytic_H_times_direction.npy",
+      "sha256": "20c663348dcee82d9485317b01109fb6837241133a0a50c0416f3cf83e2a96ea",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00031250-minus/direction_cartesian_unit.npy",
+      "sha256": "541b6935ce41afd14c258a8caae9b3d4e413eb364f663ccd63c19257b232c2c5",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00031250-minus/displaced_coordinates_bohr.npy",
+      "sha256": "bd1a5b616e2062cc51a85539c3d0e62f89bf6f6568c994ac44ee3e25dc0a8bc5",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00031250-minus/events.jsonl",
+      "sha256": "05fd068ac817670f32ca47def4ce2e5f7e1b591a8694e6333ba4dcb7643648e4",
+      "bytes": 5464,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00031250-minus/gradient_hartree_per_bohr.npy",
+      "sha256": "56f2545eb7011f75c316b9bb069cd0a6c7e4b4517dcdb3739f8fa1c2035ef94e",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00031250-minus/input.json",
+      "sha256": "85978d5d06d7123ae4fabd366e5c50985c99daf2c6353604e3e73e6434727f85",
+      "bytes": 9801,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00031250-minus/native_result.json",
+      "sha256": "442812c8e91d9182f1ed841c96e0b606bdf162c9045b16c9efd39a8eea8ea355",
+      "bytes": 18322,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00031250-minus/progress.json",
+      "sha256": "f905016a989bb368d18f32d5d41e9475339d4c8d93595bb89c6386f68ddc0eee",
+      "bytes": 16567,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00031250-minus/pyscf.log",
+      "sha256": "00ab59dab2ad17d771dd7372767a0402cf6f55820362b4ff065cf19a1d90deef",
+      "bytes": 3263,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00031250-minus/scf.chk",
+      "sha256": "a391989ed6d27f3518d91f5feafbc635044171bc4167879ddbe2495f1972cc52",
+      "bytes": 18960,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00031250-minus/source_coordinates_bohr.npy",
+      "sha256": "179dd4459f012e80942a8879799e3cb333a1025ac57663ea139826618252d1c0",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00031250-plus/analytic_H_times_direction.npy",
+      "sha256": "20c663348dcee82d9485317b01109fb6837241133a0a50c0416f3cf83e2a96ea",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00031250-plus/direction_cartesian_unit.npy",
+      "sha256": "541b6935ce41afd14c258a8caae9b3d4e413eb364f663ccd63c19257b232c2c5",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00031250-plus/displaced_coordinates_bohr.npy",
+      "sha256": "7a6f6ebda918f13e0d69020ce6c8d47c83865e0944caa8b0f95e74e5f35e0e68",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00031250-plus/events.jsonl",
+      "sha256": "33596614cdd3b05d1d24d97098459fcaec684a4b4f0777ba5a58e372fd672267",
+      "bytes": 6090,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00031250-plus/gradient_hartree_per_bohr.npy",
+      "sha256": "4d7619a892d9dc0d3c395b932cd46d761d2abfd510d0bb668aed74847d0fcdae",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00031250-plus/input.json",
+      "sha256": "c8609ff6b1ab8962fa2c6c9cc512acb34b09069f8b5360cc4b634a1122bb9212",
+      "bytes": 9799,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00031250-plus/native_result.json",
+      "sha256": "916924968a029038528c4c3b5519a9dd6cfa30a8aa05cd2d895e8cacb8d29938",
+      "bytes": 18634,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00031250-plus/progress.json",
+      "sha256": "78fb5cc06eca03c390426747d08aa73226fd0ede8dc10ecdb8c62f828a6571f8",
+      "bytes": 16884,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00031250-plus/pyscf.log",
+      "sha256": "f443acca04cb4e855773b9ea9ddcb533c3e5bd9efc96cecae9537c63064dcda9",
+      "bytes": 3416,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00031250-plus/scf.chk",
+      "sha256": "9b43d00aab28b0992091ed07bb57c05cd5c237e18a7870f1e214089cb78efa75",
+      "bytes": 18960,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00031250-plus/source_coordinates_bohr.npy",
+      "sha256": "179dd4459f012e80942a8879799e3cb333a1025ac57663ea139826618252d1c0",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00015625-minus/analytic_H_times_direction.npy",
+      "sha256": "20c663348dcee82d9485317b01109fb6837241133a0a50c0416f3cf83e2a96ea",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00015625-minus/direction_cartesian_unit.npy",
+      "sha256": "541b6935ce41afd14c258a8caae9b3d4e413eb364f663ccd63c19257b232c2c5",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00015625-minus/displaced_coordinates_bohr.npy",
+      "sha256": "4bb065d3c5048c75d3dcab4a8af548d0590ba014edc137724444cbb580e070ef",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00015625-minus/events.jsonl",
+      "sha256": "1ce4c98a565a603d8aa6f1e17065748c34d0d70658dc47c29e936d1d7164dd8f",
+      "bytes": 5843,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00015625-minus/input.json",
+      "sha256": "50f12b819b440eb02cecadb736e030ac9ff4cdb4befa3a33e14e515a6cabe52f",
+      "bytes": 9802,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00015625-minus/native_result.json",
+      "sha256": "edf52e10be137857a413fc3d881529824f7203784e1b1ddd8a3bb94a6bffd5ec",
+      "bytes": 14858,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00015625-minus/progress.json",
+      "sha256": "56e7a655c4acfc23add8512b341377258c7363c5555d5ba08d3be484b37b7af1",
+      "bytes": 13447,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00015625-minus/pyscf.log",
+      "sha256": "8f6c5e4074b2b2442d1ea0eff6d41176858b59e15f1bd0dad0774f0cb9d3f8de",
+      "bytes": 2807,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00015625-minus/scf.chk",
+      "sha256": "758414e35206e39be8a0c80d2f79d6aa462ee7c5bb02e15e861b7ec913a914f8",
+      "bytes": 18960,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00015625-minus/source_coordinates_bohr.npy",
+      "sha256": "179dd4459f012e80942a8879799e3cb333a1025ac57663ea139826618252d1c0",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00015625-plus/analytic_H_times_direction.npy",
+      "sha256": "20c663348dcee82d9485317b01109fb6837241133a0a50c0416f3cf83e2a96ea",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00015625-plus/direction_cartesian_unit.npy",
+      "sha256": "541b6935ce41afd14c258a8caae9b3d4e413eb364f663ccd63c19257b232c2c5",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00015625-plus/displaced_coordinates_bohr.npy",
+      "sha256": "847ec44365841c9342265e88e6d8c92dc151f6415d40e00166261587bed7dabd",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00015625-plus/events.jsonl",
+      "sha256": "01475a7ffe88edf53ddbf71563ddb4bd9a6e4aaae693d213e4eb8e66e822ef8b",
+      "bytes": 6731,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00015625-plus/gradient_hartree_per_bohr.npy",
+      "sha256": "43a04b8d8724cedac5b54307ee0583c48f3d7d08e900590546493065ab1617e2",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00015625-plus/input.json",
+      "sha256": "3bac4ca5f084ff1cc029a63daa9e96e9a95597554f35323db6e9fcc016cc6b27",
+      "bytes": 9800,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00015625-plus/native_result.json",
+      "sha256": "578ccf97eef51d0c8eb37d6b43396df8a5fb2039b8488dd4ed72c6a9355efa84",
+      "bytes": 18976,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00015625-plus/progress.json",
+      "sha256": "00afe5b7e0ed916a9041f4dff76fb606938f1b4b99427602235438e7f75175f9",
+      "bytes": 17227,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00015625-plus/pyscf.log",
+      "sha256": "5a01fbaeb606cf4d524ba06fab503f43bf901419a4ae20a0c40385f1857e983f",
+      "bytes": 3579,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00015625-plus/scf.chk",
+      "sha256": "a05c997cc861bb1853df512e03e6846954895a3d6700e0c011305da17bbc5309",
+      "bytes": 18960,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00015625-plus/source_coordinates_bohr.npy",
+      "sha256": "179dd4459f012e80942a8879799e3cb333a1025ac57663ea139826618252d1c0",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00007813-minus/analytic_H_times_direction.npy",
+      "sha256": "20c663348dcee82d9485317b01109fb6837241133a0a50c0416f3cf83e2a96ea",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00007813-minus/direction_cartesian_unit.npy",
+      "sha256": "541b6935ce41afd14c258a8caae9b3d4e413eb364f663ccd63c19257b232c2c5",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00007813-minus/displaced_coordinates_bohr.npy",
+      "sha256": "319194449859691d0a4df1c774993b1b1d0268aad1dbd8a0f11b494219bed59b",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00007813-minus/events.jsonl",
+      "sha256": "342b638aab6c9fa452c279cb6f2dfd078e9af73cc8163eac5fed76fcaa38b712",
+      "bytes": 6749,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00007813-minus/gradient_hartree_per_bohr.npy",
+      "sha256": "85a04dcbb66050916a573bb793fe2beb8892b89115e00829231ba898e54baba3",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00007813-minus/input.json",
+      "sha256": "7541ed833628c6858d75de7c12251e18cc147c279017bf503fdc63c180804f21",
+      "bytes": 9802,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00007813-minus/native_result.json",
+      "sha256": "338a801ad9a173b0db78a682e7048a6f2c0e022fd39e9548c8fe73a7816d9758",
+      "bytes": 18990,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00007813-minus/progress.json",
+      "sha256": "0965b557d8a9aeae8b4d3df73c4bde0fe6f0e88db599697da91403b32a0e435a",
+      "bytes": 17235,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00007813-minus/pyscf.log",
+      "sha256": "763800bf713c0657398f8a30ec4af0a803beb0d2307bd8e56bd55d2737046eae",
+      "bytes": 3570,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00007813-minus/scf.chk",
+      "sha256": "cdbf20d5e1ce00f892a7a70bf0aed33f2d719e5fdf705c11bcc02f44547a293b",
+      "bytes": 18960,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00007813-minus/source_coordinates_bohr.npy",
+      "sha256": "179dd4459f012e80942a8879799e3cb333a1025ac57663ea139826618252d1c0",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00007813-plus/analytic_H_times_direction.npy",
+      "sha256": "20c663348dcee82d9485317b01109fb6837241133a0a50c0416f3cf83e2a96ea",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00007813-plus/direction_cartesian_unit.npy",
+      "sha256": "541b6935ce41afd14c258a8caae9b3d4e413eb364f663ccd63c19257b232c2c5",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00007813-plus/displaced_coordinates_bohr.npy",
+      "sha256": "70777fc521c0d61989407ac2523900ee68f9d928aae8a32b7a737e879bc3f9ad",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00007813-plus/events.jsonl",
+      "sha256": "0e44738b1393df8e263c056fb12b5777887ff5d0c329553663d2f89c45fcd3f5",
+      "bytes": 8620,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00007813-plus/gradient_hartree_per_bohr.npy",
+      "sha256": "9c65d600d38cf08e9959111d9873fb7950d1e4d57c33fa38cd5ba23b2c7f90a9",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00007813-plus/input.json",
+      "sha256": "6d8a42e510a7cc5a95bf2b862f48bc15019dda33b2f473603ff69cd914921e8e",
+      "bytes": 9800,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00007813-plus/native_result.json",
+      "sha256": "ba39eb9c4ac9b0400d5504816b17e24f4a9b4817775304bc262668a9526e073e",
+      "bytes": 19956,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00007813-plus/progress.json",
+      "sha256": "b498de8ffb5500c9b4ab7c8594e2b94d74f90756b90a9f3059a26d8006046abb",
+      "bytes": 18207,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00007813-plus/pyscf.log",
+      "sha256": "05e15146a744da32ba2f09396e0b3784aa7780682cb5912c071c1f3858da3c8e",
+      "bytes": 4037,
+      "producer_hash_verified": false,
+      "hash_basis": "CURRENT_BYTES_HASHED_FOR_THIS_REVIEW_ONLY"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00007813-plus/scf.chk",
+      "sha256": "313c2aff30677577fb0f63ca5529360ad5ed294a89aac5e6cd21271a8dba4995",
+      "bytes": 18960,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    },
+    {
+      "path": "reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-step-convergence-attempt001/c8-h0.00007813-plus/source_coordinates_bohr.npy",
+      "sha256": "179dd4459f012e80942a8879799e3cb333a1025ac57663ea139826618252d1c0",
+      "bytes": 200,
+      "producer_hash_verified": true,
+      "hash_basis": "MATCHES_DECLARED_CHILD_PRODUCER_HASH"
+    }
+  ],
+  "scientific_limits": {
+    "original_incomplete_attempt_and_cost_preserved": true,
+    "no_failed_points_reclassified": true,
+    "no_gate_relaxation_or_posthoc_step_selection": true,
+    "Spinosin_release": false,
+    "new_Hessian_or_minimum_or_IR_claim": false,
+    "recommended_next_step": "Use a separately reviewed, bounded strict refinement to obtain genuine successful water endpoints and repeat the predetermined unchanged control. If the energy noise floor persists, document it and preregister an uncertainty-aware finite-window design before additional science; do not pass the blocked gate from the existing incomplete subset."
+  }
+}

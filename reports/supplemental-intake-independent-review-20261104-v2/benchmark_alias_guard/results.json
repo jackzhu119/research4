@@ -1,0 +1,70 @@
+{
+  "status": "PASS_FOUR_INDEPENDENT_SYNTHETIC_ALIAS_REGRESSIONS",
+  "old_source_sha256": "8d36fc545931fd9987d96f2e40bf48302493b7d07d825d512b6578cd622a306c",
+  "new_source_sha256": "a15605d7367121b262605dcdb6cad75ab4ca90c4bfd85c856a12317d3578046e",
+  "cases": [
+    {
+      "case": "legacy_to_old_record_different_X",
+      "before": {
+        "accepted": true,
+        "status": "PASS_API_PREFLIGHT"
+      },
+      "after": {
+        "accepted": false,
+        "exception": "LeakageError",
+        "reason": "Repeated physical_alias identity in source and query"
+      },
+      "source_query_X_differ": true
+    },
+    {
+      "case": "entity_to_record_different_X",
+      "before": {
+        "accepted": true,
+        "status": "PASS_API_PREFLIGHT"
+      },
+      "after": {
+        "accepted": false,
+        "exception": "LeakageError",
+        "reason": "Repeated physical_alias identity in source and query"
+      },
+      "source_query_X_differ": true
+    },
+    {
+      "case": "indirect_three_role_alias_chain",
+      "before": {
+        "accepted": true,
+        "status": "PASS_API_PREFLIGHT"
+      },
+      "after": {
+        "accepted": false,
+        "exception": "LeakageError",
+        "reason": "Repeated physical_alias identity in source and support"
+      },
+      "source_query_X_differ": true
+    },
+    {
+      "case": "legal_self_alias_clean_baseline",
+      "before": {
+        "accepted": true,
+        "status": "PASS_API_PREFLIGHT"
+      },
+      "after": {
+        "accepted": true,
+        "status": "PASS_API_PREFLIGHT"
+      },
+      "source_query_X_differ": true
+    }
+  ],
+  "old_alias_leaks_reproduced": 3,
+  "new_alias_leaks_rejected": 3,
+  "clean_self_alias_case_preserved": true,
+  "scientific_array_or_workbook_reads": 0,
+  "scientific_or_synthetic_model_fits": 0,
+  "quantum_evaluations": 0,
+  "resource_AS_bytes": 1610612736,
+  "CPU_affinity": [
+    0
+  ],
+  "peak_RSS_kib": 128420,
+  "regression_source_sha256": "ab48accc9c90b7e70130ce4bee2dea2127227e1a6a7e808f25fd0d1e3237bf2f"
+}

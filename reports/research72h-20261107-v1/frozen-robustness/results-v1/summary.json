@@ -1,0 +1,54 @@
+{
+  "actual_new_specimens": 0,
+  "all_metrics_include_same_855": true,
+  "baseline_accuracy": 0.960233918128655,
+  "baseline_balanced_accuracy": 0.8991836734693877,
+  "baseline_macro_f1": 0.9196845913264596,
+  "baseline_replay": {
+    "identical_predictions": 855,
+    "prediction_rule": "historical SVC.predict voting",
+    "scores_absolute_tolerance": 1e-12,
+    "scores_max_abs_difference": 0.0
+  },
+  "cases": 18,
+  "class_counts": {
+    "ZY01": 350,
+    "ZY02": 5,
+    "ZY03": 100,
+    "ZY04": 100,
+    "ZY05": 100,
+    "ZY06": 100,
+    "ZY07": 100
+  },
+  "cpu_seconds": 2.768648424,
+  "historical_baseline_correct": 821,
+  "limitations": [
+    "All 855 records were exposed historical development data; this is not independent confirmation.",
+    "Each ZY record is user-declared independent; original collection ancestry was not independently verified.",
+    "One source lot per anonymous origin group; origin and source-lot effects cannot be separated.",
+    "Synthetic corruptions are engineering spectral-shape tests, not validated instrument noise, batch transfer, or chemical effects.",
+    "Repeated corruption seeds and cases reuse the same 855 records; they do not increase specimen count.",
+    "ZY02 has five records; per-class counts and denominators must accompany macro metrics.",
+    "Frozen SVC.predict vote rules are preserved; OVR scores are not probabilities or an argmax prediction replacement.",
+    "No p-values, biological confidence intervals, adaptation, refitting, parameter selection, or model ranking from corruption scores.",
+    "Unclipped original alpha values, including high-frequency negatives, are retained.",
+    "Preparation parses the already-labelled historical prediction CSV to project a truth-free reference; run-phase scoring access is logically separated, not OS-sandboxed or never-exposed truth."
+  ],
+  "limits": {
+    "cpu_seconds": 600,
+    "fit_calls_allowed": 0,
+    "threads": 2,
+    "wall_seconds": 1200
+  },
+  "model_load_calls": 10,
+  "models_fitted": 0,
+  "new_specimens": 0,
+  "prediction_rows_reused_samples": 15390,
+  "protocol_sha256": "ac3359f953499c985553156936e074e48e0b35b26c82a0dbe44c4813b420fd87",
+  "release_sha256": "d12545bf3b0dc2017719eb6247de7060972ec59726df3567dfda42986854b291",
+  "samples": 855,
+  "schema": "frozen-r2-oof-engineering-robustness-20261107-v1",
+  "status": "DONE_EXPLORATORY_SYNTHETIC_CORRUPTION_DIAGNOSTICS",
+  "unique_native_models": 5,
+  "wall_seconds": 2.679548362000787
+}

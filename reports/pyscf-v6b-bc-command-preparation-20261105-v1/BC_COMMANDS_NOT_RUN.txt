@@ -1,0 +1,150 @@
+Prepared at actual UTC 2026-11-04T23:19:07.767921+00:00
+
+Spinosin V6b B/C static handoff — NOT_RUN
+
+Scope: source/immutable metadata preparation only. The active A result, its arrays,
+and the active CPU ledger were NOT read. No command below was executed. No Git,
+fit, numerical import, frozen-source edit, authorization edit or allocation occurred.
+
+READ SOURCES
+- resource-protocol/root-large-A-active-handoff-004.json
+- resource-protocol/root-large-intermediate-Git-policy-006.json (actual filename)
+- immutable resource-protocol/authorization.json SHA
+  95f0c8452e993557a31752432d90cd527960843c71024fde2d1b2d45795f192b
+- worker scripts/pyscf_staged_hessian_worker_20261105_v6b.py
+  f13701964cd8a5fbda25a19ca27ec91b4a414f6b5cb49c14abacf6c82eaa448d
+- guard scripts/run_pyscf_continuation_budget_20261105_v6b.py
+  b985d6d6e20f5e4a48387094461f19b133dae761338664e88836c62051f993a5
+
+AUTHORIZATION, NOT A NEW ALLOCATION
+The existing cumulative cap is216000 actual CPU seconds. The explicit increment
+was86400 CPU seconds; all original costs remain charged. The actual wall increment
+was79200 seconds, total wall cap144000 seconds. The effective deadline is
+2026-11-05T23:20:50.391742Z and conservative research endpoint Nov6T00:00Z.
+Per phase: request<=122400 CPU seconds, <=43200 wall seconds, <=4 threads,
+24GiB virtual-address limit. Selected Spinosin A/B/C threads MUST ALL remain2.
+RSS10GiB/cgroup12GiB stop policies stay unchanged and are best-effort guards.
+
+A's current grant80000 is NOT a promise of successful completion or a new pool.
+The static pre-A record says consumed129542.777675, remaining86457.222325.
+After A, ROOT must use its genuinely closed wait4 cost and actual closed ledger:
+  R_B =216000 - all actual closed costs (including failed phases).
+  grant_B =min(30000, floor(R_B)-6), for2threads.
+  grant_C =min(122400, floor(R_C)-6), where R_C follows B's actual cost.
+The sampled CPU stop threshold is grantedCPU-120; hard/profiling limits and cleanup
+remain active. Actual wall grant=min(request, floor(deadline-now)-2), with SIGTERM
+60 seconds before that wall bound. A grant below125 CPU seconds or wall below61
+seconds is rejected. Legal minimums are not evidence that the scientific stage is
+feasible. If A consumes nearly80000 CPU seconds, only about6457 CPU seconds remain
+for BOTH B and C; do not describe B as receiving a guaranteed30000.
+
+PRE-B GATE — ONLY AFTER TRUE A CLOSURE
+1. Root supervisor session must actually close. Parent row EXITED/exit0, known
+   finite wait4 cost, end timestamp, no RUNNING/residual process, all CPU/memory/
+   wall/monitor/hardkill flags false. A result existence alone is insufficient.
+2. A result must be actual schema research4-staged-full-rks-hessian-result-v6b,
+   stage=phase=rks-partial, status=STAGE_COMPLETE, atoms75/AO762,
+   complete_RKS_partial=true, complete_RHF_helper=true, exact snapshot3089...,
+   stable_MF_state_unchanged=true, original driver restored with0failures.
+3. Its stage-cache manifest must match cache_manifest_sha256, be complete, have
+   one full_RKS_partial float64[75,75,3,3] array, full physical binding, native_threads2,
+   includes_nuclear_hessian=false and includes_CPHF_response=false. The frozen
+   qualify_stage function will validate actual producer/source/proof/log/manifest
+   and payload hashes at B launch. Do not read arrays while A is active.
+4. This is ONLY the complete unrelaxed electronic RKS partial. H1AO, CPHF, nuclear
+   assembly and219 frequencies are NOT complete. RHF150 is not a full Hessian.
+5. Compute ACTUAL_CLOSED_A_SHA256 from the immutable closed A/result.json only
+   after steps1-3. Check exact source/same-grid/same-full-MO and threads2, remaining
+   cumulative CPU/deadline, fresh memory/disk and absence of concurrent ML/Git/Q.
+6. Use a fresh B phase/output/log; never overwrite an earlier attempt.
+
+B CLI — NOT_RUN; replace ACTUAL_CLOSED_A_SHA256 only after healthy A closes
+
+PYTHONPATH=/workspace/research4/.runtime/quantum-upgrade-site:/workspace/research4/.runtime/quantum-pilot-site \
+.runtime/bin/python scripts/run_pyscf_continuation_budget_20261105_v6b.py run \
+  --ledger reports/pyscf-spinosin-staged-20261105-v6b/cpu_budget.json \
+  --phase v6b-spinosin-C001-B-001 \
+  --cpu-seconds 30000 --wall-seconds 43200 --threads 2 --memory-gib 24 \
+  --log reports/pyscf-spinosin-staged-20261105-v6b/execution/v6b-spinosin-C001-B-001.log \
+  -- .runtime/bin/python scripts/pyscf_staged_hessian_worker_20261105_v6b.py \
+  --execute --stage h1ao --threads 2 \
+  --snapshot reports/pyscf-spinosin-resumable-20261104-v5/v5-spinosin-C001-prepare-001/exact-mf-snapshot \
+  --snapshot-manifest-sha256 3089d6014ba2d2283540eb13cc7dbcdbbf284721042e7250b624197fc15c3311 \
+  --gradient-check-result reports/pyscf-spinosin-resumable-20261104-v5/v5-spinosin-C001-restore-gradient-001/result.json \
+  --gradient-check-result-sha256 6b143defc238471bc815857df08fc4034a9d8454a00567f3b084907a54a5c403 \
+  --partial-result reports/pyscf-spinosin-staged-20261105-v6b/spinosin-rks-partial-001/result.json \
+  --partial-result-sha256 ACTUAL_CLOSED_A_SHA256 \
+  --output reports/pyscf-spinosin-staged-20261105-v6b/spinosin-h1ao-001
+
+PRE-C GATE
+- Require healthy true B parent closure by the same rules, stage=phase=h1ao,
+  status=STAGE_COMPLETE, complete_H1AO=true, all75 arrays float64[3,762,762], and
+  manifest complete/hash/source/physical binding verified. All75 atoms, no subset.
+- B.partial_result_dependency must equal the exact SAME absolute A/result.json
+  path and SHA passed to C. A/B/C all2threads; snapshot/G/physical MF unchanged.
+- Compute ACTUAL_CLOSED_B_SHA256 only from B's healthy closed result. The option
+  names are --partial-result-sha256 and --h1-result-sha256 (lowercase h1).
+  Both --partial-result and --h1-result are required by global. Do not use
+  --control-validation or --rhf-cache for B/C.
+- Re-evaluate cumulative actualCPU/deadline, memory and local disk. B's75 H1AO
+  arrays total1,045,159,200 bytes (about0.973GiB). C's mandatory SAVE_ONLY capture
+  duplicates that amount, with MO1 approximately219,456,000 bytes and MOE1
+  approximately46,080,000 bytes (320electrons/160occupied). Thus C needs at least
+  about1.311GB of KNOWN additional payload plus HDF/log/other overhead and safety
+  margin. This is a lower bound, not a peak-disk guarantee. No automatic deletion,
+  cache elision, H1 truncation or method/source change is allowed to make it fit.
+- Request122400 below is the existing legal per-phase ceiling, NOT newCPU and
+  NOT guaranteed to be granted. Guard clamps to the actual remaining pool. Root
+  can explicitly choose less; do not increase cap/deadline or create another pool.
+
+C CLI — NOT_RUN; replace BOTH actual closed producer SHAs
+
+PYTHONPATH=/workspace/research4/.runtime/quantum-upgrade-site:/workspace/research4/.runtime/quantum-pilot-site \
+.runtime/bin/python scripts/run_pyscf_continuation_budget_20261105_v6b.py run \
+  --ledger reports/pyscf-spinosin-staged-20261105-v6b/cpu_budget.json \
+  --phase v6b-spinosin-C001-C-001 \
+  --cpu-seconds 122400 --wall-seconds 43200 --threads 2 --memory-gib 24 \
+  --log reports/pyscf-spinosin-staged-20261105-v6b/execution/v6b-spinosin-C001-C-001.log \
+  -- .runtime/bin/python scripts/pyscf_staged_hessian_worker_20261105_v6b.py \
+  --execute --stage global --threads 2 \
+  --snapshot reports/pyscf-spinosin-resumable-20261104-v5/v5-spinosin-C001-prepare-001/exact-mf-snapshot \
+  --snapshot-manifest-sha256 3089d6014ba2d2283540eb13cc7dbcdbbf284721042e7250b624197fc15c3311 \
+  --gradient-check-result reports/pyscf-spinosin-resumable-20261104-v5/v5-spinosin-C001-restore-gradient-001/result.json \
+  --gradient-check-result-sha256 6b143defc238471bc815857df08fc4034a9d8454a00567f3b084907a54a5c403 \
+  --partial-result reports/pyscf-spinosin-staged-20261105-v6b/spinosin-rks-partial-001/result.json \
+  --partial-result-sha256 ACTUAL_CLOSED_A_SHA256 \
+  --h1-result reports/pyscf-spinosin-staged-20261105-v6b/spinosin-h1ao-001/result.json \
+  --h1-result-sha256 ACTUAL_CLOSED_B_SHA256 \
+  --output reports/pyscf-spinosin-staged-20261105-v6b/spinosin-global-001
+
+FAILURE / RESOURCE BRANCHES
+- A/B parent not EXITED0 or scientific status PARTIAL: STOP downstream. Preserve
+  all files, actual costs and failure proof. A complete-looking array from a
+  failed parent does not qualify. No automatic forensic release, reset or retry.
+- Insufficient remainingCPU/wall or local disk: record BLOCKED_RESOURCE with the
+  actual remaining values after closure. Keep source/caps/deadlines unchanged.
+  Do not erase errors or automatically extend the research/budget window.
+- C CPHF nonconvergence/exception, incomplete Hessian or wrong219 mode count:
+  retain PARTIAL and logs/checkpoints, no FREQ success. Do not silently alter
+  max_cycle50, level_shift0, tolerance, grids, basis, native_threads or chemistry.
+  Any new implementation/resource decision needs a separate traceable version
+  preserving all actual old costs; this handoff authorizes no such change.
+- Native operator/MF restoration failure: source producer unqualified even if
+  numerical arrays exist; preserve evidence and STOP.
+- Healthy C FREQUENCIES_COMPUTED with219 signed modes: genuine complete
+  computation, still not a positive minimum or chemical peak assignment. Keep
+  negative/zero modes, IR NOT_COMPUTED, normal CPHF return is not a measured
+  residual. Only the actual independent analyzer_v2 (38dde5...) verifies the
+  closed A/B/C lineage and full local payloads before an audit PASS is reported.
+
+ARCHIVAL — AFTER ALL SCIENTIFIC PROCESSES/AUDITS CLOSE
+No Git/largeIO while any stage is active. Manually enumerate reasonable scientific
+outputs: result/manifests/proofs/logs, actual raw/sym full Hessian,219 modes/freq,
+geometry, masses, environment and convergence evidence, actualCSV/PNG/PDF.
+Preserve huge H1AO/duplicateH1/MO1/MOE1/CHK/HDF locally; publish exact path/role/
+SHA/size/producer manifests as LOCAL_ONLY instead of glob-adding everything.
+Every per-atom H1 file is <25MB but together1.045GB: per-file cutoff is inadequate.
+Independent38dde analysis MUST genuinely hash/validate all local payloads before
+PASS. A Git-only checkout lacking H1 cannot pretend those hashes were reverified.
+Do not delete or overwrite originals. Future recomputation must be a new bounded
+same-source run, not a claim of guaranteed bitwise identity across grid blocking.

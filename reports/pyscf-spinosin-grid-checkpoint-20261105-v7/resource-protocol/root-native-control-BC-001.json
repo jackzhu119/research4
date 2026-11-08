@@ -1,0 +1,45 @@
+{
+  "schema": "research4-root-finite-V7-control-BC-scope-v1",
+  "root_authorized_for_actual_controls": true,
+  "created_at_utc": "2026-11-05T01:21:17.574314+00:00",
+  "allowed_cases": [
+    "water_software_control",
+    "ethanol_software_control"
+  ],
+  "Spinosin_execution_authorized": false,
+  "same_cumulative_ledger": "/workspace/research4/reports/pyscf-spinosin-staged-20261105-v6b/cpu_budget.json",
+  "closed_baseline": {
+    "path": "/workspace/research4/reports/pyscf-spinosin-grid-checkpoint-20261105-v7/resource-protocol/closed_Q_before_BC_controls_001.json",
+    "sha256": "0dcba49da5de8f68dbffb5bd68280cc6ec86864fb21b382ffefb317f5a077387"
+  },
+  "closed_phase_count_before_scope": 89,
+  "consumed_CPU_before_scope": 154481.63127299998,
+  "group_control_CPU_max": 600,
+  "group_control_wall_max_seconds": 3600,
+  "max_single_phase_requested_CPU": 300,
+  "max_single_phase_wall": 900,
+  "threads": 2,
+  "source_refs": {
+    "scripts/pyscf_staged_consumer_20261105_v7.py": {
+      "sha256": "6e9b835f4b49329cd52162b5862da14b3dcd87c80390c1e09b3cf62e14c07dbe",
+      "bytes": 41227
+    },
+    "scripts/pyscf_xc_chunk_worker_20261105_v7.py": {
+      "sha256": "00e710eb0d637dbd073939bea5d4496993cb68f29efad1439322df3972415f02",
+      "bytes": 46346
+    },
+    "scripts/pyscf_xc_chunk_checkpoint_20261105_v7.py": {
+      "sha256": "da1e2b0267c48e748a2bcb7d3f2ee3110d8e2288aa340d23dab7a12c994ddf8e",
+      "bytes": 18573
+    }
+  },
+  "parent_guard_sha256": "b985d6d6e20f5e4a48387094461f19b133dae761338664e88836c62051f993a5",
+  "review_basis": "Consumer25stdlib independent tests, native fullRHS/math/source binding review PASS; A partial two real molecular differentials already passed. Full3/21mode controls remain pending.",
+  "scope": "h1ao,response-block,global-assemble only; source fixed fullAO/MO/noDF/noD3. Normal-return not independent residual confirmation. Analyzer separately frozen/authorized.",
+  "no_new_quantum_pool": true,
+  "no_budget_growth": true,
+  "no_deadline_extension": true,
+  "no_automatic_retry": true,
+  "stop_on_failed_phase": true,
+  "no_Git_or_other_numerical_payload_while_phase_running": true
+}

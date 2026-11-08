@@ -1,0 +1,93 @@
+{
+  "schema": "research4-parallel-b-cpu-budget-v1",
+  "run_id": "B-water-package-validation-002",
+  "manifest_sha256": "fd591315d43e81f4366b9a0bc58d68b85eb48af9b9ad036a95f9dd5ddb82fd72",
+  "supervisor_sha256": "671225184d8d9b186672146d27470661307454be516a8fdd8c74265f3eb1a063",
+  "cpu_cap_seconds": 1200,
+  "deadline_utc": "2026-11-09T08:25:17.730193+00:00",
+  "initial_consumed_cpu_seconds": 0.101408,
+  "carried_local_validation": {
+    "schema": "research4-root-pinned-local-validation-carry-v1",
+    "ledger_ref": {
+      "path": "data/research/parallel_cloud_20261106/worker_b/local_validation_failure_001/cpu_budget_B.json",
+      "sha256": "fcc195c04f4c92b491619fff7c5765fd248e9266bbe4bb4b4c3c5b900f1e13eb"
+    },
+    "manifest_ref": {
+      "path": "data/research/parallel_cloud_20261106/worker_b/local_validation_failure_001/manifest.json",
+      "sha256": "1605cd07dbbb2cf303aa24f2b429defd1c3090ad3b396063b5bd5b20e7b5cac2"
+    },
+    "actual_closed_CPU": 0.101408,
+    "historical_supervisor_sha256": "c2cb60f5aff2797c521cb04d93c5e6d72dda24000693f2b98fde27acdaae8d01",
+    "scope": "HISTORICAL_CLOSED_LOCAL_COST_NOT_A_LIVE_V2_PROOF",
+    "no_failed_cost_refund": true,
+    "no_budget_transfer_from_A": true
+  },
+  "consumed_cpu_seconds": 0.19616699999999998,
+  "remaining_cpu_seconds": 1199.803833,
+  "phases": [
+    {
+      "phase": "B-water-package-validation-002-water-prepare-attempt001",
+      "case_id": "water",
+      "operation": "prepare",
+      "case_binding_sha256": "716cc9297de43890ac039d6da10797a787642a6d0dde653f8edcd54254c430ac",
+      "attempt": 1,
+      "status": "FAILED_CLOSED",
+      "started_at_utc": "2026-11-06T09:37:20.688737+00:00",
+      "command": [
+        "/workspace/research4/.runtime/worker-b-local-validation/venv/bin/python",
+        "/workspace/research4/scripts/research4_parallel_b_quantum_20261106.py",
+        "--execute",
+        "--case",
+        "water",
+        "--operation",
+        "prepare",
+        "--threads",
+        "2",
+        "--maxsteps",
+        "25",
+        "--output",
+        "/workspace/research4/reports/parallel-cloud-20261106/worker-b/B-water-package-validation-002/science/water-prepare-attempt001"
+      ],
+      "output_directory": "/workspace/research4/reports/parallel-cloud-20261106/worker-b/B-water-package-validation-002/science/water-prepare-attempt001",
+      "log": "/workspace/research4/reports/parallel-cloud-20261106/worker-b/B-water-package-validation-002/execution/water-prepare-attempt001.log",
+      "proof_path": "/workspace/research4/reports/parallel-cloud-20261106/worker-b/B-water-package-validation-002/execution/water-prepare-attempt001.proof.json",
+      "cpu_seconds": 125,
+      "wall_seconds": 600,
+      "actual_cpu_seconds": 0.09475899999999998,
+      "child_identity": {
+        "pid": 60420,
+        "start_ticks": 18368078,
+        "uid": 1000,
+        "pgrp": 60420,
+        "session": 60420,
+        "state": "R",
+        "boot_id": "50ca0010-b743-43c7-bc0f-b6bcbc47c68d",
+        "CPU_seconds": 0.0,
+        "rss_bytes": 0
+      },
+      "supervisor_identity": {
+        "pid": 60419,
+        "start_ticks": 18368067,
+        "uid": 1000,
+        "pgrp": 60416,
+        "session": 60416,
+        "state": "R",
+        "boot_id": "50ca0010-b743-43c7-bc0f-b6bcbc47c68d",
+        "CPU_seconds": 0.1,
+        "rss_bytes": 15597568
+      },
+      "latest_CPU_seconds": 0.0,
+      "peak_RSS_bytes": 2097152,
+      "exit_code": 2,
+      "CPU_accounting": "ACTUAL_WAIT4_SELF_AND_WAITED_CHILDREN_SINGLE_TGID_ENFORCED",
+      "elapsed_wall_seconds": 0.13311948798946105,
+      "stop_reason": null,
+      "ended_at_utc": "2026-11-06T09:37:20.823418+00:00",
+      "log_sha256": "ce8121e621d660b492008fddecbbef2e9d2386044eebe88abde4e50affe25c47",
+      "proof_sha256": "999b1c4832616f7166441505f3d64f349a0e6ff6ab1fc86113fd8661668934ac",
+      "result_sha256": "6c664bf60658a0a881ebe153630df70d99b3c1e1e48bf417a1a1e2497aef872a"
+    }
+  ],
+  "created_at_utc": "2026-11-06T09:37:20.645849+00:00",
+  "prior_A_budget_or_proof_reused": false
+}

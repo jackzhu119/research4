@@ -1,0 +1,109 @@
+{
+  "status": "DONE_READ_ONLY_METADATA_SIZING_NOT_A_QUANTUM_CALCULATION",
+  "created_at_utc": "2026-11-01T04:41:44.017548+00:00",
+  "quantum_and_integral_jobs_started_by_this_audit": 0,
+  "pyscf_version": "2.14.0",
+  "script_sha256": "9bc4274ea4a7527ef97cface1d2b20c5672f7d23d8d6d96872710997578d5f76",
+  "orbital_basis": "def2-SVP spherical all-electron",
+  "orbital_AO_per_element_actual_library": {
+    "C": 14,
+    "H": 5,
+    "O": 14
+  },
+  "auxiliary_basis": "def2-universal-jfit spherical",
+  "auxiliary_AO_per_element_actual_library": {
+    "C": 49,
+    "H": 11,
+    "O": 49
+  },
+  "molecules": {
+    "Spinosin": {
+      "composition_used_for_arithmetic": {
+        "C": 28,
+        "H": 32,
+        "O": 15
+      },
+      "atoms": 75,
+      "expected_nonlinear_vibrations_not_computed": 219,
+      "spherical_orbital_AO": 762,
+      "spherical_auxiliary_AO": 2459,
+      "packed_orbital_pairs": 290703,
+      "full_rank_float64_packed_cached_DF_tensor_bytes": 5718709416,
+      "same_decimal_GB": 5.718709416,
+      "same_binary_GiB": 5.3259631767869,
+      "auxiliary_metric_float64_bytes": 48373448,
+      "auxiliary_metric_binary_GiB": 0.04505128413438797,
+      "cached_tensor_alone_exceeds_16GiB_physical_memory": false,
+      "cached_tensor_alone_exceeds_initial_9_6GB_free_disk": false,
+      "identity_statement": "Source and generated conformer verified separately; this is a sizing check."
+    },
+    "Jujuboside A requested-formula sizing only": {
+      "composition_used_for_arithmetic": {
+        "C": 58,
+        "H": 94,
+        "O": 26
+      },
+      "atoms": 178,
+      "expected_nonlinear_vibrations_not_computed": 528,
+      "spherical_orbital_AO": 1646,
+      "spherical_auxiliary_AO": 5150,
+      "packed_orbital_pairs": 1355481,
+      "full_rank_float64_packed_cached_DF_tensor_bytes": 55845817200,
+      "same_decimal_GB": 55.8458172,
+      "same_binary_GiB": 52.01047025620937,
+      "auxiliary_metric_float64_bytes": 212180000,
+      "auxiliary_metric_binary_GiB": 0.19760802388191223,
+      "cached_tensor_alone_exceeds_16GiB_physical_memory": true,
+      "cached_tensor_alone_exceeds_initial_9_6GB_free_disk": true,
+      "identity_statement": "Formula-based sizing only; does not resolve source-entry, identity or stereochemistry ambiguities."
+    },
+    "Jujuboside B requested-formula sizing only": {
+      "composition_used_for_arithmetic": {
+        "C": 52,
+        "H": 84,
+        "O": 21
+      },
+      "atoms": 157,
+      "expected_nonlinear_vibrations_not_computed": 465,
+      "spherical_orbital_AO": 1442,
+      "spherical_auxiliary_AO": 4501,
+      "packed_orbital_pairs": 1040403,
+      "full_rank_float64_packed_cached_DF_tensor_bytes": 37462831224,
+      "same_decimal_GB": 37.462831224,
+      "same_binary_GiB": 34.88998042792082,
+      "auxiliary_metric_float64_bytes": 162072008,
+      "auxiliary_metric_binary_GiB": 0.15094131976366043,
+      "cached_tensor_alone_exceeds_16GiB_physical_memory": true,
+      "cached_tensor_alone_exceeds_initial_9_6GB_free_disk": true,
+      "identity_statement": "Formula-based sizing only; does not resolve source-entry, identity or stereochemistry ambiguities."
+    }
+  },
+  "measured_Spinosin_worker_cache_metadata_snapshot": {
+    "path": "reports/pyscf-spinosin-pilot-20261031/method-audit/spinosin_progress_snapshot_cost_supplement.json",
+    "sha256": "b7490199ed50efd082df7ed081a18354f02076816f0b7ed9c574c158583c4364",
+    "record_utc": "2026-11-01T04:40:16.018581+00:00",
+    "worker_status_at_snapshot": "PARTIAL",
+    "last_completed_geometry_cycle_at_snapshot": 2,
+    "density_fit_cache": {
+      "storage": "incore_ndarray",
+      "shape": [
+        2459,
+        290703
+      ],
+      "nbytes": 5718709416,
+      "dtype": "float64",
+      "auxiliary_functions": 2459,
+      "array_saved_to_output": false,
+      "cache_values_finiteness": "NOT_SCANNED_RESOURCE_POLICY"
+    },
+    "matches_metadata_size_arithmetic": true
+  },
+  "interpretation": [
+    "Exact dimension arithmetic for a full-rank float64 packed cached three-center DF tensor, not a full-method minimum memory requirement.",
+    "Transient integral, eigensolver, gradient, Hessian and Python process memory are additional; storage sizes are not peak RAM estimates.",
+    "The audited direct-J path avoids the global tensor but was slower in the actual Spinosin pilot; it is not declared impossible by these sizes.",
+    "Requested-formula Jujuboside A/B cached tensors alone exceed this cloud's memory and initial free disk; their full DFT frequency calculations remain NOT_RUN.",
+    "Source-entry ambiguity for Jujuboside A is not resolved by matching a formula or dimension.",
+    "Runtime cannot be inferred reliably from AO counts, cached storage or the water smoke test."
+  ]
+}

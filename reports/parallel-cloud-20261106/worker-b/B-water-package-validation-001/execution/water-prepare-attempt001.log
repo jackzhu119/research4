@@ -1,0 +1,18 @@
+Traceback (most recent call last):
+  File "/workspace/research4/scripts/research4_parallel_b_quantum_20261106.py", line 515, in <module>
+    main()
+  File "/workspace/research4/scripts/research4_parallel_b_quantum_20261106.py", line 507, in main
+    args = parser().parse_args(); result = run(args)
+                                           ^^^^^^^^^
+  File "/workspace/research4/scripts/research4_parallel_b_quantum_20261106.py", line 443, in run
+    supervision = supervise(args)  # FIRST: no RDKit/NumPy/PySCF imports before realB-parent verification.
+                  ^^^^^^^^^^^^^^^
+  File "/workspace/research4/scripts/research4_parallel_b_quantum_20261106.py", line 111, in supervise
+    return module.verify_b_resource_supervision(expected_threads=args.threads,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/research4/scripts/research4_parallel_b_supervisor_20261106.py", line 222, in verify_b_resource_supervision
+    require(Path(os.path.abspath(sys.executable))==python_path(manifest['python_executable']),'Actual worker Python selector differs from independent B environment')
+  File "/workspace/research4/scripts/research4_parallel_b_supervisor_20261106.py", line 40, in require
+    if not value:raise ValueError(message)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: Actual worker Python selector differs from independent B environment

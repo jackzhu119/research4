@@ -1,0 +1,21 @@
+Static excerpt only. Source: .runtime/quantum-upgrade-site/pyscf/hessian/thermo.py
+PySCF 2.14.0; SHA256 8143ebed7653bd79b4b8d7b2f5933671a33285b11aba47cf0d8134c229a031f8
+Official source: https://pyscf.org/_modules/pyscf/hessian/thermo.html
+Copyright2019 Tencent America LLC; author Qiming Sun; Apache License2.0 (https://www.apache.org/licenses/LICENSE-2.0).
+No PySCF execution, quantum calculation or checkpoint read.
+
+L40: def harmonic_analysis(mol, hess, exclude_trans=True, exclude_rot=True,
+L41:                       imaginary_freq=True, mass=None):
+L42:     '''Each column is one mode
+L43: 
+L44:     imaginary_freq (boolean): save imaginary_freq as complex number (if True)
+L86:     results['freq_error'] = numpy.count_nonzero(freq_au.imag > 0)
+L91:     results['freq_au'] = freq_au
+L93:     results['freq_wavenumber'] = freq_au * au2hz / nist.LIGHT_SPEED_SI * 1e-2
+L96:     results['norm_mode'] = norm_mode
+L98:     results['reduced_mass'] = reduced_mass
+L101:     results['vib_temperature'] = freq_au * au2hz * nist.PLANCK / nist.BOLTZMANN
+L105:     results['force_const_au'] = force_const_au
+L106:     results['force_const_dyne'] = reduced_mass * force_const_au * dyne  #cm^-1/a0^2
+L108:     #TODO: IR intensity
+L109:     return results

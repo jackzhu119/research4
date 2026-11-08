@@ -1,0 +1,68 @@
+{
+  "schema": "research4-water-full-endpoint-v3-independent-review-v1",
+  "status": "EXACT_SOURCE_METHOD_AND_PROVENANCE_REVIEW_PASS_NOT_A_NUMERICAL_RESULT",
+  "created_at_utc": "2026-11-07T01:34:04.969580+00:00",
+  "worker": {
+    "path": "/workspace/research4/scripts/research4_fixed_grid_water_convergence_20261107_v3.py",
+    "sha256": "fddef25ed41554ff59187837759a335901baeb8e08b9c847ba739c83909163d4",
+    "bytes": 72126
+  },
+  "tests": {
+    "path": "/workspace/research4/tests/test_fixed_grid_water_convergence_v3_stdlib_20261107.py",
+    "sha256": "75815cd4661a003814147f2753a63e91f6ea8e622575b8cdfdebddde713e5a91",
+    "bytes": 21101
+  },
+  "certification_policy": "FULL_NATIVE_VEFF_ENDPOINT_CERTIFICATION_NOT_NATIVE_KERNEL_FLAG",
+  "physical_validity": "A separately selected solver qualification may use independently recomputed complete native energies and true-Fock stationarity rather than an incremental native-kernel energy flag. This is not retroactive relabelling.",
+  "required_chain": [
+    "Accepted finite normal SCF check in the same bounded kernel call as the actual finite FINAL_EXTRA_CYCLE check.",
+    "Actual callback dm_last and dm independently copied; returned MO density must equal the captured current density.",
+    "Full native get_veff on both actual consecutive densities with dm_last=None and vhf_last=None.",
+    "Current Fock evaluated without DIIS, shift or damping; full current orbital residual and consecutive full-energy drift both satisfy unchanged thresholds."
+  ],
+  "checks": {
+    "same_call_lineage_and_all_native_checks_finite": true,
+    "native_false_flag_native_energy_and_false_extra_acceptance_preserved": true,
+    "custom_mf_converged_true_explicitly_labelled_and_only_after_full_audit_pass": true,
+    "full_current_energy_and_MO_density_accepted_together": true,
+    "independent_actual_consecutive_copies_may_coincide_at_fixed_point": true,
+    "original_grid_mask_full_space_and_source_proofs_preserved": true,
+    "source_and_acceptance_function_AST_equivalence_to_v2": {
+      "qualify_source": true,
+      "source_gate": true,
+      "read_schedule": true,
+      "validate_appended_rows": true,
+      "attach_fixed_quadrature": true,
+      "finest_pair_gate": true,
+      "same_spinosin_step_energy_gate": true
+    },
+    "all31_points_and_original_FD_energy_halving_gates_retained": true,
+    "first_full_qualified_endpoint_only": true,
+    "max_calls_per_point": 3,
+    "max_cycles_per_call": 100,
+    "main_orbital_trigger": 1e-10,
+    "full_energy_drift_tolerance_Eh": 1e-13,
+    "full_orbital_residual_tolerance": 1e-09,
+    "water_phase_CPU_cap_seconds": 300,
+    "unchanged_v8_guard_cap_and_earlier_deadline": true
+  },
+  "validation": {
+    "source_and_v3_tests_inspected": "PASS",
+    "syntax_and_source_gate_AST_checks": "PASS",
+    "implementation_and_independent_subreview_test_report": "15 v3 stdlib tests PASS; not duplicated by this review.",
+    "actual_v3_quantum": "NOT_RUN_BY_REVIEW"
+  },
+  "preservation": {
+    "prior_A005_and_water_v1_v2_results_costs_and_native_false_flags_unchanged": true,
+    "no_numerical_threshold_relaxation": true,
+    "new_source_and_schemas_distinct": true,
+    "no_Hessian_minimum_frequency_IR_or_mechanism_claim": true
+  },
+  "side_effects": {
+    "new_quantum_evaluations": 0,
+    "numerical_imports": false,
+    "Git_network_or_ledger_actions": false,
+    "source_modifications": false
+  },
+  "approval": "Exact frozen source is approved for the separately selected root-only bounded300CPU water run. This receipt does not establish its numerical PASS or grant extra resources."
+}

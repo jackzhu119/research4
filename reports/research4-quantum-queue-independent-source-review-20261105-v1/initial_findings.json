@@ -1,0 +1,45 @@
+{
+  "schema": "research4-materialized-queue-independent-initial-source-findings-v1",
+  "created_at_utc": "2026-11-05T01:08:09.061585+00:00",
+  "candidate_source_sha256": "4c27fa4aee2d49a7d5638aff78b030ada8c630922537a74d1e9849e0b36e3522",
+  "status": "CHANGES_REQUIRED_BEFORE_FREEZE",
+  "not_final_source_review": true,
+  "findings": [
+    {
+      "id": "CPU_INHERITANCE",
+      "severity": "BLOCKING",
+      "source_lines": "226-227,274",
+      "finding": "Launcher hard RLIMIT_CPU<=601 seconds is inherited by guardian. Frozen b985 sets payload RLIMIT_CPU in preexec but cannot raise inherited hard ceiling for e.g1800-second payload, causing preexec failure; guardian also inherits inappropriate self cap.",
+      "requirement": "Bound launcher CPU without passing a lowered hard CPU ceiling to guardian; explicit child restore may only restore limits still allowed by unchanged inherited hard cap. Verify own CPU/wall limit remains bounded."
+    },
+    {
+      "id": "PRELAUNCH_PINS",
+      "severity": "BLOCKING_FOR_SOURCE_BOUND_EXECUTION",
+      "source_lines": "124-125,148-152,256-274",
+      "finding": "Root source refs hashed only at initial config validation. A job without a ledger row returnsFalse before input hash checks, so later pending launches lack immediate source/worker/inputs revalidation.",
+      "requirement": "Immediately before each guardian launch, recheck all pinned source_refs and job input refs under the queue lock, and reject changed/missing/hash-placeholder materialized inputs."
+    },
+    {
+      "id": "RESUME_RESULT_SEAL",
+      "severity": "PROVENANCE",
+      "source_lines": "259-260",
+      "finding": "Previously HEALTHY_CLOSED state result SHA is overwritten after a fresh body-based verification, without comparison to prior saved seal. Input metadata currently only parsed.",
+      "requirement": "Preserve and compare prior result/input/proof/manifest/payload artifact seals for already accepted jobs; never silently reseal changed historical results during skip."
+    },
+    {
+      "id": "MONOTONIC_OUTER_WALL",
+      "severity": "RESOURCE_GUARD",
+      "source_lines": "224-225,262,281,285",
+      "finding": "Own wall budget is enforced using time.time epoch only; monotonic start is used only for reporting.",
+      "requirement": "Enforce a monotonic invocation wall bound alongside actual UTC expiry."
+    },
+    {
+      "id": "UNIQUE_OUTPUTS",
+      "severity": "PRECHECK",
+      "source_lines": "123-138",
+      "finding": "Only jobid and phase uniqueness checked; duplicate result directories/logs would fail only midqueue.",
+      "requirement": "Reject duplicate/overlapping result output identities and logs during config preflight."
+    }
+  ],
+  "scope": "Static source only; no ledger read, numerical imports, Q, training, Git, queue execution or source edit. Parent author is already adding exception cleanup, resume status and early self-budget handling."
+}

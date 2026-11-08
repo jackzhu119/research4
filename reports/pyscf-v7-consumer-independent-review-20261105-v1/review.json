@@ -1,0 +1,61 @@
+{
+  "schema": "research4-v7-consumer-independent-static-math-review-v1",
+  "created_at_utc": "2026-11-05T01:21:43.709242+00:00",
+  "status": "PASS_STATIC_MATHEMATICAL_AND_STDLIB_REVIEW_REAL_CONTROLS_REQUIRED",
+  "consumer_source": {
+    "path": "/workspace/research4/scripts/pyscf_staged_consumer_20261105_v7.py",
+    "sha256": "6e9b835f4b49329cd52162b5862da14b3dcd87c80390c1e09b3cf62e14c07dbe",
+    "bytes": 41227
+  },
+  "tests_source": {
+    "path": "/workspace/research4/tests/test_pyscf_staged_consumer_v7_stdlib.py",
+    "sha256": "d25ac349ee0dd373c3badbfad4cfb715ee36e0dc95e8d3c1da889e5282e44b9f",
+    "tests_passed_independently": 25
+  },
+  "frozen_partial_A_source_sha256": "00e710eb0d637dbd073939bea5d4496993cb68f29efad1439322df3972415f02",
+  "frozen_XC_core_source_sha256": "da1e2b0267c48e748a2bcb7d3f2ee3110d8e2288aa340d23dab7a12c994ddf8e",
+  "native_RHF_source": {
+    "path": "/workspace/research4/.runtime/quantum-upgrade-site/pyscf/hessian/rhf.py",
+    "sha256": "2d986bfc01aac98447034a207df639b3d6897f67ce1ab2a013fe2d0853c85de5"
+  },
+  "native_calls_extracted_from_actual_consumer_AST": [
+    "hobj.make_h1(mf.mo_coeff, mf.mo_occ, None, list(range(n)), None)",
+    "rhf.gen_vind(mf, mf.mo_coeff, mf.mo_occ)",
+    "hobj.solve_mo1(mf.mo_energy, mf.mo_coeff, mf.mo_occ, h1, fx=fx, atmlst=selected, max_memory=4000, verbose=None)",
+    "hobj.hess_elec(mf.mo_energy, mf.mo_coeff, mf.mo_occ, mo1=mo1, mo_e1=moe1, h1ao=h1, atmlst=list(range(n)), max_memory=4000, verbose=None)",
+    "hobj.hess_nuc(mf.mol, atmlst=list(range(n)))"
+  ],
+  "mathematical_findings": [
+    "H1AO is computed with the native RKS make_h1 for all atoms and all AO pairs; manifests require all75 arrays float64[3,762,762].",
+    "B8 partitions only independent nuclear-displacement right-hand sides. Each uses fresh global rhf.gen_vind(mf,full MO coefficients,full occupations), not a fragment Hamiltonian or truncated orbital space.",
+    "Native solve_mo1 minimum memory2000MB implies target minimum internal RHS blksize113 >8 at762MO/160occupied; each requested block therefore uses the unchanged native conv_tol_cpscf times actual block length. This is a requested tolerance, not a measured residual.",
+    "Ten response producers must cover atom0..74 exactly once in order and have the same full physical/MO/grid binding, A and H1 dependencies, full occupied dimension and healthy real V6b parent closures.",
+    "Global assembly explicitly passes all full H1AO/MO1/MOE1 lists to the original stock rhf.hess_elec with atmlst all atoms. Its original nested i/j contractions retain cross-block terms; no block-diagonal approximation is substituted.",
+    "Cached electronic partial is copied because stock hess_elec mutates it. Native make_h1 and solve_mo1 are forbidden during global assembly; native hess_nuc is called once and provider counts enforce partial1/H10/solver0/nuclear1.",
+    "PBE/noDF/noD3/unchangedMF policy means omitted optional dispersion branch of HessianBase.kernel contributes nothing. Stock hess_elec plus stock nuclear is the same full Hessian for this scope.",
+    "Stable original MF/MOs/full-grid fingerprint, fresh-gradient receipt, parent proof, result/input/argv/manifest and payload SHA gates precede cache use. Failed or RUNNING producers cannot become eligible.",
+    "The actual-import gate now binds executed NumInt/RKS/gradient/grid/RHF/CPHF/Krylov/DFT/HF/response modules and their shared globals to pinned upgrade-site paths and source hashes; existing stock operator gates run before owned provider injection.",
+    "A pinned source is now00e710... . Before pinning the prior NOT_FROZEN early load refused execution before numerical imports; that reviewed failclosed behavior is retained by load_source for absent/changed source hashes.",
+    "Actual full-matrix/all-mode water and ethanol controls and the reviewed V7 analyzer must still pass before target Spinosin release. This static review does not replace those experiments."
+  ],
+  "algebraic_only_native_B8_bound": {
+    "target_nao_nmo": 762,
+    "occupied": 160,
+    "memory_floor_MB": 2000,
+    "minimum_native_blocksize": 113,
+    "requested_RHS_atoms_per_block_max": 8,
+    "quantum_calculation": false
+  },
+  "scientific_limitations": {
+    "real_B_C_or_frequencies_executed_by_reviewer": false,
+    "actual_runtime_import_positive_gate_executed": false,
+    "new_quantum_evaluations": 0,
+    "numerical_libraries_imported": false,
+    "research_arrays_read": false,
+    "Git_or_training_run": false,
+    "CPHF_residual_measured": false,
+    "IR_intensities_computed": false
+  },
+  "remaining_blockers_in_frozen_consumer": [],
+  "execution_release": "ONLY_ROOT_REAL_SMALL_CONTROLS_THEN_REVIEWED_TARGET_RELEASE"
+}

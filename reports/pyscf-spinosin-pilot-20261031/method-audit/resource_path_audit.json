@@ -1,0 +1,88 @@
+{
+  "completed_at_utc": "2026-11-01T04:12:10.099172+00:00",
+  "status": "READ_ONLY_RESOURCE_PATH_AND_GRADIENT_NORM_REVIEW_PASS",
+  "quantum_jobs": 0,
+  "script_sha256": "510898b790153820a9f308b65220f292e6225579c8dde71e5a5f6409bf51a8cf",
+  "source_evidence": {
+    "DF_get_jk_dispatch": {
+      "path": "/workspace/research4/.runtime/quantum-upgrade-site/pyscf/df/df_jk.py",
+      "sha256": "7f4e8c3a930b8f55d1656b0bd6d24dcca7fe365ba5de00cfcebcebf813347cee"
+    },
+    "direct_DF_J": {
+      "path": "/workspace/research4/.runtime/quantum-upgrade-site/pyscf/df/df_jk.py",
+      "sha256": "7f4e8c3a930b8f55d1656b0bd6d24dcca7fe365ba5de00cfcebcebf813347cee"
+    },
+    "DF_J_gradient": {
+      "path": "/workspace/research4/.runtime/quantum-upgrade-site/pyscf/df/grad/rhf.py",
+      "sha256": "a52525f269974884b28846b55d021c169d430048e0755b55557480f733128735"
+    },
+    "geometric_calcGradNorm": {
+      "path": "/workspace/research4/.runtime/quantum-pilot-site/geometric/optimize.py",
+      "sha256": "30965f19d9a0c9b5891975f24028d0dd3b1134352803bd6ea9b594c1bfe55948"
+    }
+  },
+  "sizing": {
+    "def2-universal-jfit": {
+      "spherical_AO_count_per_element": {
+        "C": 49,
+        "H": 11,
+        "O": 49
+      },
+      "Spinosin_total_auxiliary_AO": 2459,
+      "hypothetical_full_rank_packed_3center_float64_bytes": 5718709416,
+      "same_GiB": 5.3259631767869,
+      "auxiliary_metric_float64_bytes": 48373448
+    },
+    "def2-universal-jkfit": {
+      "spherical_AO_count_per_element": {
+        "C": 75,
+        "H": 18,
+        "O": 77
+      },
+      "Spinosin_total_auxiliary_AO": 3831,
+      "hypothetical_full_rank_packed_3center_float64_bytes": 8909465544,
+      "same_GiB": 8.297586388885975,
+      "auxiliary_metric_float64_bytes": 117412488
+    },
+    "def2-svp-jkfit": {
+      "spherical_AO_count_per_element": {
+        "C": 75,
+        "H": 18,
+        "O": 77
+      },
+      "Spinosin_total_auxiliary_AO": 3831,
+      "hypothetical_full_rank_packed_3center_float64_bytes": 8909465544,
+      "same_GiB": 8.297586388885975,
+      "auxiliary_metric_float64_bytes": 117412488
+    }
+  },
+  "recommended_plain_PBE_path": {
+    "xc_set_before_density_fit": "PBE",
+    "auxbasis": "def2-universal-jfit",
+    "only_dfj": true,
+    "mol_incore_anyway": false,
+    "initial_cderi_is_None": true,
+    "SCF_J_dispatch": "When with_k=False and _cderi is None, direct screened 3-center J; no global Cholesky tensor",
+    "gradient_J_dispatch": "Direct shell-blocked 3-center derivatives plus auxiliary-basis response",
+    "avoid_calls": [
+      "with_df.build()",
+      "with_df.get_naoaux()",
+      "with_df.loop()",
+      "materializing mf._cderi"
+    ],
+    "runtime_assertions_needed": [
+      "Check mf.with_df._cderi remains None after actual SCF and gradient",
+      "Record actual memory, CPU and scratch-file usage"
+    ],
+    "Hessian": "DF-RKS analytical implementation exists; auxbasis_response2 retained. This audit does not certify its cost or actual numerical correctness for Spinosin."
+  },
+  "optimizer_gradient_norm": {
+    "source": "geomeTRIC1.1.1 Optimizer.calcGradNorm",
+    "for_unconstrained_nonrigid_molecule": "gRMS=sqrt(mean_i(sum_xyz(G_i,xyz^2)))=norm(G)/sqrt(Natoms); gmax=max_i(norm(G_i))",
+    "not_equal_to": "RMS over all3N components or max absolute component",
+    "units": "Hartree/Bohr",
+    "synthetic_formula_check_only": true,
+    "atom_norm_RMS_formula_check": 3.5355339059327378
+  },
+  "scope": "Source inspection, basis dimension arithmetic, molecule construction and synthetic scalar arithmetic only. No SCF/integrals/gradients/Hessians/optimization were computed by this audit."
+}

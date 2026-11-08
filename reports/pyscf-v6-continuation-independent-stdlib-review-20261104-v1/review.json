@@ -1,0 +1,68 @@
+{
+  "schema": "research4.v6-guard-independent-stdlib-review.v1",
+  "status": "PASS_STATIC_AND_36_STDLIB_SYNTHETIC_TESTS",
+  "reviewed_at_utc": "2026-11-04T18:44:23.257999+00:00",
+  "reviewer": "/root/checkpoint_math_review/v6_guard_stdlib_review",
+  "source": {
+    "path": "scripts/run_pyscf_continuation_budget_20261105_v6.py",
+    "sha256": "ae2cc7bc8ed4f3d6f39e13a842e635e5a26152c02aab52d6af25d91cc65f5b1b"
+  },
+  "tests": {
+    "path": "tests/test_pyscf_continuation_budget_v6.py",
+    "sha256": "335115b7593d507f4fdcbc221d5715a86fbe3e29f2c8701fa608a211aba801d5"
+  },
+  "blocking_findings_remaining": [],
+  "original_blocking_finding": "finding-before-fix.json",
+  "fix_review": [
+    "Authorization binds one canonical absolute continuation ledger path.",
+    "Atomic no-replace lineage claim is written before the ledger; a partial registration leaves a blocked claim rather than a fresh allocation.",
+    "Original source budget lineage binds created time, V5 authorization SHA, checkpoint SHA and migration V4 SHA; canonical full V5 JSON remains an exact version field, not sole identity.",
+    "Claim is revalidated for run/live-parent/closed-producer checks; copied ledger paths are rejected."
+  ],
+  "cost_and_time_review": [
+    "Every closed V5 phase including failures is copied without relabeling; unknown CPU/unresolved source is rejected.",
+    "Consumed cost is inherited, and all V5 plus V6 actual costs and remaining cap-minus-used are rechecked.",
+    "Only explicit root-approved additional CPU0..43200 and deadline extension0..43200 are permitted.",
+    "Original created time/cap/deadline/authorization remain recorded; effective deadline is original deadline plus explicit extension, never register-time72h.",
+    "The exact source bytes and original phase prefix are revalidated every time."
+  ],
+  "resource_monitor_AST": {
+    "twelve_helper_AST_equal": {
+      "parse_proc_stat": true,
+      "read_process_identity": true,
+      "identity_matches": true,
+      "owned_identity_matches": true,
+      "terminal_reap_observation": true,
+      "bounded_owned_reap": true,
+      "signal_bound_group": true,
+      "actual_cpu_observation": true,
+      "process_group_snapshot": true,
+      "read_cgroup_memory": true,
+      "resource_runtime_snapshot": true,
+      "phase_limits": true
+    },
+    "entire_monitor_while_AST_equal": true,
+    "monitor_while_count": 1,
+    "monitor_while_AST_characters": 22681
+  },
+  "stage_closure_API_review": [
+    "Requires genuine frozen V6 source/proof/schema and healthy EXITED0 producer row.",
+    "Checks immutable proof SHA, phase proof binding, closed log SHA, result status/stage/snapshot, unchanged MF and native-driver restoration.",
+    "Explicit successful statuses are required by caller; one separate current RUNNING consumer is allowed while source remains healthy closed."
+  ],
+  "scope": {
+    "actual_source_V5_ledger_read": false,
+    "actual_root_authorization_read_or_approved": false,
+    "numerical_libraries_imported": false,
+    "arrays_or_CHK_read": false,
+    "QM_run": false,
+    "Git_run": false,
+    "production_source_modified_by_reviewer": false
+  },
+  "remaining_runtime_gates": [
+    "Root must actually verify the supplied conservative research_authorization_deadline and its evidence against the existing user72h grant; this review does not manufacture or verify that external factual endpoint.",
+    "Actual registration remains NOT_RUN and requires all V5 phases to stop and close with known actual CPU, exact final source SHA, root approval and a unique new ledger.",
+    "OS/pidfd/cgroup/signals were not exercised; the reviewed V5 monitoring implementation is carried over unchanged.",
+    "No molecular stage cache or small-molecule numerical equivalence is validated by these guard tests."
+  ]
+}

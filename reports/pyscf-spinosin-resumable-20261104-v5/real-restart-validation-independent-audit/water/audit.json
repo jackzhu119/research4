@@ -1,0 +1,799 @@
+{
+  "schema": "research4-real-cross-process-restart-independent-audit-v5",
+  "status": "PASS_INDEPENDENT_NUMPY_REPLAY",
+  "created_at_utc": "2026-11-04T08:18:11.163243+00:00",
+  "molecule": "water",
+  "scope": "Small-molecule engineering control only, not Spinosin frequencies or proof of physical accuracy.",
+  "snapshot_manifest_sha256": "123e3e760111f349315703fd213d94aac26eda87e02d03caf98dc9ebbd0cfaf4",
+  "source_prepare_result_sha256": "e6d54f0e5f6ef1d77506b92e9bf42f019ecd46ab19b5bf1b0a41a4c49ad037cf",
+  "stock_result_sha256": "986be9aa60ff6810693169055e078d202dc7135f8a6ddf61c47f0a921018a930",
+  "segmented_result_sha256": "7090385cd5f9e09a1665f3ff74cf90b62b7a6955e16a61df5c11718fe83e6abc",
+  "all_raw_Hessian_elements_compared": 81,
+  "all_atom_pair_couplings_compared": true,
+  "max_abs_differences": {
+    "raw": 1.0880185641326534e-13,
+    "sym": 1.0880185641326534e-13,
+    "frequency": 3.3651303965598345e-11,
+    "thz": 1.0089706847793423e-12
+  },
+  "fixed_tolerances": {
+    "raw_Eh_per_Bohr2": 1e-06,
+    "sym_Eh_per_Bohr2": 1e-06,
+    "frequency_cm1": 0.01,
+    "replay_cm1": 1e-07,
+    "gradient_Eh_per_Bohr": 1e-08
+  },
+  "stock": {
+    "modes": 3,
+    "all_positive": true,
+    "raw_max_asymmetry": 1.595267185017235e-07,
+    "frequency_cm1": [
+      1605.6244283894455,
+      3689.9804849528555,
+      3789.0435202046474
+    ],
+    "frequency_thz": [
+      48.13540940117168,
+      110.62283195560485,
+      113.59266703911238
+    ],
+    "independent_frequency_cm1": [
+      1605.6244283894455,
+      3689.9804849528573,
+      3789.0435202046488
+    ],
+    "max_independent_frequency_difference_cm1": 1.8189894035458565e-12,
+    "mass_weighted_orthogonality_error": 6.661338147750939e-16,
+    "external_projection_error": 4.057888411201636e-16,
+    "projected_eigen_equation_residual": 3.3306690738754696e-16,
+    "minimum_independent_mode_absolute_overlap": 0.9999999999999998,
+    "measured_CPHF_residual_norm": "NOT_COMPUTED"
+  },
+  "segmented": {
+    "modes": 3,
+    "all_positive": true,
+    "raw_max_asymmetry": 1.5952671739150048e-07,
+    "frequency_cm1": [
+      1605.6244283894462,
+      3689.9804849528778,
+      3789.0435202046137
+    ],
+    "frequency_thz": [
+      48.1354094011717,
+      110.62283195560552,
+      113.59266703911138
+    ],
+    "independent_frequency_cm1": [
+      1605.6244283894466,
+      3689.9804849528796,
+      3789.043520204615
+    ],
+    "max_independent_frequency_difference_cm1": 1.8189894035458565e-12,
+    "mass_weighted_orthogonality_error": 7.771561172376096e-16,
+    "external_projection_error": 4.0578884112016044e-16,
+    "projected_eigen_equation_residual": 3.885780586188048e-16,
+    "minimum_independent_mode_absolute_overlap": 0.9999999999999997,
+    "measured_CPHF_residual_norm": "NOT_COMPUTED"
+  },
+  "minimum_stock_segment_mode_absolute_overlap": 0.9999999999999993,
+  "mode_sign_is_arbitrary": true,
+  "mode_comparison_method": "Absolute mass-weighted vector overlaps; independent Cartesian TR-QR projection and NumPy eigh.",
+  "restore_gradient_difference_Eh_per_Bohr": 1.7172609245488233e-17,
+  "same_exact_MF_snapshot_all_stages": true,
+  "no_new_SCF_recorded_in_consumers": true,
+  "segments": [
+    {
+      "phase": "v5-validation-water-segment-001",
+      "pid": 5886,
+      "healthy_closed_parent": true,
+      "before": 0,
+      "after": 2,
+      "status": "CHECKPOINT_SEGMENT_COMPLETE",
+      "actual_wait4_CPU_seconds": 1.532382
+    },
+    {
+      "phase": "v5-validation-water-segment-002",
+      "pid": 5898,
+      "healthy_closed_parent": true,
+      "before": 2,
+      "after": 4,
+      "status": "CHECKPOINT_SEGMENT_COMPLETE",
+      "actual_wait4_CPU_seconds": 1.586439
+    },
+    {
+      "phase": "v5-validation-water-segment-003",
+      "pid": 5910,
+      "healthy_closed_parent": true,
+      "before": 4,
+      "after": 6,
+      "status": "FREQUENCIES_COMPUTED",
+      "actual_wait4_CPU_seconds": 2.81502
+    }
+  ],
+  "independent_payload_PIDs": [
+    5455,
+    5707,
+    5874,
+    5886,
+    5898,
+    5910
+  ],
+  "all_payload_PIDs_unique": true,
+  "actual_wait4_CPU_seconds_for_selected_lineage": 12.103512,
+  "parent_rows": [
+    {
+      "phase": "v5-validation-water-prepare-001",
+      "started_at_utc": "2026-11-04T08:06:05.314038+00:00",
+      "status": "EXITED",
+      "command": [
+        ".runtime/bin/python",
+        "scripts/pyscf_molecular_state_worker_20261104_v5.py",
+        "--phase",
+        "prepare-state",
+        "--input-manifest",
+        "reports/pyscf-sdf-continuation-20261103-v1/inputs/validation_water_prepare_input.json",
+        "--input-manifest-sha256",
+        "865877bc001ebca8a5a9fde48dbb16cd9a21504a14b435c23a276bfb6f5e9ded",
+        "--output",
+        "reports/pyscf-spinosin-resumable-20261104-v5/v5-validation-water-prepare-001",
+        "--threads",
+        "4",
+        "--maxsteps",
+        "35"
+      ],
+      "log": "/workspace/research4/reports/pyscf-spinosin-resumable-20261104-v5/execution/v5-validation-water-prepare-001.log",
+      "granted_cpu_seconds": 1200,
+      "cpu_soft_limit_seconds": 1080,
+      "cpu_hard_limit_seconds": 1200,
+      "cpu_cleanup_margin_seconds": 120,
+      "cpu_boundary_reserve_seconds": 10,
+      "wall_limit_seconds": 900,
+      "wall_cleanup_seconds": 60,
+      "wall_SIGTERM_after_seconds": 840,
+      "address_space_limit_gib": 24,
+      "threads": 4,
+      "rss_stop_bytes": 10737418240,
+      "cgroup_kill_bytes": 12884901888,
+      "monitor_interval_seconds": 0.1,
+      "memory_kill_grace_seconds": 1.0,
+      "expected_cgroup_memory_max_bytes": 17179869184,
+      "guard_semantics": "BEST_EFFORT_RSS_GUARD_NOT_HARD_RSS_LIMIT",
+      "not_a_hard_RSS_limit": true,
+      "actual_cpu_guard_enabled": true,
+      "actual_cpu_guard_source": "PROC_STAT_CUMULATIVE_FROM_PROCESS_BIRTH",
+      "actual_cpu_clock_ticks_per_second": 100,
+      "actual_cpu_cleanup_reserve_seconds": 120,
+      "actual_cpu_stop_threshold_seconds": 1080,
+      "actual_cpu_closed_batch_cost_seconds": 3605.565813,
+      "actual_cpu_batch_cap_seconds": 129600,
+      "cpu_guard_kill_grace_seconds": 1.0,
+      "profiling_RLIMIT_is_supplementary_not_exact_actual_CPU_guarantee": true,
+      "supervisor_proof_path": "/workspace/research4/reports/pyscf-spinosin-resumable-20261104-v5/execution/v5-validation-water-prepare-001.log.supervisor-proof.json",
+      "prior_V3_exclusive_lock_held": true,
+      "cgroup_memory_before_launch": {
+        "current_bytes": 1896185856,
+        "max_bytes": 17179869184,
+        "source": "/sys/fs/cgroup",
+        "observed_at_utc": "2026-11-04T08:06:05.314025+00:00"
+      },
+      "environment_thread_limits": {
+        "OMP_NUM_THREADS": "4",
+        "OPENBLAS_NUM_THREADS": "4",
+        "MKL_NUM_THREADS": "4",
+        "NUMEXPR_NUM_THREADS": "4"
+      },
+      "pid": 5455,
+      "supervisor_proof_sha256": "a01cca49a4e823ef07e22a3c67cb4ea7b5459f66401d09bc60d644a4c22e8b2e",
+      "ended_at_utc": "2026-11-04T08:06:06.434794+00:00",
+      "actual_cpu_seconds": 1.4185029999999998,
+      "elapsed_wall_seconds": 1.1189654130002964,
+      "peak_rss_kib": 147896,
+      "exit_code": 0,
+      "wall_terminated": false,
+      "hard_killed": false,
+      "memory_terminated": false,
+      "monitor_failed": false,
+      "cpu_terminated": false,
+      "peak_actual_cpu_seconds_sampled": 1.32,
+      "memory_monitor_samples": 11,
+      "peak_group_rss_bytes_sampled": 133632000,
+      "peak_cgroup_memory_bytes_sampled": 1995497472,
+      "log_sha256": "d8ebd5bde63ff9adb9964f972c86da8f17b95a5c81631c9164204642c281f8b5"
+    },
+    {
+      "phase": "v5-validation-water-restore-gradient-001",
+      "started_at_utc": "2026-11-04T08:07:54.400559+00:00",
+      "status": "EXITED",
+      "command": [
+        "/workspace/research4/.runtime/python/bin/python",
+        "scripts/pyscf_resumable_hessian_worker_20261104_v5.py",
+        "--phase",
+        "restore-gradient-check",
+        "--snapshot",
+        "reports/pyscf-spinosin-resumable-20261104-v5/v5-validation-water-prepare-001/exact-mf-snapshot",
+        "--snapshot-manifest-sha256",
+        "123e3e760111f349315703fd213d94aac26eda87e02d03caf98dc9ebbd0cfaf4",
+        "--output",
+        "reports/pyscf-spinosin-resumable-20261104-v5/v5-validation-water-restore-gradient-001",
+        "--threads",
+        "4"
+      ],
+      "log": "/workspace/research4/reports/pyscf-spinosin-resumable-20261104-v5/execution/v5-validation-water-restore-gradient-001.log",
+      "granted_cpu_seconds": 1800,
+      "cpu_soft_limit_seconds": 1680,
+      "cpu_hard_limit_seconds": 1800,
+      "cpu_cleanup_margin_seconds": 120,
+      "cpu_boundary_reserve_seconds": 10,
+      "wall_limit_seconds": 900,
+      "wall_cleanup_seconds": 60,
+      "wall_SIGTERM_after_seconds": 840,
+      "address_space_limit_gib": 24,
+      "threads": 4,
+      "rss_stop_bytes": 10737418240,
+      "cgroup_kill_bytes": 12884901888,
+      "monitor_interval_seconds": 0.1,
+      "memory_kill_grace_seconds": 1.0,
+      "expected_cgroup_memory_max_bytes": 17179869184,
+      "guard_semantics": "BEST_EFFORT_RSS_GUARD_NOT_HARD_RSS_LIMIT",
+      "not_a_hard_RSS_limit": true,
+      "actual_cpu_guard_enabled": true,
+      "actual_cpu_guard_source": "PROC_STAT_CUMULATIVE_FROM_PROCESS_BIRTH",
+      "actual_cpu_clock_ticks_per_second": 100,
+      "actual_cpu_cleanup_reserve_seconds": 120,
+      "actual_cpu_stop_threshold_seconds": 1680,
+      "actual_cpu_closed_batch_cost_seconds": 3616.327015,
+      "actual_cpu_batch_cap_seconds": 129600,
+      "cpu_guard_kill_grace_seconds": 1.0,
+      "profiling_RLIMIT_is_supplementary_not_exact_actual_CPU_guarantee": true,
+      "supervisor_proof_path": "/workspace/research4/reports/pyscf-spinosin-resumable-20261104-v5/execution/v5-validation-water-restore-gradient-001.log.supervisor-proof.json",
+      "prior_V3_exclusive_lock_held": true,
+      "cgroup_memory_before_launch": {
+        "current_bytes": 1908404224,
+        "max_bytes": 17179869184,
+        "source": "/sys/fs/cgroup",
+        "observed_at_utc": "2026-11-04T08:07:54.400544+00:00"
+      },
+      "environment_thread_limits": {
+        "OMP_NUM_THREADS": "4",
+        "OPENBLAS_NUM_THREADS": "4",
+        "MKL_NUM_THREADS": "4",
+        "NUMEXPR_NUM_THREADS": "4"
+      },
+      "pid": 5707,
+      "supervisor_proof_sha256": "cfe80120b95d50575bb845d316294d72c71c7eb43831ee5f03662b81a18683ff",
+      "ended_at_utc": "2026-11-04T08:07:55.323477+00:00",
+      "actual_cpu_seconds": 1.494423,
+      "elapsed_wall_seconds": 0.9211131430001842,
+      "peak_rss_kib": 131288,
+      "exit_code": 0,
+      "wall_terminated": false,
+      "hard_killed": false,
+      "memory_terminated": false,
+      "monitor_failed": false,
+      "cpu_terminated": false,
+      "peak_actual_cpu_seconds_sampled": 1.44,
+      "memory_monitor_samples": 9,
+      "peak_group_rss_bytes_sampled": 108179456,
+      "peak_cgroup_memory_bytes_sampled": 1984397312,
+      "log_sha256": "84052c6530c8c7699cb42d745f664b50f36f12246eee926a733b632bad79bd59"
+    },
+    {
+      "phase": "v5-validation-water-stock-hessian-001",
+      "started_at_utc": "2026-11-04T08:08:58.485371+00:00",
+      "status": "EXITED",
+      "command": [
+        "/workspace/research4/.runtime/python/bin/python",
+        "/workspace/research4/scripts/pyscf_resumable_hessian_worker_20261104_v5.py",
+        "--phase",
+        "stock-hessian-reference",
+        "--snapshot",
+        "/workspace/research4/reports/pyscf-spinosin-resumable-20261104-v5/v5-validation-water-prepare-001/exact-mf-snapshot",
+        "--snapshot-manifest-sha256",
+        "123e3e760111f349315703fd213d94aac26eda87e02d03caf98dc9ebbd0cfaf4",
+        "--output",
+        "/workspace/research4/reports/pyscf-spinosin-resumable-20261104-v5/v5-validation-water-stock-hessian-001",
+        "--threads",
+        "4",
+        "--max-new-units",
+        "2",
+        "--rhf-cache",
+        "/workspace/research4/outputs/pyscf-spinosin-resumable-20261104-v5/water-restart-validation",
+        "--gradient-check-result",
+        "/workspace/research4/reports/pyscf-spinosin-resumable-20261104-v5/v5-validation-water-restore-gradient-001/result.json",
+        "--gradient-check-result-sha256",
+        "517de6a69fc64ff96abac6d6ca5b1482c6e429ade82cf4328d36b596548f6397"
+      ],
+      "log": "/workspace/research4/reports/pyscf-spinosin-resumable-20261104-v5/execution/v5-validation-water-stock-hessian-001.log",
+      "granted_cpu_seconds": 3600,
+      "cpu_soft_limit_seconds": 3480,
+      "cpu_hard_limit_seconds": 3600,
+      "cpu_cleanup_margin_seconds": 120,
+      "cpu_boundary_reserve_seconds": 10,
+      "wall_limit_seconds": 1800,
+      "wall_cleanup_seconds": 60,
+      "wall_SIGTERM_after_seconds": 1740,
+      "address_space_limit_gib": 24,
+      "threads": 4,
+      "rss_stop_bytes": 10737418240,
+      "cgroup_kill_bytes": 12884901888,
+      "monitor_interval_seconds": 0.1,
+      "memory_kill_grace_seconds": 1.0,
+      "expected_cgroup_memory_max_bytes": 17179869184,
+      "guard_semantics": "BEST_EFFORT_RSS_GUARD_NOT_HARD_RSS_LIMIT",
+      "not_a_hard_RSS_limit": true,
+      "actual_cpu_guard_enabled": true,
+      "actual_cpu_guard_source": "PROC_STAT_CUMULATIVE_FROM_PROCESS_BIRTH",
+      "actual_cpu_clock_ticks_per_second": 100,
+      "actual_cpu_cleanup_reserve_seconds": 120,
+      "actual_cpu_stop_threshold_seconds": 3480,
+      "actual_cpu_closed_batch_cost_seconds": 3621.64518,
+      "actual_cpu_batch_cap_seconds": 129600,
+      "cpu_guard_kill_grace_seconds": 1.0,
+      "profiling_RLIMIT_is_supplementary_not_exact_actual_CPU_guarantee": true,
+      "supervisor_proof_path": "/workspace/research4/reports/pyscf-spinosin-resumable-20261104-v5/execution/v5-validation-water-stock-hessian-001.log.supervisor-proof.json",
+      "prior_V3_exclusive_lock_held": true,
+      "cgroup_memory_before_launch": {
+        "current_bytes": 1911971840,
+        "max_bytes": 17179869184,
+        "source": "/sys/fs/cgroup",
+        "observed_at_utc": "2026-11-04T08:08:58.485358+00:00"
+      },
+      "environment_thread_limits": {
+        "OMP_NUM_THREADS": "4",
+        "OPENBLAS_NUM_THREADS": "4",
+        "MKL_NUM_THREADS": "4",
+        "NUMEXPR_NUM_THREADS": "4"
+      },
+      "pid": 5874,
+      "supervisor_proof_sha256": "88e17c5c2d740dbc87857934e0c7ffd5dc0c10e19b10038da99c3e2d9663d010",
+      "ended_at_utc": "2026-11-04T08:09:00.019102+00:00",
+      "actual_cpu_seconds": 3.256745,
+      "elapsed_wall_seconds": 1.531894106999971,
+      "peak_rss_kib": 150300,
+      "exit_code": 0,
+      "wall_terminated": false,
+      "hard_killed": false,
+      "memory_terminated": false,
+      "monitor_failed": false,
+      "cpu_terminated": false,
+      "peak_actual_cpu_seconds_sampled": 3.19,
+      "memory_monitor_samples": 15,
+      "peak_group_rss_bytes_sampled": 145494016,
+      "peak_cgroup_memory_bytes_sampled": 2025590784,
+      "log_sha256": "3ba7a047a560b05dbd2e458654b4d55d5ac7d81da1b6430a2c58d1b867b94ca1"
+    },
+    {
+      "phase": "v5-validation-water-segment-001",
+      "started_at_utc": "2026-11-04T08:09:00.096084+00:00",
+      "status": "EXITED",
+      "command": [
+        "/workspace/research4/.runtime/python/bin/python",
+        "/workspace/research4/scripts/pyscf_resumable_hessian_worker_20261104_v5.py",
+        "--phase",
+        "hessian-segment",
+        "--snapshot",
+        "/workspace/research4/reports/pyscf-spinosin-resumable-20261104-v5/v5-validation-water-prepare-001/exact-mf-snapshot",
+        "--snapshot-manifest-sha256",
+        "123e3e760111f349315703fd213d94aac26eda87e02d03caf98dc9ebbd0cfaf4",
+        "--output",
+        "/workspace/research4/reports/pyscf-spinosin-resumable-20261104-v5/v5-validation-water-segment-001",
+        "--threads",
+        "4",
+        "--max-new-units",
+        "2",
+        "--rhf-cache",
+        "/workspace/research4/outputs/pyscf-spinosin-resumable-20261104-v5/water-restart-validation",
+        "--gradient-check-result",
+        "/workspace/research4/reports/pyscf-spinosin-resumable-20261104-v5/v5-validation-water-restore-gradient-001/result.json",
+        "--gradient-check-result-sha256",
+        "517de6a69fc64ff96abac6d6ca5b1482c6e429ade82cf4328d36b596548f6397"
+      ],
+      "log": "/workspace/research4/reports/pyscf-spinosin-resumable-20261104-v5/execution/v5-validation-water-segment-001.log",
+      "granted_cpu_seconds": 3600,
+      "cpu_soft_limit_seconds": 3480,
+      "cpu_hard_limit_seconds": 3600,
+      "cpu_cleanup_margin_seconds": 120,
+      "cpu_boundary_reserve_seconds": 10,
+      "wall_limit_seconds": 1800,
+      "wall_cleanup_seconds": 60,
+      "wall_SIGTERM_after_seconds": 1740,
+      "address_space_limit_gib": 24,
+      "threads": 4,
+      "rss_stop_bytes": 10737418240,
+      "cgroup_kill_bytes": 12884901888,
+      "monitor_interval_seconds": 0.1,
+      "memory_kill_grace_seconds": 1.0,
+      "expected_cgroup_memory_max_bytes": 17179869184,
+      "guard_semantics": "BEST_EFFORT_RSS_GUARD_NOT_HARD_RSS_LIMIT",
+      "not_a_hard_RSS_limit": true,
+      "actual_cpu_guard_enabled": true,
+      "actual_cpu_guard_source": "PROC_STAT_CUMULATIVE_FROM_PROCESS_BIRTH",
+      "actual_cpu_clock_ticks_per_second": 100,
+      "actual_cpu_cleanup_reserve_seconds": 120,
+      "actual_cpu_stop_threshold_seconds": 3480,
+      "actual_cpu_closed_batch_cost_seconds": 3624.901925,
+      "actual_cpu_batch_cap_seconds": 129600,
+      "cpu_guard_kill_grace_seconds": 1.0,
+      "profiling_RLIMIT_is_supplementary_not_exact_actual_CPU_guarantee": true,
+      "supervisor_proof_path": "/workspace/research4/reports/pyscf-spinosin-resumable-20261104-v5/execution/v5-validation-water-segment-001.log.supervisor-proof.json",
+      "prior_V3_exclusive_lock_held": true,
+      "cgroup_memory_before_launch": {
+        "current_bytes": 1912590336,
+        "max_bytes": 17179869184,
+        "source": "/sys/fs/cgroup",
+        "observed_at_utc": "2026-11-04T08:09:00.096071+00:00"
+      },
+      "environment_thread_limits": {
+        "OMP_NUM_THREADS": "4",
+        "OPENBLAS_NUM_THREADS": "4",
+        "MKL_NUM_THREADS": "4",
+        "NUMEXPR_NUM_THREADS": "4"
+      },
+      "pid": 5886,
+      "supervisor_proof_sha256": "0b2fab34225b2fcb0d5060a7dc3fb81e94015c4eca1bf66671419a39464eff2d",
+      "ended_at_utc": "2026-11-04T08:09:01.115046+00:00",
+      "actual_cpu_seconds": 1.532382,
+      "elapsed_wall_seconds": 1.0173882930002947,
+      "peak_rss_kib": 102588,
+      "exit_code": 0,
+      "wall_terminated": false,
+      "hard_killed": false,
+      "memory_terminated": false,
+      "monitor_failed": false,
+      "cpu_terminated": false,
+      "peak_actual_cpu_seconds_sampled": 1.49,
+      "memory_monitor_samples": 10,
+      "peak_group_rss_bytes_sampled": 104919040,
+      "peak_cgroup_memory_bytes_sampled": 1986347008,
+      "log_sha256": "24302a39cccd32ad3e7a3ddeffca658572327fd93e2076419355b0c27efaa997"
+    },
+    {
+      "phase": "v5-validation-water-segment-002",
+      "started_at_utc": "2026-11-04T08:09:01.203722+00:00",
+      "status": "EXITED",
+      "command": [
+        "/workspace/research4/.runtime/python/bin/python",
+        "/workspace/research4/scripts/pyscf_resumable_hessian_worker_20261104_v5.py",
+        "--phase",
+        "hessian-segment",
+        "--snapshot",
+        "/workspace/research4/reports/pyscf-spinosin-resumable-20261104-v5/v5-validation-water-prepare-001/exact-mf-snapshot",
+        "--snapshot-manifest-sha256",
+        "123e3e760111f349315703fd213d94aac26eda87e02d03caf98dc9ebbd0cfaf4",
+        "--output",
+        "/workspace/research4/reports/pyscf-spinosin-resumable-20261104-v5/v5-validation-water-segment-002",
+        "--threads",
+        "4",
+        "--max-new-units",
+        "2",
+        "--rhf-cache",
+        "/workspace/research4/outputs/pyscf-spinosin-resumable-20261104-v5/water-restart-validation",
+        "--gradient-check-result",
+        "/workspace/research4/reports/pyscf-spinosin-resumable-20261104-v5/v5-validation-water-restore-gradient-001/result.json",
+        "--gradient-check-result-sha256",
+        "517de6a69fc64ff96abac6d6ca5b1482c6e429ade82cf4328d36b596548f6397"
+      ],
+      "log": "/workspace/research4/reports/pyscf-spinosin-resumable-20261104-v5/execution/v5-validation-water-segment-002.log",
+      "granted_cpu_seconds": 3600,
+      "cpu_soft_limit_seconds": 3480,
+      "cpu_hard_limit_seconds": 3600,
+      "cpu_cleanup_margin_seconds": 120,
+      "cpu_boundary_reserve_seconds": 10,
+      "wall_limit_seconds": 1800,
+      "wall_cleanup_seconds": 60,
+      "wall_SIGTERM_after_seconds": 1740,
+      "address_space_limit_gib": 24,
+      "threads": 4,
+      "rss_stop_bytes": 10737418240,
+      "cgroup_kill_bytes": 12884901888,
+      "monitor_interval_seconds": 0.1,
+      "memory_kill_grace_seconds": 1.0,
+      "expected_cgroup_memory_max_bytes": 17179869184,
+      "guard_semantics": "BEST_EFFORT_RSS_GUARD_NOT_HARD_RSS_LIMIT",
+      "not_a_hard_RSS_limit": true,
+      "actual_cpu_guard_enabled": true,
+      "actual_cpu_guard_source": "PROC_STAT_CUMULATIVE_FROM_PROCESS_BIRTH",
+      "actual_cpu_clock_ticks_per_second": 100,
+      "actual_cpu_cleanup_reserve_seconds": 120,
+      "actual_cpu_stop_threshold_seconds": 3480,
+      "actual_cpu_closed_batch_cost_seconds": 3626.434307,
+      "actual_cpu_batch_cap_seconds": 129600,
+      "cpu_guard_kill_grace_seconds": 1.0,
+      "profiling_RLIMIT_is_supplementary_not_exact_actual_CPU_guarantee": true,
+      "supervisor_proof_path": "/workspace/research4/reports/pyscf-spinosin-resumable-20261104-v5/execution/v5-validation-water-segment-002.log.supervisor-proof.json",
+      "prior_V3_exclusive_lock_held": true,
+      "cgroup_memory_before_launch": {
+        "current_bytes": 1912573952,
+        "max_bytes": 17179869184,
+        "source": "/sys/fs/cgroup",
+        "observed_at_utc": "2026-11-04T08:09:01.203709+00:00"
+      },
+      "environment_thread_limits": {
+        "OMP_NUM_THREADS": "4",
+        "OPENBLAS_NUM_THREADS": "4",
+        "MKL_NUM_THREADS": "4",
+        "NUMEXPR_NUM_THREADS": "4"
+      },
+      "pid": 5898,
+      "supervisor_proof_sha256": "65a9e238e49fbdf70104726714b3d558c63b2a69f71946c6616f06347c773717",
+      "ended_at_utc": "2026-11-04T08:09:02.227290+00:00",
+      "actual_cpu_seconds": 1.586439,
+      "elapsed_wall_seconds": 1.0221239339998647,
+      "peak_rss_kib": 102820,
+      "exit_code": 0,
+      "wall_terminated": false,
+      "hard_killed": false,
+      "memory_terminated": false,
+      "monitor_failed": false,
+      "cpu_terminated": false,
+      "peak_actual_cpu_seconds_sampled": 1.55,
+      "memory_monitor_samples": 10,
+      "peak_group_rss_bytes_sampled": 105144320,
+      "peak_cgroup_memory_bytes_sampled": 1986904064,
+      "log_sha256": "24302a39cccd32ad3e7a3ddeffca658572327fd93e2076419355b0c27efaa997"
+    },
+    {
+      "phase": "v5-validation-water-segment-003",
+      "started_at_utc": "2026-11-04T08:09:02.295293+00:00",
+      "status": "EXITED",
+      "command": [
+        "/workspace/research4/.runtime/python/bin/python",
+        "/workspace/research4/scripts/pyscf_resumable_hessian_worker_20261104_v5.py",
+        "--phase",
+        "hessian-segment",
+        "--snapshot",
+        "/workspace/research4/reports/pyscf-spinosin-resumable-20261104-v5/v5-validation-water-prepare-001/exact-mf-snapshot",
+        "--snapshot-manifest-sha256",
+        "123e3e760111f349315703fd213d94aac26eda87e02d03caf98dc9ebbd0cfaf4",
+        "--output",
+        "/workspace/research4/reports/pyscf-spinosin-resumable-20261104-v5/v5-validation-water-segment-003",
+        "--threads",
+        "4",
+        "--max-new-units",
+        "2",
+        "--rhf-cache",
+        "/workspace/research4/outputs/pyscf-spinosin-resumable-20261104-v5/water-restart-validation",
+        "--gradient-check-result",
+        "/workspace/research4/reports/pyscf-spinosin-resumable-20261104-v5/v5-validation-water-restore-gradient-001/result.json",
+        "--gradient-check-result-sha256",
+        "517de6a69fc64ff96abac6d6ca5b1482c6e429ade82cf4328d36b596548f6397"
+      ],
+      "log": "/workspace/research4/reports/pyscf-spinosin-resumable-20261104-v5/execution/v5-validation-water-segment-003.log",
+      "granted_cpu_seconds": 3600,
+      "cpu_soft_limit_seconds": 3480,
+      "cpu_hard_limit_seconds": 3600,
+      "cpu_cleanup_margin_seconds": 120,
+      "cpu_boundary_reserve_seconds": 10,
+      "wall_limit_seconds": 1800,
+      "wall_cleanup_seconds": 60,
+      "wall_SIGTERM_after_seconds": 1740,
+      "address_space_limit_gib": 24,
+      "threads": 4,
+      "rss_stop_bytes": 10737418240,
+      "cgroup_kill_bytes": 12884901888,
+      "monitor_interval_seconds": 0.1,
+      "memory_kill_grace_seconds": 1.0,
+      "expected_cgroup_memory_max_bytes": 17179869184,
+      "guard_semantics": "BEST_EFFORT_RSS_GUARD_NOT_HARD_RSS_LIMIT",
+      "not_a_hard_RSS_limit": true,
+      "actual_cpu_guard_enabled": true,
+      "actual_cpu_guard_source": "PROC_STAT_CUMULATIVE_FROM_PROCESS_BIRTH",
+      "actual_cpu_clock_ticks_per_second": 100,
+      "actual_cpu_cleanup_reserve_seconds": 120,
+      "actual_cpu_stop_threshold_seconds": 3480,
+      "actual_cpu_closed_batch_cost_seconds": 3628.020746,
+      "actual_cpu_batch_cap_seconds": 129600,
+      "cpu_guard_kill_grace_seconds": 1.0,
+      "profiling_RLIMIT_is_supplementary_not_exact_actual_CPU_guarantee": true,
+      "supervisor_proof_path": "/workspace/research4/reports/pyscf-spinosin-resumable-20261104-v5/execution/v5-validation-water-segment-003.log.supervisor-proof.json",
+      "prior_V3_exclusive_lock_held": true,
+      "cgroup_memory_before_launch": {
+        "current_bytes": 1913110528,
+        "max_bytes": 17179869184,
+        "source": "/sys/fs/cgroup",
+        "observed_at_utc": "2026-11-04T08:09:02.295279+00:00"
+      },
+      "environment_thread_limits": {
+        "OMP_NUM_THREADS": "4",
+        "OPENBLAS_NUM_THREADS": "4",
+        "MKL_NUM_THREADS": "4",
+        "NUMEXPR_NUM_THREADS": "4"
+      },
+      "pid": 5910,
+      "supervisor_proof_sha256": "c8ca477ecdfb307d1498e746d23563ddd52ef520ea36349a6e29b1145268e8ac",
+      "ended_at_utc": "2026-11-04T08:09:03.618135+00:00",
+      "actual_cpu_seconds": 2.81502,
+      "elapsed_wall_seconds": 1.3212123229995996,
+      "peak_rss_kib": 150284,
+      "exit_code": 0,
+      "wall_terminated": false,
+      "hard_killed": false,
+      "memory_terminated": false,
+      "monitor_failed": false,
+      "cpu_terminated": false,
+      "peak_actual_cpu_seconds_sampled": 2.79,
+      "memory_monitor_samples": 13,
+      "peak_group_rss_bytes_sampled": 142594048,
+      "peak_cgroup_memory_bytes_sampled": 2023768064,
+      "log_sha256": "b38f141de68f53e76fc6480989fe029a800ab8fc29a531656745c3473484c0a9"
+    }
+  ],
+  "forensically_released_failed_parents": [],
+  "failed_parent_never_relabelled_healthy": true,
+  "proof_schema": "research4-pyscf-actual-cpu-supervisor-proof-v5",
+  "forensic_units_reused": 0,
+  "unit_qualification_label": "CLOSED_HEALTHY_V5_PRODUCER",
+  "mechanically_adapted_from_audit_source_sha256": "aad4cd3abbb7683a3912f2b58a873e7318f88a432e2109714d8c9138168e1f1f",
+  "IR_intensities_status": "NOT_COMPUTED",
+  "masses_amu": {
+    "H": 1.008,
+    "C": 12.011,
+    "O": 15.999
+  },
+  "frequency_factor_cm1": 5140.487138493369,
+  "new_quantum_evaluations": 0,
+  "PySCF_imported": false,
+  "audit_source_sha256": "49a12e894e0a1afa48ebffbb80391dc4f414a8168a4368f8b807b9769ec46ad5",
+  "input_files": {
+    "reports/pyscf-spinosin-resumable-20261104-v5/execution/v5-validation-water-prepare-001.log.supervisor-proof.json": {
+      "sha256": "a01cca49a4e823ef07e22a3c67cb4ea7b5459f66401d09bc60d644a4c22e8b2e",
+      "bytes": 1780
+    },
+    "scripts/run_pyscf_actual_cpu_budget_20261104_v5.py": {
+      "sha256": "33f1dc3db5280f16c9898c561e345143614730dc052b171b4f11fbbb079cdeee",
+      "bytes": 62024
+    },
+    "reports/pyscf-spinosin-resumable-20261104-v5/execution/v5-validation-water-prepare-001.log": {
+      "sha256": "d8ebd5bde63ff9adb9964f972c86da8f17b95a5c81631c9164204642c281f8b5",
+      "bytes": 196
+    },
+    "reports/pyscf-spinosin-resumable-20261104-v5/v5-validation-water-prepare-001/result.json": {
+      "sha256": "e6d54f0e5f6ef1d77506b92e9bf42f019ecd46ab19b5bf1b0a41a4c49ad037cf",
+      "bytes": 8746
+    },
+    "scripts/pyscf_molecular_state_worker_20261104_v5.py": {
+      "sha256": "be4727b76d59a0b0dd3defba249ef833ee8ef0ea89473e390dcef389728415c8",
+      "bytes": 41377
+    },
+    "reports/pyscf-spinosin-resumable-20261104-v5/execution/v5-validation-water-restore-gradient-001.log.supervisor-proof.json": {
+      "sha256": "cfe80120b95d50575bb845d316294d72c71c7eb43831ee5f03662b81a18683ff",
+      "bytes": 1789
+    },
+    "reports/pyscf-spinosin-resumable-20261104-v5/execution/v5-validation-water-restore-gradient-001.log": {
+      "sha256": "84052c6530c8c7699cb42d745f664b50f36f12246eee926a733b632bad79bd59",
+      "bytes": 199
+    },
+    "reports/pyscf-spinosin-resumable-20261104-v5/v5-validation-water-restore-gradient-001/result.json": {
+      "sha256": "517de6a69fc64ff96abac6d6ca5b1482c6e429ade82cf4328d36b596548f6397",
+      "bytes": 22686
+    },
+    "scripts/pyscf_incremental_rhf_checkpoint_20261103.py": {
+      "sha256": "ce96055f24b39833337844c178f94597a9ac4ba7721ba019816d03628f971f55",
+      "bytes": 24588
+    },
+    "scripts/pyscf_spinosin_parallel_hessian_worker_20261031.py": {
+      "sha256": "acfe7708748ac237c9912aa9b1d98e047d842794fd0c6f08b1a67b993f5b277d",
+      "bytes": 70233
+    },
+    "scripts/pyscf_resumable_hessian_worker_20261104_v5.py": {
+      "sha256": "b40188f747c01e9efa97672af6eedfd281a9e9697d20bc7d57f125bb131fa190",
+      "bytes": 29399
+    },
+    "reports/pyscf-spinosin-resumable-20261104-v5/execution/v5-validation-water-stock-hessian-001.log.supervisor-proof.json": {
+      "sha256": "88e17c5c2d740dbc87857934e0c7ffd5dc0c10e19b10038da99c3e2d9663d010",
+      "bytes": 1786
+    },
+    "reports/pyscf-spinosin-resumable-20261104-v5/execution/v5-validation-water-stock-hessian-001.log": {
+      "sha256": "3ba7a047a560b05dbd2e458654b4d55d5ac7d81da1b6430a2c58d1b867b94ca1",
+      "bytes": 210
+    },
+    "reports/pyscf-spinosin-resumable-20261104-v5/v5-validation-water-stock-hessian-001/result.json": {
+      "sha256": "986be9aa60ff6810693169055e078d202dc7135f8a6ddf61c47f0a921018a930",
+      "bytes": 24355
+    },
+    "reports/pyscf-spinosin-resumable-20261104-v5/execution/v5-validation-water-segment-003.log.supervisor-proof.json": {
+      "sha256": "c8ca477ecdfb307d1498e746d23563ddd52ef520ea36349a6e29b1145268e8ac",
+      "bytes": 1781
+    },
+    "reports/pyscf-spinosin-resumable-20261104-v5/execution/v5-validation-water-segment-003.log": {
+      "sha256": "b38f141de68f53e76fc6480989fe029a800ab8fc29a531656745c3473484c0a9",
+      "bytes": 202
+    },
+    "reports/pyscf-spinosin-resumable-20261104-v5/v5-validation-water-segment-003/result.json": {
+      "sha256": "7090385cd5f9e09a1665f3ff74cf90b62b7a6955e16a61df5c11718fe83e6abc",
+      "bytes": 28020
+    },
+    "reports/pyscf-spinosin-resumable-20261104-v5/v5-validation-water-prepare-001/exact-mf-snapshot/manifest.json": {
+      "sha256": "123e3e760111f349315703fd213d94aac26eda87e02d03caf98dc9ebbd0cfaf4",
+      "bytes": 17342
+    },
+    "reports/pyscf-spinosin-resumable-20261104-v5/v5-validation-water-prepare-001/optimized.xyz": {
+      "sha256": "04820073ff19bd00d91ae440c622b50e3947ab02259c17c94216bf746b624323",
+      "bytes": 213
+    },
+    "reports/pyscf-spinosin-resumable-20261104-v5/v5-validation-water-restore-gradient-001/normal_mode_geometry_bohr.npy": {
+      "sha256": "179dd4459f012e80942a8879799e3cb333a1025ac57663ea139826618252d1c0",
+      "bytes": 200
+    },
+    "reports/pyscf-spinosin-resumable-20261104-v5/v5-validation-water-prepare-001/gradient_hartree_per_bohr.npy": {
+      "sha256": "440b54d9497eae1d1daef08ef510f0c56ae8cb20358797cf2b5cc711e556c3c9",
+      "bytes": 200
+    },
+    "reports/pyscf-spinosin-resumable-20261104-v5/v5-validation-water-restore-gradient-001/gradient_hartree_per_bohr.npy": {
+      "sha256": "4c179a60019d5025fb2b4335437c80530ea197e52a210233b0910c9b121e398d",
+      "bytes": 200
+    },
+    "reports/pyscf-spinosin-resumable-20261104-v5/execution/v5-validation-water-segment-001.log.supervisor-proof.json": {
+      "sha256": "0b2fab34225b2fcb0d5060a7dc3fb81e94015c4eca1bf66671419a39464eff2d",
+      "bytes": 1781
+    },
+    "reports/pyscf-spinosin-resumable-20261104-v5/execution/v5-validation-water-segment-001.log": {
+      "sha256": "24302a39cccd32ad3e7a3ddeffca658572327fd93e2076419355b0c27efaa997",
+      "bytes": 215
+    },
+    "reports/pyscf-spinosin-resumable-20261104-v5/v5-validation-water-segment-001/result.json": {
+      "sha256": "2898935685d4d35eba6d6d7b466c1c7e8584e030db1a3a095f7f092d47d96987",
+      "bytes": 23926
+    },
+    "reports/pyscf-spinosin-resumable-20261104-v5/execution/v5-validation-water-segment-002.log.supervisor-proof.json": {
+      "sha256": "65a9e238e49fbdf70104726714b3d558c63b2a69f71946c6616f06347c773717",
+      "bytes": 1781
+    },
+    "reports/pyscf-spinosin-resumable-20261104-v5/execution/v5-validation-water-segment-002.log": {
+      "sha256": "24302a39cccd32ad3e7a3ddeffca658572327fd93e2076419355b0c27efaa997",
+      "bytes": 215
+    },
+    "reports/pyscf-spinosin-resumable-20261104-v5/v5-validation-water-segment-002/result.json": {
+      "sha256": "1cf260e58d2bea2923b1691e8e97668a43258905004353389b34174c41e9eb8d",
+      "bytes": 25372
+    },
+    "reports/pyscf-spinosin-resumable-20261104-v5/v5-validation-water-stock-hessian-001/hessian_hartree_per_bohr2.npy": {
+      "sha256": "86461131d2de3d6cb6289f3fc728d1c3edbc8b82bd77b33f7d86be3fec893e6e",
+      "bytes": 776
+    },
+    "reports/pyscf-spinosin-resumable-20261104-v5/v5-validation-water-stock-hessian-001/hessian_used_for_analysis.npy": {
+      "sha256": "9fdbd204cce181942d7d343b4b0100f9887de0d03f2123501a50eb03128b381d",
+      "bytes": 776
+    },
+    "reports/pyscf-spinosin-resumable-20261104-v5/v5-validation-water-stock-hessian-001/normal_mode_geometry_bohr.npy": {
+      "sha256": "179dd4459f012e80942a8879799e3cb333a1025ac57663ea139826618252d1c0",
+      "bytes": 200
+    },
+    "reports/pyscf-spinosin-resumable-20261104-v5/v5-validation-water-stock-hessian-001/normal_modes.npy": {
+      "sha256": "215191d1a502f3e3dd70531a744132dff4a81c59193af8d8498bebeeed2cadbf",
+      "bytes": 344
+    },
+    "reports/pyscf-spinosin-resumable-20261104-v5/v5-validation-water-stock-hessian-001/frequencies.csv": {
+      "sha256": "ba2797c158cd6184bcdc6cbc811a679d1cfc44c8581d9935e522b3a7fd141fdc",
+      "bytes": 239
+    },
+    "reports/pyscf-spinosin-resumable-20261104-v5/v5-validation-water-stock-hessian-001/hessian_cache_manifest.json": {
+      "sha256": "856454418c029d42af988e74a8c7033471ced007d91d0498285a2db22fa5401c",
+      "bytes": 14373
+    },
+    "reports/pyscf-spinosin-resumable-20261104-v5/v5-validation-water-segment-003/hessian_hartree_per_bohr2.npy": {
+      "sha256": "c077483a9ecdf1b3c5fa176d5303daba79f08c0457941d23b497768cd1bb3d3d",
+      "bytes": 776
+    },
+    "reports/pyscf-spinosin-resumable-20261104-v5/v5-validation-water-segment-003/hessian_used_for_analysis.npy": {
+      "sha256": "78f02dea17659a52d9f5bdf5e5e92129738fcece22da8425ffd2793ee49d9573",
+      "bytes": 776
+    },
+    "reports/pyscf-spinosin-resumable-20261104-v5/v5-validation-water-segment-003/normal_mode_geometry_bohr.npy": {
+      "sha256": "179dd4459f012e80942a8879799e3cb333a1025ac57663ea139826618252d1c0",
+      "bytes": 200
+    },
+    "reports/pyscf-spinosin-resumable-20261104-v5/v5-validation-water-segment-003/normal_modes.npy": {
+      "sha256": "09107d21768e90d1545cae6c1dc7d9d4232651c24910c9447e1047ab93c72bf7",
+      "bytes": 344
+    },
+    "reports/pyscf-spinosin-resumable-20261104-v5/v5-validation-water-segment-003/frequencies.csv": {
+      "sha256": "2f8375efa84dad75d3175b18e292d0bf599b4d2409547cf7cb588af5566a718a",
+      "bytes": 238
+    },
+    "reports/pyscf-spinosin-resumable-20261104-v5/v5-validation-water-segment-003/hessian_cache_manifest.json": {
+      "sha256": "346e741adbde9c80861a6e74920fc32fb8ee3d1e5ffa0721307f8a46d7b65edf",
+      "bytes": 14306
+    }
+  }
+}

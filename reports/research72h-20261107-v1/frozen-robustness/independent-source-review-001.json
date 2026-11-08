@@ -1,0 +1,68 @@
+{
+  "frozen_files_sha256": {
+    "scripts/run_frozen_oof_robustness_20261107.py": "1b7f6b00ca26c1aae30c114d2eeb529531fb33c026d84b7514ec5f67feaa461a",
+    "tests/test_frozen_oof_robustness_20261107.py": "cb199f66ca15a4fc1c2032f4ef1ca9a3eab5a978dc28d17d4b7efd6b080c9a4a"
+  },
+  "interpretation_limits": [
+    "Same 855 historically exposed development records and five frozen models; zero new specimens or independent confirmation.",
+    "Repeated corruption seeds reuse specimens and do not increase N.",
+    "Synthetic corruption is an engineering spectral-shape diagnostic; no calibrated instrument-noise, physical-drift, batch-transfer or chemical-effect claim.",
+    "One source lot per anonymous origin prevents separating origin and lot effects.",
+    "No method ranking, tuning, p-values or biological confidence intervals from corruption results; historical 96.0234 percent remains unchanged."
+  ],
+  "limits": {
+    "cpu_seconds": 600,
+    "fit_calls_allowed": 0,
+    "threads": 2,
+    "wall_seconds": 1200
+  },
+  "method_review": {
+    "baseline_gate": "All 855 original IDs, folds and native predictions plus each score within absolute 1e-12 before any corruption. Correctness 821/855 checked only during post-lock scoring.",
+    "fit_and_selection": "No new fits or selection; fit entry-point blockers active; model in-memory hash and file hash checked after corruptions.",
+    "inference": "Frozen preprocessor, scaler and MC-UVE selector transform only; native SVC.predict voting and seven OVR decision scores; no argmax replacement or probabilities. Explicit C-contiguous model_band restores official mask-then-row memory layout for joblib fingerprints.",
+    "input_door": "Exact original 855 full-alpha records and axis; exact numerical equality to historical 612-feature candidate; original five source/query memberships; one record per group; no aggregation guessed.",
+    "metrics": "Independent confusion-count arithmetic; pooled accuracy, macro-F1 and balanced accuracy; all seven classes retained with explicit class denominators, including ZY02 support five; paired changes descriptive only.",
+    "models": "Five exact historical native R2 StagedSVM model bytes and sidecars, recipe comparison except descriptive ID aliases, ordered source-value fingerprint and historical runtime/source hashes.",
+    "perturbations": "All 18 fixed cases when source THz headers verify axis units, otherwise 16; seeds 42/43/44 all retained; source-only RMS population SD from each current 684-record outer-source partition; no query scale estimation; no clipping of negative alpha.",
+    "prediction_lock": "Before scoring truth opens: exact complete case and four audit-artifact coverage, protocol and status match, all hashes, baseline replay gate, every prediction schema, ID population, original fold, class and finite score validated."
+  },
+  "remaining_execution_prerequisites": [
+    "Root runs prepare in the new namespace and verifies actual historical input/model/runtime hash prerequisites.",
+    "Root binds the resulting protocol hash in its release before actual inference.",
+    "Actual baseline replay and all post-lock scoring gates must pass; this source review does not assert their unperformed outcomes."
+  ],
+  "resolved_findings": [
+    "Preparation previously parsed labelled historical CSV rows while claiming truth-free preparation. Root explicitly allowed projection-only access to the already exposed file; final source now declares prep_label_bearing_file_access=True, projection_only purpose, and the narrower run-phase separation.",
+    "Scorer previously accepted incomplete hash mappings. Final scorer requires exact full coverage and validates every locked prediction population before reading truth; synthetic empty/missing-case/wrong-protocol negative checks reject before gzip reading.",
+    "Author corrected source-fingerprint array layout by explicitly making masked model inputs C-contiguous; synthetic test verifies equivalence to official mask-before-row layout."
+  ],
+  "reviewed_utc": "2026-11-07T03:08:44.756912+00:00",
+  "reviewer": "/root/fixed_grid_design_audit",
+  "schema": "research4-frozen-r2-robustness-independent-source-review-v1",
+  "scope": {
+    "git_actions": false,
+    "prepare_executed": false,
+    "quantum_executed": false,
+    "real_inference": false,
+    "real_model_loading": false,
+    "source_and_native_transform_review": true,
+    "source_edits": false,
+    "synthetic_tests": true
+  },
+  "status": "APPROVED_SOURCE_AND_SYNTHETIC_TESTS_ONLY_ACTUAL_PREPARE_INFERENCE_NOT_RUN",
+  "synthetic_verification": {
+    "command": "PYTHONPATH=src .runtime/bin/python -m unittest discover -s tests -p 'test_frozen_oof_robustness_20261107.py' -v",
+    "exit_code": 0,
+    "tests_failed": 0,
+    "tests_passed": 16,
+    "unittest_elapsed_seconds": 1.075
+  },
+  "truth_access_scope": {
+    "actual_inference_indexes_npz_y": false,
+    "fresh_scoring_truth_parse_after_all_predictions_locked": true,
+    "never_exposed_truth_claim": false,
+    "os_sandbox_claim": false,
+    "preparation_may_use_labels_for_recipe_or_perturbation_choices": false,
+    "preparation_parses_historical_label_bearing_rows_for_projection": true
+  }
+}

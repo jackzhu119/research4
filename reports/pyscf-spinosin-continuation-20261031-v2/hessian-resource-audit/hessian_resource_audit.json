@@ -1,0 +1,712 @@
+{
+  "status": "BLOCKED_DEFAULT_DF_HESSIAN_DISK_SOURCE_AUDIT_NOT_A_CALCULATION",
+  "created_at_utc": "2026-11-01T06:02:00.384238+00:00",
+  "pyscf_version": "2.14.0",
+  "script_sha256": "8e8452d4f46bcb7666a44447f6b6f34ed1dde1268ace44c77b4f6df3daa4a443",
+  "new_quantum_jobs": 0,
+  "integral_evaluations": 0,
+  "dimension_source": {
+    "path": "reports/pyscf-spinosin-pilot-20261031/spinosin-cached-optimization/result.json",
+    "sha256": "a40b1046db559d42bf2429b796c4d1a170f3984505b973d2acbc988e00bb5cee",
+    "nao": 762,
+    "naux": 2459,
+    "natm": 75,
+    "closed_shell_occupied_orbitals": 160
+  },
+  "assumptions": {
+    "xc": "PBE",
+    "with_k": false,
+    "auxbasis_response": 2,
+    "all_75_atoms_in_Hessian": true,
+    "HDF5_default_uncompressed_numeric_datasets": true
+  },
+  "tmp_filesystem_free_bytes_at_audit": 9441312768,
+  "DF_partial_hessian": {
+    "rho_ip1": {
+      "shape": [
+        762,
+        762,
+        2459,
+        3
+      ],
+      "dtype": "float64",
+      "bytes": 34267286304,
+      "decimal_GB": 34.267286304,
+      "binary_GiB": 31.913897305727005,
+      "created_unconditionally": true,
+      "fully_written_for_all_atoms_even_with_k_false": true,
+      "read_for_pure_J_first_order_auxiliary_response": true
+    },
+    "wk_ip2": {
+      "shape": [
+        762,
+        2459,
+        3,
+        762
+      ],
+      "dtype": "float64",
+      "bytes": 34267286304,
+      "decimal_GB": 34.267286304,
+      "binary_GiB": 31.913897305727005,
+      "dataset_declared_even_with_k_false": true,
+      "with_k_false_written": false,
+      "counted_as_allocated_disk_lower_bound": false
+    },
+    "wk_ip2_P_buffer": {
+      "shape": [
+        2459,
+        3,
+        160,
+        160
+      ],
+      "dtype": "float64",
+      "bytes": 1510809600,
+      "decimal_GB": 1.5108096,
+      "binary_GiB": 1.4070510864257812,
+      "allocated_with_auxbasis_response_gt_1_even_with_k_false": true,
+      "is_virtual_array_allocation_not_measured_RSS": true
+    },
+    "mandatory_written_rho_ip1_exceeds_current_tmp_free_space": true
+  },
+  "DF_first_derivative_H1_generator": {
+    "rho0_Pij": {
+      "shape": [
+        2459,
+        762,
+        762
+      ],
+      "dtype": "float64",
+      "bytes": 11422428768,
+      "decimal_GB": 11.422428768,
+      "binary_GiB": 10.637965768575668,
+      "complete_group_datasets_cover_all_AO_rows": true
+    },
+    "wj_ip1_pij": {
+      "shape": [
+        2459,
+        762,
+        3,
+        762
+      ],
+      "dtype": "float64",
+      "bytes": 34267286304,
+      "decimal_GB": 34.267286304,
+      "binary_GiB": 31.913897305727005,
+      "complete_group_datasets_cover_all_AO_rows_when_auxbasis_response_true": true
+    },
+    "vj1_buf": {
+      "shape": [
+        75,
+        3,
+        762,
+        762
+      ],
+      "dtype": "float64",
+      "bytes": 1045159200,
+      "decimal_GB": 1.0451592,
+      "binary_GiB": 0.9733803570270538,
+      "numeric_buffer_written_to_same_HDF5_file": true
+    },
+    "simultaneous_mandatory_numeric_payload_bytes_lower_bound": 46734874272,
+    "same_binary_GiB_lower_bound": 43.52524343132973,
+    "lower_bound_exceeds_current_tmp_free_space": true,
+    "not_added_to_partial_stage_minimum": "The temporary file scopes differ; do not sum all sequential stages into one claimed peak."
+  },
+  "RAM_sizing_not_peak_measurement": {
+    "H1_AO_array": {
+      "shape": [
+        75,
+        3,
+        762,
+        762
+      ],
+      "dtype": "float64",
+      "bytes": 1045159200,
+      "decimal_GB": 1.0451592,
+      "binary_GiB": 0.9733803570270538
+    },
+    "DF_SCF_cached_tensor_if_CPHF_rebuilds": {
+      "shape": [
+        2459,
+        290703
+      ],
+      "dtype": "float64",
+      "bytes": 5718709416,
+      "decimal_GB": 5.718709416,
+      "binary_GiB": 5.3259631767869
+    },
+    "largest_nominal_aux480_derivative_block": {
+      "shape": [
+        3,
+        762,
+        762,
+        480
+      ],
+      "dtype": "float64",
+      "bytes": 6689018880,
+      "decimal_GB": 6.68901888,
+      "binary_GiB": 6.2296342849731445
+    },
+    "note": "Other transient arrays, CPHF vectors and thread/runtime virtual memory are additional. These arrays do not necessarily coexist. No Spinosin Hessian was run to measure peak RAM."
+  },
+  "existing_low_storage_switch": {
+    "max_memory": "Changes block sizes, not mandatory global HDF5 dimensions.",
+    "atmlst": "Does not avoid all-atom rho0_Pij/wj_ip1_pij construction in _gen_jk and is not a complete normal-mode calculation when atoms are omitted.",
+    "auxbasis_response_zero": "Changes the derivative approximation and still leaves unconditional allocations; not an equivalent allowed shortcut.",
+    "native_streaming_option_found_in_reviewed_source": false
+  },
+  "no_DF_RKS_analytic_Hessian": {
+    "source_available": true,
+    "screened_direct_integral_contractions": true,
+    "forced_DF_rho_ip1_rho0_wj_HDF5_tensors_present": false,
+    "integral_contract_function": "pyscf.hessian.rhf._get_jk -> pyscf.scf._vhf.direct_bindm",
+    "same_as_current_DF_derivative_method": false,
+    "not_run": true,
+    "runtime_and_peak_memory_not_measured": true,
+    "required_gates_before_possible_future_use": [
+      "Record a distinct no-DF PBE/def2-SVP/grid1/no-D3 protocol and implementation provenance; do not relabel a DF result.",
+      "Run and independently verify small-molecule no-DF Opt/Freq, including raw/symmetrized Hessian and complete positive modes.",
+      "At the candidate geometry perform a fresh converged no-DF SCF and no-DF nuclear gradient with the same charge/spin/basis/XC/grid.",
+      "If no-DF gradient or optimizer conditions are not met, optimize with no-DF before claiming a no-DF stationary-geometry frequency result.",
+      "Apply explicit CPU, memory and disk limits, then a real Hessian/CPHF convergence and complete 219-mode check.",
+      "Compare DF/no-DF differences transparently; no empirical peak matching, no IR intensities without verified dipole derivatives."
+    ]
+  },
+  "evidence": {
+    "DF_partial_global_datasets": [
+      {
+        "line": 136,
+        "text": "    get_int3c_ip1 = _int3c_wrapper(mol, auxmol, 'int3c2e_ip1', 's1')"
+      },
+      {
+        "line": 137,
+        "text": "    rho_ip1 = ftmp.create_dataset('rho_ip1', (nao,nao,naux,3), 'f8')"
+      },
+      {
+        "line": 138,
+        "text": "    rhok_ip1_IkP = ftmp.create_group('rhok_ip1_IkP')"
+      },
+      {
+        "line": 139,
+        "text": "    rhok_ip1_PkI = ftmp.create_group('rhok_ip1_PkI')"
+      },
+      {
+        "line": 140,
+        "text": "    rhoj1 = np.empty((mol.natm,naux,3))"
+      },
+      {
+        "line": 141,
+        "text": "    wj1 = np.empty((mol.natm,naux,3))"
+      },
+      {
+        "line": 142,
+        "text": "    for i0, ia in enumerate(atmlst):"
+      },
+      {
+        "line": 143,
+        "text": "        shl0, shl1, p0, p1 = aoslices[ia]"
+      },
+      {
+        "line": 144,
+        "text": "        shls_slice = (shl0, shl1, 0, nbas, 0, auxmol.nbas)"
+      },
+      {
+        "line": 145,
+        "text": "        int3c_ip1 = get_int3c_ip1(shls_slice)"
+      },
+      {
+        "line": 146,
+        "text": "        tmp_ip1 = solve_j2c(int3c_ip1.reshape(-1,naux).T).reshape(naux,3,p1-p0,nao)"
+      },
+      {
+        "line": 147,
+        "text": "        rhoj1[i0] = np.einsum('pxij,ji->px', tmp_ip1, dm0[:,p0:p1])"
+      },
+      {
+        "line": 148,
+        "text": "        wj1[i0] = np.einsum('xijp,ji->px', int3c_ip1, dm0[:,p0:p1])"
+      },
+      {
+        "line": 149,
+        "text": "        rho_ip1[p0:p1] = tmp_ip1.transpose(2,3,0,1)"
+      },
+      {
+        "line": 150,
+        "text": "        if with_k:"
+      },
+      {
+        "line": 151,
+        "text": "            tmp = lib.einsum('pykl,li->ikpy', tmp_ip1, dm0)"
+      },
+      {
+        "line": 152,
+        "text": "            rhok_ip1_IkP['%.4d'%ia] = tmp"
+      },
+      {
+        "line": 153,
+        "text": "            rhok_ip1_PkI['%.4d'%ia] = tmp.transpose(2,1,0,3)"
+      },
+      {
+        "line": 154,
+        "text": "            tmp = None"
+      },
+      {
+        "line": 155,
+        "text": "    ej = lib.einsum('ipx,jpy->ijxy', rhoj1, wj1) * 4"
+      },
+      {
+        "line": 156,
+        "text": "    ek = np.zeros_like(ej)"
+      },
+      {
+        "line": 157,
+        "text": "    e1 = np.zeros_like(ej)"
+      },
+      {
+        "line": 158,
+        "text": "    rhoj1 = wj1 = None"
+      },
+      {
+        "line": 159,
+        "text": ""
+      },
+      {
+        "line": 160,
+        "text": "    if with_k:"
+      },
+      {
+        "line": 161,
+        "text": "        vk2buf = 0"
+      },
+      {
+        "line": 162,
+        "text": "        for shl0, shl1, nL in aux_ranges:"
+      },
+      {
+        "line": 163,
+        "text": "            shls_slice = (0, nbas, 0, nbas, shl0, shl1)"
+      },
+      {
+        "line": 164,
+        "text": "            p0, p1 = aux_loc[shl0], aux_loc[shl1]"
+      },
+      {
+        "line": 165,
+        "text": "            int3c_ip1 = get_int3c_ip1(shls_slice)"
+      },
+      {
+        "line": 166,
+        "text": "            vk2buf += lib.einsum('xijp,pkjy->xyki', int3c_ip1,"
+      },
+      {
+        "line": 167,
+        "text": "                                 _load_dim0(rhok_ip1_PkI, p0, p1))"
+      },
+      {
+        "line": 168,
+        "text": "            int3c_ip1 = None"
+      },
+      {
+        "line": 169,
+        "text": ""
+      },
+      {
+        "line": 170,
+        "text": "    get_int3c_ip2 = _int3c_wrapper(mol, auxmol, 'int3c2e_ip2', 's1')"
+      },
+      {
+        "line": 171,
+        "text": "    wj_ip2 = np.empty((naux,3))"
+      },
+      {
+        "line": 172,
+        "text": "    wk_ip2_Ipk = ftmp.create_dataset('wk_ip2', (nao,naux,3,nao), 'f8')"
+      },
+      {
+        "line": 173,
+        "text": "    if hessobj.auxbasis_response > 1:"
+      },
+      {
+        "line": 174,
+        "text": "        wk_ip2_P__ = np.empty((naux,3,nocc,nocc))"
+      },
+      {
+        "line": 175,
+        "text": "    for shl0, shl1, nL in aux_ranges:"
+      },
+      {
+        "line": 176,
+        "text": "        shls_slice = (0, nbas, 0, nbas, shl0, shl1)"
+      },
+      {
+        "line": 177,
+        "text": "        p0, p1 = aux_loc[shl0], aux_loc[shl1]"
+      },
+      {
+        "line": 178,
+        "text": "        int3c_ip2 = get_int3c_ip2(shls_slice)"
+      },
+      {
+        "line": 179,
+        "text": "        wj_ip2[p0:p1] = np.einsum('yklp,lk->py', int3c_ip2, dm0)"
+      },
+      {
+        "line": 180,
+        "text": "        if with_k:"
+      },
+      {
+        "line": 181,
+        "text": "            wk_ip2_Ipk[:,p0:p1] = lib.einsum('yklp,il->ipyk', int3c_ip2, dm0)"
+      },
+      {
+        "line": 182,
+        "text": "            if hessobj.auxbasis_response > 1:"
+      },
+      {
+        "line": 183,
+        "text": "                wk_ip2_P__[p0:p1] = lib.einsum('xuvp,ui,vj->pxij', int3c_ip2, mocc_2, mocc_2)"
+      }
+    ],
+    "DF_partial_auxiliary_response_reads": [
+      {
+        "line": 235,
+        "text": "        #"
+      },
+      {
+        "line": 236,
+        "text": "        # The first order RI basis response"
+      },
+      {
+        "line": 237,
+        "text": "        #"
+      },
+      {
+        "line": 238,
+        "text": "        #    (10|1)(0|00)"
+      },
+      {
+        "line": 239,
+        "text": "        #    (10|0)(1|0)(0|00)"
+      },
+      {
+        "line": 240,
+        "text": "        #    (10|0)(0|1)(0|00)"
+      },
+      {
+        "line": 241,
+        "text": "        #    (10|0)(1|00)"
+      },
+      {
+        "line": 242,
+        "text": "        if hessobj.auxbasis_response:"
+      },
+      {
+        "line": 243,
+        "text": "            wk1_Pij = rho_ip1[p0:p1].transpose(2,3,0,1)"
+      },
+      {
+        "line": 244,
+        "text": "            rhoj1_P = np.einsum('pxij,ji->px', wk1_Pij, dm0[:,p0:p1])"
+      },
+      {
+        "line": 245,
+        "text": "            # (10|1)(0|0)(0|00)"
+      },
+      {
+        "line": 246,
+        "text": "            int3c_ip1ip2 = get_int3c_ip1ip2(shls_slice)"
+      },
+      {
+        "line": 247,
+        "text": "            wj11_p = np.einsum('xijp,ji->xp', int3c_ip1ip2, dm0[:,p0:p1])"
+      },
+      {
+        "line": 248,
+        "text": "            # (10|0)(1|0)(0|00)"
+      },
+      {
+        "line": 249,
+        "text": "            wj0_01 = np.einsum('ypq,q->yp', int2c_ip1, rhoj0_P)"
+      },
+      {
+        "line": 250,
+        "text": "            if with_k:"
+      },
+      {
+        "line": 251,
+        "text": "                rhok0_P_I = lib.einsum('plj,il->pji', rhok0_Pl_, dm0[p0:p1])"
+      },
+      {
+        "line": 252,
+        "text": "                rhok0_PJI = lib.einsum('pji,Jj->pJi', rhok0_P_I, mocc_2)"
+      },
+      {
+        "line": 253,
+        "text": "                wk1_pJI = lib.einsum('ypq,qji->ypji', int2c_ip1, rhok0_PJI)"
+      },
+      {
+        "line": 254,
+        "text": "                wk1_IpJ = lib.einsum('ipyk,kj->ipyj', wk_ip2_Ipk[p0:p1], dm0)"
+      },
+      {
+        "line": 255,
+        "text": "                #rho2c_PQ = lib.einsum('qij,uj,iupx->xqp', rhok0_Pl_, mocc_2[p0:p1], rhok_ip1_IkP['%.4d'%ia])"
+      },
+      {
+        "line": 256,
+        "text": "                rho2c_PQ = lib.einsum('pxij,qji->xqp', wk1_Pij, rhok0_PJI)"
+      }
+    ],
+    "DF_H1_global_groups_and_writes": [
+      {
+        "line": 405,
+        "text": "    ftmp = lib.H5TmpFile()"
+      },
+      {
+        "line": 406,
+        "text": "    rho0_Pij = ftmp.create_group('rho0_Pij')"
+      },
+      {
+        "line": 407,
+        "text": "    wj_ip1_pij = ftmp.create_group('wj_ip1_pij')"
+      },
+      {
+        "line": 408,
+        "text": "    int2c = auxmol.intor('int2c2e', aosym='s1')"
+      },
+      {
+        "line": 409,
+        "text": "    solve_j2c = _gen_metric_solver(int2c)"
+      },
+      {
+        "line": 410,
+        "text": "    int2c = None"
+      },
+      {
+        "line": 411,
+        "text": "    int2c_ip1 = auxmol.intor('int2c2e_ip1', aosym='s1')"
+      },
+      {
+        "line": 412,
+        "text": "    rhoj0_P = 0"
+      },
+      {
+        "line": 413,
+        "text": "    if with_k:"
+      },
+      {
+        "line": 414,
+        "text": "        rhok0_Pl_ = np.empty((naux,nao,nocc))"
+      },
+      {
+        "line": 415,
+        "text": "    for i, (shl0, shl1, p0, p1) in enumerate(aoslices):"
+      },
+      {
+        "line": 416,
+        "text": "        int3c = get_int3c((shl0, shl1, 0, nbas, 0, auxmol.nbas))"
+      },
+      {
+        "line": 417,
+        "text": "        coef3c = solve_j2c(int3c.reshape(-1,naux).T)"
+      },
+      {
+        "line": 418,
+        "text": "        rho0_Pij['%.4d'%i] = coef3c = coef3c.reshape(naux,p1-p0,nao)"
+      },
+      {
+        "line": 419,
+        "text": "        rhoj0_P += np.einsum('pkl,kl->p', coef3c, dm0[p0:p1])"
+      },
+      {
+        "line": 420,
+        "text": "        if with_k:"
+      },
+      {
+        "line": 421,
+        "text": "            rhok0_Pl_[:,p0:p1] = lib.einsum('pij,jk->pik', coef3c, mocc_2)"
+      },
+      {
+        "line": 422,
+        "text": "        if hessobj.auxbasis_response:"
+      },
+      {
+        "line": 423,
+        "text": "            wj_ip1_pij['%.4d'%i] = lib.einsum('xqp,pij->qixj', int2c_ip1, coef3c)"
+      },
+      {
+        "line": 424,
+        "text": "    int3c = coef3c = None"
+      },
+      {
+        "line": 425,
+        "text": ""
+      },
+      {
+        "line": 426,
+        "text": "    get_int3c_ip1 = _int3c_wrapper(mol, auxmol, 'int3c2e_ip1', 's1')"
+      },
+      {
+        "line": 427,
+        "text": "    get_int3c_ip2 = _int3c_wrapper(mol, auxmol, 'int3c2e_ip2', 's1')"
+      },
+      {
+        "line": 428,
+        "text": "    aux_ranges = ao2mo.outcore.balance_partition(auxmol.ao_loc, 480)"
+      },
+      {
+        "line": 429,
+        "text": "    vk1_buf = np.zeros((3,nao,nao))"
+      },
+      {
+        "line": 430,
+        "text": "    vj1_buf = np.zeros((mol.natm,3,nao,nao))"
+      },
+      {
+        "line": 431,
+        "text": "    for shl0, shl1, nL in aux_ranges:"
+      },
+      {
+        "line": 432,
+        "text": "        shls_slice = (0, nbas, 0, nbas, shl0, shl1)"
+      },
+      {
+        "line": 433,
+        "text": "        p0, p1 = aux_loc[shl0], aux_loc[shl1]"
+      },
+      {
+        "line": 434,
+        "text": "        int3c_ip1 = get_int3c_ip1(shls_slice)"
+      },
+      {
+        "line": 435,
+        "text": "        coef3c = _load_dim0(rho0_Pij, p0, p1)"
+      },
+      {
+        "line": 436,
+        "text": "        for i, (shl0, shl1, q0, q1) in enumerate(aoslices):"
+      },
+      {
+        "line": 437,
+        "text": "            wj1 = np.einsum('xijp,ji->xp', int3c_ip1[:,q0:q1], dm0[:,q0:q1])"
+      },
+      {
+        "line": 438,
+        "text": "            vj1_buf[i] += np.einsum('xp,pij->xij', wj1, coef3c)"
+      },
+      {
+        "line": 439,
+        "text": "        if with_k:"
+      },
+      {
+        "line": 440,
+        "text": "            rhok0_PlJ = lib.einsum('plj,Jj->plJ', rhok0_Pl_[p0:p1], mocc_2)"
+      },
+      {
+        "line": 441,
+        "text": "            vk1_buf += lib.einsum('xijp,plj->xil', int3c_ip1, rhok0_PlJ)"
+      },
+      {
+        "line": 442,
+        "text": "        int3c_ip1 = None"
+      },
+      {
+        "line": 443,
+        "text": "    vj1_buf = ftmp['vj1_buf'] = vj1_buf"
+      },
+      {
+        "line": 444,
+        "text": ""
+      },
+      {
+        "line": 445,
+        "text": "    vk1 = np.zeros((3,nao,nao))"
+      }
+    ],
+    "no_DF_screened_direct_contract": [
+      {
+        "line": 261,
+        "text": "def _get_jk(mol, intor, comp, aosym, script_dms,"
+      },
+      {
+        "line": 262,
+        "text": "            shls_slice=None, cintopt=None, vhfopt=None):"
+      },
+      {
+        "line": 263,
+        "text": "    intor = mol._add_suffix(intor)"
+      },
+      {
+        "line": 264,
+        "text": "    scripts = script_dms[::2]"
+      },
+      {
+        "line": 265,
+        "text": "    dms = script_dms[1::2]"
+      },
+      {
+        "line": 266,
+        "text": "    vs = _vhf.direct_bindm(intor, aosym, scripts, dms, comp,"
+      },
+      {
+        "line": 267,
+        "text": "                           mol._atm, mol._bas, mol._env, vhfopt=vhfopt,"
+      },
+      {
+        "line": 268,
+        "text": "                           cintopt=cintopt, shls_slice=shls_slice)"
+      },
+      {
+        "line": 269,
+        "text": "    for k, script in enumerate(scripts):"
+      },
+      {
+        "line": 270,
+        "text": "        if 's2' in script:"
+      }
+    ]
+  },
+  "source_files": {
+    "pyscf/df/hessian/rhf.py": {
+      "sha256": "e62940949da49ae7879b5a9f5e20b8000ee086f7a41241bfa36c8aed0542c380",
+      "snapshot": "source_snapshots/pyscf__df__hessian__rhf.py",
+      "bytes": 22593
+    },
+    "pyscf/df/hessian/rks.py": {
+      "sha256": "6aebab36cdb4b88ce6741c3eea9681e4aaa38b5b2e782b7c1ac43684690c1da1",
+      "snapshot": "source_snapshots/pyscf__df__hessian__rks.py",
+      "bytes": 5294
+    },
+    "pyscf/hessian/rhf.py": {
+      "sha256": "2d986bfc01aac98447034a207df639b3d6897f67ce1ab2a013fe2d0853c85de5",
+      "snapshot": "source_snapshots/pyscf__hessian__rhf.py",
+      "bytes": 22881
+    },
+    "pyscf/hessian/rks.py": {
+      "sha256": "d61dbd1727b286845737853b92e1812a3e6a966dca29a9a8a79ff5e9a7725c03",
+      "snapshot": "source_snapshots/pyscf__hessian__rks.py",
+      "bytes": 96532
+    },
+    "pyscf/df/grad/rhf.py": {
+      "sha256": "a52525f269974884b28846b55d021c169d430048e0755b55557480f733128735",
+      "snapshot": "source_snapshots/pyscf__df__grad__rhf.py",
+      "bytes": 23309
+    },
+    "pyscf/grad/rhf.py": {
+      "sha256": "d30fd1ab2a00997183802da28da775f6a29a6c9705c55b19c04d66a1a575267f",
+      "snapshot": "source_snapshots/pyscf__grad__rhf.py",
+      "bytes": 18058
+    },
+    "pyscf/df/df.py": {
+      "sha256": "e88c889248ddfd211bbd58a825e63d441c47040bbbd49a54b2994d49f138ff3d",
+      "snapshot": "source_snapshots/pyscf__df__df.py",
+      "bytes": 15648
+    },
+    "pyscf/df/df_jk.py": {
+      "sha256": "7f4e8c3a930b8f55d1656b0bd6d24dcca7fe365ba5de00cfcebcebf813347cee",
+      "snapshot": "source_snapshots/pyscf__df__df_jk.py",
+      "bytes": 25198
+    }
+  },
+  "conclusion": "Default full DF-RKS analytic Hessian is blocked by current disk, independent of optimization convergence. A no-DF calculation is a distinct approximation requiring actual SCF/gradient/optimization consistency and software validation; it has not been executed by this audit."
+}

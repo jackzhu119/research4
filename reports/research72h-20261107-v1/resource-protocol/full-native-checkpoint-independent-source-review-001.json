@@ -1,0 +1,78 @@
+{
+  "compact_storage_review": {
+    "limitations": "Omitted matrices have computed fingerprints, not surviving raw-file references. Not all intermediate matrices are archived. Saved residual-vector replay is not a fresh Fock evaluation; independently rebuilding Fock requires a new guarded quantum evaluation. Native checkpoint energy/eigenvalues are labelled as pre-audit refresh.",
+    "omitted_raw_matrices": [
+      "Initial-density duplicate after rolling replacement",
+      "Current-density duplicate reconstructible numerically from checkpoint MOs",
+      "MO coefficient duplicate outside checkpoint",
+      "Full current Fock"
+    ],
+    "policy": "COMPACT_RESTART_AND_AUDIT_HASHES",
+    "resource_checks": "Global preflight before job and each point reserves remaining_points*12MiB plus 64MiB floor; retained point audit bytes <=12MiB and per-job compact local cap 48MiB; temporary atomic rolling replacement uses the global floor. Old files are not deleted; storage stays persistent under the new reports namespace.",
+    "retained_per_point": [
+      "Full rolling native checkpoint with complete MOs, occupations and native energies",
+      "Actual final previous density",
+      "Full true orbital-gradient vector",
+      "Small refreshed diagonal-Fock MO-energy vector",
+      "Small source/actual coordinate arrays, full scalar energies/checks and provenance"
+    ]
+  },
+  "frozen_source_sha256": {
+    "scripts/research4_fixed_grid_energy_curvature_20261107_v2.py": "5f746f94a792b6d653c724774236410dbfea768a382462c6f6b375b79757b592",
+    "scripts/research4_full_native_checkpoint_worker_20261107.py": "f93bc6eab66d1d3d1909edff25bc01b2231e1cfa49b23d45bba51e2e6706b03a",
+    "scripts/research4_full_native_veff_restart_helpers_20261107.py": "ea2e3b6c130cbc68f189fc7c721b93aeb5600ec197a3df591e7f3b464f0d9d6b",
+    "scripts/run_research4_research72h_budget_20261107.py": "643a431b7229eca94ac50645d467e6c3472f976b8ac48cc2f36be68241319e68",
+    "tests/test_full_native_checkpoint_worker_stdlib_20261107.py": "6a1079dfe95ad6afef381b67207415dceb1923c5d01a91f055560bef232ff6d7"
+  },
+  "provenance_and_release_review": {
+    "compact_qualification_scope": "Stores canonical full original-gate and closure receipt hashes plus all immutable input hash references instead of duplicating old gate trees. Runtime verifies sealed original bytes and freshly replays genuine historical global closure via explicitly dispatched old guardian; no new-boot relabelling of historical evidence.",
+    "control_release": "Spinosin zero requires both real healthy closed water and ethanol control results from this exact source, replays certified point residual vectors and complete small gradient arrays, full/default energy-gradient parity and native1/native2 parity at fixed limits.",
+    "new_phase": "Actual new72h resource supervision, sole authenticated running phase, source schedule/output/log bindings, immutable prefix and registered new ledger checked before numerical work.",
+    "original_state": "Original complete MF fingerprints and molecule checked after points and on cleanup; native driver restoration checked; false historical flags and costs are preserved.",
+    "outside_quantum_qualification": "Runs the complete frozen original analyzer before numerical imports; validates every original snapshot array and immutable input; seals exact own/helper/guardian sources and new-ledger header/closed prefix/schedule.",
+    "zero_release": "Downstream energy jobs require a healthy closed certified zero, matching parent/child completed energy maps, retained file hashes, scalar thresholds and residual vector fingerprints/norms; native checkpoint MOs reconstruct density using occupied-only native make_rdm1."
+  },
+  "remaining_runtime_prerequisites": [
+    "Root must finish registering the actual new authorization ledger and finite phase grants, then execute source qualification against the frozen schedule.",
+    "Actual water and ethanol control parity must pass and close healthily before a Spinosin zero launch.",
+    "A certified actual zero is required before displacement jobs. Budget, deadline, storage and scientific failures remain failures with their actual costs."
+  ],
+  "result_status_at_review": "New full-native control and Spinosin outcomes NOT_RUN by this reviewer; no computational success is inferred from synthetic tests.",
+  "reviewed_at_utc": "2026-11-07T03:26:28.075135+00:00",
+  "reviewed_metadata_inspection_receipt": {
+    "path": "/workspace/research4/reports/research72h-20261107-v1/resource-protocol/full-native-checkpoint-metadata-inspection-001.json",
+    "scope": "Author actual read-only inspection and historical closure replay; reviewer inspected receipt, did not repeat real-array loading or claim new SCF certification.",
+    "sha256": "f88f5c0a7fa825233384746708ad92b1e942a4cb0ce1de8ed320b3f9127cd515"
+  },
+  "reviewer": "/root/fixed_grid_design_audit",
+  "schema": "research4-full-native-checkpoint-independent-source-review-v1",
+  "scientific_method_review": {
+    "certification": "Main and final strict energy AND orbital residual checks at 1e-12 Eh / 1e-9. Independent full evaluations at actual consecutive copied densities, returned-MO density equality, true unshifted/no-DIIS Fock residual, Tr(DS), MO orthogonality and three exact-same-current-DM full-energy evaluations with spread <=1e-12.",
+    "checkpoint": "Authenticated A006 scf-call-2.chk is an unconverged initial guess only. Exact original molecular atm/bas/env, complete real MO/occupation spaces and electron occupations checked; actual overlap orthogonality and Tr(DS) checked under guardian before SCF.",
+    "energy_diagnostic": "Only fixed anchors 1,13,25,26 and steps .005/.0025 Bohr; four displaced SCFs per anchor. Both signs project the same authenticated certified-zero density, shared real zero energy, fsum central difference, step sensitivity reported. Stop on an uncertified displacement.",
+    "interpretation": "Local directional energy diagnostic only; no new full Hessian, minimum, frequency, chemical assignment, orbital stability or IR-intensity claim. Energy drift is explicitly not a rigorous energy-error bound.",
+    "native_flag_scope": "Native kernel flag and energy retained; custom full-native certificate is labelled separately. Incremental control correctly uses DEFAULT_NATIVE_INCREMENTAL_WITH_FULL_ENDPOINT_AUDIT rather than claiming full builds every cycle.",
+    "new_operator_probe": "Initial pilot performs one explicitly NEW full-reference/incremental/full same-current-density comparison after recording its initial checkpoint. This is not reconstruction or replay of the historical 100-cycle accumulated operator.",
+    "principal_change": "Every wrapper invocation calls native RKS get_veff with dm_last=None and vhf_last=None, preserving direct full AO/MO, original PBE/def2-SVP/source fixed quadrature and native cutoffs. No density fitting or global ERI cache.",
+    "solver_bounds": "One native DIIS kernel per point; initial zero max_cycle 30, one explicit max_cycle 80 continuation only from the original pilot, or certified-zero reuse without new SCF. No hidden retry or Newton fallback in this source. Native normal iterations may have the native final extra cycle, whose actual lineage is required.",
+    "wrapper_isolation": "New instance class only; original restored MF and parent class are not mutated. Explicit different molecule, DF/ERI/incore/direct-policy and grid-owner changes fail before native build."
+  },
+  "scope": {
+    "git_actions": false,
+    "independent_code_review": true,
+    "qualification_executed_by_reviewer": false,
+    "real_checkpoint_array_loading_by_reviewer": false,
+    "real_control_or_Spinosin_SCF_by_reviewer": false,
+    "real_quantum_evaluations": 0,
+    "source_edits": false,
+    "synthetic_metadata_fake_driver_tests": true
+  },
+  "status": "APPROVED_FROZEN_SOURCE_AND_SYNTHETIC_TESTS_ONLY_NO_QUANTUM_EXECUTED",
+  "test_evidence": {
+    "command": "PYTHONPATH=src .runtime/bin/python -m unittest discover -s tests -p 'test_full_native_checkpoint_worker_stdlib_20261107.py' -v",
+    "exit_code": 0,
+    "tests_failed": 0,
+    "tests_passed": 22,
+    "unittest_reported_seconds": 0.118
+  }
+}

@@ -1,0 +1,303 @@
+{
+  "schema": "research4-cloud-followup-state-v1",
+  "config_sha256": "f58adfd21b3fa9f4b29a742657b6c3e0663bc8c1d92ccbb827f582d1e13e0aa0",
+  "grant_sha256": "c1836e5f31795dc2a9d303d0e327158dbe273e62fdfc5296efce655a23856561",
+  "invocations": [
+    {
+      "id": "full-audit-001-q1",
+      "status": "BLOCKED_REQUIRES_ROOT_REVIEW",
+      "identity": {
+        "pid": 4891,
+        "start_ticks": 412002,
+        "uid": 1000,
+        "pgrp": 4889,
+        "session": 4889,
+        "state": "R",
+        "comm": "python",
+        "boot_id": "bcc60ef9-a836-45c2-82a2-1766833e8991"
+      },
+      "started_at_utc": "2026-11-07T01:41:49.230037+00:00",
+      "own_CPU_seconds": 0.670794489,
+      "error_type": "RuntimeError",
+      "reason": "Closed quantum failure requires root review: spino-mode1-energy",
+      "ended_at_utc": "2026-11-07T02:43:35.352994+00:00"
+    }
+  ],
+  "jobs": {
+    "spino-mode1-energy": {
+      "status": "FAILED_CLOSED",
+      "attempt": 1,
+      "output": "/workspace/research4/reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/spino-mode1-energy-attempt001",
+      "log": "/workspace/research4/reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/execution/spino-mode1-energy-attempt001.log",
+      "phase": "fixedquad20261107a006-spino-mode1-energy-attempt001",
+      "prelaunch_process_observation": {
+        "observed_at_utc": "2026-11-07T01:41:49.346013+00:00",
+        "redacted_process_scan": {
+          "observed_at_utc": "2026-11-07T01:41:49.343766+00:00",
+          "records": [
+            {
+              "pid": 117,
+              "start_ticks": 506,
+              "uid": 0,
+              "pgrp": 117,
+              "session": 117,
+              "state": "S",
+              "comm": "dockerd",
+              "boot_id": "bcc60ef9-a836-45c2-82a2-1766833e8991",
+              "category": "ROOT_ACKNOWLEDGED_OPAQUE_DAEMON",
+              "error_type": "PermissionError",
+              "full_argv_logged": false,
+              "visibility_exception_root_grant_bound": true,
+              "identity_double_read_stable": true
+            },
+            {
+              "pid": 174,
+              "start_ticks": 518,
+              "uid": 0,
+              "pgrp": 174,
+              "session": 174,
+              "state": "S",
+              "comm": "containerd",
+              "boot_id": "bcc60ef9-a836-45c2-82a2-1766833e8991",
+              "category": "ROOT_ACKNOWLEDGED_OPAQUE_DAEMON",
+              "error_type": "PermissionError",
+              "full_argv_logged": false,
+              "visibility_exception_root_grant_bound": true,
+              "identity_double_read_stable": true
+            }
+          ],
+          "conflicts": [],
+          "read_only_git": [],
+          "visibility_errors": [
+            {
+              "pid": 117,
+              "start_ticks": 506,
+              "uid": 0,
+              "pgrp": 117,
+              "session": 117,
+              "state": "S",
+              "comm": "dockerd",
+              "boot_id": "bcc60ef9-a836-45c2-82a2-1766833e8991",
+              "category": "ROOT_ACKNOWLEDGED_OPAQUE_DAEMON",
+              "error_type": "PermissionError",
+              "full_argv_logged": false,
+              "visibility_exception_root_grant_bound": true,
+              "identity_double_read_stable": true
+            },
+            {
+              "pid": 174,
+              "start_ticks": 518,
+              "uid": 0,
+              "pgrp": 174,
+              "session": 174,
+              "state": "S",
+              "comm": "containerd",
+              "boot_id": "bcc60ef9-a836-45c2-82a2-1766833e8991",
+              "category": "ROOT_ACKNOWLEDGED_OPAQUE_DAEMON",
+              "error_type": "PermissionError",
+              "full_argv_logged": false,
+              "visibility_exception_root_grant_bound": true,
+              "identity_double_read_stable": true
+            }
+          ],
+          "records_truncated": false
+        },
+        "active_quantum": []
+      },
+      "payload_argv": [
+        "/workspace/research4/.runtime/bin/python",
+        "/workspace/research4/scripts/research4_fixed_grid_energy_curvature_20261107_v2.py",
+        "--execute",
+        "--source-result",
+        "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/global-assemble-recovery-002/science/global-assemble/result.json",
+        "--source-result-sha256",
+        "253c10a92c083f54aaeb3f1e407e095790649737f5f876bd3cecfd35bfb4f9b7",
+        "--main-pipeline-state",
+        "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/global-assemble-recovery-002/state.json",
+        "--main-pipeline-state-sha256",
+        "f2974458d23abeb320db736ce6c4cdb3f0b4d509f707a4dc67fd7d5ceaaa2578",
+        "--source-qualification",
+        "/workspace/research4/reports/fixed-quadrature-convergence-20261107-v2/source-qualification/spinosin-energy/qualification.json",
+        "--source-qualification-sha256",
+        "1e3d6d96b9cc3c17a98c882d3ac1a85084aea0caf47dd3f4ec62b642a5b24176",
+        "--mode-array-sha256",
+        "10440a6727b4360a685c7feac9d3179f38347ac4e4de375f6a183f047f38957c",
+        "--control-result",
+        "/workspace/research4/reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-full-audit-convergence-attempt001/result.json",
+        "--control-result-sha256",
+        "81f57122b72b86c45c17e534e9f249b3ca02a0fc4fde9fbe8b2de571076788e2",
+        "--control-worker-sha256",
+        "fddef25ed41554ff59187837759a335901baeb8e08b9c847ba739c83909163d4",
+        "--output",
+        "/workspace/research4/reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/spino-mode1-energy-attempt001"
+      ],
+      "started_at_utc": "2026-11-07T01:41:49.346091+00:00",
+      "guardian_identity": {
+        "pid": 4892,
+        "start_ticks": 412018,
+        "uid": 1000,
+        "pgrp": 4892,
+        "session": 4892,
+        "state": "R",
+        "comm": "python",
+        "boot_id": "bcc60ef9-a836-45c2-82a2-1766833e8991"
+      },
+      "_last_sample": 7811.121616463,
+      "latest_guard_identity": {
+        "pid": 4892,
+        "start_ticks": 412018,
+        "uid": 1000,
+        "pgrp": 4892,
+        "session": 4892,
+        "state": "S",
+        "comm": "python",
+        "boot_id": "bcc60ef9-a836-45c2-82a2-1766833e8991"
+      },
+      "guard_returncode": 1,
+      "ended_at_utc": "2026-11-07T02:43:35.349099+00:00",
+      "actual_cpu_seconds": 7381.797739,
+      "resource_stop_reason": "ACTUAL_CPU_GUARD",
+      "scientific_release": false
+    }
+  },
+  "results": {},
+  "last_event": "FOLLOWUP_INVOCATION_ENDED",
+  "updated_at_utc": "2026-11-07T02:43:35.352999+00:00",
+  "failed_attempts": [
+    {
+      "status": "FAILED_CLOSED",
+      "attempt": 1,
+      "output": "/workspace/research4/reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/spino-mode1-energy-attempt001",
+      "log": "/workspace/research4/reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/execution/spino-mode1-energy-attempt001.log",
+      "phase": "fixedquad20261107a006-spino-mode1-energy-attempt001",
+      "prelaunch_process_observation": {
+        "observed_at_utc": "2026-11-07T01:41:49.346013+00:00",
+        "redacted_process_scan": {
+          "observed_at_utc": "2026-11-07T01:41:49.343766+00:00",
+          "records": [
+            {
+              "pid": 117,
+              "start_ticks": 506,
+              "uid": 0,
+              "pgrp": 117,
+              "session": 117,
+              "state": "S",
+              "comm": "dockerd",
+              "boot_id": "bcc60ef9-a836-45c2-82a2-1766833e8991",
+              "category": "ROOT_ACKNOWLEDGED_OPAQUE_DAEMON",
+              "error_type": "PermissionError",
+              "full_argv_logged": false,
+              "visibility_exception_root_grant_bound": true,
+              "identity_double_read_stable": true
+            },
+            {
+              "pid": 174,
+              "start_ticks": 518,
+              "uid": 0,
+              "pgrp": 174,
+              "session": 174,
+              "state": "S",
+              "comm": "containerd",
+              "boot_id": "bcc60ef9-a836-45c2-82a2-1766833e8991",
+              "category": "ROOT_ACKNOWLEDGED_OPAQUE_DAEMON",
+              "error_type": "PermissionError",
+              "full_argv_logged": false,
+              "visibility_exception_root_grant_bound": true,
+              "identity_double_read_stable": true
+            }
+          ],
+          "conflicts": [],
+          "read_only_git": [],
+          "visibility_errors": [
+            {
+              "pid": 117,
+              "start_ticks": 506,
+              "uid": 0,
+              "pgrp": 117,
+              "session": 117,
+              "state": "S",
+              "comm": "dockerd",
+              "boot_id": "bcc60ef9-a836-45c2-82a2-1766833e8991",
+              "category": "ROOT_ACKNOWLEDGED_OPAQUE_DAEMON",
+              "error_type": "PermissionError",
+              "full_argv_logged": false,
+              "visibility_exception_root_grant_bound": true,
+              "identity_double_read_stable": true
+            },
+            {
+              "pid": 174,
+              "start_ticks": 518,
+              "uid": 0,
+              "pgrp": 174,
+              "session": 174,
+              "state": "S",
+              "comm": "containerd",
+              "boot_id": "bcc60ef9-a836-45c2-82a2-1766833e8991",
+              "category": "ROOT_ACKNOWLEDGED_OPAQUE_DAEMON",
+              "error_type": "PermissionError",
+              "full_argv_logged": false,
+              "visibility_exception_root_grant_bound": true,
+              "identity_double_read_stable": true
+            }
+          ],
+          "records_truncated": false
+        },
+        "active_quantum": []
+      },
+      "payload_argv": [
+        "/workspace/research4/.runtime/bin/python",
+        "/workspace/research4/scripts/research4_fixed_grid_energy_curvature_20261107_v2.py",
+        "--execute",
+        "--source-result",
+        "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/global-assemble-recovery-002/science/global-assemble/result.json",
+        "--source-result-sha256",
+        "253c10a92c083f54aaeb3f1e407e095790649737f5f876bd3cecfd35bfb4f9b7",
+        "--main-pipeline-state",
+        "/workspace/research4/reports/pyscf-spinosin-96h-continuation-20261105-v8/global-assemble-recovery-002/state.json",
+        "--main-pipeline-state-sha256",
+        "f2974458d23abeb320db736ce6c4cdb3f0b4d509f707a4dc67fd7d5ceaaa2578",
+        "--source-qualification",
+        "/workspace/research4/reports/fixed-quadrature-convergence-20261107-v2/source-qualification/spinosin-energy/qualification.json",
+        "--source-qualification-sha256",
+        "1e3d6d96b9cc3c17a98c882d3ac1a85084aea0caf47dd3f4ec62b642a5b24176",
+        "--mode-array-sha256",
+        "10440a6727b4360a685c7feac9d3179f38347ac4e4de375f6a183f047f38957c",
+        "--control-result",
+        "/workspace/research4/reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/water-full-audit-convergence-attempt001/result.json",
+        "--control-result-sha256",
+        "81f57122b72b86c45c17e534e9f249b3ca02a0fc4fde9fbe8b2de571076788e2",
+        "--control-worker-sha256",
+        "fddef25ed41554ff59187837759a335901baeb8e08b9c847ba739c83909163d4",
+        "--output",
+        "/workspace/research4/reports/fixed-quadrature-convergence-20261107-v2/queue-host-a-006/science/spino-mode1-energy-attempt001"
+      ],
+      "started_at_utc": "2026-11-07T01:41:49.346091+00:00",
+      "guardian_identity": {
+        "pid": 4892,
+        "start_ticks": 412018,
+        "uid": 1000,
+        "pgrp": 4892,
+        "session": 4892,
+        "state": "R",
+        "comm": "python",
+        "boot_id": "bcc60ef9-a836-45c2-82a2-1766833e8991"
+      },
+      "_last_sample": 7811.121616463,
+      "latest_guard_identity": {
+        "pid": 4892,
+        "start_ticks": 412018,
+        "uid": 1000,
+        "pgrp": 4892,
+        "session": 4892,
+        "state": "S",
+        "comm": "python",
+        "boot_id": "bcc60ef9-a836-45c2-82a2-1766833e8991"
+      },
+      "guard_returncode": 1,
+      "ended_at_utc": "2026-11-07T02:43:35.349099+00:00",
+      "actual_cpu_seconds": 7381.797739,
+      "resource_stop_reason": "ACTUAL_CPU_GUARD",
+      "scientific_release": false
+    }
+  ]
+}

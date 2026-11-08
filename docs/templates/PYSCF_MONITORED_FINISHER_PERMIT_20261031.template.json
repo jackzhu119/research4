@@ -1,0 +1,35 @@
+{
+  "schema": "research4-pyscf-conditional-finisher-permit-v1",
+  "status": "TEMPLATE_NOT_ROOT_GO",
+  "created_at_utc": null,
+  "allow_conditional_finalization": false,
+  "run_root": "reports/pyscf-spinosin-continuation-20261031-v3",
+  "pipeline_state_path": "reports/pyscf-spinosin-continuation-20261031-v3/pipeline-native4-001/state.json",
+  "ledger_path": "reports/pyscf-spinosin-continuation-20261031-v3/cpu_budget.json",
+  "analysis_output_path": "reports/pyscf-spinosin-continuation-20261031-v3/final-analysis",
+  "documentation_path": "docs/PYSCF_SPINOSIN_MONITORED_RESULTS_20261031.md",
+  "authorization_sha256": "ROOT_MUST_BIND_THE_EXISTING_V3_AUTHORIZATION_SHA256",
+  "run_deadline_at_utc": "ROOT_MUST_COPY_THE_EXISTING_V3_LEDGER_DEADLINE_WITHOUT_EXTENSION",
+  "pipeline_plan_sha256": "ROOT_MUST_HASH_THE_FROZEN_PIPELINE_NATIVE4_001_PLAN_JSON",
+  "source_sha256": {
+    "scripts/finalize_pyscf_monitored_pipeline_20261031.py": "ROOT_MUST_FILL_FINAL_REVIEWED_FINISHER_SHA256",
+    "scripts/analyze_pyscf_monitored_results_20261031.py": "92ef86dedcbef4a8879fd53a15fa2a209ea19c761c203b1a91177d60e2908a08",
+    "scripts/run_pyscf_monitored_budget_20261031.py": "f03c6720f4e4999cf0fcaeec67b9ae80f2a2666a9bf7167f21066ad268624d9f",
+    "scripts/run_pyscf_v3_pipeline_20261031.py": "671939b058658d3b4799b8ab063759fc6ccdc01bd71639a1203116829aa0b0d4"
+  },
+  "poll_interval_seconds": 15,
+  "max_poll_iterations": 5761,
+  "expected_branch": "research/pyscf-spinosin-mechanism-20261031",
+  "allow_git_push": false,
+  "no_new_quantum_computation_or_budget": true,
+  "conditions": [
+    "Root explicitly reviews and completes this permit, then hashes the exact new permit file in the actual V3 run directory.",
+    "Starting the finisher requires both --permit and --permit-sha256; this template does not authorize execution.",
+    "Only a controller with DONE/PARTIAL and ended_at_utc plus a ledger with no RUNNING phase can trigger final analysis.",
+    "The final release will bind this permit SHA, final analyzer/finisher source SHA, final closed ledger SHA and closed controller-state SHA.",
+    "Polling, analysis and optional Git delivery stop at the existing V3 deadline, with no retry or additional compute budget.",
+    "Git commit/push requires both allow_git_push=true here and explicit --push at launch; otherwise only actual science evidence and the new document are produced.",
+    "Only new closed V3 artifacts and the designated new document can enter the Git commit; all shared-index, branch, size and source guards must pass.",
+    "Actual commit/push SHA and status are saved only under ignored outputs/ delivery records, not backfilled into the scientific report."
+  ]
+}

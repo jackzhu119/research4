@@ -1,0 +1,17 @@
+{
+  "status": "BLOCKING_BEFORE_FIX",
+  "reviewed_source_sha256": "3bb1dbf1ddf96f5721fed4d4b390e2ae6464eb6606298da0969f3987ee5a9488",
+  "reviewed_test_sha256": "7ae8b60f14347c84a0027d1a52cfaa9bd929537cba89eb22e4f23b71dd4e325d",
+  "created_at_utc": "2026-11-04T18:41:29.507070+00:00",
+  "finding": "Different fresh V6 ledger paths can reuse the same closed V5 source/auth and omit already incurred V6 cost. Global/source locks prevent concurrent phases but not sequential duplicate pools.",
+  "actual_synthetic_reproduction": {
+    "first_ledger_consumed_after_extra_fixture_cost": 37662.5,
+    "second_new_path_consumed_from_original_v5": 37562.5,
+    "omitted_fixture_CPU_seconds": 100.0,
+    "same_authorization_used": true,
+    "both_registered_successfully": true
+  },
+  "scope": "Only stdlib temporary fixture from tests/test_pyscf_continuation_budget_v6.py; no real authority/ledger/registry, actual source ledger, numerical library, array, Q or Git used.",
+  "requested_fix": "Bind unique continuation ledger path plus atomic one-time stable budget-lineage registry; validate every phase. Guard must not key uniqueness solely by mutable/reformatted source payload version.",
+  "production_files_modified_by_reviewer": false
+}

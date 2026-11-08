@@ -1,0 +1,301 @@
+{
+  "status": "DONE_SOURCE_AND_CLOSED_PHASE_AUDIT_ROOT_CAUSE_UNPROVEN",
+  "started_at_utc": "2026-11-01T10:02:47.259972+00:00",
+  "completed_at_utc": "2026-11-01T10:02:47.836670+00:00",
+  "quantum_evaluations": 0,
+  "generated_CPU_workload_tests": 0,
+  "active_frequency_file_or_checkpoint_reads": 0,
+  "historical_rows_or_limits_modified": false,
+  "fallback_recovery": "NOT_RUN_ORIGINAL_OPTIMIZATION_ACTUALLY_DONE",
+  "phase": "spinosin-native4-optimization-001",
+  "selected_closed_phase": {
+    "phase": "spinosin-native4-optimization-001",
+    "started_at_utc": "2026-11-01T08:20:14.713234+00:00",
+    "status": "EXITED",
+    "command": [
+      "/workspace/research4/.runtime/bin/python",
+      "/workspace/research4/scripts/pyscf_spinosin_parallel_hessian_worker_20261031.py",
+      "--phase",
+      "spinosin-optimize",
+      "--input-xyz",
+      "/workspace/research4/reports/pyscf-spinosin-continuation-20261031-v2/direct-optimization-inputs/transfer_geometry.xyz",
+      "--input-coordinates-npy",
+      "/workspace/research4/reports/pyscf-spinosin-continuation-20261031-v2/direct-optimization-inputs/transfer_coordinates_angstrom.npy",
+      "--expected-coordinates-sha256",
+      "39060fad1afcdeecbeea60251b6d5e16319c4758d9d33f8f6855b2e3cfd46676",
+      "--provenance-json",
+      "/workspace/research4/reports/pyscf-spinosin-continuation-20261031-v2/direct-optimization-inputs/transfer_geometry_provenance.json",
+      "--expected-input-sha256",
+      "6b2a903af08b6c6df43444da144bb38fa0a07d5246dc5262b72be4b89b2544b6",
+      "--checkpoint",
+      "/workspace/research4/reports/pyscf-spinosin-continuation-20261031-v2/spinosin-extended-optimization-001/calculation.chk",
+      "--output",
+      "/workspace/research4/reports/pyscf-spinosin-continuation-20261031-v3/spinosin-native4-optimization-001",
+      "--grid-level",
+      "1",
+      "--threads",
+      "4",
+      "--native-direct-threads",
+      "4",
+      "--maxsteps",
+      "35",
+      "--hessian-block-atoms",
+      "8",
+      "--hessian-cache-dir",
+      "/workspace/research4/outputs/pyscf-spinosin-continuation-20261031-v3/pipeline-Hessian-cache/spinosin-native4-frequency-001"
+    ],
+    "log": "/workspace/research4/reports/pyscf-spinosin-continuation-20261031-v3/execution/spinosin-native4-optimization-001.log",
+    "granted_cpu_seconds": 21600,
+    "cpu_soft_limit_seconds": 21480,
+    "cpu_hard_limit_seconds": 21600,
+    "cpu_cleanup_margin_seconds": 120,
+    "cpu_boundary_reserve_seconds": 10,
+    "wall_limit_seconds": 10800,
+    "wall_cleanup_seconds": 60,
+    "wall_SIGTERM_after_seconds": 10740,
+    "address_space_limit_gib": 24,
+    "threads": 4,
+    "rss_stop_bytes": 10737418240,
+    "cgroup_kill_bytes": 12884901888,
+    "monitor_interval_seconds": 0.1,
+    "memory_kill_grace_seconds": 1.0,
+    "expected_cgroup_memory_max_bytes": 17179869184,
+    "guard_semantics": "BEST_EFFORT_RSS_GUARD_NOT_HARD_RSS_LIMIT",
+    "not_a_hard_RSS_limit": true,
+    "supervisor_proof_path": "/workspace/research4/reports/pyscf-spinosin-continuation-20261031-v3/execution/spinosin-native4-optimization-001.log.supervisor-proof.json",
+    "prior_V2_exclusive_lock_held": true,
+    "cgroup_memory_before_launch": {
+      "current_bytes": 2409238528,
+      "max_bytes": 17179869184,
+      "source": "/sys/fs/cgroup",
+      "observed_at_utc": "2026-11-01T08:20:14.713223+00:00"
+    },
+    "environment_thread_limits": {
+      "OMP_NUM_THREADS": "4",
+      "OPENBLAS_NUM_THREADS": "4",
+      "MKL_NUM_THREADS": "4",
+      "NUMEXPR_NUM_THREADS": "4"
+    },
+    "pid": 6330,
+    "supervisor_proof_sha256": "116e56835b2bc2cad256b00bc076b732291ef97620ebcd9c5a07236e4630f0d1",
+    "ended_at_utc": "2026-11-01T09:51:46.775415+00:00",
+    "actual_cpu_seconds": 21681.889694,
+    "elapsed_wall_seconds": 5492.0618030099995,
+    "peak_rss_kib": 6348856,
+    "exit_code": 0,
+    "wall_terminated": false,
+    "hard_killed": false,
+    "memory_terminated": false,
+    "monitor_failed": false,
+    "memory_monitor_samples": 54219,
+    "peak_group_rss_bytes_sampled": 6501228544,
+    "peak_cgroup_memory_bytes_sampled": 8912896000,
+    "log_sha256": "39c341ac5ecb45ac9a5391c3151b21819821f14a38091401a00b379a53704dfc"
+  },
+  "ledger_snapshot_SHA256_at_read": "595a7c1beb2033ed67aadd3ac0ec7040f1656871ccd2eebec7decb69897bf4b0",
+  "ledger_can_contain_later_active_phase_not_a_claim_of_global_closure": true,
+  "confirmed": {
+    "requested_phase_CPU_seconds": 21600,
+    "observed_startup_RLIMIT_CPU_seconds": [
+      21480,
+      21600
+    ],
+    "parent_wait4_actual_CPU_seconds": 21681.889694,
+    "worker_reported_process_CPU_seconds": 21681.306838823002,
+    "wait4_CPU_above_requested_hard_seconds": 81.88969400000133,
+    "wait4_CPU_above_requested_hard_percent": 0.37911895370370985,
+    "worker_CPU_above_requested_hard_seconds": 81.30683882300218,
+    "wait4_minus_worker_timer_seconds": 0.5828551769991464,
+    "actual_physics_optimization_DONE": true,
+    "strict_wait4_bound_of21600_s_was_not_achieved": true,
+    "global_48_CPU_hour_cap_was_not_exceeded_by_closed_phase_totals_at_snapshot": true
+  },
+  "source_supported_clock_mechanism": {
+    "Linux_RLIMIT_CPU_clock": "CPUCLOCK_PROF (raw accounting user+system)",
+    "Linux_CLOCK_PROCESS_CPUTIME_ID_clock": "CPUCLOCK_SCHED (scheduler sum_exec_runtime)",
+    "Linux_rusage_path": "adjusted thread-group CPU accounting; generic path scales user+system to scheduler runtime",
+    "clock_encoding": "make_process_cpuclock(pid,clock)=((~pid)<<3)|clock; PROF0 => -8 and SCHED2 => -6 for pid0",
+    "clock_accounting_and_timer_delivery_can_differ": "SOURCE_SUPPORTED_POSSIBILITY_NOT_OLD_PHASE_MEASUREMENT",
+    "public_source_version": "gregkh/linux v6.18.57 and CPython v3.12.14",
+    "matching_uname_tag_does_not_prove_vendor_build_is_unmodified": true
+  },
+  "unproven": {
+    "exact_cause_of_81_second_overshoot": "UNPROVEN",
+    "old_worker_final_raw_PROF_counter": "NOT_RECORDED",
+    "all_midrun_limit_changes_excluded_by_syscall_trace": "NOT_RECORDED_NO_STRACE",
+    "configured_NO_HZ_FULL_implies_every_CPU_was_running_full_dynticks": false,
+    "Python_signal_delay_alone_explains_hard_SIGKILL_not_firing": false,
+    "new_frozen_supervisor_or_active_frequency_parameters_modified": false
+  },
+  "runtime": {
+    "uname": {
+      "system": "Linux",
+      "node": "141739321b54",
+      "release": "6.18.57",
+      "version": "#1 SMP Tue Oct 20 21:56:04 UTC 2026",
+      "machine": "x86_64",
+      "processor": ""
+    },
+    "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+    "current_process_time_clock": {
+      "implementation": "clock_gettime(CLOCK_PROCESS_CPUTIME_ID)",
+      "monotonic": true,
+      "adjustable": false,
+      "resolution": 1e-09
+    },
+    "non_benchmark_clock_reads": {
+      "this_auditor_process_PROF_clockid_minus8_ns": 34973898,
+      "this_auditor_process_SCHED_clockid_minus6_ns": 36317271
+    },
+    "kernel_config_gzip_sha256": "1c01f2b9b579f6de0c152cdb5123944254316749454a592344f9754f5015d160",
+    "kernel_config_decompressed_sha256": "d01566bd89e87ab860a2fbfcac7c374b04f69b935faf87e79b8e69a4f7216d25",
+    "kernel_config_selected_lines": {
+      "CONFIG_VIRT_CPU_ACCOUNTING_GEN": [
+        {
+          "line": 137,
+          "text": "CONFIG_VIRT_CPU_ACCOUNTING_GEN=y"
+        }
+      ],
+      "CONFIG_VIRT_CPU_ACCOUNTING_NATIVE": [],
+      "CONFIG_TICK_CPU_ACCOUNTING": [],
+      "CONFIG_POSIX_CPU_TIMERS_TASK_WORK": [
+        {
+          "line": 90,
+          "text": "CONFIG_POSIX_CPU_TIMERS_TASK_WORK=y"
+        }
+      ],
+      "CONFIG_NO_HZ_FULL": [
+        {
+          "line": 101,
+          "text": "CONFIG_NO_HZ_FULL=y"
+        }
+      ],
+      "CONFIG_HZ": [
+        {
+          "line": 437,
+          "text": "CONFIG_HZ=250"
+        }
+      ],
+      "CONFIG_HZ_250": [
+        {
+          "line": 434,
+          "text": "CONFIG_HZ_250=y"
+        }
+      ]
+    },
+    "absent_config_line_is_not_an_explicit_notset_assertion": true
+  },
+  "pyscf_geometric_source_scan_hits": [],
+  "source_scan_does_not_exclude_unobserved_native_or_runtime_behavior": true,
+  "sources": [
+    {
+      "file": "source_snapshots/linux_posix_cpu_timers.c",
+      "origin": "https://github.com/gregkh/linux/blob/v6.18.57/kernel/time/posix-cpu-timers.c",
+      "git_blob_sha": "b3d4bae9ee3e00fef7b3a3b5e0a3ac0169826040",
+      "source_encoding": "utf-8",
+      "sha256": "10322dc7f86c525716fa6b3aa6075ea6386f0588f007f1b7208f98fa443f8fab",
+      "bytes": 49822
+    },
+    {
+      "file": "source_snapshots/linux_sched_cputime.c",
+      "origin": "https://github.com/gregkh/linux/blob/v6.18.57/kernel/sched/cputime.c",
+      "git_blob_sha": "7097de2c8cda2096772c0515b7dab5eabb18e8d3",
+      "source_encoding": "utf-8",
+      "sha256": "eabd7ccf5bafd87ccd686829b1192e56dafb8c213f10f12aec619405246977a6",
+      "bytes": 27252
+    },
+    {
+      "file": "source_snapshots/linux_sys.c",
+      "origin": "https://github.com/gregkh/linux/blob/v6.18.57/kernel/sys.c",
+      "git_blob_sha": "c8376d7a0741b20fefcf0805018d5dbf8979782a",
+      "source_encoding": "utf-8",
+      "sha256": "99362a6a2efeb20d64da921d21971be478894f8db519d23cdcc94acd4ce5fea0",
+      "bytes": 73537
+    },
+    {
+      "file": "source_snapshots/linux_exit.c",
+      "origin": "https://github.com/gregkh/linux/blob/v6.18.57/kernel/exit.c",
+      "git_blob_sha": "e38b2bb85097846a51ffb151863532e3c0466511",
+      "source_encoding": "utf-8",
+      "sha256": "d3a5c89d95b0a9bfeb3840b0b0efb21a988e42f68d7801a6b798439b07e230f4",
+      "bytes": 51121
+    },
+    {
+      "file": "source_snapshots/linux_posix_timers.h",
+      "origin": "https://github.com/gregkh/linux/blob/v6.18.57/include/linux/posix-timers.h",
+      "git_blob_sha": "4d3dbcef379ecc93b142c351537f8c126c6e75db",
+      "source_encoding": "utf-8",
+      "sha256": "5aa804807519b6f26918c7dab72a3e22bd50e898763f434ab51b2c58c275988c",
+      "bytes": 7841
+    },
+    {
+      "file": "source_snapshots/linux_posix_timers_types.h",
+      "origin": "https://github.com/gregkh/linux/blob/v6.18.57/include/linux/posix-timers_types.h",
+      "git_blob_sha": "a4712c1008c97fbc3caa18541e77529d059b0fe3",
+      "source_encoding": "utf-8",
+      "sha256": "ac76f15816fa0fe641f580e833f15a4b62ae8d814e9d762617697e6ad5de300f",
+      "bytes": 2259
+    },
+    {
+      "file": "source_snapshots/cpython_timemodule.c",
+      "origin": "https://github.com/python/cpython/blob/v3.12.14/Modules/timemodule.c",
+      "git_blob_sha": "59078263571f7ec20a8b6a37e24074a18bff7de8",
+      "source_encoding": "utf-8",
+      "sha256": "81ce33b3f784a9abae1663576424faabb9c584d84f36daa4c27d0e16195c76b0",
+      "bytes": 66285
+    }
+  ],
+  "immutable_input_evidence": {
+    "reports/pyscf-spinosin-continuation-20261031-v3/spinosin-native4-optimization-001/result.json": {
+      "sha256": "299539676308f3bac4bc01d3a0c1554a9b636228d91f7acd05e9fa08c0b7adeb",
+      "bytes": 11071
+    },
+    "reports/pyscf-spinosin-continuation-20261031-v3/execution/spinosin-native4-optimization-001.log.supervisor-proof.json": {
+      "sha256": "116e56835b2bc2cad256b00bc076b732291ef97620ebcd9c5a07236e4630f0d1",
+      "bytes": 1191
+    },
+    "scripts/pyscf_spinosin_parallel_hessian_worker_20261031.py": {
+      "sha256": "acfe7708748ac237c9912aa9b1d98e047d842794fd0c6f08b1a67b993f5b277d",
+      "bytes": 70233
+    },
+    "scripts/run_pyscf_monitored_budget_20261031.py": {
+      "sha256": "f03c6720f4e4999cf0fcaeec67b9ae80f2a2666a9bf7167f21066ad268624d9f",
+      "bytes": 30126
+    },
+    "reports/pyscf-spinosin-continuation-20261031-v3/execution/spinosin-native4-optimization-001.log": {
+      "sha256": "39c341ac5ecb45ac9a5391c3151b21819821f14a38091401a00b379a53704dfc",
+      "bytes": 16590
+    },
+    "reports/pyscf-spinosin-continuation-20261031-v3/cpu-overshoot-kernel-audit/source_snapshots/linux_posix_cpu_timers.c": {
+      "sha256": "10322dc7f86c525716fa6b3aa6075ea6386f0588f007f1b7208f98fa443f8fab",
+      "bytes": 49822
+    },
+    "reports/pyscf-spinosin-continuation-20261031-v3/cpu-overshoot-kernel-audit/source_snapshots/linux_sched_cputime.c": {
+      "sha256": "eabd7ccf5bafd87ccd686829b1192e56dafb8c213f10f12aec619405246977a6",
+      "bytes": 27252
+    },
+    "reports/pyscf-spinosin-continuation-20261031-v3/cpu-overshoot-kernel-audit/source_snapshots/linux_sys.c": {
+      "sha256": "99362a6a2efeb20d64da921d21971be478894f8db519d23cdcc94acd4ce5fea0",
+      "bytes": 73537
+    },
+    "reports/pyscf-spinosin-continuation-20261031-v3/cpu-overshoot-kernel-audit/source_snapshots/linux_exit.c": {
+      "sha256": "d3a5c89d95b0a9bfeb3840b0b0efb21a988e42f68d7801a6b798439b07e230f4",
+      "bytes": 51121
+    },
+    "reports/pyscf-spinosin-continuation-20261031-v3/cpu-overshoot-kernel-audit/source_snapshots/linux_posix_timers.h": {
+      "sha256": "5aa804807519b6f26918c7dab72a3e22bd50e898763f434ab51b2c58c275988c",
+      "bytes": 7841
+    },
+    "reports/pyscf-spinosin-continuation-20261031-v3/cpu-overshoot-kernel-audit/source_snapshots/linux_posix_timers_types.h": {
+      "sha256": "ac76f15816fa0fe641f580e833f15a4b62ae8d814e9d762617697e6ad5de300f",
+      "bytes": 2259
+    },
+    "reports/pyscf-spinosin-continuation-20261031-v3/cpu-overshoot-kernel-audit/source_snapshots/cpython_timemodule.c": {
+      "sha256": "81ce33b3f784a9abae1663576424faabb9c584d84f36daa4c27d0e16195c76b0",
+      "bytes": 66285
+    }
+  },
+  "auditor_source_sha256": "d91391db0047e82f8d2144ef6409d4f72569d9c734783ed323ae015c7a48bad5",
+  "related_ordinary_process_probe": "../cpu-limit-overshoot-audit/ (separate audit, not a quantum experiment)",
+  "followup_without_changing_current_run": "Future supervisors can separately poll measured process/group CPU with a predeclared cleanup margin; no such change was applied to the active phase."
+}
