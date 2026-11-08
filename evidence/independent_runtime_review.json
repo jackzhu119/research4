@@ -1,0 +1,70 @@
+{
+  "status": "PASS_READONLY_STATIC_AND_MOCK_REVIEW_NOT_ACTUAL_SCIENTIFIC_COMPLETION",
+  "at_utc": "2026-11-08T14:04:42.682983+00:00",
+  "source_sha256": {
+    "cache_aware_controller.py": "48c4da50c95d7cdf12c881e2c5abb9ab6f79c34ed4ff421b6719d31fe5afd6b4",
+    "runtime/compact_readout.py": "27efddb92b8b3cfedd729fb9f7d94861b3a0cd64c44ff68e81019db562b9210a",
+    "runtime/closed_cache_advice.py": "d2972a3556795076d0eeea77238c001f4786f403db01a061e3be11f5ae3bdff9"
+  },
+  "manifest_sha256": "d8ac258bcf59a9af4d76afe420d6705db9d00da3b478060a4e8ee4662aef2f1a",
+  "config_sha256_at_review": "a7b80cef72de5678aca4eff64551007155d204f49722a42f5dd176b5b95cbf52",
+  "checks": {
+    "total_jobs": 492,
+    "exact_remaining_science": 480,
+    "completed_science_preserved": 825,
+    "science_descriptors_bitwise_values_unchanged": true,
+    "no_completed_science_rerun": true,
+    "carry_total_cpu_seconds": 17708.25995,
+    "original_deadline_unchanged": true,
+    "total_cpu_cap_unchanged": 90000,
+    "filecache_only_pause_removed": true,
+    "real_anon_plus_kernel_memory_floor_GiB": 14,
+    "cache_advice_interval_seconds": 15,
+    "cleanup_new_verified_nonce_only": true,
+    "readout_source_only_zero_shot": true,
+    "calibration_not_summarized_and_not_claimed": true,
+    "complete_requires_5fold3seed_exactIDs": true,
+    "git_index_and_branch_independent": true,
+    "publication_latest_summary_priority": true
+  },
+  "tests": [
+    {
+      "command": [
+        "python",
+        "-B",
+        "-m",
+        "unittest",
+        "-q",
+        "test_cache_aware_controller.py"
+      ],
+      "exit_code": 0,
+      "output": "----------------------------------------------------------------------\nRan 20 tests in 0.109s\n\nOK"
+    },
+    {
+      "command": [
+        "python",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "runtime",
+        "-p",
+        "test_*.py",
+        "-q"
+      ],
+      "exit_code": 0,
+      "output": "----------------------------------------------------------------------\nRan 27 tests in 0.157s\n\nOK"
+    }
+  ],
+  "actual_review_cpu_seconds": 0.60610279,
+  "actual_scientific_fits": 0,
+  "actual_git_mutations": 0,
+  "actual_signals_sent": 0,
+  "actual_fadvise_calls": 0,
+  "limitations": [
+    "Some local calibration prediction archives intentionally remain original-only with hashes; publication does not claim full archive backup.",
+    "The local remaining supervisor ledger starts at zero; authoritative total cost is prior total plus the cache-aware controller cumulative ledger.",
+    "No actual runtime launch or canonical-data model run was performed by this reviewer."
+  ]
+}
