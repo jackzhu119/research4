@@ -1,0 +1,821 @@
+{
+  "schema": "research4-corrected-results-independent-recount-v1",
+  "created_at_utc": "2026-11-08T04:17:44.670603+00:00",
+  "status": "PASS_ALL_DOWNLOADED_RAW_PREDICTIONS_AND_REFERENCE_METRICS",
+  "commit": "21d6edab24d198dc60b1ad4ef50e83602c9ecfa7",
+  "checks": 1500266,
+  "largest_absolute_metric_difference": 4.440892098500626e-16,
+  "classification_prediction_rows": 187472,
+  "classification_settings_recomputed_and_reference_verified": 1366,
+  "classification_tasks": {
+    "binary_kinds": {
+      "settings": 661,
+      "query_n": 174,
+      "classes": [
+        "枣仁",
+        "酸枣仁"
+      ]
+    },
+    "acid_origins": {
+      "settings": 661,
+      "query_n": 100,
+      "classes": [
+        "ZY03",
+        "ZY04",
+        "ZY05",
+        "ZY06",
+        "ZY07"
+      ]
+    },
+    "four_kinds": {
+      "settings": 11,
+      "query_n": 339,
+      "classes": [
+        "天麻",
+        "枣仁",
+        "酸枣仁",
+        "黄芪"
+      ]
+    },
+    "huangqi_origins": {
+      "settings": 11,
+      "query_n": 82,
+      "classes": [
+        "HQ01",
+        "HQ02",
+        "HQ03",
+        "HQ04"
+      ]
+    },
+    "tianma_origins": {
+      "settings": 11,
+      "query_n": 83,
+      "classes": [
+        "TM01",
+        "TM02",
+        "TM03",
+        "TM04"
+      ]
+    },
+    "jujube_origins": {
+      "settings": 11,
+      "query_n": 74,
+      "classes": [
+        "ZR01",
+        "ZR02",
+        "ZR03",
+        "ZY01",
+        "ZY02"
+      ]
+    }
+  },
+  "transfer_prediction_rows": 144900,
+  "transfer_settings_recomputed_and_individual_reference_verified": 1449,
+  "main_results": [
+    {
+      "task": "binary_kinds",
+      "model": "R2_reselected",
+      "n": 174,
+      "correct": 174,
+      "accuracy": 1.0,
+      "macro_f1": 1.0,
+      "balanced_accuracy": 1.0,
+      "confusion_matrix": [
+        [
+          74,
+          0
+        ],
+        [
+          0,
+          100
+        ]
+      ],
+      "class_order": [
+        "枣仁",
+        "酸枣仁"
+      ],
+      "class_counts": {
+        "枣仁": 74,
+        "酸枣仁": 100
+      },
+      "class_recall": {
+        "枣仁": 1.0,
+        "酸枣仁": 1.0
+      },
+      "class_precision": {
+        "枣仁": 1.0,
+        "酸枣仁": 1.0
+      },
+      "class_f1": {
+        "枣仁": 1.0,
+        "酸枣仁": 1.0
+      }
+    },
+    {
+      "task": "acid_origins",
+      "model": "R2_reselected",
+      "n": 100,
+      "correct": 87,
+      "accuracy": 0.87,
+      "macro_f1": 0.8693233082706767,
+      "balanced_accuracy": 0.8699999999999999,
+      "confusion_matrix": [
+        [
+          15,
+          0,
+          2,
+          2,
+          1
+        ],
+        [
+          1,
+          19,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          18,
+          2,
+          0
+        ],
+        [
+          2,
+          0,
+          2,
+          16,
+          0
+        ],
+        [
+          0,
+          1,
+          0,
+          0,
+          19
+        ]
+      ],
+      "class_order": [
+        "ZY03",
+        "ZY04",
+        "ZY05",
+        "ZY06",
+        "ZY07"
+      ],
+      "class_counts": {
+        "ZY03": 20,
+        "ZY04": 20,
+        "ZY05": 20,
+        "ZY06": 20,
+        "ZY07": 20
+      },
+      "class_recall": {
+        "ZY03": 0.75,
+        "ZY04": 0.95,
+        "ZY05": 0.9,
+        "ZY06": 0.8,
+        "ZY07": 0.95
+      },
+      "class_precision": {
+        "ZY03": 0.8333333333333334,
+        "ZY04": 0.95,
+        "ZY05": 0.8181818181818182,
+        "ZY06": 0.8,
+        "ZY07": 0.95
+      },
+      "class_f1": {
+        "ZY03": 0.7894736842105263,
+        "ZY04": 0.95,
+        "ZY05": 0.8571428571428571,
+        "ZY06": 0.8,
+        "ZY07": 0.95
+      }
+    },
+    {
+      "task": "four_kinds",
+      "model": "full_svm",
+      "n": 339,
+      "correct": 331,
+      "accuracy": 0.976401179941003,
+      "macro_f1": 0.9750880176632056,
+      "balanced_accuracy": 0.974950560316414,
+      "confusion_matrix": [
+        [
+          83,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          72,
+          0,
+          2
+        ],
+        [
+          0,
+          0,
+          100,
+          0
+        ],
+        [
+          5,
+          1,
+          0,
+          76
+        ]
+      ],
+      "class_order": [
+        "天麻",
+        "枣仁",
+        "酸枣仁",
+        "黄芪"
+      ],
+      "class_counts": {
+        "天麻": 83,
+        "枣仁": 74,
+        "酸枣仁": 100,
+        "黄芪": 82
+      },
+      "class_recall": {
+        "天麻": 1.0,
+        "枣仁": 0.972972972972973,
+        "酸枣仁": 1.0,
+        "黄芪": 0.926829268292683
+      },
+      "class_precision": {
+        "天麻": 0.9431818181818182,
+        "枣仁": 0.9863013698630136,
+        "酸枣仁": 1.0,
+        "黄芪": 0.9743589743589743
+      },
+      "class_f1": {
+        "天麻": 0.9707602339181286,
+        "枣仁": 0.9795918367346939,
+        "酸枣仁": 1.0,
+        "黄芪": 0.95
+      }
+    },
+    {
+      "task": "huangqi_origins",
+      "model": "full_svm",
+      "n": 82,
+      "correct": 69,
+      "accuracy": 0.8414634146341463,
+      "macro_f1": 0.8386008410824066,
+      "balanced_accuracy": 0.8409090909090908,
+      "confusion_matrix": [
+        [
+          14,
+          4,
+          2,
+          0
+        ],
+        [
+          1,
+          17,
+          0,
+          2
+        ],
+        [
+          1,
+          0,
+          19,
+          0
+        ],
+        [
+          0,
+          0,
+          3,
+          19
+        ]
+      ],
+      "class_order": [
+        "HQ01",
+        "HQ02",
+        "HQ03",
+        "HQ04"
+      ],
+      "class_counts": {
+        "HQ01": 20,
+        "HQ02": 20,
+        "HQ03": 20,
+        "HQ04": 22
+      },
+      "class_recall": {
+        "HQ01": 0.7,
+        "HQ02": 0.85,
+        "HQ03": 0.95,
+        "HQ04": 0.8636363636363636
+      },
+      "class_precision": {
+        "HQ01": 0.875,
+        "HQ02": 0.8095238095238095,
+        "HQ03": 0.7916666666666666,
+        "HQ04": 0.9047619047619048
+      },
+      "class_f1": {
+        "HQ01": 0.7777777777777778,
+        "HQ02": 0.8292682926829268,
+        "HQ03": 0.8636363636363636,
+        "HQ04": 0.8837209302325582
+      }
+    },
+    {
+      "task": "tianma_origins",
+      "model": "full_svm",
+      "n": 83,
+      "correct": 81,
+      "accuracy": 0.9759036144578314,
+      "macro_f1": 0.9755952380952381,
+      "balanced_accuracy": 0.9761904761904762,
+      "confusion_matrix": [
+        [
+          20,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          19,
+          0,
+          2
+        ],
+        [
+          0,
+          0,
+          22,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          20
+        ]
+      ],
+      "class_order": [
+        "TM01",
+        "TM02",
+        "TM03",
+        "TM04"
+      ],
+      "class_counts": {
+        "TM01": 20,
+        "TM02": 21,
+        "TM03": 22,
+        "TM04": 20
+      },
+      "class_recall": {
+        "TM01": 1.0,
+        "TM02": 0.9047619047619048,
+        "TM03": 1.0,
+        "TM04": 1.0
+      },
+      "class_precision": {
+        "TM01": 1.0,
+        "TM02": 1.0,
+        "TM03": 1.0,
+        "TM04": 0.9090909090909091
+      },
+      "class_f1": {
+        "TM01": 1.0,
+        "TM02": 0.95,
+        "TM03": 1.0,
+        "TM04": 0.9523809523809523
+      }
+    },
+    {
+      "task": "jujube_origins",
+      "model": "full_svm",
+      "n": 74,
+      "correct": 72,
+      "accuracy": 0.972972972972973,
+      "macro_f1": 0.5971830985915493,
+      "balanced_accuracy": 0.6,
+      "confusion_matrix": [
+        [
+          1,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          70,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          1
+        ]
+      ],
+      "class_order": [
+        "ZR01",
+        "ZR02",
+        "ZR03",
+        "ZY01",
+        "ZY02"
+      ],
+      "class_counts": {
+        "ZR01": 1,
+        "ZR02": 1,
+        "ZR03": 1,
+        "ZY01": 70,
+        "ZY02": 1
+      },
+      "class_recall": {
+        "ZR01": 1.0,
+        "ZR02": 0.0,
+        "ZR03": 0.0,
+        "ZY01": 1.0,
+        "ZY02": 1.0
+      },
+      "class_precision": {
+        "ZR01": 1.0,
+        "ZR02": 0.0,
+        "ZR03": 0.0,
+        "ZY01": 0.9722222222222222,
+        "ZY02": 1.0
+      },
+      "class_f1": {
+        "ZR01": 1.0,
+        "ZR02": 0.0,
+        "ZR03": 0.0,
+        "ZY01": 0.9859154929577465,
+        "ZY02": 1.0
+      }
+    }
+  ],
+  "acid_R2_full_calibration_refit": {
+    "n": 100,
+    "correct": 93,
+    "accuracy": 0.93,
+    "macro_f1": 0.9296790757381258,
+    "balanced_accuracy": 0.9299999999999999,
+    "confusion_matrix": [
+      [
+        17,
+        0,
+        2,
+        1,
+        0
+      ],
+      [
+        0,
+        19,
+        0,
+        0,
+        1
+      ],
+      [
+        0,
+        0,
+        19,
+        1,
+        0
+      ],
+      [
+        1,
+        0,
+        0,
+        19,
+        0
+      ],
+      [
+        0,
+        1,
+        0,
+        0,
+        19
+      ]
+    ],
+    "class_order": [
+      "ZY03",
+      "ZY04",
+      "ZY05",
+      "ZY06",
+      "ZY07"
+    ],
+    "class_counts": {
+      "ZY03": 20,
+      "ZY04": 20,
+      "ZY05": 20,
+      "ZY06": 20,
+      "ZY07": 20
+    },
+    "class_recall": {
+      "ZY03": 0.85,
+      "ZY04": 0.95,
+      "ZY05": 0.95,
+      "ZY06": 0.95,
+      "ZY07": 0.95
+    },
+    "class_precision": {
+      "ZY03": 0.9444444444444444,
+      "ZY04": 0.95,
+      "ZY05": 0.9047619047619048,
+      "ZY06": 0.9047619047619048,
+      "ZY07": 0.95
+    },
+    "class_f1": {
+      "ZY03": 0.8947368421052632,
+      "ZY04": 0.95,
+      "ZY05": 0.926829268292683,
+      "ZY06": 0.926829268292683,
+      "ZY07": 0.95
+    }
+  },
+  "transfer_source_results": [
+    {
+      "arm": "A",
+      "seeds": [
+        42,
+        43,
+        44
+      ],
+      "correct_by_seed": [
+        87,
+        77,
+        79
+      ],
+      "accuracy_mean": 0.81,
+      "macro_f1_mean": 0.8084841686767232,
+      "balanced_accuracy_mean": 0.8099999999999999
+    },
+    {
+      "arm": "Aextra",
+      "seeds": [
+        42,
+        43,
+        44
+      ],
+      "correct_by_seed": [
+        81,
+        78,
+        82
+      ],
+      "accuracy_mean": 0.8033333333333333,
+      "macro_f1_mean": 0.804120789688751,
+      "balanced_accuracy_mean": 0.8033333333333333
+    },
+    {
+      "arm": "B",
+      "seeds": [
+        42,
+        43,
+        44
+      ],
+      "correct_by_seed": [
+        86,
+        79,
+        72
+      ],
+      "accuracy_mean": 0.79,
+      "macro_f1_mean": 0.7880889832074495,
+      "balanced_accuracy_mean": 0.79
+    }
+  ],
+  "fixed_head_hierarchy": {
+    "scope": "POSTHOC_FIXED_HEAD_RETROSPECTIVE_SYSTEM_CORRECTNESS_AUDIT_NO_NEW_INFERENCE",
+    "head_selection_basis": "Frozen to source-only heads in already-published main table; not query-selected winners; R2 acid despite higher R0 query score.",
+    "fixed_heads": {
+      "酸枣仁": [
+        "acid_origins",
+        "R2_reselected"
+      ],
+      "枣仁": [
+        "jujube_origins",
+        "full_svm"
+      ],
+      "黄芪": [
+        "huangqi_origins",
+        "full_svm"
+      ],
+      "天麻": [
+        "tianma_origins",
+        "full_svm"
+      ]
+    },
+    "routing_head": [
+      "four_kinds",
+      "full_svm",
+      "source_only",
+      0,
+      0
+    ],
+    "prediction_samples": 339,
+    "routed_kind_correct": 331,
+    "joint_kind_and_origin_correct": 304,
+    "joint_accuracy": 0.8967551622418879,
+    "oracle_kind_origin_correct": 309,
+    "oracle_kind_origin_accuracy": 0.911504424778761,
+    "no_accuracy_products_used": true,
+    "wrong_route_origin_label_not_computed": "A wrong kind is already a joint error regardless of the unavailable wrong-head output; do not fabricate its concrete origin or a full joint-F1.",
+    "by_kind": {
+      "酸枣仁": {
+        "n": 100,
+        "joint_correct": 87,
+        "oracle_correct": 87
+      },
+      "枣仁": {
+        "n": 74,
+        "joint_correct": 70,
+        "oracle_correct": 72
+      },
+      "黄芪": {
+        "n": 82,
+        "joint_correct": 66,
+        "oracle_correct": 69
+      },
+      "天麻": {
+        "n": 83,
+        "joint_correct": 81,
+        "oracle_correct": 81
+      }
+    }
+  },
+  "verified_artifacts": [
+    {
+      "path": "data/research/species_revision_20261108/classification/binary_kinds/summary.json",
+      "bytes": 566099,
+      "sha256": "5860751ced2113de7270c896c7803e9989cdb03a2f13aeb1c32e987a798c6eae",
+      "git_blob_sha": "e5d970a819a9cda94c2496a6caaba0ac9431df96"
+    },
+    {
+      "path": "data/research/species_revision_20261108/classification/binary_kinds/complete.json",
+      "bytes": 228,
+      "sha256": "954c5cbd19101643d8c2fe2b42b17bf67d0ce5f3d4598e2925966f6fdeeb61fa",
+      "git_blob_sha": "99aff602af2f14a5fc93e150241360fdde5b4727"
+    },
+    {
+      "path": "data/research/species_revision_20261108/classification/binary_kinds/predictions.csv.gz",
+      "bytes": 347286,
+      "sha256": "11673bffcbb45066b96095ca040880bc27a4064554c89d256c843b3a4f1c352d",
+      "git_blob_sha": "3d593ce99083cce156b0a6eb1289ae1e9c84acc5"
+    },
+    {
+      "path": "data/research/species_revision_20261108/classification/acid_origins/summary.json",
+      "bytes": 954521,
+      "sha256": "abb875ea34d7f4046a945653aeb2a4bc859293156d8d8d45ca0c9c7b81c23e37",
+      "git_blob_sha": "07a408bde051f6f34983544227e1e15debae5bb2"
+    },
+    {
+      "path": "data/research/species_revision_20261108/classification/acid_origins/complete.json",
+      "bytes": 228,
+      "sha256": "237c9bc84e376779052b7089da23ab7d1bf242add45394e3ad9c266ca4d0c204",
+      "git_blob_sha": "e99834c5f533c02e9eac60080d4641892e05160a"
+    },
+    {
+      "path": "data/research/species_revision_20261108/classification/acid_origins/predictions.csv.gz",
+      "bytes": 201647,
+      "sha256": "74e6c86a5b60f3c27768b26d7228801c9c4c1391fea97472d316de539e061dfb",
+      "git_blob_sha": "cb73f0558476af728d96d412f8aa51108ac43af7"
+    },
+    {
+      "path": "data/research/species_revision_20261108/classification/four_kinds/summary.json",
+      "bytes": 18610,
+      "sha256": "95b9c497d3e0dd0c745b1f4bc7fbedcb90642d4a622b3500419cbd9ce16fdb5d",
+      "git_blob_sha": "f4bb5684da76538bc375b4c41e06cf552abce607"
+    },
+    {
+      "path": "data/research/species_revision_20261108/classification/four_kinds/complete.json",
+      "bytes": 228,
+      "sha256": "3ae86f8717bb09e455c8c1947b9a4dd6b2e760da0d99c4dfca7539bdaccb924e",
+      "git_blob_sha": "5959461b839fca04c9c18711c7d2470d5badf87c"
+    },
+    {
+      "path": "data/research/species_revision_20261108/classification/four_kinds/predictions.csv.gz",
+      "bytes": 12321,
+      "sha256": "233a62099c198db2b2487aa4f27f0f7b8ea776687fa119341f3187d380db1def",
+      "git_blob_sha": "9822c16dd1c73983fb0ccb3aadc74e4b550db224"
+    },
+    {
+      "path": "data/research/species_revision_20261108/classification/huangqi_origins/summary.json",
+      "bytes": 17955,
+      "sha256": "44f00977b376e1dbeb6a5f7405cf7a390aff4d037bc731dc9d5205c2f053e842",
+      "git_blob_sha": "4ba7b10e1e513ce39f0d57fb8ee15045513c38ff"
+    },
+    {
+      "path": "data/research/species_revision_20261108/classification/huangqi_origins/complete.json",
+      "bytes": 228,
+      "sha256": "87c066feba4773dfa3d1e781c3df9e9636cb5b96f8896188f9e95abaae07d675",
+      "git_blob_sha": "56933b250e4fafbe72e92155061897e1f9b5f0d4"
+    },
+    {
+      "path": "data/research/species_revision_20261108/classification/huangqi_origins/predictions.csv.gz",
+      "bytes": 3371,
+      "sha256": "3b6624ac797ba6be487858f84046392b5ae2f493caf56ca8a00f3698e0f52a60",
+      "git_blob_sha": "bc447d07267141d26d9564dc60cc6adde9cc23f8"
+    },
+    {
+      "path": "data/research/species_revision_20261108/classification/tianma_origins/summary.json",
+      "bytes": 17945,
+      "sha256": "09c9380752b9aacc44396b6e42445235380486384371d827ef5b23fad0c736bf",
+      "git_blob_sha": "2d1d61155ba81cc7a9a15ea3122e6fa5c615f68d"
+    },
+    {
+      "path": "data/research/species_revision_20261108/classification/tianma_origins/complete.json",
+      "bytes": 228,
+      "sha256": "d4b190479df04cf15838440315679a83c51f0f60870b3f6c3bab24aefa1aa1b9",
+      "git_blob_sha": "2c175086edf8e4de7ef163eb09cb712b7e7cb746"
+    },
+    {
+      "path": "data/research/species_revision_20261108/classification/tianma_origins/predictions.csv.gz",
+      "bytes": 3205,
+      "sha256": "90df4a91c5043721a6aa055e968aae69a8c50ce5eca8135c48de92e9d47ff85d",
+      "git_blob_sha": "4f068c55eaabe7cad3d015f51d99d40c69e3e2b8"
+    },
+    {
+      "path": "data/research/species_revision_20261108/classification/jujube_origins/summary.json",
+      "bytes": 20051,
+      "sha256": "013393c5657f98d2ce009df0e709f3167609a1916db776e14c42bc6b696216c3",
+      "git_blob_sha": "7ac5f1d695559857550b0b268cc84e1b8a9df64a"
+    },
+    {
+      "path": "data/research/species_revision_20261108/classification/jujube_origins/complete.json",
+      "bytes": 228,
+      "sha256": "e582d696d50988c92ead29a0fde3eeef9184ee87720ae005639f522a04eda938",
+      "git_blob_sha": "ee0ea7474e32b69de3150679132baaa94a44d09e"
+    },
+    {
+      "path": "data/research/species_revision_20261108/classification/jujube_origins/predictions.csv.gz",
+      "bytes": 2901,
+      "sha256": "a062d99a5ca9aeba9fea07a74942e88563909b3136ad3cf34223c94f2f45b703",
+      "git_blob_sha": "ab0f785a232374715050b06948921795902f128f"
+    },
+    {
+      "path": "data/research/species_revision_20261108/transfer/result.json",
+      "bytes": 11257,
+      "sha256": "25dbb37f9374864c4b9e3a6872cd0f9aa1c706f1845e85d236282e89401d4a85",
+      "git_blob_sha": "75b777e4dc3d3b8bd5968f18954e03d0b2eec384"
+    },
+    {
+      "path": "data/research/species_revision_20261108/transfer/scored_predictions.csv.gz",
+      "bytes": 7563089,
+      "sha256": "6865eba05694c54c1ff3fc5e17d4fe542b8b6121dd01db05a497b87bcda5b0d7",
+      "git_blob_sha": "f5d22583f004dd52263b3abdacd772425cfc501f"
+    },
+    {
+      "path": "data/research/species_revision_20261108/transfer/paired_source_transfer.csv",
+      "bytes": 782,
+      "sha256": "7f43f316bb5ba8367d5efadbbdb681ca59b0d2165ddc91894b55e5904e95951e",
+      "git_blob_sha": "979a5f5d19f4f65d790eda7a6cd697ef1b5ca2b9"
+    },
+    {
+      "path": "data/research/species_revision_20261108/transfer/prediction_lock.json",
+      "bytes": 315,
+      "sha256": "edacb6c3fc22caa7de923593f35c9baed45d849c77a06c5201584ae941602bd3",
+      "git_blob_sha": "54f291112ac860eabf512a9ca3cc4d6cd57fe7e8"
+    },
+    {
+      "path": "data/research/species_revision_20261108/classification/summary.json",
+      "bytes": 1918197,
+      "sha256": "1dd704c99d44e5cc2ba0ea2ab4c8f64d71472541fe09492302a0ce772e18b4ee",
+      "git_blob_sha": "c320b216a998d6d6354fb076ddbbe197643fdf1f"
+    },
+    {
+      "path": "data/research/species_background_20261108/jobs.json",
+      "bytes": 3906338,
+      "sha256": "772f78e19edf887e1e739e1863965997a77657568cfa91667133669babf8bd1b",
+      "git_blob_sha": "b0aa64d0ad868c1746ea1f6eb3c3cb4a535d7579"
+    },
+    {
+      "path": "data/research/species_revision_20261108/transfer/metrics_by_setting.json",
+      "bytes": 914221,
+      "sha256": "0cc1d4b44718ad5a8d3449eda267450778fa72650e005212ff100d046ee0d06f",
+      "git_blob_sha": "294438cc208b3d927c7d83c2ea7e328449ed3abf"
+    }
+  ],
+  "limitations": [
+    "Retrospective internal validation on previously exposed samples, not independent new batches.",
+    "R0 scored higher on the fixed query; it cannot become a preselected final method after observing it.",
+    "93/100 is full pipeline refit using100 additional labels, not1shot or frozen-only calibration.",
+    "Jujube72/74 masks two1sample origin groups with zero recall.",
+    "B79% versus A81% and Aextra80.33% is retained negative transfer.",
+    "Fixed-head hierarchy is posthoc arithmetic of existing predictions, not a freshly trained or confirmed system."
+  ],
+  "no_new_fit_inference_Q_Git_or_active_state_edit": true
+}

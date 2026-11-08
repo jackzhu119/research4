@@ -1,0 +1,122 @@
+{
+  "schema": "research4-corrected-branch-protocol-audit-v1",
+  "at_utc": "2026-11-08T04:11:25.254275+00:00",
+  "scope": "STATIC_SOURCE_AND_CANONICAL_METADATA_AUDIT_NO_FIT_INFERENCE_QUANTUM_GIT_OR_REMOTE_PROCESS_ACCESS",
+  "repo": "jackzhu119/research4",
+  "branch": "research/species-label-correction-20261108",
+  "commit": "21d6edab24d198dc60b1ad4ef50e83602c9ecfa7",
+  "status": "NO_CRITICAL_LEAKAGE_OR_BUDGET_BLOCKER_FOUND_STATIC_REVIEW_RUNTIME_UNVERIFIED",
+  "master_counts": {
+    "prediction": 339,
+    "calibration": 334,
+    "train": 999
+  },
+  "kinds": {
+    "黄芪": 403,
+    "天麻": 405,
+    "枣仁": 364,
+    "酸枣仁": 500
+  },
+  "master_unique_ids": 1672,
+  "training_allowlist_exact999_match": true,
+  "code_hash_checks": [
+    {
+      "path": "scripts/species_revision_background_classical.py",
+      "expected_sha256": "4a4605b2ed26791644cfc479a3801b0d4c8762915ff977bfbf02958e21bbb463",
+      "actual_sha256": "4a4605b2ed26791644cfc479a3801b0d4c8762915ff977bfbf02958e21bbb463",
+      "status": "PASS",
+      "normalization": "NONE_EXACT_GIT_BLOB_VERIFIED"
+    },
+    {
+      "path": "scripts/species_revision_background_neural.py",
+      "expected_sha256": "d776d682aae3b5606bedaf3ef36b04664e8fd5ec87317a413c2e012a8c13aa4c",
+      "actual_sha256": "d776d682aae3b5606bedaf3ef36b04664e8fd5ec87317a413c2e012a8c13aa4c",
+      "status": "PASS",
+      "normalization": "NONE_EXACT_GIT_BLOB_VERIFIED"
+    },
+    {
+      "path": "scripts/summarize_species_background.py",
+      "status": "NOT_PRESENT_FOR_HASH_RECHECK"
+    },
+    {
+      "path": "scripts/species_background_budget.py",
+      "expected_sha256": "3ca443016719c90697ed9e7f82db2a6205cdb8f07b1f78ad31db117869667874",
+      "actual_sha256": "3ca443016719c90697ed9e7f82db2a6205cdb8f07b1f78ad31db117869667874",
+      "status": "PASS",
+      "normalization": "NONE_EXACT_GIT_BLOB_VERIFIED"
+    }
+  ],
+  "declared_budget_CPU_core_seconds": 90000,
+  "planned_experiments": 1305,
+  "planned_snapshot_jobs": 13,
+  "automatic_network_publication": false,
+  "static_verified": {
+    "classical_filter_master_TRAIN_before_task_labels_and_selection": true,
+    "classical_scaler_MC_and_SVM_fit_only_inner_source": true,
+    "classical_selection_locked_before_outer_development_scoring": true,
+    "classical_train_internal_5outer2inner3partition_repeats": true,
+    "neural_no_master_CAL_or_PRED_accepted_by_fit": true,
+    "neural_source_support_validation_aux_physical_scopes_disjoint": true,
+    "neural_target_scaler_source_only_aux_scaler_each_aux_train_only": true,
+    "neural_independent_auxiliary_origin_heads": true,
+    "paired_A_Aextra_B_same_target_source_init_head_and_target_order": true,
+    "Aextra_pretrain_step_control_matches_B": true,
+    "frozen_encoder_BN_refreshed_SOURCE_only_then_parameters_fixed": true,
+    "cache_keys_bind_recordids_physicalids_labels_values_axis_profile_seed_arm_source_code": true,
+    "cache_receipts_bind_all_weights_and_training_artifact_hashes": true,
+    "original_classification_includes_matched_score_argmax_zero_support": true,
+    "calibration_support_draws_nested_and_disjoint_from_query": true,
+    "supervisor_aggregate_CPU_SELF_CHILDREN_ACTIVE_actual_accounting": true,
+    "one_persistent_state_budget_and_remaining_RLIMIT_per_child": true,
+    "resume_preserves_spent_CPU_and_blocks_unclean_active_state": true,
+    "at_most_one_declared_retry_with_original_failed_costs_retained": true,
+    "code_input_drift_blocks_entire_queue": true,
+    "finite_predeclared_jobs_no_artificial_budget_burning": true
+  },
+  "limitations": [
+    "This is static metadata/source review, not independent rerunning of current background predictions.",
+    "Current background runtime state is intentionally not published: GitHub control/state.json404 does not prove stopped/failed.",
+    "User-provided PID3384 /13jobs/99CPU at11:31 is a historical observation on another host, not locally verified live status.",
+    "The90000CPU guard is scoped to its original manifest/state directory. Copying to another host with fresh state could duplicate the allocation; do not initialize a second copy or reset spent_CPU.",
+    "Input whitelist and transforms implement logical data separation, not an OS sandbox; full historical corpus is exposed development data.",
+    "Development hyperparameter selection remains optimistic when reusing its own development CV; no current100query-driven selection, no external batch claim.",
+    "Floating per-spectrum interpolation/scaling is shape-engineering transfer with unverified absolute material/instrument compatibility.",
+    "Source kind confirmation is Chinese user label, not independent Latin taxonomy or tissue identification.",
+    "Three seeds and repeated supports do not increase number of independent specimens."
+  ],
+  "sources": [
+    {
+      "path": "reports/species-correction-20261108-v1/frozen-remote/21d6edab24d198dc60b1ad4ef50e83602c9ecfa7/scripts/species_revision_background_classical.py",
+      "sha256": "4a4605b2ed26791644cfc479a3801b0d4c8762915ff977bfbf02958e21bbb463"
+    },
+    {
+      "path": "reports/species-correction-20261108-v1/frozen-remote/21d6edab24d198dc60b1ad4ef50e83602c9ecfa7/scripts/species_revision_background_neural.py",
+      "sha256": "d776d682aae3b5606bedaf3ef36b04664e8fd5ec87317a413c2e012a8c13aa4c"
+    },
+    {
+      "path": "reports/species-correction-20261108-v1/frozen-remote/21d6edab24d198dc60b1ad4ef50e83602c9ecfa7/scripts/run_species_revision_classification.py",
+      "sha256": "f82937a846ae8020c287188cbbcaabafb94f9f28ea361d61c4485403e514ec5a"
+    },
+    {
+      "path": "reports/species-correction-20261108-v1/frozen-remote/21d6edab24d198dc60b1ad4ef50e83602c9ecfa7/scripts/run_species_revision_transfer.py",
+      "sha256": "b6fec7f75d4b43f9ad722e430300017b3c4ad214223f648f441d0f786df2d50f"
+    },
+    {
+      "path": "reports/species-correction-20261108-v1/frozen-remote/21d6edab24d198dc60b1ad4ef50e83602c9ecfa7/data/research/species_revision_20261108/split_manifest.csv",
+      "sha256": "0767e3165984a4e0e4ae782d69fdea6f410bfe36bce05ec72f8eadca982317d4"
+    },
+    {
+      "path": "reports/species-correction-20261108-v1/remote-evidence/scripts/species_background_budget.py",
+      "sha256": "0255dc96a27fc583eb567b691dcc2c81d5e6fe9fde3accd66a4402593b8f364b"
+    },
+    {
+      "path": "reports/species-correction-20261108-v1/remote-evidence/data/research/species_background_20261108/protocol.json",
+      "sha256": "31025873451985ad777643a9eafe3d55e31caea5970b4047c43f744f55ee03b2"
+    }
+  ],
+  "quantum_operations": 0,
+  "new_model_fits": 0,
+  "new_inferences": 0,
+  "Git_commands": 0,
+  "signals_or_active_state_edits": 0
+}

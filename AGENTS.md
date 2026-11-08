@@ -1,3 +1,11 @@
+# 2026-11-08 species correction takes precedence
+
+The user confirmed that legacy ZY01/ZY02 are 枣仁 (355 records), while ZY03–ZY07 are 酸枣仁 (500). Do not describe legacy96.0234% as pure酸枣仁 origin accuracy. Current confirmed registry has18workbooks/1672records:364枣仁,500酸枣仁,403黄芪,405天麻; roles999TRAIN/334CAL/339PRED. Default to data/active_workbooks.json and the fixed correction snapshot/experiment plan, not historical raw-file discovery. Preserve all old results; new pure-kind experiments refit all learned transforms in TRAIN only. Spinosin molecular results stay separate from unconfirmed chemical assignments in mixed spectra. This branch archives the previous registry under data/archive/pre_species_reconciliation_20261108/. The following older instructions apply only within their explicitly historical scopes and do not override this correction.
+
+See docs/RESEARCH4_SPECIES_CORRECTION_HANDOFF_20261108.md. The separate90,000CPU queue must retain its original host/state; never re-init its grant here. The local species-after-Q waiter is a distinct2000CPU-ceiling analysis only, with no fitting/inference/Q, after actual PySCF closure. No main merge, no hourly tasks.
+
+---
+
 # Research data conventions
 
 ## New prospective 72h authorization (2026-11-07)

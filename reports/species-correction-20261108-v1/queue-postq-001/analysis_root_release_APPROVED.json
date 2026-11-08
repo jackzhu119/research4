@@ -1,0 +1,49 @@
+{
+  "schema": "research4-species-correction-postq-root-release-v1",
+  "status": "ROOT_APPROVED_FINITE_POST_Q_ANALYSIS",
+  "at_utc": "2026-11-08T04:22:26.531004+00:00",
+  "config": {
+    "path": "/workspace/research4/reports/species-correction-20261108-v1/queue-postq-001/analysis_config.json",
+    "sha256": "2567ee672470f2833ef28e2a9afa842c6ba1a874fe71a02554c2a0e5de8bc4eb"
+  },
+  "worker": {
+    "path": "/workspace/research4/scripts/research4_species_correction_analysis_20261108.py",
+    "sha256": "9c721d3a7977fc42ca121c2581f7d9d677a04bfe279601c1a98cd18ca49c2c68"
+  },
+  "independent_source_review": {
+    "path": "/workspace/research4/reports/species-correction-20261108-v1/postq-analysis-independent-review-002.json",
+    "sha256": "3a8c6516fc086c5cf9807c8b5c9adb59fc814282bf006f371aff1f667b42594d"
+  },
+  "first_draft_rejected": {
+    "source_sha256": "b6c5ec4988fa598b59a33404df209581e5ca7b3f7fbe4c8dec44263e6303d97b",
+    "status": "BLOCKED_NOT_RUN",
+    "reason": "Incorrect rewritten peak prominence and omitted original minimum-distance/uniform-axis/numerical-floor rules; replaced by direct reuse of original frozen function."
+  },
+  "root_review": "Exact original peak-function+FitScope reuse, source hashes, selected TRAIN row decoding, legacy mixed-model metric scope and live sole guard checked; root reran28stdlib and8synthetic regressions PASS.",
+  "root_tests": {
+    "stdlib": 28,
+    "synthetic_scipy": 8,
+    "passed": 36,
+    "real_spectra_or_models_run": false
+  },
+  "scope": {
+    "historical_prediction_groups": 29,
+    "each_population": 855,
+    "historical_kind_counts": {
+      "\u67a3\u4ec1": 355,
+      "\u9178\u67a3\u4ec1": 500
+    },
+    "peak_TRAIN_counts": {
+      "\u67a3\u4ec1_legacy_subset": 213,
+      "\u9178\u67a3\u4ec1": 300
+    },
+    "new_fits": 0,
+    "new_inference": 0,
+    "new_Q": 0,
+    "same_90000_cpu_queue_initialized_here": false
+  },
+  "actual_execution_condition": "Only after exact active PySCF parent/guard/worker and all jobs truly close; original sole72h guardian+deadline+remaining budget; new unique phase/output.",
+  "classification_queries": "Previously saved predictions are rescored; no CAL/PRED spectra used for peaks. Kind labels filter only the allowed TRAIN rows; peak function receives no y.",
+  "automatic_network_publication": false,
+  "historical_data_models_results_and_main_preserved": true
+}
