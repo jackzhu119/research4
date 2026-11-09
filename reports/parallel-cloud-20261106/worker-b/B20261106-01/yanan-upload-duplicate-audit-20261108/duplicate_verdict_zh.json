@@ -1,0 +1,71 @@
+{
+  "schema": "research4-yanan-two-upload-sets-duplicate-verdict-v1",
+  "observed_at_client_timezone": "2026-11-08T00:42:50.757656-08:00",
+  "结论": "两套分卷压缩包解出的Excel逐字节完全相同，属于同一份350样品数据的两套打包。",
+  "uploaded_set_A": "陕西延安枣仁202605210834.part1.rar + part2.rar",
+  "uploaded_set_B": "陕西枣仁202605210834.part1.rar + part2.rar",
+  "压缩包本身": "四卷均完整取得。两套RAR的字节哈希不同，包内Excel文件名也不同；完整解包无读取/校验错误。",
+  "解包文件": {
+    "A": {
+      "archive_member": "陕西延安枣仁202605210834.xlsx",
+      "path": "/workspace/research4-worker-b/reports/parallel-cloud-20261106/worker-b/B20261106-01/yanan-upload-duplicate-audit-20261108/extracted/set_a_yanan/陕西延安枣仁202605210834.xlsx",
+      "bytes": 54540804,
+      "sha256": "5c569b7c6be91157ca2a0f738ac7a10d2fdd7b5644b7abbffd6ecdb74354ce90"
+    },
+    "B": {
+      "archive_member": "陕西枣仁202605210834.xlsx",
+      "path": "/workspace/research4-worker-b/reports/parallel-cloud-20261106/worker-b/B20261106-01/yanan-upload-duplicate-audit-20261108/extracted/set_b_shaanxi/陕西枣仁202605210834.xlsx",
+      "bytes": 54540804,
+      "sha256": "5c569b7c6be91157ca2a0f738ac7a10d2fdd7b5644b7abbffd6ecdb74354ce90"
+    },
+    "same_size_bytes": 54540804,
+    "same_sha256": "5c569b7c6be91157ca2a0f738ac7a10d2fdd7b5644b7abbffd6ecdb74354ce90",
+    "independent_full_byte_comparison_equal": true
+  },
+  "工作表": [
+    "时域",
+    "频域",
+    "折射率",
+    "吸收系数"
+  ],
+  "仓库对应关系": {
+    "canonical_current_path": "data/processed/zaoren_20261031/陕西延安枣仁.xlsx",
+    "canonical_group": "ZY01",
+    "current_numbered_sha256": "e9dd6398868979036ec98e7c722b17afa9319ac0289280233452f604407fe292",
+    "original_source_sha256": "5c569b7c6be91157ca2a0f738ac7a10d2fdd7b5644b7abbffd6ecdb74354ce90",
+    "原件与编号版的差异": "原始版与当前编号版SHA不同，因为四张表各350个样品表头加了ZY01编号；已独立比较13个XLSX包成员，四sheet去除首行后其余字节完全一致，另外9个成员全文相同，数值数据未变化。"
+  },
+  "计数与实验影响": {
+    "目前登记ZY01次数": 1,
+    "ZY01独立样品": 350,
+    "TRAIN": 210,
+    "CAL": 70,
+    "PRED": 70,
+    "历史总数": 855,
+    "现用总数": 1672,
+    "新增工作簿": 0,
+    "新增样本": 0,
+    "注意": "四张表是同350份样品的配对测量，不能算1400样品；两套压缩包不能重复算成700样品。",
+    "需因本次重复上传重训": false,
+    "解释": "此前通过active registry只使用ZY01一次。本次确认重复不会改变前轮样本数量或模型结果；旧枣仁/酸枣仁种类误用的更正结论仍单独保留。"
+  },
+  "处理": "保留两套上传原件和既有仓库数据，只建立重复映射；未新增活动输入、未删除文件、未启动拟合或量子计算。",
+  "evidence": {
+    "uploaded_archive_manifest.json": {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/yanan-upload-duplicate-audit-20261108/uploaded_archive_manifest.json",
+      "sha256": "413239d7741eb906e568b8d7ebb40711df0de596c2e702cdfa5c146d7b879ec4"
+    },
+    "archive_extraction.json": {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/yanan-upload-duplicate-audit-20261108/archive_extraction.json",
+      "sha256": "142ec6c39d4fa16d705234f069e76ee3f2d0635f4ee82f26fe4312249ccb4f0b"
+    },
+    "original_vs_registered_numbered_content.json": {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/yanan-upload-duplicate-audit-20261108/original_vs_registered_numbered_content.json",
+      "sha256": "af857bf99c1bbccf03c677cbc3339e0d428f7bdc463bcf7f35727ece2fe8485a"
+    },
+    "registry_count_impact_review.json": {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/yanan-upload-duplicate-audit-20261108/registry_count_impact_review.json",
+      "sha256": "b3366eed302ef49bacc95863003ddfe0884ded85c039a006cfd4cf7565a9319e"
+    }
+  }
+}

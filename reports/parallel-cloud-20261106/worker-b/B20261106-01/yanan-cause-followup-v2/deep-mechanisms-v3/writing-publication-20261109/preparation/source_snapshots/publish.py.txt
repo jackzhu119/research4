@@ -1,0 +1,210 @@
+"""Publish the exact writing package; append every Git/parent cost to its ledger."""
+from __future__ import annotations
+import argparse
+import ctypes
+from datetime import datetime
+import hashlib
+import importlib.util
+import json
+import os
+from pathlib import Path
+import resource
+import signal
+import subprocess
+import sys
+import time
+from urllib.parse import urlsplit
+
+SELF = Path(__file__).resolve()
+ROOT = next(p for p in SELF.parents if (p / '.git').exists())
+BASE = ROOT / 'reports/parallel-cloud-20261106/worker-b/B20261106-01'
+OLD = BASE / 'yanan-cause-followup-v2'
+V3 = OLD / 'deep-mechanisms-v3'
+WORK = V3 / 'writing-publication-20261109'
+DOCS = ROOT / 'docs/writing-20261109'
+KEY = 'writing_publication_20261109'
+CLAIM = ROOT / '.runtime/worker-b-writing-publication-20261109-allocation.json'
+FROZEN = V3 / 'publication-recovery-v1/bin/driver.py'
+FROZEN_SHA = '8a49679d75d6cd86206ca560cb957d096923750822468c3f46b27ff7c69fe04e'
+
+def require(value, message):
+    if not value: raise ValueError(message)
+
+def sha(file): return hashlib.sha256(Path(file).read_bytes()).hexdigest()
+require(sha(FROZEN) == FROZEN_SHA, 'Frozen publication accounting bridge changed')
+spec = importlib.util.spec_from_file_location('_frozen_publication_budget_bridge', FROZEN)
+D = importlib.util.module_from_spec(spec); spec.loader.exec_module(D)
+S, ref, read, checked, save = D.S, D.ref, D.read, D.checked, D.save
+
+def payload(plan, planfile, plan_sha):
+    values = list(plan['payload_refs'])
+    if plan.get('include_bound_plan'):
+        require(sha(planfile) == plan_sha, 'Externally bound plan changed'); values.append(ref(planfile))
+    require(0 < len(values) <= 64 and len({x['path'] for x in values}) == len(values)
+            and sum(x['bytes'] for x in values) <= 20 * 1024 ** 2, 'Finite exact writing payload required')
+    for value in values:
+        p = checked(value)
+        require(p.stat().st_size <= 5 * 1024 ** 2 and p.suffix in ('.json', '.md', '.csv', '.txt'), 'Small text writing artifacts only')
+        require(p.is_relative_to(DOCS) or p.is_relative_to(BASE), 'Only writing docs or B report artifacts may be published')
+        if p.is_relative_to(BASE):
+            D.H.validate_file(ROOT, BASE, p)
+            require(p.suffix == '.json' or (p.suffix == '.txt' and ('source_snapshots' in p.parts or p.name.endswith('.py.txt'))),
+                    'B report payload is limited to JSON and exact source text')
+    return values
+
+def validate(planfile, plan_sha):
+    plan = read(planfile, plan_sha)
+    require(plan['schema'] == 'research4-b-writing-publication-plan-20261109' and plan['approved'] is True
+            and plan['boot_id'] == D.boot() and plan['deadline_utc'] == S.DEADLINE and plan['branch'] == S.BRANCH
+            and plan['origin'] == D.H.EXPECTED_ORIGIN and plan['new_CPU_authorization_seconds'] == 0
+            and plan['new_nonmeasured_tail_hold_seconds'] == 1 and checked(plan['source_ref']) == SELF, 'Exact no-new-grant ROOT writing release required')
+    auth = read(checked(plan['authorization_ref']))
+    require(auth['approved'] is True and auth['new_CPU_authorization_seconds'] == 0, 'Explicit authorized writing publication required')
+    old = read(checked(plan['predecessor_ledger_ref']))
+    require(KEY not in old and old['cpu_cap_seconds'] == S.CAP and old['round_cpu_cap_seconds'] == S.ROUND_CAP
+            and not old.get('blocked_unknown_cpu_or_process_tree') and old[D.KEY]['status'] == 'FINALIZED'
+            and all(x['status'] in ('EXITED', 'FAILED_CLOSED') for x in old['phases'] + old['auxiliary_costs'])
+            and all(x.get('status') not in ('RUNNING', 'BLOCKED_PRESERVED') for x in old['parents']), 'Prior calculations and publication must be closed')
+    protected = {checked(x) for x in plan['protected_refs']}
+    require({S.state_path(), V3 / 'state.json', D.WORK / 'state.json', S.CLAIM, D.CLAIM} <= protected, 'Old states and allocations must remain byte-identical')
+    require(plan['receipt_path'] == str((DOCS / 'writing_package_return_receipt.json').relative_to(ROOT)), 'Fixed closing receipt only')
+    files = payload(plan, planfile, plan_sha)
+    require(plan['receipt_path'] not in {x['path'] for x in files}, 'Closing receipt must not reference itself')
+    return plan, old, files
+
+def checkpoint(ledger, local, old, plan, status):
+    ledger['parents'][-1]['self_cpu_seconds'] = S.self_cpu(); ledger.update(S.budget_totals(ledger)); ledger['updated_at_utc'] = D.utc()
+    ledger.update(aggregate_observed_actual_cpu_seconds=ledger['carry']['actual_closed_cpu_seconds'] + ledger['round_actual_cpu_seconds'],
+        aggregate_budget_charged_cpu_seconds=ledger['carry']['budget_charged_cpu_seconds'] + ledger['round_budget_charged_cpu_seconds'],
+        aggregate_remaining_cpu_seconds=S.remaining_cpu(ledger))
+    for key, value in old.items():
+        if key in ('parents', 'auxiliary_costs'): require(ledger[key][:len(value)] == value, 'Old cost prefix changed')
+        elif key not in D.MUTABLE_TOTALS: require(ledger[key] == value, 'Old provenance/accounting field changed')
+    require(ledger['finalization_hold_seconds'] == old['finalization_hold_seconds'] + 1 and S.remaining_cpu(ledger) >= 0, 'Same grant and nonrefundable hold required')
+    for value in plan['protected_refs']: checked(value)
+    local.update(status=status, updated_at_utc=D.utc()); save(S.ledger_path(), ledger); save(WORK / 'state.json', local)
+
+def git(argv, ledger, local, old, plan):
+    require(S.remaining_cpu(ledger) > 100 and time.time() + 10 < datetime.fromisoformat(S.DEADLINE).timestamp(), 'Original CPU/deadline cannot admit Git')
+    require(not any(x['status'] not in ('EXITED', 'FAILED_CLOSED') for x in ledger['phases'] + ledger['auxiliary_costs']), 'Unsettled prior child blocks publication')
+    n = len(local.setdefault('git_calls', [])) + 1; phase = 'writing-publication-%03d' % n
+    require(n <= 160 and not any(x['phase'] == phase for x in ledger['auxiliary_costs']), 'Unique finite Git invocation required')
+    out = WORK / 'execution' / (phase + '.stdout'); err = out.with_suffix('.stderr'); out.parent.mkdir(parents=True, exist_ok=True)
+    parent = S.identity(os.getpid()); row = {'phase': phase, 'kind': 'WRITING_PACKAGE_GIT', 'status': 'RUNNING', 'cpu_seconds': 30,
+        'actual_cpu_seconds': None, 'command': ['git', '-C', str(ROOT), *argv], 'actual_driver_source': plan['source_ref'], 'started_at_utc': D.utc()}
+    ledger['auxiliary_costs'].append(row); local['git_calls'].append({'phase': phase, 'argv': argv}); checkpoint(ledger, local, old, plan, 'GIT_DECLARED')
+    expected = None; seen = {}; stopped = None; stop = None; descendants = False; waited = None; libc = ctypes.CDLL(None, use_errno=True)
+    def limits():
+        require(libc.prctl(1, signal.SIGKILL, 0, 0, 0) == 0 and os.getppid() == parent['pid'], 'Git must remain bound to this parent')
+        resource.setrlimit(resource.RLIMIT_CPU, (27, 30)); resource.setrlimit(resource.RLIMIT_AS, (12 * 1024 ** 3,) * 2)
+        resource.setrlimit(resource.RLIMIT_CORE, (0, 0))
+    started = time.monotonic(); next_save = started + 10
+    try:
+        with out.open('xb') as stdout, err.open('xb') as stderr:
+            child = subprocess.Popen(row['command'], stdin=subprocess.DEVNULL, stdout=stdout, stderr=stderr, start_new_session=True, preexec_fn=limits)
+            expected = S.identity(child.pid); row.update(child_identity=expected, supervisor_identity=parent)
+            checkpoint(ledger, local, old, plan, 'GIT_RUNNING')
+            while True:
+                observation = os.wait4(child.pid, os.WNOHANG)
+                if observation[0]:
+                    waited = observation; child.returncode = os.waitstatus_to_exitcode(waited[1])
+                    receipt = {'schema': 'research4-yanan-followup-wait4-v2', 'phase': phase, 'child_identity': expected, 'supervisor_identity': parent,
+                        'raw_wait_status': waited[1], 'exit_code': child.returncode, 'ru_utime_seconds': waited[2].ru_utime,
+                        'ru_stime_seconds': waited[2].ru_stime, 'ru_maxrss_kib': waited[2].ru_maxrss, 'unsupported_tree_observed': bool(stop and descendants)}
+                    f = WORK / 'execution' / (phase + '.wait4.json'); save(f, receipt, exclusive=True)
+                    row.update(wait4_receipt=ref(f), observed_wait4_cpu_seconds=waited[2].ru_utime + waited[2].ru_stime)
+                    checkpoint(ledger, local, old, plan, 'RAW_WAIT4_PERSISTED'); break
+                members = S.session_members(expected)
+                for member in members:
+                    seen[(member['pid'], member['start_ticks'])] = member; descendants |= not S.same(member, expected)
+                    try: children = (Path('/proc') / str(member['pid']) / 'task' / str(member['pid']) / 'children').read_text().split()
+                    except (FileNotFoundError, ProcessLookupError): continue
+                    for pid in children:
+                        try: d = S.identity(int(pid))
+                        except (FileNotFoundError, ProcessLookupError): continue
+                        seen[(d['pid'], d['start_ticks'])] = d
+                        if d['state'] not in ('Z', 'X', 'x') and d['pgrp'] != expected['pgrp'] and d['session'] != expected['session']:
+                            descendants = True; stop = stop or 'ESCAPED_TREE'
+                if sum(x['CPU_seconds'] for x in members) >= 27: stop = stop or 'CPU_GUARD'
+                if sum(x['rss_bytes'] for x in members) >= 8 * 1024 ** 3: stop = stop or 'RSS_GUARD'
+                if time.monotonic() - started > 298 or time.time() + 2 >= datetime.fromisoformat(S.DEADLINE).timestamp(): stop = stop or 'WALL_OR_DEADLINE'
+                if stop and stopped is None:
+                    stopped = time.monotonic()
+                    if S.is_live(expected): os.killpg(expected['pgrp'], signal.SIGTERM)
+                if stopped is not None and time.monotonic() - stopped > 1 and S.is_live(expected): os.killpg(expected['pgrp'], signal.SIGKILL)
+                if time.monotonic() >= next_save: checkpoint(ledger, local, old, plan, 'GIT_RUNNING'); next_save += 10
+                time.sleep(.05)
+        require(waited is not None and not S.session_members(expected) and not any(S.is_live(x) for x in seen.values())
+                and not (stop and descendants), 'Unclosed Git subtree cannot be assigned helper-only cost')
+        row.update(status='EXITED' if child.returncode == 0 and stop is None else 'FAILED_CLOSED', exit_code=child.returncode,
+            stop_reason=stop, actual_cpu_seconds=row['observed_wait4_cpu_seconds'], ended_at_utc=D.utc())
+        checkpoint(ledger, local, old, plan, 'GIT_CLOSED')
+    except BaseException as error:
+        D.preserve_helper_exception(row, ledger, error=error)
+        try: checkpoint(ledger, local, old, plan, 'GIT_FAILED_PRESERVED')
+        finally: row['containment_errors'] = D.contain_matching_tree(expected, seen.values())
+        raise
+    require(row['status'] == 'EXITED', 'Git failed; preserve the exact index and stop for review')
+    require(out.stat().st_size <= 6 * 1024 ** 2, 'Bounded Git output exceeded')
+    return out.read_bytes()
+
+def execute(planfile, plan_sha):
+    plan, old, files = validate(planfile, plan_sha)
+    with S.parent_lock(), S.B.exclusive_lock():
+        require(time.time() + 10 < datetime.fromisoformat(S.DEADLINE).timestamp(), 'Original authorized deadline expired')
+        require(not CLAIM.exists() and not (WORK / 'state.json').exists() and not (ROOT / plan['receipt_path']).exists(), 'Preserve any previous publication attempt')
+        require(sha(S.ledger_path()) == plan['predecessor_ledger_ref']['sha256'] and S.remaining_cpu(old) > S.self_cpu() + 100, 'Exact closed predecessor and original budget required')
+        ledger = read(S.ledger_path()); binding = {'schema': plan['schema'] + '-allocation', 'plan': ref(planfile), 'driver': plan['source_ref'],
+            'authorization_ref': plan['authorization_ref'], 'boot_id': D.boot(), 'new_CPU_authorization_seconds': 0}
+        save(CLAIM, binding, exclusive=True); ledger[KEY] = {'status': 'RUNNING', 'binding': binding}; ledger['finalization_hold_seconds'] += 1
+        ledger['parents'].append({'id': KEY, 'status': 'RUNNING', 'identity': S.identity(os.getpid()), 'self_cpu_seconds': S.self_cpu(),
+            'actual_driver_source': plan['source_ref'], 'new_nonmeasured_tail_hold_seconds': 1, 'new_CPU_authorization_seconds': 0})
+        local = {'schema': plan['schema'] + '-state', 'binding': binding, 'git_calls': [], 'created_at_utc': D.utc()}
+        checkpoint(ledger, local, old, plan, 'RUNNING')
+        g = lambda *args: git(list(args), ledger, local, old, plan)
+        try:
+            require(g('branch', '--show-current').decode().strip() == S.BRANCH, 'Exact B result branch required')
+            origin = g('remote', 'get-url', 'origin').decode().strip(); parsed = urlsplit(origin)
+            canonical = 'https://github.com/' + origin.split(':', 1)[1] if origin.startswith('git@github.com:') else 'https://github.com/' + parsed.path.lstrip('/')
+            require((origin.startswith('git@github.com:') or (parsed.hostname == 'github.com' and parsed.scheme in ('https', 'ssh') and not parsed.password))
+                    and canonical.removesuffix('.git') == plan['origin'].removesuffix('.git'), 'Exact expected GitHub origin required')
+            require(not g('diff', '--cached', '--name-only').strip(), 'Preexisting staged work cannot be published')
+            head = g('rev-parse', 'HEAD').decode().strip(); remote = g('ls-remote', '--exit-code', 'origin', 'refs/heads/' + S.BRANCH).decode().split()
+            require(remote == [head, 'refs/heads/' + S.BRANCH], 'Actual remote must exactly equal local before publishing')
+            paths = [v['path'] for v in files]; g('add', '--sparse', '--', *paths)
+            staged = set(g('diff', '--cached', '--name-only').decode().splitlines()); require(staged <= set(paths), 'Only the frozen writing package may be staged')
+            for value in files: checked(value)
+            g('-c', 'core.whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol', 'diff', '--cached', '--check')
+            if staged: g('commit', '-m', 'Save B20261106-01 writing-ready experiments, results and conclusions')
+            docs_commit = g('rev-parse', 'HEAD').decode().strip()
+            for value in files: require(hashlib.sha256(g('cat-file', 'blob', docs_commit + ':' + value['path'])).hexdigest() == value['sha256'], 'Committed writing blob differs from frozen source')
+            g('push', 'origin', 'HEAD:refs/heads/' + S.BRANCH)
+            require(g('ls-remote', '--exit-code', 'origin', 'refs/heads/' + S.BRANCH).decode().split() == [docs_commit, 'refs/heads/' + S.BRANCH], 'Actual docs push did not verify')
+            receipt = {'schema': 'research4-b-writing-package-return-20261109', 'status': 'DOCS_PUSH_AND_BLOBS_REMOTE_VERIFIED', 'science_commit': docs_commit,
+                'branch': S.BRANCH, 'plan': ref(planfile), 'authorization_ref': plan['authorization_ref'], 'source_ref': plan['source_ref'],
+                'artifact_hashes': files, 'verified_at_utc': D.utc(), 'new_scientific_fits': 0, 'later_receipt_commit_and_final_tail_costs_remain_local': True}
+            f = ROOT / plan['receipt_path']; save(f, receipt, exclusive=True)
+            g('add', '--sparse', '--', plan['receipt_path']); require(set(g('diff', '--cached', '--name-only').decode().splitlines()) == {plan['receipt_path']}, 'Only the closing receipt may be committed')
+            g('commit', '-m', 'Record verified B writing package publication receipt'); final = g('rev-parse', 'HEAD').decode().strip()
+            require(hashlib.sha256(g('cat-file', 'blob', final + ':' + plan['receipt_path'])).hexdigest() == sha(f), 'Closing receipt blob differs')
+            g('push', 'origin', 'HEAD:refs/heads/' + S.BRANCH)
+            require(g('ls-remote', '--exit-code', 'origin', 'refs/heads/' + S.BRANCH).decode().split() == [final, 'refs/heads/' + S.BRANCH], 'Closing receipt remote ref did not verify')
+            local.update(science_commit=docs_commit, final_metadata_commit=final, receipt=ref(f), all_payload_blobs_verified=True)
+            ledger[KEY]['status'] = 'FINALIZED'; ledger['parents'][-1]['status'] = 'CLOSED'; checkpoint(ledger, local, old, plan, 'FINALIZED')
+        except BaseException as error:
+            ledger[KEY].update(status='BLOCKED_PRESERVED', error_type=type(error).__name__, reason=str(error))
+            ledger['parents'][-1]['status'] = 'BLOCKED_PRESERVED' if ledger.get('blocked_unknown_cpu_or_process_tree') else 'CLOSED'
+            checkpoint(ledger, local, old, plan, 'BLOCKED_PRESERVED'); raise
+        return {'status': 'FINALIZED', 'science_commit': docs_commit, 'final_metadata_commit': final, 'remaining_CPU_seconds': S.remaining_cpu(ledger), 'sidecar': ref(WORK / 'state.json')}
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__); parser.add_argument('--plan', required=True); parser.add_argument('--plan-sha256', required=True); parser.add_argument('--execute', action='store_true')
+    args = parser.parse_args(); planfile = D.path(args.plan)
+    if args.execute: result = execute(planfile, args.plan_sha256)
+    else:
+        plan, old, files = validate(planfile, args.plan_sha256)
+        require(not CLAIM.exists() and sha(S.ledger_path()) == plan['predecessor_ledger_ref']['sha256'], 'Unclaimed exact predecessor required')
+        result = {'status': 'CHECKED_NO_GIT_NO_CLAIM_NO_WRITES', 'files': len(files), 'bytes': sum(x['bytes'] for x in files), 'new_CPU_authorization_seconds': 0}
+    print(json.dumps(result, ensure_ascii=False))
+
+if __name__ == '__main__': main()

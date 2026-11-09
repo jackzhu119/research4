@@ -1,0 +1,164 @@
+{
+  "schema": "research4-b-yanan-upload-registry-count-impact-review-v1",
+  "created_utc": "2026-11-08T08:41:44.190736+00:00",
+  "reviewer": "/root/recovery_science_audit",
+  "independent_registry_reviewer": "/root/recovery_science_audit/species_roles",
+  "status": "VERIFIED_DUPLICATE_ORIGINAL_WORKBOOK_NO_NEW_RECORDS",
+  "scope": {
+    "input_files": "Only the two ROOT-authorized extracted workbooks from the four newly supplied RAR volumes, their extraction record and already pinned registry/metadata/split/history evidence.",
+    "new_model_fits": 0,
+    "quantum_calculations": 0,
+    "git_operations": 0,
+    "original_or_registry_or_split_files_modified": false,
+    "raw_RAR_binary_equivalence_examined": false,
+    "note": "RAR containers/names can differ even when the extracted XLSX bytes are identical. ROOT performed multi-volume extraction; this review independently checked extracted XLSX hashes and all bytes."
+  },
+  "new_extracted_workbooks": [
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/yanan-upload-duplicate-audit-20261108/extracted/set_a_yanan/陕西延安枣仁202605210834.xlsx",
+      "sha256": "5c569b7c6be91157ca2a0f738ac7a10d2fdd7b5644b7abbffd6ecdb74354ce90",
+      "bytes": 54540804
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/yanan-upload-duplicate-audit-20261108/extracted/set_b_shaanxi/陕西枣仁202605210834.xlsx",
+      "sha256": "5c569b7c6be91157ca2a0f738ac7a10d2fdd7b5644b7abbffd6ecdb74354ce90",
+      "bytes": 54540804
+    }
+  ],
+  "independent_binary_comparison": {
+    "same_byte_count": 54540804,
+    "bytewise_equal": true,
+    "method": "Read both files in1MiB chunks to simultaneous EOF and compare each chunk. SHA256 additionally checked independently for both.",
+    "shared_sha256": "5c569b7c6be91157ca2a0f738ac7a10d2fdd7b5644b7abbffd6ecdb74354ce90",
+    "matches_pinned_ZY01_source_sha256": true
+  },
+  "archive_extraction_source": {
+    "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/yanan-upload-duplicate-audit-20261108/archive_extraction.json",
+    "sha256": "142ec6c39d4fa16d705234f069e76ee3f2d0635f4ee82f26fe4312249ccb4f0b",
+    "bytes": 2012
+  },
+  "active_registry_count": {
+    "workbooks": 18,
+    "total_records": 1672,
+    "ZY_original_seven_group_records": 855,
+    "ZY01_active_entry_count": 1,
+    "ZY01_records": 350,
+    "ZY01_unique_record_ids": 350,
+    "ZY01_unique_physical_sample_ids": 350,
+    "ZY01_roles": {
+      "train": 210,
+      "calibration": 70,
+      "prediction": 70
+    },
+    "ZY01_species": "枣仁",
+    "ZY01_origin": "陕西延安",
+    "ZY01_current_path": "data/processed/zaoren_20261031/陕西延安枣仁.xlsx",
+    "ZY01_previous_path": "data/processed/zaoren_20261031/样本1_编号版.xlsx",
+    "ZY01_source_sha256": "5c569b7c6be91157ca2a0f738ac7a10d2fdd7b5644b7abbffd6ecdb74354ce90",
+    "ZY01_active_numbered_sha256": "e9dd6398868979036ec98e7c722b17afa9319ac0289280233452f604407fe292",
+    "all18_paths_hashes_source_hashes_group_ids_unique": true,
+    "ZY01_metadata_split_record_ID_sets_equal": true,
+    "record_count_unit": "One paired spectrum record per numbered sample; four sheets do not constitute four independent observations."
+  },
+  "original_vs_numbered_distinction": {
+    "original_workbook_sha256": "5c569b7c6be91157ca2a0f738ac7a10d2fdd7b5644b7abbffd6ecdb74354ce90",
+    "numbered_and_current_renamed_workbook_sha256": "e9dd6398868979036ec98e7c722b17afa9319ac0289280233452f604407fe292",
+    "whole_file_hashes_differ": true,
+    "historical_numbering_evidence": {
+      "url": "https://raw.githubusercontent.com/jackzhu119/research4/21d6edab24d198dc60b1ad4ef50e83602c9ecfa7/data/processed/zaoren_20261031/%E7%BC%96%E5%8F%B7%E6%A0%B8%E9%AA%8C.json",
+      "sha256": "0a7fef9bef8e96c345984e44b73277d66bf2395d68bc7f9c50204503b10889c3",
+      "read_only_in_memory": true,
+      "source_file": "样本1.xlsx",
+      "numbered_file": "样本1_编号版.xlsx",
+      "group": "ZY01",
+      "records": 350,
+      "sheet_sample_counts": {
+        "时域": 350,
+        "频域": 350,
+        "折射率": 350,
+        "吸收系数": 350
+      },
+      "header_cells_changed": 1400,
+      "verification_reported": {
+        "all_non_header_xml_bytes_unchanged": true,
+        "all_unrelated_package_members_unchanged": true,
+        "coordinate_and_reference_headers_unchanged": true,
+        "sample_id_sets_match_across_sheets": true,
+        "original_suffixes_preserved": true
+      }
+    },
+    "interpretation": "Original→numbered workbooks differ because sample header cells were assigned ZY01 IDs. Later Chinese filesystem renaming of the numbered workbook preserves its e9dd... bytes. The 5c56... and e9dd... hashes therefore name original and numbered representations of the same350-record source, not two additional cohorts. Historical verification is cited here; ROOT is separately comparing current original/numbered XML to reproduce it."
+  },
+  "prior_complete_split_archive_recovery": {
+    "url": "https://raw.githubusercontent.com/jackzhu119/research4/806584a5571c6a90ef37c6bfa915671b680ba48b/data/validation/confirmed_names_20261108/yanan_recovery.json",
+    "sha256": "604178683f9856807977894e976abe9222935e99db90dc40481d1ad0bf3d9630",
+    "read_only_in_memory": true,
+    "historically_recovered_filename": "陕西延安枣仁.xlsx",
+    "recovered_bytes": 54540804,
+    "recovered_sha256": "5c569b7c6be91157ca2a0f738ac7a10d2fdd7b5644b7abbffd6ecdb74354ce90",
+    "historical_repository_original": "data/archive/zaoren_superseded_20261031/样本1.xlsx",
+    "historical_exact_original_hash_match": true,
+    "two_volumes_used": true,
+    "CRC_verified_in_historical_record": true
+  },
+  "count_and_result_impact": {
+    "new_independent_records_added_by_these_uploads": 0,
+    "unique_ZY01_record_count_after_recognizing_duplicate": 350,
+    "active_workbook_count_remains": 18,
+    "current_dataset_record_count_remains": 1672,
+    "historical_ZY_record_count_remains": 855,
+    "ZY01_master_roles_remain": {
+      "train": 210,
+      "calibration": 70,
+      "prediction": 70
+    },
+    "treat_as_workbook19": false,
+    "add350_or700_records": false,
+    "existing_model_results_require_retraining_because_of_duplicate_upload": false,
+    "reason": "Both newly recovered XLSX files exactly match the already registered ZY01 original source. No new independent sample or new source batch is supplied by copying/repacking/renaming identical data. Current registry/splits have not included those copies as extra rows, so no duplicate-count correction is needed in prior results.",
+    "required_handling": "Retain original attachments and both extraction copies with provenance; mark as duplicate presentations of ZY01. Do not remove/overwrite originals, alter frozen IDs/roles, inflate specimen/batch counts, or rerun completed models merely for this duplicate upload."
+  },
+  "scientific_limits": [
+    "File-level identity establishes identical workbook bytes, not botanical authentication, geographic provenance or independently measured physical-sample identity. Those retain their existing user-declared basis.",
+    "The fact that all four sheets contain350 sample columns means paired modalities of the same350 numbered records, not1400 independent samples.",
+    "No biological replicate, new acquisition batch or external validation cohort can be inferred from repeated uploads or different outer filenames."
+  ],
+  "evidence_refs": [
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/species-misuse-audit-v1/remote_snapshot/21d6edab24d198dc60b1ad4ef50e83602c9ecfa7/data/active_workbooks.json",
+      "sha256": "dd9ec7728590dde2574f64b9664148465c85d7b618311494c613c32b4d879f95",
+      "bytes": 22381
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/species-misuse-audit-v1/remote_snapshot/21d6edab24d198dc60b1ad4ef50e83602c9ecfa7/data/metadata_template.csv",
+      "sha256": "fee5e3053c7958da8f0ddadd01de9994efe9669c671e3c1aed72a6cd01639ff1",
+      "bytes": 926375
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/species-misuse-audit-v1/remote_snapshot/21d6edab24d198dc60b1ad4ef50e83602c9ecfa7/data/research/species_revision_20261108/split_manifest.csv",
+      "sha256": "0767e3165984a4e0e4ae782d69fdea6f410bfe36bce05ec72f8eadca982317d4",
+      "bytes": 341230
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/species-misuse-audit-v1/remote_snapshot/21d6edab24d198dc60b1ad4ef50e83602c9ecfa7/data/CURRENT_DATASET.md",
+      "sha256": "a147144953566beed3fdbc2b58451102ec64902e1f5f18ddeb2618af6df2b4e7",
+      "bytes": 7155
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/species-misuse-audit-v1/remote_snapshot/806584a5571c6a90ef37c6bfa915671b680ba48b/data/confirmed_names_20261108.csv",
+      "sha256": "afb4991937c512587b093b7d3365d9d4bceadd5533886ccfb075581bdb901068",
+      "bytes": 7914
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/species-misuse-audit-v1/remote_snapshot/806584a5571c6a90ef37c6bfa915671b680ba48b/data/annotations/origin_kind_confirmation_20261108.json",
+      "sha256": "68fc2dfbbf0d30cb97835655b74791c42fa37ff184eace2c8c16f10b042ba682",
+      "bytes": 15487
+    },
+    {
+      "path": "reports/parallel-cloud-20261106/worker-b/B20261106-01/species-misuse-audit-v1/remote_snapshot/21d6edab24d198dc60b1ad4ef50e83602c9ecfa7/data/processed/zaoren_20261031/陕西延安枣仁.xlsx",
+      "sha256": "e9dd6398868979036ec98e7c722b17afa9319ac0289280233452f604407fe292",
+      "bytes": 55059547
+    }
+  ],
+  "conclusion_zh": "两套新分卷包解出的工作簿逐字节完全相同，均等于已登记ZY01的原始样本1来源。现行编号版只在表头编号上与原件不同，ZY01一直只计350份（训练210/校准70/预测70）。本次上传新增独立样本0；当前18本1672份及历史855份总数均不变，无须因重复上传重训或删除原件。"
+}
