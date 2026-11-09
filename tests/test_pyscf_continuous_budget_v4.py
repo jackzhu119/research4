@@ -1,5 +1,6 @@
 """Real-process tests for quality-independent continuation and one CPU grant."""
 import importlib.util
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -108,5 +109,79 @@ class ContinuousBudgetV4Tests(unittest.TestCase):
         raw=subprocess.check_output(['git','-C',str(repo),'ls-files','-z'])
         self.assertEqual(set(raw.decode().split('\0')[:-1]),set(paths))
         self.assertFalse(list((repo/'reports/run/local-only/git-upload-control').glob('*.nul')))
+
+    def prospective_authorization(self):
+        p=self.directory/'continuation.json'
+        instruction='把上面没跑完的现在赶紧继续跑'
+        value={'user_instruction_verbatim':instruction,'user_instruction_sha256':hashlib.sha256(instruction.encode()).hexdigest(),
+               'prospective_maximum_cpu_seconds':28000,'prior_unclosed_costs_preserved':True,
+               'prior_last_recorded_charge_including_reservations':61670.464636,'prior_final_cost_exact':None}
+        p.write_text(json.dumps(value));return {'path':str(p),'sha256':budget.sha(p)}
+    def test_explicit_prospective_authorization_preserves_unknown_old_costs(self):
+        okay="import os,json;json.dump({'status':'PASSED'},open(os.environ['R4_JOB_OUTPUT']+'/result.json','w'))"
+        p=self.config([self.job('new',okay)],cap=28000,budget_model='prospective_new_authorization',authorization_ref=self.prospective_authorization())
+        ledger=self.invoke(p)
+        self.assertEqual(ledger['budget_model'],'prospective_new_authorization')
+        self.assertIsNone(ledger['combined_original_grant_charged_cpu_seconds'])
+        self.assertIsNone(ledger['prior_final_cost_exact']);self.assertTrue(ledger['prior_unclosed_costs_preserved'])
+        self.assertAlmostEqual(ledger['combined_recorded_charge_excluding_unknown_tail'],61670.464636+ledger['consumed_cpu_seconds'])
+    def test_new_mode_requires_exact_user_text_reference_and_bounded_batch(self):
+        reference=self.prospective_authorization()
+        with self.assertRaisesRegex(ValueError,'at most 28000'):
+            budget.config_load(self.config([self.job('new','pass')],cap=28001,budget_model='prospective_new_authorization',authorization_ref=reference))
+        with self.assertRaisesRegex(ValueError,'reference/hash'):
+            budget.config_load(self.config([self.job('new','pass')],cap=28000,budget_model='prospective_new_authorization',authorization_ref={'path':reference['path'],'sha256':'0'*64}))
+        auth=json.loads(Path(reference['path']).read_text());auth['user_instruction_verbatim']='changed';Path(reference['path']).write_text(json.dumps(auth))
+        reference['sha256']=budget.sha(reference['path'])
+        with self.assertRaisesRegex(ValueError,'exact text hash'):
+            budget.config_load(self.config([self.job('new','pass')],cap=28000,budget_model='prospective_new_authorization',authorization_ref=reference))
+    def test_legacy_output_reuses_cached_data_without_overwriting_old_attempt(self):
+        legacy=self.directory/'legacy/jobs/resume';(legacy/'attempts').mkdir(parents=True)
+        (legacy/'attempts/attempt-001.log').write_text('ORIGINAL INTERRUPTED LOG')
+        (legacy/'cached-gradient.json').write_text('{"old_success":true}')
+        code="import os,json;from pathlib import Path;p=Path(os.environ['R4_JOB_OUTPUT']);assert json.loads((p/'cached-gradient.json').read_text())['old_success'];json.dump({'status':'PASSED','new_attempt':os.environ['R4_ATTEMPT']},open(p/'result.json','w'))"
+        ledger=self.invoke(self.config([self.job('resume',code,legacy_output_dir=str(legacy))]))
+        row=ledger['jobs']['resume'];self.assertEqual(row['first_new_attempt_index'],2)
+        self.assertEqual((legacy/'attempts/attempt-001.log').read_text(),'ORIGINAL INTERRUPTED LOG')
+        self.assertTrue((legacy/'attempts/attempt-002.log').exists())
+        self.assertEqual(json.loads((legacy/'result.json').read_text())['new_attempt'],'2')
+        self.assertGreater(row['actual_cpu_seconds'],0)
+    def test_legacy_output_must_stay_inside_reports(self):
+        with self.assertRaisesRegex(ValueError,'inside repository reports'):
+            budget.config_load(self.config([self.job('escape','pass',output_dir='/tmp/unrelated')]))
+
+    def test_parallel_allocations_are_bounded_and_claims_cannot_reset(self):
+        reference=self.prospective_authorization();authorization=Path(reference['path'])
+        auth=json.loads(authorization.read_text());auth['allocations']=[{'run_id':'acid-minimum','cap':18000},{'run_id':'caly-resume','cap':10000}]
+        authorization.write_text(json.dumps(auth));reference['sha256']=budget.sha(authorization)
+        path=self.config([self.job('new','pass')],cap=18000,budget_model='prospective_new_authorization',authorization_ref=reference,allocation_id='acid-minimum')
+        config,directory,digest,_=budget.config_load(path);queue=budget.Queue(config,directory,digest,path)
+        other=dict(config,run_dir=str(self.directory/'another-ledger'));other_queue=budget.Queue(other,self.directory/'another-ledger','different-digest',path)
+        with queue.allocation_claim():
+            with self.assertRaisesRegex(ValueError,'active driver'):
+                with other_queue.allocation_claim():pass
+            sibling=dict(config,allocation_id='caly-resume',total_cpu_seconds=10000)
+            with budget.Queue(sibling,self.directory/'caly-ledger','sibling-digest',path).allocation_claim():pass
+        with self.assertRaisesRegex(ValueError,'another configuration or ledger'):
+            with other_queue.allocation_claim():pass
+        with queue.allocation_claim():pass  # The same configuration/ledger can be audited/resumed.
+    def test_parallel_allocations_cannot_oversubscribe_new_window(self):
+        reference=self.prospective_authorization();p=Path(reference['path']);auth=json.loads(p.read_text())
+        auth['allocations']=[{'run_id':'a','cap':18000},{'run_id':'b','cap':10001}];p.write_text(json.dumps(auth));reference['sha256']=budget.sha(p)
+        with self.assertRaisesRegex(ValueError,'exceed the one prospective batch'):
+            budget.config_load(self.config([self.job('new','pass')],cap=18000,budget_model='prospective_new_authorization',authorization_ref=reference,allocation_id='a'))
+    def test_upload_git_lock_serializes_independent_processes(self):
+        repo=self.directory/'parallel-repo';(repo/'.git').mkdir(parents=True);trace=repo/'trace'
+        code=("import importlib.util,sys,time,json;from pathlib import Path;"
+              "s=importlib.util.spec_from_file_location('q',sys.argv[1]);m=importlib.util.module_from_spec(s);s.loader.exec_module(m);"
+              "m.ROOT=Path(sys.argv[2]);q=m.Queue({'git_return':{'enabled':True}},m.ROOT/'reports'/sys.argv[3],'d',m.ROOT/'c');"
+              "q.directory.mkdir(parents=True);"
+              "exec(\"def locked():\\n with open(m.ROOT/'trace','a') as f:f.write('enter '+sys.argv[3]+'\\\\n');f.flush()\\n time.sleep(.3)\\n with open(m.ROOT/'trace','a') as f:f.write('exit '+sys.argv[3]+'\\\\n');f.flush()\\n q.upload_receipt={'status':'DONE'}\");"
+              "q.upload_locked=locked;q.upload();assert q.upload_receipt['status']=='DONE',q.upload_receipt")
+        children=[subprocess.Popen([sys.executable,'-c',code,str(SCRIPT),str(repo),name],stdout=subprocess.PIPE,stderr=subprocess.PIPE) for name in ['one','two']]
+        for child in children:
+            _,err=child.communicate(timeout=10);self.assertEqual(child.returncode,0,err.decode())
+        rows=trace.read_text().splitlines();self.assertEqual(len(rows),4)
+        self.assertEqual(rows[0].replace('enter ','exit '),rows[1]);self.assertEqual(rows[2].replace('enter ','exit '),rows[3])
 
 if __name__=='__main__':unittest.main()

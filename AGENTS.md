@@ -89,3 +89,25 @@ source/input integrity, process cleanup and explicit STOP; never reset costs or
 launch a duplicate live queue. The current driver and ledger are under
 `reports/pyscf-continuous-20261108-v3/`; use its status instead of historical
 v1/v2 ledgers. Do not edit frozen v3 producers while the queue is running.
+
+## Explicit continuation and minimum repair (2026-11-09)
+
+After being informed that the host restarted and the old final CPU tail cannot
+be reconciled exactly, the user explicitly requested immediate continuation and
+then requested repairing minimum certification alongside Calycosin. This is a
+new prospective continuation instruction; do not reset or pretend to close the
+old ledger. Read the authorization and allocation records under
+`reports/pyscf-resume-20261109-v4/`. The assistant selected a finite 28,000 CPU
+second execution window: 18,000 for acid minimum repair, 10,000 for Calycosin
+continuation. These are operational limits, not a claim that the user explicitly
+specified a new numeric CPU allowance or that the old 90,000-second grant was
+exactly reconciled. Retain all old costs and unknown-tail evidence.
+
+Reuse the 28 authenticated Calycosin displacement points and the unchanged v3
+scientific source; write new attempt logs and current-boot costs separately.
+Minimum repair must inspect actual force, electronic residual, derivative and
+eigenvalue evidence. Distinguish native solver acceptance from fresh-residual
+targets and stricter certification; never relabel old failed certificates or
+claim a changed geometry has an old geometry's Hessian. Scientific quality
+warnings remain nonblocking. Two allocations may run concurrently; never launch
+a duplicate allocation or exceed the recorded combined continuation window.

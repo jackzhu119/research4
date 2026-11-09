@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Continuous, detached PySCF work queue with quality warnings and one CPU grant.
+"""Continuous PySCF queue with explicit authorization and preserved historical costs.
 
 Example: python scripts/run_pyscf_continuous_20261109_v4.py --config CONFIG --detach
 Each argv is a list (never a shell command). {output} is the job directory and
@@ -25,6 +25,7 @@ import sys
 import threading
 import tempfile
 import stat
+from contextlib import contextmanager
 import time
 from datetime import datetime, timezone
 
@@ -173,6 +174,30 @@ def limited_argv(argv, cpu_soft, cpu_hard, address_space_bytes=None):
     return [sys.executable, str(SELF), "--exec-payload-file", filename]
 
 
+def report_directory(value):
+    path = Path(value)
+    path = (ROOT / path).resolve() if not path.is_absolute() else path.resolve()
+    require(path.is_relative_to(ROOT / "reports") and path != ROOT / "reports",
+            "Dedicated checkpoint output must remain inside repository reports")
+    require(not any(item.is_symlink() for item in [path, *path.parents]),
+            "Symlink checkpoint output rejected")
+    return path
+
+
+def job_output_directory(job, directory):
+    explicit = job.get("output_dir", job.get("legacy_output_dir"))
+    return report_directory(explicit) if explicit is not None else directory / "jobs" / job["id"]
+
+
+def next_attempt_index(output):
+    existing = []
+    for path in (Path(output) / "attempts").glob("attempt-*.log"):
+        match = re.fullmatch(r"attempt-([0-9]+)\.log", path.name)
+        if match:
+            existing.append(int(match.group(1)))
+    return max(existing, default=0) + 1
+
+
 def config_load(path, expected=None):
     path = Path(path).resolve()
     digest = sha(path)
@@ -187,14 +212,52 @@ def config_load(path, expected=None):
     require(not any(p.is_symlink() for p in [directory, *directory.parents]), "Symlink run path rejected")
     jobs = config.get("jobs")
     require(isinstance(jobs, list) and 1 <= len(jobs) <= 100, "Finite job list required")
-    prior = config.get("prior_charged_cpu_seconds", 0.0)
-    original = config.get("original_grant_cpu_seconds", 90000)
-    require(isinstance(prior, (float, int)) and math.isfinite(prior) and prior >= 0, "Prior costs cannot be refunded")
-    require(type(original) is int and 0 < original <= 90000 and prior + cap <= original,
-            "This queue plus preserved prior costs must fit the original CPU grant")
+    if config.get("budget_model") == "prospective_new_authorization":
+        # A new actual user directive can authorize future work while an old
+        # interrupted run's unobserved tail remains explicitly unsettled.
+        require(cap <= 28000, "Prospective continuation window is at most 28000 CPU seconds")
+        authorization_ref = config.get("authorization_ref", {})
+        authorization_path = (ROOT / authorization_ref.get("path", "")).resolve()
+        require(authorization_path.is_relative_to(ROOT) and authorization_path.is_file() and
+                sha(authorization_path) == authorization_ref.get("sha256"),
+                "Explicit prospective user authorization reference/hash required")
+        authorization = read(authorization_path)
+        instruction = authorization.get("user_instruction_verbatim", "")
+        require(isinstance(instruction, str) and bool(instruction.strip()) and
+                hashlib.sha256(instruction.encode("utf-8")).hexdigest() == authorization.get("user_instruction_sha256"),
+                "Actual continuation instruction and its exact text hash required")
+        allowance = authorization.get("prospective_maximum_cpu_seconds")
+        require(type(allowance) is int and cap <= allowance <= 28000 and
+                authorization.get("prior_unclosed_costs_preserved") is True,
+                "Prospective allowance cannot reset or certify old unclosed costs")
+        allocations = authorization.get("allocations")
+        if allocations is not None:
+            require(isinstance(allocations, list) and allocations, "Explicit nonempty allocation list required")
+            allocated = {}
+            for allocation in allocations:
+                name, maximum = allocation.get("run_id"), allocation.get("cap")
+                require(isinstance(name, str) and SAFE.fullmatch(name) and name not in allocated and
+                        type(maximum) is int and maximum > 0, "Unique finite prospective allocations required")
+                allocated[name] = maximum
+            require(sum(allocated.values()) <= allowance, "Parallel allocations exceed the one prospective batch")
+            require(config.get("allocation_id") in allocated and cap <= allocated[config["allocation_id"]],
+                    "Queue must fit its explicitly assigned allocation")
+        else:
+            require(config.get("allocation_id") in (None, "single"), "Undeclared prospective allocation")
+    else:
+        require(config.get("budget_model") in (None, "original_grant_carryforward"), "Unknown budget model")
+        prior = config.get("prior_charged_cpu_seconds", 0.0)
+        original = config.get("original_grant_cpu_seconds", 90000)
+        require(isinstance(prior, (float, int)) and math.isfinite(prior) and prior >= 0, "Prior costs cannot be refunded")
+        require(type(original) is int and 0 < original <= 90000 and prior + cap <= original,
+                "This queue plus preserved prior costs must fit the original CPU grant")
     seen = set()
     for job in jobs:
         name = job.get("id")
+        if "output_dir" in job and "legacy_output_dir" in job:
+            require(report_directory(job["output_dir"]) == report_directory(job["legacy_output_dir"]),
+                    "Conflicting explicit output directories")
+        job_output_directory(job, directory)
         require(isinstance(name, str) and SAFE.fullmatch(name) and name not in seen, "Unique safe job ID required")
         require(isinstance(job.get("argv"), list) and job["argv"] and
                 all(isinstance(x, str) and x and "\x00" not in x for x in job["argv"]), "Explicit argv list required")
@@ -256,6 +319,8 @@ def verify_ledger(ledger, digest):
 class Queue:
     def __init__(self, config, directory, digest, config_path):
         self.config, self.directory, self.digest, self.config_path = config, directory, digest, config_path
+        self.continuation_authorization = (read((ROOT / config["authorization_ref"]["path"]).resolve())
+                                           if config.get("budget_model") == "prospective_new_authorization" else None)
         self.ledger_path = directory / "ledger.json"
         self.stop = None
         self.reaped_science_cpu = 0.0
@@ -268,6 +333,35 @@ class Queue:
         self.last_upload = time.monotonic()
         self.upload_cancel = False
         self.process_lock = threading.RLock()
+
+    @contextmanager
+    def allocation_claim(self):
+        """Persist one authorization/allocation identity; never reset its budget by moving directories."""
+        if self.config.get("budget_model") != "prospective_new_authorization":
+            yield
+            return
+        reference = self.config["authorization_ref"]
+        authorization_path = (ROOT / reference["path"]).resolve()
+        allocation = self.config.get("allocation_id", "single")
+        directory = authorization_path.parent / ".allocation-claims" / reference["sha256"]
+        directory.mkdir(parents=True, exist_ok=True)
+        marker = directory / (allocation + ".json")
+        with (directory / (allocation + ".lock")).open("a") as lock:
+            try:
+                fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            except BlockingIOError as error:
+                raise ValueError("Prospective allocation already has an active driver") from error
+            identity = {"authorization_sha256": reference["sha256"], "allocation_id": allocation,
+                        "config_sha256": self.digest, "run_dir": str(self.directory),
+                        "total_cpu_seconds": self.config["total_cpu_seconds"]}
+            if marker.exists():
+                previous = read(marker)
+                require(all(previous.get(key) == value for key, value in identity.items()),
+                        "Prospective allocation already claimed by another configuration or ledger")
+            else:
+                save(marker, {**identity, "first_claimed_at_utc": now(),
+                              "first_driver_identity": proc(os.getpid()), "budget_reset_allowed": False})
+            yield
 
     def process_rows(self):
         with self.process_lock:
@@ -320,7 +414,18 @@ class Queue:
         self.ledger["consumed_cpu_seconds"] = self.used(self.active.get("sampled_cpu_seconds", 0) if self.active else 0)
         self.ledger["actual_observed_cpu_seconds_excluding_preparation_reservation"] = self.ledger["consumed_cpu_seconds"] - RESERVE
         self.ledger["remaining_cpu_seconds"] = max(0.0, self.config["total_cpu_seconds"] - self.ledger["consumed_cpu_seconds"])
-        self.ledger["combined_original_grant_charged_cpu_seconds"] = self.config.get("prior_charged_cpu_seconds", 0) + self.ledger["consumed_cpu_seconds"]
+        if self.config.get("budget_model") == "prospective_new_authorization":
+            self.ledger["combined_original_grant_charged_cpu_seconds"] = None
+            self.ledger["historical_cost_accounting_status"] = "PRESERVED_UNSETTLED_INTERRUPTED_TAIL"
+            self.ledger["prospective_current_run_charged_cpu_seconds"] = self.ledger["consumed_cpu_seconds"]
+            self.ledger["prior_final_cost_exact"] = None
+            self.ledger["prior_unclosed_costs_preserved"] = True
+            prior_recorded = self.continuation_authorization.get("prior_last_recorded_charge_including_reservations")
+            self.ledger["prior_last_recorded_charge_including_reservations"] = prior_recorded
+            self.ledger["combined_recorded_charge_excluding_unknown_tail"] = (prior_recorded + self.ledger["consumed_cpu_seconds"]
+                if isinstance(prior_recorded, (float, int)) and math.isfinite(prior_recorded) else None)
+        else:
+            self.ledger["combined_original_grant_charged_cpu_seconds"] = self.config.get("prior_charged_cpu_seconds", 0) + self.ledger["consumed_cpu_seconds"]
         save(self.ledger_path, self.ledger)
 
     def event(self, event, **details):
@@ -360,7 +465,12 @@ class Queue:
         aggregate = {"status": "RUNNING", "started_at_utc": now(), "actual_cpu_seconds": 0.0,
                      "attempts": [], "quality_does_not_block_downstream": True}
         self.ledger["jobs"][job["id"]] = aggregate
-        for index in range(1, job.get("max_attempts", 2) + 1):
+        output = job_output_directory(job, self.directory)
+        start_index = next_attempt_index(output)
+        aggregate["output_directory"] = str(output)
+        aggregate["first_new_attempt_index"] = start_index
+        for ordinal in range(1, job.get("max_attempts", 2) + 1):
+            index = start_index + ordinal - 1
             if self.stop or (self.directory / "STOP").exists():
                 aggregate["status"] = "STOPPED"
                 break
@@ -381,15 +491,15 @@ class Queue:
             if self.stop or (self.directory / "STOP").exists():
                 aggregate["status"] = "STOPPED"
                 break
-            aggregate["status"] = "RECOVERING" if index < job.get("max_attempts", 2) else "FAILED_CONTINUED"
+            aggregate["status"] = "RECOVERING" if ordinal < job.get("max_attempts", 2) else "FAILED_CONTINUED"
             self.event("JOB_ATTEMPT_FAILED_CONTINUING", job=job["id"], attempt=index,
-                       next_attempt=index < job.get("max_attempts", 2))
+                       next_attempt=ordinal < job.get("max_attempts", 2))
         aggregate["ended_at_utc"] = now()
         self.event("JOB_FINISHED_CONTINUING", job=job["id"], status=aggregate["status"])
 
     def run_attempt(self, job, aggregate, attempt_index):
         config_load(self.config_path, self.digest)
-        output = self.directory / "jobs" / job["id"]
+        output = job_output_directory(job, self.directory)
         output.mkdir(parents=True, exist_ok=True)
         attempt_directory = output / "attempts"
         attempt_directory.mkdir(exist_ok=True)
@@ -591,6 +701,30 @@ class Queue:
             Path(filename).unlink(missing_ok=True)
 
     def upload(self):
+        """Serialize index/commit/push across simultaneous scientific drivers."""
+        if not self.config.get("git_return", {}).get("enabled"):
+            return
+        lock_path = ROOT / ".git" / "pyscf-checkpoint-upload.lock"
+        try:
+            with lock_path.open("a") as lock:
+                deadline = time.monotonic() + 2.0
+                while True:
+                    if self.upload_cancel or self.stop or (self.directory / "STOP").exists():
+                        self.upload_receipt = {"status": "UPLOAD_CANCELLED_LOCAL_RESULTS_PRESERVED", "at_utc": now()}
+                        return
+                    try:
+                        fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                        break
+                    except BlockingIOError:
+                        if time.monotonic() >= deadline:
+                            self.upload_receipt = {"status": "UPLOAD_DEFERRED_OTHER_DRIVER_LOCAL_RESULTS_PRESERVED", "at_utc": now()}
+                            return
+                        time.sleep(POLL)
+                self.upload_locked()
+        except Exception as error:
+            self.upload_receipt = {"status": "UPLOAD_FAILED_LOCAL_RESULTS_PRESERVED", "error": str(error), "at_utc": now()}
+
+    def upload_locked(self):
         settings = self.config.get("git_return", {})
         if not settings.get("enabled"):
             return
@@ -600,23 +734,33 @@ class Queue:
             require(self.git(["branch", "--show-current"]) == branch, "Never push another branch or main")
             paths, total, omissions = [], 0, []
             excluded = {"local-only", "checkpoints", "checkpoint", "cache", "caches", ".runtime", "venv"}
-            for path in sorted(self.directory.rglob("*")):
-                relative = path.relative_to(self.directory)
-                if (not path.is_file() or path.is_symlink() or excluded.intersection(relative.parts)
-                        or path.suffix.lower() in (".chk", ".h5", ".hdf5", ".lock", ".tmp")
-                        or path.name == "STOP" or path.stat().st_size >= MAX_FILE):
-                    if path.is_file():
-                        omissions.append({"path": str(path.relative_to(ROOT)), "bytes": path.stat().st_size,
-                                          "reason": "LOCAL_CHECKPOINT_CONTROL_SYMLINK_OR_FILE_SIZE_LIMIT"})
-                    continue
-                total += path.stat().st_size
-                require(total <= MAX_UPLOAD, "Result return exceeds cumulative 500 MiB")
-                paths.append(str(path.relative_to(ROOT)))
+            roots = {self.directory}
+            roots.update(job_output_directory(job, self.directory) for job in self.config["jobs"]
+                         if "output_dir" in job or "legacy_output_dir" in job)
+            visited = set()
+            for checkpoint_root in sorted(roots):
+                for path in sorted(checkpoint_root.rglob("*")):
+                    if path in visited:
+                        continue
+                    visited.add(path)
+                    relative = path.relative_to(checkpoint_root)
+                    if (not path.is_file() or path.is_symlink() or excluded.intersection(relative.parts)
+                            or path.suffix.lower() in (".chk", ".h5", ".hdf5", ".lock", ".tmp")
+                            or path.name == "STOP" or path.stat().st_size >= MAX_FILE):
+                        if path.is_file():
+                            omissions.append({"path": str(path.relative_to(ROOT)), "bytes": path.stat().st_size,
+                                              "reason": "LOCAL_CHECKPOINT_CONTROL_SYMLINK_OR_FILE_SIZE_LIMIT"})
+                        continue
+                    total += path.stat().st_size
+                    require(total <= MAX_UPLOAD, "Result return exceeds cumulative 500 MiB")
+                    paths.append(str(path.relative_to(ROOT)))
             paths += settings.get("source_files", [])
             manifest = self.directory / "git_return_manifest.json"
             save(manifest, {"status": "PARTIAL_LIVE_CHECKPOINT" if self.active else "CLOSED_QUEUE_SNAPSHOT",
                             "at_utc": now(), "excluded_files_retained_locally": omissions,
-                            "included_paths": sorted(set(paths)), "maximum_file_bytes_exclusive": MAX_FILE,
+                            "included_paths": sorted(set(paths)),
+                            "explicit_checkpoint_roots": [str(path.relative_to(ROOT)) for path in sorted(roots)],
+                            "maximum_file_bytes_exclusive": MAX_FILE,
                             "maximum_snapshot_bytes": MAX_UPLOAD})
             paths.append(str(manifest.relative_to(ROOT)))
             paths = sorted(set(paths))
@@ -643,7 +787,7 @@ class Queue:
 
     def run(self, resume=False):
         self.directory.mkdir(parents=True, exist_ok=True)
-        with (self.directory / "driver.lock").open("a") as lock:
+        with self.allocation_claim(), (self.directory / "driver.lock").open("a") as lock:
             fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
             require(ctypes.CDLL(None, use_errno=True).prctl(36, 1, 0, 0, 0) == 0,
                     "Linux child-subreaper support required")
@@ -657,8 +801,13 @@ class Queue:
                                "preparation_cpu_seconds_reserved": RESERVE,
                                "preparation_reservation_is_conservative_not_measured_CPU": True,
                                "payload_cpu_seconds": 0.0, "supervisor_cpu_seconds": 0.0, "jobs": {},
-                               "prior_charged_cpu_seconds": self.config.get("prior_charged_cpu_seconds", 0),
+                               "prior_charged_cpu_seconds": (None if self.config.get("budget_model") == "prospective_new_authorization"
+                                                             else self.config.get("prior_charged_cpu_seconds", 0)),
                                "original_grant_cpu_seconds": self.config.get("original_grant_cpu_seconds", 90000),
+                               "budget_model": self.config.get("budget_model", "original_grant_carryforward"),
+                               "authorization_ref": self.config.get("authorization_ref"),
+                               "allocation_id": self.config.get("allocation_id"),
+                               "historical_accounting": self.config.get("historical_accounting"),
                                "scientific_quality_stops_queue": False}
                 save(self.directory / "config.frozen.json", self.config)
             self.previous_overhead = self.ledger["supervisor_cpu_seconds"]

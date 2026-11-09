@@ -1,0 +1,912 @@
+{
+  "schema": "research4-parallel-checkpoint-continuation-v4",
+  "run_dir": "/workspace/research4/reports/pyscf-resume-20261109-v4/caly-resume",
+  "budget_model": "prospective_new_authorization",
+  "authorization_ref": {
+    "path": "reports/pyscf-resume-20261109-v4/continuation_authorization.json",
+    "sha256": "0baa3f1e586838dd0f22ec67069e2803c666eb65424dcc8aca00023de89b17ff"
+  },
+  "allocation_id": "caly-resume",
+  "total_cpu_seconds": 10000,
+  "prior_charged_cpu_seconds": 61670.464636,
+  "original_grant_cpu_seconds": 90000,
+  "maximum_wall_seconds": 604800,
+  "checkpoint_interval_seconds": 900,
+  "jobs": [
+    {
+      "id": "caly-g3-h001",
+      "argv": [
+        "/workspace/research4/.venv-pyscf-90000/bin/python",
+        "-B",
+        "/workspace/research4/scripts/pyscf_continuous_science_20261108_v3.py",
+        "--stage",
+        "hessian",
+        "--output",
+        "{output}",
+        "--threads",
+        "1",
+        "--grid-level",
+        "3",
+        "--conv-tol",
+        "1e-10",
+        "--conv-grad",
+        "1e-7",
+        "--geometry",
+        "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/caly-g3-optimize/result.json",
+        "--step",
+        "0.001",
+        "--fallback-geometry",
+        "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/caly-g3-prepare/result.json"
+      ],
+      "max_attempts": 2,
+      "threads": 1,
+      "success_statuses": [
+        "HESSIAN_COMPUTED",
+        "HESSIAN_PARTIAL"
+      ],
+      "output_dir": "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/caly-g3-h001"
+    },
+    {
+      "id": "caly-g3-h0005",
+      "argv": [
+        "/workspace/research4/.venv-pyscf-90000/bin/python",
+        "-B",
+        "/workspace/research4/scripts/pyscf_continuous_science_20261108_v3.py",
+        "--stage",
+        "hessian",
+        "--output",
+        "{output}",
+        "--threads",
+        "1",
+        "--grid-level",
+        "3",
+        "--conv-tol",
+        "1e-10",
+        "--conv-grad",
+        "1e-7",
+        "--geometry",
+        "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/caly-g3-optimize/result.json",
+        "--step",
+        "0.0005",
+        "--fallback-geometry",
+        "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/caly-g3-prepare/result.json"
+      ],
+      "max_attempts": 2,
+      "threads": 1,
+      "success_statuses": [
+        "HESSIAN_COMPUTED",
+        "HESSIAN_PARTIAL"
+      ],
+      "output_dir": "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/caly-g3-h0005"
+    },
+    {
+      "id": "caly-g3-analysis",
+      "argv": [
+        "/workspace/research4/.venv-pyscf-90000/bin/python",
+        "-B",
+        "/workspace/research4/scripts/pyscf_continuous_science_20261108_v3.py",
+        "--stage",
+        "analyze",
+        "--output",
+        "{output}",
+        "--threads",
+        "1",
+        "--grid-level",
+        "3",
+        "--conv-tol",
+        "1e-10",
+        "--conv-grad",
+        "1e-7",
+        "--hessians",
+        "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/caly-g3-h001/result.json",
+        "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/caly-g3-h0005/result.json"
+      ],
+      "max_attempts": 2,
+      "threads": 1,
+      "success_statuses": [
+        "ANALYSIS_COMPUTED",
+        "ANALYSIS_PARTIAL"
+      ],
+      "output_dir": "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/caly-g3-analysis"
+    },
+    {
+      "id": "acid-g5-optimize",
+      "argv": [
+        "/workspace/research4/.venv-pyscf-90000/bin/python",
+        "-B",
+        "/workspace/research4/scripts/pyscf_continuous_science_20261108_v3.py",
+        "--stage",
+        "optimize",
+        "--output",
+        "{output}",
+        "--threads",
+        "1",
+        "--grid-level",
+        "5",
+        "--conv-tol",
+        "1e-10",
+        "--conv-grad",
+        "1e-7",
+        "--source-point",
+        "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/acid-g3-optimize/result.json"
+      ],
+      "max_attempts": 2,
+      "threads": 1,
+      "success_statuses": [
+        "GEOMETRY_AVAILABLE"
+      ],
+      "output_dir": "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/acid-g5-optimize"
+    },
+    {
+      "id": "acid-g5-h001",
+      "argv": [
+        "/workspace/research4/.venv-pyscf-90000/bin/python",
+        "-B",
+        "/workspace/research4/scripts/pyscf_continuous_science_20261108_v3.py",
+        "--stage",
+        "hessian",
+        "--output",
+        "{output}",
+        "--threads",
+        "1",
+        "--grid-level",
+        "5",
+        "--conv-tol",
+        "1e-10",
+        "--conv-grad",
+        "1e-7",
+        "--geometry",
+        "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/acid-g5-optimize/result.json",
+        "--step",
+        "0.001",
+        "--fallback-geometry",
+        "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/acid-g3-optimize/result.json",
+        "--fallback-geometry",
+        "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/acid-g3-prepare/result.json"
+      ],
+      "max_attempts": 2,
+      "threads": 1,
+      "success_statuses": [
+        "HESSIAN_COMPUTED",
+        "HESSIAN_PARTIAL"
+      ],
+      "output_dir": "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/acid-g5-h001"
+    },
+    {
+      "id": "acid-g5-h0005",
+      "argv": [
+        "/workspace/research4/.venv-pyscf-90000/bin/python",
+        "-B",
+        "/workspace/research4/scripts/pyscf_continuous_science_20261108_v3.py",
+        "--stage",
+        "hessian",
+        "--output",
+        "{output}",
+        "--threads",
+        "1",
+        "--grid-level",
+        "5",
+        "--conv-tol",
+        "1e-10",
+        "--conv-grad",
+        "1e-7",
+        "--geometry",
+        "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/acid-g5-optimize/result.json",
+        "--step",
+        "0.0005",
+        "--fallback-geometry",
+        "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/acid-g3-optimize/result.json",
+        "--fallback-geometry",
+        "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/acid-g3-prepare/result.json"
+      ],
+      "max_attempts": 2,
+      "threads": 1,
+      "success_statuses": [
+        "HESSIAN_COMPUTED",
+        "HESSIAN_PARTIAL"
+      ],
+      "output_dir": "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/acid-g5-h0005"
+    },
+    {
+      "id": "acid-g5-analysis",
+      "argv": [
+        "/workspace/research4/.venv-pyscf-90000/bin/python",
+        "-B",
+        "/workspace/research4/scripts/pyscf_continuous_science_20261108_v3.py",
+        "--stage",
+        "analyze",
+        "--output",
+        "{output}",
+        "--threads",
+        "1",
+        "--grid-level",
+        "5",
+        "--conv-tol",
+        "1e-10",
+        "--conv-grad",
+        "1e-7",
+        "--hessians",
+        "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/acid-g5-h001/result.json",
+        "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/acid-g5-h0005/result.json"
+      ],
+      "max_attempts": 2,
+      "threads": 1,
+      "success_statuses": [
+        "ANALYSIS_COMPUTED",
+        "ANALYSIS_PARTIAL"
+      ],
+      "output_dir": "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/acid-g5-analysis"
+    },
+    {
+      "id": "acid-g3-h00025",
+      "argv": [
+        "/workspace/research4/.venv-pyscf-90000/bin/python",
+        "-B",
+        "/workspace/research4/scripts/pyscf_continuous_science_20261108_v3.py",
+        "--stage",
+        "hessian",
+        "--output",
+        "{output}",
+        "--threads",
+        "1",
+        "--grid-level",
+        "3",
+        "--conv-tol",
+        "1e-10",
+        "--conv-grad",
+        "1e-7",
+        "--geometry",
+        "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/acid-g3-optimize/result.json",
+        "--step",
+        "0.00025",
+        "--fallback-geometry",
+        "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/acid-g3-prepare/result.json"
+      ],
+      "max_attempts": 2,
+      "threads": 1,
+      "success_statuses": [
+        "HESSIAN_COMPUTED",
+        "HESSIAN_PARTIAL"
+      ],
+      "output_dir": "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/acid-g3-h00025"
+    },
+    {
+      "id": "acid-g3-fine-analysis",
+      "argv": [
+        "/workspace/research4/.venv-pyscf-90000/bin/python",
+        "-B",
+        "/workspace/research4/scripts/pyscf_continuous_science_20261108_v3.py",
+        "--stage",
+        "analyze",
+        "--output",
+        "{output}",
+        "--threads",
+        "1",
+        "--grid-level",
+        "3",
+        "--conv-tol",
+        "1e-10",
+        "--conv-grad",
+        "1e-7",
+        "--hessians",
+        "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/acid-g3-h0005/result.json",
+        "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/acid-g3-h00025/result.json"
+      ],
+      "max_attempts": 2,
+      "threads": 1,
+      "success_statuses": [
+        "ANALYSIS_COMPUTED",
+        "ANALYSIS_PARTIAL"
+      ],
+      "output_dir": "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/acid-g3-fine-analysis"
+    },
+    {
+      "id": "caly-g3-h00025",
+      "argv": [
+        "/workspace/research4/.venv-pyscf-90000/bin/python",
+        "-B",
+        "/workspace/research4/scripts/pyscf_continuous_science_20261108_v3.py",
+        "--stage",
+        "hessian",
+        "--output",
+        "{output}",
+        "--threads",
+        "1",
+        "--grid-level",
+        "3",
+        "--conv-tol",
+        "1e-10",
+        "--conv-grad",
+        "1e-7",
+        "--geometry",
+        "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/caly-g3-optimize/result.json",
+        "--step",
+        "0.00025",
+        "--fallback-geometry",
+        "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/caly-g3-prepare/result.json"
+      ],
+      "max_attempts": 2,
+      "threads": 1,
+      "success_statuses": [
+        "HESSIAN_COMPUTED",
+        "HESSIAN_PARTIAL"
+      ],
+      "output_dir": "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/caly-g3-h00025"
+    },
+    {
+      "id": "caly-g3-fine-analysis",
+      "argv": [
+        "/workspace/research4/.venv-pyscf-90000/bin/python",
+        "-B",
+        "/workspace/research4/scripts/pyscf_continuous_science_20261108_v3.py",
+        "--stage",
+        "analyze",
+        "--output",
+        "{output}",
+        "--threads",
+        "1",
+        "--grid-level",
+        "3",
+        "--conv-tol",
+        "1e-10",
+        "--conv-grad",
+        "1e-7",
+        "--hessians",
+        "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/caly-g3-h0005/result.json",
+        "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/caly-g3-h00025/result.json"
+      ],
+      "max_attempts": 2,
+      "threads": 1,
+      "success_statuses": [
+        "ANALYSIS_COMPUTED",
+        "ANALYSIS_PARTIAL"
+      ],
+      "output_dir": "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/caly-g3-fine-analysis"
+    },
+    {
+      "id": "caly-g5-optimize",
+      "argv": [
+        "/workspace/research4/.venv-pyscf-90000/bin/python",
+        "-B",
+        "/workspace/research4/scripts/pyscf_continuous_science_20261108_v3.py",
+        "--stage",
+        "optimize",
+        "--output",
+        "{output}",
+        "--threads",
+        "1",
+        "--grid-level",
+        "5",
+        "--conv-tol",
+        "1e-10",
+        "--conv-grad",
+        "1e-7",
+        "--source-point",
+        "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/caly-g3-optimize/result.json"
+      ],
+      "max_attempts": 2,
+      "threads": 1,
+      "success_statuses": [
+        "GEOMETRY_AVAILABLE"
+      ],
+      "output_dir": "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/caly-g5-optimize"
+    },
+    {
+      "id": "caly-g5-h001",
+      "argv": [
+        "/workspace/research4/.venv-pyscf-90000/bin/python",
+        "-B",
+        "/workspace/research4/scripts/pyscf_continuous_science_20261108_v3.py",
+        "--stage",
+        "hessian",
+        "--output",
+        "{output}",
+        "--threads",
+        "1",
+        "--grid-level",
+        "5",
+        "--conv-tol",
+        "1e-10",
+        "--conv-grad",
+        "1e-7",
+        "--geometry",
+        "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/caly-g5-optimize/result.json",
+        "--step",
+        "0.001",
+        "--fallback-geometry",
+        "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/caly-g3-optimize/result.json",
+        "--fallback-geometry",
+        "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/caly-g3-prepare/result.json"
+      ],
+      "max_attempts": 2,
+      "threads": 1,
+      "success_statuses": [
+        "HESSIAN_COMPUTED",
+        "HESSIAN_PARTIAL"
+      ],
+      "output_dir": "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/caly-g5-h001"
+    },
+    {
+      "id": "caly-g5-h0005",
+      "argv": [
+        "/workspace/research4/.venv-pyscf-90000/bin/python",
+        "-B",
+        "/workspace/research4/scripts/pyscf_continuous_science_20261108_v3.py",
+        "--stage",
+        "hessian",
+        "--output",
+        "{output}",
+        "--threads",
+        "1",
+        "--grid-level",
+        "5",
+        "--conv-tol",
+        "1e-10",
+        "--conv-grad",
+        "1e-7",
+        "--geometry",
+        "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/caly-g5-optimize/result.json",
+        "--step",
+        "0.0005",
+        "--fallback-geometry",
+        "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/caly-g3-optimize/result.json",
+        "--fallback-geometry",
+        "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/caly-g3-prepare/result.json"
+      ],
+      "max_attempts": 2,
+      "threads": 1,
+      "success_statuses": [
+        "HESSIAN_COMPUTED",
+        "HESSIAN_PARTIAL"
+      ],
+      "output_dir": "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/caly-g5-h0005"
+    },
+    {
+      "id": "caly-g5-analysis",
+      "argv": [
+        "/workspace/research4/.venv-pyscf-90000/bin/python",
+        "-B",
+        "/workspace/research4/scripts/pyscf_continuous_science_20261108_v3.py",
+        "--stage",
+        "analyze",
+        "--output",
+        "{output}",
+        "--threads",
+        "1",
+        "--grid-level",
+        "5",
+        "--conv-tol",
+        "1e-10",
+        "--conv-grad",
+        "1e-7",
+        "--hessians",
+        "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/caly-g5-h001/result.json",
+        "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/caly-g5-h0005/result.json"
+      ],
+      "max_attempts": 2,
+      "threads": 1,
+      "success_statuses": [
+        "ANALYSIS_COMPUTED",
+        "ANALYSIS_PARTIAL"
+      ],
+      "output_dir": "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/caly-g5-analysis"
+    }
+  ],
+  "frozen_refs": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "2d27cbde2a1212035167201a1c74fa52357602bf3e72f7d3d5bf79fbb44505d2"
+    },
+    {
+      "path": "data/research/pyscf_continuous_20261108/inputs/calycosin.xyz",
+      "sha256": "f01b69779befef65ccc194422fc94dd2c5a1be7687270ba59c9d3422034f0b82"
+    },
+    {
+      "path": "reports/pyscf-continuous-20261108-v3/jobs/caly-g3-h001/points/c000-minus/attempt-001-1/coordinates_bohr.npy",
+      "sha256": "d5ef1f5a7dbe7cee46912df1842a787c656a8e7cd54e770edc68cbfba6f6bbe1"
+    },
+    {
+      "path": "reports/pyscf-continuous-20261108-v3/jobs/caly-g3-h001/points/c000-minus/attempt-001-1/gradient.npy",
+      "sha256": "0c726ac02efddbdb6c05b9638b2cbe4d01aaaea86efa00a0c983bc386ab2181f"
+    },
+    {
+      "path": "reports/pyscf-continuous-20261108-v3/jobs/caly-g3-h001/points/c000-minus/result.json",
+      "sha256": "85a7425172318df801f1ac4c8ed46ec41d26e17ac5ddd4367e82299eeda95ea3"
+    },
+    {
+      "path": "reports/pyscf-continuous-20261108-v3/jobs/caly-g3-h001/points/c000-plus/attempt-001-1/coordinates_bohr.npy",
+      "sha256": "bd09e4e2705855ec9f6db00f47a2f26a5491518c959a93271f7df50e3e50ad4f"
+    },
+    {
+      "path": "reports/pyscf-continuous-20261108-v3/jobs/caly-g3-h001/points/c000-plus/attempt-001-1/gradient.npy",
+      "sha256": "c90184a80566334ce69bc9292d3b041023e0c963568b84abf2d093ec5a663f33"
+    },
+    {
+      "path": "reports/pyscf-continuous-20261108-v3/jobs/caly-g3-h001/points/c000-plus/result.json",
+      "sha256": "f702ea2cea3de9f59beb369b26808a3aeab3c877a69907c0e353f702efc6cf9d"
+    },
+    {
+      "path": "reports/pyscf-continuous-20261108-v3/jobs/caly-g3-h001/points/c001-minus/attempt-001-1/coordinates_bohr.npy",
+      "sha256": "6ba338085ee91dbe39952c26d7a9daeb7098cc3a7aad735e47ce91549605f5ae"
+    },
+    {
+      "path": "reports/pyscf-continuous-20261108-v3/jobs/caly-g3-h001/points/c001-minus/attempt-001-1/gradient.npy",
+      "sha256": "a120e9ed3df4a522a57e45a04698b4e2db3e2c9a72742dde07223ffc14e38f58"
+    },
+    {
+      "path": "reports/pyscf-continuous-20261108-v3/jobs/caly-g3-h001/points/c001-minus/result.json",
+      "sha256": "5ba4c1c09685b37899b14cfe8877c6424d8ee7fa25c22d2ebcbada6f42c3656f"
+    },
+    {
+      "path": "reports/pyscf-continuous-20261108-v3/jobs/caly-g3-h001/points/c001-plus/attempt-001-1/coordinates_bohr.npy",
+      "sha256": "31995d6a1b439c5031228d396a87b195d4466436b88a38bc66a7b5ec58dcf7a7"
+    },
+    {
+      "path": "reports/pyscf-continuous-20261108-v3/jobs/caly-g3-h001/points/c001-plus/attempt-001-1/gradient.npy",
+      "sha256": "e14e2dce8fc18b65ac350e7f254c06f9c33c22aa9914f2a0889771b6e635d37c"
+    },
+    {
+      "path": "reports/pyscf-continuous-20261108-v3/jobs/caly-g3-h001/points/c001-plus/result.json",
+      "sha256": "b559ed84de9d2c0b46832392c52c26f720e5aaf96071360dcfdd68f66c19a7d5"
+    },
+    {
+      "path": "reports/pyscf-continuous-20261108-v3/jobs/caly-g3-h001/points/c002-minus/attempt-001-1/coordinates_bohr.npy",
+      "sha256": "d463f50166618593eae143675a5c20f23024babb999938f31a26c4b1855d8ddd"
+    },
+    {
+      "path": "reports/pyscf-continuous-20261108-v3/jobs/caly-g3-h001/points/c002-minus/attempt-001-1/gradient.npy",
+      "sha256": "3836c4111dd3b1ac6e2ceb3262d635cb21b9ccca11a209e1b7ab8c6a01b56e15"
+    },
+    {
+      "path": "reports/pyscf-continuous-20261108-v3/jobs/caly-g3-h001/points/c002-minus/result.json",
+      "sha256": "bc3919964073719e661e167e03fe3efee700cca1a1c2db8bd5d5a910d5c499ed"
+    },
+    {
+      "path": "reports/pyscf-continuous-20261108-v3/jobs/caly-g3-h001/points/c002-plus/attempt-001-1/coordinates_bohr.npy",
+      "sha256": "15fd5ed4198db177b15f2fb97f1c1b97e8f6192399bc7da22cf60a51f20dc2ae"
+    },
+    {
+      "path": "reports/pyscf-continuous-20261108-v3/jobs/caly-g3-h001/points/c002-plus/attempt-001-1/gradient.npy",
+      "sha256": "787eb74862f8b1b621894a2881608556a47bf86308b878f91f347d3d0bace88a"
+    },
+    {
+      "path": "reports/pyscf-continuous-20261108-v3/jobs/caly-g3-h001/points/c002-plus/result.json",
+      "sha256": "ecab8e6217c008e05018e94b388c8d83a567ec0eab45cecd08c621e02f065361"
+    },
+    {
+      "path": "reports/pyscf-continuous-20261108-v3/jobs/caly-g3-h001/points/c003-minus/attempt-001-1/coordinates_bohr.npy",
+      "sha256": "c61e42246cd5746784c5b9aba87964b84ca7080ef41ddd14afdd44a77b4269c7"
+    },
+    {
+      "path": "reports/pyscf-continuous-20261108-v3/jobs/caly-g3-h001/points/c003-minus/attempt-001-1/gradient.npy",
+      "sha256": "ea1f714c4d9a7f4106720f3cd7e3b0d7260b78af4ee1b71fdee05761a77246d5"
+    },
+    {
+      "path": "reports/pyscf-continuous-20261108-v3/jobs/caly-g3-h001/points/c003-minus/result.json",
+      "sha256": "997d9dbc65f8bd63175f0f7e9cff47605355503492a215d8db5c09fa393a7321"
+    },
+    {
+      "path": "reports/pyscf-continuous-20261108-v3/jobs/caly-g3-h001/points/c003-plus/attempt-001-1/coordinates_bohr.npy",
+      "sha256": "f92e873a3d8856c88142f9b40355773dc38711dc76ed3d968d36d15c9047a223"
+    },
+    {
+      "path": "reports/pyscf-continuous-20261108-v3/jobs/caly-g3-h001/points/c003-plus/attempt-001-1/gradient.npy",
+      "sha256": "4ec1e8822d39c18069766533f7a2fa8fb2951dac82c521a24152b5c290c637ab"
+    },
+    {
+      "path": "reports/pyscf-continuous-20261108-v3/jobs/caly-g3-h001/points/c003-plus/result.json",
+      "sha256": "12383eec4feb335f168c914437b797589f95a7e22746d9a7533e0924d7b01f6a"
+    },
+    {
+      "path": "reports/pyscf-continuous-20261108-v3/jobs/caly-g3-h001/points/c004-minus/attempt-001-1/coordinates_bohr.npy",
+      "sha256": "4e0a66f78b1d914e776c95795c0fbac1247fd0cf522050a0e00a5269d5e067bf"
+    },
+    {
+      "path": "reports/pyscf-continuous-20261108-v3/jobs/caly-g3-h001/points/c004-minus/attempt-001-1/gradient.npy",
+      "sha256": "9891213370de2391918ce73783af65d38a51e5c8f8a060109b09521c39833f32"
+    },
+    {
+      "path": "reports/pyscf-continuous-20261108-v3/jobs/caly-g3-h001/points/c004-minus/result.json",
+      "sha256": "50a5291420bb96c366a58184a564846d03e9562f650c95004b7ddde64f274149"
+    },
+    {
+      "path": "reports/pyscf-continuous-20261108-v3/jobs/caly-g3-h001/points/c004-plus/attempt-001-1/coordinates_bohr.npy",
+      "sha256": "b920a1a2276c992d4e1c222ebf3686e4b91112d15e73385db3b8cc508a8c1589"
+    },
+    {
+      "path": "reports/pyscf-continuous-20261108-v3/jobs/caly-g3-h001/points/c004-plus/attempt-001-1/gradient.npy",
+      "sha256": "88e86f3a7cf92a09f6313853f5ac464b39fc090dada108eb0b3a908ed9c4da21"
+    },
+    {
+      "path": "reports/pyscf-continuous-20261108-v3/jobs/caly-g3-h001/points/c004-plus/result.json",
+      "sha256": "e2a72b5e2f0e4524dc74ce58c85d21b52a6a58e2fffc2473141aa8852f202d62"
+    },
+    {
+      "path": "reports/pyscf-continuous-20261108-v3/jobs/caly-g3-h001/points/c005-minus/attempt-001-1/coordinates_bohr.npy",
+      "sha256": "fd39a7265e1843ea78a5871820163f0be974d210706037176cf9b27a0984928f"
+    },
+    {
+      "path": "reports/pyscf-continuous-20261108-v3/jobs/caly-g3-h001/points/c005-minus/attempt-001-1/gradient.npy",
+      "sha256": "e631393f9e8c3e8d09ee81c8e204cc51c44f5f8e2edad3f7854d79154e86b4f7"
+    },
+    {
+      "path": "reports/pyscf-continuous-20261108-v3/jobs/caly-g3-h001/points/c005-minus/result.json",
+      "sha256": "f7599278b463a1d5ae343b92eb506ae260a6035c97af746827d6251cd3377af8"
+    },
+    {
+      "path": "reports/pyscf-continuous-20261108-v3/jobs/caly-g3-h001/points/c005-plus/attempt-001-1/coordinates_bohr.npy",
+      "sha256": "98921846eac4d780ba1307f18c79e957a2c913ba7daf6f75f33a87de8a591e20"
+    },
+    {
+      "path": "reports/pyscf-continuous-20261108-v3/jobs/caly-g3-h001/points/c005-plus/attempt-001-1/gradient.npy",
+      "sha256": "6076485fb21c2d8ffd8b910deae883ac77fe4dac950429bb390d17d4dac4bf98"
+    },
+    {
+      "path": "reports/pyscf-continuous-20261108-v3/jobs/caly-g3-h001/points/c005-plus/result.json",
+      "sha256": "f2e02f95891a919a03528a6cab788e628b43d14120e6003b3ff54575c2cc50f1"
+    },
+    {
+      "path": "reports/pyscf-continuous-20261108-v3/jobs/caly-g3-h001/points/c006-minus/attempt-001-1/coordinates_bohr.npy",
+      "sha256": "2bb7f67cf637aaf9cda103d9040c1bba5e7c27df3077adaa8b7c2bdb44feae96"
+    },
+    {
+      "path": "reports/pyscf-continuous-20261108-v3/jobs/caly-g3-h001/points/c006-minus/attempt-001-1/gradient.npy",
+      "sha256": "642e9630751abcfa4775d8a83073c01db843309c7ba20eed320fca244d5610ce"
+    },
+    {
+      "path": "reports/pyscf-continuous-20261108-v3/jobs/caly-g3-h001/points/c006-minus/result.json",
+      "sha256": "d12a60c605487de1e3865be1185489d440686c980e2b0b3cc12b807c27f3e143"
+    },
+    {
+      "path": "reports/pyscf-continuous-20261108-v3/jobs/caly-g3-h001/points/c006-plus/attempt-001-1/coordinates_bohr.npy",
+      "sha256": "e36dba8f17b119f002f1875e135ab16cbe56095dd2e5c078f6246d6eacba645a"
+    },
+    {
+      "path": "reports/pyscf-continuous-20261108-v3/jobs/caly-g3-h001/points/c006-plus/attempt-001-1/gradient.npy",
+      "sha256": "6c5e01f15d5dbe8c43f91d54b8e9ce022e64048882c65bd4b7ee3052c53ad70c"
+    },
+    {
+      "path": "reports/pyscf-continuous-20261108-v3/jobs/caly-g3-h001/points/c006-plus/result.json",
+      "sha256": "f9a53ba11bdfa3f9f0bdc43bdb109cedbf112f2d1a197f3793739ca862f9f07a"
+    },
+    {
+      "path": "reports/pyscf-continuous-20261108-v3/jobs/caly-g3-h001/points/c007-minus/attempt-001-1/coordinates_bohr.npy",
+      "sha256": "f8abc02fdf3cdbdbcd9f4a7e9c470b174ccaf03bb49609066f68b28556668e26"
+    },
+    {
+      "path": "reports/pyscf-continuous-20261108-v3/jobs/caly-g3-h001/points/c007-minus/attempt-001-1/gradient.npy",
+      "sha256": "3da744af4401c7729e434c6d0c39ae6b903eac9e6308c8b33803358a827cb916"
+    },
+    {
+      "path": "reports/pyscf-continuous-20261108-v3/jobs/caly-g3-h001/points/c007-minus/result.json",
+      "sha256": "150a1a12d5896b64679c95bf3873747d5206bfeea16a906b6f1ae55e45d75135"
+    },
+    {
+      "path": "reports/pyscf-continuous-20261108-v3/jobs/caly-g3-h001/points/c007-plus/attempt-001-1/coordinates_bohr.npy",
+      "sha256": "6634b3f9de1bb730a40f9593e76f0daeea8564e452b10c271e691f889137497e"
+    },
+    {
+      "path": "reports/pyscf-continuous-20261108-v3/jobs/caly-g3-h001/points/c007-plus/attempt-001-1/gradient.npy",
+      "sha256": "594a918dcb5e4479b3af2569dfa7d03437a71d9e13332d1525897a9154de43f0"
+    },
+    {
+      "path": "reports/pyscf-continuous-20261108-v3/jobs/caly-g3-h001/points/c007-plus/result.json",
+      "sha256": "2ff70c33efe12df0e54757bf9aad672333fca67f96c03c7c8638aa492c6bc394"
+    },
+    {
+      "path": "reports/pyscf-continuous-20261108-v3/jobs/caly-g3-h001/points/c008-minus/attempt-001-1/coordinates_bohr.npy",
+      "sha256": "a1e626da2d19e20ffa8f4b26b2806bb5718bbdbdfa722a0c242762d1c6584733"
+    },
+    {
+      "path": "reports/pyscf-continuous-20261108-v3/jobs/caly-g3-h001/points/c008-minus/attempt-001-1/gradient.npy",
+      "sha256": "9ca8b3010650a8c4e4071279b2bb6813158634c1966c90e5ec66de5b4098a187"
+    },
+    {
+      "path": "reports/pyscf-continuous-20261108-v3/jobs/caly-g3-h001/points/c008-minus/result.json",
+      "sha256": "4749a429fd06a2edaa90273e69aee30f9043339a231c54c155d7b1701c9dafdc"
+    },
+    {
+      "path": "reports/pyscf-continuous-20261108-v3/jobs/caly-g3-h001/points/c008-plus/attempt-001-1/coordinates_bohr.npy",
+      "sha256": "ec9fc6c99b6507afe3ad879c4f98da3953b34b91bcbf0ca16d5c868d7bad82a9"
+    },
+    {
+      "path": "reports/pyscf-continuous-20261108-v3/jobs/caly-g3-h001/points/c008-plus/attempt-001-1/gradient.npy",
+      "sha256": "a197e765986275b4b8f5f26d238c884ceb05ae7a9d3d4d36ae0abf43585f869c"
+    },
+    {
+      "path": "reports/pyscf-continuous-20261108-v3/jobs/caly-g3-h001/points/c008-plus/result.json",
+      "sha256": "59b6b692062db9c634e0bc0dc1018a79c9df9c834841791013ff9351c2624510"
+    },
+    {
+      "path": "reports/pyscf-continuous-20261108-v3/jobs/caly-g3-h001/points/c009-minus/attempt-001-1/coordinates_bohr.npy",
+      "sha256": "14e9d9666f333bf3e4abe62d5b800b90fe5a99b48ce9ef1dbe02289f78b9f6c9"
+    },
+    {
+      "path": "reports/pyscf-continuous-20261108-v3/jobs/caly-g3-h001/points/c009-minus/attempt-001-1/gradient.npy",
+      "sha256": "448c3d47a3aec7cc0caefd8661691085e91af62495a4acad120dd11d06b64111"
+    },
+    {
+      "path": "reports/pyscf-continuous-20261108-v3/jobs/caly-g3-h001/points/c009-minus/result.json",
+      "sha256": "c3060661ffb2cbb64f2f7be4d9c43f7612650b3ff24d2a2c9e4d129ff178f672"
+    },
+    {
+      "path": "reports/pyscf-continuous-20261108-v3/jobs/caly-g3-h001/points/c009-plus/attempt-001-1/coordinates_bohr.npy",
+      "sha256": "f53616cbf25922c76108d4a4e6e9dc23c5c36f03a89f1d9cf7eaff92667dacd6"
+    },
+    {
+      "path": "reports/pyscf-continuous-20261108-v3/jobs/caly-g3-h001/points/c009-plus/attempt-001-1/gradient.npy",
+      "sha256": "cdff4577d87f6dcd20381e638cdd71436cc3dac17adb61b4804472f24c898e05"
+    },
+    {
+      "path": "reports/pyscf-continuous-20261108-v3/jobs/caly-g3-h001/points/c009-plus/result.json",
+      "sha256": "8bec341b86684bcdaa93f62bd76f99ee7b61aa8ccd4502ffe1b5d8ca65303198"
+    },
+    {
+      "path": "reports/pyscf-continuous-20261108-v3/jobs/caly-g3-h001/points/c010-minus/attempt-001-1/coordinates_bohr.npy",
+      "sha256": "d509a4b079cef36bfd0d86d1ec68b1a7a4fecb0f56fa99c805f58b5c62c4911d"
+    },
+    {
+      "path": "reports/pyscf-continuous-20261108-v3/jobs/caly-g3-h001/points/c010-minus/attempt-001-1/gradient.npy",
+      "sha256": "ef938ac2acba225081e4553622d70cc9f22bf535148e50fa5bb942aa82979770"
+    },
+    {
+      "path": "reports/pyscf-continuous-20261108-v3/jobs/caly-g3-h001/points/c010-minus/result.json",
+      "sha256": "8474f97ded6d14e386a02ff622c6e56d967cb3139bf3aff2c7eab1422fed9d05"
+    },
+    {
+      "path": "reports/pyscf-continuous-20261108-v3/jobs/caly-g3-h001/points/c010-plus/attempt-001-1/coordinates_bohr.npy",
+      "sha256": "88e443fe2e98fa0c7be76c8c157362c385a359253d2af533806e3bc28a50e4c5"
+    },
+    {
+      "path": "reports/pyscf-continuous-20261108-v3/jobs/caly-g3-h001/points/c010-plus/attempt-001-1/gradient.npy",
+      "sha256": "b92fcf3740ba9e66a8061b1edc951e73de8c6db8a1f92874c07f599d1220640b"
+    },
+    {
+      "path": "reports/pyscf-continuous-20261108-v3/jobs/caly-g3-h001/points/c010-plus/result.json",
+      "sha256": "87fdfbb6b389d2dc502b95aa1eafec7de7dfe75da1ad6205e5c46b9e39d132ac"
+    },
+    {
+      "path": "reports/pyscf-continuous-20261108-v3/jobs/caly-g3-h001/points/c011-minus/attempt-001-1/coordinates_bohr.npy",
+      "sha256": "91b210c9e291df79bb4aa3052d7796376561874a6436a772ebef3c87dc9652b3"
+    },
+    {
+      "path": "reports/pyscf-continuous-20261108-v3/jobs/caly-g3-h001/points/c011-minus/attempt-001-1/gradient.npy",
+      "sha256": "503c3377ab625bc515341d6504ab6e7ee35c34c39964719a6756cc6867b93a95"
+    },
+    {
+      "path": "reports/pyscf-continuous-20261108-v3/jobs/caly-g3-h001/points/c011-minus/result.json",
+      "sha256": "13f0ae78fec5747fc7c2016f29dcaac2814112dd63e82589cef2e6cbbb669a79"
+    },
+    {
+      "path": "reports/pyscf-continuous-20261108-v3/jobs/caly-g3-h001/points/c011-plus/attempt-001-1/coordinates_bohr.npy",
+      "sha256": "78f51e731df8e7e04104c20ba00f8ef9d5e6be10411b5e81a4fe1e5c8f768e25"
+    },
+    {
+      "path": "reports/pyscf-continuous-20261108-v3/jobs/caly-g3-h001/points/c011-plus/attempt-001-1/gradient.npy",
+      "sha256": "cce39a084b059d30797578f209d499d0294fa3d56df67b9e2906bdeb7bc58876"
+    },
+    {
+      "path": "reports/pyscf-continuous-20261108-v3/jobs/caly-g3-h001/points/c011-plus/result.json",
+      "sha256": "a92bffc7c4eb103604852614fc331809aca6844849349eb3ce76198f4e318888"
+    },
+    {
+      "path": "reports/pyscf-continuous-20261108-v3/jobs/caly-g3-h001/points/c012-minus/attempt-001-1/coordinates_bohr.npy",
+      "sha256": "b33db0494e51405a6f4f8e2abf11caba9df300e61698fbae3e9c8cef3b5c12aa"
+    },
+    {
+      "path": "reports/pyscf-continuous-20261108-v3/jobs/caly-g3-h001/points/c012-minus/attempt-001-1/gradient.npy",
+      "sha256": "c2084ae0a0b7d7f1df85718624cc21d891ae7eff735986036b6d4360c8ebcf95"
+    },
+    {
+      "path": "reports/pyscf-continuous-20261108-v3/jobs/caly-g3-h001/points/c012-minus/result.json",
+      "sha256": "e889f3bfc619fc39c9b6a3b0f065dbbfe50752b06ca7c40cc9fbf96833d5e594"
+    },
+    {
+      "path": "reports/pyscf-continuous-20261108-v3/jobs/caly-g3-h001/points/c012-plus/attempt-001-1/coordinates_bohr.npy",
+      "sha256": "df958db81f05e5024e90e66670b6f3675d0f15da5934b21ed7c4d0d614e02588"
+    },
+    {
+      "path": "reports/pyscf-continuous-20261108-v3/jobs/caly-g3-h001/points/c012-plus/attempt-001-1/gradient.npy",
+      "sha256": "a75dc58b7faedfe17913618d678dd71d95b5a35dd9385e61690801d4347ce3c6"
+    },
+    {
+      "path": "reports/pyscf-continuous-20261108-v3/jobs/caly-g3-h001/points/c012-plus/result.json",
+      "sha256": "e6131f057b7ba15a9c0ac58c3f2ccb56e79c7f5a681c9f693c554a0f06d8de3f"
+    },
+    {
+      "path": "reports/pyscf-continuous-20261108-v3/jobs/caly-g3-h001/points/c013-minus/attempt-001-1/coordinates_bohr.npy",
+      "sha256": "1e362b0bdc9664184d7601098ea4f92dc5ae4e683762afa110e243aeb24e541e"
+    },
+    {
+      "path": "reports/pyscf-continuous-20261108-v3/jobs/caly-g3-h001/points/c013-minus/attempt-001-1/gradient.npy",
+      "sha256": "e66cf1e39c8bd473de710404e790bccecda89b56c01d9d3edde736ecf77e7709"
+    },
+    {
+      "path": "reports/pyscf-continuous-20261108-v3/jobs/caly-g3-h001/points/c013-minus/result.json",
+      "sha256": "4176b90300bc90e6213daf286a67d4208a9ea537054a78abea61bea2c974a5db"
+    },
+    {
+      "path": "reports/pyscf-continuous-20261108-v3/jobs/caly-g3-h001/points/c013-plus/attempt-001-1/coordinates_bohr.npy",
+      "sha256": "cdb7801c145643d7f86eaee1f3d2ee62f16fca2e9472a978082202d0b887292d"
+    },
+    {
+      "path": "reports/pyscf-continuous-20261108-v3/jobs/caly-g3-h001/points/c013-plus/attempt-001-1/gradient.npy",
+      "sha256": "d2e7633da7ad97e1af32d95b83db02c4e975905266c847a3a1896aec28511788"
+    },
+    {
+      "path": "reports/pyscf-continuous-20261108-v3/jobs/caly-g3-h001/points/c013-plus/result.json",
+      "sha256": "2c08776c77e5b3bd90130a8af6b357435f8b66f583c7ff17f0209a976d4d3741"
+    },
+    {
+      "path": "reports/pyscf-continuous-20261108-v3/jobs/caly-g3-optimize/final-center/attempt-001-1/coordinates_bohr.npy",
+      "sha256": "5d973ea040cc6408deebc4c4825f6c6cf42ca17e9ce2b7e5790266d6c1bc47da"
+    },
+    {
+      "path": "reports/pyscf-continuous-20261108-v3/jobs/caly-g3-optimize/final-center/attempt-001-1/density.npy",
+      "sha256": "620c373bf5b1be7415cfe1251c5275510af0f5b1ce0828fbfcf4e85322827441"
+    },
+    {
+      "path": "reports/pyscf-continuous-20261108-v3/jobs/caly-g3-optimize/final-center/attempt-001-1/gradient.npy",
+      "sha256": "202cdb1017c8f29734f1498c593d0beb2a019d27afdc77f35de220e03890c703"
+    },
+    {
+      "path": "reports/pyscf-continuous-20261108-v3/jobs/caly-g3-optimize/result.json",
+      "sha256": "7e7dbe4e3949703395a8e7462e1894c8f9e167898b733892fae638f6e9e5bb80"
+    },
+    {
+      "path": "reports/pyscf-continuous-20261108-v3/jobs/caly-g3-prepare/center/attempt-001-1/coordinates_bohr.npy",
+      "sha256": "32b66200059e5e0b296e7ca2b8f8f54615d55ef5435c579cff3ab76f49e236e1"
+    },
+    {
+      "path": "reports/pyscf-continuous-20261108-v3/jobs/caly-g3-prepare/center/attempt-001-1/density.npy",
+      "sha256": "2d43f45dd359570c72feb7c11e9b8b7c8933676be55a4b4042657ab117b55b4d"
+    },
+    {
+      "path": "reports/pyscf-continuous-20261108-v3/jobs/caly-g3-prepare/center/attempt-001-1/gradient.npy",
+      "sha256": "31f869dc360fa8614ca1d4160bd1b904798f73ecacac08e483c03b6917ed2245"
+    },
+    {
+      "path": "reports/pyscf-continuous-20261108-v3/jobs/caly-g3-prepare/result.json",
+      "sha256": "a6a9932219c5bfe45d44c62a4be47cb2e9583eb128adbdf7473cd799b540d4c2"
+    },
+    {
+      "path": "reports/pyscf-continuous-20261108-v3/ledger.json",
+      "sha256": "e5c658ee8f3a2280c8c696f8cbe8864c6d1561bfb6a98d45a119b4f5d543187d"
+    },
+    {
+      "path": "reports/pyscf-resume-20261109-v4/checkpoint_resume_manifest.json",
+      "sha256": "ad8e024ea516511fe0550f878af77f3faf1246ba7960404be1e24b1ae19a88cf"
+    },
+    {
+      "path": "reports/pyscf-resume-20261109-v4/checkpoint_reuse_verification.json",
+      "sha256": "4d1f997ae0803a2acc8157a80f227e8faae12607f0dd737158c5a95efcef6bc0"
+    },
+    {
+      "path": "reports/pyscf-resume-20261109-v4/continuation_authorization.json",
+      "sha256": "0baa3f1e586838dd0f22ec67069e2803c666eb65424dcc8aca00023de89b17ff"
+    },
+    {
+      "path": "scripts/pyscf_continuous_science_20261108_v3.py",
+      "sha256": "36b7cb6f36f0be92436bd230473c8483f5bfbb0f255a2d8be3472591761ab9f5"
+    },
+    {
+      "path": "scripts/run_pyscf_continuous_20261109_v4.py",
+      "sha256": "0f9ad785b6306b54d05b6052b8e9e64603f4cc51e75fc425083d9ac73e1faa66"
+    },
+    {
+      "path": "tests/test_pyscf_continuous_budget_v4.py",
+      "sha256": "fc2a0b9b7cd53bfe35973bf9e7894a84a0e7838af5b5027c0308a6a187e4bada"
+    }
+  ],
+  "git_return": {
+    "enabled": true,
+    "branch": "research/pyscf-autonomous-90000-20261108",
+    "source_files": [
+      "scripts/run_pyscf_continuous_20261109_v4.py",
+      "scripts/pyscf_continuous_science_20261108_v3.py",
+      "tests/test_pyscf_continuous_budget_v4.py"
+    ]
+  },
+  "quality_policy": "Keep native flags and warnings; continue finite calculations. Preserve old attempts and reuse real successful gradients.",
+  "old_cpu_tail_refunded": false
+}
