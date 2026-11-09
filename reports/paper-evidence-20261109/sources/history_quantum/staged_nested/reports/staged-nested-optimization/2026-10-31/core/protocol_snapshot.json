@@ -1,0 +1,1018 @@
+{
+  "protocol_id": "zaoren-staged-nested-four-round-20261031",
+  "recorded_date_client": "2026-10-31",
+  "client_timezone": "Asia/Shanghai",
+  "dataset_version": "2026-10-31-zaoren-numbered-v1",
+  "sample_count": 855,
+  "frequency": {
+    "lower_inclusive": 0.1,
+    "upper_inclusive": 1.5,
+    "expected_features": 612,
+    "physical_optimality_verified": false
+  },
+  "outer_splits": 5,
+  "inner_splits": 2,
+  "cars_internal_splits": 2,
+  "split_seed": 20261031,
+  "model_seed": 42,
+  "historical_split_file": "outputs/approved-zaoren-20261031/experiments/alpha_primary/splits.json",
+  "historical_split_sha256": "fcf14231b4dc1a1e15af8c46310ee6f39e71520b76a7b62fe0e176485f6f5cfe",
+  "input_file": "outputs/approved-zaoren-20261031/datasets/candidate_0p1_1p5.npz",
+  "input_sha256": "a3fac9b2f0ee6b8e51c835c7c74354f80e2fac2bc66923e76647e35d3c6bec9d",
+  "prediction": "SVC standard vote/break_ties=False; OVR scores saved separately and not called probabilities",
+  "R0": {
+    "purpose": "exact historical raw/SNV x C4 nested baseline",
+    "candidates": [
+      {
+        "id": "hist000",
+        "preprocessing": "raw",
+        "mc": {
+          "runs": 20,
+          "components": 2,
+          "ratio": 0.1
+        },
+        "svm": {
+          "C": 0.1,
+          "gamma": "scale",
+          "class_weight": "balanced"
+        }
+      },
+      {
+        "id": "hist001",
+        "preprocessing": "snv",
+        "mc": {
+          "runs": 20,
+          "components": 2,
+          "ratio": 0.1
+        },
+        "svm": {
+          "C": 0.1,
+          "gamma": "scale",
+          "class_weight": "balanced"
+        }
+      },
+      {
+        "id": "hist002",
+        "preprocessing": "raw",
+        "mc": {
+          "runs": 20,
+          "components": 2,
+          "ratio": 0.1
+        },
+        "svm": {
+          "C": 1.0,
+          "gamma": "scale",
+          "class_weight": "balanced"
+        }
+      },
+      {
+        "id": "hist003",
+        "preprocessing": "snv",
+        "mc": {
+          "runs": 20,
+          "components": 2,
+          "ratio": 0.1
+        },
+        "svm": {
+          "C": 1.0,
+          "gamma": "scale",
+          "class_weight": "balanced"
+        }
+      },
+      {
+        "id": "hist004",
+        "preprocessing": "raw",
+        "mc": {
+          "runs": 20,
+          "components": 2,
+          "ratio": 0.1
+        },
+        "svm": {
+          "C": 10.0,
+          "gamma": "scale",
+          "class_weight": "balanced"
+        }
+      },
+      {
+        "id": "hist005",
+        "preprocessing": "snv",
+        "mc": {
+          "runs": 20,
+          "components": 2,
+          "ratio": 0.1
+        },
+        "svm": {
+          "C": 10.0,
+          "gamma": "scale",
+          "class_weight": "balanced"
+        }
+      },
+      {
+        "id": "hist006",
+        "preprocessing": "raw",
+        "mc": {
+          "runs": 20,
+          "components": 2,
+          "ratio": 0.1
+        },
+        "svm": {
+          "C": 100.0,
+          "gamma": "scale",
+          "class_weight": "balanced"
+        }
+      },
+      {
+        "id": "hist007",
+        "preprocessing": "snv",
+        "mc": {
+          "runs": 20,
+          "components": 2,
+          "ratio": 0.1
+        },
+        "svm": {
+          "C": 100.0,
+          "gamma": "scale",
+          "class_weight": "balanced"
+        }
+      }
+    ],
+    "grid_sha256": "9aa62752a3d4528da012ea631689596ef3b7f91d50d4c5431e77e06424e2dcc3",
+    "tie_rule": "strict first maximum in sklearn ParameterGrid order"
+  },
+  "R1": {
+    "purpose": "controlled MC-UVE parameters, fixed SNV/C10/gamma-scale/balanced",
+    "candidates": [
+      {
+        "id": "mc000",
+        "runs": 10,
+        "components": 1,
+        "ratio": 0.05
+      },
+      {
+        "id": "mc001",
+        "runs": 10,
+        "components": 1,
+        "ratio": 0.1
+      },
+      {
+        "id": "mc002",
+        "runs": 10,
+        "components": 1,
+        "ratio": 0.15
+      },
+      {
+        "id": "mc003",
+        "runs": 10,
+        "components": 1,
+        "ratio": 0.2
+      },
+      {
+        "id": "mc004",
+        "runs": 10,
+        "components": 2,
+        "ratio": 0.05
+      },
+      {
+        "id": "mc005",
+        "runs": 10,
+        "components": 2,
+        "ratio": 0.1
+      },
+      {
+        "id": "mc006",
+        "runs": 10,
+        "components": 2,
+        "ratio": 0.15
+      },
+      {
+        "id": "mc007",
+        "runs": 10,
+        "components": 2,
+        "ratio": 0.2
+      },
+      {
+        "id": "mc008",
+        "runs": 10,
+        "components": 3,
+        "ratio": 0.05
+      },
+      {
+        "id": "mc009",
+        "runs": 10,
+        "components": 3,
+        "ratio": 0.1
+      },
+      {
+        "id": "mc010",
+        "runs": 10,
+        "components": 3,
+        "ratio": 0.15
+      },
+      {
+        "id": "mc011",
+        "runs": 10,
+        "components": 3,
+        "ratio": 0.2
+      },
+      {
+        "id": "mc012",
+        "runs": 20,
+        "components": 1,
+        "ratio": 0.05
+      },
+      {
+        "id": "mc013",
+        "runs": 20,
+        "components": 1,
+        "ratio": 0.1
+      },
+      {
+        "id": "mc014",
+        "runs": 20,
+        "components": 1,
+        "ratio": 0.15
+      },
+      {
+        "id": "mc015",
+        "runs": 20,
+        "components": 1,
+        "ratio": 0.2
+      },
+      {
+        "id": "mc016",
+        "runs": 20,
+        "components": 2,
+        "ratio": 0.05
+      },
+      {
+        "id": "mc017",
+        "runs": 20,
+        "components": 2,
+        "ratio": 0.1
+      },
+      {
+        "id": "mc018",
+        "runs": 20,
+        "components": 2,
+        "ratio": 0.15
+      },
+      {
+        "id": "mc019",
+        "runs": 20,
+        "components": 2,
+        "ratio": 0.2
+      },
+      {
+        "id": "mc020",
+        "runs": 20,
+        "components": 3,
+        "ratio": 0.05
+      },
+      {
+        "id": "mc021",
+        "runs": 20,
+        "components": 3,
+        "ratio": 0.1
+      },
+      {
+        "id": "mc022",
+        "runs": 20,
+        "components": 3,
+        "ratio": 0.15
+      },
+      {
+        "id": "mc023",
+        "runs": 20,
+        "components": 3,
+        "ratio": 0.2
+      },
+      {
+        "id": "mc024",
+        "runs": 50,
+        "components": 1,
+        "ratio": 0.05
+      },
+      {
+        "id": "mc025",
+        "runs": 50,
+        "components": 1,
+        "ratio": 0.1
+      },
+      {
+        "id": "mc026",
+        "runs": 50,
+        "components": 1,
+        "ratio": 0.15
+      },
+      {
+        "id": "mc027",
+        "runs": 50,
+        "components": 1,
+        "ratio": 0.2
+      },
+      {
+        "id": "mc028",
+        "runs": 50,
+        "components": 2,
+        "ratio": 0.05
+      },
+      {
+        "id": "mc029",
+        "runs": 50,
+        "components": 2,
+        "ratio": 0.1
+      },
+      {
+        "id": "mc030",
+        "runs": 50,
+        "components": 2,
+        "ratio": 0.15
+      },
+      {
+        "id": "mc031",
+        "runs": 50,
+        "components": 2,
+        "ratio": 0.2
+      },
+      {
+        "id": "mc032",
+        "runs": 50,
+        "components": 3,
+        "ratio": 0.05
+      },
+      {
+        "id": "mc033",
+        "runs": 50,
+        "components": 3,
+        "ratio": 0.1
+      },
+      {
+        "id": "mc034",
+        "runs": 50,
+        "components": 3,
+        "ratio": 0.15
+      },
+      {
+        "id": "mc035",
+        "runs": 50,
+        "components": 3,
+        "ratio": 0.2
+      }
+    ],
+    "grid_sha256": "8cec75068c304504739952aa33923fba0628c085a40e334fc4c9969df56a3f3d",
+    "retained_features": [
+      31,
+      62,
+      92,
+      123
+    ],
+    "sample_fraction": 0.8,
+    "target": "one-hot standardized OVR PLS1 coefficient stability, not numeric origin regression"
+  },
+  "R2": {
+    "purpose": "SVM settings conditional on this outerfold R1 inner-selected MC parameters",
+    "candidates": [
+      {
+        "id": "sv000",
+        "C": 0.01,
+        "gamma": "scale",
+        "class_weight": "none"
+      },
+      {
+        "id": "sv001",
+        "C": 0.01,
+        "gamma": "scale",
+        "class_weight": "balanced"
+      },
+      {
+        "id": "sv002",
+        "C": 0.01,
+        "gamma": "scale",
+        "class_weight": "power_0.5"
+      },
+      {
+        "id": "sv003",
+        "C": 0.01,
+        "gamma": "scale",
+        "class_weight": "power_1.5"
+      },
+      {
+        "id": "sv004",
+        "C": 0.01,
+        "gamma": "auto",
+        "class_weight": "none"
+      },
+      {
+        "id": "sv005",
+        "C": 0.01,
+        "gamma": "auto",
+        "class_weight": "balanced"
+      },
+      {
+        "id": "sv006",
+        "C": 0.01,
+        "gamma": "auto",
+        "class_weight": "power_0.5"
+      },
+      {
+        "id": "sv007",
+        "C": 0.01,
+        "gamma": "auto",
+        "class_weight": "power_1.5"
+      },
+      {
+        "id": "sv008",
+        "C": 0.01,
+        "gamma": "scale_x0.1",
+        "class_weight": "none"
+      },
+      {
+        "id": "sv009",
+        "C": 0.01,
+        "gamma": "scale_x0.1",
+        "class_weight": "balanced"
+      },
+      {
+        "id": "sv010",
+        "C": 0.01,
+        "gamma": "scale_x0.1",
+        "class_weight": "power_0.5"
+      },
+      {
+        "id": "sv011",
+        "C": 0.01,
+        "gamma": "scale_x0.1",
+        "class_weight": "power_1.5"
+      },
+      {
+        "id": "sv012",
+        "C": 0.01,
+        "gamma": "scale_x10",
+        "class_weight": "none"
+      },
+      {
+        "id": "sv013",
+        "C": 0.01,
+        "gamma": "scale_x10",
+        "class_weight": "balanced"
+      },
+      {
+        "id": "sv014",
+        "C": 0.01,
+        "gamma": "scale_x10",
+        "class_weight": "power_0.5"
+      },
+      {
+        "id": "sv015",
+        "C": 0.01,
+        "gamma": "scale_x10",
+        "class_weight": "power_1.5"
+      },
+      {
+        "id": "sv016",
+        "C": 0.1,
+        "gamma": "scale",
+        "class_weight": "none"
+      },
+      {
+        "id": "sv017",
+        "C": 0.1,
+        "gamma": "scale",
+        "class_weight": "balanced"
+      },
+      {
+        "id": "sv018",
+        "C": 0.1,
+        "gamma": "scale",
+        "class_weight": "power_0.5"
+      },
+      {
+        "id": "sv019",
+        "C": 0.1,
+        "gamma": "scale",
+        "class_weight": "power_1.5"
+      },
+      {
+        "id": "sv020",
+        "C": 0.1,
+        "gamma": "auto",
+        "class_weight": "none"
+      },
+      {
+        "id": "sv021",
+        "C": 0.1,
+        "gamma": "auto",
+        "class_weight": "balanced"
+      },
+      {
+        "id": "sv022",
+        "C": 0.1,
+        "gamma": "auto",
+        "class_weight": "power_0.5"
+      },
+      {
+        "id": "sv023",
+        "C": 0.1,
+        "gamma": "auto",
+        "class_weight": "power_1.5"
+      },
+      {
+        "id": "sv024",
+        "C": 0.1,
+        "gamma": "scale_x0.1",
+        "class_weight": "none"
+      },
+      {
+        "id": "sv025",
+        "C": 0.1,
+        "gamma": "scale_x0.1",
+        "class_weight": "balanced"
+      },
+      {
+        "id": "sv026",
+        "C": 0.1,
+        "gamma": "scale_x0.1",
+        "class_weight": "power_0.5"
+      },
+      {
+        "id": "sv027",
+        "C": 0.1,
+        "gamma": "scale_x0.1",
+        "class_weight": "power_1.5"
+      },
+      {
+        "id": "sv028",
+        "C": 0.1,
+        "gamma": "scale_x10",
+        "class_weight": "none"
+      },
+      {
+        "id": "sv029",
+        "C": 0.1,
+        "gamma": "scale_x10",
+        "class_weight": "balanced"
+      },
+      {
+        "id": "sv030",
+        "C": 0.1,
+        "gamma": "scale_x10",
+        "class_weight": "power_0.5"
+      },
+      {
+        "id": "sv031",
+        "C": 0.1,
+        "gamma": "scale_x10",
+        "class_weight": "power_1.5"
+      },
+      {
+        "id": "sv032",
+        "C": 1.0,
+        "gamma": "scale",
+        "class_weight": "none"
+      },
+      {
+        "id": "sv033",
+        "C": 1.0,
+        "gamma": "scale",
+        "class_weight": "balanced"
+      },
+      {
+        "id": "sv034",
+        "C": 1.0,
+        "gamma": "scale",
+        "class_weight": "power_0.5"
+      },
+      {
+        "id": "sv035",
+        "C": 1.0,
+        "gamma": "scale",
+        "class_weight": "power_1.5"
+      },
+      {
+        "id": "sv036",
+        "C": 1.0,
+        "gamma": "auto",
+        "class_weight": "none"
+      },
+      {
+        "id": "sv037",
+        "C": 1.0,
+        "gamma": "auto",
+        "class_weight": "balanced"
+      },
+      {
+        "id": "sv038",
+        "C": 1.0,
+        "gamma": "auto",
+        "class_weight": "power_0.5"
+      },
+      {
+        "id": "sv039",
+        "C": 1.0,
+        "gamma": "auto",
+        "class_weight": "power_1.5"
+      },
+      {
+        "id": "sv040",
+        "C": 1.0,
+        "gamma": "scale_x0.1",
+        "class_weight": "none"
+      },
+      {
+        "id": "sv041",
+        "C": 1.0,
+        "gamma": "scale_x0.1",
+        "class_weight": "balanced"
+      },
+      {
+        "id": "sv042",
+        "C": 1.0,
+        "gamma": "scale_x0.1",
+        "class_weight": "power_0.5"
+      },
+      {
+        "id": "sv043",
+        "C": 1.0,
+        "gamma": "scale_x0.1",
+        "class_weight": "power_1.5"
+      },
+      {
+        "id": "sv044",
+        "C": 1.0,
+        "gamma": "scale_x10",
+        "class_weight": "none"
+      },
+      {
+        "id": "sv045",
+        "C": 1.0,
+        "gamma": "scale_x10",
+        "class_weight": "balanced"
+      },
+      {
+        "id": "sv046",
+        "C": 1.0,
+        "gamma": "scale_x10",
+        "class_weight": "power_0.5"
+      },
+      {
+        "id": "sv047",
+        "C": 1.0,
+        "gamma": "scale_x10",
+        "class_weight": "power_1.5"
+      },
+      {
+        "id": "sv048",
+        "C": 10.0,
+        "gamma": "scale",
+        "class_weight": "none"
+      },
+      {
+        "id": "sv049",
+        "C": 10.0,
+        "gamma": "scale",
+        "class_weight": "balanced"
+      },
+      {
+        "id": "sv050",
+        "C": 10.0,
+        "gamma": "scale",
+        "class_weight": "power_0.5"
+      },
+      {
+        "id": "sv051",
+        "C": 10.0,
+        "gamma": "scale",
+        "class_weight": "power_1.5"
+      },
+      {
+        "id": "sv052",
+        "C": 10.0,
+        "gamma": "auto",
+        "class_weight": "none"
+      },
+      {
+        "id": "sv053",
+        "C": 10.0,
+        "gamma": "auto",
+        "class_weight": "balanced"
+      },
+      {
+        "id": "sv054",
+        "C": 10.0,
+        "gamma": "auto",
+        "class_weight": "power_0.5"
+      },
+      {
+        "id": "sv055",
+        "C": 10.0,
+        "gamma": "auto",
+        "class_weight": "power_1.5"
+      },
+      {
+        "id": "sv056",
+        "C": 10.0,
+        "gamma": "scale_x0.1",
+        "class_weight": "none"
+      },
+      {
+        "id": "sv057",
+        "C": 10.0,
+        "gamma": "scale_x0.1",
+        "class_weight": "balanced"
+      },
+      {
+        "id": "sv058",
+        "C": 10.0,
+        "gamma": "scale_x0.1",
+        "class_weight": "power_0.5"
+      },
+      {
+        "id": "sv059",
+        "C": 10.0,
+        "gamma": "scale_x0.1",
+        "class_weight": "power_1.5"
+      },
+      {
+        "id": "sv060",
+        "C": 10.0,
+        "gamma": "scale_x10",
+        "class_weight": "none"
+      },
+      {
+        "id": "sv061",
+        "C": 10.0,
+        "gamma": "scale_x10",
+        "class_weight": "balanced"
+      },
+      {
+        "id": "sv062",
+        "C": 10.0,
+        "gamma": "scale_x10",
+        "class_weight": "power_0.5"
+      },
+      {
+        "id": "sv063",
+        "C": 10.0,
+        "gamma": "scale_x10",
+        "class_weight": "power_1.5"
+      },
+      {
+        "id": "sv064",
+        "C": 100.0,
+        "gamma": "scale",
+        "class_weight": "none"
+      },
+      {
+        "id": "sv065",
+        "C": 100.0,
+        "gamma": "scale",
+        "class_weight": "balanced"
+      },
+      {
+        "id": "sv066",
+        "C": 100.0,
+        "gamma": "scale",
+        "class_weight": "power_0.5"
+      },
+      {
+        "id": "sv067",
+        "C": 100.0,
+        "gamma": "scale",
+        "class_weight": "power_1.5"
+      },
+      {
+        "id": "sv068",
+        "C": 100.0,
+        "gamma": "auto",
+        "class_weight": "none"
+      },
+      {
+        "id": "sv069",
+        "C": 100.0,
+        "gamma": "auto",
+        "class_weight": "balanced"
+      },
+      {
+        "id": "sv070",
+        "C": 100.0,
+        "gamma": "auto",
+        "class_weight": "power_0.5"
+      },
+      {
+        "id": "sv071",
+        "C": 100.0,
+        "gamma": "auto",
+        "class_weight": "power_1.5"
+      },
+      {
+        "id": "sv072",
+        "C": 100.0,
+        "gamma": "scale_x0.1",
+        "class_weight": "none"
+      },
+      {
+        "id": "sv073",
+        "C": 100.0,
+        "gamma": "scale_x0.1",
+        "class_weight": "balanced"
+      },
+      {
+        "id": "sv074",
+        "C": 100.0,
+        "gamma": "scale_x0.1",
+        "class_weight": "power_0.5"
+      },
+      {
+        "id": "sv075",
+        "C": 100.0,
+        "gamma": "scale_x0.1",
+        "class_weight": "power_1.5"
+      },
+      {
+        "id": "sv076",
+        "C": 100.0,
+        "gamma": "scale_x10",
+        "class_weight": "none"
+      },
+      {
+        "id": "sv077",
+        "C": 100.0,
+        "gamma": "scale_x10",
+        "class_weight": "balanced"
+      },
+      {
+        "id": "sv078",
+        "C": 100.0,
+        "gamma": "scale_x10",
+        "class_weight": "power_0.5"
+      },
+      {
+        "id": "sv079",
+        "C": 100.0,
+        "gamma": "scale_x10",
+        "class_weight": "power_1.5"
+      },
+      {
+        "id": "sv080",
+        "C": 1000.0,
+        "gamma": "scale",
+        "class_weight": "none"
+      },
+      {
+        "id": "sv081",
+        "C": 1000.0,
+        "gamma": "scale",
+        "class_weight": "balanced"
+      },
+      {
+        "id": "sv082",
+        "C": 1000.0,
+        "gamma": "scale",
+        "class_weight": "power_0.5"
+      },
+      {
+        "id": "sv083",
+        "C": 1000.0,
+        "gamma": "scale",
+        "class_weight": "power_1.5"
+      },
+      {
+        "id": "sv084",
+        "C": 1000.0,
+        "gamma": "auto",
+        "class_weight": "none"
+      },
+      {
+        "id": "sv085",
+        "C": 1000.0,
+        "gamma": "auto",
+        "class_weight": "balanced"
+      },
+      {
+        "id": "sv086",
+        "C": 1000.0,
+        "gamma": "auto",
+        "class_weight": "power_0.5"
+      },
+      {
+        "id": "sv087",
+        "C": 1000.0,
+        "gamma": "auto",
+        "class_weight": "power_1.5"
+      },
+      {
+        "id": "sv088",
+        "C": 1000.0,
+        "gamma": "scale_x0.1",
+        "class_weight": "none"
+      },
+      {
+        "id": "sv089",
+        "C": 1000.0,
+        "gamma": "scale_x0.1",
+        "class_weight": "balanced"
+      },
+      {
+        "id": "sv090",
+        "C": 1000.0,
+        "gamma": "scale_x0.1",
+        "class_weight": "power_0.5"
+      },
+      {
+        "id": "sv091",
+        "C": 1000.0,
+        "gamma": "scale_x0.1",
+        "class_weight": "power_1.5"
+      },
+      {
+        "id": "sv092",
+        "C": 1000.0,
+        "gamma": "scale_x10",
+        "class_weight": "none"
+      },
+      {
+        "id": "sv093",
+        "C": 1000.0,
+        "gamma": "scale_x10",
+        "class_weight": "balanced"
+      },
+      {
+        "id": "sv094",
+        "C": 1000.0,
+        "gamma": "scale_x10",
+        "class_weight": "power_0.5"
+      },
+      {
+        "id": "sv095",
+        "C": 1000.0,
+        "gamma": "scale_x10",
+        "class_weight": "power_1.5"
+      }
+    ],
+    "grid_sha256": "1034953bdf57c2f5e9fd1912f0765a91c37343c0f40b5e5cbfd3a0e6dc93cb19",
+    "class_weight_power_normalization": "balanced weights raised to power then divided by source sample-count-weighted mean; balanced mode exact sklearn string",
+    "gamma": "scale formula on selected source features only; scale and auto may be numerical aliases after StandardScaler"
+  },
+  "R3": {
+    "purpose": "preprocessing conditional on this outerfold R1/R2 choices",
+    "preprocessors": [
+      "raw",
+      "snv",
+      "sg0_snv",
+      "sg1_snv",
+      "sg2_snv",
+      "msc",
+      "linear_detrend_snv"
+    ],
+    "SG_window": 15,
+    "SG_polyorder": 3,
+    "SG_delta": "mean original frequency spacing, uniform-grid checked",
+    "MSC_reference": "current fold training mean only",
+    "outer_diagnostics": "all seven prespecified preprocessing choices, no final-score selection"
+  },
+  "selection": {
+    "primary": "macro_f1",
+    "secondary": [
+      "balanced_accuracy",
+      "accuracy"
+    ],
+    "macro_tie_tolerance": 1e-12,
+    "complexity_tie_order": [
+      "lower_retained_ratio",
+      "fewer_PLS_components",
+      "fewer_MC_runs",
+      "lower_C",
+      "predeclared_preprocessor_order",
+      "candidate_id"
+    ],
+    "all_parameters_selected_within_outer_training": true
+  },
+  "prefix_reuse": {
+    "maximum_R1_stream": 50,
+    "requested_runs": [
+      10,
+      20,
+      50
+    ],
+    "exact_prefix_mean_std_ddof": 1,
+    "floor": "max(1,sd.max)*1e-12 separately for each prefix",
+    "test": "all9 runs/components combinations numerically identical to independent MCUVESelector",
+    "timing": "shared search streams do not imply equal standalone computation budgets"
+  },
+  "staging": "All5 outerfold R0/R1/R2/R3 inner choices locked, then R4 separate inner choices; root releases outer evaluation only after both owners locks complete.",
+  "source_fits": "Every inner fold refits preprocessing/scaling/selection/classifier; coefficient streams may be reused only for identical ordered training values/labels/preprocessor/components/seed.",
+  "reporting": [
+    "Every candidate inner score and parameter retained",
+    "all855 out-of-fold predictions for every formal stage",
+    "fixed SNV/C10 MC20 anchor",
+    "all7 prespecified preprocessing diagnostics",
+    "actual numerical gamma and classweights",
+    "vote/OVRargmax disagreement counts",
+    "selected frequency indices/axis values",
+    "warnings/time/hash/resume"
+  ],
+  "scope": "Retrospective within-batch sample-level nestedCV, not real new-batch or pristine independent confirmation; all855 have historical research exposure.",
+  "target_support_labels_used": 0,
+  "gaussian_included": false,
+  "no_new_batch_ids_invented": true
+}
