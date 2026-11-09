@@ -81,3 +81,8 @@
 ### 2026-11-09执行核查
 
 云主机重启后计算已中断；原儿茶酸双步长完整Hessian及分析完成（各45模式均无虚频），毛蕊异黄酮优化完成、第一套Hessian保存28/198点。最新事实与补传记录见[执行核查](reports/pyscf-interruption-audit-20261109/README.md)，旧账本RUNNING不表示当前进程仍存活。
+
+
+### 2026-11-09并行续算已恢复
+
+用户随后明确要求立即续算并修复最低点认证。现在分别启动[原儿茶酸最低点修复](reports/pyscf-resume-20261109-v4/acid-minimum/ledger.json)和[毛蕊异黄酮续算](reports/pyscf-resume-20261109-v4/caly-resume/ledger.json)，保留已算28点并从第29点继续。最低点认证分层报告，严格验证使用新优化几何与新Hessian；旧false不改。当前启动证据见[并行运行核验](reports/pyscf-resume-20261109-v4/parallel_runtime_verification.json)，方法与有限预算记录见[续算说明](docs/PYSCF_PARALLEL_MINIMUM_RESUME_20261109.md)。
