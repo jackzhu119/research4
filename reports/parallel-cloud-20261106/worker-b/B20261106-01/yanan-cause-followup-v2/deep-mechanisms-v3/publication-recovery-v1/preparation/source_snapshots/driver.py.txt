@@ -1,0 +1,436 @@
+"""Publish only the completed v3 files using a separately reviewed boot binding.
+
+No scientific worker, index cleanup, old state rewrite or additional CPU grant
+is available here. All new actual costs append to the original round ledger.
+"""
+from __future__ import annotations
+
+import argparse
+from copy import deepcopy
+import ctypes
+from datetime import datetime, timezone
+import hashlib
+import importlib.util
+import json
+import math
+import os
+from pathlib import Path
+import resource
+import signal
+import subprocess
+import sys
+import time
+
+SELF = Path(__file__).resolve()
+ROOT = next(p for p in SELF.parents if (p / '.git').exists())
+BASE = ROOT / 'reports/parallel-cloud-20261106/worker-b/B20261106-01'
+OLD = BASE / 'yanan-cause-followup-v2'
+V3 = OLD / 'deep-mechanisms-v3'
+WORK = V3 / 'publication-recovery-v1'
+KEY = 'deep_v3_publication_recovery_v1'
+RECOVERY_ID = 'deep-v3-publication-recovery-v1'
+CLAIM = ROOT / '.runtime/worker-b-deep-v3-publication-recovery-v1-allocation.json'
+AUTH_SCHEMA = 'research4-b-deep-v3-publication-authorization-v1'
+PLAN_SCHEMA = 'research4-b-deep-v3-publication-plan-v1'
+HELPER = ROOT / 'scripts/research4_parallel_b_git_return_20261106.py'
+HELPER_SHA = '3f118f7cbae979e67c1e219ca447e1d8193dc170bff60e0c4b70a237fb5c6a07'
+ACCOUNTING = OLD / 'preparation/bin/yanan_followup_supervisor.py'
+ACCOUNTING_SHA = 'bd29cca67a5ad98fcda0978ca35dc512b96f9b18a502345eaee5be9f4987ca49'
+V3_SHA = '8defa363852ff3f05bf3c7635fbd79dde3781a6832d565d0ee4b5bd874cf7c29'
+MAX_BATCH_BYTES = 16 * 1024 ** 2
+MAX_BATCH_FILES = 32
+
+
+def require(value, message):
+    if not value: raise ValueError(message)
+
+
+def sha(file):
+    h = hashlib.sha256()
+    with Path(file).open('rb') as f:
+        for chunk in iter(lambda: f.read(1024 ** 2), b''): h.update(chunk)
+    return h.hexdigest()
+
+
+def path(value):
+    p = Path(value); p = p if p.is_absolute() else ROOT / p
+    require(not any(x.is_symlink() for x in (p, *p.parents)), 'Symlink path forbidden')
+    p = p.resolve(); require(p.is_relative_to(ROOT), 'Only the existing B checkout is allowed')
+    return p
+
+
+def ref(file):
+    p = path(file)
+    return {'path': str(p.relative_to(ROOT)), 'sha256': sha(p), 'bytes': p.stat().st_size}
+
+
+def checked(value):
+    p = path(value['path']); require(p.is_file() and sha(p) == value['sha256'], 'Pinned bytes changed: ' + str(p))
+    if 'bytes' in value: require(p.stat().st_size == value['bytes'], 'Pinned size changed')
+    return p
+
+
+def read(file, expected=None, *, limit=32 * 1024 ** 2):
+    p = path(file); require(p.stat().st_size <= limit, 'Bounded metadata read exceeded')
+    if expected is not None: require(sha(p) == expected, 'Metadata SHA changed')
+    return json.loads(p.read_bytes())
+
+
+def read_ref(value): return read(checked(value))
+def utc(): return datetime.now(timezone.utc).isoformat()
+def boot(): return Path('/proc/sys/kernel/random/boot_id').read_text().strip()
+def self_cpu():
+    u = resource.getrusage(resource.RUSAGE_SELF); return u.ru_utime + u.ru_stime
+
+
+def import_file(file, name):
+    spec = importlib.util.spec_from_file_location(name, file); module = importlib.util.module_from_spec(spec)
+    sys.modules[name] = module; spec.loader.exec_module(module); return module
+
+
+require(sha(ACCOUNTING) == ACCOUNTING_SHA and sha(HELPER) == HELPER_SHA, 'Frozen helper/accounting source changed')
+S = import_file(ACCOUNTING, '_deep_v3_publication_original_budget_math')
+H = import_file(HELPER, '_deep_v3_publication_original_return_helper')
+
+
+def save(file, value, *, exclusive=False):
+    p = path(file); p.parent.mkdir(parents=True, exist_ok=True)
+    require(not exclusive or not p.exists(), 'Preserve the previous artifact')
+    data = (json.dumps(value, ensure_ascii=False, sort_keys=True, indent=2, allow_nan=False) + '\n').encode()
+    tmp = p.with_name(p.name + '.tmp')
+    with tmp.open('xb' if exclusive else 'wb') as f:
+        f.write(data); f.flush(); os.fsync(f.fileno())
+    require(not exclusive or not p.exists(), 'Exclusive target appeared')
+    os.replace(tmp, p)
+
+
+def chunk_files(values, *, max_files=MAX_BATCH_FILES, max_bytes=MAX_BATCH_BYTES):
+    """Exact paths, deterministic batches; never change a scientific file."""
+    require(len({v['path'] for v in values}) == len(values), 'Duplicate target path')
+    groups = []; group = []; total = 0
+    for value in sorted(values, key=lambda x: x['path']):
+        require(0 <= value['bytes'] <= min(H.MAX_FILE, max_bytes), 'One file exceeds the fixed file limit')
+        if group and (len(group) == max_files or total + value['bytes'] > max_bytes):
+            groups.append(group); group = []; total = 0
+        group.append(value); total += value['bytes']
+    if group: groups.append(group)
+    return groups
+
+
+def validate_authorization(auth):
+    require(auth['schema'] == AUTH_SCHEMA and auth['recovery_id'] == RECOVERY_ID and auth['approved'] is True
+            and auth['run_id'] == S.RUN_ID and auth['boot_id'] == boot() and auth['deadline_utc'] == S.DEADLINE
+            and auth['new_CPU_authorization_seconds'] == 0 and auth['new_nonmeasured_tail_hold_seconds'] == 1
+            and auth['no_science_rerun'] is True and auth['all_old_costs_and_state_preserved'] is True
+            and auth['max_attempts_per_batch'] == 1, 'Explicit same-grant publication-only ROOT authority required')
+    require(checked(auth['old_manifest_ref']) == V3 / 'manifest_ROOT_AUTHORIZED.json'
+            and auth['old_manifest_ref']['sha256'] == V3_SHA, 'Exact completed v3 manifest required')
+    for key in ('predecessor_ledger_ref', 'shared_state_ref', 'v3_state_ref'): checked(auth[key])
+    claims = {checked(v) for v in auth['old_claim_refs']}
+    require(S.CLAIM in claims and ROOT / '.runtime/worker-b-deep-mechanisms-v3-allocation.json' in claims,
+            'Both original round and v3 allocations must remain bound')
+    old = read_ref(auth['predecessor_ledger_ref']); state = read_ref(auth['v3_state_ref'])
+    require(sha(S.state_path()) == auth['shared_state_ref']['sha256']
+            and sha(V3 / 'state.json') == auth['v3_state_ref']['sha256'], 'Frozen old states must remain byte-identical')
+    require(old['boot_id'] == read_ref(auth['old_manifest_ref'])['boot_id'] and old['cpu_cap_seconds'] == S.CAP
+            and old['round_cpu_cap_seconds'] == S.ROUND_CAP and old['preparation_conservative_debit_cpu_seconds'] == 1000
+            and not old.get('blocked_unknown_cpu_or_process_tree'), 'Old budget or closure provenance changed')
+    require(all(x['status'] in ('EXITED', 'FAILED_CLOSED') for x in [*old['phases'], *old['auxiliary_costs']]), 'Every old child must really be closed')
+    require(all(x.get('status') not in ('RUNNING', 'BLOCKED_PRESERVED', 'BLOCKED_REQUIRES_FORENSICS') for x in old['parents']),
+            'Every previous invocation must be closed')
+    require(state['status'] == 'CLOSED_PARTIAL' and state['all_jobs_done_sealed'] is True
+            and len(state['jobs']) == 971 and all(x['status'] == 'DONE_SEALED' for x in state['jobs'].values())
+            and len(state['return_pending']) == 13, 'Only completed v3 with the known13 pending stages is authorized')
+    require(old['deep-mechanisms-v3']['status'] == 'CLOSED_PARTIAL', 'Prior v3 must remain closed')
+    return old, state
+
+
+def return_manifest(files):
+    return {'schema': 'research4-b-deep-v3-publication-return-v1', 'role': 'B', 'run_id': S.RUN_ID,
+            'work_directory': str(BASE.relative_to(ROOT)), 'ledger': str(S.ledger_path().relative_to(ROOT)),
+            'upload': {'branch': S.BRANCH, 'allowlist': [str(path(v).relative_to(BASE)) for v in files]}}
+
+
+def collect_original_targets(manifest, state):
+    by_id = {x['id']: x for x in manifest['git_return']['plans']}
+    targets = {}; coverage = {}
+    for label in state['return_pending']:
+        original = by_id[label]; value = read_ref(original['manifest']); work = H.work_path(ROOT, value)
+        require(work == BASE and value['ledger'] == str(S.ledger_path().relative_to(ROOT)), 'Original return ledger/root differs')
+        files = sorted({p.resolve() for pattern in value['upload']['allowlist'] for p in work.glob(pattern) if p.is_file()})
+        require(files, 'Empty original pending stage')
+        for f in files:
+            H.validate_file(ROOT, BASE, f); require(f.is_relative_to(V3), 'Only the completed v3 return scope is allowed')
+            item = ref(f); require(item['path'] not in targets or targets[item['path']] == item, 'Conflicting repeated file')
+            targets[item['path']] = item
+        coverage[label] = {'original_manifest': original['manifest'], 'files': [str(f.relative_to(ROOT)) for f in files]}
+    return targets, coverage
+
+
+def build_plan(auth_file, auth_sha):
+    require(not (WORK / 'plan_ROOT_AUTHORIZED.json').exists() and not CLAIM.exists(), 'Never regenerate an existing recovery binding')
+    auth_file = path(auth_file); auth = read(auth_file, auth_sha); old, state = validate_authorization(auth)
+    manifest = read_ref(auth['old_manifest_ref']); targets, coverage = collect_original_targets(manifest, state)
+    stages = []
+    for index, values in enumerate(chunk_files(list(targets.values())), 1):
+        file = WORK / 'preparation' / ('return_batch_%03d_manifest.json' % index)
+        save(file, return_manifest([v['path'] for v in values]), exclusive=True)
+        stages.append({'id': 'batch%03d' % index, 'manifest': ref(file), 'files': values})
+    source = WORK / 'preparation/source_snapshots/driver.py.txt'; source.parent.mkdir(parents=True, exist_ok=True)
+    with source.open('xb') as f: f.write(SELF.read_bytes())
+    predecessor = WORK / 'preparation/predecessor_closed_summary.json'
+    save(predecessor, {'schema': 'research4-b-deep-v3-publication-closed-predecessor-v1', 'old_manifest': auth['old_manifest_ref'],
+         'old_ledger': auth['predecessor_ledger_ref'], 'old_shared_state': auth['shared_state_ref'], 'old_v3_state': auth['v3_state_ref'],
+         'old_boot_id': old['boot_id'], 'new_publication_only_boot_id': auth['boot_id'], 'same_existing_grant': True,
+         'same_remaining_CPU_seconds_before_recovery': S.remaining_cpu(old), 'all971_scientific_jobs_done': True,
+         'original_pending_return_stages': state['return_pending'], 'new_scientific_fits': 0}, exclusive=True)
+    extra = [V3 / 'analysis/independent_original_publication_proof_20261109_001.json',
+             WORK / 'preparation/driver_synthetic_tests_002.json', WORK / 'preparation/independent_driver_source_review_001.json']
+    evidence = [ref(source), ref(auth_file), ref(predecessor), *auth.get('additional_evidence_refs', []),
+                *[ref(f) for f in extra if f.is_file()],
+                *[v['manifest'] for v in stages]]
+    evidence = list({v['path']: v for v in evidence}.values())
+    require(len(evidence) <= 30 and sum(v['bytes'] for v in evidence) <= MAX_BATCH_BYTES - 1024 ** 2,
+            'Recovery evidence must leave two file slots and1MiB for its bound plan/self manifest')
+    planfile = WORK / 'plan_ROOT_AUTHORIZED.json'; evidencefile = WORK / 'preparation/return_evidence_manifest.json'
+    save(evidencefile, return_manifest([v['path'] for v in evidence] + [str(planfile), str(evidencefile)]), exclusive=True)
+    stages.insert(0, {'id': 'evidence', 'manifest': ref(evidencefile), 'files': evidence,
+                      'include_bound_plan_and_own_manifest': True})
+    plan = {'schema': PLAN_SCHEMA, 'recovery_id': RECOVERY_ID, 'authorization_ref': ref(auth_file), 'driver_ref': ref(SELF),
+            'helper_ref': ref(HELPER), 'accounting_math_ref': ref(ACCOUNTING), 'boot_id': auth['boot_id'],
+            'deadline_utc': S.DEADLINE, 'new_CPU_authorization_seconds': 0, 'science_rerun': False,
+            'target_files': list(targets.values()), 'coverage_by_original_stage': coverage, 'stages': stages,
+            'original_failures_and_state_are_preserved': True}
+    save(planfile, plan, exclusive=True)
+    return ref(planfile)
+
+
+def expected_stage_files(stage, planfile, expected_sha):
+    values = list(stage['files'])
+    if stage.get('include_bound_plan_and_own_manifest'):
+        require(stage['id'] == 'evidence' and sha(planfile) == expected_sha, 'Only evidence may include the externally pinned plan')
+        values += [ref(planfile), stage['manifest']]
+    require(len(values) <= MAX_BATCH_FILES and sum(v['bytes'] for v in values) <= MAX_BATCH_BYTES, 'Exact batch bounds exceeded')
+    return values
+
+
+def validate_plan(planfile, plan_sha):
+    planfile = path(planfile); require(planfile == WORK / 'plan_ROOT_AUTHORIZED.json', 'Fixed recovery plan required')
+    plan = read(planfile, plan_sha); require(plan['schema'] == PLAN_SCHEMA and plan['recovery_id'] == RECOVERY_ID,
+                                            'Exact finite publication plan required')
+    require(checked(plan['driver_ref']) == SELF and checked(plan['helper_ref']) == HELPER
+            and checked(plan['accounting_math_ref']) == ACCOUNTING, 'Exact recovery/helper/math sources required')
+    auth = read_ref(plan['authorization_ref']); old, state = validate_authorization(auth)
+    require(plan['boot_id'] == auth['boot_id'] == boot() and plan['deadline_utc'] == S.DEADLINE
+            and plan['new_CPU_authorization_seconds'] == 0 and plan['science_rerun'] is False, 'No boot switch, science or new grant')
+    require(set(plan['coverage_by_original_stage']) == set(state['return_pending']), 'Every original pending stage must be covered')
+    originals, coverage = collect_original_targets(read_ref(auth['old_manifest_ref']), state)
+    targetmap = {x['path']: x for x in plan['target_files']}; flattened = []
+    require(targetmap == originals and plan['coverage_by_original_stage'] == coverage, 'Actual original pending payload must be covered exactly')
+    for stage in plan['stages']:
+        H.expected_branch(read_ref(stage['manifest']))
+        expected = expected_stage_files(stage, planfile, plan_sha)
+        for item in expected: checked(item)
+        actual = H.collect_return_files(ROOT, read_ref(stage['manifest']))
+        require({str(p.relative_to(ROOT)) for p in actual} == {v['path'] for v in expected}, 'Return manifest selects unexpected/missing files')
+        if stage['id'] != 'evidence': flattened += stage['files']
+    require(len({x['id'] for x in plan['stages']}) == len(plan['stages']) <= 40, 'Finite unique publication stages required')
+    require(len(flattened) == len(targetmap) and {x['path']: x for x in flattened} == targetmap, 'Every original file must appear exactly once')
+    require(set().union(*(set(x['files']) for x in plan['coverage_by_original_stage'].values())) == set(targetmap), 'Original stage coverage is incomplete')
+    return plan, auth, old
+
+
+MUTABLE_TOTALS = {'self_cpu_seconds', 'wait4_child_cpu_seconds', 'unresolved_observed_wait4_cpu_lower_bound_seconds',
+    'unresolved_execution_cpu_reservation_seconds', 'round_actual_cpu_seconds', 'round_budget_charged_cpu_seconds',
+    'aggregate_observed_actual_cpu_seconds', 'aggregate_budget_charged_cpu_seconds', 'aggregate_remaining_cpu_seconds',
+    'permanent_predecessor_conservative_debit_cpu_seconds', 'updated_at_utc', 'finalization_hold_seconds',
+    'blocked_unknown_cpu_or_process_tree'}
+
+
+def assert_old_preserved(ledger, old, auth):
+    for key, value in old.items():
+        if key in ('parents', 'auxiliary_costs'): require(ledger[key][:len(value)] == value, 'Old ledger prefix changed: ' + key)
+        elif key not in MUTABLE_TOTALS: require(ledger[key] == value, 'Old accounting/provenance block changed: ' + key)
+    require(ledger['finalization_hold_seconds'] == old['finalization_hold_seconds'] + 1, 'Exactly one new nonmeasured tail hold inside existing cap')
+    require(sha(S.state_path()) == auth['shared_state_ref']['sha256'] and sha(V3 / 'state.json') == auth['v3_state_ref']['sha256'],
+            'Old shared/v3 states must remain byte-identical')
+    for item in auth['old_claim_refs']: checked(item)
+
+
+def checkpoint(ledger, local, old, auth, status):
+    ledger['parents'][-1]['self_cpu_seconds'] = self_cpu(); ledger.update(S.budget_totals(ledger)); ledger['updated_at_utc'] = utc()
+    ledger.update(aggregate_observed_actual_cpu_seconds=ledger['carry']['actual_closed_cpu_seconds'] + ledger['round_actual_cpu_seconds'],
+        aggregate_budget_charged_cpu_seconds=ledger['carry']['budget_charged_cpu_seconds'] + ledger['round_budget_charged_cpu_seconds'],
+        aggregate_remaining_cpu_seconds=S.CAP - ledger['carry']['budget_charged_cpu_seconds'] - ledger['round_budget_charged_cpu_seconds'])
+    require(S.remaining_cpu(ledger) >= 0, 'Same round/aggregate CPU cap exhausted')
+    assert_old_preserved(ledger, old, auth)
+    local.update(status=status, updated_at_utc=utc()); save(S.ledger_path(), ledger); save(WORK / 'state.json', local)
+
+
+def preserve_helper_exception(row, ledger, *, error):
+    """A persisted wait4 alone never closes an unqualified process tree."""
+    if row['status'] not in ('EXITED', 'FAILED_CLOSED'):
+        row.update(status='BLOCKED_UNKNOWN', parent_exception_type=type(error).__name__, ended_at_utc=utc())
+        ledger['blocked_unknown_cpu_or_process_tree'] = True
+
+
+def contain_matching_tree(expected, seen):
+    """Best effort only, without replacing the original exception or its cost."""
+    if expected is None: return []
+    errors = []; members = []
+    try: members = S.session_members(expected)
+    except BaseException as error: errors.append(type(error).__name__)
+    try:
+        if S.is_live(expected) or any(x['uid'] == expected['uid'] and S.is_live(x) for x in members):
+            os.killpg(expected['pgrp'], signal.SIGKILL)
+    except BaseException as error: errors.append(type(error).__name__)
+    for member in seen:
+        try:
+            if member['uid'] == expected['uid'] and S.is_live(member) and member['session'] != expected['session']:
+                os.kill(member['pid'], signal.SIGKILL)
+        except BaseException as error: errors.append(type(error).__name__)
+    return errors
+
+
+def run_helper(stage, planfile, plan_sha, plan, ledger, local, old, auth):
+    require(S.remaining_cpu(ledger) >= 100 and time.time() + 10 < datetime.fromisoformat(S.DEADLINE).timestamp(), 'No remaining original CPU/deadline')
+    phase = 'deep-v3-publication-recovery-' + stage['id']; attempt = 'dv3pubr1-' + stage['id']
+    require(not any(x['phase'] == phase for x in ledger['auxiliary_costs']), 'Never repeat a declared recovery child')
+    require(not any(x['status'] not in ('EXITED', 'FAILED_CLOSED') for x in [*ledger['phases'], *ledger['auxiliary_costs']]), 'No unknown or active prior child')
+    row = {'phase': phase, 'kind': 'DEEP_V3_PUBLICATION_RECOVERY_HELPER', 'status': 'RUNNING', 'cpu_seconds': 30,
+           'actual_cpu_seconds': None, 'started_at_utc': utc(), 'actual_driver_source': plan['driver_ref'],
+           'publication_recovery_plan': ref(planfile), 'new_CPU_authorization_seconds': 0}
+    ledger['auxiliary_costs'].append(row); checkpoint(ledger, local, old, auth, 'CHILD_DECLARED')
+    command = [S.PYTHON, str(HELPER), '--repo', str(ROOT), '--manifest', str(checked(stage['manifest'])),
+               '--manifest-sha256', stage['manifest']['sha256'], '--attempt', attempt, '--execute']
+    row['command'] = command
+    log = WORK / 'execution' / (phase + '.log'); log.parent.mkdir(parents=True, exist_ok=True)
+    parent = S.identity(os.getpid()); expected = None; waited = None; seen = {}; stop = None; stopped = None; descendants = False
+    libc = ctypes.CDLL(None, use_errno=True)
+    def limits():
+        require(libc.prctl(1, signal.SIGKILL, 0, 0, 0) == 0 and os.getppid() == parent['pid'], 'Child must remain bound to this parent')
+        resource.setrlimit(resource.RLIMIT_CPU, (27, 30)); resource.setrlimit(resource.RLIMIT_AS, (12 * 1024 ** 3,) * 2)
+        resource.setrlimit(resource.RLIMIT_CORE, (0, 0))
+    started = time.monotonic(); next_checkpoint = started + 10
+    try:
+        with log.open('x') as stream:
+            child = subprocess.Popen(command, cwd=ROOT, stdin=subprocess.DEVNULL, stdout=stream, stderr=subprocess.STDOUT,
+                                     start_new_session=True, preexec_fn=limits)
+            expected = S.identity(child.pid); row.update(child_identity=expected, supervisor_identity=parent, log=str(log))
+            checkpoint(ledger, local, old, auth, 'CHILD_RUNNING')
+            while True:
+                observation = os.wait4(child.pid, os.WNOHANG)
+                if observation[0]:
+                    waited = observation; child.returncode = os.waitstatus_to_exitcode(waited[1])
+                    receipt = {'schema': 'research4-yanan-followup-wait4-v2', 'phase': phase,
+                        'child_identity': expected, 'supervisor_identity': parent, 'raw_wait_status': waited[1],
+                        'exit_code': child.returncode, 'ru_utime_seconds': waited[2].ru_utime, 'ru_stime_seconds': waited[2].ru_stime,
+                        'ru_maxrss_kib': waited[2].ru_maxrss, 'unsupported_tree_observed': bool(stop and descendants), 'observed_at_utc': utc()}
+                    file = WORK / 'execution' / (phase + '.wait4.json'); save(file, receipt, exclusive=True)
+                    row.update(wait4_receipt=ref(file), observed_wait4_cpu_seconds=waited[2].ru_utime + waited[2].ru_stime)
+                    checkpoint(ledger, local, old, auth, 'RAW_KERNEL_WAIT4_PERSISTED'); break
+                members = S.session_members(expected)
+                for member in members:
+                    seen[(member['pid'], member['start_ticks'])] = member
+                    if not S.same(member, expected): descendants = True
+                    try: child_ids = (Path('/proc') / str(member['pid']) / 'task' / str(member['pid']) / 'children').read_text().split()
+                    except (FileNotFoundError, ProcessLookupError): continue
+                    for child_id in child_ids:
+                        try: descendant = S.identity(int(child_id))
+                        except (FileNotFoundError, ProcessLookupError): continue
+                        seen[(descendant['pid'], descendant['start_ticks'])] = descendant
+                        if descendant['state'] not in ('Z', 'X', 'x') and descendant['pgrp'] != expected['pgrp'] and descendant['session'] != expected['session']:
+                            descendants = True; stop = stop or 'ESCAPED_PROCESS_TREE'
+                if sum(x['CPU_seconds'] for x in members) >= 27: stop = stop or 'CPU_GUARD'
+                if sum(x['rss_bytes'] for x in members) >= 8 * 1024 ** 3: stop = stop or 'RSS_GUARD'
+                if time.monotonic() - started > 298 or time.time() + 2 >= datetime.fromisoformat(S.DEADLINE).timestamp(): stop = stop or 'WALL_OR_DEADLINE'
+                if stop and stopped is None:
+                    stopped = time.monotonic()
+                    if S.is_live(expected): os.killpg(expected['pgrp'], signal.SIGTERM)
+                if stopped is not None and time.monotonic() - stopped > 1 and S.is_live(expected): os.killpg(expected['pgrp'], signal.SIGKILL)
+                if time.monotonic() >= next_checkpoint:
+                    checkpoint(ledger, local, old, auth, 'CHILD_RUNNING'); next_checkpoint += 10
+                time.sleep(.1)
+        require(waited is not None and not S.session_members(expected)
+                and not any(S.is_live(x) for x in seen.values()) and not (stop and descendants), 'Unsettled Git subtree; never treat helper-only CPU as total')
+        row.update(status='EXITED' if child.returncode == 0 and stop is None else 'FAILED_CLOSED', exit_code=child.returncode,
+                   stop_reason=stop, actual_cpu_seconds=row['observed_wait4_cpu_seconds'], ended_at_utc=utc(), log_sha256=sha(log))
+        checkpoint(ledger, local, old, auth, 'CHILD_CLOSED')
+    except BaseException as error:
+        preserve_helper_exception(row, ledger, error=error)
+        try:
+            checkpoint(ledger, local, old, auth, 'FAILED_PRESERVED')
+        finally:
+            row['containment_errors'] = contain_matching_tree(expected, seen.values())
+        raise
+    require(row['status'] == 'EXITED', 'Known failed helper: preserve index/evidence; stop further publication')
+    stdout = json.loads(log.read_text().splitlines()[-1]); receiptfile = BASE / 'git-return' / attempt / 'return_receipt.json'
+    receipt = read(receiptfile)
+    require(receipt['status'] == 'DONE_ACTUAL_PUSH_AND_REMOTE_REF_VERIFIED' and receipt['actual_result_upload'] == 'DONE'
+            and receipt['manifest_sha256'] == stage['manifest']['sha256'] and receipt['source_helper_sha256'] == HELPER_SHA
+            and stdout['science_commit'] == receipt['science_commit'] and len(stdout['final_metadata_commit']) == 40,
+            'Both actual scientific and closing metadata commits need verified original-helper evidence')
+    expected_files = expected_stage_files(stage, planfile, plan_sha)
+    require(receipt['artifact_hashes'] == {v['path']: {'bytes': v['bytes'], 'sha256': v['sha256']} for v in expected_files},
+            'Actual committed payload differs from the exact bound files')
+    value = {'id': stage['id'], 'attempt': attempt, 'phase': phase, 'receipt': ref(receiptfile),
+             'science_commit': receipt['science_commit'], 'final_metadata_commit': stdout['final_metadata_commit'],
+             'remote_verified_by_original_helper': True, 'actual_CPU_seconds': row['actual_cpu_seconds']}
+    local.setdefault('closed_returns', []).append(value); checkpoint(ledger, local, old, auth, 'RETURN_VERIFIED')
+
+
+def execute(planfile, plan_sha):
+    plan, auth, old = validate_plan(planfile, plan_sha)
+    with S.parent_lock(), S.B.exclusive_lock():
+        require(not CLAIM.exists() and not (WORK / 'state.json').exists(), 'Existing recovery claim/state requires forensic review; no blind re-execution')
+        require(sha(S.ledger_path()) == auth['predecessor_ledger_ref']['sha256'], 'Only the exact fully closed predecessor ledger may be extended')
+        ledger = read(S.ledger_path()); require(S.remaining_cpu(ledger) >= self_cpu() + 100, 'Same existing budget must cover accrued parent cost and finalization')
+        require(time.time() + 10 < datetime.fromisoformat(S.DEADLINE).timestamp(), 'Original authorized deadline expired')
+        binding = {'schema': PLAN_SCHEMA + '-allocation', 'recovery_id': RECOVERY_ID, 'plan': ref(planfile),
+            'driver': plan['driver_ref'], 'authorization_ref': plan['authorization_ref'], 'boot_id': boot(),
+            'old_boot_id_unchanged': old['boot_id'], 'ledger_path': str(S.ledger_path()), 'new_CPU_authorization_seconds': 0}
+        save(CLAIM, binding, exclusive=True)
+        ledger[KEY] = {'status': 'RUNNING', 'binding': binding, 'old_closed_science_and_failures_unchanged': True}
+        ledger['finalization_hold_seconds'] += 1
+        ledger['parents'].append({'id': RECOVERY_ID, 'status': 'RUNNING', 'identity': S.identity(os.getpid()),
+            'self_cpu_seconds': self_cpu(), 'actual_driver_source': plan['driver_ref'], 'publication_recovery_plan': ref(planfile),
+            'new_nonmeasured_tail_hold_seconds': 1, 'new_CPU_authorization_seconds': 0})
+        local = {'schema': PLAN_SCHEMA + '-state', 'plan': ref(planfile), 'binding': binding, 'closed_returns': [], 'created_at_utc': utc()}
+        checkpoint(ledger, local, old, auth, 'RUNNING')
+        try:
+            for stage in plan['stages']: run_helper(stage, planfile, plan_sha, plan, ledger, local, old, auth)
+            require({x['id'] for x in local['closed_returns']} == {x['id'] for x in plan['stages']}, 'Every finite publication stage must verify')
+            local['original_pending_stage_coverage_qualified'] = plan['coverage_by_original_stage']
+            local['all_original_scientific_targets_published'] = True
+            local['final_parent_and_Git_tail_costs_remain_local'] = True
+            ledger[KEY]['status'] = 'FINALIZED'; ledger['parents'][-1]['status'] = 'CLOSED'
+            checkpoint(ledger, local, old, auth, 'FINALIZED')
+        except BaseException as error:
+            ledger[KEY].update(status='BLOCKED_PRESERVED', error_type=type(error).__name__, reason=str(error))
+            ledger['parents'][-1]['status'] = 'BLOCKED_PRESERVED' if ledger.get('blocked_unknown_cpu_or_process_tree') else 'CLOSED'
+            local.update(error_type=type(error).__name__, reason=str(error)); checkpoint(ledger, local, old, auth, 'BLOCKED_PRESERVED'); raise
+        return {'status': 'FINALIZED', 'state': ref(WORK / 'state.json'), 'verified_batches': len(local['closed_returns']),
+                'same_grant_remaining_CPU_seconds': S.remaining_cpu(ledger), 'new_scientific_fits': 0}
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--build-plan', action='store_true'); parser.add_argument('--authorization'); parser.add_argument('--authorization-sha256')
+    parser.add_argument('--plan'); parser.add_argument('--plan-sha256'); parser.add_argument('--execute', action='store_true')
+    args = parser.parse_args()
+    if args.build_plan:
+        require(args.authorization and args.authorization_sha256 and not args.plan and not args.execute, 'Separate pinned preparation only')
+        result = {'status': 'PREPARED_NOT_EXECUTED', 'plan': build_plan(args.authorization, args.authorization_sha256)}
+    else:
+        require(args.plan and args.plan_sha256 and not args.authorization and not args.authorization_sha256, 'Pinned finite plan required')
+        if args.execute: result = execute(path(args.plan), args.plan_sha256)
+        else:
+            plan, auth, old = validate_plan(path(args.plan), args.plan_sha256)
+            require(not CLAIM.exists() and sha(S.ledger_path()) == auth['predecessor_ledger_ref']['sha256'],
+                    'Check-only requires the exact unclaimed predecessor; inspect the recovery sidecar after execution')
+            result = {'status': 'CHECKED_NOT_EXECUTED', 'stages': len(plan['stages']), 'target_files': len(plan['target_files']),
+                      'new_scientific_fits': 0, 'new_CPU_authorization_seconds': 0, 'remaining_CPU_seconds': S.remaining_cpu(old)}
+    print(json.dumps(result, ensure_ascii=False))
+
+
+if __name__ == '__main__': main()
