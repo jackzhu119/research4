@@ -1,0 +1,25 @@
+{
+  "plan_id": "zaoren-four-round-followup-20261031",
+  "recorded_date_client": "2026-10-31",
+  "client_timezone": "Asia/Shanghai",
+  "dataset_version": "2026-10-31-zaoren-numbered-v1",
+  "dataset_npz_sha256": "acd0bc051667d200fa87ed05f4bb2116c9eea5b971a5a8081cedea2e3fcc66e2",
+  "split_plan_sha256": "17055eef5a4c544344f735032b55ef12f52bde341ffdff9378b25a835baa9594",
+  "roles": {"source": 513, "calibration_pool": 171, "fixed_prediction": 171},
+  "features": {"type": "absorption coefficient", "frequency_lower_inclusive": 0.1, "frequency_upper_inclusive": 1.5, "expected_points": 612},
+  "labels": "real uploaded spectra, anonymous ZY01-ZY07 groups permitted by user; not synthetic spectra",
+  "source_neural_seeds": [42, 43, 44],
+  "neural_development": {"tasks": 6, "selection_tasks": 4, "gate_tasks": 2, "split_seed": 20261103, "support_draws_per_task": 5},
+  "svm_development": {"tasks": 30, "selection_tasks": 24, "gate_tasks": 6, "split_seed": 20261103, "support_draws_per_task": 20},
+  "rounds": [
+    {"round": 1, "name": "stronger supervised MLP source", "protocol": "data/research/neural_base_search_protocol_20261031.json", "configurations": 24, "changes": "source-fitted standardization, no/PCA20/PCA40, hidden64/64-32, epochs80/200, none/balanced CE", "depends_on": []},
+    {"round": 2, "name": "weighted support SVM parameter adaptation", "protocol": "data/research/support_svm_search_protocol_20261031.json", "configurations": 21, "changes": "frozen source preprocessor, gamma and classweights; new SVM copy fitted with weighted labelled support; score blending", "depends_on": ["previous source SVM caches"]},
+    {"round": 3, "name": "source replay and parameter anchored MLP calibration", "protocol": "data/research/anchored_neural_search_protocol_20261031.json", "configurations": 24, "changes": "learning rate, steps, source replay weight and L2 distance from frozen source parameters", "depends_on": ["round1 development-selected source only"]},
+    {"round": 4, "name": "first-order MAML refinement", "protocol": "data/research/meta_refinement_search_protocol_20261031.json", "configurations": 16, "changes": "100/500 source meta updates, inner learning rate, source supervised anchor and target support adaptation", "depends_on": ["round1 development-selected source only"]}
+  ],
+  "final_evaluation_barrier": "Every round must finish source-only development selection and gate; root records hashes of all four locks before any round scores the fixed final prediction specimens.",
+  "target_support": {"samples_per_class": 1, "samples_total": 7, "draws": 100, "seed": 20261105, "rare_class_pool_size": 1},
+  "calibration_acceptance": {"minimum_accuracy_gain_over_original_and_matched_zero": 0.001, "maximum_macro_f1_loss": 0.005, "maximum_balanced_accuracy_loss": 0.005, "fallback": "round-specific prespecified zero-support control"},
+  "required_records": ["all candidate development metrics", "negative and fallback results", "all training seeds", "original source and matched no-target-label controls", "per-specimen prediction and truth joined only at scoring", "source and protocol hashes", "selection locks", "runtime and actual completed counts", "independent numerical audit"],
+  "interpretation": ["All data and final query have previous research exposure; retrospective same-batch exploration only.", "One batch per origin; no invented batch IDs or externally verified named origins.", "Repeated tasks, seeds and support draws are not independent specimens or new batches.", "Source-model improvements, additional source training and support-label contributions must be reported separately.", "Do not choose hyperparameters, seeds, samples, epochs or the next round design from final prediction scores.", "Existing MAML/ProtoNet/MLP/SVM methods do not become new algorithms by renaming.", "No Gaussian, no MATLAB native validation and no claim of connected Colab."]
+}

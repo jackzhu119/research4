@@ -1,0 +1,177 @@
+{
+  "schema": "research4-autonomous-90000-v1",
+  "config_sha256": "37587edfe74173f434bb05dbc5b9d74f8d4adc6602e8657c8d31bef2b93eefd7",
+  "supervisor_sha256": "0986a1356a72f69651074f8c9f7681529248ecad9190526d078d6820a055e8ca",
+  "created_at_utc": "2026-11-08T11:48:13.721452+00:00",
+  "total_cpu_seconds": 87000,
+  "preparation_cpu_seconds_reserved": 2000.0,
+  "preparation_reservation_is_conservative_not_measured_CPU": true,
+  "payload_cpu_seconds": 5348.216136,
+  "supervisor_cpu_seconds": 37.690418000000136,
+  "jobs": {
+    "water-controls": {
+      "status": "SUCCESS",
+      "started_at_utc": "2026-11-08T11:48:13.726227+00:00",
+      "argv": [
+        "/workspace/research4/.venv-pyscf-90000/bin/python",
+        "-B",
+        "/workspace/research4/scripts/pyscf_full_numerical_hessian_20261108_v2.py",
+        "--stage",
+        "controls",
+        "--threads",
+        "2",
+        "--output",
+        "/workspace/research4/reports/pyscf-autonomous-90000-20261108/newton-recovery-v2/jobs/water-controls"
+      ],
+      "requested_cpu_seconds": 1000,
+      "sampled_cpu_seconds": 36.590320000000006,
+      "output_directory": "/workspace/research4/reports/pyscf-autonomous-90000-20261108/newton-recovery-v2/jobs/water-controls",
+      "guardian_identity": {
+        "pid": 3267,
+        "ppid": 1,
+        "pgrp": 3267,
+        "sid": 3267,
+        "state": "R",
+        "start_ticks": 165094,
+        "uid": 1000,
+        "boot_id": "a518927f-14ba-467c-8e72-ac5d3ebbe429",
+        "cpu_seconds": 0.04,
+        "rss_bytes": 14028800
+      },
+      "worker_identity": {
+        "pid": 3268,
+        "ppid": 3267,
+        "pgrp": 3268,
+        "sid": 3268,
+        "state": "R",
+        "start_ticks": 165099,
+        "uid": 1000,
+        "boot_id": "a518927f-14ba-467c-8e72-ac5d3ebbe429",
+        "cpu_seconds": 0.0,
+        "rss_bytes": 0
+      },
+      "peak_rss_bytes": 177561600,
+      "actual_cpu_seconds": 36.590320000000006,
+      "exit_code": 0,
+      "ended_at_utc": "2026-11-08T11:48:26.135590+00:00",
+      "actual_cpu_source": "WAIT4_ALL_OWNED_REAPED_CHILDREN_USER_PLUS_SYSTEM",
+      "all_owned_processes_closed": true,
+      "wall_seconds": 12.408446535999929,
+      "result_status": "CONTROLS_PASSED",
+      "result_sha256": "7d238bc3181b0c7a0acf42dcbbd2412df6c9cfbdc9c5421174019806daccf762"
+    },
+    "acid-optimize": {
+      "status": "FAILED_CLOSED",
+      "started_at_utc": "2026-11-08T11:48:28.642444+00:00",
+      "argv": [
+        "/workspace/research4/.venv-pyscf-90000/bin/python",
+        "-B",
+        "/workspace/research4/scripts/pyscf_full_numerical_hessian_20261108_v2.py",
+        "--stage",
+        "optimize",
+        "--threads",
+        "2",
+        "--output",
+        "/workspace/research4/reports/pyscf-autonomous-90000-20261108/newton-recovery-v2/jobs/acid-optimize",
+        "--xyz",
+        "/workspace/research4/data/research/pyscf_autonomous_90000_20261108/inputs/protocatechuic_acid.xyz",
+        "--initial-density",
+        "/workspace/research4/reports/pyscf-autonomous-90000-20261108/jobs/acid-optimize/optimization_steps/step-000/density.npy",
+        "--initial-density-sha256",
+        "cc64f7a97e5c309e44d007c4d704a4b691d1486449d1cc720511cb3b45721b4e",
+        "--initial-density-source-result",
+        "/workspace/research4/reports/pyscf-autonomous-90000-20261108/jobs/acid-optimize/optimization_steps/step-000/result.json"
+      ],
+      "requested_cpu_seconds": 8000,
+      "sampled_cpu_seconds": 5311.625816,
+      "output_directory": "/workspace/research4/reports/pyscf-autonomous-90000-20261108/newton-recovery-v2/jobs/acid-optimize",
+      "guardian_identity": {
+        "pid": 3267,
+        "ppid": 1,
+        "pgrp": 3267,
+        "sid": 3267,
+        "state": "R",
+        "start_ticks": 165094,
+        "uid": 1000,
+        "boot_id": "a518927f-14ba-467c-8e72-ac5d3ebbe429",
+        "cpu_seconds": 37.26,
+        "rss_bytes": 14548992
+      },
+      "worker_identity": {
+        "pid": 3301,
+        "ppid": 3267,
+        "pgrp": 3301,
+        "sid": 3301,
+        "state": "R",
+        "start_ticks": 166591,
+        "uid": 1000,
+        "boot_id": "a518927f-14ba-467c-8e72-ac5d3ebbe429",
+        "cpu_seconds": 0.0,
+        "rss_bytes": 0
+      },
+      "peak_rss_bytes": 5562032128,
+      "actual_cpu_seconds": 5311.625816,
+      "exit_code": 2,
+      "ended_at_utc": "2026-11-08T12:29:05.764793+00:00",
+      "actual_cpu_source": "WAIT4_ALL_OWNED_REAPED_CHILDREN_USER_PLUS_SYSTEM",
+      "all_owned_processes_closed": true,
+      "wall_seconds": 2437.1211360710004,
+      "result_status": "FAILED",
+      "result_sha256": "13819a771643b53e55089b8047ffdddeb5868cf9ef9d90cbd0081e4557889d81"
+    },
+    "acid-hessian-h001": {
+      "status": "SKIPPED_DEPENDENCY"
+    },
+    "acid-hessian-h0005": {
+      "status": "SKIPPED_DEPENDENCY"
+    },
+    "acid-analyze": {
+      "status": "SKIPPED_DEPENDENCY"
+    }
+  },
+  "status": "FINITE_QUEUE_COMPLETE",
+  "driver_identity": {
+    "pid": 3267,
+    "ppid": 1,
+    "pgrp": 3267,
+    "sid": 3267,
+    "state": "R",
+    "start_ticks": 165094,
+    "uid": 1000,
+    "boot_id": "a518927f-14ba-467c-8e72-ac5d3ebbe429",
+    "cpu_seconds": 0.03,
+    "rss_bytes": 13766656
+  },
+  "detachment_survives_host_shutdown": false,
+  "updated_at_utc": "2026-11-08T12:29:10.767934+00:00",
+  "consumed_cpu_seconds": 7385.906557,
+  "actual_observed_cpu_seconds_excluding_preparation_reservation": 5385.906557,
+  "remaining_cpu_seconds": 79614.093443,
+  "git_returns": [
+    {
+      "status": "PUSH_REMOTE_HEAD_VERIFIED",
+      "commit": "f809a4a78d087dd8a2ea24948aa8fd7b4699e81e",
+      "at_utc": "2026-11-08T11:48:28.633473+00:00"
+    },
+    {
+      "status": "PUSH_REMOTE_HEAD_VERIFIED",
+      "commit": "b17c59ddd473d111aac00655996b5076a72d2992",
+      "at_utc": "2026-11-08T12:03:29.094018+00:00"
+    },
+    {
+      "status": "PUSH_REMOTE_HEAD_VERIFIED",
+      "commit": "791688fe57eede6eabb50a2fa5e617c45a592483",
+      "at_utc": "2026-11-08T12:18:29.131281+00:00"
+    },
+    {
+      "status": "PUSH_REMOTE_HEAD_VERIFIED",
+      "commit": "3cffd6f6be84568fca34459902166a55d6e49a06",
+      "at_utc": "2026-11-08T12:29:08.599728+00:00"
+    },
+    {
+      "status": "PUSH_REMOTE_HEAD_VERIFIED",
+      "commit": "83ec09dd7b7e0d2668cf1c57347e8f9e268bb195",
+      "at_utc": "2026-11-08T12:29:10.765902+00:00"
+    }
+  ]
+}

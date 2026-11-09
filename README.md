@@ -1,5 +1,12 @@
 # 中药太赫兹光谱数据与产地识别研究
 
+## 论文写作资料总入口（2026-11-09）
+
+已将历轮实验整理为[论文资料总入口](docs/paper_bundle_20261109/README.md)：93个实验族、175份引用来源、完整设计/回传结果/结论及论文使用边界。可下载[实验CSV台账](evidence/paper_bundle_20261109/experiment_registry.csv)、[指标长表](evidence/paper_bundle_20261109/metric_values.csv)，并检查固定提交及原样证据。当前18表与历史855混合种类实验分开，负结果及进行中的计算均保留真实状态。
+
+[论文定位与可写结论](docs/paper_bundle_20261109/01_PAPER_READINESS_AND_CLAIMS.md) · [当前数据与物种实验](docs/paper_bundle_20261109/03_CURRENT_DATA_AND_SPECIES.md) · [全部实验族台账](docs/paper_bundle_20261109/08_EXPERIMENT_REGISTER.md) · [复现与来源地图](docs/paper_bundle_20261109/07_REPRODUCIBILITY_AND_SOURCE_MAP.md)
+
+
 本仓库保存枣仁、酸枣仁、黄芪和天麻的光谱数据及研究资料。用户于2026-11-08确认本轮上传表格的产地与种类，仓库据内容比对更新文件名、标签和数据入口；本次整理没有重新训练或评价模型。
 
 ## 当前数据版本

@@ -1,0 +1,124 @@
+{
+  "protocol_id": "upgrade-20261031-v1-neural-small-budget",
+  "recorded_date_client": "2026-10-31",
+  "client_timezone": "Asia/Shanghai",
+  "input": "data/multiplant_database/zaoren/aligned_modalities.npz",
+  "input_sha256": "6d1a6917b0f97ab431ec91e78621292b04ddc5cba56a02c0c9c641b2d0035647",
+  "alignment": "data/multiplant_database/zaoren/alignment.json",
+  "alignment_sha256": "68423a03bd34a5991a5be98feec56143826bcd86357936dee6d22ad6c17a2077",
+  "lineage": "data/metadata/sample_lineage.csv",
+  "lineage_sha256": "f9b8b2529c17a9b3b8b14c04c8a3bdd0560a5e8a2a943bb6213923cfeb588ddb",
+  "historical_splits": "reports/staged-nested-optimization/2026-10-31/core/splits.json",
+  "historical_splits_sha256": "fcf14231b4dc1a1e15af8c46310ee6f39e71520b76a7b62fe0e176485f6f5cfe",
+  "guarded_split_manifest": "data/splits/upgrade-20261031-v1/split_manifest.json",
+  "samples": 855,
+  "class_order": [
+    "ZY01",
+    "ZY02",
+    "ZY03",
+    "ZY04",
+    "ZY05",
+    "ZY06",
+    "ZY07"
+  ],
+  "outer_folds": 5,
+  "inner_folds": 2,
+  "split_seed": 20261031,
+  "seeds": [
+    42,
+    43,
+    44
+  ],
+  "primary_seed": 42,
+  "families": [
+    "cnn_alpha",
+    "resnet_alpha",
+    "se_alpha",
+    "dual_alpha_mcuve",
+    "fusion_alpha_n",
+    "cnn_n",
+    "fusion_time_frequency",
+    "fusion_all_four"
+  ],
+  "profiles": [
+    {
+      "id": "small12",
+      "width": 8,
+      "blocks": 1,
+      "epochs": 12,
+      "dropout": 0.15,
+      "learning_rate": 0.001,
+      "class_weight": "none",
+      "mc_runs": 10,
+      "mc_components": 1,
+      "mc_ratio": 0.1
+    },
+    {
+      "id": "regularized24",
+      "width": 12,
+      "blocks": 2,
+      "epochs": 24,
+      "dropout": 0.35,
+      "learning_rate": 0.0005,
+      "class_weight": "balanced",
+      "mc_runs": 20,
+      "mc_components": 2,
+      "mc_ratio": 0.2
+    }
+  ],
+  "selection_rule": "For each outer fold and family independently: mean of 2 inner folds x all3 seeds; maximize Macro-F1 then BalancedAccuracy then Accuracy then profile ID; no outer selection. Coupled profiles are not a factorial grid or independent-factor ablation.",
+  "maximum_points": {
+    "alpha": null,
+    "n": null,
+    "time": 512,
+    "frequency": 256
+  },
+  "fixed_preprocessing": {
+    "alpha": "per-spectrum SNV ddof1 then current-source StandardScaler",
+    "n": "current-source StandardScaler",
+    "time": "fixed per-spectrum consecutive-block means to512 then source StandardScaler",
+    "frequency": "fixed per-spectrum consecutive-block means to256 then source StandardScaler"
+  },
+  "optimizer": {
+    "name": "Adam",
+    "weight_decay": 0.001,
+    "batch_size": 64,
+    "early_stopping": false,
+    "scheduler": null,
+    "checkpoint_choice": "final epoch fixed by selected inner profile"
+  },
+  "mcuve": "unchanged original MCUVESelector, fit only current training rows, each internal PLS fit instrumented; noncontiguous variables passed to MLP, never direct convolution",
+  "attention": "SE only in se_alpha; attention is a model mechanism, not chemical concentration",
+  "comparators": {
+    "historical_R2": "reports/staged-nested-optimization/2026-10-31/core/summary.json",
+    "R2_scope": "821/855 historical exposed within-batch development, seed42; no weaker replacement or recomputation of old score"
+  },
+  "not_run_models": {
+    "mcuve_only": "implemented and boundary-tested but outside this eight-family minimum budget",
+    "dual_alpha_mcuve_se": "implemented and boundary-tested but outside this eight-family minimum budget",
+    "CBAM_and_frequency_position_attention": "NOT_IMPLEMENTED_THIS_VERSION",
+    "HQ_Tianma_classification": "BLOCKED unresolved physical ancestors and independent-label evidence",
+    "cross_plant_transfer": "BLOCKED independence/unit/instrument compatibility unknown"
+  },
+  "scientific_status": "EXPLORATORY exposed single-batch development; no reserved independent confirmation dataset",
+  "file_isolation": {
+    "prepare": "only preparation reads full labeled DB for fixed-context packaging",
+    "selection": "source packs contain only source y; inner truth read only for validation scoring",
+    "evaluation": "source fitting plus label-free inference, no outer truth CSV opened",
+    "score": "separate process joins immutable prediction rows with outer truth",
+    "OS_read_access_restrictions": false
+  },
+  "source_training_gate": "root release binds protocol/preparation/all source hashes after actual guard and neural tests",
+  "outer_gate": "all5 outer-fold inner selections locked, root release binds lock/manifest/protocol and actual UTC",
+  "resource_limit": "CPU single thread; 480inner actual model fits +120outer actual model fits; 15policy-role aliases (2565extra OOF records) add no specimens or model fits; fixed2profiles; full171 pointwise inference checks per outer model",
+  "revision_id": "prefit-v3-strict-schema-inner-architecture-policy",
+  "primary_neural_strategy": {
+    "prediction_role": "inner_selected_neural",
+    "selection": "For each outer fold use mean2inner x3seeds across all8families x2profiles; MacroF1 then BalancedAccuracy then Accuracy then family/profile dictionary order",
+    "outer_weights": "alias the already source-trained selected family pipeline; no additional fit or target-label access",
+    "additional_prediction_role_rows": 2565,
+    "same_real_specimens": 855,
+    "preselected_primary_seed": 42
+  },
+  "prefit_revision_provenance": "outputs/upgrade-20261031-v1/neural/pre_source_schema_v1 and pre_source_architecture_v2 preserve earlier code/protocol/tests; no real source fit preceded revisions"
+}

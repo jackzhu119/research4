@@ -1,0 +1,80 @@
+{
+  "protocol_id": "zaoren-neural-learning-pilot-20261031-v1",
+  "split_id": "outer00.inner00",
+  "purpose": "INNER-only epoch diagnostic; no outer evaluation or deployment configuration selection",
+  "families": [
+    "cnn_alpha",
+    "fusion_all_four"
+  ],
+  "seeds": [
+    42,
+    43,
+    44
+  ],
+  "class_order": [
+    "ZY01",
+    "ZY02",
+    "ZY03",
+    "ZY04",
+    "ZY05",
+    "ZY06",
+    "ZY07"
+  ],
+  "profile": {
+    "id": "regularized24",
+    "width": 12,
+    "blocks": 2,
+    "epochs": 96,
+    "dropout": 0.35,
+    "learning_rate": 0.0005,
+    "class_weight": "balanced",
+    "mc_runs": 20,
+    "mc_components": 2,
+    "mc_ratio": 0.2
+  },
+  "maximum_epochs": 96,
+  "checkpoints": [
+    12,
+    24,
+    48,
+    96
+  ],
+  "batch_size": 64,
+  "optimizer": {
+    "name": "Adam",
+    "learning_rate": 0.0005,
+    "weight_decay": 0.001
+  },
+  "fresh_initialization_each_family_seed": true,
+  "no_early_stopping_or_scheduler": true,
+  "input_manifest_sha256": "3290e213d41f7dd6a2fd642d36e48eea226e56799249ed90df6b3134e7982dd7",
+  "source_sha256": {
+    "scripts/run_source_learning_pilot.py": "6f38ce8983995b742d48f4df491a9714c6a22c41cf3436b373e45f7c556c55a5",
+    "tests/test_source_learning_pilot.py": "3bb16efb34621a391f146f7dacf6d579caddd48a8d06b6288a400ea7499b7c35",
+    "src/herb_spectra/upgrade_neural.py": "4ec65e407c197d9f666c72e9f4a5d79eee0045f823787df9e5b22f57dc43e773",
+    "src/herb_spectra/leakage_guard.py": "9b5555be27fc634aae46f31e50a06f1950d238c83ff654df91a37c0cdd74748e",
+    "src/herb_spectra/classification.py": "793a550f46522bc2e69acf922b39e104a0e94b5eb058905f987a91d0f16a08b2",
+    "src/herb_spectra/selection.py": "477d1f0404d8d170fb2bba91bbb5e24d311fb94cf7a20cfd8a7781b93064206f",
+    "src/herb_spectra/multiplant_database.py": "fbfde791331c7bd4f27f48816c63003c696bc9894a9fbaa44accf703baee50eb"
+  },
+  "selection_from_validation": "No winner chosen; fixed checkpoint descriptions and full curves only",
+  "outer_evaluation": "NOT_RUN_FORBIDDEN",
+  "deployment_model_affected": false,
+  "training_loss_definition": "Source train-mode minibatch CE multiplied by batch size, summed and divided by N; distinct from fixed-model full-source eval CE",
+  "evaluation": "eval/no_grad with fixed source class weights; parameters/BN/optimizer/grads/RNG unchanged",
+  "metric_replay_tolerance": {
+    "count_metrics": 1e-12,
+    "cross_entropy": 1e-05,
+    "logits": 1e-05
+  },
+  "new_real_specimens": 0,
+  "study_status": "EXPLORATORY historical source-only diagnostic",
+  "OS_truth_sandbox": false,
+  "versions": {
+    "numpy": "2.3.5",
+    "torch": "2.9.0+cpu",
+    "scikit-learn": "1.8.0",
+    "joblib": "1.5.3"
+  },
+  "created_at_utc": "2026-10-31T12:27:43.257278+00:00"
+}

@@ -1,0 +1,3546 @@
+{
+  "module": "historical_ml",
+  "cutoff_utc": "2026-11-09T01:15:35.738470+00:00",
+  "source_snapshot": {
+    "repository": "jackzhu119/research4",
+    "ref": "research/pyscf-spinosin-mechanism-20261031",
+    "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458"
+  },
+  "scope_note": "All old855 anonymous-group outcomes are retrospective mixed-kind experiments after the 2026-11-08 label correction, not current18-workbook single-kind origin results. External/supplemental/72h analyses are intentionally indexed in the companion external module.",
+  "metric_units": "accuracy, macro_f1 and balanced_accuracy are fractions unless an explicit *_percentage_points field says otherwise; report-rounded legacy values are kept at report precision.",
+  "audit_performed_now": "Read fixed-commit source reports, protocol files and small raw metric summaries; hash each source. No training, source-weight mutation, full raw-prediction recomputation or background-process control.",
+  "experiments": [
+    {
+      "experiment_id": "HML-001",
+      "title": "老师代码静态审读与方法语义核对",
+      "status": "COMPLETED_STATIC_AUDIT",
+      "dataset_scope": "2026-10-30原始算法资料；当时9份工作簿检查只是输入审查",
+      "design": "8个算法压缩包、147个可读文本成员；核对入口、预处理、变量筛选、PLS核心/CV、SSA适应度、CNN/BP；未声称逐行审计所有LIBSVM/二进制。",
+      "metrics": {
+        "algorithm_archives": 8,
+        "readable_text_members": 147,
+        "cars_reported_error_scaling_factor": 2.8
+      },
+      "conclusion": "定位CARS报告误差除2.8、MC-UVE有符号排序差异、SSA复用寻优折评分、PLS联合归一化、CNN人工2D重排/验证集复用等问题。标准方法和现成包不能因组合或改名变为原创算法。",
+      "paper_use": "方法实现与可复现性背景；保留原作者/许可引用，不能作本研究新算法性能证据。",
+      "limitations": [
+        "静态发现不等于全部原程序均已修复或所有MATLAB环境必失败。"
+      ],
+      "sources": [
+        {
+          "repository": "jackzhu119/research4",
+          "ref": "research/pyscf-spinosin-mechanism-20261031",
+          "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+          "path": "docs/ALGORITHM_REVIEW.md",
+          "sha256": "3389e66114d7f4dae2723ef17247532681db99ffa8e83661a9d9537f1b8bd621"
+        }
+      ]
+    },
+    {
+      "experiment_id": "HML-002",
+      "title": "Octave/Python核心兼容性与工程实测",
+      "status": "COMPLETED_ENGINEERING_VALIDATION",
+      "dataset_scope": "原包演示/合成工程夹具及旧9表808谱输入适配；不是855新版分类",
+      "design": "GNU Octave9.4/Python CPU隔离环境；29原脚本入口、原核心、声明兼容适配、逻辑/性能/形状夹具；保存每次命令/输入/源码hash。",
+      "metrics": {
+        "recorded_attempts": 92,
+        "pass_scenarios": 35,
+        "fail_scenarios": 53,
+        "timeout_scenarios": 4,
+        "unmodified_entrypoints_blocked": 29,
+        "later_unified_live_cases_passed": 34,
+        "native_matlab_executed": false
+      },
+      "conclusion": "核心PLS/SVM/MC-UVE可复用；92次尝试的pass包含成功复现缺陷。原SSA示例调参和报告同折，示例CNN存在跨集相同特征行；其高分均不作药材泛化成绩。",
+      "paper_use": "软件可用性和缺陷修复说明，科学实验表中应与药材结果分开。",
+      "limitations": [
+        "Octave兼容性不是MATLAB原生复现；工程夹具和原包演示不增加药材样本。"
+      ],
+      "sources": [
+        {
+          "repository": "jackzhu119/research4",
+          "ref": "research/pyscf-spinosin-mechanism-20261031",
+          "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+          "path": "docs/RUNTIME_USABILITY_REPORT.md",
+          "sha256": "8fc053decce51994eea9eb97a5f977566c1f6c47d17d82b5392808b56139387d"
+        },
+        {
+          "repository": "jackzhu119/research4",
+          "ref": "research/pyscf-spinosin-mechanism-20261031",
+          "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+          "path": "docs/INSTALL_AND_RUN.md",
+          "sha256": "34ab65d1146587149d0c6e702cd0bfcc532495d4fd1f4042f863ce58fa615407"
+        }
+      ]
+    },
+    {
+      "experiment_id": "HML-003",
+      "title": "批准主矩阵：传统分类与变量筛选",
+      "status": "COMPLETED_HISTORICAL_EXPLORATORY",
+      "dataset_scope": "855个历史ZY记录，ZY01/02后确认为枣仁、ZY03—07为酸枣仁；旧匿名来源组标签，非当前18表实验",
+      "design": "7表855；α612点候选区0.1—1.5；分层物理ID互斥5外/2内/CARS2；split_seed20261031、model_seed42。Raw/SNV、缩放、变量选择与C在当前训练区拟合。13路径65外折、11115条OOF。",
+      "metrics": {
+        "paths": 13,
+        "outer_fold_cases": 65,
+        "oof_role_predictions": 11115,
+        "primary_MC20_SVM": {
+          "correct": 773,
+          "n": 855,
+          "accuracy": 0.904093567251462,
+          "macro_f1": 0.8091848477608959,
+          "balanced_accuracy": 0.836734693877551
+        },
+        "alpha_full_SVM_accuracy": 0.8854,
+        "alpha_full_PLSDA_accuracy": 0.8187,
+        "cars_style_SVM_accuracy": 0.7953,
+        "MC100_SVM_accuracy": 0.8807,
+        "repeated_MC_SVM_accuracy": 0.9029
+      },
+      "conclusion": "MC20优于本矩阵普通全点SVM；提高MC次数、重复稳定筛选没有进一步增益。CARS-style为Python多分类适配，不是原MATLAB精度复现。",
+      "paper_use": "历史基线与负对照；可引用设计/训练内选择思路，分数仅当时混合ZY任务。",
+      "limitations": [
+        "本组历史855记录现已知混合枣仁和酸枣仁，不能描述为纯酸枣仁产地性能。",
+        "现有样品及测试表现已经历多轮开发曝光，不是未参与开发的新确认集。",
+        "原来源组各只有一个来源批次；样品级划分不能分离种类、来源组和该批次效应。",
+        "ZY02只有5条；重复种子、支持抽样、模态及派生Excel不增加独立样品或批次数。"
+      ],
+      "sources": [
+        {
+          "repository": "jackzhu119/research4",
+          "ref": "research/pyscf-spinosin-mechanism-20261031",
+          "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+          "path": "docs/ZAOREN_APPROVED_EXECUTION_REPORT.md",
+          "sha256": "68b5cc193e9917109e111e09055f0edc917ce686111960001ae8927e03164c45"
+        },
+        {
+          "repository": "jackzhu119/research4",
+          "ref": "research/pyscf-spinosin-mechanism-20261031",
+          "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+          "path": "data/research/approved_zaoren_experiment_plan_20261031.json",
+          "sha256": "21796a48aed177c68b20b912675a25c7feba17d9845254e5ee00e6cba9b151c8"
+        },
+        {
+          "repository": "jackzhu119/research4",
+          "ref": "research/pyscf-spinosin-mechanism-20261031",
+          "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+          "path": "reports/approved-zaoren/2026-10-31/independent-audit/pooled_metrics.csv",
+          "sha256": "8f414c4d93c120d21446f1b34b51b4f9507c6e08beb11aea0064fc90546bf8a0"
+        }
+      ]
+    },
+    {
+      "experiment_id": "HML-004",
+      "title": "批准矩阵中的模态与完整导出范围敏感性",
+      "status": "COMPLETED_HISTORICAL_EXPLORATORY",
+      "dataset_scope": "855个历史ZY记录，ZY01/02后确认为枣仁、ZY03—07为酸枣仁；旧匿名来源组标签，非当前18表实验",
+      "design": "与HML-003同855/同折；n、n+α直接拼接；另固定全导出α2578点SVM/PLS-DA敏感性。不是另一批独立样本。",
+      "metrics": {
+        "n_svm_accuracy": 0.7591,
+        "n_plsda_accuracy": 0.6374,
+        "concat_svm_accuracy": 0.8386,
+        "concat_plsda_accuracy": 0.7895,
+        "full_export_svm_accuracy": 0.9977,
+        "full_export_plsda_accuracy": 1.0,
+        "full_export_svm_ZY02_recall": "3/5"
+      },
+      "conclusion": "直接拼接未超过同类α单支。全导出高分不能证明该范围物理有效或不存在来源/制样混杂；负α及有效频段仍需仪器记录。",
+      "paper_use": "表示消融与高分敏感性诊断；不能以100%替换预定主区间。",
+      "limitations": [
+        "本组历史855记录现已知混合枣仁和酸枣仁，不能描述为纯酸枣仁产地性能。",
+        "现有样品及测试表现已经历多轮开发曝光，不是未参与开发的新确认集。",
+        "原来源组各只有一个来源批次；样品级划分不能分离种类、来源组和该批次效应。",
+        "ZY02只有5条；重复种子、支持抽样、模态及派生Excel不增加独立样品或批次数。",
+        "全频敏感性与候选区主矩阵不得混排名或据外层分数反选频段。"
+      ],
+      "sources": [
+        {
+          "repository": "jackzhu119/research4",
+          "ref": "research/pyscf-spinosin-mechanism-20261031",
+          "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+          "path": "docs/ZAOREN_APPROVED_EXECUTION_REPORT.md",
+          "sha256": "68b5cc193e9917109e111e09055f0edc917ce686111960001ae8927e03164c45"
+        },
+        {
+          "repository": "jackzhu119/research4",
+          "ref": "research/pyscf-spinosin-mechanism-20261031",
+          "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+          "path": "reports/approved-zaoren/2026-10-31/experiments/modality_controls/summary.json",
+          "sha256": "c99bd5e8cb5b6f92658a89873cdb6742f4b4285fad70015a296b7aa3819fdb84"
+        },
+        {
+          "repository": "jackzhu119/research4",
+          "ref": "research/pyscf-spinosin-mechanism-20261031",
+          "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+          "path": "reports/approved-zaoren/2026-10-31/experiments/full_export_sensitivity/summary.json",
+          "sha256": "8f412f5624ecef2be5ff381750df25d230b8be42f5f8ae41c089d28773ac3243"
+        }
+      ]
+    },
+    {
+      "experiment_id": "HML-005",
+      "title": "固定三用途留出与首次1-shot分数校准",
+      "status": "COMPLETED_HISTORICAL_EXPLORATORY",
+      "dataset_scope": "855个历史ZY记录，ZY01/02后确认为枣仁、ZY03—07为酸枣仁；旧匿名来源组标签，非当前18表实验",
+      "design": "seed20261101固定513训练/171支持池/171query；513内3折选Raw/SNV、C，冻结全点SVM与MC20SVM。每类1份共7支持、20次抽样、λ=1；query始终171，不将未用support回填。",
+      "metrics": {
+        "source_train": 513,
+        "support_pool": 171,
+        "fixed_query": 171,
+        "draws": 20,
+        "results": [
+          {
+            "selector": "full",
+            "method": "anchor_scores",
+            "shots_per_class": 1,
+            "evaluations": 20,
+            "accuracy_mean": 0.7494152046783625,
+            "accuracy_sd": 0.11602367183044873,
+            "accuracy_min": 0.4152046783625731,
+            "accuracy_max": 0.8830409356725146,
+            "balanced_accuracy_mean": 0.7378061224489796,
+            "balanced_accuracy_sd": 0.06882989659096574,
+            "balanced_accuracy_min": 0.6122448979591837,
+            "balanced_accuracy_max": 0.8622448979591838,
+            "macro_f1_mean": 0.7066287979657131,
+            "macro_f1_sd": 0.11345749786062577,
+            "macro_f1_min": 0.42525587452899544,
+            "macro_f1_max": 0.8567879612181013,
+            "accuracy_gain_percentage_points_mean": -13.94736842105263,
+            "positive_gain_draws": 0,
+            "zero_gain_draws": 0,
+            "negative_gain_draws": 20
+          },
+          {
+            "selector": "full",
+            "method": "source_only",
+            "shots_per_class": 0,
+            "evaluations": 1,
+            "accuracy_mean": 0.8888888888888888,
+            "accuracy_sd": 0.0,
+            "accuracy_min": 0.8888888888888888,
+            "accuracy_max": 0.8888888888888888,
+            "balanced_accuracy_mean": 0.8642857142857144,
+            "balanced_accuracy_sd": 0.0,
+            "balanced_accuracy_min": 0.8642857142857144,
+            "balanced_accuracy_max": 0.8642857142857144,
+            "macro_f1_mean": 0.8616237563605985,
+            "macro_f1_sd": 0.0,
+            "macro_f1_min": 0.8616237563605985,
+            "macro_f1_max": 0.8616237563605985,
+            "accuracy_gain_percentage_points_mean": 0.0,
+            "positive_gain_draws": 0,
+            "zero_gain_draws": 1,
+            "negative_gain_draws": 0
+          },
+          {
+            "selector": "mcuve20",
+            "method": "anchor_scores",
+            "shots_per_class": 1,
+            "evaluations": 20,
+            "accuracy_mean": 0.7289473684210526,
+            "accuracy_sd": 0.11009499987574504,
+            "accuracy_min": 0.4678362573099415,
+            "accuracy_max": 0.8830409356725146,
+            "balanced_accuracy_mean": 0.7170918367346938,
+            "balanced_accuracy_sd": 0.08620056122507863,
+            "balanced_accuracy_min": 0.5091836734693878,
+            "balanced_accuracy_max": 0.8693877551020409,
+            "macro_f1_mean": 0.6250806996915406,
+            "macro_f1_sd": 0.08925151501864446,
+            "macro_f1_min": 0.43265084933268405,
+            "macro_f1_max": 0.7641812137777662,
+            "accuracy_gain_percentage_points_mean": -14.824561403508767,
+            "positive_gain_draws": 2,
+            "zero_gain_draws": 0,
+            "negative_gain_draws": 18
+          },
+          {
+            "selector": "mcuve20",
+            "method": "source_only",
+            "shots_per_class": 0,
+            "evaluations": 1,
+            "accuracy_mean": 0.8771929824561403,
+            "accuracy_sd": 0.0,
+            "accuracy_min": 0.8771929824561403,
+            "accuracy_max": 0.8771929824561403,
+            "balanced_accuracy_mean": 0.8908163265306123,
+            "balanced_accuracy_sd": 0.0,
+            "balanced_accuracy_min": 0.8908163265306123,
+            "balanced_accuracy_max": 0.8908163265306123,
+            "macro_f1_mean": 0.7827446329431582,
+            "macro_f1_sd": 0.0,
+            "macro_f1_min": 0.7827446329431582,
+            "macro_f1_max": 0.7827446329431582,
+            "accuracy_gain_percentage_points_mean": 0.0,
+            "positive_gain_draws": 0,
+            "zero_gain_draws": 1,
+            "negative_gain_draws": 0
+          }
+        ]
+      },
+      "conclusion": "SVM88.8889%→74.9415%，MC20 87.7193%→72.8947%；固定弱样本校正平均明显下降，不是默认改善步骤。",
+      "paper_use": "可写为同批次回顾性校准负结果，不是跨批次校准。",
+      "limitations": [
+        "本组历史855记录现已知混合枣仁和酸枣仁，不能描述为纯酸枣仁产地性能。",
+        "现有样品及测试表现已经历多轮开发曝光，不是未参与开发的新确认集。",
+        "原来源组各只有一个来源批次；样品级划分不能分离种类、来源组和该批次效应。",
+        "ZY02只有5条；重复种子、支持抽样、模态及派生Excel不增加独立样品或批次数。",
+        "七类3/5/10shot不可行：ZY02支持池与query各仅1份。"
+      ],
+      "sources": [
+        {
+          "repository": "jackzhu119/research4",
+          "ref": "research/pyscf-spinosin-mechanism-20261031",
+          "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+          "path": "docs/ZAOREN_THREEWAY_REPORT.md",
+          "sha256": "9926ce06ffaa7f54c9b3b959e51230cb3972a09e1cc9100b02643c6a8a545df6"
+        },
+        {
+          "repository": "jackzhu119/research4",
+          "ref": "research/pyscf-spinosin-mechanism-20261031",
+          "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+          "path": "data/research/zaoren_threeway_protocol_20261031.json",
+          "sha256": "c11a15384f6b5a7bf1339a8df3e3be73343da7f8d3e256d1dce3889b79699832"
+        },
+        {
+          "repository": "jackzhu119/research4",
+          "ref": "research/pyscf-spinosin-mechanism-20261031",
+          "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+          "path": "reports/zaoren-threeway/2026-10-31/summary.json",
+          "sha256": "e380fb426fa6cd6760ec38abccc79f5db826454ff65520a2cada308968325e6b"
+        }
+      ]
+    },
+    {
+      "experiment_id": "HML-006",
+      "title": "116配置校准搜索与六类辅助K-shot",
+      "status": "COMPLETED_HISTORICAL_EXPLORATORY",
+      "dataset_scope": "855个历史ZY记录，ZY01/02后确认为枣仁、ZY03—07为酸枣仁；旧匿名来源组标签，非当前18表实验",
+      "design": "原513/171/171不动；30源内开发任务=24选择+6门禁；候选必须优于源模型及匹配零支持控制；七类1shot，另六类辅助1/3/5/10shot；100次支持抽样。",
+      "metrics": {
+        "configurations": 116,
+        "development_source_fits": 120,
+        "development_configuration_evaluations": 696000,
+        "final_case_evaluations": 9000,
+        "reported_prediction_rows": 1531800,
+        "seven_class_results": [
+          {
+            "method": "development_selected",
+            "scope": "seven_class_all",
+            "selector": "full",
+            "shots_per_class": 1,
+            "candidate_id": "c000_identity",
+            "evaluations": 100,
+            "accuracy_mean": 0.888888888888889,
+            "accuracy_sd": 1.1102230246251565e-16,
+            "accuracy_gain_mean": 0.0,
+            "balanced_accuracy_mean": 0.8642857142857144,
+            "macro_f1_mean": 0.8616237563605987,
+            "positive_accuracy_draws": 0,
+            "negative_accuracy_draws": 0,
+            "zero_accuracy_draws": 100
+          },
+          {
+            "method": "family_damped_anchor",
+            "scope": "seven_class_all",
+            "selector": "full",
+            "shots_per_class": 1,
+            "candidate_id": "c017_damped_anchor",
+            "evaluations": 100,
+            "accuracy_mean": 0.8909941520467837,
+            "accuracy_sd": 0.0028070175438596754,
+            "accuracy_gain_mean": 0.0021052631578947567,
+            "balanced_accuracy_mean": 0.866857142857143,
+            "macro_f1_mean": 0.8644098828676554,
+            "positive_accuracy_draws": 36,
+            "negative_accuracy_draws": 0,
+            "zero_accuracy_draws": 64
+          },
+          {
+            "method": "family_mistake_bias",
+            "scope": "seven_class_all",
+            "selector": "full",
+            "shots_per_class": 1,
+            "candidate_id": "c022_mistake_bias",
+            "evaluations": 100,
+            "accuracy_mean": 0.89,
+            "accuracy_sd": 0.0022941573387056397,
+            "accuracy_gain_mean": 0.0011111111111111215,
+            "balanced_accuracy_mean": 0.8656428571428573,
+            "macro_f1_mean": 0.8630942120171009,
+            "positive_accuracy_draws": 19,
+            "negative_accuracy_draws": 0,
+            "zero_accuracy_draws": 81
+          },
+          {
+            "method": "family_mistake_kernel",
+            "scope": "seven_class_all",
+            "selector": "full",
+            "shots_per_class": 1,
+            "candidate_id": "c086_mistake_kernel",
+            "evaluations": 100,
+            "accuracy_mean": 0.888888888888889,
+            "accuracy_sd": 1.1102230246251565e-16,
+            "accuracy_gain_mean": 0.0,
+            "balanced_accuracy_mean": 0.8642857142857144,
+            "macro_f1_mean": 0.8616237563605987,
+            "positive_accuracy_draws": 0,
+            "negative_accuracy_draws": 0,
+            "zero_accuracy_draws": 100
+          },
+          {
+            "method": "family_mistake_ridge",
+            "scope": "seven_class_all",
+            "selector": "full",
+            "shots_per_class": 1,
+            "candidate_id": "c054_mistake_ridge",
+            "evaluations": 100,
+            "accuracy_mean": 0.888888888888889,
+            "accuracy_sd": 1.1102230246251565e-16,
+            "accuracy_gain_mean": 0.0,
+            "balanced_accuracy_mean": 0.8642857142857144,
+            "macro_f1_mean": 0.8616237563605987,
+            "positive_accuracy_draws": 0,
+            "negative_accuracy_draws": 0,
+            "zero_accuracy_draws": 100
+          },
+          {
+            "method": "family_prototype_shrinkage",
+            "scope": "seven_class_all",
+            "selector": "full",
+            "shots_per_class": 1,
+            "candidate_id": "c110_prototype_shrinkage",
+            "evaluations": 100,
+            "accuracy_mean": 0.888888888888889,
+            "accuracy_sd": 1.1102230246251565e-16,
+            "accuracy_gain_mean": 0.0,
+            "balanced_accuracy_mean": 0.8642857142857144,
+            "macro_f1_mean": 0.8616237563605987,
+            "positive_accuracy_draws": 0,
+            "negative_accuracy_draws": 0,
+            "zero_accuracy_draws": 100
+          },
+          {
+            "method": "legacy_lambda1",
+            "scope": "seven_class_all",
+            "selector": "full",
+            "shots_per_class": 1,
+            "candidate_id": "c001_legacy_anchor",
+            "evaluations": 100,
+            "accuracy_mean": 0.764970760233918,
+            "accuracy_sd": 0.09234840274092439,
+            "accuracy_gain_mean": -0.12391812865497073,
+            "balanced_accuracy_mean": 0.744918367346939,
+            "macro_f1_mean": 0.714867683356178,
+            "positive_accuracy_draws": 0,
+            "negative_accuracy_draws": 100,
+            "zero_accuracy_draws": 0
+          },
+          {
+            "method": "matched_zero_support_c110_prototype_shrinkage",
+            "scope": "seven_class_all",
+            "selector": "full",
+            "shots_per_class": 1,
+            "candidate_id": "c110_prototype_shrinkage",
+            "evaluations": 100,
+            "accuracy_mean": 0.888888888888889,
+            "accuracy_sd": 1.1102230246251565e-16,
+            "accuracy_gain_mean": 0.0,
+            "balanced_accuracy_mean": 0.8642857142857144,
+            "macro_f1_mean": 0.8616237563605987,
+            "positive_accuracy_draws": 0,
+            "negative_accuracy_draws": 0,
+            "zero_accuracy_draws": 100
+          },
+          {
+            "method": "source_identity",
+            "scope": "seven_class_all",
+            "selector": "full",
+            "shots_per_class": 1,
+            "candidate_id": "c000_identity",
+            "evaluations": 100,
+            "accuracy_mean": 0.888888888888889,
+            "accuracy_sd": 1.1102230246251565e-16,
+            "accuracy_gain_mean": 0.0,
+            "balanced_accuracy_mean": 0.8642857142857144,
+            "macro_f1_mean": 0.8616237563605987,
+            "positive_accuracy_draws": 0,
+            "negative_accuracy_draws": 0,
+            "zero_accuracy_draws": 100
+          },
+          {
+            "method": "development_selected",
+            "scope": "seven_class_all",
+            "selector": "mcuve20",
+            "shots_per_class": 1,
+            "candidate_id": "c000_identity",
+            "evaluations": 100,
+            "accuracy_mean": 0.8771929824561401,
+            "accuracy_sd": 2.220446049250313e-16,
+            "accuracy_gain_mean": 0.0,
+            "balanced_accuracy_mean": 0.890816326530612,
+            "macro_f1_mean": 0.7827446329431585,
+            "positive_accuracy_draws": 0,
+            "negative_accuracy_draws": 0,
+            "zero_accuracy_draws": 100
+          },
+          {
+            "method": "family_damped_anchor",
+            "scope": "seven_class_all",
+            "selector": "mcuve20",
+            "shots_per_class": 1,
+            "candidate_id": "c017_damped_anchor",
+            "evaluations": 100,
+            "accuracy_mean": 0.8771929824561401,
+            "accuracy_sd": 2.220446049250313e-16,
+            "accuracy_gain_mean": 0.0,
+            "balanced_accuracy_mean": 0.890816326530612,
+            "macro_f1_mean": 0.7827446329431585,
+            "positive_accuracy_draws": 0,
+            "negative_accuracy_draws": 0,
+            "zero_accuracy_draws": 100
+          },
+          {
+            "method": "family_mistake_bias",
+            "scope": "seven_class_all",
+            "selector": "mcuve20",
+            "shots_per_class": 1,
+            "candidate_id": "c022_mistake_bias",
+            "evaluations": 100,
+            "accuracy_mean": 0.8771929824561401,
+            "accuracy_sd": 2.220446049250313e-16,
+            "accuracy_gain_mean": 0.0,
+            "balanced_accuracy_mean": 0.890816326530612,
+            "macro_f1_mean": 0.7827446329431585,
+            "positive_accuracy_draws": 0,
+            "negative_accuracy_draws": 0,
+            "zero_accuracy_draws": 100
+          },
+          {
+            "method": "family_mistake_kernel",
+            "scope": "seven_class_all",
+            "selector": "mcuve20",
+            "shots_per_class": 1,
+            "candidate_id": "c086_mistake_kernel",
+            "evaluations": 100,
+            "accuracy_mean": 0.8771929824561401,
+            "accuracy_sd": 2.220446049250313e-16,
+            "accuracy_gain_mean": 0.0,
+            "balanced_accuracy_mean": 0.890816326530612,
+            "macro_f1_mean": 0.7827446329431585,
+            "positive_accuracy_draws": 0,
+            "negative_accuracy_draws": 0,
+            "zero_accuracy_draws": 100
+          },
+          {
+            "method": "family_mistake_ridge",
+            "scope": "seven_class_all",
+            "selector": "mcuve20",
+            "shots_per_class": 1,
+            "candidate_id": "c054_mistake_ridge",
+            "evaluations": 100,
+            "accuracy_mean": 0.8771929824561401,
+            "accuracy_sd": 2.220446049250313e-16,
+            "accuracy_gain_mean": 0.0,
+            "balanced_accuracy_mean": 0.890816326530612,
+            "macro_f1_mean": 0.7827446329431585,
+            "positive_accuracy_draws": 0,
+            "negative_accuracy_draws": 0,
+            "zero_accuracy_draws": 100
+          },
+          {
+            "method": "family_prototype_shrinkage",
+            "scope": "seven_class_all",
+            "selector": "mcuve20",
+            "shots_per_class": 1,
+            "candidate_id": "c110_prototype_shrinkage",
+            "evaluations": 100,
+            "accuracy_mean": 0.8771929824561401,
+            "accuracy_sd": 2.220446049250313e-16,
+            "accuracy_gain_mean": 0.0,
+            "balanced_accuracy_mean": 0.890816326530612,
+            "macro_f1_mean": 0.7827446329431585,
+            "positive_accuracy_draws": 0,
+            "negative_accuracy_draws": 0,
+            "zero_accuracy_draws": 100
+          },
+          {
+            "method": "legacy_lambda1",
+            "scope": "seven_class_all",
+            "selector": "mcuve20",
+            "shots_per_class": 1,
+            "candidate_id": "c001_legacy_anchor",
+            "evaluations": 100,
+            "accuracy_mean": 0.7448538011695905,
+            "accuracy_sd": 0.10098741330030875,
+            "accuracy_gain_mean": -0.1323391812865497,
+            "balanced_accuracy_mean": 0.7504795918367345,
+            "macro_f1_mean": 0.6545422633297572,
+            "positive_accuracy_draws": 1,
+            "negative_accuracy_draws": 99,
+            "zero_accuracy_draws": 0
+          },
+          {
+            "method": "matched_zero_support_c110_prototype_shrinkage",
+            "scope": "seven_class_all",
+            "selector": "mcuve20",
+            "shots_per_class": 1,
+            "candidate_id": "c110_prototype_shrinkage",
+            "evaluations": 100,
+            "accuracy_mean": 0.8771929824561401,
+            "accuracy_sd": 2.220446049250313e-16,
+            "accuracy_gain_mean": 0.0,
+            "balanced_accuracy_mean": 0.890816326530612,
+            "macro_f1_mean": 0.7827446329431585,
+            "positive_accuracy_draws": 0,
+            "negative_accuracy_draws": 0,
+            "zero_accuracy_draws": 100
+          },
+          {
+            "method": "source_identity",
+            "scope": "seven_class_all",
+            "selector": "mcuve20",
+            "shots_per_class": 1,
+            "candidate_id": "c000_identity",
+            "evaluations": 100,
+            "accuracy_mean": 0.8771929824561401,
+            "accuracy_sd": 2.220446049250313e-16,
+            "accuracy_gain_mean": 0.0,
+            "balanced_accuracy_mean": 0.890816326530612,
+            "macro_f1_mean": 0.7827446329431585,
+            "positive_accuracy_draws": 0,
+            "negative_accuracy_draws": 0,
+            "zero_accuracy_draws": 100
+          }
+        ],
+        "six_class_selected_results": [
+          {
+            "method": "development_selected",
+            "scope": "six_class_abundant",
+            "selector": "full",
+            "shots_per_class": 1,
+            "candidate_id": "c000_identity",
+            "evaluations": 100,
+            "accuracy_mean": 0.8941176470588236,
+            "accuracy_sd": 0.0,
+            "accuracy_gain_mean": 0.0,
+            "balanced_accuracy_mean": 0.8499999999999995,
+            "macro_f1_mean": 0.8475901627676414,
+            "positive_accuracy_draws": 0,
+            "negative_accuracy_draws": 0,
+            "zero_accuracy_draws": 100
+          },
+          {
+            "method": "development_selected",
+            "scope": "six_class_abundant",
+            "selector": "full",
+            "shots_per_class": 3,
+            "candidate_id": "c000_identity",
+            "evaluations": 100,
+            "accuracy_mean": 0.8941176470588236,
+            "accuracy_sd": 0.0,
+            "accuracy_gain_mean": 0.0,
+            "balanced_accuracy_mean": 0.8499999999999995,
+            "macro_f1_mean": 0.8475901627676414,
+            "positive_accuracy_draws": 0,
+            "negative_accuracy_draws": 0,
+            "zero_accuracy_draws": 100
+          },
+          {
+            "method": "development_selected",
+            "scope": "six_class_abundant",
+            "selector": "full",
+            "shots_per_class": 5,
+            "candidate_id": "c000_identity",
+            "evaluations": 100,
+            "accuracy_mean": 0.8941176470588236,
+            "accuracy_sd": 0.0,
+            "accuracy_gain_mean": 0.0,
+            "balanced_accuracy_mean": 0.8499999999999995,
+            "macro_f1_mean": 0.8475901627676414,
+            "positive_accuracy_draws": 0,
+            "negative_accuracy_draws": 0,
+            "zero_accuracy_draws": 100
+          },
+          {
+            "method": "development_selected",
+            "scope": "six_class_abundant",
+            "selector": "full",
+            "shots_per_class": 10,
+            "candidate_id": "c008_damped_anchor",
+            "evaluations": 100,
+            "accuracy_mean": 0.893764705882353,
+            "accuracy_sd": 0.001396981422004482,
+            "accuracy_gain_mean": -0.0003529411764705936,
+            "balanced_accuracy_mean": 0.8494999999999996,
+            "macro_f1_mean": 0.8470484159468249,
+            "positive_accuracy_draws": 0,
+            "negative_accuracy_draws": 6,
+            "zero_accuracy_draws": 94
+          },
+          {
+            "method": "development_selected",
+            "scope": "six_class_abundant",
+            "selector": "mcuve20",
+            "shots_per_class": 1,
+            "candidate_id": "c000_identity",
+            "evaluations": 100,
+            "accuracy_mean": 0.9352941176470589,
+            "accuracy_sd": 1.1102230246251565e-16,
+            "accuracy_gain_mean": 0.0,
+            "balanced_accuracy_mean": 0.9083333333333333,
+            "macro_f1_mean": 0.9068040519977388,
+            "positive_accuracy_draws": 0,
+            "negative_accuracy_draws": 0,
+            "zero_accuracy_draws": 100
+          },
+          {
+            "method": "development_selected",
+            "scope": "six_class_abundant",
+            "selector": "mcuve20",
+            "shots_per_class": 3,
+            "candidate_id": "c000_identity",
+            "evaluations": 100,
+            "accuracy_mean": 0.9352941176470589,
+            "accuracy_sd": 1.1102230246251565e-16,
+            "accuracy_gain_mean": 0.0,
+            "balanced_accuracy_mean": 0.9083333333333333,
+            "macro_f1_mean": 0.9068040519977388,
+            "positive_accuracy_draws": 0,
+            "negative_accuracy_draws": 0,
+            "zero_accuracy_draws": 100
+          },
+          {
+            "method": "development_selected",
+            "scope": "six_class_abundant",
+            "selector": "mcuve20",
+            "shots_per_class": 5,
+            "candidate_id": "c000_identity",
+            "evaluations": 100,
+            "accuracy_mean": 0.9352941176470589,
+            "accuracy_sd": 1.1102230246251565e-16,
+            "accuracy_gain_mean": 0.0,
+            "balanced_accuracy_mean": 0.9083333333333333,
+            "macro_f1_mean": 0.9068040519977388,
+            "positive_accuracy_draws": 0,
+            "negative_accuracy_draws": 0,
+            "zero_accuracy_draws": 100
+          },
+          {
+            "method": "development_selected",
+            "scope": "six_class_abundant",
+            "selector": "mcuve20",
+            "shots_per_class": 10,
+            "candidate_id": "c000_identity",
+            "evaluations": 100,
+            "accuracy_mean": 0.9352941176470589,
+            "accuracy_sd": 1.1102230246251565e-16,
+            "accuracy_gain_mean": 0.0,
+            "balanced_accuracy_mean": 0.9083333333333333,
+            "macro_f1_mean": 0.9068040519977388,
+            "positive_accuracy_draws": 0,
+            "negative_accuracy_draws": 0,
+            "zero_accuracy_draws": 100
+          }
+        ]
+      },
+      "conclusion": "七类正式主方案均回退不调整。强正则弱校正SVM89.0994%(+0.2105pp)仅预选诊断，开发增益未过规则，不能事后改主方法；六类10shot开发通过后最终仍微降0.0353pp。",
+      "paper_use": "保留全部正负结果、matched-zero结构控制与开发/最终差异。",
+      "limitations": [
+        "本组历史855记录现已知混合枣仁和酸枣仁，不能描述为纯酸枣仁产地性能。",
+        "现有样品及测试表现已经历多轮开发曝光，不是未参与开发的新确认集。",
+        "原来源组各只有一个来源批次；样品级划分不能分离种类、来源组和该批次效应。",
+        "ZY02只有5条；重复种子、支持抽样、模态及派生Excel不增加独立样品或批次数。",
+        "六类辅助排除ZY02不替代七类主任务；重复support情景不是独立批次。"
+      ],
+      "sources": [
+        {
+          "repository": "jackzhu119/research4",
+          "ref": "research/pyscf-spinosin-mechanism-20261031",
+          "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+          "path": "docs/CALIBRATION_OPTIMIZATION_REPORT.md",
+          "sha256": "23fd86059ca324a367b5ed2e1533fbb7cbf2c05cf1500fe61da574054b41e5ce"
+        },
+        {
+          "repository": "jackzhu119/research4",
+          "ref": "research/pyscf-spinosin-mechanism-20261031",
+          "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+          "path": "data/research/calibration_optimization_protocol_20261031.json",
+          "sha256": "391d4f6550bec9a569e613fcda6bb2a0c8a5d4314c9b07209690419663541db9"
+        },
+        {
+          "repository": "jackzhu119/research4",
+          "ref": "research/pyscf-spinosin-mechanism-20261031",
+          "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+          "path": "reports/calibration-optimization/2026-10-31/summary.json",
+          "sha256": "86e2e70a6eb47cc5c1cf53b9d714e7acd3777f07ea6613dc057cf61571a6c5f3"
+        }
+      ]
+    },
+    {
+      "experiment_id": "HML-007",
+      "title": "54源表示/分类器搜索",
+      "status": "COMPLETED_HISTORICAL_EXPLORATORY",
+      "dataset_scope": "855个历史ZY记录，ZY01/02后确认为枣仁、ZY03—07为酸枣仁；旧匿名来源组标签，非当前18表实验",
+      "design": "原513训练内30任务，24选择/6检验，6预处理×9分类设置；最终171不选参。1620次开发源拟合。",
+      "metrics": {
+        "source_pipelines": 54,
+        "development_source_fits": 1620,
+        "reference_SVM": {
+          "correct": 152,
+          "n": 171,
+          "accuracy": 0.8888888888888888,
+          "macro_f1": 0.8616237563605985
+        },
+        "selected_smooth_SNV_shrinkage_LDA": {
+          "correct": 151,
+          "n": 171,
+          "accuracy": 0.8830409356725146,
+          "macro_f1": 0.7933,
+          "balanced_accuracy": 0.9031
+        },
+        "diagnostic_PLS10": {
+          "correct": 143,
+          "n": 171,
+          "accuracy": 0.8362573099415205,
+          "macro_f1": 0.6647
+        }
+      },
+      "conclusion": "开发选出的LDA最终未胜SVM；较高平衡准确率不等于所有指标改善。",
+      "paper_use": "表示/读出模型对照；不得只挑有利指标。",
+      "limitations": [
+        "本组历史855记录现已知混合枣仁和酸枣仁，不能描述为纯酸枣仁产地性能。",
+        "现有样品及测试表现已经历多轮开发曝光，不是未参与开发的新确认集。",
+        "原来源组各只有一个来源批次；样品级划分不能分离种类、来源组和该批次效应。",
+        "ZY02只有5条；重复种子、支持抽样、模态及派生Excel不增加独立样品或批次数。"
+      ],
+      "sources": [
+        {
+          "repository": "jackzhu119/research4",
+          "ref": "research/pyscf-spinosin-mechanism-20261031",
+          "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+          "path": "docs/REPRESENTATION_AND_LATENT_REPORT.md",
+          "sha256": "7f721369acef165a55b07b9bee48be2fc90e56227b0bad5f1b470057ef227bcb"
+        },
+        {
+          "repository": "jackzhu119/research4",
+          "ref": "research/pyscf-spinosin-mechanism-20261031",
+          "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+          "path": "data/research/representation_calibration_protocol_20261031.json",
+          "sha256": "a8fb0d00ae0f6848ce6ea2d45bfe93ab04c53d5f22893adae8e32abf6be59b7a"
+        },
+        {
+          "repository": "jackzhu119/research4",
+          "ref": "research/pyscf-spinosin-mechanism-20261031",
+          "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+          "path": "reports/representation-optimization/2026-10-31/source-search/source_metrics.csv",
+          "sha256": "5fff92cca021cdeef569e0270bc3995b927cac5fc77d6cb79caa88cd45745617"
+        }
+      ]
+    },
+    {
+      "experiment_id": "HML-008",
+      "title": "60潜空间适配及全范围敏感性",
+      "status": "COMPLETED_HISTORICAL_EXPLORATORY",
+      "dataset_scope": "855个历史ZY记录，ZY01/02后确认为枣仁、ZY03—07为酸枣仁；旧匿名来源组标签，非当前18表实验",
+      "design": "3个锁定基础源×60适配，源拟合投影/尺度/头/协方差不动；30任务×20draws=108000开发配置评价；最终171×100支持抽样。另6条全导出敏感性不使用支持标签。",
+      "metrics": {
+        "latent_configurations": 60,
+        "development_configuration_evaluations": 108000,
+        "final_case_evaluations": 2400,
+        "source_and_selected_results": [
+          {
+            "method": "development_selected",
+            "source_id": "s010_snv_svc",
+            "candidate_id": "l000_identity",
+            "evaluations": 100,
+            "accuracy_mean": 0.888888888888889,
+            "accuracy_sd": 1.1102230246251565e-16,
+            "accuracy_gain_vs_own_source_mean": 0.0,
+            "accuracy_gain_vs_matched_mean": 0.0,
+            "balanced_accuracy_mean": 0.8642857142857144,
+            "macro_f1_mean": 0.8616237563605987,
+            "positive_draws": 0,
+            "negative_draws": 0,
+            "unchanged_draws": 100
+          },
+          {
+            "method": "development_selected",
+            "source_id": "s014_snv_plsda",
+            "candidate_id": "l000_identity",
+            "evaluations": 100,
+            "accuracy_mean": 0.8362573099415204,
+            "accuracy_sd": 1.1102230246251565e-16,
+            "accuracy_gain_vs_own_source_mean": 0.0,
+            "accuracy_gain_vs_matched_mean": 0.0,
+            "balanced_accuracy_mean": 0.6642857142857143,
+            "macro_f1_mean": 0.6647464659622713,
+            "positive_draws": 0,
+            "negative_draws": 0,
+            "unchanged_draws": 100
+          },
+          {
+            "method": "development_selected",
+            "source_id": "s024_sg0_snv_shrinkage_lda",
+            "candidate_id": "l000_identity",
+            "evaluations": 100,
+            "accuracy_mean": 0.8830409356725145,
+            "accuracy_sd": 1.1102230246251565e-16,
+            "accuracy_gain_vs_own_source_mean": 0.0,
+            "accuracy_gain_vs_matched_mean": 0.0,
+            "balanced_accuracy_mean": 0.9030612244897958,
+            "macro_f1_mean": 0.7933288851479121,
+            "positive_draws": 0,
+            "negative_draws": 0,
+            "unchanged_draws": 100
+          }
+        ],
+        "PLS_source_accuracy": 0.8362573099415205,
+        "PLS_local_memory_zero_support_accuracy": 0.8596,
+        "PLS_local_memory_with_support_accuracy": 0.8584,
+        "full_export_SVM_PLS10_accuracy": 1.0
+      },
+      "conclusion": "三个主适配均回退不调整；PLS局部记忆给支持标签反而低于相同零支持结构，不能将读出变化当校准收益。",
+      "paper_use": "匹配零支持消融和负结果；100%另列敏感性。",
+      "limitations": [
+        "本组历史855记录现已知混合枣仁和酸枣仁，不能描述为纯酸枣仁产地性能。",
+        "现有样品及测试表现已经历多轮开发曝光，不是未参与开发的新确认集。",
+        "原来源组各只有一个来源批次；样品级划分不能分离种类、来源组和该批次效应。",
+        "ZY02只有5条；重复种子、支持抽样、模态及派生Excel不增加独立样品或批次数。",
+        "部分四舍五入来自报告表；精确全表见固定源JSON。"
+      ],
+      "sources": [
+        {
+          "repository": "jackzhu119/research4",
+          "ref": "research/pyscf-spinosin-mechanism-20261031",
+          "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+          "path": "docs/REPRESENTATION_AND_LATENT_REPORT.md",
+          "sha256": "7f721369acef165a55b07b9bee48be2fc90e56227b0bad5f1b470057ef227bcb"
+        },
+        {
+          "repository": "jackzhu119/research4",
+          "ref": "research/pyscf-spinosin-mechanism-20261031",
+          "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+          "path": "reports/representation-optimization/2026-10-31/latent-search/summary.json",
+          "sha256": "276dcae604de3a80a859980d5804461888af695d3957ff184a5f2575cde0f354"
+        }
+      ]
+    },
+    {
+      "experiment_id": "HML-009",
+      "title": "论文启发的监督ResNet/ProtoNet/FO-MAML分类适配",
+      "status": "COMPLETED_HISTORICAL_EXPLORATORY",
+      "dataset_scope": "855个历史ZY记录，ZY01/02后确认为枣仁、ZY03—07为酸枣仁；旧匿名来源组标签，非当前18表实验",
+      "design": "紧凑16/32通道骨干，先40epoch监督，再相同100源任务额外更新；31预设候选，6源开发任务4选/2检，seed42/43/44；每seed100次1shot，共用171query。来源论文为回归，本实现为分类适配。",
+      "metrics": {
+        "candidates": 31,
+        "development_evaluations": 2790,
+        "final_evaluations": 3600,
+        "prediction_rows": 615600,
+        "all_strategy_results": [
+          {
+            "method": "zero",
+            "strategy": "head_ft",
+            "candidate_id": "zero_head_ft",
+            "evaluations": 300,
+            "accuracy_mean": 0.557504873294347,
+            "accuracy_sd": 0.12362424947920413,
+            "accuracy_gain_mean": 0.0,
+            "balanced_accuracy_mean": 0.5333333333333333,
+            "macro_f1_mean": 0.4200101061385028,
+            "positive_draws": 0,
+            "negative_draws": 0,
+            "unchanged_draws": 300
+          },
+          {
+            "method": "selected",
+            "strategy": "head_ft",
+            "candidate_id": "zero_head_ft",
+            "evaluations": 300,
+            "accuracy_mean": 0.557504873294347,
+            "accuracy_sd": 0.12362424947920413,
+            "accuracy_gain_mean": 0.0,
+            "balanced_accuracy_mean": 0.5333333333333333,
+            "macro_f1_mean": 0.4200101061385028,
+            "positive_draws": 0,
+            "negative_draws": 0,
+            "unchanged_draws": 300
+          },
+          {
+            "method": "diagnostic",
+            "strategy": "head_ft",
+            "candidate_id": "n000_head_ft",
+            "evaluations": 300,
+            "accuracy_mean": 0.5580311890838205,
+            "accuracy_sd": 0.12462464266377742,
+            "accuracy_gain_mean": 0.0005263157894736712,
+            "balanced_accuracy_mean": 0.5343163265306121,
+            "macro_f1_mean": 0.42161229612220363,
+            "positive_draws": 54,
+            "negative_draws": 27,
+            "unchanged_draws": 219
+          },
+          {
+            "method": "zero",
+            "strategy": "full_ft",
+            "candidate_id": "zero_full_ft",
+            "evaluations": 300,
+            "accuracy_mean": 0.557504873294347,
+            "accuracy_sd": 0.12362424947920413,
+            "accuracy_gain_mean": 0.0,
+            "balanced_accuracy_mean": 0.5333333333333333,
+            "macro_f1_mean": 0.4200101061385028,
+            "positive_draws": 0,
+            "negative_draws": 0,
+            "unchanged_draws": 300
+          },
+          {
+            "method": "selected",
+            "strategy": "full_ft",
+            "candidate_id": "zero_full_ft",
+            "evaluations": 300,
+            "accuracy_mean": 0.557504873294347,
+            "accuracy_sd": 0.12362424947920413,
+            "accuracy_gain_mean": 0.0,
+            "balanced_accuracy_mean": 0.5333333333333333,
+            "macro_f1_mean": 0.4200101061385028,
+            "positive_draws": 0,
+            "negative_draws": 0,
+            "unchanged_draws": 300
+          },
+          {
+            "method": "diagnostic",
+            "strategy": "full_ft",
+            "candidate_id": "n014_full_ft",
+            "evaluations": 300,
+            "accuracy_mean": 0.528635477582846,
+            "accuracy_sd": 0.1121637816493044,
+            "accuracy_gain_mean": -0.028869395711500996,
+            "balanced_accuracy_mean": 0.5319931972789116,
+            "macro_f1_mean": 0.42256593006740234,
+            "positive_draws": 165,
+            "negative_draws": 122,
+            "unchanged_draws": 13
+          },
+          {
+            "method": "zero",
+            "strategy": "prototype",
+            "candidate_id": "zero_prototype",
+            "evaluations": 300,
+            "accuracy_mean": 0.41715399610136444,
+            "accuracy_sd": 0.04060948665886873,
+            "accuracy_gain_mean": 0.0,
+            "balanced_accuracy_mean": 0.5210884353741496,
+            "macro_f1_mean": 0.3986728861836728,
+            "positive_draws": 0,
+            "negative_draws": 0,
+            "unchanged_draws": 300
+          },
+          {
+            "method": "selected",
+            "strategy": "prototype",
+            "candidate_id": "zero_prototype",
+            "evaluations": 300,
+            "accuracy_mean": 0.41715399610136444,
+            "accuracy_sd": 0.04060948665886873,
+            "accuracy_gain_mean": 0.0,
+            "balanced_accuracy_mean": 0.5210884353741496,
+            "macro_f1_mean": 0.3986728861836728,
+            "positive_draws": 0,
+            "negative_draws": 0,
+            "unchanged_draws": 300
+          },
+          {
+            "method": "diagnostic",
+            "strategy": "prototype",
+            "candidate_id": "n030_prototype",
+            "evaluations": 300,
+            "accuracy_mean": 0.37479532163742696,
+            "accuracy_sd": 0.07481005818611021,
+            "accuracy_gain_mean": -0.042358674463937616,
+            "balanced_accuracy_mean": 0.46108503401360545,
+            "macro_f1_mean": 0.3293628148114411,
+            "positive_draws": 116,
+            "negative_draws": 176,
+            "unchanged_draws": 8
+          },
+          {
+            "method": "zero",
+            "strategy": "fomaml_ft",
+            "candidate_id": "zero_fomaml_ft",
+            "evaluations": 300,
+            "accuracy_mean": 0.6471734892787524,
+            "accuracy_sd": 0.03106701257409208,
+            "accuracy_gain_mean": 0.0,
+            "balanced_accuracy_mean": 0.43333333333333335,
+            "macro_f1_mean": 0.3922220354011138,
+            "positive_draws": 0,
+            "negative_draws": 0,
+            "unchanged_draws": 300
+          },
+          {
+            "method": "selected",
+            "strategy": "fomaml_ft",
+            "candidate_id": "n023_fomaml_ft",
+            "evaluations": 300,
+            "accuracy_mean": 0.675458089668616,
+            "accuracy_sd": 0.02653578536539687,
+            "accuracy_gain_mean": 0.028284600389863534,
+            "balanced_accuracy_mean": 0.4679149659863946,
+            "macro_f1_mean": 0.4338432829213499,
+            "positive_draws": 258,
+            "negative_draws": 26,
+            "unchanged_draws": 16
+          },
+          {
+            "method": "diagnostic",
+            "strategy": "fomaml_ft",
+            "candidate_id": "n023_fomaml_ft",
+            "evaluations": 300,
+            "accuracy_mean": 0.675458089668616,
+            "accuracy_sd": 0.02653578536539687,
+            "accuracy_gain_mean": 0.028284600389863534,
+            "balanced_accuracy_mean": 0.4679149659863946,
+            "macro_f1_mean": 0.4338432829213499,
+            "positive_draws": 258,
+            "negative_draws": 26,
+            "unchanged_draws": 16
+          }
+        ]
+      },
+      "conclusion": "FO-MAML自身64.7173%→67.5458%，宏F1约.3922→.4338，仍低于88.8889%SVM；头微调/全网微调/ProtoNet未通过开发门禁，诊断负结果保留。",
+      "paper_use": "可作为弱神经起点的探索性自身收益，不是强主模型优势或原论文严格复现。",
+      "limitations": [
+        "本组历史855记录现已知混合枣仁和酸枣仁，不能描述为纯酸枣仁产地性能。",
+        "现有样品及测试表现已经历多轮开发曝光，不是未参与开发的新确认集。",
+        "原来源组各只有一个来源批次；样品级划分不能分离种类、来源组和该批次效应。",
+        "ZY02只有5条；重复种子、支持抽样、模态及派生Excel不增加独立样品或批次数。",
+        "源meta任务3类1support/1query；样品记录互斥不等于源与目标类别词表不同。"
+      ],
+      "sources": [
+        {
+          "repository": "jackzhu119/research4",
+          "ref": "research/pyscf-spinosin-mechanism-20261031",
+          "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+          "path": "docs/PAPER_FEWSHOT_CLASSIFICATION_REPORT.md",
+          "sha256": "bc6dd7ac698d2a1a9c69424cac62c2b963a2f77611b8ecfb87c5c66238a5ae61"
+        },
+        {
+          "repository": "jackzhu119/research4",
+          "ref": "research/pyscf-spinosin-mechanism-20261031",
+          "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+          "path": "data/research/paper_neural_classification_protocol_20261031.json",
+          "sha256": "ac144a436278f78b24a2962eaab5f89fe93bc5e25f9e5d04b67b5f66e05dcd29"
+        },
+        {
+          "repository": "jackzhu119/research4",
+          "ref": "research/pyscf-spinosin-mechanism-20261031",
+          "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+          "path": "reports/paper-fewshot-classification/2026-10-31/summary.json",
+          "sha256": "74b3596882fb224e9e9fd91cdbb450bf9c1253e3c78a99194c344f429b5ec5c6"
+        }
+      ]
+    },
+    {
+      "experiment_id": "HML-010",
+      "title": "四轮85候选：强MLP、支持加权SVM、回放锚定与元训练控制",
+      "status": "COMPLETED_HISTORICAL_EXPLORATORY",
+      "dataset_scope": "855个历史ZY记录，ZY01/02后确认为枣仁、ZY03—07为酸枣仁；旧匿名来源组标签，非当前18表实验",
+      "design": "24神经基础+21支持加权SVM+24回放/锚定+16元训练配置；全部4锁统一放行后才评分171；配对源监督与FO共享任务和更新次数，3seeds。",
+      "metrics": {
+        "main_configurations": 85,
+        "round1_MLP_accuracy": 0.8908382066276803,
+        "round2_selected_SVM_accuracy": 0.8888888888888888,
+        "round3_selected_accuracy": 0.8908382066276803,
+        "round4_results": [
+          {
+            "method": "selected",
+            "strategy": "fomaml",
+            "candidate_id": "reference_source",
+            "evaluations": 300,
+            "accuracy_mean": 0.9025341130604287,
+            "accuracy_sd": 0.005522715376022054,
+            "balanced_accuracy_mean": 0.8809523809523812,
+            "macro_f1_mean": 0.8786570454519396,
+            "positive_draws": 0,
+            "negative_draws": 0,
+            "unchanged_draws": 300
+          },
+          {
+            "method": "selected_source_zero",
+            "strategy": "fomaml",
+            "candidate_id": "reference_source",
+            "evaluations": 300,
+            "accuracy_mean": 0.9025341130604287,
+            "accuracy_sd": 0.005522715376022054,
+            "balanced_accuracy_mean": 0.8809523809523812,
+            "macro_f1_mean": 0.8786570454519396,
+            "positive_draws": 0,
+            "negative_draws": 0,
+            "unchanged_draws": 300
+          },
+          {
+            "method": "selected_matched_zero",
+            "strategy": "fomaml",
+            "candidate_id": "reference_source",
+            "evaluations": 300,
+            "accuracy_mean": 0.9025341130604287,
+            "accuracy_sd": 0.005522715376022054,
+            "balanced_accuracy_mean": 0.8809523809523812,
+            "macro_f1_mean": 0.8786570454519396,
+            "positive_draws": 0,
+            "negative_draws": 0,
+            "unchanged_draws": 300
+          },
+          {
+            "method": "diagnostic",
+            "strategy": "fomaml",
+            "candidate_id": "r008_meta_ft",
+            "evaluations": 300,
+            "accuracy_mean": 0.9011890838206628,
+            "accuracy_sd": 0.010268000049886811,
+            "balanced_accuracy_mean": 0.879309523809524,
+            "macro_f1_mean": 0.8769701703289293,
+            "positive_draws": 68,
+            "negative_draws": 138,
+            "unchanged_draws": 94
+          },
+          {
+            "method": "diagnostic_source_zero",
+            "strategy": "fomaml",
+            "candidate_id": "r008_meta_ft",
+            "evaluations": 300,
+            "accuracy_mean": 0.9064327485380117,
+            "accuracy_sd": 0.004782811813506027,
+            "balanced_accuracy_mean": 0.8857142857142859,
+            "macro_f1_mean": 0.8837217136745026,
+            "positive_draws": 0,
+            "negative_draws": 0,
+            "unchanged_draws": 300
+          },
+          {
+            "method": "diagnostic_matched_zero",
+            "strategy": "fomaml",
+            "candidate_id": "r008_meta_ft",
+            "evaluations": 300,
+            "accuracy_mean": 0.9064327485380117,
+            "accuracy_sd": 0.004782811813506027,
+            "balanced_accuracy_mean": 0.8857142857142859,
+            "macro_f1_mean": 0.8837217136745026,
+            "positive_draws": 0,
+            "negative_draws": 0,
+            "unchanged_draws": 300
+          },
+          {
+            "method": "supervised_diagnostic",
+            "strategy": "supervised",
+            "candidate_id": "r008_meta_ft",
+            "evaluations": 300,
+            "accuracy_mean": 0.9012865497076021,
+            "accuracy_sd": 0.010189073112258282,
+            "balanced_accuracy_mean": 0.8794285714285716,
+            "macro_f1_mean": 0.8770959474022045,
+            "positive_draws": 71,
+            "negative_draws": 139,
+            "unchanged_draws": 90
+          },
+          {
+            "method": "supervised_diagnostic_source_zero",
+            "strategy": "supervised",
+            "candidate_id": "r008_meta_ft",
+            "evaluations": 300,
+            "accuracy_mean": 0.9064327485380117,
+            "accuracy_sd": 0.004782811813506027,
+            "balanced_accuracy_mean": 0.8857142857142859,
+            "macro_f1_mean": 0.8837217136745026,
+            "positive_draws": 0,
+            "negative_draws": 0,
+            "unchanged_draws": 300
+          },
+          {
+            "method": "supervised_diagnostic_matched_zero",
+            "strategy": "supervised",
+            "candidate_id": "r008_meta_ft",
+            "evaluations": 300,
+            "accuracy_mean": 0.9064327485380117,
+            "accuracy_sd": 0.004782811813506027,
+            "balanced_accuracy_mean": 0.8857142857142859,
+            "macro_f1_mean": 0.8837217136745026,
+            "positive_draws": 0,
+            "negative_draws": 0,
+            "unchanged_draws": 300
+          }
+        ],
+        "official_round4_accuracy": 0.9025341130604287,
+        "official_round4_macro_f1": 0.8786570454519396,
+        "diagnostic_500update_accuracy": 0.906433,
+        "diagnostic_calibrated_500update_accuracy": 0.901189
+      },
+      "conclusion": "正式90.2534%来自零目标支持的源训练；同任务监督继续训练逐样品预测与FO相同，未显示MAML特有增益。500更新高分仅预选诊断，校准反降。",
+      "paper_use": "可报告基础训练改善和校准失败；不能写“7样本校准达到90.25%”。",
+      "limitations": [
+        "本组历史855记录现已知混合枣仁和酸枣仁，不能描述为纯酸枣仁产地性能。",
+        "现有样品及测试表现已经历多轮开发曝光，不是未参与开发的新确认集。",
+        "原来源组各只有一个来源批次；样品级划分不能分离种类、来源组和该批次效应。",
+        "ZY02只有5条；重复种子、支持抽样、模态及派生Excel不增加独立样品或批次数。",
+        "额外更新不是额外epoch；神经/元策略未作FLOPs严格匹配。"
+      ],
+      "sources": [
+        {
+          "repository": "jackzhu119/research4",
+          "ref": "research/pyscf-spinosin-mechanism-20261031",
+          "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+          "path": "docs/MULTIROUND_OPTIMIZATION_REPORT.md",
+          "sha256": "3f12da7d58996c3b862b290182db1ede9bf40373794742d94a024dda9073a118"
+        },
+        {
+          "repository": "jackzhu119/research4",
+          "ref": "research/pyscf-spinosin-mechanism-20261031",
+          "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+          "path": "data/research/multiround_optimization_plan_20261031.json",
+          "sha256": "1f267ce000d1a97856a9c4472beece36d594ccb015664a4d9c4601ccf7e58540"
+        },
+        {
+          "repository": "jackzhu119/research4",
+          "ref": "research/pyscf-spinosin-mechanism-20261031",
+          "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+          "path": "reports/multiround-optimization/2026-10-31/meta-refinement/summary.json",
+          "sha256": "e92e72ec76886471819832d1b8540faa1cde96bd10750f32e64758027e9f43a4"
+        }
+      ]
+    },
+    {
+      "experiment_id": "HML-011",
+      "title": "图片引导特征/分类40设置",
+      "status": "COMPLETED_HISTORICAL_EXPLORATORY",
+      "dataset_scope": "855个历史ZY记录，ZY01/02后确认为枣仁、ZY03—07为酸枣仁；旧匿名来源组标签，非当前18表实验",
+      "design": "SNV/MSC、CARS/MC-UVE/噪声UVE/SPA、LDA/PCA-LDA，源内拟合；513/171/171不变，0目标支持标签，3seeds、开发锁先于query。",
+      "metrics": {
+        "settings": 40,
+        "all_selected_and_family_diagnostics": [
+          {
+            "method": "reference",
+            "candidate": {
+              "id": "f001_snv_full_svm",
+              "preprocessing": "snv",
+              "family": "full_svm",
+              "C": 10.0
+            },
+            "evaluations": 3,
+            "seeds": [
+              42,
+              43,
+              44
+            ],
+            "accuracy_mean": 0.8888888888888888,
+            "balanced_accuracy_mean": 0.8642857142857144,
+            "macro_f1_mean": 0.8616237563605985,
+            "selected_features_mean": 612.0
+          },
+          {
+            "method": "selected",
+            "candidate": {
+              "id": "f012_snv_lda",
+              "preprocessing": "snv",
+              "family": "lda",
+              "priors": "uniform"
+            },
+            "evaluations": 3,
+            "seeds": [
+              42,
+              43,
+              44
+            ],
+            "accuracy_mean": 0.9239766081871345,
+            "balanced_accuracy_mean": 0.9275510204081633,
+            "macro_f1_mean": 0.835218297845454,
+            "selected_features_mean": 612.0
+          },
+          {
+            "method": "family_cars_svm",
+            "candidate": {
+              "id": "f003_snv_cars_svm",
+              "preprocessing": "snv",
+              "family": "cars_svm",
+              "C": 10.0
+            },
+            "evaluations": 3,
+            "seeds": [
+              42,
+              43,
+              44
+            ],
+            "accuracy_mean": 0.8304093567251462,
+            "balanced_accuracy_mean": 0.803061224489796,
+            "macro_f1_mean": 0.7476118532690627,
+            "selected_features_mean": 78.66666666666667
+          },
+          {
+            "method": "family_full_svm",
+            "candidate": {
+              "id": "f001_snv_full_svm",
+              "preprocessing": "snv",
+              "family": "full_svm",
+              "C": 10.0
+            },
+            "evaluations": 3,
+            "seeds": [
+              42,
+              43,
+              44
+            ],
+            "accuracy_mean": 0.8888888888888888,
+            "balanced_accuracy_mean": 0.8642857142857144,
+            "macro_f1_mean": 0.8616237563605985,
+            "selected_features_mean": 612.0
+          },
+          {
+            "method": "family_lda",
+            "candidate": {
+              "id": "f012_snv_lda",
+              "preprocessing": "snv",
+              "family": "lda",
+              "priors": "uniform"
+            },
+            "evaluations": 3,
+            "seeds": [
+              42,
+              43,
+              44
+            ],
+            "accuracy_mean": 0.9239766081871345,
+            "balanced_accuracy_mean": 0.9275510204081633,
+            "macro_f1_mean": 0.835218297845454,
+            "selected_features_mean": 612.0
+          },
+          {
+            "method": "family_mcuve_svm",
+            "candidate": {
+              "id": "f006_snv_mcuve_svm",
+              "preprocessing": "snv",
+              "family": "mcuve_svm",
+              "C": 10.0,
+              "features": 100
+            },
+            "evaluations": 3,
+            "seeds": [
+              42,
+              43,
+              44
+            ],
+            "accuracy_mean": 0.7426900584795321,
+            "balanced_accuracy_mean": 0.6891156462585034,
+            "macro_f1_mean": 0.6562058207004705,
+            "selected_features_mean": 100.0
+          },
+          {
+            "method": "family_noise_uve_svm",
+            "candidate": {
+              "id": "f007_snv_noise_uve_svm",
+              "preprocessing": "snv",
+              "family": "noise_uve_svm",
+              "C": 10.0,
+              "noise_quantile": 0.95
+            },
+            "evaluations": 3,
+            "seeds": [
+              42,
+              43,
+              44
+            ],
+            "accuracy_mean": 0.7914230019493177,
+            "balanced_accuracy_mean": 0.748639455782313,
+            "macro_f1_mean": 0.7139339881737982,
+            "selected_features_mean": 82.0
+          },
+          {
+            "method": "family_pca_lda",
+            "candidate": {
+              "id": "f038_msc_pca_lda",
+              "preprocessing": "msc",
+              "family": "pca_lda",
+              "components": 40,
+              "priors": "uniform"
+            },
+            "evaluations": 3,
+            "seeds": [
+              42,
+              43,
+              44
+            ],
+            "accuracy_mean": 0.7173489278752436,
+            "balanced_accuracy_mean": 0.7465986394557823,
+            "macro_f1_mean": 0.6250610702392273,
+            "selected_features_mean": 612.0
+          },
+          {
+            "method": "family_spa_svm",
+            "candidate": {
+              "id": "f011_snv_spa_svm",
+              "preprocessing": "snv",
+              "family": "spa_svm",
+              "C": 10.0,
+              "features": 50
+            },
+            "evaluations": 3,
+            "seeds": [
+              42,
+              43,
+              44
+            ],
+            "accuracy_mean": 0.7309941520467836,
+            "balanced_accuracy_mean": 0.5357142857142857,
+            "macro_f1_mean": 0.5282265948559342,
+            "selected_features_mean": 50.0
+          }
+        ]
+      },
+      "conclusion": "LDA158/171=92.3977%但宏F1.8352<原SVM.8616及强MLP.8787；变量筛选候选没有自动提准。",
+      "paper_use": "多指标冲突与稀少类假阳性负对照；不可只报最高accuracy。",
+      "limitations": [
+        "本组历史855记录现已知混合枣仁和酸枣仁，不能描述为纯酸枣仁产地性能。",
+        "现有样品及测试表现已经历多轮开发曝光，不是未参与开发的新确认集。",
+        "原来源组各只有一个来源批次；样品级划分不能分离种类、来源组和该批次效应。",
+        "ZY02只有5条；重复种子、支持抽样、模态及派生Excel不增加独立样品或批次数。",
+        "LDA对ZY02召回1/1但精确率1/5；不能称全部类别改善。"
+      ],
+      "sources": [
+        {
+          "repository": "jackzhu119/research4",
+          "ref": "research/pyscf-spinosin-mechanism-20261031",
+          "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+          "path": "docs/IMAGE_GUIDED_OPTIMIZATION_REPORT.md",
+          "sha256": "93e82f37cc5ccd1662c1e00b410c524591c4cd17c7c0362236f3664fa8ae9bdf"
+        },
+        {
+          "repository": "jackzhu119/research4",
+          "ref": "research/pyscf-spinosin-mechanism-20261031",
+          "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+          "path": "data/research/image_guided_plan_20261031.json",
+          "sha256": "1488905b4de86a87f8c20c4fec791ead3d25532ba6faab1ee9efe66f1c70fab9"
+        },
+        {
+          "repository": "jackzhu119/research4",
+          "ref": "research/pyscf-spinosin-mechanism-20261031",
+          "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+          "path": "reports/image-guided-optimization/2026-10-31/features/summary.json",
+          "sha256": "c7b6ae31f3816c5d0fcdb073fe2a670d4e9ef8479fdb6e45dcdf5ad96a15c4da"
+        }
+      ]
+    },
+    {
+      "experiment_id": "HML-012",
+      "title": "图片引导概率/判别21设置",
+      "status": "COMPLETED_HISTORICAL_EXPLORATORY",
+      "dataset_scope": "855个历史ZY记录，ZY01/02后确认为枣仁、ZY03—07为酸枣仁；旧匿名来源组标签，非当前18表实验",
+      "design": "源内部3折OOF分数拟合temperature/类别bias；训练/校准分开；不访问171query作温度或判别选择，0目标支持。",
+      "metrics": {
+        "settings": 21,
+        "source_probability_results": [
+          {
+            "id": "p000_svm_raw",
+            "evaluations": 3,
+            "accuracy_mean": 0.8888888888888888,
+            "balanced_accuracy_mean": 0.8642857142857144,
+            "macro_f1_mean": 0.8616237563605985,
+            "nll_mean": 0.541354813091759,
+            "brier_mean": 0.2643733015426927,
+            "ece10_mean": 0.2293481485336131
+          },
+          {
+            "id": "p001_svm_temperature",
+            "evaluations": 3,
+            "accuracy_mean": 0.8888888888888888,
+            "balanced_accuracy_mean": 0.8642857142857144,
+            "macro_f1_mean": 0.8616237563605985,
+            "nll_mean": 0.40975048002401976,
+            "brier_mean": 0.19934405987779583,
+            "ece10_mean": 0.09366889067243628
+          },
+          {
+            "id": "p002_svm_prior_bias",
+            "evaluations": 3,
+            "accuracy_mean": 0.8888888888888888,
+            "balanced_accuracy_mean": 0.8642857142857144,
+            "macro_f1_mean": 0.8616237563605985,
+            "nll_mean": 0.40975048002401976,
+            "brier_mean": 0.19934405987779583,
+            "ece10_mean": 0.09366889067243628
+          },
+          {
+            "id": "p003_svm_prior_bias",
+            "evaluations": 3,
+            "accuracy_mean": 0.5847953216374269,
+            "balanced_accuracy_mean": 0.7581632653061224,
+            "macro_f1_mean": 0.6396420343788766,
+            "nll_mean": 0.40975048002401976,
+            "brier_mean": 0.19934405987779583,
+            "ece10_mean": 0.09366889067243628
+          },
+          {
+            "id": "p004_svm_prior_bias",
+            "evaluations": 3,
+            "accuracy_mean": 0.5029239766081871,
+            "balanced_accuracy_mean": 0.729591836734694,
+            "macro_f1_mean": 0.5955551667625972,
+            "nll_mean": 0.40975048002401976,
+            "brier_mean": 0.19934405987779583,
+            "ece10_mean": 0.09366889067243628
+          },
+          {
+            "id": "p005_svm_coordinate_bias",
+            "evaluations": 3,
+            "accuracy_mean": 0.8888888888888888,
+            "balanced_accuracy_mean": 0.8642857142857144,
+            "macro_f1_mean": 0.8616237563605985,
+            "nll_mean": 0.40975048002401976,
+            "brier_mean": 0.19934405987779583,
+            "ece10_mean": 0.09366889067243628
+          },
+          {
+            "id": "p006_svm_coordinate_bias",
+            "evaluations": 3,
+            "accuracy_mean": 0.8947368421052632,
+            "balanced_accuracy_mean": 0.8714285714285716,
+            "macro_f1_mean": 0.8693629966579782,
+            "nll_mean": 0.40975048002401976,
+            "brier_mean": 0.19934405987779583,
+            "ece10_mean": 0.09366889067243628
+          },
+          {
+            "id": "p007_mlp_raw",
+            "evaluations": 3,
+            "accuracy_mean": 0.8908382066276803,
+            "balanced_accuracy_mean": 0.7761904761904762,
+            "macro_f1_mean": 0.7729318942959179,
+            "nll_mean": 0.32321974066000964,
+            "brier_mean": 0.16205028843231226,
+            "ece10_mean": 0.06527309470708802
+          },
+          {
+            "id": "p008_mlp_temperature",
+            "evaluations": 3,
+            "accuracy_mean": 0.8908382066276803,
+            "balanced_accuracy_mean": 0.7761904761904762,
+            "macro_f1_mean": 0.7729318942959179,
+            "nll_mean": 0.2868829208536044,
+            "brier_mean": 0.15003830868404824,
+            "ece10_mean": 0.04186710726807691
+          },
+          {
+            "id": "p009_mlp_prior_bias",
+            "evaluations": 3,
+            "accuracy_mean": 0.8927875243664717,
+            "balanced_accuracy_mean": 0.8238095238095239,
+            "macro_f1_mean": 0.8208886656569446,
+            "nll_mean": 0.2868829208536044,
+            "brier_mean": 0.15003830868404824,
+            "ece10_mean": 0.04186710726807691
+          },
+          {
+            "id": "p010_mlp_prior_bias",
+            "evaluations": 3,
+            "accuracy_mean": 0.8674463937621831,
+            "balanced_accuracy_mean": 0.861904761904762,
+            "macro_f1_mean": 0.7690252055098243,
+            "nll_mean": 0.2868829208536044,
+            "brier_mean": 0.15003830868404824,
+            "ece10_mean": 0.04186710726807691
+          },
+          {
+            "id": "p011_mlp_prior_bias",
+            "evaluations": 3,
+            "accuracy_mean": 0.7212475633528265,
+            "balanced_accuracy_mean": 0.8091836734693878,
+            "macro_f1_mean": 0.698184393746859,
+            "nll_mean": 0.2868829208536044,
+            "brier_mean": 0.15003830868404824,
+            "ece10_mean": 0.04186710726807691
+          },
+          {
+            "id": "p012_mlp_coordinate_bias",
+            "evaluations": 3,
+            "accuracy_mean": 0.8908382066276803,
+            "balanced_accuracy_mean": 0.8214285714285715,
+            "macro_f1_mean": 0.8194177005938209,
+            "nll_mean": 0.2868829208536044,
+            "brier_mean": 0.15003830868404824,
+            "ece10_mean": 0.04186710726807691
+          },
+          {
+            "id": "p013_mlp_coordinate_bias",
+            "evaluations": 3,
+            "accuracy_mean": 0.8908382066276803,
+            "balanced_accuracy_mean": 0.8214285714285715,
+            "macro_f1_mean": 0.8194177005938209,
+            "nll_mean": 0.2868829208536044,
+            "brier_mean": 0.15003830868404824,
+            "ece10_mean": 0.04186710726807691
+          },
+          {
+            "id": "p014_mlp_sup100_raw",
+            "evaluations": 3,
+            "accuracy_mean": 0.9025341130604289,
+            "balanced_accuracy_mean": 0.8809523809523809,
+            "macro_f1_mean": 0.8786570454519397,
+            "nll_mean": 0.3231775947591785,
+            "brier_mean": 0.1579440622206732,
+            "ece10_mean": 0.05415312459478277
+          },
+          {
+            "id": "p015_mlp_sup100_temperature",
+            "evaluations": 3,
+            "accuracy_mean": 0.9025341130604289,
+            "balanced_accuracy_mean": 0.8809523809523809,
+            "macro_f1_mean": 0.8786570454519397,
+            "nll_mean": 0.30043915694784373,
+            "brier_mean": 0.15443947475166117,
+            "ece10_mean": 0.053259842792641184
+          },
+          {
+            "id": "p016_mlp_sup100_prior_bias",
+            "evaluations": 3,
+            "accuracy_mean": 0.8693957115009746,
+            "balanced_accuracy_mean": 0.8693877551020407,
+            "macro_f1_mean": 0.7687519386280653,
+            "nll_mean": 0.30043915694784373,
+            "brier_mean": 0.15443947475166117,
+            "ece10_mean": 0.053259842792641184
+          },
+          {
+            "id": "p017_mlp_sup100_prior_bias",
+            "evaluations": 3,
+            "accuracy_mean": 0.8148148148148148,
+            "balanced_accuracy_mean": 0.8503401360544217,
+            "macro_f1_mean": 0.7369378757375572,
+            "nll_mean": 0.30043915694784373,
+            "brier_mean": 0.15443947475166117,
+            "ece10_mean": 0.053259842792641184
+          },
+          {
+            "id": "p018_mlp_sup100_prior_bias",
+            "evaluations": 3,
+            "accuracy_mean": 0.6296296296296297,
+            "balanced_accuracy_mean": 0.7823129251700681,
+            "macro_f1_mean": 0.6672399297929937,
+            "nll_mean": 0.30043915694784373,
+            "brier_mean": 0.15443947475166117,
+            "ece10_mean": 0.053259842792641184
+          },
+          {
+            "id": "p019_mlp_sup100_coordinate_bias",
+            "evaluations": 3,
+            "accuracy_mean": 0.8986354775828461,
+            "balanced_accuracy_mean": 0.830952380952381,
+            "macro_f1_mean": 0.8292175050636205,
+            "nll_mean": 0.30043915694784373,
+            "brier_mean": 0.15443947475166117,
+            "ece10_mean": 0.053259842792641184
+          },
+          {
+            "id": "p020_mlp_sup100_coordinate_bias",
+            "evaluations": 3,
+            "accuracy_mean": 0.8966861598440546,
+            "balanced_accuracy_mean": 0.8738095238095239,
+            "macro_f1_mean": 0.8720988817471985,
+            "nll_mean": 0.30043915694784373,
+            "brier_mean": 0.15443947475166117,
+            "ece10_mean": 0.053259842792641184
+          }
+        ]
+      },
+      "conclusion": "SVM温度缩放NLL .541355→.409750、Brier .264373→.199344、ECE .229348→.093669，准确率保持88.8889%；硬分类改动未过开发。",
+      "paper_use": "概率可靠性与分类准确率分开报告，不把temperature解释为提高分类。",
+      "limitations": [
+        "本组历史855记录现已知混合枣仁和酸枣仁，不能描述为纯酸枣仁产地性能。",
+        "现有样品及测试表现已经历多轮开发曝光，不是未参与开发的新确认集。",
+        "原来源组各只有一个来源批次；样品级划分不能分离种类、来源组和该批次效应。",
+        "ZY02只有5条；重复种子、支持抽样、模态及派生Excel不增加独立样品或批次数。",
+        "SVMmargin不是概率，softmax未校准参照须标明；仅当前同批数据可靠性。"
+      ],
+      "sources": [
+        {
+          "repository": "jackzhu119/research4",
+          "ref": "research/pyscf-spinosin-mechanism-20261031",
+          "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+          "path": "docs/IMAGE_GUIDED_OPTIMIZATION_REPORT.md",
+          "sha256": "93e82f37cc5ccd1662c1e00b410c524591c4cd17c7c0362236f3664fa8ae9bdf"
+        },
+        {
+          "repository": "jackzhu119/research4",
+          "ref": "research/pyscf-spinosin-mechanism-20261031",
+          "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+          "path": "reports/image-guided-optimization/2026-10-31/probability/summary.json",
+          "sha256": "743b4f3b5209c458f84b7a5a9f376753161cd9cc4a81b23f75c64941d76aa176"
+        }
+      ]
+    },
+    {
+      "experiment_id": "HML-013",
+      "title": "图片引导SVM/MLP融合20设置",
+      "status": "COMPLETED_HISTORICAL_EXPLORATORY",
+      "dataset_scope": "855个历史ZY记录，ZY01/02后确认为枣仁、ZY03—07为酸枣仁；旧匿名来源组标签，非当前18表实验",
+      "design": "源内选权重/温度，所有lock先于query评分；0目标支持，3seeds。",
+      "metrics": {
+        "settings": 20,
+        "official_accuracy": 0.9025341130604287,
+        "official_macro_f1": 0.8786570454519396,
+        "official_SVM_weight": 0.0,
+        "truth_oracle_diagnostic_accuracy": 0.918129,
+        "all_diagnostic_results": [
+          {
+            "method": "candidate_f000_fusion",
+            "candidate_id": "f000_fusion",
+            "evaluations": 3,
+            "accuracy_mean": 0.8908382066276803,
+            "accuracy_sd": 0.0067526347273640435,
+            "balanced_accuracy_mean": 0.7761904761904762,
+            "macro_f1_mean": 0.7729318942959179,
+            "nll_mean": 0.32321974066000964,
+            "brier_mean": 0.16205028843231226,
+            "ece_mean": 0.06527309470708802
+          },
+          {
+            "method": "candidate_f001_fusion",
+            "candidate_id": "f001_fusion",
+            "evaluations": 3,
+            "accuracy_mean": 0.8908382066276803,
+            "accuracy_sd": 0.003376317363682054,
+            "balanced_accuracy_mean": 0.7761904761904762,
+            "macro_f1_mean": 0.7732408505662338,
+            "nll_mean": 0.320135785593834,
+            "brier_mean": 0.15603848139700638,
+            "ece_mean": 0.07626926137095474
+          },
+          {
+            "method": "candidate_f002_fusion",
+            "candidate_id": "f002_fusion",
+            "evaluations": 3,
+            "accuracy_mean": 0.8966861598440546,
+            "accuracy_sd": 0.0033763173636819897,
+            "balanced_accuracy_mean": 0.8285714285714286,
+            "macro_f1_mean": 0.8263640515522076,
+            "nll_mean": 0.3743798627671304,
+            "brier_mean": 0.17108838123696782,
+            "ece_mean": 0.1270547025392541
+          },
+          {
+            "method": "candidate_f003_fusion",
+            "candidate_id": "f003_fusion",
+            "evaluations": 3,
+            "accuracy_mean": 0.8947368421052632,
+            "accuracy_sd": 0.0,
+            "balanced_accuracy_mean": 0.8714285714285716,
+            "macro_f1_mean": 0.8693629966579782,
+            "nll_mean": 0.448608668028571,
+            "brier_mean": 0.2071999879521966,
+            "ece_mean": 0.19567417848492696
+          },
+          {
+            "method": "candidate_f004_fusion",
+            "candidate_id": "f004_fusion",
+            "evaluations": 3,
+            "accuracy_mean": 0.8888888888888888,
+            "accuracy_sd": 0.0,
+            "balanced_accuracy_mean": 0.8642857142857144,
+            "macro_f1_mean": 0.8616237563605985,
+            "nll_mean": 0.541354813091759,
+            "brier_mean": 0.2643733015426927,
+            "ece_mean": 0.2293481485336131
+          },
+          {
+            "method": "candidate_f005_fusion",
+            "candidate_id": "f005_fusion",
+            "evaluations": 3,
+            "accuracy_mean": 0.8908382066276803,
+            "accuracy_sd": 0.0067526347273640435,
+            "balanced_accuracy_mean": 0.7761904761904762,
+            "macro_f1_mean": 0.7729318942959179,
+            "nll_mean": 0.2868829208536044,
+            "brier_mean": 0.15003830868404824,
+            "ece_mean": 0.04186710726807691
+          },
+          {
+            "method": "candidate_f006_fusion",
+            "candidate_id": "f006_fusion",
+            "evaluations": 3,
+            "accuracy_mean": 0.8966861598440546,
+            "accuracy_sd": 0.0033763173636819897,
+            "balanced_accuracy_mean": 0.8285714285714286,
+            "macro_f1_mean": 0.8263640515522076,
+            "nll_mean": 0.30190036537260495,
+            "brier_mean": 0.15020968386009967,
+            "ece_mean": 0.06172745727139823
+          },
+          {
+            "method": "candidate_f007_fusion",
+            "candidate_id": "f007_fusion",
+            "evaluations": 3,
+            "accuracy_mean": 0.8966861598440546,
+            "accuracy_sd": 0.0033763173636819897,
+            "balanced_accuracy_mean": 0.8738095238095239,
+            "macro_f1_mean": 0.8717592793480186,
+            "nll_mean": 0.32644488925463305,
+            "brier_mean": 0.1584844341177414,
+            "ece_mean": 0.09683098693553538
+          },
+          {
+            "method": "candidate_f008_fusion",
+            "candidate_id": "f008_fusion",
+            "evaluations": 3,
+            "accuracy_mean": 0.8947368421052632,
+            "accuracy_sd": 0.0,
+            "balanced_accuracy_mean": 0.8714285714285716,
+            "macro_f1_mean": 0.8693629966579782,
+            "nll_mean": 0.35994137051469294,
+            "brier_mean": 0.1748625594569735,
+            "ece_mean": 0.1253651987011536
+          },
+          {
+            "method": "candidate_f009_fusion",
+            "candidate_id": "f009_fusion",
+            "evaluations": 3,
+            "accuracy_mean": 0.8888888888888888,
+            "accuracy_sd": 0.0,
+            "balanced_accuracy_mean": 0.8642857142857144,
+            "macro_f1_mean": 0.8616237563605985,
+            "nll_mean": 0.40975048002401976,
+            "brier_mean": 0.19934405987779583,
+            "ece_mean": 0.09366889067243628
+          },
+          {
+            "method": "candidate_f010_fusion",
+            "candidate_id": "f010_fusion",
+            "evaluations": 3,
+            "accuracy_mean": 0.9025341130604289,
+            "accuracy_sd": 0.0067526347273640435,
+            "balanced_accuracy_mean": 0.8809523809523809,
+            "macro_f1_mean": 0.8786570454519397,
+            "nll_mean": 0.3231775947591785,
+            "brier_mean": 0.1579440622206732,
+            "ece_mean": 0.05415312459478277
+          },
+          {
+            "method": "candidate_f011_fusion",
+            "candidate_id": "f011_fusion",
+            "evaluations": 3,
+            "accuracy_mean": 0.9025341130604287,
+            "accuracy_sd": 0.003376317363682054,
+            "balanced_accuracy_mean": 0.880952380952381,
+            "macro_f1_mean": 0.878973775634031,
+            "nll_mean": 0.31907819977654894,
+            "brier_mean": 0.15403580969654113,
+            "ece_mean": 0.06555023056947058
+          },
+          {
+            "method": "candidate_f012_fusion",
+            "candidate_id": "f012_fusion",
+            "evaluations": 3,
+            "accuracy_mean": 0.8966861598440544,
+            "accuracy_sd": 0.0067526347273640435,
+            "balanced_accuracy_mean": 0.8738095238095238,
+            "macro_f1_mean": 0.8720185303853777,
+            "nll_mean": 0.3739945720356898,
+            "brier_mean": 0.1704712654088337,
+            "ece_mean": 0.1343258457272868
+          },
+          {
+            "method": "candidate_f013_fusion",
+            "candidate_id": "f013_fusion",
+            "evaluations": 3,
+            "accuracy_mean": 0.8947368421052632,
+            "accuracy_sd": 0.0,
+            "balanced_accuracy_mean": 0.8714285714285716,
+            "macro_f1_mean": 0.8693629966579782,
+            "nll_mean": 0.4485444312680544,
+            "brier_mean": 0.20725042935755086,
+            "ece_mean": 0.20122169249546973
+          },
+          {
+            "method": "candidate_f014_fusion",
+            "candidate_id": "f014_fusion",
+            "evaluations": 3,
+            "accuracy_mean": 0.8888888888888888,
+            "accuracy_sd": 0.0,
+            "balanced_accuracy_mean": 0.8642857142857144,
+            "macro_f1_mean": 0.8616237563605985,
+            "nll_mean": 0.541354813091759,
+            "brier_mean": 0.2643733015426927,
+            "ece_mean": 0.2293481485336131
+          },
+          {
+            "method": "candidate_f015_fusion",
+            "candidate_id": "f015_fusion",
+            "evaluations": 3,
+            "accuracy_mean": 0.9025341130604289,
+            "accuracy_sd": 0.0067526347273640435,
+            "balanced_accuracy_mean": 0.8809523809523809,
+            "macro_f1_mean": 0.8786570454519397,
+            "nll_mean": 0.30043915694784373,
+            "brier_mean": 0.15443947475166117,
+            "ece_mean": 0.053259842792641184
+          },
+          {
+            "method": "candidate_f016_fusion",
+            "candidate_id": "f016_fusion",
+            "evaluations": 3,
+            "accuracy_mean": 0.8966861598440544,
+            "accuracy_sd": 0.0067526347273640435,
+            "balanced_accuracy_mean": 0.8738095238095238,
+            "macro_f1_mean": 0.8720185303853777,
+            "nll_mean": 0.3124583456695043,
+            "brier_mean": 0.15418569264257265,
+            "ece_mean": 0.08187214807184452
+          },
+          {
+            "method": "candidate_f017_fusion",
+            "candidate_id": "f017_fusion",
+            "evaluations": 3,
+            "accuracy_mean": 0.8947368421052632,
+            "accuracy_sd": 0.0,
+            "balanced_accuracy_mean": 0.8714285714285714,
+            "macro_f1_mean": 0.8696467059817296,
+            "nll_mean": 0.33341972760067407,
+            "brier_mean": 0.1615851961272323,
+            "ece_mean": 0.10822437374012032
+          },
+          {
+            "method": "candidate_f018_fusion",
+            "candidate_id": "f018_fusion",
+            "evaluations": 3,
+            "accuracy_mean": 0.8947368421052632,
+            "accuracy_sd": 0.0,
+            "balanced_accuracy_mean": 0.8714285714285716,
+            "macro_f1_mean": 0.8693629966579782,
+            "nll_mean": 0.3631216018862217,
+            "brier_mean": 0.17663798520564,
+            "ece_mean": 0.120669640550179
+          },
+          {
+            "method": "candidate_f019_fusion",
+            "candidate_id": "f019_fusion",
+            "evaluations": 3,
+            "accuracy_mean": 0.8888888888888888,
+            "accuracy_sd": 0.0,
+            "balanced_accuracy_mean": 0.8642857142857144,
+            "macro_f1_mean": 0.8616237563605985,
+            "nll_mean": 0.40975048002401976,
+            "brier_mean": 0.19934405987779583,
+            "ece_mean": 0.09366889067243628
+          },
+          {
+            "method": "selected",
+            "candidate_id": "f015_fusion",
+            "evaluations": 3,
+            "accuracy_mean": 0.9025341130604289,
+            "accuracy_sd": 0.0067526347273640435,
+            "balanced_accuracy_mean": 0.8809523809523809,
+            "macro_f1_mean": 0.8786570454519397,
+            "nll_mean": 0.30043915694784373,
+            "brier_mean": 0.15443947475166117,
+            "ece_mean": 0.053259842792641184
+          },
+          {
+            "method": "diagnostic",
+            "candidate_id": "f001_fusion",
+            "evaluations": 3,
+            "accuracy_mean": 0.8908382066276803,
+            "accuracy_sd": 0.003376317363682054,
+            "balanced_accuracy_mean": 0.7761904761904762,
+            "macro_f1_mean": 0.7732408505662338,
+            "nll_mean": 0.320135785593834,
+            "brier_mean": 0.15603848139700638,
+            "ece_mean": 0.07626926137095474
+          },
+          {
+            "method": "mlp_raw_softmax",
+            "candidate_id": "f000_fusion",
+            "evaluations": 3,
+            "accuracy_mean": 0.8908382066276803,
+            "accuracy_sd": 0.0067526347273640435,
+            "balanced_accuracy_mean": 0.7761904761904762,
+            "macro_f1_mean": 0.7729318942959179,
+            "nll_mean": 0.32321974066000964,
+            "brier_mean": 0.16205028843231226,
+            "ece_mean": 0.06527309470708802
+          },
+          {
+            "method": "mlp_source_oof_temperature",
+            "candidate_id": "f005_fusion",
+            "evaluations": 3,
+            "accuracy_mean": 0.8908382066276803,
+            "accuracy_sd": 0.0067526347273640435,
+            "balanced_accuracy_mean": 0.7761904761904762,
+            "macro_f1_mean": 0.7729318942959179,
+            "nll_mean": 0.2868829208536044,
+            "brier_mean": 0.15003830868404824,
+            "ece_mean": 0.04186710726807691
+          },
+          {
+            "method": "mlp_sup100_raw_softmax",
+            "candidate_id": "f010_fusion",
+            "evaluations": 3,
+            "accuracy_mean": 0.9025341130604289,
+            "accuracy_sd": 0.0067526347273640435,
+            "balanced_accuracy_mean": 0.8809523809523809,
+            "macro_f1_mean": 0.8786570454519397,
+            "nll_mean": 0.3231775947591785,
+            "brier_mean": 0.1579440622206732,
+            "ece_mean": 0.05415312459478277
+          },
+          {
+            "method": "mlp_sup100_source_oof_temperature",
+            "candidate_id": "f015_fusion",
+            "evaluations": 3,
+            "accuracy_mean": 0.9025341130604289,
+            "accuracy_sd": 0.0067526347273640435,
+            "balanced_accuracy_mean": 0.8809523809523809,
+            "macro_f1_mean": 0.8786570454519397,
+            "nll_mean": 0.30043915694784373,
+            "brier_mean": 0.15443947475166117,
+            "ece_mean": 0.053259842792641184
+          },
+          {
+            "method": "svm_raw_softmax",
+            "candidate_id": "f004_fusion",
+            "evaluations": 3,
+            "accuracy_mean": 0.8888888888888888,
+            "accuracy_sd": 0.0,
+            "balanced_accuracy_mean": 0.8642857142857144,
+            "macro_f1_mean": 0.8616237563605985,
+            "nll_mean": 0.541354813091759,
+            "brier_mean": 0.2643733015426927,
+            "ece_mean": 0.2293481485336131
+          },
+          {
+            "method": "svm_source_oof_temperature",
+            "candidate_id": "f009_fusion",
+            "evaluations": 3,
+            "accuracy_mean": 0.8888888888888888,
+            "accuracy_sd": 0.0,
+            "balanced_accuracy_mean": 0.8642857142857144,
+            "macro_f1_mean": 0.8616237563605985,
+            "nll_mean": 0.40975048002401976,
+            "brier_mean": 0.19934405987779583,
+            "ece_mean": 0.09366889067243628
+          }
+        ]
+      },
+      "conclusion": "正式回退SVM权重0的较强单MLP，不能称融合收益；真值oracle91.8129%不可部署，不是实测模型成绩。",
+      "paper_use": "融合负结果和错误互补诊断；oracle只用于解释可能空间。",
+      "limitations": [
+        "本组历史855记录现已知混合枣仁和酸枣仁，不能描述为纯酸枣仁产地性能。",
+        "现有样品及测试表现已经历多轮开发曝光，不是未参与开发的新确认集。",
+        "原来源组各只有一个来源批次；样品级划分不能分离种类、来源组和该批次效应。",
+        "ZY02只有5条；重复种子、支持抽样、模态及派生Excel不增加独立样品或批次数。"
+      ],
+      "sources": [
+        {
+          "repository": "jackzhu119/research4",
+          "ref": "research/pyscf-spinosin-mechanism-20261031",
+          "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+          "path": "docs/IMAGE_GUIDED_OPTIMIZATION_REPORT.md",
+          "sha256": "93e82f37cc5ccd1662c1e00b410c524591c4cd17c7c0362236f3664fa8ae9bdf"
+        },
+        {
+          "repository": "jackzhu119/research4",
+          "ref": "research/pyscf-spinosin-mechanism-20261031",
+          "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+          "path": "reports/image-guided-optimization/2026-10-31/fusion/summary.json",
+          "sha256": "c4baeb8396950834cdd398a6967d78807087462fd2507ac605a79387c47d5cef"
+        }
+      ]
+    },
+    {
+      "experiment_id": "HML-014",
+      "title": "R0—R3嵌套优化与90.41%精确重现",
+      "status": "COMPLETED_HISTORICAL_EXPLORATORY",
+      "dataset_scope": "855个历史ZY记录，ZY01/02后确认为枣仁、ZY03—07为酸枣仁；旧匿名来源组标签，非当前18表实验",
+      "design": "855每方法一次5外折OOF，2内折，源内每折独立选择：R1 MC36、R2 SVM96、R3预处理7；所有内层锁齐才统一外层放行；原标准SVC投票不换argmax。",
+      "metrics": {
+        "main_rows": [
+          {
+            "method": "R0",
+            "samples": "855",
+            "correct": "773",
+            "accuracy": "0.904093567251462",
+            "macro_f1": "0.8091848477608959",
+            "balanced_accuracy": "0.836734693877551"
+          },
+          {
+            "method": "R1",
+            "samples": "855",
+            "correct": "791",
+            "accuracy": "0.9251461988304094",
+            "macro_f1": "0.827691270343439",
+            "balanced_accuracy": "0.866530612244898"
+          },
+          {
+            "method": "R2",
+            "samples": "855",
+            "correct": "821",
+            "accuracy": "0.960233918128655",
+            "macro_f1": "0.9196845913264596",
+            "balanced_accuracy": "0.8991836734693877"
+          },
+          {
+            "method": "R3",
+            "samples": "855",
+            "correct": "816",
+            "accuracy": "0.9543859649122807",
+            "macro_f1": "0.8877203789388449",
+            "balanced_accuracy": "0.8638775510204083"
+          },
+          {
+            "method": "fixed_snv_C10_MC20",
+            "samples": "855",
+            "correct": "754",
+            "accuracy": "0.8818713450292398",
+            "macro_f1": "0.7712607854514617",
+            "balanced_accuracy": "0.8208163265306121"
+          }
+        ],
+        "R2_corrected_R0_errors": 62,
+        "R2_new_errors_vs_R0": 14,
+        "R2_net_correct_gain": 48,
+        "R2_accuracy_gain_percentage_points": 5.614035087719298,
+        "R2_ZY02_recall": "3/5"
+      },
+      "conclusion": "R2 821/85596.0234%、宏F1.9196846、BA89.9184%；更复杂R3反降5个正确。R1相对固定锚定与R0的对比含义不同，不能全归因单个因素。",
+      "paper_use": "历史混合匿名组可重放强候选及方法选择过程；不得转成当前纯酸枣仁主成绩。",
+      "limitations": [
+        "本组历史855记录现已知混合枣仁和酸枣仁，不能描述为纯酸枣仁产地性能。",
+        "现有样品及测试表现已经历多轮开发曝光，不是未参与开发的新确认集。",
+        "原来源组各只有一个来源批次；样品级划分不能分离种类、来源组和该批次效应。",
+        "ZY02只有5条；重复种子、支持抽样、模态及派生Excel不增加独立样品或批次数。"
+      ],
+      "sources": [
+        {
+          "repository": "jackzhu119/research4",
+          "ref": "research/pyscf-spinosin-mechanism-20261031",
+          "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+          "path": "docs/STAGED_NESTED_OPTIMIZATION_REPORT.md",
+          "sha256": "2febc555f7ed9e2d3016f10f4584243a5849253faa7dcaa8fdf5a52cd6bef894"
+        },
+        {
+          "repository": "jackzhu119/research4",
+          "ref": "research/pyscf-spinosin-mechanism-20261031",
+          "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+          "path": "data/research/staged_nested_plan_20261031.json",
+          "sha256": "12a3f8c7c8c6fbd323eac8db1f195cc4d086fade16c9d2386014b2acc883ac29"
+        },
+        {
+          "repository": "jackzhu119/research4",
+          "ref": "research/pyscf-spinosin-mechanism-20261031",
+          "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+          "path": "reports/paper-c/2026-10-31/history-audit/all_method_metrics.csv",
+          "sha256": "7295355ac7574b80b2f8335a1f8a7d595c02273367f9f2f6b9d0811cceea3460"
+        }
+      ]
+    },
+    {
+      "experiment_id": "HML-015",
+      "title": "R4组合家族、稳定选择与CNN受控对照",
+      "status": "COMPLETED_HISTORICAL_EXPLORATORY",
+      "dataset_scope": "855个历史ZY记录，ZY01/02后确认为枣仁、ZY03—07为酸枣仁；旧匿名来源组标签，非当前18表实验",
+      "design": "继承对应外折R1—3，内层选7家族，另保留各家族诊断；CNN15个新编码器200epoch/9223参数/32维表示，与SVM共享编码器。",
+      "metrics": {
+        "R4_and_diagnostics": [
+          {
+            "method": "R4",
+            "samples": "855",
+            "correct": "812",
+            "accuracy": "0.9497076023391813",
+            "macro_f1": "0.8820415614689561",
+            "balanced_accuracy": "0.8581632653061225"
+          },
+          {
+            "method": "R4_diagnostic_ordinary_mcuve",
+            "samples": "855",
+            "correct": "816",
+            "accuracy": "0.9543859649122807",
+            "macro_f1": "0.8877203789388449",
+            "balanced_accuracy": "0.8638775510204083"
+          },
+          {
+            "method": "R4_diagnostic_budget_mcuve",
+            "samples": "855",
+            "correct": "811",
+            "accuracy": "0.9485380116959065",
+            "macro_f1": "0.8806445535299291",
+            "balanced_accuracy": "0.8567346938775511"
+          },
+          {
+            "method": "R4_diagnostic_stable_mcuve",
+            "samples": "855",
+            "correct": "814",
+            "accuracy": "0.952046783625731",
+            "macro_f1": "0.884990096985977",
+            "balanced_accuracy": "0.8610204081632654"
+          },
+          {
+            "method": "R4_diagnostic_stable_cars",
+            "samples": "855",
+            "correct": "767",
+            "accuracy": "0.8970760233918129",
+            "macro_f1": "0.8322129877977783",
+            "balanced_accuracy": "0.8240816326530612"
+          },
+          {
+            "method": "R4_diagnostic_stable_joint",
+            "samples": "855",
+            "correct": "812",
+            "accuracy": "0.9497076023391813",
+            "macro_f1": "0.882281394654376",
+            "balanced_accuracy": "0.8581632653061224"
+          },
+          {
+            "method": "R4_diagnostic_cnn_softmax",
+            "samples": "855",
+            "correct": "744",
+            "accuracy": "0.8701754385964913",
+            "macro_f1": "0.7521056606792166",
+            "balanced_accuracy": "0.7681632653061224"
+          },
+          {
+            "method": "R4_diagnostic_cnn_embedding_svm",
+            "samples": "855",
+            "correct": "736",
+            "accuracy": "0.8608187134502924",
+            "macro_f1": "0.764364048856709",
+            "balanced_accuracy": "0.7506122448979592"
+          }
+        ],
+        "R3_correct": 816,
+        "R4_correct": 812,
+        "fixed_CNN_softmax_correct": 744,
+        "fixed_CNN_embedding_SVM_correct": 736
+      },
+      "conclusion": "R4内选策略94.9708%低于R3和R2；预算MC、稳定MC/CARS、CNN路线均未胜较强传统路线。",
+      "paper_use": "完整负结果与复杂度/选择方差讨论；不能推断所有CNN、SG或稳定方法普遍无效。",
+      "limitations": [
+        "本组历史855记录现已知混合枣仁和酸枣仁，不能描述为纯酸枣仁产地性能。",
+        "现有样品及测试表现已经历多轮开发曝光，不是未参与开发的新确认集。",
+        "原来源组各只有一个来源批次；样品级划分不能分离种类、来源组和该批次效应。",
+        "ZY02只有5条；重复种子、支持抽样、模态及派生Excel不增加独立样品或批次数。"
+      ],
+      "sources": [
+        {
+          "repository": "jackzhu119/research4",
+          "ref": "research/pyscf-spinosin-mechanism-20261031",
+          "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+          "path": "docs/STAGED_NESTED_OPTIMIZATION_REPORT.md",
+          "sha256": "2febc555f7ed9e2d3016f10f4584243a5849253faa7dcaa8fdf5a52cd6bef894"
+        },
+        {
+          "repository": "jackzhu119/research4",
+          "ref": "research/pyscf-spinosin-mechanism-20261031",
+          "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+          "path": "data/research/staged_nested_combinations_protocol_20261031.json",
+          "sha256": "98ed297de021aa8fa78a26a35a8d5e7553ded190d8a57fb395b48a1be6b3fc29"
+        },
+        {
+          "repository": "jackzhu119/research4",
+          "ref": "research/pyscf-spinosin-mechanism-20261031",
+          "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+          "path": "reports/staged-nested-optimization/2026-10-31/combinations/summary.json",
+          "sha256": "1c2e84c1b112cb834724df5ac627cb3e8c8bcbf68633df659221e06d87d5ea5e"
+        }
+      ]
+    },
+    {
+      "experiment_id": "HML-016",
+      "title": "统一855协议基线复现与条件消融",
+      "status": "COMPLETED_HISTORICAL_EXPLORATORY",
+      "dataset_scope": "855个历史ZY记录，ZY01/02后确认为枣仁、ZY03—07为酸枣仁；旧匿名来源组标签，非当前18表实验",
+      "design": "同855同外/内折：SVM96、LDA10、sklearnMLP8候选内调；R2已选参数单独重放/重拟合；条件消融继承R2其他设置，非重新联合调参。",
+      "metrics": {
+        "model_comparison": [
+          {
+            "method": "full_svm",
+            "方法": "全谱SNV＋SVM（96候选）",
+            "正确数": "753",
+            "样品数": "855",
+            "accuracy": "0.8807017543859649",
+            "macro_f1": "0.796349792182043",
+            "balanced_accuracy": "0.8040816326530612",
+            "mean_selected_features": "612.0",
+            "delta_vs_R2_percentage_points": "-7.953216374269012",
+            "outer_transform_seconds": "0.043245692999335006",
+            "outer_estimator_fit_seconds": "0.11250874900360941",
+            "outer_predict_seconds": "0.07575870099753956",
+            "model_bytes_sum": "9533523",
+            "inner_search_seconds": "53.20007699199414"
+          },
+          {
+            "method": "shrinkage_lda",
+            "方法": "全谱收缩LDA（10候选）",
+            "正确数": "786",
+            "样品数": "855",
+            "accuracy": "0.9192982456140351",
+            "macro_f1": "0.8299605632075098",
+            "balanced_accuracy": "0.8885714285714286",
+            "mean_selected_features": "612.0",
+            "delta_vs_R2_percentage_points": "-4.093567251461994",
+            "outer_transform_seconds": "0.04262899000241305",
+            "outer_estimator_fit_seconds": "0.41805852000106825",
+            "outer_predict_seconds": "0.008588220000092406",
+            "model_bytes_sum": "14813080",
+            "inner_search_seconds": "7.639080412984185"
+          },
+          {
+            "method": "mlp",
+            "方法": "全谱小MLP（8候选）",
+            "正确数": "759",
+            "样品数": "855",
+            "accuracy": "0.887719298245614",
+            "macro_f1": "0.789997964658571",
+            "balanced_accuracy": "0.7844897959183673",
+            "mean_selected_features": "612.0",
+            "delta_vs_R2_percentage_points": "-7.251461988304097",
+            "outer_transform_seconds": "0.04362216799563612",
+            "outer_estimator_fit_seconds": "8.086103439993167",
+            "outer_predict_seconds": "0.011599314995692112",
+            "model_bytes_sum": "6312503",
+            "inner_search_seconds": "87.14508048000062"
+          },
+          {
+            "method": "R2_reproduction",
+            "方法": "MC-UVE＋SVM：R2原样复现",
+            "正确数": "821",
+            "样品数": "855",
+            "accuracy": "0.960233918128655",
+            "macro_f1": "0.9196845913264596",
+            "balanced_accuracy": "0.8991836734693877",
+            "mean_selected_features": "98.4",
+            "delta_vs_R2_percentage_points": "0.0",
+            "outer_transform_seconds": "1.984797550998337",
+            "outer_estimator_fit_seconds": "0.035194736999983434",
+            "outer_predict_seconds": "0.018476386001566425",
+            "model_bytes_sum": "7129539",
+            "inner_search_seconds": "0"
+          },
+          {
+            "method": "R2_full_features",
+            "方法": "条件消融：去MC、保留R2 SVM",
+            "正确数": "757",
+            "样品数": "855",
+            "accuracy": "0.8853801169590644",
+            "macro_f1": "0.7950636646438396",
+            "balanced_accuracy": "0.7816326530612245",
+            "mean_selected_features": "612.0",
+            "delta_vs_R2_percentage_points": "-7.485380116959062",
+            "outer_transform_seconds": "0.04175851600302849",
+            "outer_estimator_fit_seconds": "0.1180948460023501",
+            "outer_predict_seconds": "0.06985557900043204",
+            "model_bytes_sum": "8890865",
+            "inner_search_seconds": "0"
+          },
+          {
+            "method": "R2_random_K",
+            "方法": "条件消融：随机同K、保留R2 SVM",
+            "正确数": "770",
+            "样品数": "855",
+            "accuracy": "0.9005847953216374",
+            "macro_f1": "0.8142344785816095",
+            "balanced_accuracy": "0.8012244897959183",
+            "mean_selected_features": "98.4",
+            "delta_vs_R2_percentage_points": "-5.964912280701762",
+            "outer_transform_seconds": "0.04133339400505065",
+            "outer_estimator_fit_seconds": "0.05821493400071631",
+            "outer_predict_seconds": "0.02451550300247618",
+            "model_bytes_sum": "1459715",
+            "inner_search_seconds": "0"
+          },
+          {
+            "method": "R2_no_C_gamma_search",
+            "方法": "条件消融：C10／scale、保留权重",
+            "正确数": "796",
+            "样品数": "855",
+            "accuracy": "0.9309941520467836",
+            "macro_f1": "0.8343040841886766",
+            "balanced_accuracy": "0.8393877551020408",
+            "mean_selected_features": "98.4",
+            "delta_vs_R2_percentage_points": "-2.92397660818714",
+            "outer_transform_seconds": "1.942961220003781",
+            "outer_estimator_fit_seconds": "0.03635700100494432",
+            "outer_predict_seconds": "0.022556701995199546",
+            "model_bytes_sum": "7434267",
+            "inner_search_seconds": "0"
+          },
+          {
+            "method": "R2_no_class_weight",
+            "方法": "条件消融：无类别权重",
+            "正确数": "817",
+            "样品数": "855",
+            "accuracy": "0.9555555555555556",
+            "macro_f1": "0.8896297007389217",
+            "balanced_accuracy": "0.8663265306122448",
+            "mean_selected_features": "98.4",
+            "delta_vs_R2_percentage_points": "-0.4678362573099393",
+            "outer_transform_seconds": "1.901347110997449",
+            "outer_estimator_fit_seconds": "0.033692003999021836",
+            "outer_predict_seconds": "0.017913342999236193",
+            "model_bytes_sum": "7120844",
+            "inner_search_seconds": "0"
+          },
+          {
+            "method": "R2_fixed_MC20_LV2_K62",
+            "方法": "条件消融：固定MC20／LV2／62点",
+            "正确数": "786",
+            "样品数": "855",
+            "accuracy": "0.9192982456140351",
+            "macro_f1": "0.8365250925665162",
+            "balanced_accuracy": "0.8230612244897959",
+            "mean_selected_features": "62.0",
+            "delta_vs_R2_percentage_points": "-4.093567251461994",
+            "outer_transform_seconds": "1.3639262239994423",
+            "outer_estimator_fit_seconds": "0.03710701500313007",
+            "outer_predict_seconds": "0.01998634600022342",
+            "model_bytes_sum": "4337852",
+            "inner_search_seconds": "0"
+          }
+        ],
+        "R2_labels_and_scores_exact_reproduction": true
+      },
+      "conclusion": "R2精确重现；全谱SVM88.0702%、LDA91.9298%、单隐层MLP88.7719%；去MC、随机同K、去C/gamma搜索、去类权等条件消融均下降。",
+      "paper_use": "可重放的历史对照和贡献分解；不同模型网格/成本不同，不称所有方法严格等预算。",
+      "limitations": [
+        "本组历史855记录现已知混合枣仁和酸枣仁，不能描述为纯酸枣仁产地性能。",
+        "现有样品及测试表现已经历多轮开发曝光，不是未参与开发的新确认集。",
+        "原来源组各只有一个来源批次；样品级划分不能分离种类、来源组和该批次效应。",
+        "ZY02只有5条；重复种子、支持抽样、模态及派生Excel不增加独立样品或批次数。",
+        "条件消融不严格分离参数交互因果；F1和BA不得由accuracy推算。"
+      ],
+      "sources": [
+        {
+          "repository": "jackzhu119/research4",
+          "ref": "research/pyscf-spinosin-mechanism-20261031",
+          "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+          "path": "docs/RESEARCH4_EXPERIMENT_AUDIT.md",
+          "sha256": "fbff19b9581de28c30cb6158e052ef09f76215162743178f69f8aded6e7f5f87"
+        },
+        {
+          "repository": "jackzhu119/research4",
+          "ref": "research/pyscf-spinosin-mechanism-20261031",
+          "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+          "path": "reports/paper-c/2026-10-31/fair-benchmark/model_comparison.csv",
+          "sha256": "6a6e66a5596aa15915ccd3a980e27cf9cf78645565af33d48fa2b4a17e68c2f9"
+        },
+        {
+          "repository": "jackzhu119/research4",
+          "ref": "research/pyscf-spinosin-mechanism-20261031",
+          "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+          "path": "reports/paper-c/2026-10-31/final-audit/same855_model_metrics.csv",
+          "sha256": "8d136196789b8ed61a45e382e820e987e077ab726911c25c03dd5eb02aa9e8f9"
+        }
+      ]
+    },
+    {
+      "experiment_id": "HML-017",
+      "title": "原64—32强MLP的三seed统一OOF与源更新控制",
+      "status": "COMPLETED_HISTORICAL_EXPLORATORY",
+      "dataset_scope": "855个历史ZY记录，ZY01/02后确认为枣仁、ZY03—07为酸枣仁；旧匿名来源组标签，非当前18表实验",
+      "design": "精确复用原实现200epoch，再加100次源监督更新，不是300epoch；同855旧5/2折，各42/43/44均保存。",
+      "metrics": {
+        "seed42_base_correct": 768,
+        "seed42_continued_correct": 777,
+        "seed43_base_correct": 775,
+        "seed43_continued_correct": 772,
+        "seed44_base_correct": 774,
+        "seed44_continued_correct": 775,
+        "accuracy_mean_base": 0.903314,
+        "accuracy_mean_continued": 0.906043,
+        "macro_f1_mean_base": 0.8123,
+        "macro_f1_mean_continued": 0.8226
+      },
+      "conclusion": "追加训练的三seed均值略升，seed43反降；未超过R2，不能只挑seed42多9份作为所有种子改善。",
+      "paper_use": "神经强对照和种子敏感性；模型架构本来自旧513开发，历史选择曝光需明列。",
+      "limitations": [
+        "本组历史855记录现已知混合枣仁和酸枣仁，不能描述为纯酸枣仁产地性能。",
+        "现有样品及测试表现已经历多轮开发曝光，不是未参与开发的新确认集。",
+        "原来源组各只有一个来源批次；样品级划分不能分离种类、来源组和该批次效应。",
+        "ZY02只有5条；重复种子、支持抽样、模态及派生Excel不增加独立样品或批次数。"
+      ],
+      "sources": [
+        {
+          "repository": "jackzhu119/research4",
+          "ref": "research/pyscf-spinosin-mechanism-20261031",
+          "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+          "path": "docs/RESEARCH4_EXPERIMENT_AUDIT.md",
+          "sha256": "fbff19b9581de28c30cb6158e052ef09f76215162743178f69f8aded6e7f5f87"
+        },
+        {
+          "repository": "jackzhu119/research4",
+          "ref": "research/pyscf-spinosin-mechanism-20261031",
+          "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+          "path": "reports/paper-c/2026-10-31/strong-mlp/continuation_paired_summary.json",
+          "sha256": "8bd7eddea08ec4c99ff2d56e4c6632e1c13a06f87ebed69840e91769d3c92f65"
+        }
+      ]
+    },
+    {
+      "experiment_id": "HML-018",
+      "title": "统一研究审计中的保守校准独立复核",
+      "status": "COMPLETED_HISTORICAL_EXPLORATORY",
+      "dataset_scope": "855个历史ZY记录，ZY01/02后确认为枣仁、ZY03—07为酸枣仁；旧匿名来源组标签，非当前18表实验",
+      "design": "仍为513/171/171，源内30开发任务和新100支持抽样seed20261104；冻结源、限幅校准与匹配零支持控制。",
+      "metrics": {
+        "full_SVM_source_accuracy": 0.8888888888888888,
+        "full_SVM_old_lambda1_accuracy": 0.740526,
+        "full_SVM_conservative_accuracy": 0.8888888888888888,
+        "MC20_source_accuracy": 0.8771929824561403,
+        "MC20_old_lambda1_accuracy": 0.740175,
+        "MC20_conservative_accuracy": 0.8771929824561403,
+        "development_draw_sample_pairs_no_label_flip": 11120
+      },
+      "conclusion": "v1限幅使满足翻类必要条件的11120对实际均不翻类；正式回退无增益，不能作为提准新方法。旧λ1负结果保留，抽样均值不覆盖先前20draw。",
+      "paper_use": "保守规则的机制负诊断，区分“稳定不坏”与“带来新收益”。",
+      "limitations": [
+        "本组历史855记录现已知混合枣仁和酸枣仁，不能描述为纯酸枣仁产地性能。",
+        "现有样品及测试表现已经历多轮开发曝光，不是未参与开发的新确认集。",
+        "原来源组各只有一个来源批次；样品级划分不能分离种类、来源组和该批次效应。",
+        "ZY02只有5条；重复种子、支持抽样、模态及派生Excel不增加独立样品或批次数。"
+      ],
+      "sources": [
+        {
+          "repository": "jackzhu119/research4",
+          "ref": "research/pyscf-spinosin-mechanism-20261031",
+          "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+          "path": "docs/RESEARCH4_EXPERIMENT_AUDIT.md",
+          "sha256": "fbff19b9581de28c30cb6158e052ef09f76215162743178f69f8aded6e7f5f87"
+        },
+        {
+          "repository": "jackzhu119/research4",
+          "ref": "research/pyscf-spinosin-mechanism-20261031",
+          "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+          "path": "data/research/paper_c_calibration_protocol_20261031.json",
+          "sha256": "ad747301d72c3ab4ada47cdc909fec156e171a366c7bc094be28b7029022c083"
+        },
+        {
+          "repository": "jackzhu119/research4",
+          "ref": "research/pyscf-spinosin-mechanism-20261031",
+          "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+          "path": "reports/paper-c/2026-10-31/calibration/run/summary.json",
+          "sha256": "81d685a81af5da6548dd09f88edde2581867e5d5747f6c623c9d445300e6f44d"
+        }
+      ]
+    },
+    {
+      "experiment_id": "HML-019",
+      "title": "多表示/深度学习升级：8家族小预算嵌套实测",
+      "status": "COMPLETED_HISTORICAL_EXPLORATORY",
+      "dataset_scope": "855个历史ZY记录，ZY01/02后确认为枣仁、ZY03—07为酸枣仁；旧匿名来源组标签，非当前18表实验",
+      "design": "同855/5外2内/seed42、43、44；8家族×2事前耦合profile，12/24epoch；源内Macro-F1主选，所有学习操作记当前source，外层独立评分。",
+      "metrics": {
+        "inner_models": 480,
+        "outer_pipelines": 120,
+        "all_family_results": [
+          {
+            "family": "cnn_alpha",
+            "display_name": "轻量CNN：α",
+            "protocol": "upgrade-20261031-v1-neural-small-budget/prefit-v3",
+            "real_samples": "855",
+            "primary_seed": "42",
+            "correct_seed42": "643",
+            "accuracy_seed42": "0.752046783625731",
+            "macro_f1_seed42": "0.5605834970906124",
+            "balanced_accuracy_seed42": "0.5675510204081633",
+            "accuracy_mean_3seeds": "0.7461988304093566",
+            "accuracy_sample_sd_3seeds": "0.013283996130526932",
+            "macro_f1_mean_3seeds": "0.557050440047349",
+            "macro_f1_sample_sd_3seeds": "0.02043013510263418",
+            "ZY02_recall_seed42": "0.0",
+            "observed_gain_pp_vs_historical_R2": "-20.818713450292403",
+            "scope": "EXPLORATORY exposed single-batch; no independent confirmation"
+          },
+          {
+            "family": "resnet_alpha",
+            "display_name": "ResNet1D：α",
+            "protocol": "upgrade-20261031-v1-neural-small-budget/prefit-v3",
+            "real_samples": "855",
+            "primary_seed": "42",
+            "correct_seed42": "597",
+            "accuracy_seed42": "0.6982456140350877",
+            "macro_f1_seed42": "0.563512690203211",
+            "balanced_accuracy_seed42": "0.6553061224489796",
+            "accuracy_mean_3seeds": "0.7087719298245614",
+            "accuracy_sample_sd_3seeds": "0.017229146038194417",
+            "macro_f1_mean_3seeds": "0.5550978476985525",
+            "macro_f1_sample_sd_3seeds": "0.009332642402351854",
+            "ZY02_recall_seed42": "0.8",
+            "observed_gain_pp_vs_historical_R2": "-26.19883040935673",
+            "scope": "EXPLORATORY exposed single-batch; no independent confirmation"
+          },
+          {
+            "family": "se_alpha",
+            "display_name": "SE-ResNet1D：α",
+            "protocol": "upgrade-20261031-v1-neural-small-budget/prefit-v3",
+            "real_samples": "855",
+            "primary_seed": "42",
+            "correct_seed42": "607",
+            "accuracy_seed42": "0.7099415204678362",
+            "macro_f1_seed42": "0.5548240063008715",
+            "balanced_accuracy_seed42": "0.5548979591836735",
+            "accuracy_mean_3seeds": "0.7196881091617934",
+            "accuracy_sample_sd_3seeds": "0.03438543448159396",
+            "macro_f1_mean_3seeds": "0.5345888072961132",
+            "macro_f1_sample_sd_3seeds": "0.048827656668340116",
+            "ZY02_recall_seed42": "0.0",
+            "observed_gain_pp_vs_historical_R2": "-25.02923976608188",
+            "scope": "EXPLORATORY exposed single-batch; no independent confirmation"
+          },
+          {
+            "family": "dual_alpha_mcuve",
+            "display_name": "完整α＋MC-UVE点MLP双支",
+            "protocol": "upgrade-20261031-v1-neural-small-budget/prefit-v3",
+            "real_samples": "855",
+            "primary_seed": "42",
+            "correct_seed42": "621",
+            "accuracy_seed42": "0.7263157894736842",
+            "macro_f1_seed42": "0.6026708991108151",
+            "balanced_accuracy_seed42": "0.6946938775510203",
+            "accuracy_mean_3seeds": "0.7586744639376217",
+            "accuracy_sample_sd_3seeds": "0.02903632932766536",
+            "macro_f1_mean_3seeds": "0.60660354705448",
+            "macro_f1_sample_sd_3seeds": "0.007316055586254066",
+            "ZY02_recall_seed42": "0.8",
+            "observed_gain_pp_vs_historical_R2": "-23.391812865497073",
+            "scope": "EXPLORATORY exposed single-batch; no independent confirmation"
+          },
+          {
+            "family": "fusion_alpha_n",
+            "display_name": "α＋n双支",
+            "protocol": "upgrade-20261031-v1-neural-small-budget/prefit-v3",
+            "real_samples": "855",
+            "primary_seed": "42",
+            "correct_seed42": "661",
+            "accuracy_seed42": "0.7730994152046784",
+            "macro_f1_seed42": "0.6506672358862023",
+            "balanced_accuracy_seed42": "0.6434693877551021",
+            "accuracy_mean_3seeds": "0.7925925925925926",
+            "accuracy_sample_sd_3seeds": "0.016881586818410076",
+            "macro_f1_mean_3seeds": "0.6843628830266454",
+            "macro_f1_sample_sd_3seeds": "0.029191073668315304",
+            "ZY02_recall_seed42": "0.4",
+            "observed_gain_pp_vs_historical_R2": "-18.71345029239766",
+            "scope": "EXPLORATORY exposed single-batch; no independent confirmation"
+          },
+          {
+            "family": "cnn_n",
+            "display_name": "轻量CNN：n",
+            "protocol": "upgrade-20261031-v1-neural-small-budget/prefit-v3",
+            "real_samples": "855",
+            "primary_seed": "42",
+            "correct_seed42": "584",
+            "accuracy_seed42": "0.6830409356725147",
+            "macro_f1_seed42": "0.46254224067205785",
+            "balanced_accuracy_seed42": "0.4781632653061224",
+            "accuracy_mean_3seeds": "0.6830409356725147",
+            "accuracy_sample_sd_3seeds": "0.004678362573099448",
+            "macro_f1_mean_3seeds": "0.4548990318842138",
+            "macro_f1_sample_sd_3seeds": "0.006711539565758691",
+            "ZY02_recall_seed42": "0.0",
+            "observed_gain_pp_vs_historical_R2": "-27.719298245614034",
+            "scope": "EXPLORATORY exposed single-batch; no independent confirmation"
+          },
+          {
+            "family": "fusion_time_frequency",
+            "display_name": "时域＋频域双支",
+            "protocol": "upgrade-20261031-v1-neural-small-budget/prefit-v3",
+            "real_samples": "855",
+            "primary_seed": "42",
+            "correct_seed42": "661",
+            "accuracy_seed42": "0.7730994152046784",
+            "macro_f1_seed42": "0.6314931992271663",
+            "balanced_accuracy_seed42": "0.6961224489795919",
+            "accuracy_mean_3seeds": "0.7742690058479532",
+            "accuracy_sample_sd_3seeds": "0.0065120051027252055",
+            "macro_f1_mean_3seeds": "0.6401978631034172",
+            "macro_f1_sample_sd_3seeds": "0.008949599035743792",
+            "ZY02_recall_seed42": "0.6",
+            "observed_gain_pp_vs_historical_R2": "-18.71345029239766",
+            "scope": "EXPLORATORY exposed single-batch; no independent confirmation"
+          },
+          {
+            "family": "fusion_all_four",
+            "display_name": "四表示CNN融合",
+            "protocol": "upgrade-20261031-v1-neural-small-budget/prefit-v3",
+            "real_samples": "855",
+            "primary_seed": "42",
+            "correct_seed42": "727",
+            "accuracy_seed42": "0.8502923976608188",
+            "macro_f1_seed42": "0.7449109148965973",
+            "balanced_accuracy_seed42": "0.7397959183673469",
+            "accuracy_mean_3seeds": "0.837037037037037",
+            "accuracy_sample_sd_3seeds": "0.014809684142863634",
+            "macro_f1_mean_3seeds": "0.72161627462533",
+            "macro_f1_sample_sd_3seeds": "0.021980176526049784",
+            "ZY02_recall_seed42": "0.4",
+            "observed_gain_pp_vs_historical_R2": "-10.994152046783622",
+            "scope": "EXPLORATORY exposed single-batch; no independent confirmation"
+          },
+          {
+            "family": "inner_selected_neural",
+            "display_name": "内层选择的主神经策略",
+            "protocol": "upgrade-20261031-v1-neural-small-budget/prefit-v3",
+            "real_samples": "855",
+            "primary_seed": "42",
+            "correct_seed42": "727",
+            "accuracy_seed42": "0.8502923976608188",
+            "macro_f1_seed42": "0.7449109148965973",
+            "balanced_accuracy_seed42": "0.7397959183673469",
+            "accuracy_mean_3seeds": "0.837037037037037",
+            "accuracy_sample_sd_3seeds": "0.014809684142863634",
+            "macro_f1_mean_3seeds": "0.72161627462533",
+            "macro_f1_sample_sd_3seeds": "0.021980176526049784",
+            "ZY02_recall_seed42": "0.4",
+            "observed_gain_pp_vs_historical_R2": "-10.994152046783622",
+            "scope": "EXPLORATORY exposed single-batch; no independent confirmation"
+          }
+        ],
+        "primary_seed42_correct": 727,
+        "primary_seed42_n": 855,
+        "primary_seed42_accuracy": 0.8502923976608188,
+        "primary_seed42_macro_f1": 0.7449109148965973,
+        "primary_accuracy_mean_three_seeds": 0.837037037037037
+      },
+      "conclusion": "四表示主策略seed42 85.0292%、三seed均值83.7037%，未超过R2；12/24epoch小预算不能否定所有深度网络，多表示profile耦合不能称纯因素融合消融。",
+      "paper_use": "神经/融合辅助对照与真实负结果；不能把同批重复模态当新增独立样品。",
+      "limitations": [
+        "本组历史855记录现已知混合枣仁和酸枣仁，不能描述为纯酸枣仁产地性能。",
+        "现有样品及测试表现已经历多轮开发曝光，不是未参与开发的新确认集。",
+        "原来源组各只有一个来源批次；样品级划分不能分离种类、来源组和该批次效应。",
+        "ZY02只有5条；重复种子、支持抽样、模态及派生Excel不增加独立样品或批次数。",
+        "本模块只涵盖历史855主任务；HQ/TM辅助、补充多表示与外部迁移见本汇编外部/补充模块。"
+      ],
+      "sources": [
+        {
+          "repository": "jackzhu119/research4",
+          "ref": "research/pyscf-spinosin-mechanism-20261031",
+          "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+          "path": "docs/MULTIREPRESENTATION_UPGRADE_REPORT.md",
+          "sha256": "fd31053294e734a493f19f84e08dd00207853b930a58fb455acf3a9a969022c3"
+        },
+        {
+          "repository": "jackzhu119/research4",
+          "ref": "research/pyscf-spinosin-mechanism-20261031",
+          "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+          "path": "data/research/upgrade_neural_protocol_20261031.json",
+          "sha256": "2645226849f5ba8050dcf721d0b7ec13901e3530d04babef640c7473443a0731"
+        },
+        {
+          "repository": "jackzhu119/research4",
+          "ref": "research/pyscf-spinosin-mechanism-20261031",
+          "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+          "path": "reports/upgrade-20261031-v1/neural/model_comparison.csv",
+          "sha256": "a482600241942447e82dabf704cae1022a47a350787ec48ff2bf1e637ee31f54"
+        }
+      ]
+    },
+    {
+      "experiment_id": "HML-020",
+      "title": "480条历史训练损失曲线只读诊断",
+      "status": "COMPLETED_HISTORICAL_EXPLORATORY",
+      "dataset_scope": "855个历史ZY记录，ZY01/02后确认为枣仁、ZY03—07为酸枣仁；旧匿名来源组标签，非当前18表实验",
+      "design": "只读取8家族×2profile×5外×2内×3seed=480个源training.json；逐tar/member SHA核对，导出8640epoch记录，不读外层score/truth，不新增fit。",
+      "metrics": {
+        "source_curves": 480,
+        "epoch_records": 8640,
+        "curves_with_last3_loss_below_prior3": 480,
+        "new_model_fits": 0
+      },
+      "conclusion": "全部配置末段训练loss仍下降，仅说明该损失定义下优化仍有进展；缺逐epoch验证曲线，不能据此判定欠拟合或延长训练必提准。",
+      "paper_use": "学习过程诊断，不能当新外层模型成绩。",
+      "limitations": [
+        "本组历史855记录现已知混合枣仁和酸枣仁，不能描述为纯酸枣仁产地性能。",
+        "现有样品及测试表现已经历多轮开发曝光，不是未参与开发的新确认集。",
+        "原来源组各只有一个来源批次；样品级划分不能分离种类、来源组和该批次效应。",
+        "ZY02只有5条；重复种子、支持抽样、模态及派生Excel不增加独立样品或批次数。",
+        "源loss-only读取与随后真实96epoch pilot分开登记。"
+      ],
+      "sources": [
+        {
+          "repository": "jackzhu119/research4",
+          "ref": "research/pyscf-spinosin-mechanism-20261031",
+          "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+          "path": "docs/DEPLOYMENT_NEURAL_DIAGNOSTIC_20261031.md",
+          "sha256": "0bcf1105587c61e51f1e4ad58457a87327490cde1202ae646eaa3f8ab712568b"
+        },
+        {
+          "repository": "jackzhu119/research4",
+          "ref": "research/pyscf-spinosin-mechanism-20261031",
+          "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+          "path": "reports/zaoren-neural-source-diagnostic-20261031-v1/group_summary.csv",
+          "sha256": "cf17483b0a8abd9fb9f68b04aae9bbf4a263cf9e3de1753450983de329bb9ebb"
+        }
+      ]
+    },
+    {
+      "experiment_id": "HML-021",
+      "title": "仅源内的96epoch学习曲线pilot",
+      "status": "COMPLETED_HISTORICAL_EXPLORATORY",
+      "dataset_scope": "855个历史ZY记录，ZY01/02后确认为枣仁、ZY03—07为酸枣仁；旧匿名来源组标签，非当前18表实验",
+      "design": "固定原outer00.inner00：342source/342inner-validation，未访问外层171；αCNN/四表示×3seed六条fresh96epoch轨迹，预定12/24/48/96四快照，所有学习统计仅342source。",
+      "metrics": {
+        "fresh_trajectories": 6,
+        "fixed_checkpoints": 24,
+        "source_train": 342,
+        "inner_validation": 342,
+        "outer_query_evaluations": 0,
+        "checkpoint_results": [
+          {
+            "family": "cnn_alpha",
+            "epoch": "12",
+            "seed_count": "3",
+            "source_optimization_loss_mean": "1.6659707005260982",
+            "source_optimization_loss_sample_sd": "0.015177164893349653",
+            "source_accuracy_mean": "0.5701754385964913",
+            "source_accuracy_sample_sd": "0.051977745130500484",
+            "source_macro_f1_mean": "0.3123989477329479",
+            "source_macro_f1_sample_sd": "0.03562054760308832",
+            "source_balanced_accuracy_mean": "0.38860544217687076",
+            "source_balanced_accuracy_sample_sd": "0.026101979650271667",
+            "source_cross_entropy_source_class_weights_mean": "1.6162500778834026",
+            "source_cross_entropy_source_class_weights_sample_sd": "0.007559987617279643",
+            "validation_accuracy_mean": "0.5614035087719298",
+            "validation_accuracy_sample_sd": "0.046416689667799854",
+            "validation_macro_f1_mean": "0.29148029598347647",
+            "validation_macro_f1_sample_sd": "0.03641659123984859",
+            "validation_balanced_accuracy_mean": "0.3719387755102041",
+            "validation_balanced_accuracy_sample_sd": "0.027678277530650698",
+            "validation_cross_entropy_source_class_weights_mean": "1.6562393506368",
+            "validation_cross_entropy_source_class_weights_sample_sd": "0.009770843559785535"
+          },
+          {
+            "family": "cnn_alpha",
+            "epoch": "24",
+            "seed_count": "3",
+            "source_optimization_loss_mean": "1.2893993873112848",
+            "source_optimization_loss_sample_sd": "0.03680904356475434",
+            "source_accuracy_mean": "0.7046783625730995",
+            "source_accuracy_sample_sd": "0.018260228065492386",
+            "source_macro_f1_mean": "0.4754794332975119",
+            "source_macro_f1_sample_sd": "0.026568485727060817",
+            "source_balanced_accuracy_mean": "0.5163265306122449",
+            "source_balanced_accuracy_sample_sd": "0.015057504656503799",
+            "source_cross_entropy_source_class_weights_mean": "1.251537561416626",
+            "source_cross_entropy_source_class_weights_sample_sd": "0.03659151607808133",
+            "validation_accuracy_mean": "0.6491228070175439",
+            "validation_accuracy_sample_sd": "0.02498246709157171",
+            "validation_macro_f1_mean": "0.39570866277136063",
+            "validation_macro_f1_sample_sd": "0.04136815382406149",
+            "validation_balanced_accuracy_mean": "0.4476190476190475",
+            "validation_balanced_accuracy_sample_sd": "0.034245806057705774",
+            "validation_cross_entropy_source_class_weights_mean": "1.325216293334961",
+            "validation_cross_entropy_source_class_weights_sample_sd": "0.040311971997258146"
+          },
+          {
+            "family": "cnn_alpha",
+            "epoch": "48",
+            "seed_count": "3",
+            "source_optimization_loss_mean": "0.9422004214736686",
+            "source_optimization_loss_sample_sd": "0.029453673245425114",
+            "source_accuracy_mean": "0.8148148148148149",
+            "source_accuracy_sample_sd": "0.0227118522372925",
+            "source_macro_f1_mean": "0.6961703597377503",
+            "source_macro_f1_sample_sd": "0.0371026862387566",
+            "source_balanced_accuracy_mean": "0.6901360544217687",
+            "source_balanced_accuracy_sample_sd": "0.023856246673460563",
+            "source_cross_entropy_source_class_weights_mean": "0.891658087571462",
+            "source_cross_entropy_source_class_weights_sample_sd": "0.02544111169537462",
+            "validation_accuracy_mean": "0.7280701754385964",
+            "validation_accuracy_sample_sd": "0.024982467091571717",
+            "validation_macro_f1_mean": "0.5390572141834745",
+            "validation_macro_f1_sample_sd": "0.03241634676617532",
+            "validation_balanced_accuracy_mean": "0.539795918367347",
+            "validation_balanced_accuracy_sample_sd": "0.03305319252397047",
+            "validation_cross_entropy_source_class_weights_mean": "1.024774432182312",
+            "validation_cross_entropy_source_class_weights_sample_sd": "0.01836233109538054"
+          },
+          {
+            "family": "cnn_alpha",
+            "epoch": "96",
+            "seed_count": "3",
+            "source_optimization_loss_mean": "0.636604441420609",
+            "source_optimization_loss_sample_sd": "0.03964108845269171",
+            "source_accuracy_mean": "0.9093567251461988",
+            "source_accuracy_sample_sd": "0.012745318548364522",
+            "source_macro_f1_mean": "0.8327634127177158",
+            "source_macro_f1_sample_sd": "0.012230432009993478",
+            "source_balanced_accuracy_mean": "0.8517006802721089",
+            "source_balanced_accuracy_sample_sd": "0.042565618468517294",
+            "source_cross_entropy_source_class_weights_mean": "0.5485582749048868",
+            "source_cross_entropy_source_class_weights_sample_sd": "0.02833407086167093",
+            "validation_accuracy_mean": "0.7592592592592592",
+            "validation_accuracy_sample_sd": "0.008932896091531828",
+            "validation_macro_f1_mean": "0.6129651494934611",
+            "validation_macro_f1_sample_sd": "0.02604559687737878",
+            "validation_balanced_accuracy_mean": "0.6256802721088435",
+            "validation_balanced_accuracy_sample_sd": "0.03512759115989783",
+            "validation_cross_entropy_source_class_weights_mean": "0.8449751138687134",
+            "validation_cross_entropy_source_class_weights_sample_sd": "0.022036905323992523"
+          },
+          {
+            "family": "fusion_all_four",
+            "epoch": "12",
+            "seed_count": "3",
+            "source_optimization_loss_mean": "1.2593759256496764",
+            "source_optimization_loss_sample_sd": "0.02056005711736619",
+            "source_accuracy_mean": "0.7923976608187134",
+            "source_accuracy_sample_sd": "0.010128952091046096",
+            "source_macro_f1_mean": "0.6008428191174805",
+            "source_macro_f1_sample_sd": "0.012143187194859503",
+            "source_balanced_accuracy_mean": "0.6115646258503401",
+            "source_balanced_accuracy_sample_sd": "0.013170118977244462",
+            "source_cross_entropy_source_class_weights_mean": "1.1955198844273884",
+            "source_cross_entropy_source_class_weights_sample_sd": "0.026557259735011104",
+            "validation_accuracy_mean": "0.7397660818713451",
+            "validation_accuracy_sample_sd": "0.017785855351749175",
+            "validation_macro_f1_mean": "0.5324009079877987",
+            "validation_macro_f1_sample_sd": "0.011611505292623581",
+            "validation_balanced_accuracy_mean": "0.5489795918367347",
+            "validation_balanced_accuracy_sample_sd": "0.0217241518939222",
+            "validation_cross_entropy_source_class_weights_mean": "1.29939599831899",
+            "validation_cross_entropy_source_class_weights_sample_sd": "0.04063739243021308"
+          },
+          {
+            "family": "fusion_all_four",
+            "epoch": "24",
+            "seed_count": "3",
+            "source_optimization_loss_mean": "0.7698862876808433",
+            "source_optimization_loss_sample_sd": "0.037932782921428355",
+            "source_accuracy_mean": "0.8684210526315789",
+            "source_accuracy_sample_sd": "0.007736114944633295",
+            "source_macro_f1_mean": "0.8383070725861509",
+            "source_macro_f1_sample_sd": "0.006038143054558503",
+            "source_balanced_accuracy_mean": "0.8392857142857144",
+            "source_balanced_accuracy_sample_sd": "0.009449111825230793",
+            "source_cross_entropy_source_class_weights_mean": "0.719497819741567",
+            "source_cross_entropy_source_class_weights_sample_sd": "0.03576862918609523",
+            "validation_accuracy_mean": "0.7660818713450293",
+            "validation_accuracy_sample_sd": "0.02679868827459553",
+            "validation_macro_f1_mean": "0.6428571450921995",
+            "validation_macro_f1_sample_sd": "0.06291403119725056",
+            "validation_balanced_accuracy_mean": "0.6272108843537415",
+            "validation_balanced_accuracy_sample_sd": "0.05440156938063397",
+            "validation_cross_entropy_source_class_weights_mean": "0.9274297555287679",
+            "validation_cross_entropy_source_class_weights_sample_sd": "0.04832653247986797"
+          },
+          {
+            "family": "fusion_all_four",
+            "epoch": "48",
+            "seed_count": "3",
+            "source_optimization_loss_mean": "0.39380486782996044",
+            "source_optimization_loss_sample_sd": "0.05084192350737631",
+            "source_accuracy_mean": "0.9230019493177388",
+            "source_accuracy_sample_sd": "0.027010538909456174",
+            "source_macro_f1_mean": "0.8603130275387899",
+            "source_macro_f1_sample_sd": "0.064028794719342",
+            "source_balanced_accuracy_mean": "0.9195578231292517",
+            "source_balanced_accuracy_sample_sd": "0.021442739080650555",
+            "source_cross_entropy_source_class_weights_mean": "0.34811193744341534",
+            "source_cross_entropy_source_class_weights_sample_sd": "0.03863477241649407",
+            "validation_accuracy_mean": "0.797270955165692",
+            "validation_accuracy_sample_sd": "0.016881586818410076",
+            "validation_macro_f1_mean": "0.6921946369333174",
+            "validation_macro_f1_sample_sd": "0.0310163170363908",
+            "validation_balanced_accuracy_mean": "0.7493197278911565",
+            "validation_balanced_accuracy_sample_sd": "0.04542344770660746",
+            "validation_cross_entropy_source_class_weights_mean": "0.7319991787274679",
+            "validation_cross_entropy_source_class_weights_sample_sd": "0.04332777063901609"
+          },
+          {
+            "family": "fusion_all_four",
+            "epoch": "96",
+            "seed_count": "3",
+            "source_optimization_loss_mean": "0.09103817488366402",
+            "source_optimization_loss_sample_sd": "0.0241809242430213",
+            "source_accuracy_mean": "1.0",
+            "source_accuracy_sample_sd": "0.0",
+            "source_macro_f1_mean": "1.0",
+            "source_macro_f1_sample_sd": "0.0",
+            "source_balanced_accuracy_mean": "1.0",
+            "source_balanced_accuracy_sample_sd": "0.0",
+            "source_cross_entropy_source_class_weights_mean": "0.0504775270819664",
+            "source_cross_entropy_source_class_weights_sample_sd": "0.010802019838236589",
+            "validation_accuracy_mean": "0.8382066276803118",
+            "validation_accuracy_sample_sd": "0.0067526347273640435",
+            "validation_macro_f1_mean": "0.698863850226419",
+            "validation_macro_f1_sample_sd": "0.05484407555518586",
+            "validation_balanced_accuracy_mean": "0.6943877551020408",
+            "validation_balanced_accuracy_sample_sd": "0.04150879434926847",
+            "validation_cross_entropy_source_class_weights_mean": "0.7294141054153442",
+            "validation_cross_entropy_source_class_weights_sample_sd": "0.05910672879113632"
+          }
+        ]
+      },
+      "conclusion": "24→96轮αCNN内验证64.9123→75.9259%，四表示76.6082→83.8207%；四表示BA48→96却74.9320→69.4388。优化进展和少数类/泛化单调改善不是一回事。",
+      "paper_use": "源内学习曲线及负变化；不能和855OOF96.02%直接相减，也未据此改部署。",
+      "limitations": [
+        "本组历史855记录现已知混合枣仁和酸枣仁，不能描述为纯酸枣仁产地性能。",
+        "现有样品及测试表现已经历多轮开发曝光，不是未参与开发的新确认集。",
+        "原来源组各只有一个来源批次；样品级划分不能分离种类、来源组和该批次效应。",
+        "ZY02只有5条；重复种子、支持抽样、模态及派生Excel不增加独立样品或批次数。",
+        "684条仍是已曝光开发记录，仅单个源内上下文，不是新确认队列。"
+      ],
+      "sources": [
+        {
+          "repository": "jackzhu119/research4",
+          "ref": "research/pyscf-spinosin-mechanism-20261031",
+          "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+          "path": "reports/zaoren-neural-learning-pilot-20261031-v1/README.md",
+          "sha256": "2a63eae36456a1b6c06b5155459262f7b3d59e27a140ca956667de263bcfb014"
+        },
+        {
+          "repository": "jackzhu119/research4",
+          "ref": "research/pyscf-spinosin-mechanism-20261031",
+          "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+          "path": "reports/zaoren-neural-learning-pilot-20261031-v1/protocol.json",
+          "sha256": "c413ccefafd75e3fb551ae6c8f6afd3e5f12fbe2c77ed36b1d20a2fb2a38f51b"
+        },
+        {
+          "repository": "jackzhu119/research4",
+          "ref": "research/pyscf-spinosin-mechanism-20261031",
+          "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+          "path": "reports/zaoren-neural-learning-pilot-20261031-v1/checkpoint_seed_summary.csv",
+          "sha256": "97a31a3263dcd50b83d331f4923b2362c73d80322656faa1d1d45f8391ffdb22"
+        }
+      ]
+    },
+    {
+      "experiment_id": "HML-022",
+      "title": "匿名七分类完整部署与未来输入工具",
+      "status": "COMPLETED_DEPLOYMENT_FUTURE_VALIDATION_NOT_RUN",
+      "dataset_scope": "855个历史ZY记录，ZY01/02后确认为枣仁、ZY03—07为酸枣仁；旧匿名来源组标签，非当前18表实验",
+      "design": "全部855视为已曝光开发数据；五个历史R2源内配置×5旧开发折×3seed共75候选拟合；按15case源内宏F1等选一个配置，再全855拟合seed42/43/44三模型。未来预测拒已知ID/旧谱重命名，真值独立评分。",
+      "metrics": {
+        "candidate_fits": 75,
+        "full_source_final_models": 3,
+        "final_training_records": 855,
+        "final_config": {
+          "id": "r2_source_fold03",
+          "preprocessing": "snv",
+          "mc": {
+            "runs": 50,
+            "components": 1,
+            "ratio": 0.2
+          },
+          "svm": {
+            "C": 1000.0,
+            "gamma": "scale_x0.1",
+            "class_weight": "balanced"
+          }
+        },
+        "main_seed": 42,
+        "future_unseen_accuracy": null,
+        "selected_features": 123
+      },
+      "conclusion": "工具和完整模型已交付；最终MC50/PLS1/20%=123点，SVM C1000/gamma0.1×scale/balanced。真新样品准确率未测，不能给部署模型填历史96.02%。",
+      "paper_use": "工程应用入口与可复现性附件，不替代未见样本验证；匿名类号不自动映射真实物种/产地。",
+      "limitations": [
+        "本组历史855记录现已知混合枣仁和酸枣仁，不能描述为纯酸枣仁产地性能。",
+        "现有样品及测试表现已经历多轮开发曝光，不是未参与开发的新确认集。",
+        "原来源组各只有一个来源批次；样品级划分不能分离种类、来源组和该批次效应。",
+        "ZY02只有5条；重复种子、支持抽样、模态及派生Excel不增加独立样品或批次数。",
+        "同855全源训练后的回代诊断accuracy=null；三个seed只是分歧参考，不是已验证集成。"
+      ],
+      "sources": [
+        {
+          "repository": "jackzhu119/research4",
+          "ref": "research/pyscf-spinosin-mechanism-20261031",
+          "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+          "path": "docs/ZAOREN_ANONYMOUS_DEPLOYMENT.md",
+          "sha256": "e5a1c059ec6f710983478c368e10b5f17b176cf5ad2d724e859da70c1df71fd6"
+        },
+        {
+          "repository": "jackzhu119/research4",
+          "ref": "research/pyscf-spinosin-mechanism-20261031",
+          "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+          "path": "reports/zaoren-deployment-20261031-v1/deployment/model_seed42.json",
+          "sha256": "062b27ee2bfb6c0fe7c100552a64486b35e343431559544d39dc5affa04f67f3"
+        },
+        {
+          "repository": "jackzhu119/research4",
+          "ref": "research/pyscf-spinosin-mechanism-20261031",
+          "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+          "path": "reports/zaoren-deployment-20261031-v1/deployment/bundle_manifest.json",
+          "sha256": "94351e3351106670c85a3a34aeff8b3a0224a246cce5b22942c68fcb888789e8"
+        },
+        {
+          "repository": "jackzhu119/research4",
+          "ref": "research/pyscf-spinosin-mechanism-20261031",
+          "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+          "path": "reports/zaoren-deployment-20261031-v1/feature-stability/summary.json",
+          "sha256": "cf79f012fc433c0109ccc6ebf65dd8af9f20f3aa99798fd70282a11c05780b20"
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "repository": "jackzhu119/research4",
+      "ref": "research/pyscf-spinosin-mechanism-20261031",
+      "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+      "path": "docs/ALGORITHM_REVIEW.md",
+      "sha256": "3389e66114d7f4dae2723ef17247532681db99ffa8e83661a9d9537f1b8bd621"
+    },
+    {
+      "repository": "jackzhu119/research4",
+      "ref": "research/pyscf-spinosin-mechanism-20261031",
+      "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+      "path": "docs/RUNTIME_USABILITY_REPORT.md",
+      "sha256": "8fc053decce51994eea9eb97a5f977566c1f6c47d17d82b5392808b56139387d"
+    },
+    {
+      "repository": "jackzhu119/research4",
+      "ref": "research/pyscf-spinosin-mechanism-20261031",
+      "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+      "path": "docs/INSTALL_AND_RUN.md",
+      "sha256": "34ab65d1146587149d0c6e702cd0bfcc532495d4fd1f4042f863ce58fa615407"
+    },
+    {
+      "repository": "jackzhu119/research4",
+      "ref": "research/pyscf-spinosin-mechanism-20261031",
+      "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+      "path": "docs/ZAOREN_APPROVED_EXECUTION_REPORT.md",
+      "sha256": "68b5cc193e9917109e111e09055f0edc917ce686111960001ae8927e03164c45"
+    },
+    {
+      "repository": "jackzhu119/research4",
+      "ref": "research/pyscf-spinosin-mechanism-20261031",
+      "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+      "path": "data/research/approved_zaoren_experiment_plan_20261031.json",
+      "sha256": "21796a48aed177c68b20b912675a25c7feba17d9845254e5ee00e6cba9b151c8"
+    },
+    {
+      "repository": "jackzhu119/research4",
+      "ref": "research/pyscf-spinosin-mechanism-20261031",
+      "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+      "path": "reports/approved-zaoren/2026-10-31/independent-audit/pooled_metrics.csv",
+      "sha256": "8f414c4d93c120d21446f1b34b51b4f9507c6e08beb11aea0064fc90546bf8a0"
+    },
+    {
+      "repository": "jackzhu119/research4",
+      "ref": "research/pyscf-spinosin-mechanism-20261031",
+      "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+      "path": "reports/approved-zaoren/2026-10-31/experiments/modality_controls/summary.json",
+      "sha256": "c99bd5e8cb5b6f92658a89873cdb6742f4b4285fad70015a296b7aa3819fdb84"
+    },
+    {
+      "repository": "jackzhu119/research4",
+      "ref": "research/pyscf-spinosin-mechanism-20261031",
+      "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+      "path": "reports/approved-zaoren/2026-10-31/experiments/full_export_sensitivity/summary.json",
+      "sha256": "8f412f5624ecef2be5ff381750df25d230b8be42f5f8ae41c089d28773ac3243"
+    },
+    {
+      "repository": "jackzhu119/research4",
+      "ref": "research/pyscf-spinosin-mechanism-20261031",
+      "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+      "path": "docs/ZAOREN_THREEWAY_REPORT.md",
+      "sha256": "9926ce06ffaa7f54c9b3b959e51230cb3972a09e1cc9100b02643c6a8a545df6"
+    },
+    {
+      "repository": "jackzhu119/research4",
+      "ref": "research/pyscf-spinosin-mechanism-20261031",
+      "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+      "path": "data/research/zaoren_threeway_protocol_20261031.json",
+      "sha256": "c11a15384f6b5a7bf1339a8df3e3be73343da7f8d3e256d1dce3889b79699832"
+    },
+    {
+      "repository": "jackzhu119/research4",
+      "ref": "research/pyscf-spinosin-mechanism-20261031",
+      "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+      "path": "reports/zaoren-threeway/2026-10-31/summary.json",
+      "sha256": "e380fb426fa6cd6760ec38abccc79f5db826454ff65520a2cada308968325e6b"
+    },
+    {
+      "repository": "jackzhu119/research4",
+      "ref": "research/pyscf-spinosin-mechanism-20261031",
+      "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+      "path": "docs/CALIBRATION_OPTIMIZATION_REPORT.md",
+      "sha256": "23fd86059ca324a367b5ed2e1533fbb7cbf2c05cf1500fe61da574054b41e5ce"
+    },
+    {
+      "repository": "jackzhu119/research4",
+      "ref": "research/pyscf-spinosin-mechanism-20261031",
+      "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+      "path": "data/research/calibration_optimization_protocol_20261031.json",
+      "sha256": "391d4f6550bec9a569e613fcda6bb2a0c8a5d4314c9b07209690419663541db9"
+    },
+    {
+      "repository": "jackzhu119/research4",
+      "ref": "research/pyscf-spinosin-mechanism-20261031",
+      "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+      "path": "reports/calibration-optimization/2026-10-31/summary.json",
+      "sha256": "86e2e70a6eb47cc5c1cf53b9d714e7acd3777f07ea6613dc057cf61571a6c5f3"
+    },
+    {
+      "repository": "jackzhu119/research4",
+      "ref": "research/pyscf-spinosin-mechanism-20261031",
+      "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+      "path": "docs/REPRESENTATION_AND_LATENT_REPORT.md",
+      "sha256": "7f721369acef165a55b07b9bee48be2fc90e56227b0bad5f1b470057ef227bcb"
+    },
+    {
+      "repository": "jackzhu119/research4",
+      "ref": "research/pyscf-spinosin-mechanism-20261031",
+      "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+      "path": "data/research/representation_calibration_protocol_20261031.json",
+      "sha256": "a8fb0d00ae0f6848ce6ea2d45bfe93ab04c53d5f22893adae8e32abf6be59b7a"
+    },
+    {
+      "repository": "jackzhu119/research4",
+      "ref": "research/pyscf-spinosin-mechanism-20261031",
+      "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+      "path": "reports/representation-optimization/2026-10-31/source-search/source_metrics.csv",
+      "sha256": "5fff92cca021cdeef569e0270bc3995b927cac5fc77d6cb79caa88cd45745617"
+    },
+    {
+      "repository": "jackzhu119/research4",
+      "ref": "research/pyscf-spinosin-mechanism-20261031",
+      "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+      "path": "reports/representation-optimization/2026-10-31/latent-search/summary.json",
+      "sha256": "276dcae604de3a80a859980d5804461888af695d3957ff184a5f2575cde0f354"
+    },
+    {
+      "repository": "jackzhu119/research4",
+      "ref": "research/pyscf-spinosin-mechanism-20261031",
+      "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+      "path": "docs/PAPER_FEWSHOT_CLASSIFICATION_REPORT.md",
+      "sha256": "bc6dd7ac698d2a1a9c69424cac62c2b963a2f77611b8ecfb87c5c66238a5ae61"
+    },
+    {
+      "repository": "jackzhu119/research4",
+      "ref": "research/pyscf-spinosin-mechanism-20261031",
+      "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+      "path": "data/research/paper_neural_classification_protocol_20261031.json",
+      "sha256": "ac144a436278f78b24a2962eaab5f89fe93bc5e25f9e5d04b67b5f66e05dcd29"
+    },
+    {
+      "repository": "jackzhu119/research4",
+      "ref": "research/pyscf-spinosin-mechanism-20261031",
+      "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+      "path": "reports/paper-fewshot-classification/2026-10-31/summary.json",
+      "sha256": "74b3596882fb224e9e9fd91cdbb450bf9c1253e3c78a99194c344f429b5ec5c6"
+    },
+    {
+      "repository": "jackzhu119/research4",
+      "ref": "research/pyscf-spinosin-mechanism-20261031",
+      "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+      "path": "docs/MULTIROUND_OPTIMIZATION_REPORT.md",
+      "sha256": "3f12da7d58996c3b862b290182db1ede9bf40373794742d94a024dda9073a118"
+    },
+    {
+      "repository": "jackzhu119/research4",
+      "ref": "research/pyscf-spinosin-mechanism-20261031",
+      "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+      "path": "data/research/multiround_optimization_plan_20261031.json",
+      "sha256": "1f267ce000d1a97856a9c4472beece36d594ccb015664a4d9c4601ccf7e58540"
+    },
+    {
+      "repository": "jackzhu119/research4",
+      "ref": "research/pyscf-spinosin-mechanism-20261031",
+      "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+      "path": "reports/multiround-optimization/2026-10-31/meta-refinement/summary.json",
+      "sha256": "e92e72ec76886471819832d1b8540faa1cde96bd10750f32e64758027e9f43a4"
+    },
+    {
+      "repository": "jackzhu119/research4",
+      "ref": "research/pyscf-spinosin-mechanism-20261031",
+      "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+      "path": "docs/IMAGE_GUIDED_OPTIMIZATION_REPORT.md",
+      "sha256": "93e82f37cc5ccd1662c1e00b410c524591c4cd17c7c0362236f3664fa8ae9bdf"
+    },
+    {
+      "repository": "jackzhu119/research4",
+      "ref": "research/pyscf-spinosin-mechanism-20261031",
+      "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+      "path": "data/research/image_guided_plan_20261031.json",
+      "sha256": "1488905b4de86a87f8c20c4fec791ead3d25532ba6faab1ee9efe66f1c70fab9"
+    },
+    {
+      "repository": "jackzhu119/research4",
+      "ref": "research/pyscf-spinosin-mechanism-20261031",
+      "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+      "path": "reports/image-guided-optimization/2026-10-31/features/summary.json",
+      "sha256": "c7b6ae31f3816c5d0fcdb073fe2a670d4e9ef8479fdb6e45dcdf5ad96a15c4da"
+    },
+    {
+      "repository": "jackzhu119/research4",
+      "ref": "research/pyscf-spinosin-mechanism-20261031",
+      "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+      "path": "reports/image-guided-optimization/2026-10-31/probability/summary.json",
+      "sha256": "743b4f3b5209c458f84b7a5a9f376753161cd9cc4a81b23f75c64941d76aa176"
+    },
+    {
+      "repository": "jackzhu119/research4",
+      "ref": "research/pyscf-spinosin-mechanism-20261031",
+      "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+      "path": "reports/image-guided-optimization/2026-10-31/fusion/summary.json",
+      "sha256": "c4baeb8396950834cdd398a6967d78807087462fd2507ac605a79387c47d5cef"
+    },
+    {
+      "repository": "jackzhu119/research4",
+      "ref": "research/pyscf-spinosin-mechanism-20261031",
+      "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+      "path": "docs/STAGED_NESTED_OPTIMIZATION_REPORT.md",
+      "sha256": "2febc555f7ed9e2d3016f10f4584243a5849253faa7dcaa8fdf5a52cd6bef894"
+    },
+    {
+      "repository": "jackzhu119/research4",
+      "ref": "research/pyscf-spinosin-mechanism-20261031",
+      "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+      "path": "data/research/staged_nested_plan_20261031.json",
+      "sha256": "12a3f8c7c8c6fbd323eac8db1f195cc4d086fade16c9d2386014b2acc883ac29"
+    },
+    {
+      "repository": "jackzhu119/research4",
+      "ref": "research/pyscf-spinosin-mechanism-20261031",
+      "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+      "path": "reports/paper-c/2026-10-31/history-audit/all_method_metrics.csv",
+      "sha256": "7295355ac7574b80b2f8335a1f8a7d595c02273367f9f2f6b9d0811cceea3460"
+    },
+    {
+      "repository": "jackzhu119/research4",
+      "ref": "research/pyscf-spinosin-mechanism-20261031",
+      "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+      "path": "data/research/staged_nested_combinations_protocol_20261031.json",
+      "sha256": "98ed297de021aa8fa78a26a35a8d5e7553ded190d8a57fb395b48a1be6b3fc29"
+    },
+    {
+      "repository": "jackzhu119/research4",
+      "ref": "research/pyscf-spinosin-mechanism-20261031",
+      "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+      "path": "reports/staged-nested-optimization/2026-10-31/combinations/summary.json",
+      "sha256": "1c2e84c1b112cb834724df5ac627cb3e8c8bcbf68633df659221e06d87d5ea5e"
+    },
+    {
+      "repository": "jackzhu119/research4",
+      "ref": "research/pyscf-spinosin-mechanism-20261031",
+      "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+      "path": "docs/RESEARCH4_EXPERIMENT_AUDIT.md",
+      "sha256": "fbff19b9581de28c30cb6158e052ef09f76215162743178f69f8aded6e7f5f87"
+    },
+    {
+      "repository": "jackzhu119/research4",
+      "ref": "research/pyscf-spinosin-mechanism-20261031",
+      "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+      "path": "reports/paper-c/2026-10-31/fair-benchmark/model_comparison.csv",
+      "sha256": "6a6e66a5596aa15915ccd3a980e27cf9cf78645565af33d48fa2b4a17e68c2f9"
+    },
+    {
+      "repository": "jackzhu119/research4",
+      "ref": "research/pyscf-spinosin-mechanism-20261031",
+      "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+      "path": "reports/paper-c/2026-10-31/final-audit/same855_model_metrics.csv",
+      "sha256": "8d136196789b8ed61a45e382e820e987e077ab726911c25c03dd5eb02aa9e8f9"
+    },
+    {
+      "repository": "jackzhu119/research4",
+      "ref": "research/pyscf-spinosin-mechanism-20261031",
+      "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+      "path": "reports/paper-c/2026-10-31/strong-mlp/continuation_paired_summary.json",
+      "sha256": "8bd7eddea08ec4c99ff2d56e4c6632e1c13a06f87ebed69840e91769d3c92f65"
+    },
+    {
+      "repository": "jackzhu119/research4",
+      "ref": "research/pyscf-spinosin-mechanism-20261031",
+      "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+      "path": "data/research/paper_c_calibration_protocol_20261031.json",
+      "sha256": "ad747301d72c3ab4ada47cdc909fec156e171a366c7bc094be28b7029022c083"
+    },
+    {
+      "repository": "jackzhu119/research4",
+      "ref": "research/pyscf-spinosin-mechanism-20261031",
+      "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+      "path": "reports/paper-c/2026-10-31/calibration/run/summary.json",
+      "sha256": "81d685a81af5da6548dd09f88edde2581867e5d5747f6c623c9d445300e6f44d"
+    },
+    {
+      "repository": "jackzhu119/research4",
+      "ref": "research/pyscf-spinosin-mechanism-20261031",
+      "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+      "path": "docs/MULTIREPRESENTATION_UPGRADE_REPORT.md",
+      "sha256": "fd31053294e734a493f19f84e08dd00207853b930a58fb455acf3a9a969022c3"
+    },
+    {
+      "repository": "jackzhu119/research4",
+      "ref": "research/pyscf-spinosin-mechanism-20261031",
+      "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+      "path": "data/research/upgrade_neural_protocol_20261031.json",
+      "sha256": "2645226849f5ba8050dcf721d0b7ec13901e3530d04babef640c7473443a0731"
+    },
+    {
+      "repository": "jackzhu119/research4",
+      "ref": "research/pyscf-spinosin-mechanism-20261031",
+      "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+      "path": "reports/upgrade-20261031-v1/neural/model_comparison.csv",
+      "sha256": "a482600241942447e82dabf704cae1022a47a350787ec48ff2bf1e637ee31f54"
+    },
+    {
+      "repository": "jackzhu119/research4",
+      "ref": "research/pyscf-spinosin-mechanism-20261031",
+      "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+      "path": "docs/DEPLOYMENT_NEURAL_DIAGNOSTIC_20261031.md",
+      "sha256": "0bcf1105587c61e51f1e4ad58457a87327490cde1202ae646eaa3f8ab712568b"
+    },
+    {
+      "repository": "jackzhu119/research4",
+      "ref": "research/pyscf-spinosin-mechanism-20261031",
+      "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+      "path": "reports/zaoren-neural-source-diagnostic-20261031-v1/group_summary.csv",
+      "sha256": "cf17483b0a8abd9fb9f68b04aae9bbf4a263cf9e3de1753450983de329bb9ebb"
+    },
+    {
+      "repository": "jackzhu119/research4",
+      "ref": "research/pyscf-spinosin-mechanism-20261031",
+      "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+      "path": "reports/zaoren-neural-learning-pilot-20261031-v1/README.md",
+      "sha256": "2a63eae36456a1b6c06b5155459262f7b3d59e27a140ca956667de263bcfb014"
+    },
+    {
+      "repository": "jackzhu119/research4",
+      "ref": "research/pyscf-spinosin-mechanism-20261031",
+      "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+      "path": "reports/zaoren-neural-learning-pilot-20261031-v1/protocol.json",
+      "sha256": "c413ccefafd75e3fb551ae6c8f6afd3e5f12fbe2c77ed36b1d20a2fb2a38f51b"
+    },
+    {
+      "repository": "jackzhu119/research4",
+      "ref": "research/pyscf-spinosin-mechanism-20261031",
+      "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+      "path": "reports/zaoren-neural-learning-pilot-20261031-v1/checkpoint_seed_summary.csv",
+      "sha256": "97a31a3263dcd50b83d331f4923b2362c73d80322656faa1d1d45f8391ffdb22"
+    },
+    {
+      "repository": "jackzhu119/research4",
+      "ref": "research/pyscf-spinosin-mechanism-20261031",
+      "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+      "path": "docs/ZAOREN_ANONYMOUS_DEPLOYMENT.md",
+      "sha256": "e5a1c059ec6f710983478c368e10b5f17b176cf5ad2d724e859da70c1df71fd6"
+    },
+    {
+      "repository": "jackzhu119/research4",
+      "ref": "research/pyscf-spinosin-mechanism-20261031",
+      "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+      "path": "reports/zaoren-deployment-20261031-v1/deployment/model_seed42.json",
+      "sha256": "062b27ee2bfb6c0fe7c100552a64486b35e343431559544d39dc5affa04f67f3"
+    },
+    {
+      "repository": "jackzhu119/research4",
+      "ref": "research/pyscf-spinosin-mechanism-20261031",
+      "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+      "path": "reports/zaoren-deployment-20261031-v1/deployment/bundle_manifest.json",
+      "sha256": "94351e3351106670c85a3a34aeff8b3a0224a246cce5b22942c68fcb888789e8"
+    },
+    {
+      "repository": "jackzhu119/research4",
+      "ref": "research/pyscf-spinosin-mechanism-20261031",
+      "commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+      "path": "reports/zaoren-deployment-20261031-v1/feature-stability/summary.json",
+      "sha256": "cf79f012fc433c0109ccc6ebf65dd8af9f20f3aa99798fd70282a11c05780b20"
+    }
+  ]
+}

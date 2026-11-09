@@ -1,0 +1,164 @@
+{
+  "protocol_id": "zaoren-paper-inspired-neural-classification-20261031-pilot",
+  "recorded_date": "2026-10-31",
+  "dataset_version": "2026-10-31-zaoren-numbered-v1",
+  "paper": {
+    "title": "A task-oriented few-shot spectroscopy benchmark: Empirical evaluation of meta-learning approaches",
+    "doi": "10.1016/j.engappai.2025.113593",
+    "source_task": "NIR/MIR continuous regression",
+    "current_adaptation": "7-class THz anonymous-origin classification; not an exact paper reproduction",
+    "architecture_limit": "Exact appendix not uploaded; fixed public author snapshot lacks imported models/cnn.py",
+    "maml_variant": "explicit first-order MAML, not claimed full second-order reproduction"
+  },
+  "scope": "Retrospective same-batch classification pilot using real uploaded spectra and fixed 513/171/171 roles",
+  "frequency": {
+    "lower_inclusive": 0.1,
+    "upper_inclusive": 1.5,
+    "expected_points": 612
+  },
+  "seeds": [
+    42,
+    43,
+    44
+  ],
+  "architecture": {
+    "type": "compact shared ResNet1D",
+    "stem_channels": 16,
+    "stem_kernel": 7,
+    "stem_stride": 2,
+    "residual_channels": [
+      16,
+      32
+    ],
+    "residual_kernel": 3,
+    "normalization": "GroupNorm4; no query-batch statistics",
+    "adaptive_pool_length": 8,
+    "embedding_dim": 32,
+    "classes": 7,
+    "dropout": 0,
+    "exact_original_architecture": false
+  },
+  "preprocessing": {
+    "mode": "per-row SNV ddof1",
+    "fit_query_statistics": false
+  },
+  "development": {
+    "episodes": 6,
+    "selection_episodes": 4,
+    "gate_episodes": 2,
+    "support_draws": 5,
+    "split_seed": 20261103,
+    "support_seed": 20261104,
+    "roles": {
+      "source": 307,
+      "support_pool": 103,
+      "query": 103
+    },
+    "neural_meta_source_classes": "only source classes with >=2 independent specimens; six common classes in dev because ZY02source n1",
+    "labels_not_shared_between_source_and_target_roles": true
+  },
+  "training": {
+    "epochs": 40,
+    "batch_size": 64,
+    "learning_rate": 0.001,
+    "weight_decay": 0.001,
+    "meta_episodes": 100,
+    "meta_learning_rate": 0.0001,
+    "meta_way": 3,
+    "meta_support": 1,
+    "meta_query": 1,
+    "maml_inner_lr": 0.01,
+    "source_supervised_all_classes": true,
+    "supervised_episode_continuation": true,
+    "compute_matching": "Same source task IDs for supervised continuation, ProtoNet and FO-MAML; supervised loss uses all support+query source rows",
+    "eligible_meta_class_rule": "source class has >=meta_support+meta_query distinct physical samples; final513 source includes all7 classes"
+  },
+  "adaptation": {
+    "head_finetune": {
+      "learning_rates": [
+        0.0001,
+        0.001,
+        0.01
+      ],
+      "steps": [
+        1,
+        5,
+        10
+      ]
+    },
+    "full_finetune": {
+      "learning_rates": [
+        0.0001,
+        0.001,
+        0.01
+      ],
+      "steps": [
+        1,
+        5,
+        10
+      ]
+    },
+    "fomaml_finetune": {
+      "learning_rates": [
+        0.0001,
+        0.001,
+        0.01
+      ],
+      "steps": [
+        1,
+        5,
+        10
+      ]
+    },
+    "classification_prototypes": {
+      "source_support_blend": [
+        0.1,
+        0.25,
+        0.5,
+        1
+      ]
+    },
+    "support_samples_total": 7,
+    "matched_zero_support": true,
+    "source_objects_unchanged_via_copies": true
+  },
+  "selection": {
+    "minimum_accuracy_gain": 0.001,
+    "max_macro_f1_loss": 0.005,
+    "max_balanced_accuracy_loss": 0.005,
+    "selection_scope": "first4 development tasks averaged over all3seeds and5draws",
+    "gate_scope": "last2 development tasks; no final prediction labels",
+    "fallback": "own matched zero-support predictor",
+    "no_best_seed_selection": true
+  },
+  "final": {
+    "support_draws": 100,
+    "support_seed": 20261105,
+    "random_query_seed": 20261102,
+    "random_query_examples": 20,
+    "training_samples": 513,
+    "calibration_pool_samples": 171,
+    "query_samples": 171,
+    "all7classes": true,
+    "all_choices_locked_before_query_scoring": true,
+    "known_meta_classes": "all7 source classes have sufficient source instances for 1-support/1-source-query meta episodes"
+  },
+  "reporting": {
+    "source_improvement_separate_from_support_gain": true,
+    "all_seeds_and_negative_results": true,
+    "synthetic_fixtures_not_real_accuracy": true,
+    "within_batch_episodes_not_independent_domains": true,
+    "not_new_instrument_validation": true,
+    "unknown_named_origins": true,
+    "limited_neural_development_budget": true
+  },
+  "exclusions": [
+    "SNAIL and SimCLR not automatically reproduced",
+    "No query-label hyperparameter/epoch/seed choice",
+    "No duplicate physical sample in an episode support/query",
+    "No artificial augmentation counted as new independent specimens",
+    "No Gaussian quantum software"
+  ],
+  "candidate_grid_sha256": "a255c4bf33d610eefdb46fc5f60021665d0a3e5b487420dbf17d0c5e41b21652",
+  "candidate_configurations": 31
+}

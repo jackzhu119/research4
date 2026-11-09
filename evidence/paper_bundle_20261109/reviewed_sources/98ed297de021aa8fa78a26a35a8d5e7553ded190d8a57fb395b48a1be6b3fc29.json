@@ -1,0 +1,131 @@
+{
+  "protocol_id": "zaoren-staged-nested-R4-stability-CNN-20261031-v1",
+  "recorded_date_client": "2026-10-31",
+  "input_file": "outputs/approved-zaoren-20261031/datasets/candidate_0p1_1p5.npz",
+  "input_sha256": "a3fac9b2f0ee6b8e51c835c7c74354f80e2fac2bc66923e76647e35d3c6bec9d",
+  "dataset_version": "2026-10-31-zaoren-numbered-v1",
+  "samples": 855,
+  "features": 612,
+  "outer_splits": 5,
+  "inner_splits": 2,
+  "split_seed": 20261031,
+  "model_seed": 42,
+  "core_protocol": "data/research/staged_nested_protocol_20261031.json",
+  "core_protocol_sha256": "bd133d81492d7e3c942cbeafcf709a5636f40bd7c4e1985bb4add0d83d841293",
+  "core_run": "outputs/staged-nested-20261031/core",
+  "families": [
+    "ordinary_mcuve",
+    "budget_mcuve",
+    "stable_mcuve",
+    "stable_cars",
+    "stable_joint",
+    "cnn_softmax",
+    "cnn_embedding_svm"
+  ],
+  "inheritance": "For each outer fold separately: that fold R1 MC runs/LV/ratio, R2 SVM C/gamma rule/classweight, R3 preprocessing; never a global fivefold winner",
+  "source_sizes": {
+    "inner_train": 342,
+    "inner_validation": 342,
+    "outer_train": 684,
+    "outer_test": 171,
+    "rare_inner_source": 2,
+    "rare_outer_source": 4,
+    "rare_outer_test": 1
+  },
+  "selection": {
+    "criterion": "mean of two inner MacroF1; within1e-12 balanced_accuracy, accuracy, then predeclared family order",
+    "per_outer_independent": true,
+    "all_five_outer_selections_required_before_any_outer_scores": true,
+    "no_outer_hyperparameter_or_family_choice": true
+  },
+  "ordinary_mcuve": {
+    "same_R3_parameters": true,
+    "selector": "existing onehot MC-UVE",
+    "sample_fraction": 0.8,
+    "random_state": 42,
+    "predict": "SVC.predict standard vote break_ties=False"
+  },
+  "budget_control": {
+    "full_source_runs_multiplier": 10,
+    "otherwise_same_LV_K_preprocessing_and_SVM": true,
+    "matches_MC_round_count_not_time_or_FLOPs": true
+  },
+  "stable": {
+    "resamples": 10,
+    "fraction": 0.8,
+    "without_replacement": true,
+    "class_stratified": true,
+    "minimum_per_class": 2,
+    "source_resampling_seed": "42+9000",
+    "identical_resample_IDs_for_MC_and_CARS": true,
+    "per_resample_model_seed": "42+1000+repeat",
+    "MCUVE_runs": "inherited R1 runs",
+    "CARS_runs": 12,
+    "CARS_components": "inherited R1 LV",
+    "CARS_internal_cv": 2,
+    "CARS_min_features": 2,
+    "CARS_sample_fraction": 0.8,
+    "CARS_reweight": true,
+    "full_caller_preprocessing_before_resampling": "source-only feature search; not independent validation",
+    "stable_MC_frequency": "10 source supports, selected/not selected count divided10",
+    "stable_CARS_frequency": "same10 source supports, selected/not selected count divided10",
+    "joint_frequency": ".5*MCfrequency+.5*CARSfrequency",
+    "final_K": "ceil(R1 ratio*612), same for all three stable families",
+    "ties_and_zero_frequency_supplements": "full caller source ordinary MC ranking, no extra PLS fits",
+    "pairwise_jaccard": "45 pairs each for MC, CARS; joint per-resample fixed-K supports diagnostic separately labelled",
+    "source_resamples_not_new_batches": true,
+    "record_all_IDs_frequencies_rankings_budgets": true
+  },
+  "cnn": {
+    "architecture": "Conv1→8 k7 pad3→GN2→ReLU→AvgPool2→Conv8→16 k5 pad2→GN4→ReLU→AdaptiveAvgPool16→Flatten256→Linear32ReLU→Linear7",
+    "epochs": 200,
+    "optimizer": "Adam",
+    "learning_rate": 0.001,
+    "weight_decay": 0.001,
+    "batch_size": 64,
+    "class_weight": "source balanced n/(7*classcount), weighted CE normalized per minibatch",
+    "input": "complete ordered612 after inherited R3 preprocessing and current caller source-only StandardScaler; no MC cut",
+    "random_state": 42,
+    "dropout": 0,
+    "BatchNorm": false,
+    "early_stopping_or_outer_epoch_choice": false,
+    "old_weights_reused": false,
+    "same_encoder_one_training_invocation_for_two_heads": true,
+    "head_control": "CNN uncalibrated softmax/logit argmax",
+    "embedding_control": "32dim embedding→new source-only StandardScaler→inherited R2 SVC; actual gamma recomputed after embedding scale",
+    "R2_classweight_rule_recomputed_on_this_source": true,
+    "claim_archived_MATLAB_reproduction": false
+  },
+  "final": {
+    "roles": [
+      "R4",
+      "R4_diagnostic_ordinary_mcuve",
+      "R4_diagnostic_budget_mcuve",
+      "R4_diagnostic_stable_mcuve",
+      "R4_diagnostic_stable_cars",
+      "R4_diagnostic_stable_joint",
+      "R4_diagnostic_cnn_softmax",
+      "R4_diagnostic_cnn_embedding_svm"
+    ],
+    "all_methods_pooled855_OOF": true,
+    "models_fit_on684_only_after_global_release": true,
+    "every_outer_role_family_inherited_from_its_own_inner_locks": true,
+    "source_model_hash_roundtrip_and_resume": true,
+    "release_checks": [
+      "R4 lock SHA",
+      "R4 protocol SHA",
+      "R4 manifest SHA"
+    ],
+    "source_binary_and_CNN_state_saved": true
+  },
+  "scope": {
+    "same_batch_retrospective": true,
+    "all855_previous_research_exposure": true,
+    "new_independent_batches": 0,
+    "Gaussian": false,
+    "target_support_calibration_labels": 0,
+    "source_search_gain_not_fewshot_calibration_gain": true,
+    "negative_results_retained": true,
+    "CNN_or_stable_selection_not_promised_to_win": true
+  }
+}
