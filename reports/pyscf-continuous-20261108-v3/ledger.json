@@ -6,8 +6,8 @@
   "total_cpu_seconds": 80000,
   "preparation_cpu_seconds_reserved": 2000.0,
   "preparation_reservation_is_conservative_not_measured_CPU": true,
-  "payload_cpu_seconds": 17463.270631,
-  "supervisor_cpu_seconds": 145.18998400000055,
+  "payload_cpu_seconds": 26808.687491999997,
+  "supervisor_cpu_seconds": 419.7772660000046,
   "jobs": {
     "water-diagnostics": {
       "status": "COMPLETED",
@@ -469,6 +469,358 @@
       "last_stop_reason": null,
       "updated_at_utc": "2026-11-08T16:09:47.049547+00:00",
       "ended_at_utc": "2026-11-08T16:09:47.052712+00:00"
+    },
+    "acid-g3-analysis": {
+      "status": "COMPLETED",
+      "started_at_utc": "2026-11-08T16:09:50.121949+00:00",
+      "actual_cpu_seconds": 0.7618199999999999,
+      "attempts": [
+        {
+          "status": "COMPLETED",
+          "started_at_utc": "2026-11-08T16:09:50.129100+00:00",
+          "argv": [
+            "/workspace/research4/.venv-pyscf-90000/bin/python",
+            "-B",
+            "/workspace/research4/scripts/pyscf_continuous_science_20261108_v3.py",
+            "--stage",
+            "analyze",
+            "--output",
+            "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/acid-g3-analysis",
+            "--threads",
+            "2",
+            "--grid-level",
+            "3",
+            "--conv-tol",
+            "1e-10",
+            "--conv-grad",
+            "1e-7",
+            "--hessians",
+            "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/acid-g3-h001/result.json",
+            "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/acid-g3-h0005/result.json"
+          ],
+          "remaining_pool_cpu_at_start": 60360,
+          "sampled_cpu_seconds": 0.7618199999999999,
+          "attempt_index": 1,
+          "output_directory": "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/acid-g3-analysis",
+          "guardian_identity": {
+            "pid": 4581,
+            "ppid": 1,
+            "pgrp": 4581,
+            "sid": 4581,
+            "state": "R",
+            "start_ticks": 908124,
+            "uid": 1000,
+            "boot_id": "a518927f-14ba-467c-8e72-ac5d3ebbe429",
+            "cpu_seconds": 17609.36,
+            "rss_bytes": 19742720
+          },
+          "worker_identity": {
+            "pid": 5203,
+            "ppid": 4581,
+            "pgrp": 5203,
+            "sid": 5203,
+            "state": "R",
+            "start_ticks": 1734740,
+            "uid": 1000,
+            "boot_id": "a518927f-14ba-467c-8e72-ac5d3ebbe429",
+            "cpu_seconds": 0.0,
+            "rss_bytes": 0
+          },
+          "peak_rss_bytes": 86761472,
+          "actual_cpu_seconds": 0.7618199999999999,
+          "exit_code": 0,
+          "ended_at_utc": "2026-11-08T16:09:50.744471+00:00",
+          "actual_cpu_source": "WAIT4_ALL_OWNED_REAPED_CHILDREN_USER_PLUS_SYSTEM",
+          "all_owned_processes_closed": true,
+          "wall_seconds": 0.6137998039994272,
+          "result_status": "ANALYSIS_COMPUTED",
+          "result_sha256": "f71f0d2d070a5ede19c3b955b0a9ebb4b46b91a40ea0e5bf240e8f2d53990bcb",
+          "quality_matches_requested_status": true,
+          "quality_flags": [],
+          "quality_warnings_present": false
+        }
+      ],
+      "quality_does_not_block_downstream": true,
+      "worker_identity": {
+        "pid": 5203,
+        "ppid": 4581,
+        "pgrp": 5203,
+        "sid": 5203,
+        "state": "R",
+        "start_ticks": 1734740,
+        "uid": 1000,
+        "boot_id": "a518927f-14ba-467c-8e72-ac5d3ebbe429",
+        "cpu_seconds": 0.0,
+        "rss_bytes": 0
+      },
+      "current_attempt": 1,
+      "sampled_current_attempt_cpu_seconds": 0.7618199999999999,
+      "last_result_status": "ANALYSIS_COMPUTED",
+      "result_status": "ANALYSIS_COMPUTED",
+      "last_exit_code": 0,
+      "last_stop_reason": null,
+      "updated_at_utc": "2026-11-08T16:09:50.744705+00:00",
+      "ended_at_utc": "2026-11-08T16:09:50.746543+00:00"
+    },
+    "caly-g3-prepare": {
+      "status": "COMPLETED_WITH_WARNINGS",
+      "started_at_utc": "2026-11-08T16:09:51.005683+00:00",
+      "actual_cpu_seconds": 1349.255912,
+      "attempts": [
+        {
+          "status": "COMPLETED",
+          "started_at_utc": "2026-11-08T16:09:51.009150+00:00",
+          "argv": [
+            "/workspace/research4/.venv-pyscf-90000/bin/python",
+            "-B",
+            "/workspace/research4/scripts/pyscf_continuous_science_20261108_v3.py",
+            "--stage",
+            "prepare",
+            "--output",
+            "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/caly-g3-prepare",
+            "--threads",
+            "2",
+            "--grid-level",
+            "3",
+            "--conv-tol",
+            "1e-10",
+            "--conv-grad",
+            "1e-7",
+            "--xyz",
+            "/workspace/research4/data/research/pyscf_continuous_20261108/inputs/calycosin.xyz"
+          ],
+          "remaining_pool_cpu_at_start": 60359,
+          "sampled_cpu_seconds": 1349.255912,
+          "attempt_index": 1,
+          "output_directory": "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/caly-g3-prepare",
+          "guardian_identity": {
+            "pid": 4581,
+            "ppid": 1,
+            "pgrp": 4581,
+            "sid": 4581,
+            "state": "R",
+            "start_ticks": 908124,
+            "uid": 1000,
+            "boot_id": "a518927f-14ba-467c-8e72-ac5d3ebbe429",
+            "cpu_seconds": 17610.4,
+            "rss_bytes": 19873792
+          },
+          "worker_identity": {
+            "pid": 5211,
+            "ppid": 4581,
+            "pgrp": 5211,
+            "sid": 5211,
+            "state": "R",
+            "start_ticks": 1734828,
+            "uid": 1000,
+            "boot_id": "a518927f-14ba-467c-8e72-ac5d3ebbe429",
+            "cpu_seconds": 0.0,
+            "rss_bytes": 0
+          },
+          "peak_rss_bytes": 1408548864,
+          "actual_cpu_seconds": 1349.255912,
+          "exit_code": 0,
+          "ended_at_utc": "2026-11-08T16:21:00.846079+00:00",
+          "actual_cpu_source": "WAIT4_ALL_OWNED_REAPED_CHILDREN_USER_PLUS_SYSTEM",
+          "all_owned_processes_closed": true,
+          "wall_seconds": 669.8354562569984,
+          "result_status": "GEOMETRY_AVAILABLE",
+          "result_sha256": "a6a9932219c5bfe45d44c62a4be47cb2e9583eb128adbdf7473cd799b540d4c2",
+          "quality_matches_requested_status": true,
+          "quality_flags": [],
+          "quality_warnings_present": true
+        }
+      ],
+      "quality_does_not_block_downstream": true,
+      "worker_identity": {
+        "pid": 5211,
+        "ppid": 4581,
+        "pgrp": 5211,
+        "sid": 5211,
+        "state": "R",
+        "start_ticks": 1734828,
+        "uid": 1000,
+        "boot_id": "a518927f-14ba-467c-8e72-ac5d3ebbe429",
+        "cpu_seconds": 0.0,
+        "rss_bytes": 0
+      },
+      "current_attempt": 1,
+      "sampled_current_attempt_cpu_seconds": 1349.255912,
+      "last_result_status": "GEOMETRY_AVAILABLE",
+      "result_status": "GEOMETRY_AVAILABLE",
+      "last_exit_code": 0,
+      "last_stop_reason": null,
+      "updated_at_utc": "2026-11-08T16:21:00.846890+00:00",
+      "ended_at_utc": "2026-11-08T16:21:00.850064+00:00"
+    },
+    "caly-g3-optimize": {
+      "status": "COMPLETED",
+      "started_at_utc": "2026-11-08T16:21:01.201399+00:00",
+      "actual_cpu_seconds": 7995.399128999999,
+      "attempts": [
+        {
+          "status": "COMPLETED",
+          "started_at_utc": "2026-11-08T16:21:01.208163+00:00",
+          "argv": [
+            "/workspace/research4/.venv-pyscf-90000/bin/python",
+            "-B",
+            "/workspace/research4/scripts/pyscf_continuous_science_20261108_v3.py",
+            "--stage",
+            "optimize",
+            "--output",
+            "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/caly-g3-optimize",
+            "--threads",
+            "2",
+            "--grid-level",
+            "3",
+            "--conv-tol",
+            "1e-10",
+            "--conv-grad",
+            "1e-7",
+            "--source-point",
+            "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/caly-g3-prepare/result.json"
+          ],
+          "remaining_pool_cpu_at_start": 58998,
+          "sampled_cpu_seconds": 7995.399128999999,
+          "attempt_index": 1,
+          "output_directory": "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/caly-g3-optimize",
+          "guardian_identity": {
+            "pid": 4581,
+            "ppid": 1,
+            "pgrp": 4581,
+            "sid": 4581,
+            "state": "R",
+            "start_ticks": 908124,
+            "uid": 1000,
+            "boot_id": "a518927f-14ba-467c-8e72-ac5d3ebbe429",
+            "cpu_seconds": 18970.99,
+            "rss_bytes": 19873792
+          },
+          "worker_identity": {
+            "pid": 5226,
+            "ppid": 4581,
+            "pgrp": 5226,
+            "sid": 5226,
+            "state": "R",
+            "start_ticks": 1801848,
+            "uid": 1000,
+            "boot_id": "a518927f-14ba-467c-8e72-ac5d3ebbe429",
+            "cpu_seconds": 0.0,
+            "rss_bytes": 0
+          },
+          "peak_rss_bytes": 1426558976,
+          "actual_cpu_seconds": 7995.399128999999,
+          "exit_code": 0,
+          "ended_at_utc": "2026-11-08T17:27:52.520123+00:00",
+          "actual_cpu_source": "WAIT4_ALL_OWNED_REAPED_CHILDREN_USER_PLUS_SYSTEM",
+          "all_owned_processes_closed": true,
+          "wall_seconds": 4011.310146222997,
+          "result_status": "GEOMETRY_AVAILABLE",
+          "result_sha256": "7e7dbe4e3949703395a8e7462e1894c8f9e167898b733892fae638f6e9e5bb80",
+          "quality_matches_requested_status": true,
+          "quality_flags": [],
+          "quality_warnings_present": false
+        }
+      ],
+      "quality_does_not_block_downstream": true,
+      "worker_identity": {
+        "pid": 5226,
+        "ppid": 4581,
+        "pgrp": 5226,
+        "sid": 5226,
+        "state": "R",
+        "start_ticks": 1801848,
+        "uid": 1000,
+        "boot_id": "a518927f-14ba-467c-8e72-ac5d3ebbe429",
+        "cpu_seconds": 0.0,
+        "rss_bytes": 0
+      },
+      "current_attempt": 1,
+      "sampled_current_attempt_cpu_seconds": 7995.399128999999,
+      "last_result_status": "GEOMETRY_AVAILABLE",
+      "result_status": "GEOMETRY_AVAILABLE",
+      "last_exit_code": 0,
+      "last_stop_reason": null,
+      "updated_at_utc": "2026-11-08T17:27:52.520576+00:00",
+      "ended_at_utc": "2026-11-08T17:27:52.522657+00:00"
+    },
+    "caly-g3-h001": {
+      "status": "RUNNING",
+      "started_at_utc": "2026-11-08T17:27:52.838093+00:00",
+      "actual_cpu_seconds": 0.0,
+      "attempts": [
+        {
+          "status": "RUNNING",
+          "started_at_utc": "2026-11-08T17:27:52.844806+00:00",
+          "argv": [
+            "/workspace/research4/.venv-pyscf-90000/bin/python",
+            "-B",
+            "/workspace/research4/scripts/pyscf_continuous_science_20261108_v3.py",
+            "--stage",
+            "hessian",
+            "--output",
+            "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/caly-g3-h001",
+            "--threads",
+            "2",
+            "--grid-level",
+            "3",
+            "--conv-tol",
+            "1e-10",
+            "--conv-grad",
+            "1e-7",
+            "--geometry",
+            "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/caly-g3-optimize/result.json",
+            "--step",
+            "0.001",
+            "--fallback-geometry",
+            "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/caly-g3-prepare/result.json"
+          ],
+          "remaining_pool_cpu_at_start": 50935,
+          "sampled_cpu_seconds": 22763.06,
+          "attempt_index": 1,
+          "output_directory": "/workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/caly-g3-h001",
+          "guardian_identity": {
+            "pid": 4581,
+            "ppid": 1,
+            "pgrp": 4581,
+            "sid": 4581,
+            "state": "R",
+            "start_ticks": 908124,
+            "uid": 1000,
+            "boot_id": "a518927f-14ba-467c-8e72-ac5d3ebbe429",
+            "cpu_seconds": 27034.51,
+            "rss_bytes": 19611648
+          },
+          "worker_identity": {
+            "pid": 5293,
+            "ppid": 4581,
+            "pgrp": 5293,
+            "sid": 5293,
+            "state": "R",
+            "start_ticks": 2203011,
+            "uid": 1000,
+            "boot_id": "a518927f-14ba-467c-8e72-ac5d3ebbe429",
+            "cpu_seconds": 0.0,
+            "rss_bytes": 0
+          },
+          "peak_rss_bytes": 1411137536
+        }
+      ],
+      "quality_does_not_block_downstream": true,
+      "worker_identity": {
+        "pid": 5293,
+        "ppid": 4581,
+        "pgrp": 5293,
+        "sid": 5293,
+        "state": "R",
+        "start_ticks": 2203011,
+        "uid": 1000,
+        "boot_id": "a518927f-14ba-467c-8e72-ac5d3ebbe429",
+        "cpu_seconds": 0.0,
+        "rss_bytes": 0
+      },
+      "current_attempt": 1,
+      "sampled_current_attempt_cpu_seconds": 22763.06
     }
   },
   "prior_charged_cpu_seconds": 9678.939876,
@@ -488,11 +840,11 @@
     "rss_bytes": 14368768
   },
   "detachment_survives_host_shutdown": false,
-  "updated_at_utc": "2026-11-08T16:09:47.052728+00:00",
-  "consumed_cpu_seconds": 19608.460699,
-  "actual_observed_cpu_seconds_excluding_preparation_reservation": 17608.460699,
-  "remaining_cpu_seconds": 60391.539301,
-  "combined_original_grant_charged_cpu_seconds": 29287.400575,
+  "updated_at_utc": "2026-11-08T20:38:08.293147+00:00",
+  "consumed_cpu_seconds": 51991.52476,
+  "actual_observed_cpu_seconds_excluding_preparation_reservation": 49991.52476,
+  "remaining_cpu_seconds": 28008.47524,
+  "combined_original_grant_charged_cpu_seconds": 61670.464636000004,
   "git_returns": [
     {
       "status": "PUSH_REMOTE_HEAD_VERIFIED",
@@ -553,6 +905,106 @@
       "status": "PUSH_REMOTE_HEAD_VERIFIED",
       "commit": "cf5be596aac2f4b11667ed402bbab09bdb88b17e",
       "at_utc": "2026-11-08T16:02:57.691498+00:00"
+    },
+    {
+      "status": "PUSH_REMOTE_HEAD_VERIFIED",
+      "commit": "fb0c0d4fe822a4cbec51258db6e0af79a454df76",
+      "at_utc": "2026-11-08T16:09:50.118542+00:00"
+    },
+    {
+      "status": "UPLOAD_FAILED_LOCAL_RESULTS_PRESERVED",
+      "error": "[Errno 7] Argument list too long: '/workspace/research4/.venv-pyscf-90000/bin/python'",
+      "at_utc": "2026-11-08T16:09:51.002963+00:00"
+    },
+    {
+      "status": "UPLOAD_FAILED_LOCAL_RESULTS_PRESERVED",
+      "error": "[Errno 7] Argument list too long: '/workspace/research4/.venv-pyscf-90000/bin/python'",
+      "at_utc": "2026-11-08T16:21:01.198314+00:00"
+    },
+    {
+      "status": "UPLOAD_FAILED_LOCAL_RESULTS_PRESERVED",
+      "error": "[Errno 7] Argument list too long: '/workspace/research4/.venv-pyscf-90000/bin/python'",
+      "at_utc": "2026-11-08T16:36:01.323742+00:00"
+    },
+    {
+      "status": "UPLOAD_FAILED_LOCAL_RESULTS_PRESERVED",
+      "error": "[Errno 7] Argument list too long: '/workspace/research4/.venv-pyscf-90000/bin/python'",
+      "at_utc": "2026-11-08T16:51:01.296856+00:00"
+    },
+    {
+      "status": "UPLOAD_FAILED_LOCAL_RESULTS_PRESERVED",
+      "error": "[Errno 7] Argument list too long: '/workspace/research4/.venv-pyscf-90000/bin/python'",
+      "at_utc": "2026-11-08T17:06:01.362357+00:00"
+    },
+    {
+      "status": "UPLOAD_FAILED_LOCAL_RESULTS_PRESERVED",
+      "error": "[Errno 7] Argument list too long: '/workspace/research4/.venv-pyscf-90000/bin/python'",
+      "at_utc": "2026-11-08T17:21:01.326987+00:00"
+    },
+    {
+      "status": "UPLOAD_FAILED_LOCAL_RESULTS_PRESERVED",
+      "error": "[Errno 7] Argument list too long: '/workspace/research4/.venv-pyscf-90000/bin/python'",
+      "at_utc": "2026-11-08T17:27:52.834890+00:00"
+    },
+    {
+      "status": "UPLOAD_FAILED_LOCAL_RESULTS_PRESERVED",
+      "error": "[Errno 7] Argument list too long: '/workspace/research4/.venv-pyscf-90000/bin/python'",
+      "at_utc": "2026-11-08T17:42:52.951167+00:00"
+    },
+    {
+      "status": "UPLOAD_FAILED_LOCAL_RESULTS_PRESERVED",
+      "error": "[Errno 7] Argument list too long: '/workspace/research4/.venv-pyscf-90000/bin/python'",
+      "at_utc": "2026-11-08T17:57:52.997120+00:00"
+    },
+    {
+      "status": "UPLOAD_FAILED_LOCAL_RESULTS_PRESERVED",
+      "error": "[Errno 7] Argument list too long: '/workspace/research4/.venv-pyscf-90000/bin/python'",
+      "at_utc": "2026-11-08T18:12:53.024620+00:00"
+    },
+    {
+      "status": "UPLOAD_FAILED_LOCAL_RESULTS_PRESERVED",
+      "error": "[Errno 7] Argument list too long: '/workspace/research4/.venv-pyscf-90000/bin/python'",
+      "at_utc": "2026-11-08T18:27:53.043528+00:00"
+    },
+    {
+      "status": "UPLOAD_FAILED_LOCAL_RESULTS_PRESERVED",
+      "error": "[Errno 7] Argument list too long: '/workspace/research4/.venv-pyscf-90000/bin/python'",
+      "at_utc": "2026-11-08T18:42:53.073759+00:00"
+    },
+    {
+      "status": "UPLOAD_FAILED_LOCAL_RESULTS_PRESERVED",
+      "error": "[Errno 7] Argument list too long: '/workspace/research4/.venv-pyscf-90000/bin/python'",
+      "at_utc": "2026-11-08T18:57:53.136330+00:00"
+    },
+    {
+      "status": "UPLOAD_FAILED_LOCAL_RESULTS_PRESERVED",
+      "error": "[Errno 7] Argument list too long: '/workspace/research4/.venv-pyscf-90000/bin/python'",
+      "at_utc": "2026-11-08T19:12:53.122445+00:00"
+    },
+    {
+      "status": "UPLOAD_FAILED_LOCAL_RESULTS_PRESERVED",
+      "error": "[Errno 7] Argument list too long: '/workspace/research4/.venv-pyscf-90000/bin/python'",
+      "at_utc": "2026-11-08T19:27:53.128420+00:00"
+    },
+    {
+      "status": "UPLOAD_FAILED_LOCAL_RESULTS_PRESERVED",
+      "error": "[Errno 7] Argument list too long: '/workspace/research4/.venv-pyscf-90000/bin/python'",
+      "at_utc": "2026-11-08T19:42:53.257516+00:00"
+    },
+    {
+      "status": "UPLOAD_FAILED_LOCAL_RESULTS_PRESERVED",
+      "error": "[Errno 7] Argument list too long: '/workspace/research4/.venv-pyscf-90000/bin/python'",
+      "at_utc": "2026-11-08T19:57:53.284035+00:00"
+    },
+    {
+      "status": "UPLOAD_FAILED_LOCAL_RESULTS_PRESERVED",
+      "error": "[Errno 7] Argument list too long: '/workspace/research4/.venv-pyscf-90000/bin/python'",
+      "at_utc": "2026-11-08T20:12:53.238757+00:00"
+    },
+    {
+      "status": "UPLOAD_FAILED_LOCAL_RESULTS_PRESERVED",
+      "error": "[Errno 7] Argument list too long: '/workspace/research4/.venv-pyscf-90000/bin/python'",
+      "at_utc": "2026-11-08T20:27:53.294965+00:00"
     }
   ]
 }

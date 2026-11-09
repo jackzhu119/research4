@@ -1,0 +1,1423 @@
+#INFO: **** input file is /workspace/research4/scripts/pyscf_continuous_science_20261108_v3.py ****
+#!/usr/bin/env python3
+"""Compute finite PySCF results continuously; scientific quality is metadata.
+
+The budget supervisor owns resource stops. Numerical warnings do not discard
+finite gradients or block later coordinates. Historical producers are untouched.
+"""
+from __future__ import annotations
+import argparse
+from datetime import datetime, timezone
+import hashlib
+import importlib.metadata
+import json
+import math
+import os
+from pathlib import Path
+import sys
+import traceback
+
+SCHEMA = 'research4-continuous-pyscf-science-v3'
+
+
+def utc(): return datetime.now(timezone.utc).isoformat()
+
+
+def sha(path):
+    with Path(path).open('rb') as stream: return hashlib.file_digest(stream, 'sha256').hexdigest()
+
+
+def save(path, value):
+    path = Path(path); path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = path.with_name(path.name + '.tmp')
+    with temporary.open('w') as stream:
+        json.dump(value, stream, indent=2, allow_nan=False); stream.write('\n'); stream.flush(); os.fsync(stream.fileno())
+    os.replace(temporary, path)
+
+
+def array_ref(path, value):
+    import numpy as np
+    path = Path(path); path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = path.with_name(path.name + '.tmp')
+    with temporary.open('wb') as stream:
+        np.save(stream, value, allow_pickle=False); stream.flush(); os.fsync(stream.fileno())
+    os.replace(temporary, path)
+    return {'path': str(path.resolve()), 'sha256': sha(path)}
+
+
+def read_ref(ref):
+    import numpy as np
+    path = Path(ref['path'])
+    if sha(path) != ref['sha256']: raise ValueError('Array content hash changed: ' + str(path))
+    value = np.load(path, allow_pickle=False)
+    if not np.isfinite(value).all(): raise ValueError('Nonfinite array: ' + str(path))
+    return value
+
+
+def settings(args):
+    return {'xc': 'PBE', 'basis': 'def2-SVP', 'grid_level': args.grid_level,
+            'charge': 0, 'spin': 0, 'dispersion': 'NONE_EXPLICIT', 'density_fitting': False,
+            'full_native_veff_every_cycle': True, 'grid_response': True, 'direct_scf_tol': 1e-14,
+            'energy_tolerance_hartree': args.conv_tol, 'orbital_gradient_tolerance': args.conv_grad,
+            'maximum_SCF_cycles': 80, 'newton_recovery_max_cycles': 20,
+            'quality_warnings_block_execution': False}
+
+
+def result(status, cfg):
+    return {'schema': SCHEMA, 'status': status, 'settings': cfg, 'source_sha256': sha(__file__),
+            'at_utc': utc(), 'IR': 'NOT_COMPUTED', 'chemical_assignment': 'NOT_PERFORMED',
+            'classifier_results_modified': False, 'quality_warnings': []}
+
+
+def new_molecule(symbols, coordinates, cfg, unit='Bohr'):
+    import numpy as np
+    from pyscf import gto
+    coordinates = np.asarray(coordinates, dtype=float)
+    if coordinates.shape != (len(symbols), 3) or not np.isfinite(coordinates).all(): raise ValueError('Invalid molecular coordinates')
+    return gto.M(atom=[(s, tuple(map(float, row))) for s, row in zip(symbols, coordinates)],
+                 unit=unit, basis=cfg['basis'], charge=cfg['charge'], spin=cfg['spin'], max_memory=6000, verbose=4)
+
+
+def make_scf(mol, out, cfg):
+    from pyscf import dft
+    from pyscf.dft import rks
+    class FullNativeRKS(dft.rks.RKS):
+        def get_veff(self, mol=None, dm=None, dm_last=None, vhf_last=None, hermi=1):
+            return rks.get_veff(self, mol, dm, dm_last=0, vhf_last=0, hermi=hermi)
+    mf = FullNativeRKS(mol)
+    mf.xc = cfg['xc']; mf.grids.level = cfg['grid_level']; mf.max_memory = 6000
+    mf.direct_scf = True; mf.direct_scf_tol = cfg['direct_scf_tol']
+    mf.conv_tol = cfg['energy_tolerance_hartree']; mf.conv_tol_grad = cfg['orbital_gradient_tolerance']
+    mf.max_cycle = cfg['maximum_SCF_cycles']; mf.chkfile = str(out / 'local-only/rolling.chk')
+    (out / 'local-only').mkdir(exist_ok=True)
+    return mf
+
+
+def fingerprint(mol, cfg, density):
+    import numpy as np
+    payload = {'source_sha256': sha(__file__), 'settings': cfg,
+               'pyscf_version': importlib.metadata.version('pyscf'),
+               'symbols': [mol.atom_symbol(i) for i in range(mol.natm)],
+               'coordinates_sha256': hashlib.sha256(np.asarray(mol.atom_coords(), dtype='<f8').tobytes()).hexdigest(),
+               'initial_density_sha256': None if density is None else hashlib.sha256(np.asarray(density, dtype='<f8').tobytes()).hexdigest()}
+    return hashlib.sha256(json.dumps(payload, sort_keys=True).encode()).hexdigest(), payload
+
+
+def calculate_attempt(mol, out, cfg, dm0, nuclear_gradient, save_density):
+    """Finite convergence attempts. Unconverged finite states remain usable."""
+    import numpy as np
+    out.mkdir(parents=True, exist_ok=True)
+    log = (out / 'pyscf.log').open('a', buffering=1)
+    mol = mol.copy(); mol.stdout = log
+    cfgout = result('POINT_RUNNING', cfg); calls = []
+    try:
+        mf = make_scf(mol, out, cfg)
+        try:
+            energy = float(mf.kernel(dm0=None if dm0 is None else np.array(dm0, copy=True)))
+            calls.append({'solver': 'NATIVE_SCF', 'native_converged': bool(mf.converged)})
+        except Exception as error:
+            calls.append({'solver': 'NATIVE_SCF', 'error': str(error)}); energy = float('nan')
+        if not getattr(mf, 'converged', False):
+            try:
+                seed = mf.newton(); seed.max_cycle = cfg['newton_recovery_max_cycles']; seed.max_cycle_inner = 10
+                seed.max_memory = 6000
+                guess = mf.make_rdm1() if getattr(mf, 'mo_coeff', None) is not None else dm0
+                seed.kernel(dm0=guess)
+                calls.append({'solver': 'NEWTON_RECOVERY', 'native_converged': bool(seed.converged)})
+                seed_density = np.array(seed.make_rdm1(), copy=True)
+                fresh = make_scf(mol, out, cfg); energy = float(fresh.kernel(dm0=seed_density)); mf = fresh
+                calls.append({'solver': 'NATIVE_AFTER_NEWTON', 'native_converged': bool(mf.converged)})
+            except Exception as error:
+                calls.append({'solver': 'NEWTON_RECOVERY', 'error': str(error)})
+        if getattr(mf, 'mo_coeff', None) is None: raise ValueError('No finite molecular-orbital state was produced')
+        dm = np.asarray(mf.make_rdm1())
+        if not np.isfinite(dm).all(): raise ValueError('Nonfinite density')
+        hcore = mf.get_hcore(); veff = mf.get_veff(mol, dm)
+        fresh_energy = float(mf.energy_tot(dm, hcore, veff))
+        if not math.isfinite(fresh_energy): raise ValueError('Nonfinite total energy')
+        if not math.isfinite(energy): energy = fresh_energy
+        audit = {'native_converged': bool(mf.converged), 'fresh_energy_hartree': fresh_energy,
+                 'energy_recheck_difference_hartree': fresh_energy - energy}
+        try:
+            fock = mf.get_fock(hcore, mf.get_ovlp(), veff, dm, cycle=-1, diis=None, level_shift_factor=0)
+            residual = float(np.linalg.norm(mf.get_grad(mf.mo_coeff, mf.mo_occ, fock)))
+            audit['fresh_orbital_gradient_norm'] = residual if math.isfinite(residual) else None
+        except Exception as error: audit['audit_error'] = str(error)
+        warnings = []
+        if not mf.converged: warnings.append('NATIVE_SCF_UNCONVERGED_FINITE_STATE_USED')
+        residual = audit.get('fresh_orbital_gradient_norm')
+        if residual is None or residual > 1e-9: warnings.append('FORMER_STRICT_ORBITAL_TARGET_NOT_MET_OR_UNAVAILABLE')
+        if abs(audit['energy_recheck_difference_hartree']) > 1e-12: warnings.append('FORMER_STRICT_ENERGY_RECHECK_TARGET_NOT_MET')
+        gradient = None
+        if nuclear_gradient:
+            driver = mf.nuc_grad_method(); driver.grid_response = True
+            gradient = np.asarray(driver.kernel())
+            if gradient.shape != (mol.natm, 3) or not np.isfinite(gradient).all(): raise ValueError('No finite complete nuclear gradient')
+            cfgout['gradient'] = array_ref(out / 'gradient.npy', gradient)
+            cfgout['nuclear_gradient_rms'] = float(np.sqrt(np.mean(gradient**2)))
+            cfgout['nuclear_gradient_max'] = float(np.max(np.abs(gradient)))
+        density_path = out / ('density.npy' if save_density else 'local-only/density.npy')
+        cfgout.update(status='POINT_COMPUTED', energy_hartree=fresh_energy, native_energy_hartree=energy, native_pyscf_converged=bool(mf.converged),
+                      calls=calls, diagnostics=audit, quality_warnings=warnings,
+                      coordinates_bohr=array_ref(out / 'coordinates_bohr.npy', mol.atom_coords()),
+                      symbols=[mol.atom_symbol(i) for i in range(mol.natm)], density=array_ref(density_path, dm),
+                      completed_at_utc=utc())
+        save(out / 'result.json', cfgout)
+        return cfgout, dm, gradient
+    except Exception as error:
+        cfgout.update(status='POINT_ERROR', error_type=type(error).__name__, error=str(error), calls=calls)
+        save(out / 'result.json', cfgout); raise
+    finally: log.close()
+
+
+def evaluate_point(mol, output, cfg, dm0=None, nuclear_gradient=True, save_density=False):
+    """Reuse authenticated finite gradients without reading local-only point DM."""
+    out = Path(output); out.mkdir(parents=True, exist_ok=True)
+    digest, inputs = fingerprint(mol, cfg, dm0)
+    target = out / 'result.json'
+    if target.exists():
+        old = json.loads(target.read_text())
+        if old.get('input_fingerprint') != digest: raise ValueError('Point fingerprint changed')
+        if old.get('status') == 'POINT_COMPUTED':
+            gradient = read_ref(old['gradient']) if nuclear_gradient else None
+            density = read_ref(old['density']) if save_density else None
+            return old, density, gradient
+    parent_attempt = max(1, int(os.environ.get('R4_ATTEMPT', '1')))
+    failures = []
+    for number in (1, 2):
+        attempt = out / ('attempt-%03d-%d' % (parent_attempt, number))
+        existed = attempt.exists()
+        input_path = attempt / 'input.json'
+        if existed:
+            if not input_path.exists() or json.loads(input_path.read_text()).get('input_fingerprint') != digest:
+                raise ValueError('Existing attempt input fingerprint is unavailable or changed')
+        else:
+            attempt.mkdir(parents=True)
+            save(input_path, {'input_fingerprint': digest, 'inputs': inputs, 'at_utc': utc()})
+        if (attempt / 'result.json').exists():
+            previous = json.loads((attempt / 'result.json').read_text())
+            if previous.get('status') == 'POINT_COMPUTED':
+                previous.update(input_fingerprint=digest, inputs=inputs); save(target, previous)
+                return previous, read_ref(previous['density']) if save_density else None, read_ref(previous['gradient']) if nuclear_gradient else None
+            failures.append({'attempt': str(attempt), 'error': previous.get('error', 'prior unsuccessful attempt')}); continue
+        if existed:
+            failures.append({'attempt': str(attempt), 'error': 'INTERRUPTED_ATTEMPT_RETAINED_WITHOUT_OVERWRITING'})
+            continue
+        try:
+            point, density, gradient = calculate_attempt(mol, attempt, cfg, dm0, nuclear_gradient, save_density)
+            point.update(input_fingerprint=digest, inputs=inputs, failed_attempts=failures)
+            save(target, point); return point, density if save_density else None, gradient
+        except Exception as error:
+            failures.append({'attempt': str(attempt), 'error_type': type(error).__name__, 'error': str(error)})
+            save(out / 'progress.json', {'status': 'POINT_RETRY_OR_ERROR', 'input_fingerprint': digest, 'failed_attempts': failures})
+    failed = result('POINT_ERROR', cfg); failed.update(input_fingerprint=digest, inputs=inputs, failed_attempts=failures)
+    save(target, failed); raise ValueError('No finite point after two recorded attempts')
+
+
+def load_source(path):
+    import numpy as np
+    record = json.loads(Path(path).read_text())
+    coords = read_ref(record['coordinates_bohr']); density = read_ref(record['density'])
+    symbols = record['symbols']
+    if coords.shape != (len(symbols), 3) or density.ndim != 2 or density.shape[0] != density.shape[1]: raise ValueError('Inconsistent source geometry/density')
+    return record, symbols, coords, density
+
+
+def input_molecule(args, cfg):
+    if args.source_point:
+        old, symbols, coords, density = load_source(args.source_point)
+        return new_molecule(symbols, coords, cfg), density, {'path': str(args.source_point.resolve()), 'sha256': sha(args.source_point), 'scope': 'HISTORICAL_FINITE_STATE_NOT_RETROACTIVELY_CERTIFIED'}
+    if args.xyz:
+        rows = args.xyz.read_text().splitlines(); atoms = [x.split() for x in rows[2:] if x.strip()]
+        if len(atoms) != int(rows[0]) or any(len(x) != 4 for x in atoms): raise ValueError('Invalid XYZ')
+        return new_molecule([x[0] for x in atoms], [[float(v) for v in x[1:]] for x in atoms], cfg, 'Angstrom'), None, {'path': str(args.xyz.resolve()), 'sha256': sha(args.xyz), 'scope': 'TRUSTED_INPUT_XYZ'}
+    raise ValueError('--source-point or --xyz is required')
+
+
+def geometry_record(point, cfg, status='GEOMETRY_AVAILABLE'):
+    record = result(status, cfg)
+    record.update(symbols=point['symbols'], coordinates_bohr=point['coordinates_bohr'], density=point['density'],
+                  quality_warnings=list(point.get('quality_warnings', [])),
+                  nuclear_gradient_rms=point.get('nuclear_gradient_rms'), nuclear_gradient_max=point.get('nuclear_gradient_max'),
+                  native_pyscf_converged=point.get('native_pyscf_converged'), gradient=point.get('gradient'),
+                  derivative_settings=point.get('derivative_settings', point.get('settings')), minimum_verified=False)
+    return record
+
+
+def stage_prepare(args, cfg):
+    mol, density, source = input_molecule(args, cfg)
+    if args.source_point:
+        point = json.loads(args.source_point.read_text())
+        point['density'] = array_ref(args.output / 'center-density.npy', density)
+        point['coordinates_bohr'] = array_ref(args.output / 'center-coordinates.npy', mol.atom_coords())
+        if point.get('gradient'):
+            point['gradient'] = array_ref(args.output / 'center-gradient.npy', read_ref(point['gradient']))
+        point['quality_warnings'] = list(point.get('quality_warnings', [])) + ['HISTORICAL_FINITE_STATE_REUSED_AS_STARTING_GEOMETRY']
+    else:
+        point, _, _ = evaluate_point(mol, args.output / 'center', cfg, density, save_density=True)
+    rec = geometry_record(point, cfg); rec.update(input_source=source, optimizer_converged=False)
+    rec['quality_warnings'].append('GEOMETRY_PREPARED_WITHOUT_OPTIMIZATION')
+    return rec
+
+
+def stage_optimize(args, cfg):
+    import numpy as np
+    from pyscf.geomopt import addons, geometric_solver
+    mol, density, source = input_molecule(args, cfg)
+    latest = {'density': density, 'point': None, 'mol': mol, 'count': 0}
+    history = []; errors = []
+    def scan(actual_mol):
+        i = latest['count']; latest['count'] += 1
+        point, dm, gradient = evaluate_point(actual_mol, args.output / 'optimization_steps' / ('step-%03d' % i), cfg, latest['density'], save_density=True)
+        latest.update(density=dm, point=point, mol=actual_mol.copy()); history.append({'point': i, 'energy_hartree': point['energy_hartree'], 'quality_warnings': point['quality_warnings']})
+        return point['energy_hartree'], gradient
+    converged = False; candidate = mol
+    try:
+        converged, candidate = geometric_solver.kernel(addons.as_pyscf_method(mol, scan), maxsteps=30,
+            convergence_energy=1e-6, convergence_grms=1e-4, convergence_gmax=3e-4,
+            convergence_drms=1.2e-3, convergence_dmax=1.8e-3)
+    except Exception as error: errors.append({'error_type': type(error).__name__, 'error': str(error)})
+    try:
+        point, _, _ = evaluate_point(candidate if converged else latest['mol'], args.output / 'final-center', cfg, latest['density'], save_density=True)
+    except Exception as error:
+        errors.append({'error_type': type(error).__name__, 'error': str(error)})
+        point = latest['point']
+        if point is None and args.source_point:
+            old, symbols, coords, dm = load_source(args.source_point)
+            point = dict(old)
+            point['density'] = array_ref(args.output / 'fallback-center-density.npy', dm)
+            point['coordinates_bohr'] = array_ref(args.output / 'fallback-center-coordinates.npy', coords)
+            point['quality_warnings'] = ['NEW_OPTIMIZATION_FAILED_HISTORICAL_FINITE_GEOMETRY_RETAINED']
+        if point is None: raise ValueError('No finite input or optimization geometry available')
+    rec = geometry_record(point, cfg); rec.update(optimizer_converged=bool(converged), input_source=source,
+        actual_gradient_evaluations=latest['count'], optimization_history=history, nonfatal_optimizer_errors=errors,
+        former_strict_nuclear_targets_met=bool(point.get('nuclear_gradient_rms') is not None and point.get('nuclear_gradient_max') is not None and point['nuclear_gradient_rms'] <= 1e-5 and point['nuclear_gradient_max'] <= 3e-5))
+    if not converged: rec['quality_warnings'].append('OPTIMIZER_NOT_CONVERGED_GEOMETRY_REMAINS_AVAILABLE')
+    return rec
+
+
+def assemble_hessian(plus, minus, step):
+    import numpy as np
+    plus, minus = np.asarray(plus), np.asarray(minus)
+    if plus.shape != minus.shape or plus.ndim != 3 or plus.shape[0] != 3*plus.shape[1] or plus.shape[2] != 3 or not step > 0: raise ValueError('Incomplete central differences')
+    if not np.isfinite(plus).all() or not np.isfinite(minus).all(): raise ValueError('Nonfinite central differences')
+    return ((plus-minus)/(2*step)).reshape(plus.shape[0], -1).T
+
+
+def stage_hessian(args, cfg):
+    import numpy as np
+    if args.geometry is None or not args.step or args.step <= 0: raise ValueError('--geometry and positive --step required')
+    candidates = [args.geometry] + list(getattr(args, 'fallback_geometry', None) or [])
+    geometry_errors = []
+    for candidate in candidates:
+        try:
+            geom, symbols, coords, density = load_source(candidate)
+            actual_geometry = Path(candidate)
+            break
+        except Exception as error:
+            geometry_errors.append({'path': str(candidate), 'error': str(error)})
+    else:
+        raise ValueError('No finite geometry among primary/fallback candidates: ' + str(geometry_errors))
+    derivative_settings = geom.get('derivative_settings') or geom.get('settings', {})
+    method_keys = ('xc', 'basis', 'grid_level', 'dispersion', 'density_fitting', 'full_native_veff_every_cycle', 'grid_response', 'charge', 'spin')
+    stationarity_settings_match = all(derivative_settings.get(key) == cfg.get(key) for key in method_keys)
+    n = len(symbols); dimension = 3*n; gradients = {1: {}, -1: {}}
+    warnings = []; failures = []; point_refs = []; native_false = 0
+    progress = result('HESSIAN_RUNNING', cfg); progress.update(expected_points=2*dimension, actual_finite_points=0)
+    for coordinate in range(dimension):
+        for sign in (1, -1):
+            name = 'c%03d-%s' % (coordinate, 'plus' if sign > 0 else 'minus')
+            displaced = np.array(coords, copy=True); displaced.flat[coordinate] += sign*args.step
+            try:
+                point, _, gradient = evaluate_point(new_molecule(symbols, displaced, cfg), args.output / 'points' / name, cfg, density)
+                gradients[sign][coordinate] = gradient
+                native_false += not bool(point['native_pyscf_converged'])
+                if point['quality_warnings']: warnings.append({'point': name, 'warnings': point['quality_warnings']})
+                p = args.output / 'points' / name / 'result.json'; point_refs.append({'path': str(p.resolve()), 'sha256': sha(p)})
+            except Exception as error: failures.append({'point': name, 'error_type': type(error).__name__, 'error': str(error)})
+            progress.update(actual_finite_points=len(gradients[1])+len(gradients[-1]), failed_points=failures,
+                            points_with_quality_warnings=warnings, native_unconverged_points=native_false)
+            save(args.output / 'progress.json', progress)
+    progress.update(status='HESSIAN_PARTIAL', geometry_result={'path': str(actual_geometry.resolve()), 'sha256': sha(actual_geometry)}, geometry_fallback_warnings=geometry_errors,
+        coordinates_bohr=geom['coordinates_bohr'], symbols=symbols, step_bohr=args.step,
+        center_density_sha256=geom['density']['sha256'], center_optimizer_converged=geom.get('optimizer_converged', False),
+        center_quality_warnings=list(geom.get('quality_warnings', [])) + ([] if stationarity_settings_match else ['CENTER_GRADIENT_METHOD_DIFFERS_FROM_HESSIAN_METHOD']),
+        geometry_source_derivative_settings=derivative_settings, center_stationarity_settings_match=stationarity_settings_match,
+        center_nuclear_gradient_rms=geom.get('nuclear_gradient_rms'), center_nuclear_gradient_max=geom.get('nuclear_gradient_max'),
+        center_strict_stationarity_quality=bool(geom.get('nuclear_gradient_rms', math.inf) is not None and geom.get('nuclear_gradient_max', math.inf) is not None and geom.get('nuclear_gradient_rms', math.inf)<=1e-5 and geom.get('nuclear_gradient_max', math.inf)<=3e-5),
+        point_results=point_refs, completed_at_utc=utc())
+    if progress['actual_finite_points'] == 2*dimension:
+        raw = assemble_hessian([gradients[1][i] for i in range(dimension)], [gradients[-1][i] for i in range(dimension)], args.step)
+        progress.update(status='HESSIAN_COMPUTED', raw_hessian=array_ref(args.output / 'raw_hessian.npy', raw),
+            raw_relative_asymmetry=float(np.linalg.norm(raw-raw.T)/max(np.linalg.norm(raw), 1e-300)), vibrational_modes_expected=dimension-6)
+    return progress
+
+
+def vibrational_modes(matrix, coords, masses):
+    import numpy as np
+    from scipy import constants
+    matrix, coords, masses = map(np.asarray, (matrix, coords, masses)); n = len(masses)
+    if matrix.shape != (3*n, 3*n) or coords.shape != (n, 3) or not np.isfinite(matrix).all() or np.any(masses <= 0): raise ValueError('Invalid mode inputs')
+    center = (coords*masses[:, None]).sum(axis=0)/masses.sum(); shifted = coords-center
+    roots = np.sqrt(masses); ext = []
+    for axis in np.eye(3): ext.append((roots[:, None]*np.broadcast_to(axis, coords.shape)).ravel())
+    for axis in np.eye(3): ext.append((roots[:, None]*np.cross(axis, shifted)).ravel())
+    u, singular, _ = np.linalg.svd(np.array(ext).T, full_matrices=True)
+    rank = int((singular > singular.max()*1e-10).sum()); complement = u[:, rank:]
+    scale = np.repeat(roots, 3); weighted = .5*(matrix+matrix.T)/scale[:, None]/scale[None, :]
+    projected = complement.T@weighted@complement; values, vectors = np.linalg.eigh(projected)
+    conversion = math.sqrt(constants.physical_constants['Hartree energy'][0]/(constants.physical_constants['Bohr radius'][0]**2*constants.physical_constants['atomic mass constant'][0]))/(2*math.pi*constants.c*100)
+    return np.sign(values)*np.sqrt(np.abs(values))*conversion, values, complement@vectors, rank
+
+
+def stage_analyze(args, cfg):
+    import numpy as np
+    from pyscf.data import elements
+    if not args.hessians: raise ValueError('--hessians required')
+    rows = [json.loads(Path(p).read_text()) for p in args.hessians]
+    rec = result('ANALYSIS_COMPUTED', cfg); rec.update(input_hessians=[{'path': str(Path(p).resolve()), 'sha256': sha(p)} for p in args.hessians], minimum_verified=False)
+    if any(x.get('status') != 'HESSIAN_COMPUTED' or 'raw_hessian' not in x for x in rows):
+        rec.update(status='ANALYSIS_PARTIAL', reason='Incomplete finite Hessian; no fabricated full modes', input_statuses=[x.get('status') for x in rows]); return rec
+    coordinates = read_ref(rows[0]['coordinates_bohr']); symbols = rows[0]['symbols']
+    if any(x['coordinates_bohr'] != rows[0]['coordinates_bohr'] or x['symbols'] != symbols or x['center_density_sha256'] != rows[0]['center_density_sha256'] for x in rows): raise ValueError('Different centers cannot form a paired step analysis')
+    masses = np.array([elements.MASSES[elements.charge(s)] for s in symbols]); matrices = [read_ref(x['raw_hessian']) for x in rows]
+    modes = [vibrational_modes(h, coordinates, masses) for h in matrices]; asym = [float(np.linalg.norm(h-h.T)/max(np.linalg.norm(h), 1e-300)) for h in matrices]
+    rec.update(hessian_settings=[x.get('settings') for x in rows], signed_frequencies_cm1=[m[0].tolist() for m in modes], signed_eigenvalues=[m[1].tolist() for m in modes],
+        imaginary_counts=[int((m[0]<0).sum()) for m in modes], vibrational_modes=len(modes[0][0]), external_rank=modes[0][3], raw_relative_asymmetry=asym,
+        point_native_unconverged_counts=[x.get('native_unconverged_points', 0) for x in rows],
+        point_warning_counts=[len(x.get('points_with_quality_warnings', [])) for x in rows])
+    if len(rows) >= 2:
+        scale = np.repeat(np.sqrt(masses), 3); common = modes[0][2]
+        projected = [common.T@(.5*(h+h.T)/scale[:, None]/scale[None, :])@common for h in matrices]
+        difference = projected[1]-projected[0]; uncertainty = float(np.linalg.norm(difference, 2)); relative = float(np.linalg.norm(difference)/max(np.linalg.norm(projected[1]), 1e-300))
+        quality = bool(max(asym)<=1e-3 and relative<=1e-3 and all(np.min(m[1])>uncertainty for m in modes))
+        native_ok = all(x.get('native_unconverged_points', 0)==0 and not x.get('points_with_quality_warnings') for x in rows)
+        center_ok = all(x.get('center_optimizer_converged') and x.get('center_strict_stationarity_quality') and x.get('center_stationarity_settings_match') and not x.get('center_quality_warnings') for x in rows)
+        rec.update(projected_relative_step_difference=relative, empirical_step_uncertainty_margin=uncertainty,
+                   minimum_verified=bool(quality and native_ok and center_ok), numerical_quality_diagnostics_passed=quality)
+    if not rec['minimum_verified']: rec['quality_warnings'].append('MINIMUM_NOT_VERIFIED_RESULTS_RETAINED')
+    for i, mode in enumerate(modes): rec['mass_weighted_modes_%d'%i] = array_ref(args.output / ('mass_weighted_modes_%d.npy'%i), mode[2])
+    return rec
+
+
+def stage_controls(args, cfg):
+    import numpy as np
+    mol = new_molecule(['O','H','H'], [[0,0,0],[.75695,0,.58588],[-.75695,0,.58588]], cfg, 'Angstrom')
+    center, dm, gradient = evaluate_point(mol, args.output/'zero', cfg, save_density=True)
+    directional = float(gradient[1,0]); numerical = []
+    for step in (.001,.0005):
+        energies = []
+        for sign in (1,-1):
+            coords = mol.atom_coords(); coords[1,0] += sign*step
+            point, _, _ = evaluate_point(new_molecule(['O','H','H'], coords, cfg), args.output/('h%s-%s'%(step,sign)), cfg, dm, nuclear_gradient=False)
+            energies.append(point['energy_hartree'])
+        numerical.append(math.fsum((energies[0],-energies[1]))/(2*step))
+    rec = result('CONTROLS_COMPUTED',cfg); rec.update(analytic_directional_gradient=directional, finite_energy_derivatives=numerical,
+        absolute_errors=[abs(x-directional) for x in numerical], diagnostics_within_former_tolerance=bool(max(abs(x-directional) for x in numerical)<=1e-5))
+    if not rec['diagnostics_within_former_tolerance']: rec['quality_warnings'].append('CONTROL_NUMERICAL_DIFFERENCE_REQUIRES_REVIEW')
+    return rec
+
+
+def main(argv=None):
+    p=argparse.ArgumentParser(description=__doc__)
+    p.add_argument('--stage',required=True,choices=['controls','prepare','optimize','hessian','analyze']);p.add_argument('--output',required=True,type=Path)
+    p.add_argument('--source-point',type=Path);p.add_argument('--xyz',type=Path);p.add_argument('--geometry',type=Path)
+    p.add_argument('--fallback-geometry',type=Path,action='append')
+    p.add_argument('--step',type=float);p.add_argument('--hessians',nargs='+');p.add_argument('--grid-level',type=int,default=3)
+    p.add_argument('--conv-tol',type=float,default=1e-10);p.add_argument('--conv-grad',type=float,default=1e-7);p.add_argument('--threads',type=int,default=2)
+    args=p.parse_args(argv);args.output=args.output.resolve();args.output.mkdir(parents=True,exist_ok=True)
+    if args.threads not in (1,2) or args.grid_level not in range(1,10) or not (0<args.conv_tol<1 and 0<args.conv_grad<1):p.error('Invalid resource/method arguments')
+    from pyscf import lib
+    lib.num_threads(args.threads);cfg=settings(args)
+    try:
+        rec={'controls':stage_controls,'prepare':stage_prepare,'optimize':stage_optimize,'hessian':stage_hessian,'analyze':stage_analyze}[args.stage](args,cfg)
+        rec.update(threads=args.threads,pyscf_version=importlib.metadata.version('pyscf'));save(args.output/'result.json',rec)
+        return 0
+    except Exception as error:
+        rec=result('DATA_UNAVAILABLE',cfg);rec.update(error_type=type(error).__name__,error=str(error),traceback=traceback.format_exc());save(args.output/'result.json',rec);return 2
+
+
+if __name__=='__main__':sys.exit(main())
+#INFO: ******************** input file end ********************
+
+
+System: uname_result(system='Linux', node='629429197df2', release='6.18.57', version='#1 SMP Tue Oct 20 21:56:04 UTC 2026', machine='x86_64')  Threads 2
+Python 3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]
+numpy 2.3.5  scipy 1.17.0  h5py 3.16.0
+Date: Sun Nov  8 16:21:01 2026
+PySCF version 2.13.0
+PySCF path  /workspace/research4/.venv-pyscf-90000/lib/python3.12/site-packages/pyscf
+
+[CONFIG] conf_file None
+[INPUT] verbose = 4
+[INPUT] num. atoms = 33
+[INPUT] num. electrons = 148
+[INPUT] charge = 0
+[INPUT] spin (= nelec alpha-beta = 2S) = 0
+[INPUT] symmetry False subgroup None
+[INPUT] Mole.unit = Bohr
+[INPUT] Symbol           X                Y                Z      unit          X                Y                Z       unit  Magmom
+[INPUT]  1 C      5.928925284631   1.219867799122   0.716076796053 AA   11.204045000961   2.305216048516   1.353189028696 Bohr   0.0
+[INPUT]  2 O      5.267029827568   0.082556435296   0.193556226293 AA    9.953243864019   0.156009052530   0.365768257399 Bohr   0.0
+[INPUT]  3 C      3.901151627193   0.122264012211   0.064206928773 AA    7.372108145796   0.231045497969   0.121333510680 Bohr   0.0
+[INPUT]  4 C      3.064739520393   1.206333493633   0.356925417801 AA    5.791518336674   2.279639917857   0.674491286540 Bohr   0.0
+[INPUT]  5 C      1.674192639435   1.091764246813   0.182728441351 AA    3.163765568295   2.063135419068   0.345306709323 Bohr   0.0
+[INPUT]  6 C      1.101521415415  -0.109246247543  -0.290379561314 AA    2.081573795478  -0.206445487993  -0.548737843054 Bohr   0.0
+[INPUT]  7 C     -0.359144018749  -0.234604621985  -0.508857559024 AA   -0.678683834711  -0.443338483109  -0.961601422970 Bohr   0.0
+[INPUT]  8 C     -0.833604306204  -1.043266118759  -1.511472216066 AA   -1.575283834984  -1.971487239492  -2.856268533253 Bohr   0.0
+[INPUT]  9 O     -2.134981827078  -1.303268806759  -1.780345200165 AA   -4.034530934102  -2.462821111463  -3.364364835496 Bohr   0.0
+[INPUT] 10 C     -3.103257827431  -0.729414135749  -1.002757574111 AA   -5.864307387756  -1.378392947952  -1.894937184403 Bohr   0.0
+[INPUT] 11 C     -4.434548204569  -1.057661288795  -1.299482631677 AA   -8.380081592816  -1.998690168376  -2.455666277499 Bohr   0.0
+[INPUT] 12 C     -5.457303996074  -0.488431633305  -0.525554507759 AA  -10.312809931075  -0.923002017521  -0.993154083195 Bohr   0.0
+[INPUT] 13 O     -6.736808172884  -0.826013448410  -0.825819734647 AA  -12.730722400482  -1.560939192703  -1.560573126743 Bohr   0.0
+[INPUT] 14 C     -5.137602596194   0.406528809001   0.530155575288 AA   -9.708661843661   0.768228110757   1.001848840705 Bohr   0.0
+[INPUT] 15 C     -3.809213091921   0.719404804667   0.799924887385 AA   -7.198369493838   1.359478053517   1.511638957382 Bohr   0.0
+[INPUT] 16 C     -2.757842144794   0.156976400524   0.041705215162 AA   -5.211566348444   0.296642405011   0.078811434622 Bohr   0.0
+[INPUT] 17 C     -1.344573460445   0.490442802975   0.337647766540 AA   -2.540875594601   0.926802577386   0.638061805331 Bohr   0.0
+[INPUT] 18 O     -1.038513318583   1.301792199695   1.219507870676 AA   -1.962505748835   2.460030728519   2.304535882330 Bohr   0.0
+[INPUT] 19 C      1.959276669422  -1.204889764515  -0.566446719956 AA    3.702496307458  -2.276911665224  -1.070429164874 Bohr   0.0
+[INPUT] 20 C      3.342403188047  -1.099626452824  -0.401780481940 AA    6.316226623282  -2.077992835165  -0.759255073062 Bohr   0.0
+[INPUT] 21 O      4.158623742838  -2.154639454375  -0.659115775202 AA    7.858659929077  -4.071678465952  -1.245548299513 Bohr   0.0
+[INPUT] 22 H      5.570519395348   1.467868732166   1.740143115041 AA   10.526756028785   2.773869890606   3.288393904975 Bohr   0.0
+[INPUT] 23 H      7.005199053104   0.969348998398   0.759429971012 AA   13.237907658429   1.831804126093   1.435114655999 Bohr   0.0
+[INPUT] 24 H      5.790035173117   2.110941463787   0.063846001399 AA   10.941580728789   3.989101231546   0.120651456793 Bohr   0.0
+[INPUT] 25 H      3.484634465943   2.152360007105   0.726406983764 AA    6.585004784852   4.067370934895   1.372710254285 Bohr   0.0
+[INPUT] 26 H      1.022333079790   1.936853792181   0.432061518720 AA    1.931929528887   3.660123210548   0.816477939345 Bohr   0.0
+[INPUT] 27 H     -0.181541910460  -1.567990988283  -2.224763719522 AA   -0.343064490900  -2.963073533640  -4.204194121765 Bohr   0.0
+[INPUT] 28 H     -4.670730908441  -1.748631271801  -2.119515152532 AA   -8.826402218495  -3.304434196554  -4.005303155152 Bohr   0.0
+[INPUT] 29 H     -7.334331502986  -0.359321237674  -0.211983255126 AA  -13.859877847413  -0.679018729943  -0.400590295182 Bohr   0.0
+[INPUT] 30 H     -5.949483217423   0.848688067584   1.131288510900 AA  -11.242893863625   1.603788012919   2.137825453469 Bohr   0.0
+[INPUT] 31 H     -3.527947531191   1.410635543850   1.608715800216 AA   -6.666854615786   2.665714839453   3.040032274669 Bohr   0.0
+[INPUT] 32 H      1.560022307584  -2.179090763220  -0.884416026483 AA    2.948014909547  -4.117884743056  -1.671304070229 Bohr   0.0
+[INPUT] 33 H      5.065890106373  -1.846314767005  -0.449780502862 AA    9.573144878189  -3.489029249379  -0.849961966579 Bohr   0.0
+
+nuclear repulsion = 1528.39956693154
+number of shells = 162
+number of NR pGTOs = 588
+number of NR cGTOs = 354
+basis = def2-SVP
+ecp = {}
+CPU time:         0.93
+geometric-optimize called with the following command line:
+/workspace/research4/scripts/pyscf_continuous_science_20261108_v3.py --stage optimize --output /workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/caly-g3-optimize --threads 2 --grid-level 3 --conv-tol 1e-10 --conv-grad 1e-7 --source-point /workspace/research4/reports/pyscf-continuous-20261108-v3/jobs/caly-g3-prepare/result.json
+
+                                        [91m())))))))))))))))/[0m                     
+                                    [91m())))))))))))))))))))))))),[0m                
+                                [91m*)))))))))))))))))))))))))))))))))[0m             
+                        [94m#,[0m    [91m()))))))))/[0m                [91m.)))))))))),[0m          
+                      [94m#%%%%,[0m  [91m())))))[0m                        [91m.))))))))*[0m        
+                      [94m*%%%%%%,[0m  [91m))[0m              [93m..[0m              [91m,))))))).[0m      
+                        [94m*%%%%%%,[0m         [93m***************/.[0m        [91m.)))))))[0m     
+                [94m#%%/[0m      [94m(%%%%%%,[0m    [93m/*********************.[0m       [91m)))))))[0m    
+              [94m.%%%%%%#[0m      [94m*%%%%%%,[0m  [93m*******/,[0m     [93m**********,[0m      [91m.))))))[0m   
+                [94m.%%%%%%/[0m      [94m*%%%%%%,[0m  [93m**[0m              [93m********[0m      [91m.))))))[0m  
+          [94m##[0m      [94m.%%%%%%/[0m      [94m(%%%%%%,[0m                  [93m,******[0m      [91m/)))))[0m  
+        [94m%%%%%%[0m      [94m.%%%%%%#[0m      [94m*%%%%%%,[0m    [92m,/////.[0m       [93m******[0m      [91m))))))[0m 
+      [94m#%[0m      [94m%%[0m      [94m.%%%%%%/[0m      [94m*%%%%%%,[0m  [92m////////,[0m      [93m*****/[0m     [91m,)))))[0m 
+    [94m#%%[0m  [94m%%%[0m  [94m%%%#[0m      [94m.%%%%%%/[0m      [94m(%%%%%%,[0m  [92m///////.[0m     [93m/*****[0m      [91m))))).[0m
+  [94m#%%%%.[0m      [94m%%%%%#[0m      [94m/%%%%%%*[0m      [94m#%%%%%%[0m   [92m/////)[0m     [93m******[0m      [91m))))),[0m
+    [94m#%%%%##%[0m  [94m%%%#[0m      [94m.%%%%%%/[0m      [94m(%%%%%%,[0m  [92m///////.[0m     [93m/*****[0m      [91m))))).[0m
+      [94m##[0m     [94m%%%[0m      [94m.%%%%%%/[0m      [94m*%%%%%%,[0m  [92m////////.[0m      [93m*****/[0m     [91m,)))))[0m 
+        [94m#%%%%#[0m      [94m/%%%%%%/[0m      [94m(%%%%%%[0m      [92m/)/)//[0m       [93m******[0m      [91m))))))[0m 
+          [94m##[0m      [94m.%%%%%%/[0m      [94m(%%%%%%,[0m                  [93m*******[0m      [91m))))))[0m  
+                [94m.%%%%%%/[0m      [94m*%%%%%%,[0m  [93m**.[0m             [93m/*******[0m      [91m.))))))[0m  
+              [94m*%%%%%%/[0m      [94m(%%%%%%[0m   [93m********/*..,*/*********[0m       [91m*))))))[0m   
+                [94m#%%/[0m      [94m(%%%%%%,[0m    [93m*********************/[0m        [91m)))))))[0m    
+                        [94m*%%%%%%,[0m         [93m,**************/[0m         [91m,))))))/[0m     
+                      [94m(%%%%%%[0m   [91m()[0m                              [91m))))))))[0m       
+                      [94m#%%%%,[0m  [91m())))))[0m                        [91m,)))))))),[0m        
+                        [94m#,[0m    [91m())))))))))[0m                [91m,)))))))))).[0m          
+                                 [91m()))))))))))))))))))))))))))))))/[0m             
+                                    [91m())))))))))))))))))))))))).[0m                
+                                         [91m())))))))))))))),[0m                     
+
+-=# [1;94m geomeTRIC started. Version: 1.1.1 [0m #=-
+Current date and time: 2026-11-08 16:21:01
+#========================================================#
+#| [92m    Arguments passed to driver run_optimizer():     [0m |#
+#========================================================#
+convergence_dmax          0.0018 
+convergence_drms          0.0012 
+convergence_energy        1e-06 
+convergence_gmax          0.0003 
+convergence_grms          0.0001 
+customengine              <pyscf.geomopt.geometric_solver.PySCFEngine object at 0x7fe0c12550a0> 
+input                     /tmp/tmpzrx_6dm1/fb381898-8257-48e7-b5cc-b3e6f44702f6 
+logIni                    /workspace/research4/.venv-pyscf-90000/lib/python3.12/site-packages/pyscf/geomopt/log.ini 
+maxiter                   30 
+----------------------------------------------------------
+Custom engine selected.
+Bonds will be generated from interatomic distances less than 1.20 times sum of covalent radii
+99 internal coordinates being used (instead of 99 Cartesians)
+Internal coordinate system (atoms numbered from 1):
+Distance 1-2
+Distance 1-22
+Distance 1-23
+Distance 1-24
+Distance 2-3
+Distance 3-4
+Distance 3-20
+Distance 4-5
+Distance 4-25
+Distance 5-6
+Distance 5-26
+Distance 6-7
+Distance 6-19
+Distance 7-8
+Distance 7-17
+Distance 8-9
+Distance 8-27
+Distance 9-10
+Distance 10-11
+Distance 10-16
+Distance 11-12
+Distance 11-28
+Distance 12-13
+Distance 12-14
+Distance 13-29
+Distance 14-15
+Distance 14-30
+Distance 15-16
+Distance 15-31
+Distance 16-17
+Distance 17-18
+Distance 19-20
+Distance 19-32
+Distance 20-21
+Distance 21-33
+Angle 2-1-22
+Angle 2-1-23
+Angle 2-1-24
+Angle 22-1-23
+Angle 22-1-24
+Angle 23-1-24
+Angle 1-2-3
+Angle 2-3-20
+Angle 4-3-20
+Angle 3-4-25
+Angle 5-4-25
+Angle 4-5-26
+Angle 6-5-26
+Angle 5-6-19
+Angle 7-6-19
+Angle 6-7-17
+Angle 8-7-17
+Angle 7-8-27
+Angle 9-8-27
+Angle 8-9-10
+Angle 9-10-16
+Angle 11-10-16
+Angle 10-11-28
+Angle 12-11-28
+Angle 11-12-14
+Angle 13-12-14
+Angle 12-13-29
+Angle 12-14-30
+Angle 15-14-30
+Angle 14-15-31
+Angle 16-15-31
+Angle 10-16-17
+Angle 15-16-17
+Angle 7-17-18
+Angle 16-17-18
+Angle 6-19-32
+Angle 20-19-32
+Angle 3-20-21
+Angle 19-20-21
+Angle 20-21-33
+Out-of-Plane 3-2-4-20
+Out-of-Plane 4-3-5-25
+Out-of-Plane 5-4-6-26
+Out-of-Plane 6-5-7-19
+Out-of-Plane 7-6-8-17
+Out-of-Plane 8-7-9-27
+Out-of-Plane 10-9-11-16
+Out-of-Plane 11-10-12-28
+Out-of-Plane 12-11-13-14
+Out-of-Plane 14-12-15-30
+Out-of-Plane 15-14-16-31
+Out-of-Plane 16-10-15-17
+Out-of-Plane 17-7-16-18
+Out-of-Plane 19-6-20-32
+Out-of-Plane 20-3-19-21
+Dihedral 22-1-2-3
+Dihedral 23-1-2-3
+Dihedral 24-1-2-3
+Dihedral 1-2-3-4
+Dihedral 1-2-3-20
+Dihedral 2-3-4-5
+Dihedral 2-3-4-25
+Dihedral 20-3-4-5
+Dihedral 20-3-4-25
+Dihedral 2-3-20-19
+Dihedral 2-3-20-21
+Dihedral 4-3-20-19
+Dihedral 4-3-20-21
+Dihedral 3-4-5-6
+Dihedral 3-4-5-26
+Dihedral 25-4-5-6
+Dihedral 25-4-5-26
+Dihedral 4-5-6-7
+Dihedral 4-5-6-19
+Dihedral 26-5-6-7
+Dihedral 26-5-6-19
+Dihedral 5-6-7-8
+Dihedral 5-6-7-17
+Dihedral 19-6-7-8
+Dihedral 19-6-7-17
+Dihedral 5-6-19-20
+Dihedral 5-6-19-32
+Dihedral 7-6-19-20
+Dihedral 7-6-19-32
+Dihedral 6-7-8-9
+Dihedral 6-7-8-27
+Dihedral 17-7-8-9
+Dihedral 17-7-8-27
+Dihedral 6-7-17-16
+Dihedral 6-7-17-18
+Dihedral 8-7-17-16
+Dihedral 8-7-17-18
+Dihedral 7-8-9-10
+Dihedral 27-8-9-10
+Dihedral 8-9-10-11
+Dihedral 8-9-10-16
+Dihedral 9-10-11-12
+Dihedral 9-10-11-28
+Dihedral 16-10-11-12
+Dihedral 16-10-11-28
+Dihedral 9-10-16-15
+Dihedral 9-10-16-17
+Dihedral 11-10-16-15
+Dihedral 11-10-16-17
+Dihedral 10-11-12-13
+Dihedral 10-11-12-14
+Dihedral 28-11-12-13
+Dihedral 28-11-12-14
+Dihedral 11-12-13-29
+Dihedral 14-12-13-29
+Dihedral 11-12-14-15
+Dihedral 11-12-14-30
+Dihedral 13-12-14-15
+Dihedral 13-12-14-30
+Dihedral 12-14-15-16
+Dihedral 12-14-15-31
+Dihedral 30-14-15-16
+Dihedral 30-14-15-31
+Dihedral 14-15-16-10
+Dihedral 14-15-16-17
+Dihedral 31-15-16-10
+Dihedral 31-15-16-17
+Dihedral 10-16-17-7
+Dihedral 10-16-17-18
+Dihedral 15-16-17-7
+Dihedral 15-16-17-18
+Dihedral 6-19-20-3
+Dihedral 6-19-20-21
+Dihedral 32-19-20-3
+Dihedral 32-19-20-21
+Dihedral 3-20-21-33
+Dihedral 19-20-21-33
+Translation-X 1-33
+Translation-Y 1-33
+Translation-Z 1-33
+Rotation-A 1-33
+Rotation-B 1-33
+Rotation-C 1-33
+<class 'geometric.internal.Distance'> : 35
+<class 'geometric.internal.Angle'> : 40
+<class 'geometric.internal.OutOfPlane'> : 15
+<class 'geometric.internal.Dihedral'> : 77
+<class 'geometric.internal.TranslationX'> : 1
+<class 'geometric.internal.TranslationY'> : 1
+<class 'geometric.internal.TranslationZ'> : 1
+<class 'geometric.internal.RotationA'> : 1
+<class 'geometric.internal.RotationB'> : 1
+<class 'geometric.internal.RotationC'> : 1
+> ===== Optimization Info: ====
+> Job type: Energy minimization
+> Maximum number of optimization cycles: 30
+> Initial / maximum trust radius (Angstrom): 0.100 / 0.300
+> Convergence Criteria:
+> Will converge when all 5 criteria are reached:
+>  |Delta-E| < 1.00e-06
+>  RMS-Grad  < 1.00e-04
+>  Max-Grad  < 3.00e-04
+>  RMS-Disp  < 1.20e-03
+>  Max-Disp  < 1.80e-03
+> === End Optimization Info ===
+
+Geometry optimization cycle 1
+Cartesian coordinates (Angstrom)
+ Atom        New coordinates             dX        dY        dZ
+   C   5.928925   1.219868   0.716077    0.000000  0.000000  0.000000
+   O   5.267030   0.082556   0.193556    0.000000  0.000000  0.000000
+   C   3.901152   0.122264   0.064207    0.000000  0.000000  0.000000
+   C   3.064740   1.206333   0.356925    0.000000  0.000000  0.000000
+   C   1.674193   1.091764   0.182728    0.000000  0.000000  0.000000
+   C   1.101521  -0.109246  -0.290380    0.000000  0.000000  0.000000
+   C  -0.359144  -0.234605  -0.508858    0.000000  0.000000  0.000000
+   C  -0.833604  -1.043266  -1.511472    0.000000  0.000000  0.000000
+   O  -2.134982  -1.303269  -1.780345    0.000000  0.000000  0.000000
+   C  -3.103258  -0.729414  -1.002758    0.000000  0.000000  0.000000
+   C  -4.434548  -1.057661  -1.299483    0.000000  0.000000  0.000000
+   C  -5.457304  -0.488432  -0.525555    0.000000  0.000000  0.000000
+   O  -6.736808  -0.826013  -0.825820    0.000000  0.000000  0.000000
+   C  -5.137603   0.406529   0.530156    0.000000  0.000000  0.000000
+   C  -3.809213   0.719405   0.799925    0.000000  0.000000  0.000000
+   C  -2.757842   0.156976   0.041705    0.000000  0.000000  0.000000
+   C  -1.344573   0.490443   0.337648    0.000000  0.000000  0.000000
+   O  -1.038513   1.301792   1.219508    0.000000  0.000000  0.000000
+   C   1.959277  -1.204890  -0.566447    0.000000  0.000000  0.000000
+   C   3.342403  -1.099626  -0.401780    0.000000  0.000000  0.000000
+   O   4.158624  -2.154639  -0.659116    0.000000  0.000000  0.000000
+   H   5.570519   1.467869   1.740143    0.000000  0.000000  0.000000
+   H   7.005199   0.969349   0.759430    0.000000 -0.000000  0.000000
+   H   5.790035   2.110941   0.063846    0.000000  0.000000  0.000000
+   H   3.484634   2.152360   0.726407    0.000000  0.000000  0.000000
+   H   1.022333   1.936854   0.432062    0.000000  0.000000  0.000000
+   H  -0.181542  -1.567991  -2.224764    0.000000  0.000000  0.000000
+   H  -4.670731  -1.748631  -2.119515    0.000000  0.000000  0.000000
+   H  -7.334332  -0.359321  -0.211983    0.000000  0.000000  0.000000
+   H  -5.949483   0.848688   1.131289    0.000000  0.000000  0.000000
+   H  -3.527948   1.410636   1.608716    0.000000  0.000000  0.000000
+   H   1.560022  -2.179091  -0.884416    0.000000  0.000000  0.000000
+   H   5.065890  -1.846315  -0.449781    0.000000  0.000000  0.000000
+New geometry
+   1 C      5.928925284631   1.219867799122   0.716076796053 AA   11.204045000961   2.305216048516   1.353189028696 Bohr
+   2 O      5.267029827568   0.082556435296   0.193556226293 AA    9.953243864019   0.156009052530   0.365768257399 Bohr
+   3 C      3.901151627193   0.122264012211   0.064206928773 AA    7.372108145796   0.231045497969   0.121333510680 Bohr
+   4 C      3.064739520393   1.206333493633   0.356925417801 AA    5.791518336674   2.279639917857   0.674491286540 Bohr
+   5 C      1.674192639435   1.091764246813   0.182728441351 AA    3.163765568295   2.063135419068   0.345306709323 Bohr
+   6 C      1.101521415415  -0.109246247543  -0.290379561314 AA    2.081573795478  -0.206445487993  -0.548737843054 Bohr
+   7 C     -0.359144018749  -0.234604621985  -0.508857559024 AA   -0.678683834711  -0.443338483109  -0.961601422970 Bohr
+   8 C     -0.833604306204  -1.043266118759  -1.511472216066 AA   -1.575283834984  -1.971487239492  -2.856268533253 Bohr
+   9 O     -2.134981827078  -1.303268806759  -1.780345200165 AA   -4.034530934102  -2.462821111463  -3.364364835496 Bohr
+  10 C     -3.103257827431  -0.729414135749  -1.002757574111 AA   -5.864307387756  -1.378392947952  -1.894937184403 Bohr
+  11 C     -4.434548204569  -1.057661288795  -1.299482631677 AA   -8.380081592816  -1.998690168376  -2.455666277499 Bohr
+  12 C     -5.457303996074  -0.488431633305  -0.525554507759 AA  -10.312809931075  -0.923002017521  -0.993154083195 Bohr
+  13 O     -6.736808172884  -0.826013448410  -0.825819734647 AA  -12.730722400482  -1.560939192703  -1.560573126743 Bohr
+  14 C     -5.137602596194   0.406528809001   0.530155575288 AA   -9.708661843661   0.768228110757   1.001848840705 Bohr
+  15 C     -3.809213091921   0.719404804667   0.799924887385 AA   -7.198369493838   1.359478053517   1.511638957382 Bohr
+  16 C     -2.757842144794   0.156976400524   0.041705215162 AA   -5.211566348444   0.296642405011   0.078811434622 Bohr
+  17 C     -1.344573460445   0.490442802975   0.337647766540 AA   -2.540875594601   0.926802577386   0.638061805331 Bohr
+  18 O     -1.038513318583   1.301792199695   1.219507870676 AA   -1.962505748835   2.460030728519   2.304535882330 Bohr
+  19 C      1.959276669422  -1.204889764515  -0.566446719956 AA    3.702496307458  -2.276911665224  -1.070429164874 Bohr
+  20 C      3.342403188047  -1.099626452824  -0.401780481940 AA    6.316226623282  -2.077992835165  -0.759255073062 Bohr
+  21 O      4.158623742838  -2.154639454375  -0.659115775202 AA    7.858659929077  -4.071678465952  -1.245548299513 Bohr
+  22 H      5.570519395348   1.467868732166   1.740143115041 AA   10.526756028785   2.773869890606   3.288393904975 Bohr
+  23 H      7.005199053104   0.969348998398   0.759429971012 AA   13.237907658429   1.831804126093   1.435114655999 Bohr
+  24 H      5.790035173117   2.110941463787   0.063846001399 AA   10.941580728789   3.989101231546   0.120651456793 Bohr
+  25 H      3.484634465943   2.152360007105   0.726406983764 AA    6.585004784852   4.067370934895   1.372710254285 Bohr
+  26 H      1.022333079790   1.936853792181   0.432061518720 AA    1.931929528887   3.660123210548   0.816477939345 Bohr
+  27 H     -0.181541910460  -1.567990988283  -2.224763719522 AA   -0.343064490900  -2.963073533640  -4.204194121765 Bohr
+  28 H     -4.670730908441  -1.748631271801  -2.119515152532 AA   -8.826402218495  -3.304434196554  -4.005303155152 Bohr
+  29 H     -7.334331502986  -0.359321237674  -0.211983255126 AA  -13.859877847413  -0.679018729943  -0.400590295182 Bohr
+  30 H     -5.949483217423   0.848688067584   1.131288510900 AA  -11.242893863625   1.603788012919   2.137825453469 Bohr
+  31 H     -3.527947531191   1.410635543850   1.608715800216 AA   -6.666854615786   2.665714839453   3.040032274669 Bohr
+  32 H      1.560022307584  -2.179090763220  -0.884416026483 AA    2.948014909547  -4.117884743056  -1.671304070229 Bohr
+  33 H      5.065890106373  -1.846314767005  -0.449780502862 AA    9.573144878189  -3.489029249379  -0.849961966579 Bohr
+cycle 1: E = -991.177802534  dE = -991.178  norm(grad) = 0.000696487
+Step    0 : Gradient = 1.212e-04/4.970e-04 (rms/max) Energy = -991.1778025343
+Hessian Eigenvalues: 2.30000e-02 2.30000e-02 2.30000e-02 ... 5.33977e-01 5.35735e-01 8.83167e-01
+
+Geometry optimization cycle 2
+Cartesian coordinates (Angstrom)
+ Atom        New coordinates             dX        dY        dZ
+   C   5.937407   1.223327   0.692024    0.008482  0.003459 -0.024053
+   O   5.270621   0.083014   0.182140    0.003591  0.000457 -0.011417
+   C   3.903510   0.121520   0.064977    0.002359 -0.000744  0.000770
+   C   3.067416   1.204083   0.364179    0.002677 -0.002251  0.007254
+   C   1.675576   1.089478   0.199745    0.001383 -0.002286  0.017016
+   C   1.100215  -0.111222  -0.270742   -0.001307 -0.001975  0.019638
+   C  -0.361177  -0.237217  -0.487253   -0.002033 -0.002613  0.021604
+   C  -0.830175  -1.043201  -1.494622    0.003429  0.000065  0.016851
+   O  -2.129981  -1.303139  -1.771299    0.005001  0.000130  0.009046
+   C  -3.102290  -0.730857  -0.997856    0.000967 -0.001443  0.004901
+   C  -4.431867  -1.054806  -1.306437    0.002681  0.002856 -0.006955
+   C  -5.459307  -0.484500  -0.539762   -0.002003  0.003932 -0.014208
+   O  -6.737677  -0.814157  -0.853482   -0.000869  0.011856 -0.027662
+   C  -5.145636   0.404999   0.522193   -0.008033 -0.001529 -0.007963
+   C  -3.818667   0.712834   0.804280   -0.009454 -0.006570  0.004355
+   C  -2.762671   0.151137   0.052155   -0.004829 -0.005839  0.010450
+   C  -1.351342   0.483148   0.358975   -0.006768 -0.007295  0.021327
+   O  -1.053077   1.291733   1.246162   -0.014563 -0.010059  0.026654
+   C   1.958170  -1.205562  -0.552428   -0.001107 -0.000672  0.014019
+   C   3.342591  -1.100689  -0.397157    0.000188 -0.001063  0.004624
+   O   4.158131  -2.154714  -0.661634   -0.000492 -0.000074 -0.002518
+   H   5.589545   1.476571   1.718406    0.019026  0.008702 -0.021737
+   H   7.014205   0.973460   0.725442    0.009006  0.004111 -0.033988
+   H   5.791288   2.110776   0.036448    0.001253 -0.000166 -0.027398
+   H   3.489391   2.150395   0.730550    0.004756 -0.001965  0.004143
+   H   1.025571   1.934885   0.452772    0.003238 -0.001969  0.020711
+   H  -0.174238  -1.564034  -2.207240    0.007304  0.003957  0.017524
+   H  -4.663066  -1.741700  -2.131306    0.007665  0.006931 -0.011790
+   H  -7.338490  -0.346698  -0.243483   -0.004159  0.012623 -0.031500
+   H  -5.961290   0.847756   1.117678   -0.011807 -0.000932 -0.013610
+   H  -3.542153   1.400885   1.617368   -0.014206 -0.009750  0.008652
+   H   1.557787  -2.179401  -0.869983   -0.002235 -0.000310  0.014433
+   H   5.066750  -1.845886  -0.458953    0.000860  0.000428 -0.009173
+New geometry
+   1 C      5.937406927739   1.223327063772   0.692023657653 AA   11.220072983523   2.311753111297   1.307735184684 Bohr
+   2 O      5.270620604321   0.083013602041   0.182139617830 AA    9.960029448657   0.156872972472   0.344193994132 Bohr
+   3 C      3.903510439347   0.121519998766   0.064977203864 AA    7.376565654746   0.229639516325   0.122789119644 Bohr
+   4 C      3.067416222921   1.204082981985   0.364179349899 AA    5.796576571369   2.275387067201   0.688199231531 Bohr
+   5 C      1.675575617169   1.089477751303   0.199744587996 AA    3.166379017448   2.058814568770   0.377462566176 Bohr
+   6 C      1.100214527228  -0.111221696609  -0.270741522122 AA    2.079104134728  -0.210178545701  -0.511627327358 Bohr
+   7 C     -0.361176836500  -0.237217200873  -0.487253226256 AA   -0.682525303522  -0.448275541686  -0.920775150935 Bohr
+   8 C     -0.830174849390  -1.043201213923  -1.494621534805 AA   -1.568803100850  -1.971364587128  -2.824425360658 Bohr
+   9 O     -2.129980884654  -1.303138538364  -1.771298853889 AA   -4.025080522556  -2.462574939874  -3.347269718606 Bohr
+  10 C     -3.102290384989  -0.730857462005  -0.997856152396 AA   -5.862479186501  -1.381120439284  -1.885674839741 Bohr
+  11 C     -4.431866984077  -1.054805759075  -1.306437465350 AA   -8.375014820408  -1.993293999265  -2.468809008382 Bohr
+  12 C     -5.459306688619  -0.484500021469  -0.539762223852 AA  -10.316594471496  -0.915572347922  -1.020002775466 Bohr
+  13 O     -6.737676874830  -0.814157013719  -0.853481625243 AA  -12.732364009243  -1.538533778323  -1.612846524057 Bohr
+  14 C     -5.145635998481   0.404999497201   0.522192711987 AA   -9.723842773832   0.765338130297   0.986801209899 Bohr
+  15 C     -3.818667186454   0.712834355143   0.804279537122 AA   -7.216235143261   1.347061703402   1.519868052753 Bohr
+  16 C     -2.762671046169   0.151137002697   0.052154825904 AA   -5.220691649525   0.285607542386   0.098558337034 Bohr
+  17 C     -1.351341869239   0.483147648752   0.358974773077 AA   -2.553666033520   0.913016733868   0.678364006743 Bohr
+  18 O     -1.053076571105   1.291733318335   1.246162202001 AA   -1.990026307584   2.441022197629   2.354905268568 Bohr
+  19 C      1.958170044335  -1.205562010448  -0.552427644171 AA    3.700405089121  -2.278182025927  -1.043936951122 Bohr
+  20 C      3.342591187621  -1.100689253140  -0.397156774491 AA    6.316581890989  -2.080001236686  -0.750517532303 Bohr
+  21 O      4.158131336692  -2.154713522287  -0.661634002423 AA    7.857729416320  -4.071818434019  -1.250307059279 Bohr
+  22 H      5.589545134029   1.476570520353   1.718405924401 AA   10.562709464210   2.790313887074   3.247316567948 Bohr
+  23 H      7.014204799347   0.973459613387   0.725441805452 AA   13.254926052375   1.839572062626   1.370886331614 Bohr
+  24 H      5.791288054631   2.110775726443   0.036447818753 AA   10.943948331717   3.988788033356   0.068876395281 Bohr
+  25 H      3.489390930205   2.150394854870   0.730549756050 AA    6.593993199630   4.063657335378   1.380538959302 Bohr
+  26 H      1.025570973380   1.934885202267   0.452772207606 AA    1.938048260991   3.656403114758   0.855615469190 Bohr
+  27 H     -0.174238026989  -1.564033654624  -2.207239799028 AA   -0.329262151494  -2.955595256843  -4.171078711402 Bohr
+  28 H     -4.663066351868  -1.741700467940  -2.131305601389 AA   -8.811918305706  -3.291336875433  -4.027583874376 Bohr
+  29 H     -7.338490296002  -0.346698363049  -0.243483239575 AA  -13.867736827222  -0.655164953998  -0.460116638720 Bohr
+  30 H     -5.961290373678   0.847755571799   1.117678029670 AA  -11.265206155258   1.602025851274   2.112105371519 Bohr
+  31 H     -3.542153386777   1.400885496313   1.617368054013 AA   -6.693699792210   2.647289919908   3.056382664705 Bohr
+  32 H      1.557787049449  -2.179401103620  -0.869982850279 AA    2.943790883852  -4.118471201417  -1.644029320096 Bohr
+  33 H      5.066750222323  -1.845886316501  -0.458953140068 AA    9.574770261769  -3.488219595268  -0.867295738738 Bohr
+cycle 2: E = -991.177807749  dE = -5.21426e-06  norm(grad) = 0.00104011
+Step    1 : Displace = [0m1.915e-02[0m/[0m3.510e-02[0m (rms/max) Trust = 1.000e-01 (=) Grad = [0m1.811e-04[0m/[0m3.839e-04[0m (rms/max) E (change) = -991.1778077486 ([0m-5.214e-06[0m) Quality = [0m0.420[0m
+Hessian Eigenvalues: 1.32880e-02 2.30000e-02 2.30000e-02 ... 5.35718e-01 7.42783e-01 8.87444e-01
+
+Geometry optimization cycle 3
+Cartesian coordinates (Angstrom)
+ Atom        New coordinates             dX        dY        dZ
+   C   5.931251   1.240276   0.682038   -0.006156  0.016948 -0.009985
+   O   5.270745   0.092624   0.180239    0.000124  0.009610 -0.001900
+   C   3.903019   0.120823   0.067181   -0.000491 -0.000697  0.002204
+   C   3.061519   1.198012   0.370435   -0.005897 -0.006071  0.006256
+   C   1.670234   1.073684   0.208351   -0.005341 -0.015794  0.008606
+   C   1.102280  -0.129696  -0.263845    0.002066 -0.018475  0.006897
+   C  -0.359135  -0.255874  -0.481254    0.002042 -0.018657  0.005999
+   C  -0.832729  -1.055931  -1.491382   -0.002555 -0.012730  0.003239
+   O  -2.133459  -1.309393  -1.770145   -0.003478 -0.006255  0.001154
+   C  -3.103880  -0.733759  -0.996944   -0.001590 -0.002902  0.000912
+   C  -4.435092  -1.046210  -1.310191   -0.003225  0.008595 -0.003754
+   C  -5.460042  -0.469367  -0.545244   -0.000736  0.015133 -0.005482
+   O  -6.740225  -0.785525  -0.865510   -0.002548  0.028632 -0.012029
+   C  -5.142406   0.413400   0.521062    0.003230  0.008401 -0.001131
+   C  -3.813858   0.709381   0.808238    0.004809 -0.003454  0.003958
+   C  -2.760419   0.142144   0.056770    0.002252 -0.008993  0.004615
+   C  -1.347519   0.464651   0.366956    0.003822 -0.018496  0.007981
+   O  -1.046978   1.268256   1.257928    0.006098 -0.023477  0.011766
+   C   1.965069  -1.219612  -0.548344    0.006899 -0.014050  0.004084
+   C   3.348980  -1.104629  -0.394873    0.006389 -0.003939  0.002284
+   O   4.171688  -2.152305  -0.662641    0.013556  0.002408 -0.001007
+   H   5.586543   1.495390   1.708991   -0.003002  0.018820 -0.009415
+   H   7.010079   0.998747   0.711240   -0.004126  0.025287 -0.014202
+   H   5.775079   2.123578   0.023178   -0.016209  0.012802 -0.013270
+   H   3.478456   2.146458   0.737174   -0.010935 -0.003937  0.006624
+   H   1.014853   1.914483   0.463455   -0.010718 -0.020402  0.010683
+   H  -0.179169  -1.576427  -2.206383   -0.004931 -0.012393  0.000856
+   H  -4.669291  -1.728002  -2.138439   -0.006225  0.013698 -0.007134
+   H  -7.338968  -0.314576  -0.256191   -0.000478  0.032122 -0.012708
+   H  -5.956343   0.860948   1.115275    0.004947  0.013193 -0.002403
+   H  -3.534052   1.392815   1.624060    0.008101 -0.008071  0.006692
+   H   1.570369  -2.195299  -0.867351    0.012582 -0.015898  0.002632
+   H   5.078472  -1.836845  -0.461979    0.011722  0.009041 -0.003026
+New geometry
+   1 C      5.931250840767   1.240275503711   0.682038172525 AA   11.208439665146   2.343781021020   1.288865352570 Bohr
+   2 O      5.270744829245   0.092624040831   0.180239230231 AA    9.960264199741   0.175034069721   0.340602782038 Bohr
+   3 C      3.903019163643   0.120823158155   0.067181384208 AA    7.375637278214   0.228322678418   0.126954416823 Bohr
+   4 C      3.061518935137   1.198011741224   0.370435475632 AA    5.785432312579   2.263914084927   0.700021595768 Bohr
+   5 C      1.670234154131   1.073683814703   0.208350927956 AA    3.156285115203   2.028968354166   0.393726191635 Bohr
+   6 C      1.102280385319  -0.129696319372  -0.263844865109 AA    2.083008040733  -0.245090522977  -0.498594534430 Bohr
+   7 C     -0.359134608576  -0.255874461758  -0.481253900007 AA   -0.678666052061  -0.483532654994  -0.909438067393 Bohr
+   8 C     -0.832729486928  -1.055931342893  -1.491382352805 AA   -1.573630666143  -1.995421044413  -2.818304193812 Bohr
+   9 O     -2.133459001101  -1.309393451940  -1.770144528248 AA   -4.031653210068  -2.474395013465  -3.345088359286 Bohr
+  10 C     -3.103879889349  -0.733759259488  -0.996943764973 AA   -5.865482914416  -1.386604041796  -1.883950677392 Bohr
+  11 C     -4.435091660965  -1.046210379745  -1.310191217811 AA   -8.381108576567  -1.977051086395  -2.475902572473 Bohr
+  12 C     -5.460042191134  -0.469366623301  -0.545244027452 AA  -10.317984369814  -0.886974370051  -1.030361882940 Bohr
+  13 O     -6.740224693621  -0.785525277541  -0.865510478568 AA  -12.737178688974  -1.484427638476  -1.635577762436 Bohr
+  14 C     -5.142406364659   0.413400390387   0.521062137596 AA   -9.717739650426   0.781213517619   0.984664733937 Bohr
+  15 C     -3.813858194511   0.709380776095   0.808237616531 AA   -7.207147465554   1.340535384851   1.527347738815 Bohr
+  16 C     -2.760418967259   0.142143909536   0.056769753704 AA   -5.216435837174   0.268613059298   0.107279286659 Bohr
+  17 C     -1.347519496748   0.464651392936   0.366956197125 AA   -2.546442796366   0.878063876047   0.693446712279 Bohr
+  18 O     -1.046978420059   1.268256205444   1.257927915432 AA   -1.978502472241   2.396656884070   2.377139244611 Bohr
+  19 C      1.965069321722  -1.219612324273  -0.548343679189 AA    3.713442833840  -2.304733271020  -1.036219375804 Bohr
+  20 C      3.348980215251  -1.104628651196  -0.394872868270 AA    6.328655403412  -2.087445620108  -0.746201575052 Bohr
+  21 O      4.171687578892  -2.152305496918  -0.662640596773 AA    7.883347001356  -4.067267925570  -1.252209246919 Bohr
+  22 H      5.586542932858   1.495390453861   1.708991035894 AA   10.557036126227   2.825878407087   3.229525007176 Bohr
+  23 H      7.010079234577   0.998746507597   0.711240143576 AA   13.247129864850   1.887357367224   1.344049080155 Bohr
+  24 H      5.775078813269   2.123577536779   0.023177654311 AA   10.913317304857   4.012979948790   0.043799418857 Bohr
+  25 H      3.478455708807   2.146458066309   0.737174174478 AA    6.573328626076   4.056217883187   1.393057295866 Bohr
+  26 H      1.014853078544   1.914482739730   0.463455349067 AA    1.917794375119   3.617848048296   0.875803680702 Bohr
+  27 H     -0.179168999713  -1.576426708397  -2.206383488200 AA   -0.338580339471  -2.979014734321  -4.169460518460 Bohr
+  28 H     -4.669291402238  -1.728002314989  -2.138439273308 AA   -8.823681946016  -3.265451117943  -4.041064560565 Bohr
+  29 H     -7.338968251825  -0.314576177356  -0.256190743177 AA  -13.868640032828  -0.594462820516  -0.484130340253 Bohr
+  30 H     -5.956343288300   0.860948364415   1.115275020538 AA  -11.255857518778   1.626956616136   2.107564342385 Bohr
+  31 H     -3.534052270316   1.392814909371   1.624059781868 AA   -6.678390900795   2.632038720922   3.069028197651 Bohr
+  32 H      1.570368985931  -2.195298639414  -0.867350981196 AA    2.967567297920  -4.148513190122  -1.639055808333 Bohr
+  33 H      5.078472470261  -1.836845475077  -0.461978797598 AA    9.596922099937  -3.471134881042  -0.873013402816 Bohr
+cycle 3: E = -991.177812958  dE = -5.20978e-06  norm(grad) = 0.000933637
+Step    2 : Displace = [0m1.797e-02[0m/[0m3.429e-02[0m (rms/max) Trust = 1.000e-01 (=) Grad = [0m1.625e-04[0m/[0m3.391e-04[0m (rms/max) E (change) = -991.1778129584 ([0m-5.210e-06[0m) Quality = [0m0.479[0m
+Hessian Eigenvalues: 1.41518e-02 2.30000e-02 2.30000e-02 ... 5.35693e-01 8.65828e-01 8.94585e-01
+
+Geometry optimization cycle 4
+Cartesian coordinates (Angstrom)
+ Atom        New coordinates             dX        dY        dZ
+   C   5.932988   1.233963   0.686162    0.001738 -0.006312  0.004124
+   O   5.269844   0.088572   0.182871   -0.000901 -0.004052  0.002631
+   C   3.902533   0.121426   0.066832   -0.000486  0.000603 -0.000349
+   C   3.062922   1.200460   0.368811    0.001403  0.002448 -0.001625
+   C   1.671567   1.079084   0.205198    0.001333  0.005400 -0.003153
+   C   1.101092  -0.123087  -0.267234   -0.001189  0.006609 -0.003389
+   C  -0.359780  -0.250276  -0.485034   -0.000646  0.005598 -0.003780
+   C  -0.831775  -1.052993  -1.493720    0.000955  0.002939 -0.002338
+   O  -2.132514  -1.308764  -1.770192    0.000945  0.000630 -0.000047
+   C  -3.103379  -0.732875  -0.997515    0.000501  0.000884 -0.000572
+   C  -4.434350  -1.048930  -1.308384    0.000742 -0.002720  0.001807
+   C  -5.459542  -0.473626  -0.542485    0.000500 -0.004260  0.002759
+   O  -6.739171  -0.795159  -0.859629    0.001054 -0.009633  0.005881
+   C  -5.142576   0.411973   0.521782   -0.000170 -0.001427  0.000720
+   C  -3.814298   0.711910   0.806242   -0.000440  0.002529 -0.001996
+   C  -2.760614   0.145454   0.054392   -0.000195  0.003310 -0.002378
+   C  -1.347837   0.470740   0.362421   -0.000317  0.006088 -0.004536
+   O  -1.045955   1.274182   1.253024    0.001024  0.005926 -0.004904
+   C   1.962174  -1.214183  -0.551001   -0.002895  0.005429 -0.002657
+   C   3.346094  -1.102570  -0.396230   -0.002886  0.002059 -0.001357
+   O   4.166167  -2.152505  -0.662802   -0.005520 -0.000200 -0.000161
+   H   5.587964   1.489273   1.712968    0.001421 -0.006117  0.003977
+   H   7.011036   0.989185   0.716498    0.000957 -0.009561  0.005258
+   H   5.780162   2.118279   0.027851    0.005083 -0.005299  0.004673
+   H   3.481295   2.147838   0.736611    0.002840  0.001380 -0.000563
+   H   1.017696   1.920952   0.460630    0.002843  0.006469 -0.002825
+   H  -0.177571  -1.574740  -2.207282    0.001598  0.001686 -0.000899
+   H  -4.668152  -1.732889  -2.134954    0.001140 -0.004887  0.003485
+   H  -7.338460  -0.325518  -0.249822    0.000508 -0.010941  0.006369
+   H  -5.956696   0.858108   1.116860   -0.000353 -0.002841  0.001585
+   H  -3.534843   1.397071   1.620751   -0.000790  0.004256 -0.003309
+   H   1.565523  -2.189052  -0.870185   -0.004846  0.006246 -0.002834
+   H   5.073523  -1.839087  -0.461578   -0.004950 -0.002241  0.000401
+New geometry
+   1 C      5.932988356790   1.233963082758   0.686161878502 AA   11.211723094567   2.331852274237   1.296658027486 Bohr
+   2 O      5.269844118451   0.088572160941   0.182870611809 AA    9.958562103022   0.167377126439   0.345575372551 Bohr
+   3 C      3.902532977450   0.121426454187   0.066832335143 AA    7.374718519465   0.229462742690   0.126294809686 Bohr
+   4 C      3.062922056639   1.200459800599   0.368810863107 AA    5.788083827937   2.268540246683   0.696951523037 Bohr
+   5 C      1.671566869218   1.079083538895   0.205198352243 AA    3.158803581719   2.039172354038   0.387768686951 Bohr
+   6 C      1.101091866041  -0.123086992515  -0.267233837982 AA    2.080762064804  -0.232600705350  -0.504998765002 Bohr
+   7 C     -0.359780220022  -0.250275963535  -0.485034223373 AA   -0.679886080876  -0.472953026643  -0.916581843216 Bohr
+   8 C     -0.831774509995  -1.052992680534  -1.493719924655 AA   -1.571826021285  -1.989867777381  -2.822721564404 Bohr
+   9 O     -2.132513954398  -1.308763557772  -1.770191564086 AA   -4.029867330625  -2.473204686000  -3.345177244138 Bohr
+  10 C     -3.103378851380  -0.732874896160  -0.997515419011 AA   -5.864536089876  -1.384932837311  -1.885030946961 Bohr
+  11 C     -4.434349747379  -1.048930067936  -1.308383894778 AA   -8.379706563080  -1.982190552220  -2.472487226922 Bohr
+  12 C     -5.459542151251  -0.473626309699  -0.542485418734 AA  -10.317039431383  -0.895024010720  -1.025148867977 Bohr
+  13 O     -6.739171138212  -0.795158522949  -0.859629167570 AA  -12.735187757794  -1.502631833988  -1.624463695395 Bohr
+  14 C     -5.142576162572   0.411973430929   0.521781868619 AA   -9.718060521978   0.778516955053   0.986024828453 Bohr
+  15 C     -3.814297963535   0.711909967360   0.806241715977 AA   -7.207978508567   1.345314863659   1.523576033397 Bohr
+  16 C     -2.760613870855   0.145453697670   0.054391894336 AA   -5.216804151591   0.274867652401   0.102785783692 Bohr
+  17 C     -1.347836958984   0.470739840407   0.362420563677 AA   -2.547042713047   0.889569374291   0.684875607259 Bohr
+  18 O     -1.045954742305   1.274182111383   1.253024097181 AA   -1.976568001646   2.407855223334   2.367872371153 Bohr
+  19 C      1.962174270859  -1.214183157201  -0.551000905461 AA    3.707971980592  -2.294473632170  -1.041240805709 Bohr
+  20 C      3.346094276534  -1.102570001874  -0.396229991548 AA    6.323201769624  -2.083555336703  -0.748766166365 Bohr
+  21 O      4.166167421699  -2.152505222088  -0.662801748300 AA    7.872915416096  -4.067645351442  -1.252513779169 Bohr
+  22 H      5.587963824246   1.489273175675   1.712967638956 AA   10.559721221802   2.814318426687   3.237039697870 Bohr
+  23 H      7.011035823694   0.989185241850   0.716497873290 AA   13.248937556296   1.869289193557   1.353984749352 Bohr
+  24 H      5.780162129795   2.118278994820   0.027851130002 AA   10.922923380895   4.002967155628   0.052631007963 Bohr
+  25 H      3.481295438225   2.147838114352   0.736611256834 AA    6.578694936942   4.058825796028   1.391993535687 Bohr
+  26 H      1.017696257367   1.920952161606   0.460629928120 AA    1.923167204418   3.630073483826   0.870464408924 Bohr
+  27 H     -0.177570955996  -1.574740287563  -2.207282394858 AA   -0.335560474509  -2.975827860813  -4.171159205855 Bohr
+  28 H     -4.668151846751  -1.732889369369  -2.134954301764 AA   -8.821528498241  -3.274686312279  -4.034478918795 Bohr
+  29 H     -7.338460268335  -0.325517566375  -0.249821898404 AA  -13.867680083156  -0.615139049183  -0.472094967903 Bohr
+  30 H     -5.956696033367   0.858107527307   1.116860188406 AA  -11.256524110346   1.621588212039   2.110559875518 Bohr
+  31 H     -3.534842517125   1.397070893676   1.620751120558 AA   -6.679884250835   2.640081365650   3.062775733937 Bohr
+  32 H      1.565522791906  -2.189052299723  -0.870184627931 AA    2.958409318467  -4.136709318827  -1.644410624597 Bohr
+  33 H      5.073522874548  -1.839086691659  -0.461577590248 AA    9.587568719611  -3.475370166568  -0.872255230805 Bohr
+cycle 4: E = -991.177817092  dE = -4.13337e-06  norm(grad) = 0.000333034
+Step    3 : Displace = [0m6.330e-03[0m/[0m1.287e-02[0m (rms/max) Trust = 1.000e-01 (=) Grad = [92m5.797e-05[0m/[92m1.471e-04[0m (rms/max) E (change) = -991.1778170917 ([0m-4.133e-06[0m) Quality = [0m0.986[0m
+Hessian Eigenvalues: 1.44801e-02 2.04940e-02 2.30000e-02 ... 5.35719e-01 8.08955e-01 8.86451e-01
+
+Geometry optimization cycle 5
+Cartesian coordinates (Angstrom)
+ Atom        New coordinates             dX        dY        dZ
+   C   5.932723   1.234280   0.684554   -0.000265  0.000316 -0.001608
+   O   5.269919   0.087838   0.183254    0.000075 -0.000734  0.000384
+   C   3.902659   0.120386   0.066736    0.000126 -0.001040 -0.000097
+   C   3.063164   1.199400   0.369124    0.000242 -0.001060  0.000313
+   C   1.671651   1.079224   0.206072    0.000084  0.000140  0.000873
+   C   1.101224  -0.122955  -0.266462    0.000133  0.000131  0.000772
+   C  -0.359754  -0.250136  -0.483713    0.000026  0.000140  0.001322
+   C  -0.831596  -1.052903  -1.492394    0.000179  0.000090  0.001326
+   O  -2.132170  -1.309098  -1.769018    0.000344 -0.000334  0.001174
+   C  -3.103069  -0.732524  -0.996938    0.000310  0.000351  0.000577
+   C  -4.433922  -1.048327  -1.308593    0.000428  0.000603 -0.000209
+   C  -5.459608  -0.472955  -0.543359   -0.000066  0.000671 -0.000874
+   O  -6.739334  -0.794061  -0.860628   -0.000163  0.001098 -0.000999
+   C  -5.142891   0.412640   0.520988   -0.000315  0.000667 -0.000794
+   C  -3.814704   0.712294   0.806222   -0.000407  0.000384 -0.000019
+   C  -2.760527   0.145605   0.055232    0.000087  0.000152  0.000840
+   C  -1.347814   0.470212   0.364300    0.000023 -0.000528  0.001879
+   O  -1.045987   1.272805   1.255679   -0.000032 -0.001377  0.002655
+   C   1.962218  -1.214011  -0.550957    0.000044  0.000172  0.000044
+   C   3.346262  -1.103477  -0.396714    0.000168 -0.000907 -0.000484
+   O   4.165863  -2.153699  -0.663667   -0.000305 -0.001194 -0.000865
+   H   5.588850   1.490238   1.711594    0.000886  0.000965 -0.001374
+   H   7.011027   0.990499   0.713801   -0.000009  0.001314 -0.002696
+   H   5.778204   2.117842   0.025631   -0.001958 -0.000437 -0.002220
+   H   3.481999   2.146429   0.737273    0.000703 -0.001409  0.000662
+   H   1.018172   1.921164   0.462205    0.000476  0.000211  0.001575
+   H  -0.177292  -1.574791  -2.205730    0.000279 -0.000050  0.001552
+   H  -4.667319  -1.732272  -2.135284    0.000833  0.000618 -0.000330
+   H  -7.338581  -0.324298  -0.250860   -0.000120  0.001219 -0.001038
+   H  -5.957220   0.858914   1.115678   -0.000524  0.000807 -0.001182
+   H  -3.535636   1.397228   1.621061   -0.000793  0.000157  0.000310
+   H   1.565096  -2.188627  -0.870307   -0.000426  0.000425 -0.000123
+   H   5.073462  -1.840647  -0.462925   -0.000061 -0.001560 -0.001348
+New geometry
+   1 C      5.932723137398   1.234279517662   0.684553614289 AA   11.211221902553   2.332450249542   1.293618848587 Bohr
+   2 O      5.269919030612   0.087837894894   0.183254282815 AA    9.958703666491   0.165989564708   0.346300405674 Bohr
+   3 C      3.902658501991   0.120386007570   0.066735586706 AA    7.374955726468   0.227496583537   0.126111981637 Bohr
+   4 C      3.063163712876   1.199399888016   0.369124157109 AA    5.788540492042   2.266537302184   0.697543562897 Bohr
+   5 C      1.671650977819   1.079223533023   0.206071826965 AA    3.158962523939   2.039436904598   0.389419314953 Bohr
+   6 C      1.101224479956  -0.122955496408  -0.266461623648 AA    2.081012668783  -0.232352213722  -0.503539491401 Bohr
+   7 C     -0.359754132675  -0.250135551295  -0.483712618791 AA   -0.679836782936  -0.472687685965  -0.914084372512 Bohr
+   8 C     -0.831595873920  -1.052902732916  -1.492393636177 AA   -1.571488448028  -1.989697801017  -2.820215242419 Bohr
+   9 O     -2.132169801951  -1.309097628569  -1.769017890027 AA   -4.029216976755  -2.473835988313  -3.342959321608 Bohr
+  10 C     -3.103068605499  -0.732523793061  -0.996937924152 AA   -5.863949810130  -1.384269348613  -1.883939639839 Bohr
+  11 C     -4.433921968095  -1.048326581477  -1.308593020024 AA   -8.378898177392  -1.981050128092  -2.472882416363 Bohr
+  12 C     -5.459608204308  -0.472955144933  -0.543359376588 AA  -10.317164253571  -0.893755693127  -1.026800408966 Bohr
+  13 O     -6.739333700584  -0.794060873032  -0.860628397127 AA  -12.735494956155  -1.500557576263  -1.626351965593 Bohr
+  14 C     -5.142890938748   0.412640214357   0.520988239899 AA   -9.718655362741   0.779776993116   0.984525087528 Bohr
+  15 C     -3.814704493070   0.712293653411   0.806222492148 AA   -7.208746738049   1.346039925212   1.523539705625 Bohr
+  16 C     -2.760527241714   0.145605487910   0.055232135527 AA   -5.216640446240   0.275154494383   0.104373609422 Bohr
+  17 C     -1.347814320042   0.470211873252   0.364299926209 AA   -2.546999931647   0.888571660965   0.688427087735 Bohr
+  18 O     -1.045986927041   1.272804670358   1.255678993694 AA   -1.976628821983   2.405252237044   2.372889398452 Bohr
+  19 C      1.962217995397  -1.214011187666  -0.550956529554 AA    3.708054607993  -2.294148656847  -1.041156947398 Bohr
+  20 C      3.346262362740  -1.103476724590  -0.396713901159 AA    6.323519406519  -2.085268794306  -0.749680622998 Bohr
+  21 O      4.165862525409  -2.153698987183  -0.663666970248 AA    7.872339245612  -4.069901240529  -1.254148811688 Bohr
+  22 H      5.588849917738   1.490238133860   1.711594111002 AA   10.561395695823   2.816141933378   3.234444106212 Bohr
+  23 H      7.011027118232   0.990498954244   0.713801415812 AA   13.248921105358   1.871771750189   1.348889183212 Bohr
+  24 H      5.778204186267   2.117842482716   0.025630952971 AA   10.919223403861   4.002142267301   0.048435481426 Bohr
+  25 H      3.481998857236   2.146428731173   0.737272821401 AA    6.580024206225   4.056162447814   1.393243711533 Bohr
+  26 H      1.018171881486   1.921163540651   0.462205135141 AA    1.924066003742   3.630472932330   0.873441118783 Bohr
+  27 H     -0.177291736621  -1.574790753606  -2.205730375666 AA   -0.335032826362  -2.975923227813  -4.168226314642 Bohr
+  28 H     -4.667319092467  -1.732271843956  -2.135283912772 AA   -8.819954820717  -3.273519358373  -4.035101793328 Bohr
+  29 H     -7.338580720360  -0.324298413193  -0.250859920953 AA  -13.867907704494  -0.612835183566  -0.474056546232 Bohr
+  30 H     -5.957220416801   0.858914262619   1.115677941939 AA  -11.257515051421   1.623112720833   2.108325753483 Bohr
+  31 H     -3.535635573243   1.397227684591   1.621061226341 AA   -6.681382909699   2.640377657536   3.063361748937 Bohr
+  32 H      1.565096362701  -2.188627133697  -0.870307215104 AA    2.957603484058  -4.135905871479  -1.644642280780 Bohr
+  33 H      5.073462160299  -1.840647077335  -0.462925139841 AA    9.587453986310  -3.478318868144  -0.874801730475 Bohr
+cycle 5: E = -991.177817646  dE = -5.54488e-07  norm(grad) = 0.000309094
+Step    4 : Displace = [0m1.473e-03[0m/[0m3.003e-03[0m (rms/max) Trust = 1.414e-01 ([92m+[0m) Grad = [92m5.381e-05[0m/[92m1.421e-04[0m (rms/max) E (change) = -991.1778176462 ([92m-5.545e-07[0m) Quality = [0m0.816[0m
+Hessian Eigenvalues: 7.82367e-03 1.84970e-02 2.30000e-02 ... 6.31349e-01 8.38139e-01 8.89365e-01
+
+Geometry optimization cycle 6
+Cartesian coordinates (Angstrom)
+ Atom        New coordinates             dX        dY        dZ
+   C   5.933948   1.234719   0.680878    0.001225  0.000440 -0.003676
+   O   5.270130   0.087173   0.183505    0.000211 -0.000665  0.000251
+   C   3.902831   0.120104   0.067453    0.000172 -0.000282  0.000718
+   C   3.063309   1.198848   0.370705    0.000146 -0.000552  0.001580
+   C   1.671824   1.077901   0.207999    0.000173 -0.001322  0.001928
+   C   1.101113  -0.124084  -0.264755   -0.000112 -0.001128  0.001707
+   C  -0.360039  -0.251407  -0.481550   -0.000285 -0.001271  0.002163
+   C  -0.831893  -1.053737  -1.490554   -0.000297 -0.000835  0.001840
+   O  -2.132358  -1.309905  -1.767579   -0.000188 -0.000808  0.001439
+   C  -3.103329  -0.732521  -0.996224   -0.000260  0.000003  0.000714
+   C  -4.434151  -1.047073  -1.309261   -0.000229  0.001254 -0.000668
+   C  -5.459939  -0.470908  -0.544780   -0.000331  0.002047 -0.001420
+   O  -6.739596  -0.790750  -0.863556   -0.000263  0.003311 -0.002928
+   C  -5.143464   0.414108   0.520135   -0.000573  0.001468 -0.000853
+   C  -3.815293   0.712370   0.806822   -0.000588  0.000076  0.000599
+   C  -2.760970   0.144875   0.056642   -0.000442 -0.000730  0.001410
+   C  -1.348259   0.467860   0.367296   -0.000444 -0.002352  0.002996
+   O  -1.046723   1.268941   1.260128   -0.000736 -0.003863  0.004449
+   C   1.962180  -1.214841  -0.550284   -0.000038 -0.000830  0.000673
+   C   3.346207  -1.103521  -0.396328   -0.000056 -0.000045  0.000386
+   O   4.166049  -2.153367  -0.663959    0.000186  0.000332 -0.000292
+   H   5.593108   1.492249   1.708550    0.004258  0.002011 -0.003044
+   H   7.012436   0.991425   0.707401    0.001409  0.000926 -0.006401
+   H   5.777061   2.117119   0.020970   -0.001144 -0.000724 -0.004661
+   H   3.481932   2.145831   0.739218   -0.000067 -0.000598  0.001946
+   H   1.018269   1.919507   0.464897    0.000097 -0.001657  0.002692
+   H  -0.177576  -1.575514  -2.203930   -0.000284 -0.000723  0.001800
+   H  -4.667395  -1.730523  -2.136406   -0.000076  0.001749 -0.001122
+   H  -7.339056  -0.320730  -0.254195   -0.000476  0.003568 -0.003335
+   H  -5.957971   0.860974   1.114137   -0.000751  0.002059 -0.001541
+   H  -3.536339   1.396610   1.622293   -0.000703 -0.000618  0.001232
+   H   1.565321  -2.189461  -0.869958    0.000224 -0.000834  0.000349
+   H   5.073704  -1.840056  -0.463855    0.000242  0.000591 -0.000930
+New geometry
+   1 C      5.933948262378   1.234719104171   0.680877982315 AA   11.213537053234   2.333280947652   1.286672910823 Bohr
+   2 O      5.270129547351   0.087172726105   0.183505008701 AA    9.959101485472   0.164732577871   0.346774208932 Bohr
+   3 C      3.902830987283   0.120104302052   0.067453142568 AA    7.375281676431   0.226964237261   0.127467965696 Bohr
+   4 C      3.063309276261   1.198847739619   0.370704607085 AA    5.788815566973   2.265493892933   0.700530180505 Bohr
+   5 C      1.671823871726   1.077901392590   0.207999355714 AA    3.159289246072   2.036938421283   0.393061816385 Bohr
+   6 C      1.101112724736  -0.124083711497  -0.264754629770 AA    2.080801482024  -0.234484231248  -0.500313740475 Bohr
+   7 C     -0.360038956223  -0.251406789497  -0.481549604243 AA   -0.680375021435  -0.475089978006  -0.909996867412 Bohr
+   8 C     -0.831892876878  -1.053737480915  -1.490553818928 AA   -1.572049702276  -1.991275246118  -2.816738491698 Bohr
+   9 O     -2.132357941613  -1.309905299735  -1.767579180806 AA   -4.029572509191  -2.475362265616  -3.340240555206 Bohr
+  10 C     -3.103328670572  -0.732520862587  -0.996223750595 AA   -5.864441261891  -1.384263810820  -1.882590047412 Bohr
+  11 C     -4.434151189193  -1.047072623949  -1.309260569898 AA   -8.379331342490  -1.978680491793  -2.474143902799 Bohr
+  12 C     -5.459939457674  -0.470908413193  -0.544779638567 AA  -10.317790231711  -0.889887930689  -1.029484315130 Bohr
+  13 O     -6.739596484830  -0.790750236633  -0.863556006340 AA  -12.735991546411  -1.494301380171  -1.631884345205 Bohr
+  14 C     -5.143463933530   0.414108420121   0.520134854215 AA   -9.719738165950   0.782551499904   0.982912422308 Bohr
+  15 C     -3.815292932354   0.712369838103   0.806821802539 AA   -7.209858727138   1.346183893415   1.524672238126 Bohr
+  16 C     -2.760969618070   0.144874997753   0.056642108578 AA   -5.217476416397   0.273774068049   0.107038072331 Bohr
+  17 C     -1.348258801739   0.467860169959   0.367295656719 AA   -2.547839880322   0.884127585814   0.694088197941 Bohr
+  18 O     -1.046722595937   1.268941298414   1.260128249411 AA   -1.978019034714   2.397951522152   2.381297273214 Bohr
+  19 C      1.962180151812  -1.214841158497  -0.550284000096 AA    3.707983093982  -2.295717074408  -1.039886050911 Bohr
+  20 C      3.346206585950  -1.103521282078  -0.396328367434 AA    6.323414003661  -2.085352995756  -0.748952069846 Bohr
+  21 O      4.166048678606  -2.153366564941  -0.663959238382 AA    7.872691024171  -4.069273053534  -1.254701118417 Bohr
+  22 H      5.593107868241   1.492249175337   1.708549941573 AA   10.569442056125   2.819942250994   3.228691459715 Bohr
+  23 H      7.012436224223   0.991424771056   0.707400714606 AA   13.251583929760   1.873521290406   1.336793610926 Bohr
+  24 H      5.777060593363   2.117118738149   0.020970170794 AA   10.917062326472   4.000774588286   0.039627879587 Bohr
+  25 H      3.481931718131   2.145830631424   0.739218458625 AA    6.579897331704   4.055032203094   1.396920433025 Bohr
+  26 H      1.018269134634   1.919506704232   0.464896989499 AA    1.924249785556   3.627341965265   0.878527986289 Bohr
+  27 H     -0.177576089127  -1.575513769392  -2.203930016835 AA   -0.335570174721  -2.977289529632  -4.164824129526 Bohr
+  28 H     -4.667394822609  -1.730522612489  -2.136406031997 AA   -8.820097929944  -3.270213789971  -4.037222291342 Bohr
+  29 H     -7.339056404419  -0.320730129953  -0.254195321135 AA  -13.868806617086  -0.606092105508  -0.480359539090 Bohr
+  30 H     -5.957971407780   0.860973731486   1.114137040469 AA  -11.258934218693   1.627004552953   2.105413871719 Bohr
+  31 H     -3.536339016721   1.396610175597   1.622293229301 AA   -6.682712225217   2.639210734659   3.065689897115 Bohr
+  32 H      1.565320791782  -2.189460700482  -0.869957895827 AA    2.958027593555  -4.137481084409  -1.643982163016 Bohr
+  33 H      5.073704243864  -1.840055673050  -0.463854833538 AA    9.587911457946  -3.477201276017  -0.876558596942 Bohr
+cycle 6: E = -991.177818288  dE = -6.42107e-07  norm(grad) = 0.000194516
+Step    5 : Displace = [0m2.870e-03[0m/[0m6.236e-03[0m (rms/max) Trust = 2.000e-01 ([92m+[0m) Grad = [92m3.386e-05[0m/[92m6.700e-05[0m (rms/max) E (change) = -991.1778182883 ([92m-6.421e-07[0m) Quality = [0m1.044[0m
+Hessian Eigenvalues: 5.23695e-03 1.83333e-02 2.30000e-02 ... 6.37750e-01 8.77054e-01 9.05460e-01
+
+Geometry optimization cycle 7
+Cartesian coordinates (Angstrom)
+ Atom        New coordinates             dX        dY        dZ
+   C   5.933980   1.235334   0.679091    0.000032  0.000615 -0.001787
+   O   5.270004   0.086678   0.184550   -0.000125 -0.000494  0.001045
+   C   3.902725   0.119478   0.068303   -0.000106 -0.000626  0.000850
+   C   3.062688   1.197761   0.371853   -0.000622 -0.001087  0.001148
+   C   1.671260   1.076457   0.208840   -0.000564 -0.001445  0.000841
+   C   1.101124  -0.125497  -0.264537    0.000011 -0.001414  0.000217
+   C  -0.360006  -0.252778  -0.481545    0.000033 -0.001371  0.000005
+   C  -0.832123  -1.054703  -1.490751   -0.000230 -0.000966 -0.000197
+   O  -2.132820  -1.310252  -1.767442   -0.000462 -0.000347  0.000137
+   C  -3.103693  -0.732497  -0.996163   -0.000364  0.000024  0.000061
+   C  -4.434836  -1.045784  -1.309145   -0.000684  0.001289  0.000115
+   C  -5.460147  -0.468823  -0.544655   -0.000207  0.002085  0.000125
+   O  -6.739928  -0.787613  -0.863923   -0.000331  0.003137 -0.000367
+   C  -5.143126   0.415779   0.520435    0.000338  0.001670  0.000300
+   C  -3.814688   0.712713   0.807207    0.000605  0.000343  0.000385
+   C  -2.760870   0.144487   0.056870    0.000100 -0.000388  0.000228
+   C  -1.347965   0.466260   0.367790    0.000294 -0.001600  0.000494
+   O  -1.046017   1.266042   1.261651    0.000706 -0.002899  0.001523
+   C   1.962629  -1.215841  -0.550228    0.000449 -0.001000  0.000056
+   C   3.346608  -1.104184  -0.395986    0.000402 -0.000663  0.000343
+   O   4.166859  -2.153634  -0.663964    0.000811 -0.000267 -0.000004
+   H   5.595151   1.493928   1.707175    0.002044  0.001679 -0.001375
+   H   7.012691   0.992832   0.703694    0.000255  0.001407 -0.003707
+   H   5.775070   2.116789   0.018416   -0.001990 -0.000329 -0.002554
+   H   3.480895   2.144734   0.740863   -0.001037 -0.001097  0.001644
+   H   1.017359   1.917754   0.465949   -0.000910 -0.001753  0.001052
+   H  -0.178064  -1.576433  -2.204423   -0.000488 -0.000919 -0.000493
+   H  -4.668671  -1.728895  -2.136403   -0.001276  0.001628  0.000003
+   H  -7.339198  -0.317260  -0.254638   -0.000141  0.003470 -0.000443
+   H  -5.957292   0.863344   1.114376    0.000679  0.002370  0.000239
+   H  -3.535120   1.396526   1.622824    0.001219 -0.000084  0.000531
+   H   1.566189  -2.190457  -0.870387    0.000868 -0.000997 -0.000429
+   H   5.074400  -1.840029  -0.463842    0.000695  0.000027  0.000013
+New geometry
+   1 C      5.933979942847   1.235334092847   0.679091129965 AA   11.213596920642   2.334443107820   1.283296249256 Bohr
+   2 O      5.270004186285   0.086678484740   0.184550408538 AA    9.958864587390   0.163798597051   0.348749728313 Bohr
+   3 C      3.902724584275   0.119478071529   0.068303426366 AA    7.375080603886   0.225780833081   0.129074769202 Bohr
+   4 C      3.062687653431   1.197761088718   0.371852892727 AA    5.787640870072   2.263440420338   0.702700125881 Bohr
+   5 C      1.671259557951   1.076456683643   0.208840179452 AA    3.158222847589   2.034208317042   0.394650742969 Bohr
+   6 C      1.101123861496  -0.125497344729  -0.264537163074 AA    2.080822527451  -0.237155610897  -0.499902787979 Bohr
+   7 C     -0.360006241524  -0.252777676999  -0.481545052793 AA   -0.680313199614  -0.477680579931  -0.909988266418 Bohr
+   8 C     -0.832123240482  -1.054703498711  -1.490751249820 AA   -1.572485026396  -1.993100755183  -2.817111582012 Bohr
+   9 O     -2.132819617676  -1.310252429506  -1.767442441001 AA   -4.030444950508  -2.476018245812  -3.339982154424 Bohr
+  10 C     -3.103693083970  -0.732497171862  -0.996162899265 AA   -5.865129903409  -1.384219041839  -1.882475055064 Bohr
+  11 C     -4.434835576092  -1.045783555550  -1.309145430578 AA   -8.380624646292  -1.976244505564  -2.473926321018 Bohr
+  12 C     -5.460146502617  -0.468823159872  -0.544654630144 AA  -10.318181489949  -0.885947373012  -1.029248083448 Bohr
+  13 O     -6.739927948318  -0.787613298243  -0.863922832264 AA  -12.736617921622  -1.488373425746  -1.632577545738 Bohr
+  14 C     -5.143125524667   0.415778563790   0.520434757547 AA   -9.719098665880   0.785707614029   0.983479157467 Bohr
+  15 C     -3.814688106524   0.712713178741   0.807206637653 AA   -7.208715771966   1.346832713188   1.525399471095 Bohr
+  16 C     -2.760869743028   0.144486797748   0.056869951137 AA   -5.217287679921   0.273040476359   0.107468632367 Bohr
+  17 C     -1.347965218448   0.466260256439   0.367789975050 AA   -2.547285088307   0.881104187439   0.695022324206 Bohr
+  18 O     -1.046016757627   1.266042392668   1.261651331934 AA   -1.976685193620   2.392473384232   2.384175482048 Bohr
+  19 C      1.962629028626  -1.215840712027  -0.550227538815 AA    3.708831348224  -2.297605956828  -1.039779354555 Bohr
+  20 C      3.346608229751  -1.104183942576  -0.395985749858 AA    6.324173000445  -2.086605242611  -0.748304616462 Bohr
+  21 O      4.166859457703  -2.153633519994  -0.663963544258 AA    7.874223174613  -4.069777525472  -1.254709255343 Bohr
+  22 H      5.595151410177   1.493928221510   1.707175142121 AA   10.573303790708   2.823115188412   3.226093465274 Bohr
+  23 H      7.012691423390   0.992831631987   0.703694026402 AA   13.252066186293   1.876179872260   1.329788985392 Bohr
+  24 H      5.775070458447   2.116789450137   0.018415684885 AA   10.913301516532   4.000152324128   0.034800600829 Bohr
+  25 H      3.480894690029   2.144733844803   0.740862512272 AA    6.577937632608   4.052959576764   1.400027244150 Bohr
+  26 H      1.017359213184   1.917753550104   0.465949073259 AA    1.922530283221   3.624028984110   0.880516136454 Bohr
+  27 H     -0.178064268755  -1.576432800527  -2.204422837320 AA   -0.336492700517  -2.979026246778  -4.165755425271 Bohr
+  28 H     -4.668671048695  -1.728894634622  -2.136402609514 AA   -8.822509647720  -3.267137357665  -4.037215823787 Bohr
+  29 H     -7.339197714958  -0.317259914161  -0.254638402667 AA  -13.869073655305  -0.599534348067  -0.481196841837 Bohr
+  30 H     -5.957291987362   0.863343995215   1.114376480697 AA  -11.257650300180   1.631483702245   2.105866348174 Bohr
+  31 H     -3.535120388672   1.396526050342   1.622824261086 AA   -6.680409351955   2.639051760967   3.066693401753 Bohr
+  32 H      1.566189029695  -2.190457223617  -0.870387290584 AA    2.959668325422  -4.139364240211  -1.644793601505 Bohr
+  33 H      5.074399703405  -1.840028864674  -0.463841790824 AA    9.589225686010  -3.477150615529  -0.876533949784 Bohr
+cycle 7: E = -991.177818556  dE = -2.67533e-07  norm(grad) = 0.000159447
+Step    6 : Displace = [0m1.840e-03[0m/[0m3.925e-03[0m (rms/max) Trust = 2.828e-01 ([92m+[0m) Grad = [92m2.776e-05[0m/[92m6.213e-05[0m (rms/max) E (change) = -991.1778185559 ([92m-2.675e-07[0m) Quality = [0m0.892[0m
+Hessian Eigenvalues: 4.19222e-03 1.77321e-02 2.17839e-02 ... 6.56766e-01 8.48686e-01 8.95301e-01
+
+Geometry optimization cycle 8
+Cartesian coordinates (Angstrom)
+ Atom        New coordinates             dX        dY        dZ
+   C   5.933577   1.235090   0.678449   -0.000403 -0.000245 -0.000642
+   O   5.269809   0.085721   0.185312   -0.000195 -0.000958  0.000762
+   C   3.902583   0.118414   0.068567   -0.000142 -0.001064  0.000264
+   C   3.063053   1.197018   0.372292    0.000366 -0.000744  0.000439
+   C   1.671648   1.075904   0.208938    0.000388 -0.000553  0.000097
+   C   1.101150  -0.125735  -0.264795    0.000026 -0.000238 -0.000258
+   C  -0.359954  -0.252628  -0.481894    0.000052  0.000149 -0.000349
+   C  -0.832370  -1.054454  -1.491043   -0.000247  0.000249 -0.000291
+   O  -2.133170  -1.309726  -1.767571   -0.000350  0.000526 -0.000128
+   C  -3.103749  -0.731914  -0.996005   -0.000056  0.000583  0.000158
+   C  -4.434913  -1.045206  -1.308872   -0.000077  0.000577  0.000274
+   C  -5.460072  -0.468156  -0.544247    0.000075  0.000667  0.000408
+   O  -6.740019  -0.786726  -0.863093   -0.000091  0.000888  0.000830
+   C  -5.142669   0.416452   0.520712    0.000457  0.000673  0.000277
+   C  -3.814209   0.713386   0.807414    0.000479  0.000673  0.000207
+   C  -2.760573   0.145106   0.056890    0.000297  0.000619  0.000020
+   C  -1.347552   0.466606   0.367677    0.000413  0.000346 -0.000113
+   O  -1.045159   1.266008   1.261739    0.000858 -0.000034  0.000087
+   C   1.962298  -1.216310  -0.550508   -0.000331 -0.000469 -0.000280
+   C   3.346280  -1.105069  -0.396033   -0.000328 -0.000885 -0.000047
+   O   4.166278  -2.154658  -0.664191   -0.000581 -0.001025 -0.000227
+   H   5.595665   1.494144   1.706728    0.000514  0.000216 -0.000447
+   H   7.012460   0.993261   0.702095   -0.000231  0.000429 -0.001599
+   H   5.773450   2.116037   0.017392   -0.001621 -0.000753 -0.001024
+   H   3.481497   2.143782   0.741600    0.000602 -0.000952  0.000738
+   H   1.017922   1.917352   0.466053    0.000563 -0.000402  0.000104
+   H  -0.178496  -1.576251  -2.204849   -0.000431  0.000182 -0.000426
+   H  -4.668904  -1.728366  -2.136049   -0.000233  0.000528  0.000353
+   H  -7.339035  -0.316238  -0.253663    0.000162  0.001022  0.000975
+   H  -5.956708   0.864150   1.114719    0.000584  0.000806  0.000342
+   H  -3.534510   1.397206   1.622974    0.000610  0.000680  0.000150
+   H   1.565620  -2.190732  -0.870976   -0.000569 -0.000275 -0.000589
+   H   5.073839  -1.841246  -0.463904   -0.000560 -0.001217 -0.000063
+New geometry
+   1 C      5.933577225764   1.235089577758   0.678448816305 AA   11.212835895651   2.333981041267   1.282082452353 Bohr
+   2 O      5.269809180829   0.085720928368   0.185312099078 AA    9.958496080486   0.161989077759   0.350189114826 Bohr
+   3 C      3.902582921229   0.118413625545   0.068567054712 AA    7.374812899529   0.223769321696   0.129572954573 Bohr
+   4 C      3.063053247460   1.197017544155   0.372291972369 AA    5.788331742660   2.262035324752   0.703529866152 Bohr
+   5 C      1.671647794265   1.075903678404   0.208937544651 AA    3.158956507894   2.033163288596   0.394834736530 Bohr
+   6 C      1.101150315342  -0.125734996989  -0.264795041351 AA    2.080872517975  -0.237604708583  -0.500390107295 Bohr
+   7 C     -0.359954286709  -0.252628399770  -0.481894041282 AA   -0.680215019242  -0.477398486852  -0.910647759083 Bohr
+   8 C     -0.832370375480  -1.054454318230  -1.491042502944 AA   -1.572952043858  -1.992629872319  -2.817661970650 Bohr
+   9 O     -2.133169918714  -1.309726288101  -1.767570693033 AA   -4.031106923530  -2.475023982654  -3.340224515640 Bohr
+  10 C     -3.103748911395  -0.731913752902  -0.996005298637 AA   -5.865235401953  -1.383116539787  -1.882177233039 Bohr
+  11 C     -4.434912741371  -1.045206419722  -1.308871673347 AA   -8.380770467536  -1.975153876912  -2.473408994828 Bohr
+  12 C     -5.460071750222  -0.468155700975  -0.544246774192 AA  -10.318040228393  -0.884686058496  -1.028477347400 Bohr
+  13 O     -6.740018648759  -0.786725720043  -0.863093267606 AA  -12.736789320616  -1.486696146033  -1.631009895731 Bohr
+  14 C     -5.142668971297   0.416451511448   0.520711852601 AA   -9.718235905051   0.786979300798   0.984002791231 Bohr
+  15 C     -3.814208865512   0.713385795341   0.807413558707 AA   -7.207810137705   1.348103774350   1.525790495217 Bohr
+  16 C     -2.760572770798   0.145105502661   0.056889856675 AA   -5.216726483740   0.274209659196   0.107506248381 Bohr
+  17 C     -1.347552156945   0.466606274493   0.367676598337 AA   -2.546504515193   0.881758066796   0.694808073268 Bohr
+  18 O     -1.045158946736   1.266008173698   1.261738805516 AA   -1.975064165969   2.392408719749   2.384340783161 Bohr
+  19 C      1.962298480654  -1.216310188205  -0.550507814134 AA    3.708206703087  -2.298493138226  -1.040308998146 Bohr
+  20 C      3.346279758559  -1.105069004306  -0.396033045683 AA    6.323552279852  -2.088277766884  -0.748393992618 Bohr
+  21 O      4.166278378075  -2.154658494578  -0.664190553757 AA    7.873125093259  -4.071714446720  -1.255138241124 Bohr
+  22 H      5.595665362065   1.494143981788   1.706727695075 AA   10.574275019018   2.823522916246   3.225247912902 Bohr
+  23 H      7.012460386255   0.993260824972   0.702095352870 AA   13.251629589384   1.876990929457   1.326767930254 Bohr
+  24 H      5.773449578082   2.116036629085   0.017392032395 AA   10.910238496560   3.998729698518   0.032866177976 Bohr
+  25 H      3.481496731553   2.143781614750   0.741600353268 AA    6.579075326204   4.051160122756   1.401421561558 Bohr
+  26 H      1.017922325790   1.917351696078   0.466052973782 AA    1.923594411824   3.623269590057   0.880712479987 Bohr
+  27 H     -0.178495625410  -1.576251086568  -2.204848963553 AA   -0.337307846459  -2.978682857161  -4.166560687146 Bohr
+  28 H     -4.668904418183  -1.728366357053  -2.136049499214 AA   -8.822950652138  -3.266139057743  -4.036548542028 Bohr
+  29 H     -7.339035258684  -0.316238116010  -0.253663407321 AA  -13.868766657439  -0.597603429406  -0.479354367661 Bohr
+  30 H     -5.956707969668   0.864150090887   1.114718789790 AA  -11.256546666686   1.633007002294   2.106513218610 Bohr
+  31 H     -3.534510421866   1.397206251655   1.622974406391 AA   -6.679256681748   2.640337155158   3.066977135257 Bohr
+  32 H      1.565620459675  -2.190732266710  -0.870976310678 AA    2.958593883802  -4.139883996329  -1.645906688165 Bohr
+  33 H      5.073839353693  -1.841245983789  -0.463904467616 AA    9.588166778519  -3.479450637316  -0.876652391757 Bohr
+cycle 8: E = -991.177818642  dE = -8.66116e-08  norm(grad) = 0.000170085
+Step    7 : Displace = [92m7.197e-04[0m/[0m1.998e-03[0m (rms/max) Trust = 3.000e-01 ([92m+[0m) Grad = [92m2.961e-05[0m/[92m9.202e-05[0m (rms/max) E (change) = -991.1778186425 ([92m-8.661e-08[0m) Quality = [0m0.557[0m
+Hessian Eigenvalues: 4.12973e-03 1.41742e-02 2.07167e-02 ... 7.38579e-01 8.89272e-01 9.07232e-01
+
+Geometry optimization cycle 9
+Cartesian coordinates (Angstrom)
+ Atom        New coordinates             dX        dY        dZ
+   C   5.934262   1.233776   0.678353    0.000685 -0.001314 -0.000096
+   O   5.269816   0.084690   0.185487    0.000006 -0.001031  0.000175
+   C   3.902609   0.118151   0.068615    0.000026 -0.000263  0.000048
+   C   3.063158   1.196879   0.372128    0.000105 -0.000139 -0.000164
+   C   1.671716   1.076345   0.208665    0.000068  0.000441 -0.000273
+   C   1.101059  -0.125227  -0.265087   -0.000091  0.000508 -0.000292
+   C  -0.360038  -0.251893  -0.482226   -0.000084  0.000735 -0.000332
+   C  -0.832655  -1.053755  -1.491247   -0.000285  0.000700 -0.000205
+   O  -2.133433  -1.309040  -1.767832   -0.000263  0.000686 -0.000261
+   C  -3.103862  -0.731391  -0.995999   -0.000113  0.000523  0.000006
+   C  -4.434993  -1.045084  -1.308576   -0.000080  0.000123  0.000295
+   C  -5.460156  -0.468282  -0.543746   -0.000084 -0.000127  0.000501
+   O  -6.740110  -0.787263  -0.862157   -0.000092 -0.000537  0.000936
+   C  -5.142746   0.416504   0.521063   -0.000077  0.000052  0.000351
+   C  -3.814273   0.713801   0.807375   -0.000064  0.000416 -0.000039
+   C  -2.760574   0.145789   0.056734   -0.000001  0.000683 -0.000156
+   C  -1.347538   0.467513   0.367303    0.000014  0.000907 -0.000373
+   O  -1.045042   1.267307   1.260975    0.000117  0.001299 -0.000763
+   C   1.961959  -1.216047  -0.550654   -0.000339  0.000264 -0.000146
+   C   3.345943  -1.105131  -0.396020   -0.000336 -0.000062  0.000013
+   O   4.165673  -2.154955  -0.664070   -0.000606 -0.000297  0.000121
+   H   5.596810   1.493029   1.706733    0.001144 -0.001115  0.000006
+   H   7.013046   0.991468   0.701639    0.000586 -0.001793 -0.000457
+   H   5.774318   2.114773   0.017317    0.000868 -0.001264 -0.000075
+   H   3.481788   2.143529   0.741483    0.000291 -0.000252 -0.000117
+   H   1.018227   1.918029   0.465622    0.000305  0.000678 -0.000431
+   H  -0.178854  -1.575610  -2.205069   -0.000359  0.000641 -0.000220
+   H  -4.668982  -1.728399  -2.135628   -0.000078 -0.000033  0.000422
+   H  -7.339089  -0.316879  -0.252608   -0.000053 -0.000641  0.001055
+   H  -5.956753   0.864033   1.115247   -0.000045 -0.000117  0.000528
+   H  -3.534594   1.397768   1.622815   -0.000084  0.000562 -0.000160
+   H   1.565085  -2.190384  -0.871165   -0.000536  0.000348 -0.000189
+   H   5.073295  -1.841827  -0.463614   -0.000544 -0.000581  0.000290
+New geometry
+   1 C      5.934262209991   1.233775524957   0.678352944501 AA   11.214130328240   2.331497841361   1.281901280899 Bohr
+   2 O      5.269815605337   0.084689680788   0.185486655469 AA    9.958508221046   0.160040302266   0.350518978599 Bohr
+   3 C      3.902608723572   0.118150779003   0.068614891835 AA    7.374861658889   0.223272613719   0.129663353636 Bohr
+   4 C      3.063157824166   1.196878898683   0.372128192583 AA    5.788529363993   2.261773322781   0.703220367210 Bohr
+   5 C      1.671715825119   1.076344819489   0.208664655292 AA    3.159085067576   2.033996924429   0.394319050379 Bohr
+   6 C      1.101059163932  -0.125227127086  -0.265086678636 AA    2.080700266774  -0.236644973558  -0.500941221893 Bohr
+   7 C     -0.360038323963  -0.251892921173  -0.482225956478 AA   -0.680373826637  -0.476008633733  -0.911274987900 Bohr
+   8 C     -0.832655084779  -1.053754768875  -1.491247299666 AA   -1.573490066458  -1.991307915627  -2.818048980366 Bohr
+   9 O     -2.133433166889  -1.309040148031  -1.767831551255 AA   -4.031604390484  -2.473727365840  -3.340717466236 Bohr
+  10 C     -3.103862393107  -0.731390984823  -0.995998816941 AA   -5.865449851309  -1.382128651292  -1.882164984409 Bohr
+  11 C     -4.434993132967  -1.045083604857  -1.308576477497 AA   -8.380922385635  -1.974921790453  -2.472851155518 Bohr
+  12 C     -5.460155586313  -0.468282337502  -0.543745844015 AA  -10.318198655646  -0.884925366850  -1.027530726559 Bohr
+  13 O     -6.740110372340  -0.787263006185  -0.862157442167 AA  -12.736962653064  -1.487711469692  -1.629241441952 Bohr
+  14 C     -5.142745859399   0.416503889409   0.521062918745 AA   -9.718381202505   0.787078280798   0.984666210094 Bohr
+  15 C     -3.814273222108   0.713801420512   0.807374570087 AA   -7.207931754047   1.348889192094   1.525716817404 Bohr
+  16 C     -2.760574256601   0.145788527609   0.056733811799 AA   -5.216729291500   0.275500389285   0.107211366302 Bohr
+  17 C     -1.347538107011   0.467513385736   0.367303176154 AA   -2.546477964666   0.883472258609   0.694102407614 Bohr
+  18 O     -1.045041887255   1.267307282676   1.260975425748 AA   -1.974842955610   2.394863679924   2.382898204470 Bohr
+  19 C      1.961959484955  -1.216046613815  -0.550653663609 AA    3.707566094057  -2.297995054815  -1.040584613709 Bohr
+  20 C      3.345943347568  -1.105131215871  -0.396019576783 AA    6.322916555213  -2.088395329704  -0.748368540087 Bohr
+  21 O      4.165672772177  -2.154955326965  -0.664069995084 AA    7.871980663972  -4.072275378636  -1.254910418249 Bohr
+  22 H      5.596809770605   1.493028526897   1.706733341819 AA   10.576437637732   2.821415011997   3.225258583701 Bohr
+  23 H      7.013045991415   0.991467861912   0.701638500455 AA   13.252736222754   1.873602720321   1.325904604310 Bohr
+  24 H      5.774317975460   2.114773037818   0.017317202424 AA   10.911879529772   3.996341857090   0.032724769825 Bohr
+  25 H      3.481788188956   2.143529233346   0.741483393839 AA    6.579626100872   4.050683191023   1.401200540269 Bohr
+  26 H      1.018227461330   1.918029461683   0.465622099487 AA    1.924171034425   3.624550381427   0.879898245576 Bohr
+  27 H     -0.178854330075  -1.575610240883  -2.205068505492 AA   -0.337985700035  -2.977471834328  -4.166975561285 Bohr
+  28 H     -4.668982448614  -1.728398996412  -2.135627639734 AA   -8.823098108281  -3.266200737192  -4.035751343148 Bohr
+  29 H     -7.339088711563  -0.316878755885  -0.252608489949 AA  -13.868867668740  -0.598814063316  -0.477360862744 Bohr
+  30 H     -5.956753220053   0.864032726448   1.115246965003 AA  -11.256632177522   1.632785215648   2.107511325108 Bohr
+  31 H     -3.534594435504   1.397768439537   1.622814753162 AA   -6.679415444514   2.641399536286   3.066675434380 Bohr
+  32 H      1.565084572963  -2.190384002476  -0.871164991997 AA    2.957581204682  -4.139225872307  -1.646263244184 Bohr
+  33 H      5.073295082632  -1.841826838535  -0.463614161130 AA    9.587138255277  -3.480548293704  -0.876103792005 Bohr
+cycle 9: E = -991.177818736  dE = -9.39835e-08  norm(grad) = 9.55915e-05
+Step    8 : Displace = [92m7.655e-04[0m/[92m1.493e-03[0m (rms/max) Trust = 3.000e-01 (=) Grad = [92m1.664e-05[0m/[92m3.937e-05[0m (rms/max) E (change) = -991.1778187365 ([92m-9.398e-08[0m) Quality = [0m0.927[0m
+Hessian Eigenvalues: 4.12973e-03 1.41742e-02 2.07167e-02 ... 7.38579e-01 8.89272e-01 9.07232e-01
+Converged! =D
+
+    #==========================================================================#
+    #| If this code has benefited your research, please support us by citing: |#
+    #|                                                                        |#
+    #| Wang, L.-P.; Song, C.C. (2016) "Geometry optimization made simple with |#
+    #| translation and rotation coordinates", J. Chem, Phys. 144, 214108.     |#
+    #| http://dx.doi.org/10.1063/1.4952956                                    |#
+    #==========================================================================#
+    Time elapsed since start of run_optimizer: 3730.907 seconds

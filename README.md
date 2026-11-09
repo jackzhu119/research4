@@ -76,3 +76,8 @@
 首次队列水控制通过、药材SCF失败，记录保留。最新入口为[同一剩余预算内的Newton预条件续算](docs/PYSCF_NEWTON_RECOVERY_90000_20261108.md)，实际状态见[最新CPU账本](reports/pyscf-autonomous-90000-20261108/newton-recovery-v2/ledger.json)和[启动核验](reports/pyscf-autonomous-90000-20261108/newton-recovery-v2/runtime_verification.json)。是否完成以产物和闭合记录为准，启动不等于通过；独立后台进程仍依赖云实例存活。
 
 用户随后明确要求持续执行。**当前入口为[持续计算v3](docs/PYSCF_CONTINUOUS_EXECUTION_20261108.md)**，状态见[当前账本](reports/pyscf-continuous-20261108-v3/ledger.json)。旧v1/v2均已闭合；新程序从已保存坐标继续，收敛及核驻点警告只分级记录，不再使整个队列停止。原儿茶酸和毛蕊异黄酮的优化、双步长完整数值Hessian及网格/步长对照连续排队，原90,000 CPU秒仍合并累计。
+
+
+### 2026-11-09执行核查
+
+云主机重启后计算已中断；原儿茶酸双步长完整Hessian及分析完成（各45模式均无虚频），毛蕊异黄酮优化完成、第一套Hessian保存28/198点。最新事实与补传记录见[执行核查](reports/pyscf-interruption-audit-20261109/README.md)，旧账本RUNNING不表示当前进程仍存活。
