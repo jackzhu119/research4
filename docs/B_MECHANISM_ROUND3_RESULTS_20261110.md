@@ -1,19 +1,19 @@
 # B方案第三轮：正则化、增量监督与类别权重边界
 
-状态：**PARTIAL**；已封存 **4/375** 个任务包。
+状态：**DONE**；已封存 **375/375** 个任务包。
 本报告只读取完整封存工件，不拟合模型，不修改前两轮代码、模型、数据、标签或结果。
 
-新增分类器拟合23次、校准拟合调用62次；科研任务CPU合计1.489615秒，控制/核验/推送成本另见后台账本。
-已保存4480条预测，对应40个唯一Query实物；重复记录不是独立样本。
+新增分类器拟合1035次、校准拟合调用2790次；科研任务CPU合计108.035185秒，控制/核验/推送成本另见后台账本。
+已保存265200条预测，对应422个唯一Query实物；重复记录不是独立样本。
 
 ## 完成范围
 
 |块|问题|完成/计划|状态|
 |---|---|---:|---|
-|G01|损失归一化 × 截距惩罚|1/45|PARTIAL|
-|G02|增量监督训练与无标签统计量分解|1/45|PARTIAL|
-|G03|人工支持标签污染剂量|1/45|PARTIAL|
-|G04|类别权重、margin与对偶约束的零拟合审计|1/240|PARTIAL|
+|G01|损失归一化 × 截距惩罚|45/45|DONE|
+|G02|增量监督训练与无标签统计量分解|45/45|DONE|
+|G03|人工支持标签污染剂量|45/45|DONE|
+|G04|类别权重、margin与对偶约束的零拟合审计|240/240|DONE|
 
 ## 冻结设计与解释边界
 
@@ -33,58 +33,106 @@ G04只复用第二轮240个来源上下文的模型、原始预测和分数。�
 
 |块|原任务|方法|K/类|Support污染比例|Accuracy|Macro-F1|Balanced Accuracy|端点数|
 |---|---|---|---:|---:|---:|---:|---:|---:|
-|G01|E01|identity|0||1.000000|1.000000|1.000000|1|
-|G01|E01|mean_free_intercept|1||1.000000|1.000000|1.000000|3|
-|G01|E01|mean_free_intercept|3||1.000000|1.000000|1.000000|3|
-|G01|E01|mean_free_intercept|5||1.000000|1.000000|1.000000|3|
-|G01|E01|mean_free_intercept|10||1.000000|1.000000|1.000000|1|
-|G01|E01|mean_penalized|1||1.000000|1.000000|1.000000|3|
-|G01|E01|mean_penalized|3||1.000000|1.000000|1.000000|3|
-|G01|E01|mean_penalized|5||1.000000|1.000000|1.000000|3|
-|G01|E01|mean_penalized|10||1.000000|1.000000|1.000000|1|
-|G01|E01|sum_free_intercept|1||1.000000|1.000000|1.000000|3|
-|G01|E01|sum_free_intercept|3||1.000000|1.000000|1.000000|3|
-|G01|E01|sum_free_intercept|5||1.000000|1.000000|1.000000|3|
-|G01|E01|sum_free_intercept|10||1.000000|1.000000|1.000000|1|
-|G01|E01|sum_penalized|1||1.000000|1.000000|1.000000|3|
-|G01|E01|sum_penalized|3||1.000000|1.000000|1.000000|3|
-|G01|E01|sum_penalized|5||1.000000|1.000000|1.000000|3|
-|G01|E01|sum_penalized|10||1.000000|1.000000|1.000000|1|
-|G01|E01|svc_predict|0||1.000000|1.000000|1.000000|1|
-|G02|E01|cyclic_support|1||1.000000|1.000000|1.000000|1|
-|G02|E01|cyclic_support|3||1.000000|1.000000|1.000000|1|
-|G02|E01|cyclic_support|5||1.000000|1.000000|1.000000|1|
-|G02|E01|cyclic_support|10||0.975000|0.974984|0.975000|1|
-|G02|E01|identity|0||1.000000|1.000000|1.000000|1|
-|G02|E01|true_support|1||1.000000|1.000000|1.000000|1|
-|G02|E01|true_support|3||1.000000|1.000000|1.000000|1|
-|G02|E01|true_support|5||1.000000|1.000000|1.000000|1|
-|G02|E01|true_support|10||1.000000|1.000000|1.000000|1|
-|G02|E01|unlabeled_statistics|1||1.000000|1.000000|1.000000|1|
-|G02|E01|unlabeled_statistics|3||1.000000|1.000000|1.000000|1|
-|G02|E01|unlabeled_statistics|5||1.000000|1.000000|1.000000|1|
-|G02|E01|unlabeled_statistics|10||1.000000|1.000000|1.000000|1|
-|G03|E01|full_pipeline_fixedgamma|10|0%|1.000000|1.000000|1.000000|1|
-|G03|E01|full_pipeline_fixedgamma|10|10%|1.000000|1.000000|1.000000|5|
-|G03|E01|full_pipeline_fixedgamma|10|20%|1.000000|1.000000|1.000000|5|
-|G03|E01|full_pipeline_fixedgamma|10|40%|1.000000|1.000000|1.000000|5|
-|G03|E01|full_pipeline_fixedgamma|10|100%|0.975000|0.974984|0.975000|1|
-|G03|E01|identity|0|0%|1.000000|1.000000|1.000000|1|
-|G03|E01|raw_anchor_lambda1|10|0%|1.000000|1.000000|1.000000|1|
-|G03|E01|raw_anchor_lambda1|10|10%|1.000000|1.000000|1.000000|5|
-|G03|E01|raw_anchor_lambda1|10|20%|1.000000|1.000000|1.000000|5|
-|G03|E01|raw_anchor_lambda1|10|40%|1.000000|1.000000|1.000000|5|
-|G03|E01|raw_anchor_lambda1|10|100%|0.000000|0.000000|0.000000|1|
-|G03|E01|svc_predict|0|0%|1.000000|1.000000|1.000000|1|
-|G03|E01|weak_lambda1000_blend005|10|0%|1.000000|1.000000|1.000000|1|
-|G03|E01|weak_lambda1000_blend005|10|10%|1.000000|1.000000|1.000000|5|
-|G03|E01|weak_lambda1000_blend005|10|20%|1.000000|1.000000|1.000000|5|
-|G03|E01|weak_lambda1000_blend005|10|40%|1.000000|1.000000|1.000000|5|
-|G03|E01|weak_lambda1000_blend005|10|100%|1.000000|1.000000|1.000000|1|
-|G04|E01|class_weight_balanced|0||1.000000|1.000000|1.000000|1|
-|G04|E01|class_weight_balanced_argmax|0||1.000000|1.000000|1.000000|1|
-|G04|E01|class_weight_none|0||1.000000|1.000000|1.000000|1|
-|G04|E01|class_weight_none_argmax|0||1.000000|1.000000|1.000000|1|
+|G01|E01|identity|0||0.983333|0.983323|0.983333|30|
+|G01|E01|mean_free_intercept|1||0.983889|0.983879|0.983889|90|
+|G01|E01|mean_free_intercept|3||0.983333|0.983323|0.983333|90|
+|G01|E01|mean_free_intercept|5||0.983333|0.983323|0.983333|90|
+|G01|E01|mean_free_intercept|10||0.983333|0.983323|0.983333|30|
+|G01|E01|mean_penalized|1||0.983611|0.983601|0.983611|90|
+|G01|E01|mean_penalized|3||0.983333|0.983323|0.983333|90|
+|G01|E01|mean_penalized|5||0.983333|0.983323|0.983333|90|
+|G01|E01|mean_penalized|10||0.983333|0.983323|0.983333|30|
+|G01|E01|sum_free_intercept|1||0.983889|0.983879|0.983889|90|
+|G01|E01|sum_free_intercept|3||0.983333|0.983323|0.983333|90|
+|G01|E01|sum_free_intercept|5||0.983333|0.983323|0.983333|90|
+|G01|E01|sum_free_intercept|10||0.983333|0.983323|0.983333|30|
+|G01|E01|sum_penalized|1||0.983889|0.983879|0.983889|90|
+|G01|E01|sum_penalized|3||0.983333|0.983323|0.983333|90|
+|G01|E01|sum_penalized|5||0.983333|0.983323|0.983333|90|
+|G01|E01|sum_penalized|10||0.983333|0.983323|0.983333|30|
+|G01|E01|svc_predict|0||0.983333|0.983323|0.983333|30|
+|G01|E03|identity|0||0.800000|0.798475|0.800000|15|
+|G01|E03|mean_free_intercept|1||0.741111|0.724128|0.741111|45|
+|G01|E03|mean_free_intercept|3||0.791111|0.788364|0.791111|45|
+|G01|E03|mean_free_intercept|5||0.798519|0.796316|0.798519|45|
+|G01|E03|mean_free_intercept|10||0.800000|0.798023|0.800000|15|
+|G01|E03|mean_penalized|1||0.750741|0.735301|0.750741|45|
+|G01|E03|mean_penalized|3||0.796667|0.794947|0.796667|45|
+|G01|E03|mean_penalized|5||0.799630|0.797547|0.799630|45|
+|G01|E03|mean_penalized|10||0.800000|0.798023|0.800000|15|
+|G01|E03|sum_free_intercept|1||0.693704|0.670820|0.693704|45|
+|G01|E03|sum_free_intercept|3||0.745185|0.734677|0.745185|45|
+|G01|E03|sum_free_intercept|5||0.776296|0.770550|0.776296|45|
+|G01|E03|sum_free_intercept|10||0.788889|0.784699|0.788889|15|
+|G01|E03|sum_penalized|1||0.695926|0.673379|0.695926|45|
+|G01|E03|sum_penalized|3||0.746296|0.735754|0.746296|45|
+|G01|E03|sum_penalized|5||0.776667|0.770945|0.776667|45|
+|G01|E03|sum_penalized|10||0.787778|0.783517|0.787778|15|
+|G01|E03|svc_predict|0||0.800000|0.798475|0.800000|15|
+|G02|E01|cyclic_support|1||0.983333|0.983295|0.983333|30|
+|G02|E01|cyclic_support|3||0.978333|0.978320|0.978333|30|
+|G02|E01|cyclic_support|5||0.965833|0.965750|0.965833|30|
+|G02|E01|cyclic_support|10||0.925833|0.924779|0.925833|30|
+|G02|E01|identity|0||0.983333|0.983323|0.983333|30|
+|G02|E01|true_support|1||0.983333|0.983323|0.983333|30|
+|G02|E01|true_support|3||0.983333|0.983323|0.983333|30|
+|G02|E01|true_support|5||0.983333|0.983323|0.983333|30|
+|G02|E01|true_support|10||0.983333|0.983323|0.983333|30|
+|G02|E01|unlabeled_statistics|1||0.983333|0.983323|0.983333|30|
+|G02|E01|unlabeled_statistics|3||0.983333|0.983323|0.983333|30|
+|G02|E01|unlabeled_statistics|5||0.983333|0.983323|0.983333|30|
+|G02|E01|unlabeled_statistics|10||0.983333|0.983323|0.983333|30|
+|G02|E03|cyclic_support|1||0.801111|0.799036|0.801111|15|
+|G02|E03|cyclic_support|3||0.790000|0.789076|0.790000|15|
+|G02|E03|cyclic_support|5||0.770000|0.770008|0.770000|15|
+|G02|E03|cyclic_support|10||0.733333|0.731808|0.733333|15|
+|G02|E03|identity|0||0.800000|0.798475|0.800000|15|
+|G02|E03|true_support|1||0.800000|0.798441|0.800000|15|
+|G02|E03|true_support|3||0.806667|0.805168|0.806667|15|
+|G02|E03|true_support|5||0.821111|0.819859|0.821111|15|
+|G02|E03|true_support|10||0.838889|0.837811|0.838889|15|
+|G02|E03|unlabeled_statistics|1||0.800000|0.798647|0.800000|15|
+|G02|E03|unlabeled_statistics|3||0.800000|0.798647|0.800000|15|
+|G02|E03|unlabeled_statistics|5||0.801111|0.799661|0.801111|15|
+|G02|E03|unlabeled_statistics|10||0.801111|0.799565|0.801111|15|
+|G03|E01|full_pipeline_fixedgamma|10|0%|0.983333|0.983323|0.983333|30|
+|G03|E01|full_pipeline_fixedgamma|10|10%|0.986167|0.986158|0.986167|150|
+|G03|E01|full_pipeline_fixedgamma|10|20%|0.985333|0.985320|0.985333|150|
+|G03|E01|full_pipeline_fixedgamma|10|40%|0.984500|0.984468|0.984500|150|
+|G03|E01|full_pipeline_fixedgamma|10|100%|0.925833|0.924779|0.925833|30|
+|G03|E01|identity|0|0%|0.983333|0.983323|0.983333|30|
+|G03|E01|raw_anchor_lambda1|10|0%|0.983333|0.983323|0.983333|30|
+|G03|E01|raw_anchor_lambda1|10|10%|0.983333|0.983323|0.983333|150|
+|G03|E01|raw_anchor_lambda1|10|20%|0.983333|0.983323|0.983333|150|
+|G03|E01|raw_anchor_lambda1|10|40%|0.983333|0.983323|0.983333|150|
+|G03|E01|raw_anchor_lambda1|10|100%|0.016667|0.016260|0.016667|30|
+|G03|E01|svc_predict|0|0%|0.983333|0.983323|0.983333|30|
+|G03|E01|weak_lambda1000_blend005|10|0%|0.983333|0.983323|0.983333|30|
+|G03|E01|weak_lambda1000_blend005|10|10%|0.983333|0.983323|0.983333|150|
+|G03|E01|weak_lambda1000_blend005|10|20%|0.983333|0.983323|0.983333|150|
+|G03|E01|weak_lambda1000_blend005|10|40%|0.983333|0.983323|0.983333|150|
+|G03|E01|weak_lambda1000_blend005|10|100%|0.983333|0.983323|0.983333|30|
+|G03|E03|full_pipeline_fixedgamma|10|0%|0.838889|0.837811|0.838889|15|
+|G03|E03|full_pipeline_fixedgamma|10|10%|0.826444|0.825694|0.826444|75|
+|G03|E03|full_pipeline_fixedgamma|10|20%|0.819333|0.818479|0.819333|75|
+|G03|E03|full_pipeline_fixedgamma|10|40%|0.800889|0.799924|0.800889|75|
+|G03|E03|full_pipeline_fixedgamma|10|100%|0.733333|0.731808|0.733333|15|
+|G03|E03|identity|0|0%|0.800000|0.798475|0.800000|15|
+|G03|E03|raw_anchor_lambda1|10|0%|0.787778|0.783517|0.787778|15|
+|G03|E03|raw_anchor_lambda1|10|10%|0.788889|0.784903|0.788889|75|
+|G03|E03|raw_anchor_lambda1|10|20%|0.775111|0.771690|0.775111|75|
+|G03|E03|raw_anchor_lambda1|10|40%|0.662667|0.648516|0.662667|75|
+|G03|E03|raw_anchor_lambda1|10|100%|0.064444|0.059684|0.064444|15|
+|G03|E03|svc_predict|0|0%|0.800000|0.798475|0.800000|15|
+|G03|E03|weak_lambda1000_blend005|10|0%|0.801111|0.799554|0.801111|15|
+|G03|E03|weak_lambda1000_blend005|10|10%|0.801111|0.799554|0.801111|75|
+|G03|E03|weak_lambda1000_blend005|10|20%|0.801111|0.799554|0.801111|75|
+|G03|E03|weak_lambda1000_blend005|10|40%|0.801111|0.799554|0.801111|75|
+|G03|E03|weak_lambda1000_blend005|10|100%|0.802222|0.800823|0.802222|15|
+|G04|E01|class_weight_balanced|0||0.987917|0.987897|0.987917|240|
+|G04|E01|class_weight_balanced_argmax|0||0.987917|0.987897|0.987917|240|
+|G04|E01|class_weight_none|0||0.987917|0.987897|0.987917|240|
+|G04|E01|class_weight_none_argmax|0||0.987917|0.987897|0.987917|240|
 
 ## 配对变化与描述性区间
 
@@ -92,112 +140,220 @@ G04只复用第二轮240个来源上下文的模型、原始预测和分数。�
 
 |块|原任务|比较|K/类|Support污染比例|ΔAccuracy百分点及95%区间|纠错/误伤|预测行/实物|
 |---|---|---|---:|---:|---:|---:|---:|
-|G01|E01|sum_penalized_minus_identity|1||+0.000 [+0.000,+0.000]|0/0|120/40|
-|G01|E01|mean_penalized_minus_identity|1||+0.000 [+0.000,+0.000]|0/0|120/40|
-|G01|E01|sum_free_intercept_minus_identity|1||+0.000 [+0.000,+0.000]|0/0|120/40|
-|G01|E01|mean_free_intercept_minus_identity|1||+0.000 [+0.000,+0.000]|0/0|120/40|
-|G01|E01|mean_minus_sum_penalized_intercept|1||+0.000 [+0.000,+0.000]|0/0|120/40|
-|G01|E01|mean_minus_sum_free_intercept|1||+0.000 [+0.000,+0.000]|0/0|120/40|
-|G01|E01|sum_free_minus_penalized_intercept|1||+0.000 [+0.000,+0.000]|0/0|120/40|
-|G01|E01|mean_free_minus_penalized_intercept|1||+0.000 [+0.000,+0.000]|0/0|120/40|
-|G01|E01|sum_penalized_minus_identity|3||+0.000 [+0.000,+0.000]|0/0|120/40|
-|G01|E01|mean_penalized_minus_identity|3||+0.000 [+0.000,+0.000]|0/0|120/40|
-|G01|E01|sum_free_intercept_minus_identity|3||+0.000 [+0.000,+0.000]|0/0|120/40|
-|G01|E01|mean_free_intercept_minus_identity|3||+0.000 [+0.000,+0.000]|0/0|120/40|
-|G01|E01|mean_minus_sum_penalized_intercept|3||+0.000 [+0.000,+0.000]|0/0|120/40|
-|G01|E01|mean_minus_sum_free_intercept|3||+0.000 [+0.000,+0.000]|0/0|120/40|
-|G01|E01|sum_free_minus_penalized_intercept|3||+0.000 [+0.000,+0.000]|0/0|120/40|
-|G01|E01|mean_free_minus_penalized_intercept|3||+0.000 [+0.000,+0.000]|0/0|120/40|
-|G01|E01|sum_penalized_minus_identity|5||+0.000 [+0.000,+0.000]|0/0|120/40|
-|G01|E01|mean_penalized_minus_identity|5||+0.000 [+0.000,+0.000]|0/0|120/40|
-|G01|E01|sum_free_intercept_minus_identity|5||+0.000 [+0.000,+0.000]|0/0|120/40|
-|G01|E01|mean_free_intercept_minus_identity|5||+0.000 [+0.000,+0.000]|0/0|120/40|
-|G01|E01|mean_minus_sum_penalized_intercept|5||+0.000 [+0.000,+0.000]|0/0|120/40|
-|G01|E01|mean_minus_sum_free_intercept|5||+0.000 [+0.000,+0.000]|0/0|120/40|
-|G01|E01|sum_free_minus_penalized_intercept|5||+0.000 [+0.000,+0.000]|0/0|120/40|
-|G01|E01|mean_free_minus_penalized_intercept|5||+0.000 [+0.000,+0.000]|0/0|120/40|
-|G01|E01|sum_penalized_minus_identity|10||+0.000 [+0.000,+0.000]|0/0|40/40|
-|G01|E01|mean_penalized_minus_identity|10||+0.000 [+0.000,+0.000]|0/0|40/40|
-|G01|E01|sum_free_intercept_minus_identity|10||+0.000 [+0.000,+0.000]|0/0|40/40|
-|G01|E01|mean_free_intercept_minus_identity|10||+0.000 [+0.000,+0.000]|0/0|40/40|
-|G01|E01|mean_minus_sum_penalized_intercept|10||+0.000 [+0.000,+0.000]|0/0|40/40|
-|G01|E01|mean_minus_sum_free_intercept|10||+0.000 [+0.000,+0.000]|0/0|40/40|
-|G01|E01|sum_free_minus_penalized_intercept|10||+0.000 [+0.000,+0.000]|0/0|40/40|
-|G01|E01|mean_free_minus_penalized_intercept|10||+0.000 [+0.000,+0.000]|0/0|40/40|
-|G01|E01|score_argmax_minus_native_svc_zero_support|0||+0.000 [+0.000,+0.000]|0/0|40/40|
-|G02|E01|unlabeled_statistics_minus_source_identity|1||+0.000 [+0.000,+0.000]|0/0|40/40|
-|G02|E01|true_support_minus_source_identity|1||+0.000 [+0.000,+0.000]|0/0|40/40|
-|G02|E01|cyclic_support_minus_source_identity|1||+0.000 [+0.000,+0.000]|0/0|40/40|
-|G02|E01|true_labels_minus_unlabeled_statistics|1||+0.000 [+0.000,+0.000]|0/0|40/40|
-|G02|E01|cyclic_labels_minus_true_labels|1||+0.000 [+0.000,+0.000]|0/0|40/40|
-|G02|E01|cyclic_labels_minus_unlabeled_statistics|1||+0.000 [+0.000,+0.000]|0/0|40/40|
-|G02|E01|unlabeled_statistics_minus_source_identity|3||+0.000 [+0.000,+0.000]|0/0|40/40|
-|G02|E01|true_support_minus_source_identity|3||+0.000 [+0.000,+0.000]|0/0|40/40|
-|G02|E01|cyclic_support_minus_source_identity|3||+0.000 [+0.000,+0.000]|0/0|40/40|
-|G02|E01|true_labels_minus_unlabeled_statistics|3||+0.000 [+0.000,+0.000]|0/0|40/40|
-|G02|E01|cyclic_labels_minus_true_labels|3||+0.000 [+0.000,+0.000]|0/0|40/40|
-|G02|E01|cyclic_labels_minus_unlabeled_statistics|3||+0.000 [+0.000,+0.000]|0/0|40/40|
-|G02|E01|unlabeled_statistics_minus_source_identity|5||+0.000 [+0.000,+0.000]|0/0|40/40|
-|G02|E01|true_support_minus_source_identity|5||+0.000 [+0.000,+0.000]|0/0|40/40|
-|G02|E01|cyclic_support_minus_source_identity|5||+0.000 [+0.000,+0.000]|0/0|40/40|
-|G02|E01|true_labels_minus_unlabeled_statistics|5||+0.000 [+0.000,+0.000]|0/0|40/40|
-|G02|E01|cyclic_labels_minus_true_labels|5||+0.000 [+0.000,+0.000]|0/0|40/40|
-|G02|E01|cyclic_labels_minus_unlabeled_statistics|5||+0.000 [+0.000,+0.000]|0/0|40/40|
-|G02|E01|unlabeled_statistics_minus_source_identity|10||+0.000 [+0.000,+0.000]|0/0|40/40|
-|G02|E01|true_support_minus_source_identity|10||+0.000 [+0.000,+0.000]|0/0|40/40|
-|G02|E01|cyclic_support_minus_source_identity|10||-2.500 [-7.500,+0.000]|0/1|40/40|
-|G02|E01|true_labels_minus_unlabeled_statistics|10||+0.000 [+0.000,+0.000]|0/0|40/40|
-|G02|E01|cyclic_labels_minus_true_labels|10||-2.500 [-7.500,+0.000]|0/1|40/40|
-|G02|E01|cyclic_labels_minus_unlabeled_statistics|10||-2.500 [-7.500,+0.000]|0/1|40/40|
-|G03|E01|raw_anchor_lambda1_minus_matched_source_control|10|0%|+0.000 [+0.000,+0.000]|0/0|40/40|
-|G03|E01|raw_anchor_lambda1_noise_minus_true_support|10|0%|+0.000 [+0.000,+0.000]|0/0|40/40|
-|G03|E01|raw_anchor_lambda1_minus_matched_source_control|10|10%|+0.000 [+0.000,+0.000]|0/0|200/40|
-|G03|E01|raw_anchor_lambda1_noise_minus_true_support|10|10%|+0.000 [+0.000,+0.000]|0/0|200/40|
-|G03|E01|raw_anchor_lambda1_minus_matched_source_control|10|20%|+0.000 [+0.000,+0.000]|0/0|200/40|
-|G03|E01|raw_anchor_lambda1_noise_minus_true_support|10|20%|+0.000 [+0.000,+0.000]|0/0|200/40|
-|G03|E01|raw_anchor_lambda1_minus_matched_source_control|10|40%|+0.000 [+0.000,+0.000]|0/0|200/40|
-|G03|E01|raw_anchor_lambda1_noise_minus_true_support|10|40%|+0.000 [+0.000,+0.000]|0/0|200/40|
-|G03|E01|raw_anchor_lambda1_minus_matched_source_control|10|100%|-100.000 [-100.000,-100.000]|0/40|40/40|
-|G03|E01|raw_anchor_lambda1_noise_minus_true_support|10|100%|-100.000 [-100.000,-100.000]|0/40|40/40|
-|G03|E01|weak_lambda1000_blend005_minus_matched_source_control|10|0%|+0.000 [+0.000,+0.000]|0/0|40/40|
-|G03|E01|weak_lambda1000_blend005_noise_minus_true_support|10|0%|+0.000 [+0.000,+0.000]|0/0|40/40|
-|G03|E01|weak_lambda1000_blend005_minus_matched_source_control|10|10%|+0.000 [+0.000,+0.000]|0/0|200/40|
-|G03|E01|weak_lambda1000_blend005_noise_minus_true_support|10|10%|+0.000 [+0.000,+0.000]|0/0|200/40|
-|G03|E01|weak_lambda1000_blend005_minus_matched_source_control|10|20%|+0.000 [+0.000,+0.000]|0/0|200/40|
-|G03|E01|weak_lambda1000_blend005_noise_minus_true_support|10|20%|+0.000 [+0.000,+0.000]|0/0|200/40|
-|G03|E01|weak_lambda1000_blend005_minus_matched_source_control|10|40%|+0.000 [+0.000,+0.000]|0/0|200/40|
-|G03|E01|weak_lambda1000_blend005_noise_minus_true_support|10|40%|+0.000 [+0.000,+0.000]|0/0|200/40|
-|G03|E01|weak_lambda1000_blend005_minus_matched_source_control|10|100%|+0.000 [+0.000,+0.000]|0/0|40/40|
-|G03|E01|weak_lambda1000_blend005_noise_minus_true_support|10|100%|+0.000 [+0.000,+0.000]|0/0|40/40|
-|G03|E01|full_pipeline_fixedgamma_minus_matched_source_control|10|0%|+0.000 [+0.000,+0.000]|0/0|40/40|
-|G03|E01|full_pipeline_fixedgamma_noise_minus_true_support|10|0%|+0.000 [+0.000,+0.000]|0/0|40/40|
-|G03|E01|full_pipeline_fixedgamma_minus_matched_source_control|10|10%|+0.000 [+0.000,+0.000]|0/0|200/40|
-|G03|E01|full_pipeline_fixedgamma_noise_minus_true_support|10|10%|+0.000 [+0.000,+0.000]|0/0|200/40|
-|G03|E01|full_pipeline_fixedgamma_minus_matched_source_control|10|20%|+0.000 [+0.000,+0.000]|0/0|200/40|
-|G03|E01|full_pipeline_fixedgamma_noise_minus_true_support|10|20%|+0.000 [+0.000,+0.000]|0/0|200/40|
-|G03|E01|full_pipeline_fixedgamma_minus_matched_source_control|10|40%|+0.000 [+0.000,+0.000]|0/0|200/40|
-|G03|E01|full_pipeline_fixedgamma_noise_minus_true_support|10|40%|+0.000 [+0.000,+0.000]|0/0|200/40|
-|G03|E01|full_pipeline_fixedgamma_minus_matched_source_control|10|100%|-2.500 [-7.500,+0.000]|0/1|40/40|
-|G03|E01|full_pipeline_fixedgamma_noise_minus_true_support|10|100%|-2.500 [-7.500,+0.000]|0/1|40/40|
-|G03|E01|weak_lambda1000_blend005_minus_raw_anchor_lambda1|10|0%|+0.000 [+0.000,+0.000]|0/0|40/40|
-|G03|E01|full_pipeline_fixedgamma_minus_raw_anchor_lambda1|10|0%|+0.000 [+0.000,+0.000]|0/0|40/40|
-|G03|E01|full_pipeline_fixedgamma_minus_weak_lambda1000_blend005|10|0%|+0.000 [+0.000,+0.000]|0/0|40/40|
-|G03|E01|weak_lambda1000_blend005_minus_raw_anchor_lambda1|10|10%|+0.000 [+0.000,+0.000]|0/0|200/40|
-|G03|E01|full_pipeline_fixedgamma_minus_raw_anchor_lambda1|10|10%|+0.000 [+0.000,+0.000]|0/0|200/40|
-|G03|E01|full_pipeline_fixedgamma_minus_weak_lambda1000_blend005|10|10%|+0.000 [+0.000,+0.000]|0/0|200/40|
-|G03|E01|weak_lambda1000_blend005_minus_raw_anchor_lambda1|10|20%|+0.000 [+0.000,+0.000]|0/0|200/40|
-|G03|E01|full_pipeline_fixedgamma_minus_raw_anchor_lambda1|10|20%|+0.000 [+0.000,+0.000]|0/0|200/40|
-|G03|E01|full_pipeline_fixedgamma_minus_weak_lambda1000_blend005|10|20%|+0.000 [+0.000,+0.000]|0/0|200/40|
-|G03|E01|weak_lambda1000_blend005_minus_raw_anchor_lambda1|10|40%|+0.000 [+0.000,+0.000]|0/0|200/40|
-|G03|E01|full_pipeline_fixedgamma_minus_raw_anchor_lambda1|10|40%|+0.000 [+0.000,+0.000]|0/0|200/40|
-|G03|E01|full_pipeline_fixedgamma_minus_weak_lambda1000_blend005|10|40%|+0.000 [+0.000,+0.000]|0/0|200/40|
-|G03|E01|weak_lambda1000_blend005_minus_raw_anchor_lambda1|10|100%|+100.000 [+100.000,+100.000]|40/0|40/40|
-|G03|E01|full_pipeline_fixedgamma_minus_raw_anchor_lambda1|10|100%|+97.500 [+92.500,+100.000]|39/0|40/40|
-|G03|E01|full_pipeline_fixedgamma_minus_weak_lambda1000_blend005|10|100%|-2.500 [-7.500,+0.000]|0/1|40/40|
-|G03|E01|score_argmax_minus_native_svc_zero_support|0||+0.000 [+0.000,+0.000]|0/0|40/40|
-|G04|E01|unweighted_minus_balanced|0||+0.000 [+0.000,+0.000]|0/0|40/40|
-|G04|E01|class_weight_balanced_argmax_minus_native|0||+0.000 [+0.000,+0.000]|0/0|40/40|
-|G04|E01|class_weight_none_argmax_minus_native|0||+0.000 [+0.000,+0.000]|0/0|40/40|
+|G01|E01|sum_penalized_minus_identity|1||+0.056 [+0.000,+0.217]|2/0|3600/261|
+|G01|E01|mean_penalized_minus_identity|1||+0.028 [+0.000,+0.108]|1/0|3600/261|
+|G01|E01|sum_free_intercept_minus_identity|1||+0.056 [+0.000,+0.217]|2/0|3600/261|
+|G01|E01|mean_free_intercept_minus_identity|1||+0.056 [+0.000,+0.217]|2/0|3600/261|
+|G01|E01|mean_minus_sum_penalized_intercept|1||-0.028 [-0.108,+0.000]|0/1|3600/261|
+|G01|E01|mean_minus_sum_free_intercept|1||+0.000 [+0.000,+0.000]|0/0|3600/261|
+|G01|E01|sum_free_minus_penalized_intercept|1||+0.000 [+0.000,+0.000]|0/0|3600/261|
+|G01|E01|mean_free_minus_penalized_intercept|1||+0.028 [+0.000,+0.108]|1/0|3600/261|
+|G01|E01|sum_penalized_minus_identity|3||+0.000 [+0.000,+0.000]|0/0|3600/261|
+|G01|E01|mean_penalized_minus_identity|3||+0.000 [+0.000,+0.000]|0/0|3600/261|
+|G01|E01|sum_free_intercept_minus_identity|3||+0.000 [+0.000,+0.000]|0/0|3600/261|
+|G01|E01|mean_free_intercept_minus_identity|3||+0.000 [+0.000,+0.000]|0/0|3600/261|
+|G01|E01|mean_minus_sum_penalized_intercept|3||+0.000 [+0.000,+0.000]|0/0|3600/261|
+|G01|E01|mean_minus_sum_free_intercept|3||+0.000 [+0.000,+0.000]|0/0|3600/261|
+|G01|E01|sum_free_minus_penalized_intercept|3||+0.000 [+0.000,+0.000]|0/0|3600/261|
+|G01|E01|mean_free_minus_penalized_intercept|3||+0.000 [+0.000,+0.000]|0/0|3600/261|
+|G01|E01|sum_penalized_minus_identity|5||+0.000 [+0.000,+0.000]|0/0|3600/261|
+|G01|E01|mean_penalized_minus_identity|5||+0.000 [+0.000,+0.000]|0/0|3600/261|
+|G01|E01|sum_free_intercept_minus_identity|5||+0.000 [+0.000,+0.000]|0/0|3600/261|
+|G01|E01|mean_free_intercept_minus_identity|5||+0.000 [+0.000,+0.000]|0/0|3600/261|
+|G01|E01|mean_minus_sum_penalized_intercept|5||+0.000 [+0.000,+0.000]|0/0|3600/261|
+|G01|E01|mean_minus_sum_free_intercept|5||+0.000 [+0.000,+0.000]|0/0|3600/261|
+|G01|E01|sum_free_minus_penalized_intercept|5||+0.000 [+0.000,+0.000]|0/0|3600/261|
+|G01|E01|mean_free_minus_penalized_intercept|5||+0.000 [+0.000,+0.000]|0/0|3600/261|
+|G01|E01|sum_penalized_minus_identity|10||+0.000 [+0.000,+0.000]|0/0|1200/261|
+|G01|E01|mean_penalized_minus_identity|10||+0.000 [+0.000,+0.000]|0/0|1200/261|
+|G01|E01|sum_free_intercept_minus_identity|10||+0.000 [+0.000,+0.000]|0/0|1200/261|
+|G01|E01|mean_free_intercept_minus_identity|10||+0.000 [+0.000,+0.000]|0/0|1200/261|
+|G01|E01|mean_minus_sum_penalized_intercept|10||+0.000 [+0.000,+0.000]|0/0|1200/261|
+|G01|E01|mean_minus_sum_free_intercept|10||+0.000 [+0.000,+0.000]|0/0|1200/261|
+|G01|E01|sum_free_minus_penalized_intercept|10||+0.000 [+0.000,+0.000]|0/0|1200/261|
+|G01|E01|mean_free_minus_penalized_intercept|10||+0.000 [+0.000,+0.000]|0/0|1200/261|
+|G01|E01|score_argmax_minus_native_svc_zero_support|0||+0.000 [+0.000,+0.000]|0/0|1200/261|
+|G01|E03|sum_penalized_minus_identity|1||-10.407 [-12.444,-8.296]|73/354|2700/300|
+|G01|E03|mean_penalized_minus_identity|1||-4.926 [-6.482,-3.259]|63/196|2700/300|
+|G01|E03|sum_free_intercept_minus_identity|1||-10.630 [-12.594,-8.518]|72/359|2700/300|
+|G01|E03|mean_free_intercept_minus_identity|1||-5.889 [-7.519,-4.073]|69/228|2700/300|
+|G01|E03|mean_minus_sum_penalized_intercept|1||+5.481 [+4.369,+6.593]|178/30|2700/300|
+|G01|E03|mean_minus_sum_free_intercept|1||+4.741 [+3.741,+5.778]|154/26|2700/300|
+|G01|E03|sum_free_minus_penalized_intercept|1||-0.222 [-0.481,+0.037]|4/10|2700/300|
+|G01|E03|mean_free_minus_penalized_intercept|1||-0.963 [-1.444,-0.444]|7/33|2700/300|
+|G01|E03|sum_penalized_minus_identity|3||-5.370 [-7.074,-3.592]|59/204|2700/300|
+|G01|E03|mean_penalized_minus_identity|3||-0.333 [-1.000,+0.333]|19/28|2700/300|
+|G01|E03|sum_free_intercept_minus_identity|3||-5.481 [-7.186,-3.704]|57/205|2700/300|
+|G01|E03|mean_free_intercept_minus_identity|3||-0.889 [-1.594,-0.148]|20/44|2700/300|
+|G01|E03|mean_minus_sum_penalized_intercept|3||+5.037 [+3.519,+6.630]|181/45|2700/300|
+|G01|E03|mean_minus_sum_free_intercept|3||+4.593 [+3.111,+6.149]|174/50|2700/300|
+|G01|E03|sum_free_minus_penalized_intercept|3||-0.111 [-0.259,+0.037]|1/4|2700/300|
+|G01|E03|mean_free_minus_penalized_intercept|3||-0.556 [-0.926,-0.222]|1/16|2700/300|
+|G01|E03|sum_penalized_minus_identity|5||-2.333 [-3.556,-1.148]|41/104|2700/300|
+|G01|E03|mean_penalized_minus_identity|5||-0.037 [-0.630,+0.556]|15/16|2700/300|
+|G01|E03|sum_free_intercept_minus_identity|5||-2.370 [-3.556,-1.185]|40/104|2700/300|
+|G01|E03|mean_free_intercept_minus_identity|5||-0.148 [-0.815,+0.481]|16/20|2700/300|
+|G01|E03|mean_minus_sum_penalized_intercept|5||+2.296 [+1.296,+3.371]|92/30|2700/300|
+|G01|E03|mean_minus_sum_free_intercept|5||+2.222 [+1.259,+3.296]|90/30|2700/300|
+|G01|E03|sum_free_minus_penalized_intercept|5||-0.037 [-0.111,+0.000]|0/1|2700/300|
+|G01|E03|mean_free_minus_penalized_intercept|5||-0.111 [-0.296,+0.037]|1/4|2700/300|
+|G01|E03|sum_penalized_minus_identity|10||-1.222 [-2.556,+0.000]|9/20|900/300|
+|G01|E03|mean_penalized_minus_identity|10||+0.000 [-0.667,+0.667]|4/4|900/300|
+|G01|E03|sum_free_intercept_minus_identity|10||-1.111 [-2.444,+0.114]|10/20|900/300|
+|G01|E03|mean_free_intercept_minus_identity|10||+0.000 [-0.667,+0.667]|4/4|900/300|
+|G01|E03|mean_minus_sum_penalized_intercept|10||+1.222 [+0.222,+2.225]|16/5|900/300|
+|G01|E03|mean_minus_sum_free_intercept|10||+1.111 [+0.111,+2.111]|16/6|900/300|
+|G01|E03|sum_free_minus_penalized_intercept|10||+0.111 [+0.000,+0.333]|1/0|900/300|
+|G01|E03|mean_free_minus_penalized_intercept|10||+0.000 [+0.000,+0.000]|0/0|900/300|
+|G01|E03|score_argmax_minus_native_svc_zero_support|0||+0.000 [+0.000,+0.000]|0/0|900/300|
+|G02|E01|unlabeled_statistics_minus_source_identity|1||+0.000 [+0.000,+0.000]|0/0|1200/261|
+|G02|E01|true_support_minus_source_identity|1||+0.000 [+0.000,+0.000]|0/0|1200/261|
+|G02|E01|cyclic_support_minus_source_identity|1||+0.000 [-2.265,+2.457]|10/10|1200/261|
+|G02|E01|true_labels_minus_unlabeled_statistics|1||+0.000 [+0.000,+0.000]|0/0|1200/261|
+|G02|E01|cyclic_labels_minus_true_labels|1||+0.000 [-2.265,+2.457]|10/10|1200/261|
+|G02|E01|cyclic_labels_minus_unlabeled_statistics|1||+0.000 [-2.265,+2.457]|10/10|1200/261|
+|G02|E01|unlabeled_statistics_minus_source_identity|3||+0.000 [+0.000,+0.000]|0/0|1200/261|
+|G02|E01|true_support_minus_source_identity|3||+0.000 [+0.000,+0.000]|0/0|1200/261|
+|G02|E01|cyclic_support_minus_source_identity|3||-0.500 [-1.913,+1.683]|9/15|1200/261|
+|G02|E01|true_labels_minus_unlabeled_statistics|3||+0.000 [+0.000,+0.000]|0/0|1200/261|
+|G02|E01|cyclic_labels_minus_true_labels|3||-0.500 [-1.913,+1.683]|9/15|1200/261|
+|G02|E01|cyclic_labels_minus_unlabeled_statistics|3||-0.500 [-1.913,+1.683]|9/15|1200/261|
+|G02|E01|unlabeled_statistics_minus_source_identity|5||+0.000 [+0.000,+0.000]|0/0|1200/261|
+|G02|E01|true_support_minus_source_identity|5||+0.000 [+0.000,+0.000]|0/0|1200/261|
+|G02|E01|cyclic_support_minus_source_identity|5||-1.750 [-3.192,-0.159]|6/27|1200/261|
+|G02|E01|true_labels_minus_unlabeled_statistics|5||+0.000 [+0.000,+0.000]|0/0|1200/261|
+|G02|E01|cyclic_labels_minus_true_labels|5||-1.750 [-3.192,-0.159]|6/27|1200/261|
+|G02|E01|cyclic_labels_minus_unlabeled_statistics|5||-1.750 [-3.192,-0.159]|6/27|1200/261|
+|G02|E01|unlabeled_statistics_minus_source_identity|10||+0.000 [+0.000,+0.000]|0/0|1200/261|
+|G02|E01|true_support_minus_source_identity|10||+0.000 [+0.000,+0.000]|0/0|1200/261|
+|G02|E01|cyclic_support_minus_source_identity|10||-5.750 [-8.193,-3.609]|6/75|1200/261|
+|G02|E01|true_labels_minus_unlabeled_statistics|10||+0.000 [+0.000,+0.000]|0/0|1200/261|
+|G02|E01|cyclic_labels_minus_true_labels|10||-5.750 [-8.193,-3.609]|6/75|1200/261|
+|G02|E01|cyclic_labels_minus_unlabeled_statistics|10||-5.750 [-8.193,-3.609]|6/75|1200/261|
+|G02|E03|unlabeled_statistics_minus_source_identity|1||+0.000 [-0.333,+0.333]|1/1|900/300|
+|G02|E03|true_support_minus_source_identity|1||+0.000 [-0.889,+0.889]|8/8|900/300|
+|G02|E03|cyclic_support_minus_source_identity|1||+0.111 [-0.889,+1.111]|11/10|900/300|
+|G02|E03|true_labels_minus_unlabeled_statistics|1||+0.000 [-0.889,+0.889]|8/8|900/300|
+|G02|E03|cyclic_labels_minus_true_labels|1||+0.111 [-1.000,+1.333]|16/15|900/300|
+|G02|E03|cyclic_labels_minus_unlabeled_statistics|1||+0.111 [-0.781,+1.111]|11/10|900/300|
+|G02|E03|unlabeled_statistics_minus_source_identity|3||+0.000 [-0.333,+0.333]|1/1|900/300|
+|G02|E03|true_support_minus_source_identity|3||+0.667 [-0.556,+1.781]|20/14|900/300|
+|G02|E03|cyclic_support_minus_source_identity|3||-1.000 [-2.667,+0.667]|19/28|900/300|
+|G02|E03|true_labels_minus_unlabeled_statistics|3||+0.667 [-0.444,+1.778]|20/14|900/300|
+|G02|E03|cyclic_labels_minus_true_labels|3||-1.667 [-3.778,+0.444]|28/43|900/300|
+|G02|E03|cyclic_labels_minus_unlabeled_statistics|3||-1.000 [-2.778,+0.667]|19/28|900/300|
+|G02|E03|unlabeled_statistics_minus_source_identity|5||+0.111 [+0.000,+0.336]|1/0|900/300|
+|G02|E03|true_support_minus_source_identity|5||+2.111 [+0.889,+3.556]|28/9|900/300|
+|G02|E03|cyclic_support_minus_source_identity|5||-3.000 [-4.892,-1.108]|22/49|900/300|
+|G02|E03|true_labels_minus_unlabeled_statistics|5||+2.000 [+0.778,+3.333]|27/9|900/300|
+|G02|E03|cyclic_labels_minus_true_labels|5||-5.111 [-7.333,-2.889]|20/66|900/300|
+|G02|E03|cyclic_labels_minus_unlabeled_statistics|5||-3.111 [-5.111,-1.111]|22/50|900/300|
+|G02|E03|unlabeled_statistics_minus_source_identity|10||+0.111 [-0.222,+0.444]|2/1|900/300|
+|G02|E03|true_support_minus_source_identity|10||+3.889 [+2.219,+6.000]|49/14|900/300|
+|G02|E03|cyclic_support_minus_source_identity|10||-6.667 [-9.222,-4.108]|25/85|900/300|
+|G02|E03|true_labels_minus_unlabeled_statistics|10||+3.778 [+2.111,+5.889]|49/15|900/300|
+|G02|E03|cyclic_labels_minus_true_labels|10||-10.556 [-13.667,-7.667]|25/120|900/300|
+|G02|E03|cyclic_labels_minus_unlabeled_statistics|10||-6.778 [-9.333,-4.222]|24/85|900/300|
+|G03|E01|raw_anchor_lambda1_minus_matched_source_control|10|0%|+0.000 [+0.000,+0.000]|0/0|1200/261|
+|G03|E01|raw_anchor_lambda1_noise_minus_true_support|10|0%|+0.000 [+0.000,+0.000]|0/0|1200/261|
+|G03|E01|raw_anchor_lambda1_minus_matched_source_control|10|10%|+0.000 [+0.000,+0.000]|0/0|6000/261|
+|G03|E01|raw_anchor_lambda1_noise_minus_true_support|10|10%|+0.000 [+0.000,+0.000]|0/0|6000/261|
+|G03|E01|raw_anchor_lambda1_minus_matched_source_control|10|20%|+0.000 [+0.000,+0.000]|0/0|6000/261|
+|G03|E01|raw_anchor_lambda1_noise_minus_true_support|10|20%|+0.000 [+0.000,+0.000]|0/0|6000/261|
+|G03|E01|raw_anchor_lambda1_minus_matched_source_control|10|40%|+0.000 [+0.000,+0.000]|0/0|6000/261|
+|G03|E01|raw_anchor_lambda1_noise_minus_true_support|10|40%|+0.000 [+0.000,+0.000]|0/0|6000/261|
+|G03|E01|raw_anchor_lambda1_minus_matched_source_control|10|100%|-96.667 [-100.000,-91.363]|20/1180|1200/261|
+|G03|E01|raw_anchor_lambda1_noise_minus_true_support|10|100%|-96.667 [-100.000,-91.363]|20/1180|1200/261|
+|G03|E01|weak_lambda1000_blend005_minus_matched_source_control|10|0%|+0.000 [+0.000,+0.000]|0/0|1200/261|
+|G03|E01|weak_lambda1000_blend005_noise_minus_true_support|10|0%|+0.000 [+0.000,+0.000]|0/0|1200/261|
+|G03|E01|weak_lambda1000_blend005_minus_matched_source_control|10|10%|+0.000 [+0.000,+0.000]|0/0|6000/261|
+|G03|E01|weak_lambda1000_blend005_noise_minus_true_support|10|10%|+0.000 [+0.000,+0.000]|0/0|6000/261|
+|G03|E01|weak_lambda1000_blend005_minus_matched_source_control|10|20%|+0.000 [+0.000,+0.000]|0/0|6000/261|
+|G03|E01|weak_lambda1000_blend005_noise_minus_true_support|10|20%|+0.000 [+0.000,+0.000]|0/0|6000/261|
+|G03|E01|weak_lambda1000_blend005_minus_matched_source_control|10|40%|+0.000 [+0.000,+0.000]|0/0|6000/261|
+|G03|E01|weak_lambda1000_blend005_noise_minus_true_support|10|40%|+0.000 [+0.000,+0.000]|0/0|6000/261|
+|G03|E01|weak_lambda1000_blend005_minus_matched_source_control|10|100%|+0.000 [+0.000,+0.000]|0/0|1200/261|
+|G03|E01|weak_lambda1000_blend005_noise_minus_true_support|10|100%|+0.000 [+0.000,+0.000]|0/0|1200/261|
+|G03|E01|full_pipeline_fixedgamma_minus_matched_source_control|10|0%|+0.000 [+0.000,+0.000]|0/0|1200/261|
+|G03|E01|full_pipeline_fixedgamma_noise_minus_true_support|10|0%|+0.000 [+0.000,+0.000]|0/0|1200/261|
+|G03|E01|full_pipeline_fixedgamma_minus_matched_source_control|10|10%|+0.283 [-0.100,+1.246]|20/3|6000/261|
+|G03|E01|full_pipeline_fixedgamma_noise_minus_true_support|10|10%|+0.283 [-0.100,+1.246]|20/3|6000/261|
+|G03|E01|full_pipeline_fixedgamma_minus_matched_source_control|10|20%|+0.200 [-0.480,+1.436]|27/15|6000/261|
+|G03|E01|full_pipeline_fixedgamma_noise_minus_true_support|10|20%|+0.200 [-0.480,+1.436]|27/15|6000/261|
+|G03|E01|full_pipeline_fixedgamma_minus_matched_source_control|10|40%|+0.117 [-0.763,+1.730]|38/31|6000/261|
+|G03|E01|full_pipeline_fixedgamma_noise_minus_true_support|10|40%|+0.117 [-0.763,+1.730]|38/31|6000/261|
+|G03|E01|full_pipeline_fixedgamma_minus_matched_source_control|10|100%|-5.750 [-8.193,-3.609]|6/75|1200/261|
+|G03|E01|full_pipeline_fixedgamma_noise_minus_true_support|10|100%|-5.750 [-8.193,-3.609]|6/75|1200/261|
+|G03|E01|weak_lambda1000_blend005_minus_raw_anchor_lambda1|10|0%|+0.000 [+0.000,+0.000]|0/0|1200/261|
+|G03|E01|full_pipeline_fixedgamma_minus_raw_anchor_lambda1|10|0%|+0.000 [+0.000,+0.000]|0/0|1200/261|
+|G03|E01|full_pipeline_fixedgamma_minus_weak_lambda1000_blend005|10|0%|+0.000 [+0.000,+0.000]|0/0|1200/261|
+|G03|E01|weak_lambda1000_blend005_minus_raw_anchor_lambda1|10|10%|+0.000 [+0.000,+0.000]|0/0|6000/261|
+|G03|E01|full_pipeline_fixedgamma_minus_raw_anchor_lambda1|10|10%|+0.283 [-0.100,+1.246]|20/3|6000/261|
+|G03|E01|full_pipeline_fixedgamma_minus_weak_lambda1000_blend005|10|10%|+0.283 [-0.100,+1.246]|20/3|6000/261|
+|G03|E01|weak_lambda1000_blend005_minus_raw_anchor_lambda1|10|20%|+0.000 [+0.000,+0.000]|0/0|6000/261|
+|G03|E01|full_pipeline_fixedgamma_minus_raw_anchor_lambda1|10|20%|+0.200 [-0.480,+1.436]|27/15|6000/261|
+|G03|E01|full_pipeline_fixedgamma_minus_weak_lambda1000_blend005|10|20%|+0.200 [-0.480,+1.436]|27/15|6000/261|
+|G03|E01|weak_lambda1000_blend005_minus_raw_anchor_lambda1|10|40%|+0.000 [+0.000,+0.000]|0/0|6000/261|
+|G03|E01|full_pipeline_fixedgamma_minus_raw_anchor_lambda1|10|40%|+0.117 [-0.763,+1.730]|38/31|6000/261|
+|G03|E01|full_pipeline_fixedgamma_minus_weak_lambda1000_blend005|10|40%|+0.117 [-0.763,+1.730]|38/31|6000/261|
+|G03|E01|weak_lambda1000_blend005_minus_raw_anchor_lambda1|10|100%|+96.667 [+91.363,+100.000]|1180/20|1200/261|
+|G03|E01|full_pipeline_fixedgamma_minus_raw_anchor_lambda1|10|100%|+90.917 [+85.866,+94.509]|1105/14|1200/261|
+|G03|E01|full_pipeline_fixedgamma_minus_weak_lambda1000_blend005|10|100%|-5.750 [-8.193,-3.609]|6/75|1200/261|
+|G03|E01|score_argmax_minus_native_svc_zero_support|0||+0.000 [+0.000,+0.000]|0/0|1200/261|
+|G03|E03|raw_anchor_lambda1_minus_matched_source_control|10|0%|-1.222 [-2.556,+0.000]|9/20|900/300|
+|G03|E03|raw_anchor_lambda1_noise_minus_true_support|10|0%|+0.000 [+0.000,+0.000]|0/0|900/300|
+|G03|E03|raw_anchor_lambda1_minus_matched_source_control|10|10%|-1.111 [-2.201,-0.044]|46/96|4500/300|
+|G03|E03|raw_anchor_lambda1_noise_minus_true_support|10|10%|+0.111 [-0.556,+0.867]|53/48|4500/300|
+|G03|E03|raw_anchor_lambda1_minus_matched_source_control|10|20%|-2.489 [-3.778,-1.289]|55/167|4500/300|
+|G03|E03|raw_anchor_lambda1_noise_minus_true_support|10|20%|-1.267 [-2.356,-0.044]|80/137|4500/300|
+|G03|E03|raw_anchor_lambda1_minus_matched_source_control|10|40%|-13.733 [-16.578,-10.866]|101/719|4500/300|
+|G03|E03|raw_anchor_lambda1_noise_minus_true_support|10|40%|-12.511 [-15.333,-9.600]|149/712|4500/300|
+|G03|E03|raw_anchor_lambda1_minus_matched_source_control|10|100%|-73.556 [-78.333,-68.667]|37/699|900/300|
+|G03|E03|raw_anchor_lambda1_noise_minus_true_support|10|100%|-72.333 [-77.333,-67.331]|51/702|900/300|
+|G03|E03|weak_lambda1000_blend005_minus_matched_source_control|10|0%|+0.111 [+0.000,+0.333]|1/0|900/300|
+|G03|E03|weak_lambda1000_blend005_noise_minus_true_support|10|0%|+0.000 [+0.000,+0.000]|0/0|900/300|
+|G03|E03|weak_lambda1000_blend005_minus_matched_source_control|10|10%|+0.111 [+0.000,+0.333]|5/0|4500/300|
+|G03|E03|weak_lambda1000_blend005_noise_minus_true_support|10|10%|+0.000 [+0.000,+0.000]|0/0|4500/300|
+|G03|E03|weak_lambda1000_blend005_minus_matched_source_control|10|20%|+0.111 [+0.000,+0.333]|5/0|4500/300|
+|G03|E03|weak_lambda1000_blend005_noise_minus_true_support|10|20%|+0.000 [+0.000,+0.000]|0/0|4500/300|
+|G03|E03|weak_lambda1000_blend005_minus_matched_source_control|10|40%|+0.111 [+0.000,+0.333]|5/0|4500/300|
+|G03|E03|weak_lambda1000_blend005_noise_minus_true_support|10|40%|+0.000 [+0.000,+0.000]|0/0|4500/300|
+|G03|E03|weak_lambda1000_blend005_minus_matched_source_control|10|100%|+0.222 [+0.000,+0.556]|2/0|900/300|
+|G03|E03|weak_lambda1000_blend005_noise_minus_true_support|10|100%|+0.111 [+0.000,+0.336]|1/0|900/300|
+|G03|E03|full_pipeline_fixedgamma_minus_matched_source_control|10|0%|+3.889 [+2.219,+6.000]|49/14|900/300|
+|G03|E03|full_pipeline_fixedgamma_noise_minus_true_support|10|0%|+0.000 [+0.000,+0.000]|0/0|900/300|
+|G03|E03|full_pipeline_fixedgamma_minus_matched_source_control|10|10%|+2.644 [+1.222,+4.201]|209/90|4500/300|
+|G03|E03|full_pipeline_fixedgamma_noise_minus_true_support|10|10%|-1.244 [-2.178,-0.355]|44/100|4500/300|
+|G03|E03|full_pipeline_fixedgamma_minus_matched_source_control|10|20%|+1.933 [+0.600,+3.467]|204/117|4500/300|
+|G03|E03|full_pipeline_fixedgamma_noise_minus_true_support|10|20%|-1.956 [-3.311,-0.711]|70/158|4500/300|
+|G03|E03|full_pipeline_fixedgamma_minus_matched_source_control|10|40%|+0.089 [-1.334,+1.489]|184/180|4500/300|
+|G03|E03|full_pipeline_fixedgamma_noise_minus_true_support|10|40%|-3.800 [-5.556,-2.288]|86/257|4500/300|
+|G03|E03|full_pipeline_fixedgamma_minus_matched_source_control|10|100%|-6.667 [-9.222,-4.108]|25/85|900/300|
+|G03|E03|full_pipeline_fixedgamma_noise_minus_true_support|10|100%|-10.556 [-13.667,-7.667]|25/120|900/300|
+|G03|E03|weak_lambda1000_blend005_minus_raw_anchor_lambda1|10|0%|+1.333 [+0.111,+2.556]|20/8|900/300|
+|G03|E03|full_pipeline_fixedgamma_minus_raw_anchor_lambda1|10|0%|+5.111 [+3.000,+7.444]|64/18|900/300|
+|G03|E03|full_pipeline_fixedgamma_minus_weak_lambda1000_blend005|10|0%|+3.778 [+2.111,+5.669]|48/14|900/300|
+|G03|E03|weak_lambda1000_blend005_minus_raw_anchor_lambda1|10|10%|+1.222 [+0.178,+2.289]|96/41|4500/300|
+|G03|E03|full_pipeline_fixedgamma_minus_raw_anchor_lambda1|10|10%|+3.756 [+2.156,+5.511]|278/109|4500/300|
+|G03|E03|full_pipeline_fixedgamma_minus_weak_lambda1000_blend005|10|10%|+2.533 [+1.133,+4.133]|207/93|4500/300|
+|G03|E03|weak_lambda1000_blend005_minus_raw_anchor_lambda1|10|20%|+2.600 [+1.422,+3.867]|167/50|4500/300|
+|G03|E03|full_pipeline_fixedgamma_minus_raw_anchor_lambda1|10|20%|+4.422 [+2.844,+6.156]|333/134|4500/300|
+|G03|E03|full_pipeline_fixedgamma_minus_weak_lambda1000_blend005|10|20%|+1.822 [+0.489,+3.313]|202/120|4500/300|
+|G03|E03|weak_lambda1000_blend005_minus_raw_anchor_lambda1|10|40%|+13.844 [+11.022,+16.646]|722/99|4500/300|
+|G03|E03|full_pipeline_fixedgamma_minus_raw_anchor_lambda1|10|40%|+13.822 [+10.977,+16.422]|835/213|4500/300|
+|G03|E03|full_pipeline_fixedgamma_minus_weak_lambda1000_blend005|10|40%|-0.022 [-1.489,+1.423]|183/184|4500/300|
+|G03|E03|weak_lambda1000_blend005_minus_raw_anchor_lambda1|10|100%|+73.778 [+69.000,+78.556]|700/36|900/300|
+|G03|E03|full_pipeline_fixedgamma_minus_raw_anchor_lambda1|10|100%|+66.889 [+62.111,+71.225]|626/24|900/300|
+|G03|E03|full_pipeline_fixedgamma_minus_weak_lambda1000_blend005|10|100%|-6.889 [-9.556,-4.219]|25/87|900/300|
+|G03|E03|score_argmax_minus_native_svc_zero_support|0||+0.000 [+0.000,+0.000]|0/0|900/300|
+|G04|E01|unweighted_minus_balanced|0||+0.000 [+0.000,+0.000]|0/0|1600/402|
+|G04|E01|unweighted_minus_balanced|0||+0.000 [+0.000,+0.000]|0/0|1600/402|
+|G04|E01|unweighted_minus_balanced|0||+0.000 [+0.000,+0.000]|0/0|1600/402|
+|G04|E01|unweighted_minus_balanced|0||+0.000 [+0.000,+0.000]|0/0|1600/402|
+|G04|E01|unweighted_minus_balanced|0||+0.000 [+0.000,+0.000]|0/0|1600/402|
+|G04|E01|unweighted_minus_balanced|0||+0.000 [+0.000,+0.000]|0/0|1600/402|
+|G04|E01|class_weight_balanced_argmax_minus_native|0||+0.000 [+0.000,+0.000]|0/0|9600/402|
+|G04|E01|class_weight_none_argmax_minus_native|0||+0.000 [+0.000,+0.000]|0/0|9600/402|
 
 ## 权重与margin审计
 
