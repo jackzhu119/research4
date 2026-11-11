@@ -5,7 +5,7 @@ RI-J 近似、辅助基组、网格及步长按实际方法记录，不改称旧
 
 |分子|执行状态|分子谐振数据资格|实际方法|
 |---|---|---|---|
-|acid|PENDING_OR_CHECKPOINTED|尚未通过|待核验|
+|acid|QUALIFIED_LOCAL_HARMONIC_DATA|通过|df-grid5|
 |calycosin|PENDING_OR_CHECKPOINTED|尚未通过|待核验|
 |spinosin|PENDING_OR_CHECKPOINTED|尚未通过|待核验|
 
