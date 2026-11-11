@@ -1,6 +1,6 @@
 # PySCF 虚频修复：实时计算结果
 
-状态：PARTIAL；完成 1/4 个分子。
+状态：PARTIAL；完成 2/4 个分子。
 
 所有新计算为孤立分子 PBE/def2-SVP、明确无 D3、PySCF2.13.0、原生直接 SCF、grid5、完整网格响应梯度。
 完整双步长数值 Hessian 与偶极导数来自逐坐标实际位移，保留有符号频率。完成状态与论文资格分别记录。
@@ -10,6 +10,7 @@
 | 分子 | 细步长模式数 | 两步长虚频数 | 最低频率 cm⁻¹ | 最低频率 THz | 本模型谐振数据资格 |
 |---|---:|---|---:|---:|---|
 | water | 3 | [0, 0] | 1608.573533 | 48.22382133 | True |
+| acid | 45 | [0, 0] | 74.031190 | 2.21939923 | True |
 
 ## water
 
@@ -49,6 +50,61 @@
     "all_native_converged": true,
     "max_fresh_orbital_gradient_norm": 7.552491169271853e-09,
     "expected_central_difference_point_count": 36,
+    "complete_point_quality_ledger": true
+  },
+  "dual_step_comparison_available": true,
+  "raw_antisymmetry_passed": true,
+  "projected_step_agreement_passed": true,
+  "empirical_positive_spectral_margin_passed": true,
+  "all_vibrational_eigenvalues_strictly_positive_at_all_steps": true,
+  "stationary_geometry_verified": true,
+  "nuclear_minimum_numerically_supported": true,
+  "orbital_stability_passed": true,
+  "minimum_verified": true,
+  "paper_ready_molecular_harmonic_data": true,
+  "thresholds_are_qualification_not_execution_stops": true,
+  "scope": "Local isolated-molecule harmonic calculation at the stated method; no global-conformer minimum or solid-state chemical peak assignment is established."
+}
+```
+
+## acid
+
+新鲜核梯度最大分量：9.0119264e-07 Eh/Bohr；RMS：3.408884e-07。
+轨道稳定性实际检查通过：True。
+
+机器可读完整核验：[该分子结果](../reports/pyscf_repair_20261111/jobs/acid/result.json)；[全部有符号频率与 IR 强度 CSV](../reports/pyscf_repair_20261111/jobs/acid/modes/all_modes.csv)。
+
+数值资格（原样保留）：
+```json
+{
+  "center_electronic_quality": {
+    "native_converged": true,
+    "fresh_orbital_gradient_norm": 2.395565533611198e-09,
+    "energy_recheck_difference_hartree": -4.547473508864641e-13,
+    "orbital_residual_passed": true,
+    "energy_recheck_passed": true,
+    "upstream_qualification_declared": true,
+    "upstream_qualified": true,
+    "upstream_qualification_passed": true,
+    "electron_count_error_declared": true,
+    "electron_count_error": 1.4210854715202004e-13,
+    "electron_count_check_passed": true,
+    "qualified": true,
+    "nuclear_gradient_max": 9.011926440649631e-07,
+    "nuclear_gradient_rms": 3.408883977907378e-07,
+    "nuclear_stationarity_passed": true,
+    "orbital_stability_passed": true
+  },
+  "point_electronic_quality": {
+    "metadata_present": true,
+    "qualification_evidence": "INDIVIDUAL_ELECTRONIC_RECHECKS",
+    "point_count": 204,
+    "qualified_point_count": 204,
+    "native_unconverged_point_count": 0,
+    "all_points_qualified": true,
+    "all_native_converged": true,
+    "max_fresh_orbital_gradient_norm": 9.932662137230308e-09,
+    "expected_central_difference_point_count": 204,
     "complete_point_quality_ledger": true
   },
   "dual_step_comparison_available": true,
