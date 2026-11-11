@@ -16,6 +16,7 @@ import hashlib
 import json
 import math
 import os
+import re
 from pathlib import Path
 import signal
 import subprocess
@@ -171,12 +172,14 @@ def close_orphan_worker(expected):
         time.sleep(.1)
 
 
-def conservative_recovery_charge(last_observation, current_boot, now_monotonic, cpu_capacity):
+def conservative_recovery_charge(last_observation, current_boot, now_monotonic, cpu_capacity,
+                                 authorized_cpu=None):
     """A lost accounting interval is uncertainty, never reported as measured CPU."""
     actual = float(last_observation.get('observed_cpu_seconds', 0.0))
+    authorized = AUTHORIZED_CPU if authorized_cpu is None else float(authorized_cpu)
     if last_observation.get('boot_id') != current_boot:
-        return {'observed_cpu_seconds': actual, 'conservative_cpu_seconds': AUTHORIZED_CPU,
-                'uncertain_upper_cpu_seconds': max(0.0, AUTHORIZED_CPU - actual),
+        return {'observed_cpu_seconds': actual, 'conservative_cpu_seconds': authorized,
+                'uncertain_upper_cpu_seconds': max(0.0, authorized - actual),
                 'reason': 'Environment reboot lost the unsampled interval; require a CPU audit before further compute'}
     gap = max(0.0, now_monotonic - float(last_observation.get('sample_monotonic', now_monotonic)))
     upper = gap * float(cpu_capacity)
@@ -202,6 +205,123 @@ class Paths:
     def runner(self): return self.root / 'scripts/run_pyscf_publication_20261111.py'
     @property
     def script(self): return self.root / 'scripts/background_pyscf_publication_20261111.py'
+
+
+def _canonical_digest(value):
+    return hashlib.sha256(json.dumps(value, sort_keys=True, separators=(',', ':'),
+            ensure_ascii=False, allow_nan=False).encode()).hexdigest()
+
+
+def _positive_cpu_seconds(value):
+    if isinstance(value, (bool, str)):
+        raise ValueError('Budget increment must be a positive finite number of CPU seconds')
+    try:
+        value = float(value)
+    except (TypeError, ValueError) as error:
+        raise ValueError('Budget increment must be positive finite CPU seconds') from error
+    if not math.isfinite(value) or value <= 0:
+        raise ValueError('Budget increment must be a positive finite number of CPU seconds')
+    return value
+
+
+def authorization_ledger(paths):
+    """Validate the complete append-only, SHA-linked authorization chain.
+
+    A persisted anchor detects deletion/replacement of previously observed
+    records. Authorizations change resource permission, not scientific inputs.
+    """
+    folder = paths.output / 'authorizations'
+    records, identifiers, total, previous = [], set(), AUTHORIZED_CPU, None
+    for sequence, path in enumerate(sorted(folder.glob('*.json')), 1):
+        record = read(path)
+        if not isinstance(record, dict):
+            raise ValueError('Invalid authorization record: ' + str(path))
+        supplied_digest = record.get('record_sha256')
+        body = {k:v for k,v in record.items() if k != 'record_sha256'}
+        if not isinstance(supplied_digest, str) or supplied_digest != _canonical_digest(body):
+            raise ValueError('Authorization SHA256 mismatch: ' + str(path))
+        identifier = record.get('authorization_id')
+        if (not isinstance(identifier, str) or not re.fullmatch(r'[A-Za-z0-9_.-]{1,128}', identifier)
+                or identifier in identifiers):
+            raise ValueError('Duplicate or invalid authorization ID')
+        expected_name = f'{sequence:06d}-' + hashlib.sha256(identifier.encode()).hexdigest()[:12] + '.json'
+        amount = _positive_cpu_seconds(record.get('additional_cpu_seconds'))
+        if (record.get('schema') != 'pyscf-cpu-authorization-v1'
+                or path.name != expected_name or record.get('sequence') != sequence
+                or record.get('unit') != 'CPU_SECONDS'
+                or record.get('base_cpu_seconds') != AUTHORIZED_CPU
+                or record.get('previous_record_sha256') != previous
+                or record.get('previous_total_cpu_seconds') != total
+                or record.get('new_total_cpu_seconds') != total + amount
+                or not isinstance(record.get('authorization_text'), str)
+                or not record['authorization_text'].strip()):
+            raise ValueError('Authorization chain/unit/total mismatch: ' + str(path))
+        if not math.isfinite(total + amount):
+            raise ValueError('Authorization total overflow')
+        total += amount
+        previous = supplied_digest
+        identifiers.add(identifier)
+        records.append(record)
+    anchor = read(paths.runtime / 'budget_authorization_anchor.json')
+    if anchor is not None:
+        index = anchor.get('sequence')
+        if (not isinstance(index, int) or isinstance(index, bool) or index < 1
+                or len(records) < index
+                or records[index-1]['record_sha256'] != anchor.get('record_sha256')):
+            raise ValueError('Authorization ledger was truncated or changed before its anchor')
+    return {'base_cpu_seconds': AUTHORIZED_CPU, 'authorized_cpu_seconds':total,
+            'record_count':len(records), 'head_sha256':previous, 'records':records}
+
+
+def effective_authorized_cpu(paths):
+    return authorization_ledger(paths)['authorized_cpu_seconds']
+
+
+def extend_budget(paths, additional_cpu_seconds, authorization_id, authorization_text,
+                  *, unit='CPU_SECONDS'):
+    """Idempotently append resource permission without changing any CPU usage."""
+    amount = _positive_cpu_seconds(additional_cpu_seconds)
+    if unit != 'CPU_SECONDS':
+        raise ValueError('Only CPU_SECONDS units are accepted')
+    if (not isinstance(authorization_id, str)
+            or not re.fullmatch(r'[A-Za-z0-9_.-]{1,128}', authorization_id)):
+        raise ValueError('A stable safe authorization ID is required')
+    if not isinstance(authorization_text, str) or not authorization_text.strip():
+        raise ValueError('Explicit authorization text is required')
+    paths.runtime.mkdir(parents=True, exist_ok=True)
+    with (paths.runtime / 'budget_authorization.lock').open('a+') as lock:
+        fcntl.flock(lock, fcntl.LOCK_EX)
+        ledger = authorization_ledger(paths)
+        for record in ledger['records']:
+            if record['authorization_id'] == authorization_id:
+                if (record['additional_cpu_seconds'] != amount
+                        or record['authorization_text'] != authorization_text):
+                    raise ValueError('Authorization ID already exists with different content')
+                write(paths.runtime / 'budget_authorization_anchor.json',
+                      {'sequence':ledger['record_count'], 'record_sha256':ledger['head_sha256'], 'at_utc':utc()})
+                return {'status':'ALREADY_RECORDED', 'authorization':record,
+                        'authorized_cpu_seconds':ledger['authorized_cpu_seconds']}
+        sequence = ledger['record_count'] + 1
+        total = ledger['authorized_cpu_seconds'] + amount
+        if not math.isfinite(total):
+            raise ValueError('Authorization total overflow')
+        record = {'schema':'pyscf-cpu-authorization-v1', 'sequence':sequence,
+                  'authorization_id':authorization_id, 'authorized_at_utc':utc(),
+                  'authorization_text':authorization_text, 'unit':unit,
+                  'base_cpu_seconds':AUTHORIZED_CPU,
+                  'previous_total_cpu_seconds':ledger['authorized_cpu_seconds'],
+                  'additional_cpu_seconds':amount, 'new_total_cpu_seconds':total,
+                  'previous_record_sha256':ledger['head_sha256'],
+                  'usage_ledger_reset':False}
+        record['record_sha256'] = _canonical_digest(record)
+        name = f'{sequence:06d}-' + hashlib.sha256(authorization_id.encode()).hexdigest()[:12] + '.json'
+        target = paths.output / 'authorizations' / name
+        if target.exists():
+            raise ValueError('Refusing to overwrite an existing authorization')
+        write(target, record)
+        write(paths.runtime / 'budget_authorization_anchor.json',
+              {'sequence':sequence, 'record_sha256':record['record_sha256'], 'at_utc':utc()})
+        return {'status':'RECORDED', 'authorization':record, 'authorized_cpu_seconds':total}
 
 
 def scientific_snapshot(paths):
@@ -331,12 +451,13 @@ def progress_marker(paths):
 def status(paths):
     state = read(paths.state, {})
     actual, conservative = ledger_totals(paths)
+    authorized = effective_authorized_cpu(paths)
     return {'state': state, 'supervisor_alive': matching_process(state.get('supervisor_identity')),
             'worker_alive': matching_process(state.get('worker_identity')),
             'guard_alive': matching_process(state.get('guard_identity')),
-            'authorized_cpu_seconds': AUTHORIZED_CPU, 'observed_cpu_seconds': actual,
+            'authorized_cpu_seconds': authorized, 'observed_cpu_seconds': actual,
             'conservative_cpu_seconds': conservative,
-            'remaining_conservative_cpu_seconds': max(0.0, AUTHORIZED_CPU - conservative),
+            'remaining_conservative_cpu_seconds': max(0.0, authorized - conservative),
             'cloud_lifetime_guaranteed': False,
             'progress': read(paths.output / 'progress.json', {})}
 
@@ -361,7 +482,7 @@ def guard(paths, session_id):
         if not matching_process(supervisor):
             close_orphan_worker(worker)
             last = read(session_path, {'observed_cpu_seconds': 0, 'boot_id': boot_id()})
-            repair = conservative_recovery_charge(last, boot_id(), time.monotonic(), cpu_capacity())
+            repair = conservative_recovery_charge(last, boot_id(), time.monotonic(), cpu_capacity(), effective_authorized_cpu(paths))
             last.update(repair, status='INTERRUPTED_GUARD_CLOSED', at_utc=utc())
             write(session_path, last)
             return 1
@@ -376,14 +497,14 @@ def guard(paths, session_id):
                   'measurement': 'Linux supervisor own+waited-child CPU + active authenticated worker session + guard own CPU; stable wait-counter snapshot'})
         _, conservative = ledger_totals(paths)
         is_compute = state.get('phase') == 'computing'
-        threshold = AUTHORIZED_CPU - (COMPUTE_RESERVE if is_compute else FINAL_RESERVE)
+        threshold = effective_authorized_cpu(paths) - (COMPUTE_RESERVE if is_compute else FINAL_RESERVE)
         if conservative >= threshold or (paths.runtime / 'STOP.json').exists():
             reason = 'CPU_BUDGET' if conservative >= threshold else 'USER_STOP'
             write(paths.runtime / 'guard_stop.json', {'session_id': session_id, 'reason': reason,
                   'phase': state.get('phase'), 'worker_identity': worker,
                   'conservative_cpu_seconds': conservative, 'at_utc': utc()})
             terminate_group(worker)
-        if conservative >= AUTHORIZED_CPU - (10 * cpu_capacity() + 10):
+        if conservative >= effective_authorized_cpu(paths) - (10 * cpu_capacity() + 10):
             # Final hard protection also covers a blocked Git child in the
             # supervisor's own authenticated session. The guard is detached
             # separately, so it can close the interrupted-session receipt.
@@ -407,7 +528,7 @@ def recover_old_sessions(paths):
             if entry.get('status') != 'RUNNING':
                 continue
         close_orphan_worker(previous.get('worker_identity'))
-        repair = conservative_recovery_charge(entry, boot_id(), time.monotonic(), cpu_capacity())
+        repair = conservative_recovery_charge(entry, boot_id(), time.monotonic(), cpu_capacity(), effective_authorized_cpu(paths))
         entry.update(repair, status='INTERRUPTED_RECOVERY_CLOSED', at_utc=utc())
         write(path, entry)
 
@@ -430,7 +551,7 @@ def supervise(paths):
     state = {'schema': 'pyscf-publication-background-v1', 'session_id': session_id,
              'status': 'RUNNING', 'phase': 'starting', 'supervisor_identity': identity(os.getpid()),
              'worker_identity': None, 'guard_identity': None, 'scientific_files': frozen,
-             'authorized_cpu_seconds': AUTHORIZED_CPU, 'authorization': 'User 2026-11-11 authorized 900000 CPU seconds',
+             'authorized_cpu_seconds': effective_authorized_cpu(paths), 'authorization': 'Base permission plus verified append-only CPU-second authorization ledger',
              'started_at_utc': utc(), 'cloud_lifetime_guaranteed': False, 'phase_attempts': [],
              'branch': BRANCH, 'qualification_is_independent_of_completion': True}
     write(paths.state, state)
@@ -442,7 +563,7 @@ def supervise(paths):
     state['guard_identity'] = identity(guard_process.pid)
 
     def update(**values):
-        state.update(values, heartbeat_at_utc=utc())
+        state.update(values, authorized_cpu_seconds=effective_authorized_cpu(paths), heartbeat_at_utc=utc())
         write(paths.state, state)
 
     def check_frozen():
@@ -503,7 +624,7 @@ def supervise(paths):
         _, used = ledger_totals(paths)
         if (paths.runtime / 'STOP.json').exists():
             terminal = 'STOPPED'
-        elif used >= AUTHORIZED_CPU - COMPUTE_RESERVE:
+        elif used >= effective_authorized_cpu(paths) - COMPUTE_RESERVE:
             terminal = 'BUDGET_EXHAUSTED'
         else:
             consecutive_stalls = 0
@@ -535,7 +656,7 @@ def supervise(paths):
             if terminal == 'DONE' and run_phase('verifying', '--verify'):
                 terminal = 'BLOCKED_ERROR'
         actual, charged = ledger_totals(paths)
-        write(paths.output / 'cpu_accounting.json', {'authorized_cpu_seconds': AUTHORIZED_CPU,
+        write(paths.output / 'cpu_accounting.json', {'authorized_cpu_seconds': effective_authorized_cpu(paths),
               'observed_cpu_seconds': actual, 'conservative_cpu_seconds': charged,
               'uncertain_upper_cpu_seconds': max(0, charged - actual), 'snapshot_at_utc': utc(),
               'preflight': preflight_charge(paths), 'not_wall_time': True})
@@ -608,7 +729,7 @@ def verify(paths):
     frozen = scientific_snapshot(paths)
     result = status(paths)
     valid = state.get('scientific_files') == frozen
-    valid = valid and result['conservative_cpu_seconds'] <= AUTHORIZED_CPU
+    valid = valid and result['conservative_cpu_seconds'] <= effective_authorized_cpu(paths)
     if result['supervisor_alive']:
         valid = valid and result['guard_alive']
     return {'verified': bool(valid), **result}
@@ -621,14 +742,23 @@ def main():
     for flag in ('launch', 'status', 'verify', 'dry-run', 'stop', 'supervise'):
         group.add_argument('--' + flag, action='store_true')
     group.add_argument('--guard', metavar='SESSION_ID')
+    group.add_argument('--extend-budget', type=float, metavar='CPU_SECONDS')
+    parser.add_argument('--authorization-id')
+    parser.add_argument('--authorization-text')
+    parser.add_argument('--budget-unit', default='CPU_SECONDS')
     args = parser.parse_args()
     paths = Paths(args.root.resolve())
+    if args.extend_budget is not None:
+        result = extend_budget(paths, args.extend_budget, args.authorization_id,
+                               args.authorization_text, unit=args.budget_unit)
+        print(json.dumps(result, ensure_ascii=False, indent=2))
+        return 0
     if args.guard:
         return guard(paths, args.guard)
     if args.supervise:
         return supervise(paths)
     if args.dry_run:
-        result = {'branch': BRANCH, 'authorized_cpu_seconds': AUTHORIZED_CPU,
+        result = {'branch': BRANCH, 'authorized_cpu_seconds': effective_authorized_cpu(paths),
                   'compute_cpu_reserve': COMPUTE_RESERVE,
                   'preflight': preflight_charge(paths), 'scientific_files': scientific_snapshot(paths),
                   'publication_files': len(eligible_files(paths)), 'cloud_lifetime_guaranteed': False}
