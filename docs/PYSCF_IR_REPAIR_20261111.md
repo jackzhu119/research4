@@ -51,6 +51,20 @@
 
 结果入口：`reports/pyscf_ir_20261111/RESULTS_ZH.md` 与 `summary.json`；`progress.json` 为进度，`sources_state.json` 和 `preview_sources_state.json` 记录上游可见证据及待处理原因，`cpu_accounting.json` 记录资源。监督器 PID、心跳与详细日志保存在本地 `.background/`。
 
+### 后续授权追加
+
+2026-11-11，北京时间21:26用户再追加 **90000 CPU 秒**，本轮累计授权为 **990000 CPU 秒**。`authorization.json` 保存幂等追加记录，不重置已有实测账本。初始冻结协议中的900000仍是当时的阶段授权，不被改写成一次性授予990000。
+
+当前旧监督器和计算进程保持运行。独立、脱离会话的接续器等待旧阶段达到资源边界并完成最终记账，确认监督器、guard、worker、publisher都退出且监督锁释放，再归档旧边界回执，加载原冻结监督器并应用新的累计额度。新guard、publisher和恢复进程也经同一接续入口加载990000；科学worker始终使用原冻结代码。已有预试和session累计CPU继续计入总额，因此新增可用额度约为90000，绝不重新从零获得990000。
+
+接续器自身CPU单独入账。自然完成、用户停止或科学完整性错误不被当作预算边界重新启动。运行/授权状态可同时查看当前阶段边界与990000总授权：
+
+```bash
+/workspace/ir-venv/bin/python scripts/extend_pyscf_ir_20261111.py --root /workspace/research4 --verify
+```
+
+授权记录为 `reports/pyscf_ir_20261111/authorization.json`，接续状态为 `authorization_continuation.json`，入口及其SHA冻结回执为 `authorization_extension_manifest.json`。
+
 ## 论文使用
 
 上游完整极小值验收与本轮 IR 验收分别记录。只有两者实际通过的数据，才可作为所注明 PBE/def2-SVP/noD3、direct 或 RI-J 模型的孤立分子局部谐振 IR 结果使用。保留带符号频率和失败原因；不删除虚频或取绝对值。该计算本身不证明全局最低构象、晶体/分子间振动或药材固体 THz 化学峰归属。
