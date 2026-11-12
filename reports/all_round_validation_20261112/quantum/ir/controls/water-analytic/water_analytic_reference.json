@@ -1,0 +1,279 @@
+{
+  "schema": "research4-ir-water-independent-cphf-reference-v1",
+  "runner_script_sha256": "5fa068323f12830eeb2122af69cda273da7f223d21ddf22ff0b137de0ba523d7",
+  "quality_module_sha256": "f5fb5d27a22afb1ba216ea28b48d87cec040d857a067f1f9944bb085b52f1933",
+  "qualified_water_control_only": true,
+  "target_molecules_certified": false,
+  "reference_only_not_production_replacement": true,
+  "common_mode_basis_from_source": true,
+  "official_code": {
+    "repository": "https://github.com/pyscf/properties",
+    "commit": "28eb8dbd9c2094768c480f2e4a92bbb4a0a7b24b",
+    "paths": [
+      "pyscf/prop/infrared/rhf.py",
+      "pyscf/prop/infrared/rks.py"
+    ],
+    "rhf_sha256": "15aaa269fec2f9c9064b90438e2b31eee5ca157bc288faa1414387a1148cdf6d",
+    "rks_sha256": "130c371ae7a7e6592dc06be0ba88c6511625a529fff4de94398f13ca6f2e8e6e"
+  },
+  "source_branch": "research/pyscf-publication-recovery-20261111",
+  "source_water_result_sha256": "5835772f5f231af7713ffbc0cc5dd8178fd1825b9e7cebf6c34d563578774e5a",
+  "source_arrays_sha256": "fc04525cca2b358924d4df524d26796f8cbc347e2db02dade1f9e6ce99194de1",
+  "source_arrays_authenticated_against_result": true,
+  "method": {
+    "xc": "PBE",
+    "basis": "def2-SVP",
+    "grid_level": 5,
+    "hessian_grid_response": true,
+    "density_fitting": false,
+    "full_veff_every_cycle": true,
+    "charge": 0,
+    "spin": 0,
+    "conv_tol": 1e-12,
+    "conv_tol_grad": 2e-09,
+    "conv_tol_cpscf": 1e-12,
+    "threads": 2,
+    "dipole_origin_bohr": [
+      0,
+      0,
+      0
+    ]
+  },
+  "runtime": {
+    "python": "3.12.14",
+    "pyscf": "2.13.0",
+    "numpy": "2.3.5",
+    "scipy": "1.17.0"
+  },
+  "energy_hartree": -76.27258264336868,
+  "source_energy_difference_hartree": 9.947598300641403e-14,
+  "fresh_orbital_gradient_norm": 2.658749816944075e-09,
+  "prefactor_si": 974.8801098122944,
+  "prefactor_atomic": 974.8801098028357,
+  "mass_normalization": {
+    "qualified": true,
+    "valid": true,
+    "maximum_mass_gram_error": 2.5180209799539635e-16,
+    "number_of_modes": 3,
+    "tolerance": 1e-07,
+    "failures": []
+  },
+  "source_finite_difference_quality": {
+    "qualified": true,
+    "valid": true,
+    "failures": [],
+    "steps_bohr_descending": [
+      0.002,
+      0.001
+    ],
+    "mass_normalization": {
+      "qualified": true,
+      "valid": true,
+      "maximum_mass_gram_error": 2.5180209799539635e-16,
+      "number_of_modes": 3,
+      "tolerance": 1e-07,
+      "failures": []
+    },
+    "prefactor_km_mol": 974.8801098122944,
+    "prefactor_atomic_formula_relative_difference": 9.702461056804168e-12,
+    "projected_derivative_series": [
+      [
+        [
+          -3.0010369189703567e-12,
+          5.940594435226442e-14,
+          0.22076505986229678
+        ],
+        [
+          7.610717611683526e-13,
+          1.170686766539945e-13,
+          -0.0485009554092658
+        ],
+        [
+          0.14272283496646537,
+          -5.248582907949288e-14,
+          -4.69368294231387e-12
+        ]
+      ],
+      [
+        [
+          -1.8503462650976132e-12,
+          2.3841054822614233e-14,
+          0.2207649662008787
+        ],
+        [
+          -1.8358925490957745e-13,
+          -2.401817918841021e-13,
+          -0.04850094789025729
+        ],
+        [
+          0.1427228615196915,
+          -1.52299761230372e-13,
+          9.827971769738042e-13
+        ]
+      ]
+    ],
+    "ir_intensity_series_km_mol": [
+      [
+        47.512938251149706,
+        2.293252085916373,
+        19.8581202902841
+      ],
+      [
+        47.51289793563753,
+        2.2932513748796324,
+        19.85812767939191
+      ]
+    ],
+    "mode_derivative_absolute_differences": [
+      9.366141807284657e-08,
+      7.519008580863908e-09,
+      2.6553226724826133e-08
+    ],
+    "mode_derivative_tolerances": [
+      0.0023076505986229677,
+      0.000585009554092658,
+      0.001527228615196915
+    ],
+    "mode_derivative_relative_differences": [
+      4.242583411128025e-07,
+      1.550280508376841e-07,
+      1.8604746599172258e-07
+    ],
+    "mode_intensity_absolute_differences_km_mol": [
+      4.03155121730947e-05,
+      7.110367405971374e-07,
+      7.3891078109511454e-06
+    ],
+    "mode_intensity_tolerances_km_mol": [
+      1.0502587650229942,
+      0.14586504171832748,
+      0.49716255358783823
+    ],
+    "weak_peaks": [
+      false,
+      false,
+      false
+    ],
+    "cartesian_derivative_max_absolute_difference": 8.865259637502731e-07,
+    "cartesian_derivative_frobenius_difference": 1.023373191309731e-06,
+    "richardson": {
+      "assumed_leading_power": 2,
+      "is_rigorous_error_bound": false,
+      "extrapolated_projected_derivatives": [
+        [
+          -1.4667827138066987e-12,
+          1.1986091646064172e-14,
+          0.22076493498040603
+        ],
+        [
+          -4.984762602688875e-13,
+          -3.59265281396801e-13,
+          -0.048500945383921114
+        ],
+        [
+          0.14272287037076686,
+          -1.855710719473317e-13,
+          2.8749572167363624e-12
+        ]
+      ],
+      "estimated_finest_correction_norm": [
+        3.1220472681696996e-08,
+        2.5063361959342674e-09,
+        8.851075574942044e-09
+      ],
+      "three_step_diagnostic_available": false,
+      "interpretation": "asymptotic estimate only; SCF/grid noise or higher orders can invalidate it"
+    }
+  },
+  "analytic_rigid_body_quality": {
+    "qualified": true,
+    "valid": true,
+    "failures": [],
+    "charge": 0.0,
+    "origin_bohr": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "translation_residual_unit": "e",
+    "rotation_residual_unit": "e*Bohr",
+    "translation_max_absolute_residual": 2.606022534434871e-07,
+    "rotation_max_absolute_residual": 5.089243685363343e-07,
+    "translation_residual_tensor": [
+      [
+        -6.723334144975723e-08,
+        1.889164455056178e-17,
+        -8.03523914072457e-15
+      ],
+      [
+        1.06686402411506e-16,
+        -2.606022534434871e-07,
+        5.679876088662511e-19
+      ],
+      [
+        5.380418333089665e-14,
+        2.1848409165075574e-18,
+        1.358822820651806e-07
+      ]
+    ],
+    "rotation_residual_tensor": [
+      [
+        -5.098313454713163e-15,
+        1.3718380920124673e-07,
+        4.950253445502386e-16
+      ],
+      [
+        5.089243685363343e-07,
+        1.6657064199499096e-15,
+        6.516870376671591e-10
+      ],
+      [
+        1.1090807995390411e-16,
+        -5.4539706084710815e-12,
+        -8.565643092802686e-16
+      ]
+    ],
+    "absolute_tolerance": 0.0005
+  },
+  "analytic_intensities_km_mol": [
+    47.515765995692476,
+    2.2864030893683998,
+    19.85651473937259
+  ],
+  "official_intensities_km_mol": [
+    47.515765995231455,
+    2.2864030893462157,
+    19.856514739179932
+  ],
+  "source_finite_intensities_km_mol": [
+    47.51289793563753,
+    2.2932513748796324,
+    19.85812767939191
+  ],
+  "projected_vector_differences": [
+    6.663007956297967e-06,
+    7.247279727379151e-05,
+    5.7963192560766695e-06
+  ],
+  "projected_vector_tolerances": [
+    0.004615432584175087,
+    0.0011700189578051458,
+    0.00305445723039383
+  ],
+  "intensity_absolute_differences_km_mol": [
+    0.0028680600549435553,
+    0.006848285511232621,
+    0.0016129400193207744
+  ],
+  "intensity_tolerances_km_mol": [
+    1.625472979870774,
+    0.268797541246389,
+    0.7957438303817572
+  ],
+  "analytic_cartesian_max_difference_from_finite": 4.69117000306829e-05,
+  "checkpoint_sha256": "6c0f9b68b6692f9b7bff1d21230242077537d33377d9bdded947b376dbf057e4",
+  "analytic_arrays_sha256": "fdf0efe8a884feb01a0ae8e112553c8a90a2f6bdc15d4ca0d9a4de1445907e41",
+  "finished_at_utc": "2026-11-11T08:34:28.998285+00:00",
+  "elapsed_wall_seconds": 4.295766592025757,
+  "scope": "Isolated water control at archived geometry. Analytic orbital response vs finite displacement dipoles in identical fixed source modes. No claims for global conformers, solid THz assignments, or target-molecule qualification."
+}
