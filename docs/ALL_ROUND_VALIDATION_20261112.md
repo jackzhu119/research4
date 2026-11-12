@@ -35,7 +35,12 @@
 
 监督器与独立guard记录Linux身份、心跳、代码封印及累计CPU；
 状态和结果写入`reports/all_round_validation_20261112/`。
-每约600秒仅对本轮明确路径非强制回传研究分支，回传失败不会停止科学计算。
+每约600秒仅对本轮明确路径保存非强制Git检查点，备份失败不会停止科学计算。
+额外创建草稿PR被自动审批拒绝，理由是当前授权没有明确包含对外发布研究工件。
+因此后续交付采用本地备份：本任务仓库的`remote.origin.pushurl`指向
+`/workspace/all-round-validation-checkpoints.git`，上游只读fetch地址保持不变。
+已推送的初始研究分支快照未删除；后续进展以本地状态文件为准。
+策略与审批回执摘要见`reports/all_round_validation_20261112/delivery_policy.json`。
 
 ```bash
 /workspace/validation-venv/bin/python scripts/background_all_round_validation_20261112.py --root /workspace/research4 --start
