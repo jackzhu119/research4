@@ -10,7 +10,7 @@ claim to resume an unknown process or recover its unspent budget.
 The current user-confirmed registry contains 18 workbooks and 1,672 records:
 500 酸枣仁, 364 枣仁, 403 黄芪 and 405 天麻. These are Chinese kind labels;
 their confirmation is not independent Latin-taxonomic authentication.
-ZY01 and ZY02 are 枣仁, whereas ZY03–ZY07 are 酸枣仁. The old 96.0234%
+错误混种分类成绩已按2026-11-12用户决定撤回；论文使用main的paper/current白名单。
 result therefore describes anonymous-source recognition in a collection now
 known to mix two kinds. It cannot serve as pure-酸枣仁 origin performance.
 
