@@ -22,4 +22,4 @@ S06的静态复核确认输出键为`freq_error`、`freq_au`、`freq_wavenumber`
 
 `focused-check/`保存S01/S04官方摘要核验与短引文；`independent_metadata_records.json`保存其余书目和范围核验；`review.json`保存16项原文件完整性检查及独立AST结果。直接Crossref等API访问遇到环境代理403，其失败回执也保留在`metadata_receipts/`和`focused-check/`；随后使用可访问的官方网页记录，没有绕过访问限制。既往封存资料中的访问失败只描述当时访问，不能推断这些来源永久不可访问。
 
-这不是系统文献综述，不能证明斯皮诺素THz研究文献不存在。所有资料仍仅作背景，不产生新的理论正常模式，不证明当前855份样品的成分，不确认化学归属，不改变既有96.0234%分类结果。
+错误混种分类成绩已按2026-11-12用户决定撤回；论文使用main的paper/current白名单。

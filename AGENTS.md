@@ -24,7 +24,7 @@ fresh same-method gradient checks before Hessian. Completed frequency calculatio
 and a positive-frequency minimum are distinct statuses; also require complete
 3N-6 modes and all-real-positive checks. IR intensity is NOT_COMPUTED.
 Theory–experiment proximity is exploratory, not chemical assignment, and no
-theoretical frequency enters the existing classifiers or changes96.0234%.
+错误混种分类成绩已按2026-11-12用户决定撤回；论文使用main的paper/current白名单。
 
 ## External pretraining experiment (2026-10-31)
 
