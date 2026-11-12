@@ -7,6 +7,7 @@
 | water | df-grid5 | QUALIFIED | True | True | True |
 | water | direct-grid5 | QUALIFIED | True | True | True |
 | water | direct-grid5 | QUALIFIED | True | True | True |
+| acid | df-grid5 | QUALIFIED | True | True | True |
 | acid | direct-grid5 | QUALIFIED | True | True | True |
 
 calycosin：尚未获得本轮已通过全部验收的数据；继续处理或等待上游完整核矩阵。
