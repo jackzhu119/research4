@@ -52,7 +52,7 @@ or periodic report task. All new source/input/output folders are independent.
 Native logs retain their original bytes, including trailing spaces; transport
 checks exact committed SHA rather than normalizing scientific evidence.
 
-Original219 modes/25imaginary frequencies, IR NOT_COMPUTED, classifier96.0234%
+错误混种分类成绩已按2026-11-12用户决定撤回；论文使用main的paper/current白名单。
 historical internalCV and the outstanding laboratory gaps remain unchanged.
 
 ## Actual software-control results
