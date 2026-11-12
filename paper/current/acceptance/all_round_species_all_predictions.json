@@ -1,0 +1,98 @@
+{
+  "status": "COMPLETE",
+  "source_commit": "b051733989161517a68c4a60cce75766880c95f5",
+  "backfill_commit": "f38113e51072f0a99c864b2e6dae79a9169ff93c",
+  "materialization": {
+    "commit": "b051733989161517a68c4a60cce75766880c95f5",
+    "materialized_files": 45,
+    "materialized_bytes": 857710006
+  },
+  "legacy_prediction_files_sha256_checked": 1305,
+  "transport_verification": {
+    "species_small_restore": {
+      "status": "PASS",
+      "mode": "restored",
+      "jobs": {
+        "legacy1305": 1305,
+        "v4_330": 330
+      },
+      "included_files": 91529,
+      "verified_unique_blobs": 87149,
+      "verified_archive_bytes": 74635537,
+      "excluded_legacy_prediction_files": 1305,
+      "scope": "All 1635 completed jobs' small scientific outputs and available supervisor receipts; all V4 predictions; excludes legacy bulk prediction bytes, weights, NPZ, NPY, CHK, HDF and temporary logs/locks."
+    },
+    "species_prediction_completion_restore": {
+      "status": "PASS",
+      "mode": "restored",
+      "jobs": {
+        "legacy_prediction_completion": 591
+      },
+      "included_files": 591,
+      "verified_unique_blobs": 591,
+      "verified_archive_bytes": 778032438,
+      "excluded_legacy_prediction_files": 0,
+      "scope": "Byte-for-byte completion archive of 591 legacy prediction gzip files; union with 714 fixed prior Git-backed predictions covers all 1305 legacy jobs. No models or spectral caches included."
+    },
+    "species_backfill_restore": {
+      "status": "PASS",
+      "mode": "RESTORED",
+      "manifest_sha256": "c2c1006f090f60bab872cefdd449206e05612910bf28d82a061b83de97825818",
+      "files": 2193,
+      "uncompressed_bytes": 3006677461,
+      "parts": 17,
+      "part_bytes": 548190021,
+      "gzip_crc_checked": true,
+      "output": "/tmp/research4-ml-verify-f8h3tl2c/species/backfill_restored"
+    }
+  },
+  "scientific_validation": {
+    "schema": "research4-saved-species-independent-prediction-audit-20261112-v1",
+    "status": "COMPLETE",
+    "counts": {
+      "legacy1305_discovered": 1305,
+      "legacy1305_passed": 1305,
+      "prediction_rows": 36763272,
+      "settings_recounted": 703560,
+      "support_draws_checked": 86400,
+      "v4_330_discovered": 330,
+      "v4_330_passed": 330,
+      "complete_oof_procedures": 327
+    },
+    "failures": [],
+    "expected_jobs": {
+      "legacy1305": 1305,
+      "v4_330": 330
+    },
+    "training_data_only": true,
+    "master_split_file": "/tmp/research4-ml-verify-f8h3tl2c/species/small/data/research/species_revision_20261108/split_manifest.csv",
+    "master_split_sha256": "0767e3165984a4e0e4ae782d69fdea6f410bfe36bce05ec72f8eadca982317d4",
+    "source_code_sha256": "8a4d16bd6aa709836307293ebf6dd7d28626288417be14513c0d98c12d8f8a1d",
+    "output_artifacts": {
+      "jobs.jsonl": {
+        "sha256": "d7af0e9157d073ed16f1454a55fb360699181e948bd110ff1d864fde0bec6d67",
+        "bytes": 1737750
+      },
+      "pooled_oof.jsonl": {
+        "sha256": "709b8537f1f4456f345b1c46c35ad3d3d49ab31397771809c3ed5f3161331861",
+        "bytes": 160904830
+      },
+      "settings.jsonl": {
+        "sha256": "e29b9d7bee3f96d3de86ab9d79bff9398b4ea3c781d3c0aba029a5b70dd00216",
+        "bytes": 765262331
+      }
+    },
+    "process_cpu_seconds": 307.859307861,
+    "completed_at_utc": "2026-11-12T01:54:35.363621+00:00",
+    "limitations": [
+      "Saved-output reproducibility audit, not independent external-batch or botanical authentication.",
+      "No models fitted, no threshold or candidate selected, no historical producer artifacts modified.",
+      "Support repetitions, model seeds and overlapping training sets do not increase physical specimen counts.",
+      "V4 calibration does not retain per-draw IDs, so their exact selection cannot be independently replayed from this archive."
+    ]
+  },
+  "helper_sha256": "8a4d16bd6aa709836307293ebf6dd7d28626288417be14513c0d98c12d8f8a1d",
+  "no_model_fitted": true,
+  "historical_outputs_modified": false,
+  "verified_at_utc": "2026-11-12T01:54:35.496272+00:00"
+}

@@ -1,74 +1,26 @@
-# Research data conventions
+# Current dataset and paper-result policy
 
-## Repository and experiment navigation
+The user explicitly withdrew pre-correction mixed 枣仁/酸枣仁 classifier results on 2026-11-12. This supersedes earlier instructions to retain those results as current paper evidence.
 
-- Start cross-branch or training-history work at `docs/repository/README.md`,
-  `BRANCHES.md`, `ROUNDS.md` and their JSON ledgers. They distinguish historical
-  mixed-kind experiments, corrected-kind matrices, B1--B5 and quantum work.
-- This index is a dated evidence snapshot. Update fixed source SHA/path and
-  actual heartbeat/acceptance time before changing a running/completed label;
-  chat status, an open PR or a commit date alone does not establish job state.
-- Record continuation, copied results and validation under the original round
-  ID. A new chat, deployment or branch is not automatically a new experiment.
-- The index links a later 2026-11-08 declaration for the additional 817 records
-  on the species-correction branch. The data conventions below describe this
-  branch's earlier registry metadata; preserve each declaration's exact scope.
+## Paper inputs
 
-## Dataset conventions
+- Read `paper/current/README.md` and `paper/current/manifest.json` before writing or comparing classifier results. Only explicitly allowlisted corrected-kind results may enter the paper. Run `python scripts/build_current_paper_results.py --verify` to validate this view.
+- Do not resurrect withdrawn model outputs, old predictions relabeled after training, old R-round scores, contaminated 93-family paper packages or mixed historical workbooks from Git history, backups or generators.
+- Preserve every included corrected positive and negative result. Corrected six-task/three-seed experiments, the original corrected 1305 plus V4 330, and B1--B5 remain valid internal evidence. Backups, continuation and verification are not new training rounds or independent specimens.
+- `legacy_final`, `legacy-prediction-completion`, `OLD-*`, `P-CV-OLD` and `legacy_TRAIN_*` in pinned corrected sources refer to the corrected 1305 matrix. Do not delete by those names or by a date/percentage alone.
+- `maintenance/withdrawn_results_rules.json` records approved result-deletion scope. Source code sealed by corrected protocols, raw data, current model outputs and independent quantum calculations are protected. Use the paper manifest rather than recursively scanning report directories.
 
-The user's current data decision, effective 2026-11-08, is recorded in
-`data/CURRENT_DATASET.md`, `data/active_workbooks.json` and
-`data/annotations/origin_kind_confirmation_20261108.json`.
+## Data and tasks
 
-- Use the active registry as the default input entry point. Current version is
-  `2026-11-08-confirmed-origin-kind-v1`: 18 workbooks and 1672 spectrum records.
-  These comprise 枣仁 364, 酸枣仁 500, 黄芪 403 and 天麻 405 records. Do not
-  recursively scan raw, archive or processed directories to discover inputs;
-  those locations also contain historical versions and non-spectral summaries.
-- The user has confirmed the origins and kinds represented by the uploaded
-  filenames. `species` stores the user's Chinese kind labels, not a Latin
-  botanical identification. Origin/species confirmation flags and the
-  `origin_basis` / `species_basis` fields refer to this user declaration, not
-  an independent laboratory identification or provenance audit. Preserve the
-  uploaded spelling, including `天麻安徽毫州.xlsx`.
-- The seven previously numbered workbooks remain in
-  `data/processed/zaoren_20261031/`, with their ZY01--ZY07 record IDs unchanged.
-  Their current basenames are 陕西延安枣仁.xlsx, 云南枣仁.xlsx,
-  内蒙古酸枣仁.xlsx, 山西灵石酸枣仁.xlsx, 安徽亳州酸枣仁.xlsx,
-  河北石家庄酸枣仁.xlsx and 山西酸枣仁.xlsx respectively. Renaming these
-  files does not change their spectral values, column headers or hashes.
-  ZY01 and ZY02 are now confirmed as 枣仁; the other five are 酸枣仁.
-- Four Huangqi inputs use the user's short filenames in `data/raw/huangqi/`.
-  The current 黄芪甘肃.xlsx includes the previously absent refractive-index
-  table; the incomplete prior version is retained for provenance. Existing
-  time-domain values are unchanged; eight frequency/absorption values differ
-  only in export precision (maximum absolute difference about 1.42e-14).
-- The three added 枣仁 workbooks are in `data/raw/zaoren_20261108/` (ZR01--ZR03)
-  and the four added 天麻 workbooks are in `data/raw/tianma/` (TM01--TM04).
-  Registry/metadata record IDs do not imply the raw workbook column headers
-  were rewritten, or that individual physical samples or batches were verified.
-- The current old/new filename map is `data/confirmed_names_20261108.csv`;
-  the current 18-workbook summary is `data/confirmed_workbooks_20261108.xlsx`.
-  The older `酸枣仁_编号对照表.xlsx`, numbered-name mapping CSVs and verification
-  JSONs remain historical evidence. Preserve their original names, paths and
-  hashes as historical fields; use their added current-path links or the
-  active registry for current file locations. Never count archived originals,
-  numbered outputs and renamed current files as separate observations.
-- The 2026-10-31 user declaration of independent samples and one source batch
-  per group applies only to the original 855 ZY records. Their
-  `physical_sample_id=record_id` basis remains
-  `user_declared_independent_20261031`. Do not extend this declaration to the
-  new raw workbooks or Huangqi records, and do not invent actual batch IDs.
-- Historical experiments on ZY01--ZY07 used anonymous group labels and were
-  conducted on a collection now known to mix 枣仁 and 酸枣仁. Retain their
-  original counts, hashes, metrics and protocols, but do not describe them as
-  validated within-species acid-jujube origin identification. Do not transfer
-  their scores to the current 18-workbook dataset or imply new experiments
-  were run during the filename/annotation update.
-- The historical approved protocol remains documented in
-  `docs/APPROVED_ZAOREN_EXPERIMENT_PLAN.md` and `data/research/`: outer 5 /
-  inner 2 / CARS-internal 2 folds, split seed 20261031, model seed 42. ZY02 has
-  five records. Gaussian remains excluded from that approved experiment.
-  Any new origin study must account for kind, group and batch confounding;
-  sample-level validation is not a real cross-batch experiment. New-batch
-  calibration still needs independently annotated support/query batches.
+- Current input version is `2026-11-08-confirmed-origin-kind-v1`: 18 workbooks and 1672 records: 枣仁364, 酸枣仁500, 黄芪403, 天麻405. Discover inputs through `data/active_workbooks.json`, never raw/archive recursion. Four workbook views do not quadruple specimen count.
+- Preserve current workbook bytes, record IDs, uploaded spelling including 天麻安徽毫州.xlsx, and hashes. ZY01--ZY02 are 枣仁; ZY03--ZY07 are 酸枣仁. ZR01--ZR03 are additional 枣仁 sources. Original855 spectra remain inputs after label correction.
+- Paper inputs are frozen in `paper/current/inputs/`: corrected registry, metadata and TRAIN999/CAL334/PRED339 split. Earlier root metadata flags predate the later independence declaration; do not override frozen roles or labels with historical flags.
+- The 2026-10-31 declaration covers original 855; `data/annotations/specimen_independence_user_declaration_20261108.json` separately covers 817 additional records (黄芪403, 天麻405, 枣仁9). These are user declarations, not independent laboratory identification or proof of new batches. Do not invent batch IDs.
+- Pure 酸枣仁 origin tasks use ZY03--ZY07; pure 枣仁 origin tasks use ZY01/ZY02/ZR01--ZR03. Newly added枣仁 origins have only 3 specimens each. Keep task roles and denominators separate rather than ranking unlike metrics.
+- B experiments remain exploratory internal TRAIN-only comparisons on previously exposed specimens. E05 is `NOT_RUN_NEEDS_NEW_BATCH_DATA`; CPU work cannot create independent support/query batches.
+
+## Branches and quantum work
+
+- `docs/repository/` is a dated operational inventory, not another paper-result allowlist. Withdrawn classifier rounds are excluded. A chat, open PR or commit date alone does not prove liveness.
+- Quantum calculations, controls, arrays, sealed numerical protocols and job ledgers are outside this deletion. Preserve them. Judge each molecule/model by real stationary-point, mode and IR acceptance; water controls or ML validation do not certify all targets or peak assignments.
+- Ordinary deletion commits remove files from current versions. Historical Git objects remain for reproducibility, without permission to cite withdrawn classification scores as current results.
