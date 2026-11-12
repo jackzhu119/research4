@@ -41,6 +41,6 @@ native driver记录 **155次进入、155次返回**。这是底层调用计数�
 
 [原分析汇总](../final-analysis/summary.json)的斯皮诺素已计算／已验证频率记录均为0。两份斯皮诺素CSV为空，仅表示**未计算成功**，绝不表示该分子没有低频振动、没有吸收或某成分不存在。75原子非线性分子的219个预期模式不是实际得到219个模式。主频率表中的3条真实记录均来自水；水及乙醇21模式仅作数值验证，不能填入斯皮诺素机制结果。
 
-20个实验候选对应表均保留空理论字段，状态为`BLOCKED_NO_VALIDATED_SPINOSIN_MODES_IN_RANGE`；没有可用斯皮诺素理论峰进行化学归属。原[分析README](../final-analysis/README.md)已明确“未计算保持空表，不推断零吸收”，不存在把空CSV解释为无低频峰的结论。IR始终`NOT_COMPUTED`；没有修改96.0234%的分类结果、光谱或标签。
+错误混种分类成绩已按2026-11-12用户决定撤回；论文使用main的paper/current白名单。
 
 完整机器可读审计见[audit.json](audit.json)，来源及冻结源码SHA见[source_sha256.json](source_sha256.json)，本目录文件索引见[index.json](index.json)。索引不包含自身SHA，由上级交付绑定。没有启动量子计算、积分、信号或Git操作；所有科学来源仅只读。

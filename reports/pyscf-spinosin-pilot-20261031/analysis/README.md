@@ -8,6 +8,6 @@
 
 `water_validated_frequencies.csv`为实际技术测试；`phase_status_and_resources.csv`、`actual_optimization_steps.csv`分别保留DONE／PARTIAL阶段与实际梯度轨迹；`experiment_theory_pairs.csv`列出全部实际实验候选及可用的理论模式笛卡尔对照，不按峰位接近挑构象。频率位置图使用等高标记，**不代表IR强度**，IR始终NOT_COMPUTED。模式箭头／动画仅作任意幅度显示。
 
-孤立分子的分子内振动不包含晶格、复杂基质、分子间氢键和集体振动。当前没有纯品THz和化学含量证据，任何频率接近都不能确认化学归属。本次不修改分类模型，也不声称提高96.0234%准确率。
+错误混种分类成绩已按2026-11-12用户决定撤回；论文使用main的paper/current白名单。
 
 `summary.json`绑定输入摘要和完整条件；`files_sha256.json`覆盖本目录其它产物。
