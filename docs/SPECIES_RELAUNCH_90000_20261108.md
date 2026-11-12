@@ -13,7 +13,7 @@ Use only the active 18-workbook registry: 500 酸枣仁, 364 枣仁, 403 黄芪 
 999 TRAIN / 334 CAL / 339 PRED assignment. Rebuilt features exactly match the
 historical feature-cache SHA. Workers receive only 999 TRAIN rows.
 
-The historical 96.0234% result concerns mixed-kind anonymous source groups;
+错误混种分类成绩已按2026-11-12用户决定撤回；论文使用main的paper/current白名单。
 it is not pure-酸枣仁 origin performance. This run first completes a pure-acid
 five-fold development comparison of original R0, optimized R2 MC-UVE/SVM,
 full-spectrum SVM and PLS-DA. Subsequent fixed groups examine n/alpha fusion,
