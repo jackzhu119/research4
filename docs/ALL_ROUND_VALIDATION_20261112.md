@@ -1,9 +1,11 @@
 # 各轮回传结果重验与后台接续
 
 本轮日期为2026-11-12（北京时间），独立研究分支为
-`research/all-round-validation-20261112`。用户本次授权990000 CPU秒，
+`research/all-round-validation-20261112`。用户初始授权990000 CPU秒，
 用于盘点仓库各轮回传结果、重验已完成证据、补齐分子频率与独立IR强度验证。
 这是本轮新授权，不重置、合并或挪用其他聊天的历史额度。
+后续用户明确追加100000 CPU秒，累计授权1090000 CPU秒；幂等追加记录见
+`data/research/all_round_validation_20261112/authorization_extensions.json`。
 
 ## 已核对的缺口
 
@@ -30,8 +32,11 @@
 
 不按准确率、运行时长、连续失败次数或无进展次数自动终止整队列。
 科学验收条件用于判定结果资格，保留不合格原因、带符号虚频及负结果。
-990000累计CPU秒是用户授权的资源边界；实际准备与后台消耗计入账本，
+当前1090000累计CPU秒是用户授权的资源边界；实际准备与后台消耗计入账本，
 不预扣提前退出储备。资源边界保留检查点及尚未解决的问题。
+环境重启后沿用原耗用账本，无法精确观测的旧环境尾部单列保守上界，
+不把该上界写成实际CPU耗用。原冻结数值代码和输入保持原样；已完成ML只继承回执，
+不重新执行或重建已撤回的论文材料。
 
 监督器与独立guard记录Linux身份、心跳、代码封印及累计CPU；
 状态和结果写入`reports/all_round_validation_20261112/`。
@@ -43,15 +48,18 @@
 和`data/research/all_round_validation_20261112/publication_authorization.json`。
 
 ```bash
-/workspace/validation-venv/bin/python scripts/background_all_round_validation_20261112.py --root /workspace/research4 --start
-/workspace/validation-venv/bin/python scripts/background_all_round_validation_20261112.py --root /workspace/research4 --verify
-/workspace/validation-venv/bin/python scripts/background_all_round_validation_20261112.py --root /workspace/research4 --status
+/workspace/validation-venv/bin/python scripts/extend_all_round_validation_20261112.py --root /workspace/research4 --start
+/workspace/validation-venv/bin/python scripts/extend_all_round_validation_20261112.py --root /workspace/research4 --verify
+/workspace/validation-venv/bin/python scripts/extend_all_round_validation_20261112.py --root /workspace/research4 --status
 ```
 
 启动后须实际核对监督器、guard和计算进程身份、脱离会话、冻结代码、
 CPU账本及科学进度，不能用历史PID或旧启动回执证明本轮已运行。
 
 ## 论文使用范围
+
+当前论文引用资格遵循`PAPER_RESULTS_POLICY.md`和`main:paper/current`显式清单；
+本轮数值复验通过不自动授予已撤回结果的论文使用许可。
 
 只有实际通过原件重验、完整极小值验收及本轮独立IR验收的数据，
 才能按其真实方法标为孤立分子局部谐振结果。水分子控制或软件测试不替代目标分子结果，
