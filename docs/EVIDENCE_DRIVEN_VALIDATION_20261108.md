@@ -30,7 +30,7 @@ not establish independent Latin-taxonomic authentication or new batch IDs.
 The earlier corrected classic study completed three partition repeats×five
 folds. Alpha R0/R2 accuracies were85.44/91.33%; n R0/R2 were81.00/64.33%;
 n+alpha R0/R2 were91.56/92.33%, with fused R2 macro-F1 .923547. These are
-internal development scores, not a new independent test. Old96.0234% concerns
+错误混种分类成绩已按2026-11-12用户决定撤回；论文使用main的paper/current白名单。
 the historical mixed-kind seven-source task and is not a pure-acid benchmark.
 
 Inspection of the15 fused R2 selections found13 with no n features at all.
