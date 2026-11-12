@@ -1,5 +1,21 @@
 # Research data conventions
 
+## Repository and experiment navigation
+
+- Start cross-branch or training-history work at `docs/repository/README.md`,
+  `BRANCHES.md`, `ROUNDS.md` and their JSON ledgers. They distinguish historical
+  mixed-kind experiments, corrected-kind matrices, B1--B5 and quantum work.
+- This index is a dated evidence snapshot. Update fixed source SHA/path and
+  actual heartbeat/acceptance time before changing a running/completed label;
+  chat status, an open PR or a commit date alone does not establish job state.
+- Record continuation, copied results and validation under the original round
+  ID. A new chat, deployment or branch is not automatically a new experiment.
+- The index links a later 2026-11-08 declaration for the additional 817 records
+  on the species-correction branch. The data conventions below describe this
+  branch's earlier registry metadata; preserve each declaration's exact scope.
+
+## Dataset conventions
+
 The user's current data decision, effective 2026-11-08, is recorded in
 `data/CURRENT_DATASET.md`, `data/active_workbooks.json` and
 `data/annotations/origin_kind_confirmation_20261108.json`.

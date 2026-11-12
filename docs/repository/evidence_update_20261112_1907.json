@@ -1,0 +1,1664 @@
+{
+  "schema": "research4-latest-status-audit-v1",
+  "observed_at_utc": "2026-11-12T11:07:09.543Z",
+  "scope": "Read-only fixed Git snapshots, no task start/stop/retry, no remote /proc probe.",
+  "refs": [
+    {
+      "key": "parallel",
+      "branch": "research/parallel-spinosin-ir-900000-20261112",
+      "sha": "57041ddd22b647cf7718fd5f351594f17ccdd7b7"
+    },
+    {
+      "key": "conformers",
+      "branch": "research/spinosin-conformers-parallel-900000-20261112",
+      "sha": "fed40f975d097fbfafcac6c799fc50983a51a2d0"
+    },
+    {
+      "key": "grid7",
+      "branch": "research/spinosin-grid7-parallel-20261112",
+      "sha": "af8006d8a74df02739f3c07ac180aa9d683c4354"
+    },
+    {
+      "key": "allround",
+      "branch": "research/all-round-validation-20261112",
+      "sha": "516de760b3bf72143269f76c904cc35df7b69f76"
+    },
+    {
+      "key": "ir",
+      "branch": "research/pyscf-ir-strength-repair-20261111",
+      "sha": "a28d290fb6f8c98c53a068cc364ce7eeb78f6b6d"
+    },
+    {
+      "key": "publication",
+      "branch": "research/pyscf-publication-recovery-20261111",
+      "sha": "8504167d6feefba5cfe82b715b5b671bcde4647a"
+    }
+  ],
+  "files": [
+    {
+      "key": "parallel",
+      "branch": "research/parallel-spinosin-ir-900000-20261112",
+      "sha": "57041ddd22b647cf7718fd5f351594f17ccdd7b7",
+      "path": "reports/pyscf_parallel_missing_20261112/RUNNING_ZH.md",
+      "data": "# 本轮后台运行入口\n\n- 共享新增授权：900000 CPU 秒。\n- 斯皮诺素：严格几何修复与完整频率计算，已启动。\n- 毛蕊异黄酮 IR：严格驻点前驱导数，已启动。\n- 斯皮诺素 IR：进程已启动，等待本轮驻点后自动计算。\n- 无评分、失败次数、几何轮数、无进展或墙钟时长退出条件；科学条件不放宽，授权 CPU 是唯一资源边界。\n- 每600秒自动回传；状态见 background_state.json 与 workers/，检查命令见 docs/PYSCF_PARALLEL_MISSING_20261112.md。\n- 草稿审阅入口：https://github.com/jackzhu119/research4/pull/15\n\n当前是启动进度，不是完成或验收合格结论。\n",
+      "source_file_sha256": "476505a173a91adce65f947148e8967800da74305f453ec666087d9a3f9b756e",
+      "url": "https://github.com/jackzhu119/research4/blob/57041ddd22b647cf7718fd5f351594f17ccdd7b7/reports/pyscf_parallel_missing_20261112/RUNNING_ZH.md"
+    },
+    {
+      "key": "parallel",
+      "branch": "research/parallel-spinosin-ir-900000-20261112",
+      "sha": "57041ddd22b647cf7718fd5f351594f17ccdd7b7",
+      "path": "reports/pyscf_parallel_missing_20261112/background_state.json",
+      "data": {
+        "schema": "parallel-background-v1",
+        "status": "RUNNING",
+        "heartbeat_at_utc": "2026-11-12T11:03:44.362131+00:00",
+        "supervisor": {
+          "pid": 1640,
+          "start_ticks": 61581
+        },
+        "guard": {
+          "pid": 1639,
+          "start_ticks": 61581,
+          "started_at_utc": "2026-11-12T10:53:44.308723+00:00"
+        },
+        "tasks_complete": {
+          "publication_spinosin": false,
+          "ir_calycosin": false,
+          "ir_spinosin": false
+        },
+        "authorized_cpu_seconds": 900000,
+        "charged_cpu_seconds": 1826.8,
+        "remaining_cpu_seconds": 898173.2,
+        "quality_thresholds_end_execution": false,
+        "maximum_retries": null,
+        "maximum_rounds": null,
+        "arbitrary_runtime_timeout": null
+      },
+      "source_file_sha256": "bde0ad12911e7d83246e0e482a2a0fb9521a52def58557f14e5ef2008dfc74a2",
+      "url": "https://github.com/jackzhu119/research4/blob/57041ddd22b647cf7718fd5f351594f17ccdd7b7/reports/pyscf_parallel_missing_20261112/background_state.json"
+    },
+    {
+      "key": "parallel",
+      "branch": "research/parallel-spinosin-ir-900000-20261112",
+      "sha": "57041ddd22b647cf7718fd5f351594f17ccdd7b7",
+      "path": "reports/pyscf_parallel_missing_20261112/launch_inventory.json",
+      "data": {
+        "checked_at_utc": "2026-11-12T10:53:44.148016+00:00",
+        "authorization_cpu_seconds": 900000,
+        "scope": "new independent shared authorization for missing Spinosin and complementary IR tasks",
+        "source_commits": {
+          "publication": "2eb6b6e1dfe6627f24c8f97ea268bdec8f636bcb",
+          "ir": "72d1faded59f99253f9848c50c566c00cd26c982",
+          "all_round": "224df599490c300aad12e59133756226799ef410",
+          "frequency": "d8dc8bf47cc024a1dd48549dae2a37492dc3ef3e"
+        },
+        "remote_progress_snapshots": {
+          "publication": {
+            "molecule": "calycosin",
+            "profile": "df-grid5",
+            "stage": "FULL_NUMERICAL_DERIVATIVES",
+            "case": "/workspace/research4/reports/pyscf_publication_20261111/jobs/calycosin/df-grid5/round000",
+            "heartbeat_at_utc": "2026-11-12T10:45:02.341455+00:00",
+            "step_bohr": 0.002,
+            "coordinate": 30,
+            "sign": 1,
+            "molecule_displacements_completed": 60,
+            "molecule_displacements_planned": 396,
+            "checkpoint_token": 959
+          },
+          "ir": {
+            "molecule": "acid",
+            "profile": "df-grid5",
+            "source_id": "f626f77fcebb7b9e5bdf10c3725664b4754e01232361b3c209106da04b4206f6",
+            "round": 0,
+            "stage": "DIRECT_NORMAL_MODE_DIPOLE",
+            "heartbeat_at_utc": "2026-11-12T10:40:08.754164+00:00",
+            "coordinate": 50,
+            "step_bohr": 0.001,
+            "sign": -1,
+            "mode_index_one_based": 25,
+            "planned_points": 90,
+            "source_count": 5,
+            "errors_in_last_scan": [],
+            "precursor_id": "1604fa08eb65630a75cea96065b398bc3144cfe1ad17a6602469b07e0308f4f0",
+            "source_minimum_qualified": true,
+            "full_mode_validation_planned_points": 270,
+            "resumed_after_environment_restart_at_utc": "2026-11-12T01:01:14.840239+00:00"
+          },
+          "all_round": {
+            "checkpoint_token": 70,
+            "molecule": "calycosin",
+            "profile": "df-grid5",
+            "stage": "FULL_NUMERICAL_DERIVATIVES",
+            "case": "/workspace/research4/reports/all_round_validation_20261112/quantum/publication/jobs/calycosin/df-grid5/round000",
+            "heartbeat_at_utc": "2026-11-12T10:42:18.440601+00:00",
+            "step_bohr": 0.002,
+            "coordinate": 17,
+            "sign": 1,
+            "molecule_displacements_completed": 34,
+            "molecule_displacements_planned": 396
+          }
+        },
+        "new_tasks": {
+          "publication_spinosin": {
+            "threads": 2,
+            "reason": "queued behind calycosin on other workers"
+          },
+          "ir_calycosin": {
+            "threads": 1,
+            "reason": "stationary precursor authenticated; independent IR not yet running"
+          },
+          "ir_spinosin": {
+            "threads": 1,
+            "reason": "local producer subscription; automatic start after stationary precursor"
+          }
+        },
+        "existing_remote_computations_not_modified": true,
+        "arbitrary_failure_round_runtime_thresholds": null
+      },
+      "source_file_sha256": "6c2e6d214a9b0378cc7759a469aff32544eb21bb4d87ff23d1910112f4c1df5c",
+      "url": "https://github.com/jackzhu119/research4/blob/57041ddd22b647cf7718fd5f351594f17ccdd7b7/reports/pyscf_parallel_missing_20261112/launch_inventory.json"
+    },
+    {
+      "key": "parallel",
+      "branch": "research/parallel-spinosin-ir-900000-20261112",
+      "sha": "57041ddd22b647cf7718fd5f351594f17ccdd7b7",
+      "path": "docs/PYSCF_PARALLEL_MISSING_20261112.md",
+      "data": "# 斯皮诺素与尚未开始的 IR 并行计算\n\n用户于 2026-11-12 授权本轮新增 **900000 CPU 秒**，要求配置后自动后台运行，不因评分、失败次数、轮数或运行时长阈值退出。\n\n## 已有任务与本轮补充\n\n核对其他计算聊天的最近进程检查和远端研究分支后，确认原儿茶酸 IR、毛蕊异黄酮完整 Hessian 已在其他环境运行，斯皮诺素仍在顺序队列中。聊天中进程检查反映各自环境当时的状态，远端报告是检查点，不能把报告中的 PID 当成本机进程。\n\n本轮在独立输出目录 `reports/pyscf_parallel_missing_20261112/` 启动三路工作：\n\n| 后台工作 | 线程 | 工作内容 |\n| --- | ---: | --- |\n| `publication_spinosin` | 2 | 立即开始斯皮诺素严格几何修复、电子稳定性和完整频率计算，不等待毛蕊异黄酮 |\n| `ir_calycosin` | 1 | 订阅可认证的毛蕊异黄酮驻点和完整振动模式，提前计算 IR 导数并接续独立验证 |\n| `ir_spinosin` | 1 | 消费本轮斯皮诺素生产者的驻点和完整模式，接续 IR 导数及逐模式验证 |\n\n三路共享一个新增授权账本；不重置、不使用其他环境原有授权。不重算已完成或正在进行的原儿茶酸 IR。枣仁皂苷 A/B 虽有准备资料，但属于另外两项大分子完整 DFT 项目，不插入此次斯皮诺素与 IR 补充队列。\n\n## 运行和保存规则\n\n- 使用现有严格 SCF、驻点、模式和 IR 科学实现；来源通过 Git 对象、科学数组和结果封印核对。原始数据和其他计算分支保持原状。\n- 几何/科学验收失败保留负结果并继续修复；异常按原检查点重试，没有失败次数、几何轮数、评分、无进展或墙钟时长退出条件。\n- 计算过程的收敛标准是科学验收条件，不是全局停止条件。前驱 IR 导数不冒充已通过完整频率及 IR 验收的论文结果。\n- 唯一资源边界是三路合计的 **900000 实测 CPU 秒**。到达授权边界保存已完成检查点；不把未完成项目标记为合格。\n- 使用脱离聊天前台的监督进程和独立守护进程，意外退出后可恢复原目录。环境整体暂停或关闭时，进程不能继续消耗 CPU；重新运行启动命令可接续检查点。\n- 状态、输出和检查点定期提交至本轮专用研究分支。未公开的密度缓存留在本机；科学结果、来源与进度可在仓库检查。\n\n## 启动与检查\n\n在仓库根目录使用已安装依赖的解释器：\n\n```bash\n/workspace/pyscf-parallel-venv/bin/python scripts/background_pyscf_parallel_missing_20261112.py --start\n/workspace/pyscf-parallel-venv/bin/python scripts/background_pyscf_parallel_missing_20261112.py --verify\n```\n\n本轮仅报告真实完成状态；尚未完成的极小值、完整 Hessian 或 IR 验收保持待完成。孤立分子谐振计算不等同于药材固体 THz 峰归属验证。\n",
+      "source_file_sha256": "f5a33a534a474dd408ebbf312c2a59eef0d521405b2cc1345254ffdaa6d7c1ef",
+      "url": "https://github.com/jackzhu119/research4/blob/57041ddd22b647cf7718fd5f351594f17ccdd7b7/docs/PYSCF_PARALLEL_MISSING_20261112.md"
+    },
+    {
+      "key": "conformers",
+      "branch": "research/spinosin-conformers-parallel-900000-20261112",
+      "sha": "fed40f975d097fbfafcac6c799fc50983a51a2d0",
+      "path": "reports/spinosin_conformers_parallel_20261112/job_claim.json",
+      "data": {
+        "schema": "research4-molecular-job-claim-v1",
+        "claimed_at_utc": "2026-11-12T10:58:40.663Z",
+        "owner_thread": "01a1becc-eeef-70e2-a36c-60ce19a7d034",
+        "environment": "ccarenv_b64_Y2NhcmVudl9hMTBhMWQxOWUzMzQ4MTkxOTU3ODM2ZjU1YmE2NTRhZA",
+        "root": "/workspace/chemistry_supplement_20261112",
+        "state": "preparing",
+        "authorization_cpu_seconds": 900000,
+        "scope": "Two previously unrun, distinct spinosin starting conformers C002 and C003; PBE/def2-SVP df-grid5 optimization, stationary-point audit, two-step Hessian and dipole derivatives",
+        "jobs": [
+          {
+            "id": "spinosin_C002_df_grid5",
+            "molecule": "spinosin",
+            "conformer": "C002",
+            "profile": "df-grid5",
+            "threads": 1,
+            "max_memory_mb": 2200,
+            "xyz_sha256": "b651dedc1e52a91937d3a9c88911ba2f583f55bd589c07ccaddf21a5ff6647b3"
+          },
+          {
+            "id": "spinosin_C003_df_grid5",
+            "molecule": "spinosin",
+            "conformer": "C003",
+            "profile": "df-grid5",
+            "threads": 1,
+            "max_memory_mb": 2200,
+            "xyz_sha256": "b89423175036d35a32dc669c89a2dd8e4929f0290c934e2eea48922372f613d0"
+          }
+        ],
+        "source_commit": "2eb6b6e1dfe6627f24c8f97ea268bdec8f636bcb",
+        "starting_geometry_qualified": false,
+        "existing_other_host_thread": "6af5984c-1390-8191-b29f-4c731337b015",
+        "existing_other_host_tasks": [
+          "publication_spinosin df-grid5",
+          "ir_calycosin",
+          "ir_spinosin"
+        ],
+        "early_stopping": "No accuracy, no-improvement, walltime or retry-count stop of the queue. Scientific convergence checks determine result qualification; CPU budget remains a hard aggregate cap.",
+        "status": "Background not yet started; actual PID/checkpoint status will be published separately.",
+        "conformer_source_commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+        "identity_inchikey": "VGGSULWDCMWZPO-ODEMIOGVSA-N",
+        "heavy_atom_aligned_rmsd_angstrom": {
+          "C001_C002": 0.5799,
+          "C001_C003": 2.39198,
+          "C002_C003": 2.39312
+        },
+        "claim_correction": "Initial grid7 proposal superseded before any calculations: other host's future C001 escalation includes grid7. Distinct conformer optimization selected to avoid duplicate starting jobs.",
+        "scope_limits": "MMFF energies only rank starting models; final DFT geometries may converge to the same basin. These are not independent experimental samples."
+      },
+      "source_file_sha256": "d4d827df1aee71d191ccac30123850b3acef36e5c70225bcb9e0fb8d72dcaac8",
+      "url": "https://github.com/jackzhu119/research4/blob/fed40f975d097fbfafcac6c799fc50983a51a2d0/reports/spinosin_conformers_parallel_20261112/job_claim.json"
+    },
+    {
+      "key": "grid7",
+      "branch": "research/spinosin-grid7-parallel-20261112",
+      "sha": "af8006d8a74df02739f3c07ac180aa9d683c4354",
+      "path": "reports/spinosin_grid7_parallel_20261112/job_claim.json",
+      "data": {
+        "schema": "research4-molecular-job-claim-v1",
+        "claimed_at_utc": "2026-11-12T10:56:01.650Z",
+        "owner_thread": "01a1becc-eeef-70e2-a36c-60ce19a7d034",
+        "environment": "ccarenv_b64_Y2NhcmVudl9hMTBhMWQxOWUzMzQ4MTkxOTU3ODM2ZjU1YmE2NTRhZA",
+        "root": "/workspace/chemistry_supplement_20261112",
+        "state": "superseded_before_start",
+        "authorization_cpu_seconds": 900000,
+        "scope": "Complementary spinosin grid-7 numerical-model checks; no df-grid5, calycosin, acid, or independent IR duplication",
+        "jobs": [
+          {
+            "id": "spinosin_df_grid7",
+            "molecule": "spinosin",
+            "profile": "df-grid7",
+            "method": "PBE",
+            "basis": "def2-svp",
+            "charge": 0,
+            "spin": 0,
+            "threads": 1,
+            "max_memory_mb": 2200
+          },
+          {
+            "id": "spinosin_direct_grid7",
+            "molecule": "spinosin",
+            "profile": "direct-grid7",
+            "method": "PBE",
+            "basis": "def2-svp",
+            "charge": 0,
+            "spin": 0,
+            "threads": 1,
+            "max_memory_mb": 2200
+          }
+        ],
+        "source_commit": "2eb6b6e1dfe6627f24c8f97ea268bdec8f636bcb",
+        "starting_coordinates_bohr_sha256": "13cc6a1ca8b437d1369658487748390c326d51d89822be3d1894795bef7cd221",
+        "starting_geometry_qualified": false,
+        "existing_other_host_thread": "6af5984c-1390-8191-b29f-4c731337b015",
+        "existing_other_host_tasks": [
+          "publication_spinosin df-grid5",
+          "ir_calycosin",
+          "ir_spinosin"
+        ],
+        "early_stopping": "No accuracy, no-improvement, walltime or retry-count stop of the queue. Scientific convergence checks determine result qualification; CPU budget remains a hard aggregate cap.",
+        "status": "No job launched under this initial proposal. Replaced with distinct C002/C003 conformer jobs to avoid overlap with another host's future grid7 queue.",
+        "replacement_branch": "research/spinosin-conformers-parallel-900000-20261112",
+        "authorization_transferred_not_added": true,
+        "active_jobs": []
+      },
+      "source_file_sha256": "e5f3b84033b055daf6053a0564ccff4299e8b41289196abee4b887e5dbcfbfe0",
+      "url": "https://github.com/jackzhu119/research4/blob/af8006d8a74df02739f3c07ac180aa9d683c4354/reports/spinosin_grid7_parallel_20261112/job_claim.json"
+    },
+    {
+      "key": "allround",
+      "branch": "research/all-round-validation-20261112",
+      "sha": "516de760b3bf72143269f76c904cc35df7b69f76",
+      "path": "reports/all_round_validation_20261112/status.json",
+      "data": {
+        "branch": "research/all-round-validation-20261112",
+        "initial_head": "98e2bc4c94687ab075c92a6a203e7295a5cfb6c4",
+        "status": "RUNNING",
+        "authorization_date": "2026-11-12",
+        "authorization_cpu_seconds": 990000,
+        "authorization_scope": "New task grant; historical jobs and ledgers are preserved separately",
+        "supervisor_identity": {
+          "pid": 8702,
+          "state": "R",
+          "pgrp": 8702,
+          "sid": 8702,
+          "start_ticks": 136682,
+          "boot_id": "2e3e439e-20a0-46e1-812f-afe9e1ea9177"
+        },
+        "guard_identity": {
+          "pid": 8703,
+          "state": "R",
+          "pgrp": 8703,
+          "sid": 8703,
+          "start_ticks": 136686,
+          "boot_id": "2e3e439e-20a0-46e1-812f-afe9e1ea9177"
+        },
+        "publisher_identity": {
+          "pid": 13056,
+          "state": "R",
+          "pgrp": 13056,
+          "sid": 13056,
+          "start_ticks": 3438276,
+          "boot_id": "2e3e439e-20a0-46e1-812f-afe9e1ea9177"
+        },
+        "tasks": {
+          "ml_verification": {
+            "identity": null,
+            "attempts": 1,
+            "next_launch_monotonic": 2048.743535136,
+            "status": "COMPLETE",
+            "last_started_at_utc": "2026-11-12T01:44:39.990217+00:00",
+            "last_returncode": 0,
+            "last_finished_at_utc": "2026-11-12T01:55:01.860509+00:00"
+          },
+          "quantum_publication": {
+            "identity": {
+              "pid": 8705,
+              "state": "R",
+              "pgrp": 8705,
+              "sid": 8705,
+              "start_ticks": 136687,
+              "boot_id": "2e3e439e-20a0-46e1-812f-afe9e1ea9177"
+            },
+            "attempts": 1,
+            "next_launch_monotonic": 0,
+            "status": "RUNNING",
+            "last_started_at_utc": "2026-11-12T01:44:39.990734+00:00"
+          },
+          "quantum_ir": {
+            "identity": {
+              "pid": 8706,
+              "state": "R",
+              "pgrp": 8706,
+              "sid": 8706,
+              "start_ticks": 136687,
+              "boot_id": "2e3e439e-20a0-46e1-812f-afe9e1ea9177"
+            },
+            "attempts": 1,
+            "next_launch_monotonic": 0,
+            "status": "RUNNING",
+            "last_started_at_utc": "2026-11-12T01:44:39.991107+00:00"
+          }
+        },
+        "heartbeat_at_utc": "2026-11-12T10:55:05.583113+00:00",
+        "authorized_cpu_seconds": 990000,
+        "no_wall_score_failure_idle_exit": true,
+        "cloud_lifetime_guaranteed": false,
+        "last_publication_returncode": 0
+      },
+      "source_file_sha256": "16c3b512ba0f5fc34f3a5daff929aa6193988544038814d3a7fefc89fc4d3e72",
+      "url": "https://github.com/jackzhu119/research4/blob/516de760b3bf72143269f76c904cc35df7b69f76/reports/all_round_validation_20261112/status.json"
+    },
+    {
+      "key": "allround",
+      "branch": "research/all-round-validation-20261112",
+      "sha": "516de760b3bf72143269f76c904cc35df7b69f76",
+      "path": "reports/all_round_validation_20261112/quantum/ir/progress.json",
+      "data": {
+        "molecule": "acid",
+        "profile": "df-grid5",
+        "source_id": "f626f77fcebb7b9e5bdf10c3725664b4754e01232361b3c209106da04b4206f6",
+        "round": 0,
+        "stage": "DIRECT_NORMAL_MODE_DIPOLE",
+        "heartbeat_at_utc": "2026-11-12T10:55:04.482925+00:00",
+        "coordinate": 50,
+        "step_bohr": 0.001,
+        "sign": 1,
+        "mode_index_one_based": 16,
+        "planned_points": 90
+      },
+      "source_file_sha256": "d829c83ea3e275bbb2f7161c9945be0a48255e5518ae830818a65a7dc6fb924e",
+      "url": "https://github.com/jackzhu119/research4/blob/516de760b3bf72143269f76c904cc35df7b69f76/reports/all_round_validation_20261112/quantum/ir/progress.json"
+    },
+    {
+      "key": "allround",
+      "branch": "research/all-round-validation-20261112",
+      "sha": "516de760b3bf72143269f76c904cc35df7b69f76",
+      "path": "reports/all_round_validation_20261112/quantum/publication/progress.json",
+      "data": {
+        "checkpoint_token": 72,
+        "molecule": "calycosin",
+        "profile": "df-grid5",
+        "stage": "FULL_NUMERICAL_DERIVATIVES",
+        "case": "/workspace/research4/reports/all_round_validation_20261112/quantum/publication/jobs/calycosin/df-grid5/round000",
+        "heartbeat_at_utc": "2026-11-12T10:54:26.972354+00:00",
+        "step_bohr": 0.002,
+        "coordinate": 17,
+        "sign": -1,
+        "molecule_displacements_completed": 35,
+        "molecule_displacements_planned": 396
+      },
+      "source_file_sha256": "2e3d17f2c643ff508df1d260f302164228e15fed5122bd3d1f9d7f740f4d5813",
+      "url": "https://github.com/jackzhu119/research4/blob/516de760b3bf72143269f76c904cc35df7b69f76/reports/all_round_validation_20261112/quantum/publication/progress.json"
+    },
+    {
+      "key": "ir",
+      "branch": "research/pyscf-ir-strength-repair-20261111",
+      "sha": "a28d290fb6f8c98c53a068cc364ce7eeb78f6b6d",
+      "path": "reports/pyscf_ir_20261111/progress.json",
+      "data": {
+        "molecule": "acid",
+        "profile": "df-grid5",
+        "source_id": "f626f77fcebb7b9e5bdf10c3725664b4754e01232361b3c209106da04b4206f6",
+        "round": 0,
+        "stage": "DIRECT_NORMAL_MODE_DIPOLE",
+        "heartbeat_at_utc": "2026-11-12T10:58:52.237853+00:00",
+        "coordinate": 50,
+        "step_bohr": 0.001,
+        "sign": -1,
+        "mode_index_one_based": 32,
+        "planned_points": 90,
+        "source_count": 5,
+        "errors_in_last_scan": [],
+        "precursor_id": "1604fa08eb65630a75cea96065b398bc3144cfe1ad17a6602469b07e0308f4f0",
+        "source_minimum_qualified": true,
+        "full_mode_validation_planned_points": 270,
+        "resumed_after_environment_restart_at_utc": "2026-11-12T01:01:14.840239+00:00"
+      },
+      "source_file_sha256": "03686a393d8cf8e8e2d32d2b93c55e2f872c4b7f5249eb14e883a099bdc214a0",
+      "url": "https://github.com/jackzhu119/research4/blob/a28d290fb6f8c98c53a068cc364ce7eeb78f6b6d/reports/pyscf_ir_20261111/progress.json"
+    },
+    {
+      "key": "ir",
+      "branch": "research/pyscf-ir-strength-repair-20261111",
+      "sha": "a28d290fb6f8c98c53a068cc364ce7eeb78f6b6d",
+      "path": "reports/pyscf_ir_20261111/summary.json",
+      "data": {
+        "schema": "independent-ir-summary-v1",
+        "status": "RUNNING_OR_WAITING",
+        "controls_qualified": true,
+        "water_control_profiles": {
+          "direct-grid5": true,
+          "df-grid5": true
+        },
+        "target_qualification": {
+          "acid": true,
+          "calycosin": false,
+          "spinosin": false
+        },
+        "cases": [
+          {
+            "molecule": "water",
+            "profile": "df-grid5",
+            "source_id": "99177ac0488775ca1f93012991ef36b70acc60d8be870926e97e3985de950dbb",
+            "attempt": 0,
+            "status": "QUALIFIED",
+            "paper_ready": true,
+            "ir_numerically_qualified": true,
+            "source_minimum_qualified": true,
+            "finished_at_utc": "2026-11-11T08:37:36.631153+00:00"
+          },
+          {
+            "molecule": "water",
+            "profile": "direct-grid5",
+            "source_id": "3b90a40a568353087173600067b02918599d06340921f453bd5e33bd186fe36a",
+            "attempt": 0,
+            "status": "QUALIFIED",
+            "paper_ready": true,
+            "ir_numerically_qualified": true,
+            "source_minimum_qualified": true,
+            "finished_at_utc": "2026-11-11T08:37:09.859730+00:00"
+          },
+          {
+            "molecule": "water",
+            "profile": "direct-grid5",
+            "source_id": "ccf8f6c8c9b28691c1842239302d97993eed6752269cedb02ad4a76e513af041",
+            "attempt": 0,
+            "status": "QUALIFIED",
+            "paper_ready": true,
+            "ir_numerically_qualified": true,
+            "source_minimum_qualified": true,
+            "finished_at_utc": "2026-11-11T08:44:42.938355+00:00"
+          },
+          {
+            "molecule": "acid",
+            "profile": "direct-grid5",
+            "source_id": "d2f61d359fb8e80c51d8ffdaca21289debc01c1eef6f398dea07b71e0b195f11",
+            "attempt": 0,
+            "status": "QUALIFIED",
+            "paper_ready": true,
+            "ir_numerically_qualified": true,
+            "source_minimum_qualified": true,
+            "finished_at_utc": "2026-11-12T05:10:08.216428+00:00"
+          }
+        ],
+        "source_count": 5,
+        "updated_at_utc": "2026-11-12T07:38:32.103189+00:00",
+        "quality_thresholds_end_execution": false,
+        "all_attempted_is_not_complete": true
+      },
+      "source_file_sha256": "28c24f14da484f73d8f3a3483303155600bf6c5ba831ec9fc7c3c1ca6b47ce11",
+      "url": "https://github.com/jackzhu119/research4/blob/a28d290fb6f8c98c53a068cc364ce7eeb78f6b6d/reports/pyscf_ir_20261111/summary.json"
+    },
+    {
+      "key": "publication",
+      "branch": "research/pyscf-publication-recovery-20261111",
+      "sha": "8504167d6feefba5cfe82b715b5b671bcde4647a",
+      "path": "reports/pyscf_publication_20261111/progress.json",
+      "data": {
+        "molecule": "calycosin",
+        "profile": "df-grid5",
+        "stage": "FULL_NUMERICAL_DERIVATIVES",
+        "case": "/workspace/research4/reports/pyscf_publication_20261111/jobs/calycosin/df-grid5/round000",
+        "heartbeat_at_utc": "2026-11-12T10:54:46.378335+00:00",
+        "step_bohr": 0.002,
+        "coordinate": 30,
+        "sign": -1,
+        "molecule_displacements_completed": 61,
+        "molecule_displacements_planned": 396,
+        "checkpoint_token": 961
+      },
+      "source_file_sha256": "f6a98380a70612dbabe63ceffc2752812ea80e4a61f0c0902a46cc1db52142a5",
+      "url": "https://github.com/jackzhu119/research4/blob/8504167d6feefba5cfe82b715b5b671bcde4647a/reports/pyscf_publication_20261111/progress.json"
+    },
+    {
+      "key": "publication",
+      "branch": "research/pyscf-publication-recovery-20261111",
+      "sha": "8504167d6feefba5cfe82b715b5b671bcde4647a",
+      "path": "reports/pyscf_publication_20261111/summary.json",
+      "data": {
+        "schema": "publication-recovery-summary-v1",
+        "updated_at_utc": "2026-11-12T01:03:28.361456+00:00",
+        "molecules": [
+          {
+            "molecule": "acid",
+            "status": "QUALIFIED_LOCAL_HARMONIC_DATA",
+            "paper_ready": true,
+            "selected_profile": "df-grid5",
+            "mode_count": 45,
+            "imaginary_count": 0,
+            "lowest_cm1": 74.00616649967424
+          },
+          {
+            "molecule": "calycosin",
+            "status": "PENDING_OR_CHECKPOINTED",
+            "paper_ready": false,
+            "selected_profile": null
+          },
+          {
+            "molecule": "spinosin",
+            "status": "PENDING_OR_CHECKPOINTED",
+            "paper_ready": false,
+            "selected_profile": null
+          }
+        ],
+        "qualified_count": 1,
+        "all_molecules_attempted": false,
+        "scope": "No measured chemical composition, global conformer optimum, solid-state THz assignment or ML gain is established."
+      },
+      "source_file_sha256": "873721cf0d1221bd0d6d3ab650df5081c6e3a7b4554dd8cb806a4f7b381b8c8f",
+      "url": "https://github.com/jackzhu119/research4/blob/8504167d6feefba5cfe82b715b5b671bcde4647a/reports/pyscf_publication_20261111/summary.json"
+    },
+    {
+      "key": "parallel",
+      "branch": "research/parallel-spinosin-ir-900000-20261112",
+      "sha": "57041ddd22b647cf7718fd5f351594f17ccdd7b7",
+      "path": "reports/pyscf_parallel_missing_20261112/workers/ir_calycosin.json",
+      "data": {
+        "status": "RUNNING",
+        "started_at_utc": "2026-11-12T10:53:44.803149+00:00",
+        "threads": 1,
+        "max_memory_mb": 2500,
+        "runtime_timeout": null,
+        "maximum_retries": null,
+        "maximum_refinement_rounds": null,
+        "task": "ir_calycosin",
+        "pid": 1644,
+        "heartbeat_at_utc": "2026-11-12T10:53:45.288668+00:00",
+        "phase": "STATIONARY_PRECURSOR_IR_DERIVATIVES",
+        "molecule": "calycosin",
+        "profile": "df-grid5",
+        "precursor_id": "a340b8c7445ed612794966df45466da24f6cdbbf0ff12870247647f41d7e2bbd",
+        "source_minimum_qualified": false
+      },
+      "source_file_sha256": "6ecd2792abea7737dc79e65a894701b81efe93c4e8df3a382477453ff6f84e09",
+      "url": "https://github.com/jackzhu119/research4/blob/57041ddd22b647cf7718fd5f351594f17ccdd7b7/reports/pyscf_parallel_missing_20261112/workers/ir_calycosin.json"
+    },
+    {
+      "key": "parallel",
+      "branch": "research/parallel-spinosin-ir-900000-20261112",
+      "sha": "57041ddd22b647cf7718fd5f351594f17ccdd7b7",
+      "path": "reports/pyscf_parallel_missing_20261112/workers/ir_spinosin.json",
+      "data": {
+        "status": "WAITING_OR_REFINING",
+        "started_at_utc": "2026-11-12T10:53:44.888100+00:00",
+        "threads": 1,
+        "max_memory_mb": 2500,
+        "runtime_timeout": null,
+        "maximum_retries": null,
+        "maximum_refinement_rounds": null,
+        "task": "ir_spinosin",
+        "pid": 1645,
+        "heartbeat_at_utc": "2026-11-12T11:03:25.823274+00:00",
+        "paper_ready": false,
+        "source_count": 0,
+        "precursor_count": 0,
+        "quality_failure_ends_execution": false,
+        "completed_scans": 20
+      },
+      "source_file_sha256": "d63007c332a9ff26c2786786b48833256e78b60cd89a1d4f967610c99fa52413",
+      "url": "https://github.com/jackzhu119/research4/blob/57041ddd22b647cf7718fd5f351594f17ccdd7b7/reports/pyscf_parallel_missing_20261112/workers/ir_spinosin.json"
+    },
+    {
+      "key": "parallel",
+      "branch": "research/parallel-spinosin-ir-900000-20261112",
+      "sha": "57041ddd22b647cf7718fd5f351594f17ccdd7b7",
+      "path": "reports/pyscf_parallel_missing_20261112/workers/publication_spinosin.json",
+      "data": {
+        "status": "RUNNING",
+        "started_at_utc": "2026-11-12T10:53:44.861461+00:00",
+        "threads": 2,
+        "max_memory_mb": 2500,
+        "runtime_timeout": null,
+        "maximum_retries": null,
+        "maximum_refinement_rounds": null,
+        "task": "publication_spinosin",
+        "pid": 1643,
+        "heartbeat_at_utc": "2026-11-12T10:53:44.962265+00:00",
+        "phase": "STRICT_GEOMETRY_AND_FULL_HESSIAN",
+        "molecule": "spinosin",
+        "profile": "df-grid5",
+        "cycle": 0,
+        "steps_bohr": [
+          0.002,
+          0.001
+        ],
+        "maximum_geometry_rounds": null
+      },
+      "source_file_sha256": "7d1a1445a9747757ccb69f83b20476a6a8d73c93005a855438a87c8494abeac9",
+      "url": "https://github.com/jackzhu119/research4/blob/57041ddd22b647cf7718fd5f351594f17ccdd7b7/reports/pyscf_parallel_missing_20261112/workers/publication_spinosin.json"
+    },
+    {
+      "key": "parallel",
+      "branch": "research/parallel-spinosin-ir-900000-20261112",
+      "sha": "57041ddd22b647cf7718fd5f351594f17ccdd7b7",
+      "path": "reports/pyscf_parallel_missing_20261112/publication/progress.json",
+      "data": {
+        "checkpoint_token": 1,
+        "molecule": "spinosin",
+        "profile": "df-grid5",
+        "stage": "STRICT_GEOMETRY_OPTIMIZATION",
+        "case": "/workspace/research4/reports/pyscf_parallel_missing_20261112/publication/jobs/spinosin/df-grid5/round00000",
+        "heartbeat_at_utc": "2026-11-12T10:53:44.963670+00:00"
+      },
+      "source_file_sha256": "aba3b167d0211b9a5cb2d744b7bd4b0d0c390339afbe0be49eeef5bba4f03c6f",
+      "url": "https://github.com/jackzhu119/research4/blob/57041ddd22b647cf7718fd5f351594f17ccdd7b7/reports/pyscf_parallel_missing_20261112/publication/progress.json"
+    },
+    {
+      "key": "parallel",
+      "branch": "research/parallel-spinosin-ir-900000-20261112",
+      "sha": "57041ddd22b647cf7718fd5f351594f17ccdd7b7",
+      "path": "reports/pyscf_parallel_missing_20261112/ir/calycosin/progress.json",
+      "data": {
+        "molecule": "calycosin",
+        "profile": "df-grid5",
+        "precursor_id": "a340b8c7445ed612794966df45466da24f6cdbbf0ff12870247647f41d7e2bbd",
+        "source_minimum_qualified": false,
+        "stage": "STATIONARY_PRECURSOR_IR_DERIVATIVES",
+        "heartbeat_at_utc": "2026-11-12T10:53:45.372980+00:00"
+      },
+      "source_file_sha256": "e1d636182ee946a70dd6803b728ae8866c72ce60e159706d72fb42857fd4d95e",
+      "url": "https://github.com/jackzhu119/research4/blob/57041ddd22b647cf7718fd5f351594f17ccdd7b7/reports/pyscf_parallel_missing_20261112/ir/calycosin/progress.json"
+    }
+  ],
+  "conclusions": {
+    "new_parallel": {
+      "status": "RECENT_REMOTE_RUNNING_RECEIPT",
+      "heartbeat_at_utc": "2026-11-12T11:03:44.362131+00:00",
+      "publication_spinosin": "Strict geometry optimization running at first point; not full Hessian complete.",
+      "ir_calycosin": "Stationary precursor IR derivatives started; center SCF is RUNNING/unqualified at snapshot.",
+      "ir_spinosin": "WAITING_OR_REFINING, source_count=0 precursor_count=0; no scientific dipole calculation yet.",
+      "budget": "Three workers share one new900000 CPU-second allowance, charged1826.8.",
+      "dependencies": [
+        "calycosin IR full-mode qualification depends on upstream calycosin full Hessian",
+        "spinosin IR depends on same-line local spinosin stationary geometry and complete modes"
+      ],
+      "duplicate_interpretation": "Does not currently recompute acid; adds work queued behind calycosin in old publication lines. Future old-line spinosin and calycosin-IR queues may overlap unless source/cache coordination prevents it; not proven duplicate right now."
+    },
+    "conformers": {
+      "status": "PREPARING_NOT_STARTED",
+      "claim_at_utc": "2026-11-12T10:58:40.663Z",
+      "jobs": [
+        "C002 df-grid5",
+        "C003 df-grid5"
+      ],
+      "source_xyz_sha256": [
+        "b651dedc1e52a91937d3a9c88911ba2f583f55bd589c07ccaddf21a5ff6647b3",
+        "b89423175036d35a32dc669c89a2dd8e4929f0290c934e2eea48922372f613d0"
+      ],
+      "not_duplicate_reason": "Distinct starting conformers from C001; RMSDs in claim; eventual same basin remains possible.",
+      "budget": "One900000 CPU-second allowance transferred from superseded grid7 proposal, not an additional second900000.",
+      "evidence_limit": "Only job_claim.json exists in this output directory at fixed SHA, explicit Background not yet started. Do not infer active compute from claim or branch name."
+    },
+    "grid7": {
+      "status": "SUPERSEDED_BEFORE_START",
+      "active_jobs": [],
+      "replacement_branch": "research/spinosin-conformers-parallel-900000-20261112",
+      "authorization_transferred_not_added": true,
+      "reason": "Avoid overlap with another host C001 future grid7 escalation."
+    },
+    "old_lines": {
+      "allround": "2026-11-12 18:55 Beijing heartbeat. ML verification complete; acid IR mode16 h0.001; calycosin35/396.",
+      "ir": "2026-11-12 18:58 Beijing heartbeat. acid df-grid5 IR mode32 h0.001; direct acid qualified earlier.",
+      "publication": "2026-11-12 18:54 Beijing heartbeat. calycosin61/396; acid RI-J local harmonic qualified; spinosin still pending in this line.",
+      "duplicates": "Existing acid IR (#13/#14) and same calycosin-center Hessian (#12/#14) overlap persists."
+    }
+  },
+  "actual_new_compute_files": [
+    {
+      "sha": "57041ddd22b647cf7718fd5f351594f17ccdd7b7",
+      "path": "reports/pyscf_parallel_missing_20261112/ir/calycosin/derivative_pools/25d8e88f91cf20e00b328058194e2772e83c4078defc49f8f91f20c80ecd9e84/precision0/center/result.json",
+      "status": "RUNNING",
+      "qualified": false,
+      "started_at_utc": "2026-11-12T10:53:45.376540+00:00",
+      "finished_at_utc": null,
+      "data": {
+        "schema": "research4-pyscf-ir-dipole-v1",
+        "symbols": [
+          "C",
+          "O",
+          "C",
+          "C",
+          "C",
+          "C",
+          "C",
+          "C",
+          "O",
+          "C",
+          "C",
+          "C",
+          "O",
+          "C",
+          "C",
+          "C",
+          "C",
+          "O",
+          "C",
+          "C",
+          "O",
+          "H",
+          "H",
+          "H",
+          "H",
+          "H",
+          "H",
+          "H",
+          "H",
+          "H",
+          "H",
+          "H",
+          "H"
+        ],
+        "coordinates_bohr": [
+          [
+            11.214056538216761,
+            2.3332988516077893,
+            1.2777179759074215
+          ],
+          [
+            9.958357130036308,
+            0.15934759900627118,
+            0.3521342035012659
+          ],
+          [
+            7.374701872270942,
+            0.22241884227041486,
+            0.13095381010043441
+          ],
+          [
+            5.78860936162302,
+            2.2620908516113096,
+            0.7011475185877163
+          ],
+          [
+            3.1591708223476473,
+            2.0339852252500674,
+            0.39258424711663314
+          ],
+          [
+            2.0806594967887078,
+            -0.2378573124471552,
+            -0.49935644481818714
+          ],
+          [
+            -0.6803790199525578,
+            -0.47660804249325367,
+            -0.9103048421038866
+          ],
+          [
+            -1.5729673514195044,
+            -1.9884312929582275,
+            -2.820031752194136
+          ],
+          [
+            -4.031131633295026,
+            -2.4688531789176613,
+            -3.3445132329990583
+          ],
+          [
+            -5.865204789052462,
+            -1.3796309909510762,
+            -1.8842851472745221
+          ],
+          [
+            -8.380797734021959,
+            -1.9705307646803951,
+            -2.476448595474008
+          ],
+          [
+            -10.318133427946265,
+            -0.8833657532777284,
+            -1.028995725619466
+          ],
+          [
+            -12.736869104802443,
+            -1.484489336192279,
+            -1.6324199447193422
+          ],
+          [
+            -9.718318777681727,
+            0.7840723609860243,
+            0.9869755936172203
+          ],
+          [
+            -7.207849679618383,
+            1.3443887489173874,
+            1.5293816300363485
+          ],
+          [
+            -5.216696291631868,
+            0.2739564553079745,
+            0.10858262733984746
+          ],
+          [
+            -2.546536898631678,
+            0.8813281436779997,
+            0.6962583237648166
+          ],
+          [
+            -1.9749445980078946,
+            2.391075142955405,
+            2.386547051289215
+          ],
+          [
+            3.7071999786774015,
+            -2.3002124664061987,
+            -1.035964287070204
+          ],
+          [
+            6.322607574002555,
+            -2.090602002139455,
+            -0.7434853504739227
+          ],
+          [
+            7.871664093501947,
+            -4.0753940123904275,
+            -1.2465603945667325
+          ],
+          [
+            10.57608894276679,
+            2.8283310782075075,
+            3.2197008526917177
+          ],
+          [
+            13.252662108773881,
+            1.8754377830480786,
+            1.3231150975589125
+          ],
+          [
+            10.911765307229492,
+            3.994762220961557,
+            0.024017294041367553
+          ],
+          [
+            6.579534015459226,
+            4.0523646940078715,
+            1.395942419407655
+          ],
+          [
+            1.9239670596443765,
+            3.625078138469926,
+            0.8756203497524171
+          ],
+          [
+            -0.3369772894726636,
+            -2.972594562510131,
+            -4.169955243066882
+          ],
+          [
+            -8.822940756906977,
+            -3.258333011576956,
+            -4.042236424745766
+          ],
+          [
+            -13.868760656213862,
+            -0.5981569407955523,
+            -0.4785528334382947
+          ],
+          [
+            -11.25639867107442,
+            1.6277610115622259,
+            2.111602460620516
+          ],
+          [
+            -6.67953645652082,
+            2.6331111334551602,
+            3.0736218031272826
+          ],
+          [
+            2.957071805978897,
+            -4.142227887638057,
+            -1.6392105229095035
+          ],
+          [
+            9.586811136212186,
+            -3.4826607367393896,
+            -0.8692803180820766
+          ]
+        ],
+        "settings": {
+          "xc": "PBE",
+          "basis": "def2-SVP",
+          "charge": 0,
+          "spin": 0,
+          "dispersion": "NONE_EXPLICIT",
+          "density_fitting": true,
+          "direct_scf_tol": 1e-14,
+          "conv_tol_hartree": 1e-12,
+          "conv_tol_grad": 1e-08,
+          "fresh_orbital_gradient_acceptance": 1e-08,
+          "fresh_energy_difference_acceptance_hartree": 1e-10,
+          "electron_count_acceptance": 1e-07,
+          "grid_response": true,
+          "full_native_veff_every_cycle": true,
+          "effective_potential_update": "Full effective potential from the current density; no delta-DM update.",
+          "small_rho_cutoff": 0,
+          "electronic_recovery_order": [
+            "NATIVE_DIIS",
+            "TIGHT_NATIVE_POLISH",
+            "NEWTON_SEED_NATIVE_POLISH"
+          ],
+          "polish_conv_tol_hartree": 1e-12,
+          "polish_conv_tol_grad": 2e-09,
+          "threads": 1,
+          "max_memory_mb": 2500,
+          "profile": "df-grid5",
+          "grid_level": 5,
+          "density_fitting_auxbasis": "def2-universal-jkfit",
+          "auxbasis_response": true,
+          "model_scope": "Density-fitted Coulomb/JK integrals with def2-universal-jkfit; PBE XC quadrature remains numerical. This is a model approximation relative to the direct-integral reference, not a direct-SCF result.",
+          "internal_stability_max_repairs": 3,
+          "grid_pruning": "PySCF_default_NWChem",
+          "grid_construction": "native_atom_centered_rebuilt_for_each_geometry"
+        },
+        "density_seed_sha256": null,
+        "implementation_sha256": "6ae3072b92e13eb43f36c1992f61fdac8e66bcb356120eb4a1d9e711216fca5a",
+        "electronic_implementation_sha256": "69a178f2d2a0311698af72724221c13deaefb65ac8b192b8f63c5491c602029d",
+        "runtime": {
+          "python": "3.12.14",
+          "pyscf": "2.13.1",
+          "numpy": "2.5.4",
+          "scipy": "1.18.1"
+        },
+        "dipole_convention": "total nuclear plus electronic, atomic units, fixed laboratory origin (0,0,0)",
+        "input_fingerprint": "25d8e88f91cf20e00b328058194e2772e83c4078defc49f8f91f20c80ecd9e84",
+        "status": "RUNNING",
+        "qualified": false,
+        "started_at_utc": "2026-11-12T10:53:45.376540+00:00",
+        "array_refs": {}
+      },
+      "source_file_sha256": "583235c5a8d484179d2d2c7de052713f2303e62cc17c8d6728fac3310d5ef6b4",
+      "url": "https://github.com/jackzhu119/research4/blob/57041ddd22b647cf7718fd5f351594f17ccdd7b7/reports/pyscf_parallel_missing_20261112/ir/calycosin/derivative_pools/25d8e88f91cf20e00b328058194e2772e83c4078defc49f8f91f20c80ecd9e84/precision0/center/result.json"
+    },
+    {
+      "sha": "57041ddd22b647cf7718fd5f351594f17ccdd7b7",
+      "path": "reports/pyscf_parallel_missing_20261112/publication/jobs/spinosin/df-grid5/round00000/optimize/steps/step-00000/result.json",
+      "status": "RUNNING",
+      "started_at_utc": "2026-11-12T10:53:45.422254+00:00",
+      "finished_at_utc": null,
+      "data": {
+        "schema": "research4-pyscf-publication-core-v1",
+        "status": "RUNNING",
+        "input_fingerprint": "2a5b25de5316d90aa2f782608091efd3edef5335992291c81f056fcd41d9351a",
+        "settings": {
+          "xc": "PBE",
+          "basis": "def2-SVP",
+          "charge": 0,
+          "spin": 0,
+          "dispersion": "NONE_EXPLICIT",
+          "density_fitting": true,
+          "direct_scf_tol": 1e-14,
+          "conv_tol_hartree": 1e-12,
+          "conv_tol_grad": 1e-08,
+          "fresh_orbital_gradient_acceptance": 1e-08,
+          "fresh_energy_difference_acceptance_hartree": 1e-10,
+          "electron_count_acceptance": 1e-07,
+          "grid_response": true,
+          "full_native_veff_every_cycle": true,
+          "effective_potential_update": "Full effective potential from the current density; no delta-DM update.",
+          "small_rho_cutoff": 0,
+          "electronic_recovery_order": [
+            "NATIVE_DIIS",
+            "TIGHT_NATIVE_POLISH",
+            "NEWTON_SEED_NATIVE_POLISH"
+          ],
+          "polish_conv_tol_hartree": 1e-12,
+          "polish_conv_tol_grad": 2e-09,
+          "threads": 2,
+          "max_memory_mb": 2500,
+          "profile": "df-grid5",
+          "grid_level": 5,
+          "density_fitting_auxbasis": "def2-universal-jkfit",
+          "auxbasis_response": true,
+          "model_scope": "Density-fitted Coulomb/JK integrals with def2-universal-jkfit; PBE XC quadrature remains numerical. This is a model approximation relative to the direct-integral reference, not a direct-SCF result.",
+          "internal_stability_max_repairs": 3,
+          "grid_pruning": "PySCF_default_NWChem",
+          "grid_construction": "native_atom_centered_rebuilt_for_each_geometry"
+        },
+        "symbols": [
+          "C",
+          "O",
+          "C",
+          "C",
+          "C",
+          "O",
+          "C",
+          "C",
+          "C",
+          "C",
+          "C",
+          "O",
+          "C",
+          "C",
+          "C",
+          "C",
+          "O",
+          "C",
+          "C",
+          "O",
+          "C",
+          "C",
+          "O",
+          "C",
+          "C",
+          "O",
+          "C",
+          "O",
+          "C",
+          "O",
+          "C",
+          "O",
+          "C",
+          "O",
+          "C",
+          "C",
+          "O",
+          "C",
+          "O",
+          "C",
+          "O",
+          "C",
+          "O",
+          "H",
+          "H",
+          "H",
+          "H",
+          "H",
+          "H",
+          "H",
+          "H",
+          "H",
+          "H",
+          "H",
+          "H",
+          "H",
+          "H",
+          "H",
+          "H",
+          "H",
+          "H",
+          "H",
+          "H",
+          "H",
+          "H",
+          "H",
+          "H",
+          "H",
+          "H",
+          "H",
+          "H",
+          "H",
+          "H",
+          "H",
+          "H"
+        ],
+        "coordinates_bohr": [
+          [
+            -7.818333782049779,
+            -2.0129254166074086,
+            1.711607463727793
+          ],
+          [
+            -6.288278384987235,
+            0.0639457110369182,
+            1.0004293700800446
+          ],
+          [
+            -4.145412557092586,
+            -0.3489785715539272,
+            -0.3509789254575582
+          ],
+          [
+            -3.397802234702017,
+            -2.797043173008532,
+            -1.101406788593223
+          ],
+          [
+            -1.1499459300249608,
+            -3.0401578748382554,
+            -2.4641895254231527
+          ],
+          [
+            -0.43100580126083354,
+            -5.436663715303523,
+            -3.1519010008396755
+          ],
+          [
+            1.7463260407583214,
+            -5.851103778464577,
+            -4.457947526325634
+          ],
+          [
+            2.1386396293319727,
+            -8.539967735151762,
+            -5.051328135900903
+          ],
+          [
+            0.5562454744466123,
+            -10.414960129585648,
+            -3.989810793673675
+          ],
+          [
+            0.9106845383940745,
+            -12.972615938556466,
+            -4.542812339222615
+          ],
+          [
+            2.863613185181364,
+            -13.733995533889203,
+            -6.189140539440055
+          ],
+          [
+            3.2966970646107567,
+            -16.182625877452143,
+            -6.803922252749777
+          ],
+          [
+            4.454939170481447,
+            -11.88256065937835,
+            -7.26861484192106
+          ],
+          [
+            4.088684953493093,
+            -9.336397303149996,
+            -6.705576245034119
+          ],
+          [
+            3.329423769948912,
+            -3.8854465921087145,
+            -5.094519855958199
+          ],
+          [
+            2.7170117975337584,
+            -1.294081209145837,
+            -4.451787050392242
+          ],
+          [
+            4.15073442957065,
+            0.5462231524726957,
+            -4.981486732373734
+          ],
+          [
+            0.34235309301320954,
+            -0.9421030932549047,
+            -3.1238765484232354
+          ],
+          [
+            -0.45801979255169645,
+            1.5290904783157557,
+            -2.3594744107509023
+          ],
+          [
+            0.986074393741792,
+            3.4998252880515603,
+            -2.9694895451907106
+          ],
+          [
+            -2.700355573349837,
+            1.8391718094578027,
+            -0.9464229472571225
+          ],
+          [
+            -3.496597395523628,
+            4.405723751139012,
+            0.003801225410380983
+          ],
+          [
+            -3.9479819010213717,
+            6.0406834793721735,
+            -2.1103915949969587
+          ],
+          [
+            -4.893669415500926,
+            8.471103626284979,
+            -1.423784886909112
+          ],
+          [
+            -5.507054842674369,
+            9.77520907068608,
+            -3.9256033495597435
+          ],
+          [
+            -7.166221932222575,
+            8.301919122094937,
+            -5.389148083058776
+          ],
+          [
+            -2.924568223572148,
+            9.836062461991878,
+            0.21134650308235048
+          ],
+          [
+            -3.757324038392102,
+            12.246192815267957,
+            1.1013857674940177
+          ],
+          [
+            -2.350294479923992,
+            8.26110742112416,
+            2.5688262576791736
+          ],
+          [
+            -0.44800711570008783,
+            9.408327569880166,
+            4.0537843275672625
+          ],
+          [
+            -1.5246638847348242,
+            5.603304101439513,
+            1.815205489042348
+          ],
+          [
+            -1.361367949868519,
+            4.021250092888653,
+            4.005826633641645
+          ],
+          [
+            1.0754917066769802,
+            3.4123956054526734,
+            4.815858570882249
+          ],
+          [
+            2.2056809293724435,
+            1.7367389848064823,
+            3.052863394622041
+          ],
+          [
+            4.70701200571781,
+            1.0022585280068903,
+            3.7473674631470284
+          ],
+          [
+            5.880028602103734,
+            -0.4654997564651222,
+            1.5742828286504027
+          ],
+          [
+            4.51226394993488,
+            -2.7352435841238054,
+            1.1598654444163294
+          ],
+          [
+            4.615514674410386,
+            -0.4652008916843378,
+            6.257131710673511
+          ],
+          [
+            7.100753462290143,
+            -1.132406023881523,
+            6.988867535660442
+          ],
+          [
+            3.3764522534658927,
+            1.1919460396283064,
+            8.272520226724133
+          ],
+          [
+            3.2358599616766517,
+            -0.23784925891506953,
+            10.540807490191986
+          ],
+          [
+            0.7998609049861886,
+            2.131984940801593,
+            7.398465408615355
+          ],
+          [
+            -0.14490762682677813,
+            3.8101245417714154,
+            9.25847513624549
+          ],
+          [
+            -8.55781174632058,
+            -3.050072859244526,
+            0.038801901452571695
+          ],
+          [
+            -6.778456418663621,
+            -3.3604378706172553,
+            2.9451648478937678
+          ],
+          [
+            -9.427271369152049,
+            -1.2154423980622435,
+            2.7800582071782993
+          ],
+          [
+            -4.491264992411465,
+            -4.493467758904285,
+            -0.6425275357262302
+          ],
+          [
+            -0.9698573281219768,
+            -9.845090025365055,
+            -2.7038444323588187
+          ],
+          [
+            -0.34059403550368106,
+            -14.40352919194226,
+            -3.689172999017308
+          ],
+          [
+            2.063156607499121,
+            -17.243646304067386,
+            -5.935923714070231
+          ],
+          [
+            5.961935107089094,
+            -12.492528391508635,
+            -8.562112930170496
+          ],
+          [
+            5.334608294716244,
+            -7.933086497816871,
+            -7.597217452047182
+          ],
+          [
+            5.096293935044343,
+            -4.231643433252702,
+            -6.122707832076563
+          ],
+          [
+            2.5253386926579346,
+            2.7254399004609313,
+            -3.891907983749656
+          ],
+          [
+            -5.280100592406765,
+            4.184179155035398,
+            1.098843396350861
+          ],
+          [
+            -6.680399736358738,
+            8.263775677395238,
+            -0.3094154625585142
+          ],
+          [
+            -6.436755841279506,
+            11.616909662545536,
+            -3.5363794409270786
+          ],
+          [
+            -3.683461191342298,
+            10.173078914404115,
+            -4.9300807057110125
+          ],
+          [
+            -6.456266234214558,
+            6.594226111822055,
+            -5.298459670766318
+          ],
+          [
+            -1.141366005645873,
+            10.01340173331966,
+            -0.9008847630312378
+          ],
+          [
+            -3.4487665244938412,
+            13.482519807720582,
+            -0.22478081903487743
+          ],
+          [
+            -4.159476457520356,
+            8.090394804876988,
+            3.6604606977729626
+          ],
+          [
+            -0.9561816028708926,
+            11.182974366856707,
+            4.170119935326924
+          ],
+          [
+            0.32768040090938694,
+            5.698167496878097,
+            0.8419247821979436
+          ],
+          [
+            2.2567329375635516,
+            5.162130211117685,
+            5.005464742262446
+          ],
+          [
+            5.914829274694933,
+            2.714237661784488,
+            4.050745407596326
+          ],
+          [
+            7.885965832970103,
+            -0.8335705948394424,
+            2.1061937342694366
+          ],
+          [
+            5.8575425227091795,
+            0.772337173705383,
+            -0.13207601728681878
+          ],
+          [
+            5.378860484601804,
+            -3.6615704795550803,
+            -0.17230813064996228
+          ],
+          [
+            3.4155532369077934,
+            -2.1732506162948795,
+            5.946864475069649
+          ],
+          [
+            6.950708416001579,
+            -1.6695254184819268,
+            8.750290600898866
+          ],
+          [
+            4.611178470223257,
+            2.888978737324715,
+            8.549904670889191
+          ],
+          [
+            2.365534780763333,
+            0.8352885232497617,
+            11.763956774526527
+          ],
+          [
+            -0.47318803072581356,
+            0.46863360647738006,
+            7.120549928791187
+          ],
+          [
+            -1.6203516142665841,
+            4.622453686001199,
+            8.500968980099413
+          ]
+        ],
+        "started_at_utc": "2026-11-12T10:53:45.422254+00:00",
+        "attempt_path": "/workspace/research4/reports/pyscf_parallel_missing_20261112/publication/jobs/spinosin/df-grid5/round00000/optimize/steps/step-00000/attempt-001",
+        "array_refs": {}
+      },
+      "source_file_sha256": "88b9ab3893ff5310def96f3a86d36ddfcad417980811033a2db817ed296c6eae",
+      "url": "https://github.com/jackzhu119/research4/blob/57041ddd22b647cf7718fd5f351594f17ccdd7b7/reports/pyscf_parallel_missing_20261112/publication/jobs/spinosin/df-grid5/round00000/optimize/steps/step-00000/result.json"
+    }
+  ],
+  "pull_requests": [
+    {
+      "number": 15,
+      "title": "并行启动斯皮诺素和补充 IR：共享 900000 CPU 秒",
+      "head": "research/parallel-spinosin-ir-900000-20261112",
+      "head_sha": "57041ddd22b647cf7718fd5f351594f17ccdd7b7",
+      "base": "research/all-round-validation-20261112",
+      "state": "open",
+      "updated_at": "2026-11-12T11:03:51Z",
+      "merged_at": null,
+      "url": "https://github.com/jackzhu119/research4/pull/15"
+    },
+    {
+      "number": 14,
+      "title": "各轮回传结果重验与99万CPU秒独立后台接续",
+      "head": "research/all-round-validation-20261112",
+      "head_sha": "3c250ebfc93f998bf22df69394fce4ac936a3b68",
+      "base": "research/pyscf-ir-strength-repair-20261111",
+      "state": "open",
+      "updated_at": "2026-11-12T11:05:10Z",
+      "merged_at": null,
+      "url": "https://github.com/jackzhu119/research4/pull/14"
+    },
+    {
+      "number": 13,
+      "title": "IR强度专项修复：独立CPHF控制、逐模式复算与持续后台接续",
+      "head": "research/pyscf-ir-strength-repair-20261111",
+      "head_sha": "a28d290fb6f8c98c53a068cc364ce7eeb78f6b6d",
+      "base": "research/pyscf-publication-recovery-20261111",
+      "state": "open",
+      "updated_at": "2026-11-12T11:00:27Z",
+      "merged_at": null,
+      "url": "https://github.com/jackzhu119/research4/pull/13"
+    },
+    {
+      "number": 12,
+      "title": "PySCF论文数据恢复：实际稳定性修复、独立IR验收与90万CPU秒后台",
+      "head": "research/pyscf-publication-recovery-20261111",
+      "head_sha": "3e21001e896668a98133ff451ea19770c79bfca3",
+      "base": "research/pyscf-frequency-repair-20261111",
+      "state": "open",
+      "updated_at": "2026-11-12T11:07:38Z",
+      "merged_at": null,
+      "url": "https://github.com/jackzhu119/research4/pull/12"
+    },
+    {
+      "number": 11,
+      "title": "PySCF虚频修复：原儿茶酸最低点与IR已核验，目标分子后台续算",
+      "head": "research/pyscf-frequency-repair-20261111",
+      "head_sha": "d8dc8bf47cc024a1dd48549dae2a37492dc3ef3e",
+      "base": "research/b-mechanism-round5-20261111",
+      "state": "open",
+      "updated_at": "2026-11-12T01:03:50Z",
+      "merged_at": null,
+      "url": "https://github.com/jackzhu119/research4/pull/11"
+    },
+    {
+      "number": 10,
+      "title": "B方案第五轮：Source内策略选择、Support获取与分数几何",
+      "head": "research/b-mechanism-round5-20261111",
+      "head_sha": "647f069c1ed4d56b098689571f43074b581a0cc0",
+      "base": "research/b-mechanism-round4-20261111",
+      "state": "open",
+      "updated_at": "2026-11-11T02:53:40Z",
+      "merged_at": null,
+      "url": "https://github.com/jackzhu119/research4/pull/10"
+    },
+    {
+      "number": 9,
+      "title": "B方案第四轮：损失质量、C约束激活与Support构成",
+      "head": "research/b-mechanism-round4-20261111",
+      "head_sha": "bbab5a9de3f3e79fe8b12dd5e06c29547e3b9778",
+      "base": "research/b-mechanism-round3-20261110",
+      "state": "open",
+      "updated_at": "2026-11-11T00:51:49Z",
+      "merged_at": null,
+      "url": "https://github.com/jackzhu119/research4/pull/9"
+    },
+    {
+      "number": 8,
+      "title": "B方案第三轮：正则化、标签信息与SVC约束机制",
+      "head": "research/b-mechanism-round3-20261110",
+      "head_sha": "69354eb7e2ec726ac5f5568fdac1035afff36da6",
+      "base": "research/b-mechanism-followup-20261110",
+      "state": "open",
+      "updated_at": "2026-11-10T15:31:47Z",
+      "merged_at": null,
+      "url": "https://github.com/jackzhu119/research4/pull/8"
+    },
+    {
+      "number": 7,
+      "title": "B方案第二轮：校准几何、重训分解、类别权重与学习曲线",
+      "head": "research/b-mechanism-followup-20261110",
+      "head_sha": "ad21deecbb53371f9b4547646a2aa985d8f617fb",
+      "base": "research/b-mechanism-gaps-20261110",
+      "state": "open",
+      "updated_at": "2026-11-10T13:20:17Z",
+      "merged_at": null,
+      "url": "https://github.com/jackzhu119/research4/pull/7"
+    },
+    {
+      "number": 6,
+      "title": "B方案：少样本校准、来源覆盖与类别不平衡的受控机制研究",
+      "head": "research/b-mechanism-gaps-20261110",
+      "head_sha": "76966534df314e5bcb108a1fdccd611d1ad52910",
+      "base": "research/paper-evidence-compendium-20261109",
+      "state": "open",
+      "updated_at": "2026-11-10T12:33:12Z",
+      "merged_at": null,
+      "url": "https://github.com/jackzhu119/research4/pull/6"
+    },
+    {
+      "number": 5,
+      "title": "docs: 汇总实验设计、回传结果与论文写作证据",
+      "head": "docs/paper-writing-evidence-20261109",
+      "head_sha": "01604532a1232620681a7fbece7698fbf678d216",
+      "base": "main",
+      "state": "open",
+      "updated_at": "2026-11-09T01:33:31Z",
+      "merged_at": null,
+      "url": "https://github.com/jackzhu119/research4/pull/5"
+    },
+    {
+      "number": 4,
+      "title": "区分枣仁与酸枣仁，继承固定划分复核识别和跨物种迁移",
+      "head": "research/species-label-correction-20261108",
+      "head_sha": "0156e2189d13456d1faf05ebfd53d86eeeb4f5e7",
+      "base": "main",
+      "state": "open",
+      "updated_at": "2026-11-08T10:51:34Z",
+      "merged_at": null,
+      "url": "https://github.com/jackzhu119/research4/pull/4"
+    },
+    {
+      "number": 3,
+      "title": "更新18份光谱表的确认名称及产地种类登记",
+      "head": "data/confirmed-origins-20261108",
+      "head_sha": "8119d5635ea1dd4eb5a0c5212893b7c0d7a37309",
+      "base": "main",
+      "state": "closed",
+      "updated_at": "2026-11-08T02:50:29Z",
+      "merged_at": "2026-11-08T02:49:21Z",
+      "url": "https://github.com/jackzhu119/research4/pull/3"
+    },
+    {
+      "number": 2,
+      "title": "Preserve Spinosin optimized geometry and audit incomplete frequency run",
+      "head": "research/pyscf-spinosin-mechanism-20261031",
+      "head_sha": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+      "base": "research/algorithm-review-and-baselines-20261030",
+      "state": "open",
+      "updated_at": "2026-11-08T03:38:20Z",
+      "merged_at": null,
+      "url": "https://github.com/jackzhu119/research4/pull/2"
+    },
+    {
+      "number": 1,
+      "title": "保留酸枣仁强基线并验证外部植物预训练",
+      "head": "research/algorithm-review-and-baselines-20261030",
+      "head_sha": "3fc996e99cce8ff5799b5a2af9b565f982dfc899",
+      "base": "main",
+      "state": "open",
+      "updated_at": "2026-10-31T15:39:25Z",
+      "merged_at": null,
+      "url": "https://github.com/jackzhu119/research4/pull/1"
+    }
+  ]
+}
