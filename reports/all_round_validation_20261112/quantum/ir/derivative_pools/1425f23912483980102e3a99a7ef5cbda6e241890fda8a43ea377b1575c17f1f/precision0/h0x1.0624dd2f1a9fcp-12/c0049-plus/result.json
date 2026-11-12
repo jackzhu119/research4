@@ -141,7 +141,7 @@
     "grid_pruning": "PySCF_default_NWChem",
     "grid_construction": "native_atom_centered_rebuilt_for_each_geometry"
   },
-  "density_seed_sha256": "2c5c6727e17974f4f6264f819cf14c68a9af53f145876b0b89b4d8b4df4113be",
+  "density_seed_sha256": "b405da5c177d54aa137749c6693a6aca9acca6f075f6b7d9b06e457414e63ca3",
   "implementation_sha256": "6ae3072b92e13eb43f36c1992f61fdac8e66bcb356120eb4a1d9e711216fca5a",
   "electronic_implementation_sha256": "69a178f2d2a0311698af72724221c13deaefb65ac8b192b8f63c5491c602029d",
   "runtime": {
@@ -151,10 +151,10 @@
     "scipy": "1.17.0"
   },
   "dipole_convention": "total nuclear plus electronic, atomic units, fixed laboratory origin (0,0,0)",
-  "input_fingerprint": "839e8a9d1ff2e36ba44268615fa25c93c70f38bafd5d274cbd70e62fe47db7bd",
+  "input_fingerprint": "b64259cb9b14d60666bdab9e488ffcc01a37bacf81c25533ca0c34b268b702d7",
   "status": "DONE",
   "qualified": true,
-  "started_at_utc": "2026-11-11T19:09:16.592941+00:00",
+  "started_at_utc": "2026-11-12T15:11:28.371801+00:00",
   "array_refs": {
     "coordinates_bohr": {
       "path": "/workspace/research4/reports/all_round_validation_20261112/quantum/ir/derivative_pools/1425f23912483980102e3a99a7ef5cbda6e241890fda8a43ea377b1575c17f1f/precision0/h0x1.0624dd2f1a9fcp-12/c0049-plus/coordinates_bohr.npy",
@@ -162,25 +162,29 @@
     },
     "dipole_au": {
       "path": "/workspace/research4/reports/all_round_validation_20261112/quantum/ir/derivative_pools/1425f23912483980102e3a99a7ef5cbda6e241890fda8a43ea377b1575c17f1f/precision0/h0x1.0624dd2f1a9fcp-12/c0049-plus/dipole_au.npy",
-      "sha256": "21a64fb2399ad3213d0359aaf36b82b8877260e6c46660825df51912f6b2f00b"
+      "sha256": "bf8576a5a1fe0068513f12b955289afcde5c8449e13245c3862b80af72ff2a1e"
+    },
+    "density": {
+      "path": "/workspace/research4/reports/all_round_validation_20261112/quantum/ir/derivative_pools/1425f23912483980102e3a99a7ef5cbda6e241890fda8a43ea377b1575c17f1f/precision0/h0x1.0624dd2f1a9fcp-12/c0049-plus/.local/density.npy",
+      "sha256": "ff63c322bf4181fc427f1c4ac79a08487c218e38ea896742336b42632b2bc762"
     }
   },
   "dipole_au": [
-    0.41344341538410845,
-    0.3105009299837329,
-    -0.2604025295215111
+    0.4134434411896315,
+    0.3105009200961044,
+    -0.2604025283379965
   ],
   "density_path": "/workspace/research4/reports/all_round_validation_20261112/quantum/ir/derivative_pools/1425f23912483980102e3a99a7ef5cbda6e241890fda8a43ea377b1575c17f1f/precision0/h0x1.0624dd2f1a9fcp-12/c0049-plus/.local/density.npy",
-  "energy_hartree": -570.2261138724349,
+  "energy_hartree": -570.2261138724367,
   "electronic_audit": {
     "native_converged": true,
-    "fresh_energy_hartree": -570.2261138724349,
-    "native_energy_hartree": -570.2261138724344,
-    "fresh_energy_difference_hartree": -4.547473508864641e-13,
-    "fresh_orbital_gradient_norm": 7.333272386365618e-09,
-    "electron_count": 80.00000000000003,
+    "fresh_energy_hartree": -570.2261138724367,
+    "native_energy_hartree": -570.2261138724358,
+    "fresh_energy_difference_hartree": -9.094947017729282e-13,
+    "fresh_orbital_gradient_norm": 2.5712792230565648e-09,
+    "electron_count": 79.99999999999994,
     "expected_electron_count": 80,
-    "electron_count_error": 2.842170943040401e-14,
+    "electron_count_error": -5.684341886080802e-14,
     "qualified": true,
     "quality_warnings": []
   },
@@ -192,22 +196,42 @@
       "actual_conv_tol_grad": 1e-08,
       "audit": {
         "native_converged": true,
-        "fresh_energy_hartree": -570.2261138724349,
-        "native_energy_hartree": -570.2261138724344,
-        "fresh_energy_difference_hartree": -4.547473508864641e-13,
-        "fresh_orbital_gradient_norm": 7.333272386365618e-09,
-        "electron_count": 80.00000000000003,
+        "fresh_energy_hartree": -570.2261138724367,
+        "native_energy_hartree": -570.2261138724365,
+        "fresh_energy_difference_hartree": -2.2737367544323206e-13,
+        "fresh_orbital_gradient_norm": 1.2232104335144975e-08,
+        "electron_count": 79.99999999999996,
         "expected_electron_count": 80,
-        "electron_count_error": 2.842170943040401e-14,
+        "electron_count_error": -4.263256414560601e-14,
+        "qualified": false,
+        "quality_warnings": [
+          "FRESH_ORBITAL_GRADIENT_TARGET_NOT_MET"
+        ]
+      },
+      "wall_seconds": 62.75782513100421
+    },
+    {
+      "solver": "TIGHT_NATIVE_POLISH",
+      "native_converged": true,
+      "actual_conv_tol_hartree": 1e-12,
+      "actual_conv_tol_grad": 2e-09,
+      "audit": {
+        "native_converged": true,
+        "fresh_energy_hartree": -570.2261138724367,
+        "native_energy_hartree": -570.2261138724358,
+        "fresh_energy_difference_hartree": -9.094947017729282e-13,
+        "fresh_orbital_gradient_norm": 2.5712792230565648e-09,
+        "electron_count": 79.99999999999994,
+        "expected_electron_count": 80,
+        "electron_count_error": -5.684341886080802e-14,
         "qualified": true,
         "quality_warnings": []
       },
-      "wall_seconds": 47.21322750700347
+      "wall_seconds": 32.70029386399983
     }
   ],
   "nuclear_gradient_evaluated": false,
-  "finished_at_utc": "2026-11-11T19:10:03.817471+00:00",
-  "wall_seconds": 47.22454383500008,
-  "cpu_seconds": 109.90124738799932,
-  "unpublished_density_requires_reconstruction": true
+  "finished_at_utc": "2026-11-12T15:13:03.838885+00:00",
+  "wall_seconds": 95.46710076300224,
+  "cpu_seconds": 202.45259881200036
 }
