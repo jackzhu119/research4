@@ -1,5 +1,9 @@
 # 斯皮诺素补充并行计算（2026-11-12）
 
+当前续算记录：用户新增授权 100000 CPU 秒，原 900000 与新增授权合计 **1000000 CPU 秒**。追加记录位于同一账本的 `budget_authorizations` 表；原协议及 `meta.budget=900000` 保留作历史基线，实际总限额以 `status.json` 和追加授权链为准。云主机重启后已核验旧账本与 43 个冻结文件，从已审查的电子结构检查点恢复。当前化学并发调整为 **1**，另一构象保留原队列，以控制完整核梯度的内存峰值；科学方法、积分网格、响应项和收敛标准不变。
+
+当前启动入口为 `python resource_extension.py --root /workspace/chemistry_supplement_20261112 --start`，查看授权与状态使用同入口的 `--inspect`。不要用旧启动入口绕过追加授权；新 boot 下先核验进程身份与账本，明确恢复旧 boot 的 CPU 记录后再启动。旧的长租约不等于实际 CPU 消耗，无法核实部分在账本中单列为保守上界。详见 `RECOVERY_20261112.md`、`resource_authorization_latest.json`、`resource_recovery_latest.json`。
+
 本轮在现有分子计算之外补充斯皮诺素 C002、C003 两个起始构象。另一个云主机已启动 C001 的驻点修复、频率和后续 IR 队列；本轮不复制该起点的 grid5/grid7 计算。两个构象来自仓库固定提交 `cd4b50c37c1e26064f9f15f340d30e20ac386458` 的既有 ETKDGv3/MMFF94s 建模结果，属于计算模型，不是实验测得结构。
 
 两者均为中性单重态 C28H32O15（75 原子），源结构立体 InChIKey 为 `VGGSULWDCMWZPO-ODEMIOGVSA-N`。C002 与 C003 的重原子映射刚体对齐 RMSD 为 2.39312 Å；相对旧 C001 分别约 0.57990 和 2.39198 Å。MMFF 初筛相对能分别为 +13.88010 和 +4.03209 kcal/mol，不能作为 DFT 相对能或实验构象比例使用。

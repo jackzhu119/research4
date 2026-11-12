@@ -1,0 +1,278 @@
+{
+  "status": "passed",
+  "pyscf_version": "2.13.0",
+  "scope": "H2O only: 3 atoms; no 75-atom DFT, production worker or sealed-result changes.",
+  "source_file": "/workspace/chemistry_supplement_20261112/.venv/lib/python3.12/site-packages/pyscf/grad/rks.py",
+  "installed_source_file_sha256_before": "cffc3e9efa10cf1b547d757e9d165c1000377e9159c794f87464a79c8c93ab46",
+  "original_grids_response_becke_inspect_source_sha256": "9f20d3a392a8c23499b643da6f0bf72e73d33185802b0d87d22c497c8616efc6",
+  "patched_grids_response_becke_source_sha256": "09d598153a152dca53ea7e849bca3c0101728f82c52880e8e85a56831a58b0ee",
+  "patch": "Immediately before yield coords,w0,w1 insert del pbecke, dpbecke, z.",
+  "patch_effect": "Release completed intermediates before generator suspension. No arithmetic expression, quadrature, grid, contraction, accumulation order or returned array is changed.",
+  "installed_source_modified": false,
+  "calculation": {
+    "atom_count": 3,
+    "geometry_Angstrom": [
+      [
+        "O",
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        "H",
+        0.0,
+        -0.757,
+        0.587
+      ],
+      [
+        "H",
+        0.0,
+        0.757,
+        0.587
+      ]
+    ],
+    "charge": 0,
+    "spin": 0,
+    "basis": "def2-SVP",
+    "functional": "PBE",
+    "DF_auxbasis": "def2-universal-jkfit",
+    "grid_level": 5,
+    "grid_response": true,
+    "auxbasis_response": true,
+    "threads": 1,
+    "max_memory_MB": 2200,
+    "SCF_conv_tol": 1e-11,
+    "SCF_conv_tol_grad": 1e-08,
+    "SCF_max_cycle": 100
+  },
+  "timing": {
+    "process_cpu_at_script_entry": 0.021640332,
+    "grid_equivalence_cpu_seconds": 0.15662621900000007,
+    "SCF_cpu_seconds": 0.9516192760000001,
+    "original_gradient_cpu_seconds": 0.31935261699999984,
+    "patched_gradient_cpu_seconds": 0.25074697300000004,
+    "process_cpu_seconds_including_imports": 2.290232536,
+    "elapsed_wall_seconds": 2.2960890459999064,
+    "CPU_accounting_note": "process_time() total for this single-threaded process, sampled after all scientific work; includes interpreter startup before script entry and library imports. Does not include orchestration shell CPU."
+  },
+  "grid_scheme": "original_becke",
+  "grid_iterator_tests": [
+    {
+      "atom_id": 0,
+      "symbol": "O",
+      "fields": [
+        {
+          "name": "coords",
+          "shape": [
+            42978,
+            3
+          ],
+          "dtype": "float64",
+          "bitwise_equal": true,
+          "original_owns_data": true,
+          "patched_owns_data": true,
+          "original_shares_memory_with_dpbecke": false
+        },
+        {
+          "name": "w0",
+          "shape": [
+            42978
+          ],
+          "dtype": "float64",
+          "bitwise_equal": true,
+          "original_owns_data": true,
+          "patched_owns_data": true,
+          "original_shares_memory_with_dpbecke": false
+        },
+        {
+          "name": "w1",
+          "shape": [
+            3,
+            3,
+            42978
+          ],
+          "dtype": "float64",
+          "bitwise_equal": true,
+          "original_owns_data": true,
+          "patched_owns_data": true,
+          "original_shares_memory_with_dpbecke": false
+        }
+      ],
+      "original_dpbecke_shape": [
+        3,
+        3,
+        3,
+        42978
+      ],
+      "original_dpbecke_nbytes": 9283248,
+      "original_frame_partition_temporaries": [
+        "pbecke",
+        "dpbecke",
+        "z"
+      ],
+      "patched_frame_partition_temporaries": []
+    },
+    {
+      "atom_id": 1,
+      "symbol": "H",
+      "fields": [
+        {
+          "name": "coords",
+          "shape": [
+            23540,
+            3
+          ],
+          "dtype": "float64",
+          "bitwise_equal": true,
+          "original_owns_data": true,
+          "patched_owns_data": true,
+          "original_shares_memory_with_dpbecke": false
+        },
+        {
+          "name": "w0",
+          "shape": [
+            23540
+          ],
+          "dtype": "float64",
+          "bitwise_equal": true,
+          "original_owns_data": true,
+          "patched_owns_data": true,
+          "original_shares_memory_with_dpbecke": false
+        },
+        {
+          "name": "w1",
+          "shape": [
+            3,
+            3,
+            23540
+          ],
+          "dtype": "float64",
+          "bitwise_equal": true,
+          "original_owns_data": true,
+          "patched_owns_data": true,
+          "original_shares_memory_with_dpbecke": false
+        }
+      ],
+      "original_dpbecke_shape": [
+        3,
+        3,
+        3,
+        23540
+      ],
+      "original_dpbecke_nbytes": 5084640,
+      "original_frame_partition_temporaries": [
+        "pbecke",
+        "dpbecke",
+        "z"
+      ],
+      "patched_frame_partition_temporaries": []
+    },
+    {
+      "atom_id": 2,
+      "symbol": "H",
+      "fields": [
+        {
+          "name": "coords",
+          "shape": [
+            23540,
+            3
+          ],
+          "dtype": "float64",
+          "bitwise_equal": true,
+          "original_owns_data": true,
+          "patched_owns_data": true,
+          "original_shares_memory_with_dpbecke": false
+        },
+        {
+          "name": "w0",
+          "shape": [
+            23540
+          ],
+          "dtype": "float64",
+          "bitwise_equal": true,
+          "original_owns_data": true,
+          "patched_owns_data": true,
+          "original_shares_memory_with_dpbecke": false
+        },
+        {
+          "name": "w1",
+          "shape": [
+            3,
+            3,
+            23540
+          ],
+          "dtype": "float64",
+          "bitwise_equal": true,
+          "original_owns_data": true,
+          "patched_owns_data": true,
+          "original_shares_memory_with_dpbecke": false
+        }
+      ],
+      "original_dpbecke_shape": [
+        3,
+        3,
+        3,
+        23540
+      ],
+      "original_dpbecke_nbytes": 5084640,
+      "original_frame_partition_temporaries": [
+        "pbecke",
+        "dpbecke",
+        "z"
+      ],
+      "patched_frame_partition_temporaries": []
+    }
+  ],
+  "SCF": {
+    "converged": true,
+    "energy_Hartree": -76.27204116900364,
+    "cycles": 9,
+    "nao": 24,
+    "naux": 113,
+    "reference": "Same converged mf used for both gradient calls. No SCF rerun, grid change, basis change or response removal."
+  },
+  "gradient_test": {
+    "units": "Hartree/Bohr",
+    "original": [
+      [
+        -2.913278979279408e-17,
+        -3.657169749473882e-15,
+        0.02266265534463452
+      ],
+      [
+        -1.805500679562512e-16,
+        0.010594543442002724,
+        -0.011331327672317926
+      ],
+      [
+        2.0759823906146936e-16,
+        -0.010594543442003168,
+        -0.011331327672317704
+      ]
+    ],
+    "patched": [
+      [
+        -2.913278979279408e-17,
+        -3.657169749473882e-15,
+        0.02266265534463452
+      ],
+      [
+        -1.805500679562512e-16,
+        0.010594543442002724,
+        -0.011331327672317926
+      ],
+      [
+        2.0759823906146936e-16,
+        -0.010594543442003168,
+        -0.011331327672317704
+      ]
+    ],
+    "array_equal": true,
+    "bytes_equal": true,
+    "max_abs_difference": 0.0,
+    "norm_difference": 0.0,
+    "allclose_atol_1e_minus_12_rtol_0": true
+  },
+  "installed_source_file_sha256_after": "cffc3e9efa10cf1b547d757e9d165c1000377e9159c794f87464a79c8c93ab46",
+  "restored_original_function_identity": true
+}
