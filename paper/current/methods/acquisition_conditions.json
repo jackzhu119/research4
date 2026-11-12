@@ -1,0 +1,124 @@
+{
+  "schema": "research4-acquisition-user-declaration-v1",
+  "declaration_date": "2026-11-12",
+  "authority": "User-provided apparatus/methods text, follow-up confirmation that all four herb categories use the same conditions, and confirmation of polyethylene reference correction.",
+  "applies_to_species": [
+    "枣仁",
+    "酸枣仁",
+    "黄芪",
+    "天麻"
+  ],
+  "dataset_version": "2026-11-08-confirmed-origin-kind-v1",
+  "confirmation_scope": "Common apparatus, preparation framework, measurement conditions and reference procedure apply to all four herb categories; per-specimen quantities or nominal thickness labels are not overwritten.",
+  "procurement": {
+    "channel": "online_purchase",
+    "description_zh": "通过网络渠道购买标称产地对应的中药材商品，随后进行样品制备。",
+    "origin_evidence": "user_confirmed_product_origin_labels",
+    "supplier_names": null,
+    "order_numbers": null,
+    "purchase_dates": null,
+    "independent_geographic_traceability_verified": false
+  },
+  "equipment": [
+    {
+      "name": "行星球磨机",
+      "model": "XQM-0.4L",
+      "manufacturer": "长沙天创粉末技术有限公司"
+    },
+    {
+      "name": "电热恒温干燥箱",
+      "model": "DHG101-0B",
+      "manufacturer": "浙江力辰仪器科技有限公司"
+    },
+    {
+      "name": "电子天平",
+      "model": "FA2104N",
+      "manufacturer": "上海箐海仪器有限公司"
+    },
+    {
+      "name": "手动压片机",
+      "model": "Atlas TM 15T",
+      "manufacturer": "英国Specac公司"
+    },
+    {
+      "name": "太赫兹时域光谱仪",
+      "model": "TERA K15",
+      "manufacturer": "德国Menlo Systems公司"
+    }
+  ],
+  "measurement": {
+    "laboratory": "国家农业信息化工程技术中心太赫兹实验室",
+    "technique": "THz-TDS",
+    "instrument_model": "TERA K15",
+    "manufacturer": "Menlo Systems",
+    "manufacturer_country": "Germany",
+    "optical_center_wavelength_nm": 1550,
+    "optical_power_mw": 33,
+    "optical_parameter_note": "User-reported optical generation/detection parameters, not a THz center wavelength or THz emitted power. Power measurement position and distribution between optical arms not supplied.",
+    "temperature_k": 292,
+    "enclosure_purge_gas": "nitrogen",
+    "enclosure_humidity_percent_upper_exclusive": 4,
+    "humidity_measurement_definition": null,
+    "measurement_dates": null
+  },
+  "reference": {
+    "material": "polyethylene",
+    "form": "blank_pellet",
+    "procedure_zh": "先扫描不含药材样品的聚乙烯空白压片作为参考，再扫描样品。",
+    "reference_response_correction_applied": true,
+    "correction_authority": "User follow-up: 已做聚乙烯参考校正，可补充设置",
+    "correction_software": null,
+    "correction_software_version": null,
+    "correction_settings": null,
+    "reference_pellet_thickness_mm": null,
+    "reference_optical_constants": null,
+    "effective_transfer_definition": "The provided air-reference-form equations describe a polyethylene-corrected equivalent transfer function; do not equate it to the uncorrected raw sample/PE spectral ratio.",
+    "recomputed_optical_constants_in_this_update": false
+  },
+  "equations": {
+    "transfer_latex": "T(\\omega)=\\frac{E_{\\mathrm{sam}}(\\omega)}{E_{\\mathrm{ref}}(\\omega)}=\\frac{4n(\\omega)}{[n(\\omega)+1]^2}\\exp[-\\alpha(\\omega)d/2]\\exp[-i(n(\\omega)-1)\\omega d/c]",
+    "refractive_index_latex": "n(\\omega)=1+\\frac{c\\Phi(\\omega)}{\\omega d}",
+    "absorption_latex": "\\alpha(\\omega)=-\\frac{2}{d}\\ln\\left(|T(\\omega)|\\frac{[n(\\omega)+1]^2}{4n(\\omega)}\\right)",
+    "phase_convention": "\\Phi(\\omega)=\\operatorname{unwrap}[\\arg E_{\\mathrm{ref}}(\\omega)-\\arg E_{\\mathrm{sam}}(\\omega)]",
+    "equation_e_ref_scope": "Effective reference after confirmed PE response correction; symbols follow user-provided equations, raw PE ratio is T_raw before correction.",
+    "frequency_relation": "\\omega=2\\pi f",
+    "model_assumptions": [
+      "normal incidence",
+      "homogeneous plane-parallel effective slab",
+      "Fresnel amplitude expressed with real refractive index",
+      "multiple internal reflections neglected or treated separately"
+    ],
+    "source": "Equations (1)-(3) in the image supplied by the user in this chat; bibliographic reference [15] not provided."
+  },
+  "pending_parameters": [
+    {
+      "parameter": "供应商、订单、采购及测量日期、真实批次编号",
+      "status": "未提供"
+    },
+    {
+      "parameter": "粉碎粒径或筛目、球磨转速/时长、干燥温度/时长",
+      "status": "未提供"
+    },
+    {
+      "parameter": "样品与聚乙烯配比、压片质量/直径、实际压力/保压时间",
+      "status": "未提供"
+    },
+    {
+      "parameter": "逐片独立测厚记录与聚乙烯参考片厚度",
+      "status": "未提供；时域列头标称厚度单独保留"
+    },
+    {
+      "parameter": "参考校正软件、版本、具体参数、聚乙烯光学响应处理",
+      "status": "已确认做校正；具体设置待补"
+    },
+    {
+      "parameter": "时域采样单位/步长/时间窗、扫描平均次数、门控与相位展开设置",
+      "status": "未提供"
+    },
+    {
+      "parameter": "吸收系数原始导出单位和公式对应的完整文献条目",
+      "status": "未提供"
+    }
+  ],
+  "preservation": "Do not alter raw spectral values, frozen specimen roles, existing corrected metrics or sealed model protocols when adding this acquisition declaration."
+}

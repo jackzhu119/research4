@@ -5,6 +5,7 @@
 
 |入口|内容与适用范围|
 |---|---|
+|[材料、仪器、公式与划分写作稿](methods/MATERIALS_AND_METHODS_ZH.md)／[Excel明细](methods/data_splits.xlsx)|四药材统一测量条件；按18份有效Excel与逐ID冻结角色统计，另保留实际列头标称厚度|
 |[任务范围](tables/task_scope.csv)／[六项固定留出](tables/fixed_classification.csv)|枣仁/酸枣仁二分类、四种类分类，以及酸枣仁、枣仁、黄芪、天麻各自的来源分类；训练/校准/预测数量分别登记|
 |[固定留出迁移](tables/fixed_transfer_paired.csv)|三种子目标单训、额外目标预训、黄芪/天麻跨种类预训；负迁移保留|
 |[主模型表](tables/all_final_model_settings.csv)|修正后原1305矩阵与新增V4 330项的已保存摘要；不同划分/预算分开解释|
@@ -26,3 +27,5 @@
 - `acceptance/`里的回执描述原固定提交的核验范围；新生成的`verification.json`只认证本目录文件、标签、计数与来源，不能当作全部模型重训或外部新批次认证。
 
 维护命令：`python scripts/build_current_paper_results.py --build` 按固定白名单生成；`python scripts/build_current_paper_results.py --verify` 校验本地文件、固定Git原件与18份有效原谱。两者均不联网、不训练模型。
+
+仪器和采购信息来自[本轮用户声明](../../data/annotations/acquisition_conditions_user_declaration_20261112.json)。新增方法表读取原Excel实际列头和冻结角色，Excel依赖版本见[requirements-paper-methods.txt](../../scripts/requirements-paper-methods.txt)；原始光谱与冻结分配保持不变。

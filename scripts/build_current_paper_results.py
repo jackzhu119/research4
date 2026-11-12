@@ -18,6 +18,9 @@ from pathlib import Path
 import subprocess
 import sys
 
+from paper_methods_content import CONTENT_PATHS, DECLARATION, generate as generate_methods_content
+from paper_methods_tables import EXPORTED_PATHS, generate as generate_methods_tables
+
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "paper/current"
@@ -111,6 +114,11 @@ def allowed_fixed_sources():
     for name in ("summary.json", "species_all_predictions.json"):
         sources.add((VERIFIED, "reports/all_round_validation_20261112/ml/" + name))
     return sources
+
+
+def current_methods():
+    tables = generate_methods_tables(ROOT)
+    return {**tables, **generate_methods_content(ROOT, tables)}
 
 
 def build():
@@ -234,6 +242,9 @@ def build():
         "scope": "All corrected positive and negative result settings are retained; internal exploration, not independent new-batch confirmation.",
         "large_outputs": "Weights, raw predictions and compressed restoration archives remain at their immutable corrected source commits; this view contains paper tables, summaries, protocols and validation provenance.",
         "aliases": {"legacy_TRAIN_* / OLD-* / P-CV-OLD": "Corrected-kind original 1305 matrix from 2026-11-08, not pre-correction mixed-kind results."},
+        "acquisition_declaration": DECLARATION,
+        "paper_methods": "methods/MATERIALS_AND_METHODS_ZH.md",
+        "workbook_and_record_splits": "methods/data_splits.xlsx",
     }
     generated = {
         "overview.json": encoded(overview),
@@ -243,6 +254,13 @@ def build():
         current_path(name).write_bytes(raw)
         records.append({"path": name, "bytes": len(raw), "sha256": digest(raw),
                         "transformation": "generated_current_scope_guidance"})
+    methods = current_methods()
+    for name, raw in methods.items():
+        target = current_path(name)
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(raw)
+        records.append({"path": name, "bytes": len(raw), "sha256": digest(raw),
+                        "transformation": "generated_current_methods"})
     manifest = {
         "schema": "research4-corrected-paper-manifest-v1",
         "built_at_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
@@ -252,14 +270,25 @@ def build():
                                 "historical_quantum_experiment_register.csv", "sources/history_quantum",
                                 "parallel_b_*.csv", "old bundle PASS/manifest certificates", "unfinished continuous meta-learning"],
         "verification_receipts": "Copied receipts describe original immutable corrected sources; they are not a certificate for this newly built view.",
+        "methods_declaration": {"path": DECLARATION, "sha256": digest((ROOT / DECLARATION).read_bytes()),
+                                "authority": "User-confirmed common acquisition conditions; specimen roles remain frozen."},
+        "methods_source_audit": "methods/dataset_split_audit.json",
     }
     current_path("manifest.json").write_bytes(encoded(manifest))
-    return verify()
+    return verify(methods)
 
 
-def verify():
+def verify(expected_methods=None):
     manifest = json.loads(current_path("manifest.json").read_text())
     allowed = allowed_fixed_sources()
+    method_paths = set(EXPORTED_PATHS) | CONTENT_PATHS
+    expected_methods = current_methods() if expected_methods is None else expected_methods
+    if set(expected_methods) != method_paths:
+        raise ValueError("Current methods output set differs from explicit allowlist")
+    declared = manifest.get("methods_declaration", {})
+    if declared != {"path": DECLARATION, "sha256": digest((ROOT / DECLARATION).read_bytes()),
+                    "authority": "User-confirmed common acquisition conditions; specimen roles remain frozen."}:
+        raise ValueError("Acquisition declaration differs from the current methods source")
     paths = set()
     verified_sources = 0
     for row in manifest["files"]:
@@ -269,6 +298,11 @@ def verify():
         raw = current_path(row["path"]).read_bytes()
         if len(raw) != row["bytes"] or digest(raw) != row["sha256"]:
             raise ValueError("Current file checksum differs: " + row["path"])
+        if row["path"] in method_paths and (
+            "source_commit" in row or row["transformation"] != "generated_current_methods"
+            or raw != expected_methods[row["path"]]
+        ):
+            raise ValueError("Methods artifact bypasses its actual-data generator: " + row["path"])
         if "source_commit" in row:
             if (row["source_commit"], row["source_path"]) not in allowed:
                 raise ValueError("Source outside corrected-results allowlist: " + row["path"])
@@ -278,6 +312,9 @@ def verify():
             if row["transformation"] == "byte_copy" and raw != original:
                 raise ValueError("Byte-preserved source differs: " + row["path"])
             verified_sources += 1
+        elif row["path"] in method_paths:
+            if row["transformation"] != "generated_current_methods" or raw != expected_methods[row["path"]]:
+                raise ValueError("Methods table/text differs from actual frozen input and declaration: " + row["path"])
         elif row["path"] not in {"README.md", "overview.json"}:
             raise ValueError("Unapproved generated paper file: " + row["path"])
         if row["transformation"] == "gzip_mtime_zero" and digest(gzip.decompress(raw)) != row["source_sha256"]:
@@ -285,6 +322,8 @@ def verify():
     observed = {str(path.relative_to(OUT)) for path in OUT.rglob("*") if path.is_file()}
     if observed != paths | {"manifest.json", "verification.json"} and observed != paths | {"manifest.json"}:
         raise ValueError("Unexpected or missing files in current paper view")
+    if not method_paths.issubset(paths):
+        raise ValueError("Methods artifacts are missing from the publication manifest")
     registry = json.loads(current_path("inputs/active_workbooks.json").read_text())
     protocol = json.loads(current_path("inputs/split_protocol.json").read_text())
     if digest(current_path("inputs/active_workbooks.json").read_bytes()) != protocol["active_registry_sha256"]:
@@ -337,6 +376,8 @@ def verify():
               "manifest_sha256": digest(current_path("manifest.json").read_bytes()),
               "checked_files": len(paths), "corrected_records": 1672,
               "verified_fixed_source_objects": verified_sources, "unchanged_active_workbooks": 18,
+              "methods_artifacts": len(method_paths), "methods_roles_recomputed_from_frozen_ids": True,
+              "acquisition_declaration_date": "2026-11-12", "polyethylene_reference_correction_user_confirmed": True,
               "corrected_jobs": 1635, "b_unique_task_bundles": 1380,
               "no_new_fit": True,
               "scope": "Current-view bytes, immutable Git source objects, active workbook hashes and corrected labels/counts; not a rerun of all original models or external validation."}
@@ -352,6 +393,7 @@ README = """# 当前论文结果入口：种类与产地修正后
 
 |入口|内容与适用范围|
 |---|---|
+|[材料、仪器、公式与划分写作稿](methods/MATERIALS_AND_METHODS_ZH.md)／[Excel明细](methods/data_splits.xlsx)|四药材统一测量条件；按18份有效Excel与逐ID冻结角色统计，另保留实际列头标称厚度|
 |[任务范围](tables/task_scope.csv)／[六项固定留出](tables/fixed_classification.csv)|枣仁/酸枣仁二分类、四种类分类，以及酸枣仁、枣仁、黄芪、天麻各自的来源分类；训练/校准/预测数量分别登记|
 |[固定留出迁移](tables/fixed_transfer_paired.csv)|三种子目标单训、额外目标预训、黄芪/天麻跨种类预训；负迁移保留|
 |[主模型表](tables/all_final_model_settings.csv)|修正后原1305矩阵与新增V4 330项的已保存摘要；不同划分/预算分开解释|
@@ -373,6 +415,8 @@ README = """# 当前论文结果入口：种类与产地修正后
 - `acceptance/`里的回执描述原固定提交的核验范围；新生成的`verification.json`只认证本目录文件、标签、计数与来源，不能当作全部模型重训或外部新批次认证。
 
 维护命令：`python scripts/build_current_paper_results.py --build` 按固定白名单生成；`python scripts/build_current_paper_results.py --verify` 校验本地文件、固定Git原件与18份有效原谱。两者均不联网、不训练模型。
+
+仪器和采购信息来自[本轮用户声明](../../data/annotations/acquisition_conditions_user_declaration_20261112.json)。新增方法表读取原Excel实际列头和冻结角色，Excel依赖版本见[requirements-paper-methods.txt](../../scripts/requirements-paper-methods.txt)；原始光谱与冻结分配保持不变。
 """
 
 

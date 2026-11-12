@@ -20,6 +20,7 @@
 
 ## 论文保留的结果
 
+- [材料、仪器、THz公式与数据划分](paper/current/methods/MATERIALS_AND_METHODS_ZH.md)及[Excel明细](paper/current/methods/data_splits.xlsx)：四药材统一实验条件，18份原表逐表统计，另列1672条样品的冻结角色与原始列头。
 - [六项修正分类任务](paper/current/tables/task_scope.csv)：枣仁/酸枣仁二分类、四种类分类，以及每一种类各自的来源分类，角色与分母分别列明。
 - [修正后的1305＋V4 330项矩阵](paper/current/tables/scientific_job_register.csv)、[协议与模型设置](paper/current/tables/corrected_protocol_register.csv)、[主图](paper/current/figures/)及三种子迁移结果。
 - B第1—5轮的全部正负结果，共1380唯一任务包；不把备份、续算、支持集抽样或验证当成新实物样本。

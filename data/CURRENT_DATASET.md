@@ -27,6 +27,12 @@
 
 种类合计：枣仁364条、酸枣仁500条、黄芪403条、天麻405条。四个工作表是同一批谱记录的不同信号视图，不将四表数量相加作为样品数。详情可查[18表汇总Excel](confirmed_workbooks_20261108.xlsx)、[旧新名称及匹配依据](confirmed_names_20261108.csv)和[当前1672行元数据](metadata_template.csv)。
 
+## 实验条件与实际数据划分（2026-11-12补充）
+
+四种药材的统一仪器、制备及测量条件由实验者本轮确认，见[采集条件声明](annotations/acquisition_conditions_user_declaration_20261112.json)及[论文方法稿](../paper/current/methods/MATERIALS_AND_METHODS_ZH.md)。聚乙烯参考响应已做校正，具体软件和设置待补。
+
+逐表及逐样品的角色直接来自冻结划分，并核对原Excel真实样品列，见[Excel角色明细](../paper/current/methods/data_splits.xlsx)。枣仁为216/74/74、酸枣仁300/100/100、黄芪241/80/82、天麻242/80/83（TRAIN/CAL/PRED），合计999/334/339。本次补充沿用原谱、标签和逐ID角色。
+
 ## 内容对应与保留的编号
 
 旧ZY01—ZY07分别对应上表前7份文件。与上传原件的内容对应通过SHA-256匹配确认；陕西延安文件由本轮完整RAR分卷恢复后，与旧`样本1.xlsx`整文件一致。现有7份编号输出只更改磁盘文件名，内部ZY编号、厚度后缀、坐标、参考值和谱数值均保留。
