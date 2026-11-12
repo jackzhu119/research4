@@ -153,8 +153,8 @@ class Leader:
   for sig in [signal.SIGTERM,signal.SIGINT]:signal.signal(sig,self.stop_signal)
   signal.signal(signal.SIGHUP,signal.SIG_IGN)
  def stop_signal(self,sig,frame):self.stopping=True;self.stop_reason='stopped_by_user'
- def check_integrity(self):
-  if time.monotonic()-self.last_hash<30:return True
+ def check_integrity(self,force=False):
+  if not force and time.monotonic()-self.last_hash<30:return True
   self.last_hash=time.monotonic();changed=[f for f,h in self.seals.items()if not Path(f).is_file()or sha(f)!=h]
   if changed:atomic(self.root/'PAUSE',{'reason':'sealed_input_or_configuration_changed','files':changed,'at_utc':now()});event(self.d,'integrity_pause',{'changed_files':changed});return False
   return True
@@ -242,7 +242,7 @@ class Leader:
   if self.accounting()['active_workers']:signal_workers(signal.SIGKILL)
   deadline=time.monotonic()+15
   while self.accounting()['active_workers']and time.monotonic()<deadline:self.recover_and_monitor();time.sleep(.2)
-  self.report('finalizing',reason);self.final_command('summarize_results.py','final_summary');self.final_command('publisher.py','final_publisher');manager(self.d,'leader',final=time.process_time());self.report(reason,reason);event(self.d,'leader_terminal',{'state':reason});self.d.close()
+  self.report(reason,reason);self.final_command('summarize_results.py','final_summary');self.final_command('publisher.py','final_publisher');manager(self.d,'leader',final=time.process_time());self.report(reason,reason);event(self.d,'leader_terminal',{'state':reason});self.d.close()
  def run(self):
   while True:
    self.recover_and_monitor()
@@ -257,11 +257,14 @@ class Leader:
     for row in self.d.execute("SELECT * FROM jobs WHERE status='queued' AND next_ready<=? ORDER BY ordinal",(time.time(),)):
      if set(json.loads(row['job_json']).get('depends_on',[]))<=done:ready=dict(row);break
     if ready is None:break
+    if not self.check_integrity(force=True):self.shutdown('paused_integrity');return
     allocation=int(math.floor(free/slots));self.launch(ready,allocation);a=self.accounting();free=self.budget-max(self.reserve,a['management_cpu']+self.margin)-a['closed_charge']-a['active_allocated'];slots=self.maxworkers-a['active_workers']
    total=self.d.execute('SELECT COUNT(*)FROM jobs').fetchone()[0];completed=self.d.execute("SELECT COUNT(*)FROM jobs WHERE status='completed'").fetchone()[0]
-   if completed==total and not self.accounting()['active_workers']:self.shutdown('all_tasks_completed');return
+   if completed==total and not self.accounting()['active_workers']:
+    self.shutdown('all_tasks_completed'if self.check_integrity(force=True)else 'paused_integrity');return
    blocked=self.d.execute("SELECT COUNT(*)FROM jobs WHERE status='scientific_blocked'").fetchone()[0]
-   if completed+blocked==total and not self.accounting()['active_workers']:self.shutdown('scientific_blocked');return
+   if completed+blocked==total and not self.accounting()['active_workers']:
+    self.shutdown('scientific_blocked'if self.check_integrity(force=True)else 'paused_integrity');return
    if not self.accounting()['active_workers']and free<3:self.shutdown('budget_exhausted');return
    self.report('running'if self.accounting()['active_workers']else 'retry_backoff_or_dependencies');self.publish_if_due();time.sleep(self.poll)
 

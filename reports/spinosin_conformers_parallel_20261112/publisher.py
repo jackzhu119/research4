@@ -46,6 +46,8 @@ def publish(root):
         rel = path.relative_to(root)
         if any(part.startswith('.') or part in ('__pycache__', 'tmp', 'tmpfiles') for part in rel.parts):
             continue
+        if len(rel.parts) > 1 and rel.parts[0].startswith('runtime_selftest'):
+            continue
         if rel.parts[0] == 'audit_sources' and path.name.endswith('_tree.json'):
             continue  # Raw repository listings are redundant with pinned audit references.
         if path.suffix not in ('.json', '.py', '.md', '.xyz', '.sdf', '.npy', '.npz', '.csv'):
@@ -71,11 +73,14 @@ def publish(root):
             candidates['ledger_snapshot.sqlite3'] = Path(tmp.name).read_bytes()
     new_hashes = {name: hashlib.sha256(data).hexdigest() for name, data in candidates.items()}
     changed = {n: d for n, d in candidates.items() if hashes.get(n) != new_hashes[n]}
-    if not changed:
+    removed = [name for name in hashes if '/' in name and name.split('/')[0].startswith('runtime_selftest')]
+    if not changed and not removed:
         return {'status': 'unchanged', 'commit': old.get('commit')}
     head = api(endpoint + '/git/ref/heads/' + branch)['object']['sha']
     commit = api(endpoint + '/git/commits/' + head)
     entries = []
+    for name in removed:
+        entries.append({'path': prefix + '/' + name, 'mode': '100644', 'type': 'blob', 'sha': None})
     for name, data in sorted(changed.items()):
         item = {'path': prefix + '/' + name, 'mode': '100644', 'type': 'blob'}
         try:
@@ -92,7 +97,8 @@ def publish(root):
     # never edits the local scientific queue or its checkpoints.
     api(endpoint + '/git/refs/heads/' + branch, {'sha': created['sha'], 'force': False}, 'PATCH')
     result = {'status': 'published', 'at_utc': now, 'commit': created['sha'],
-              'files_changed': len(changed), 'published_hashes': {**hashes, **new_hashes}}
+              'files_changed': len(changed), 'files_removed': len(removed),
+              'published_hashes': {**{n: h for n, h in hashes.items() if n not in removed}, **new_hashes}}
     atomic(state_path, result)
     return {k: v for k, v in result.items() if k != 'published_hashes'}
 

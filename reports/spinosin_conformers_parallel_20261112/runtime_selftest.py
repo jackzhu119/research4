@@ -1,7 +1,7 @@
 """Isolated arithmetic-only queue tests. Never starts the real chemistry worker."""
 from pathlib import Path
 import json,os,signal,sqlite3,subprocess,sys,time,shutil
-ROOT=Path(__file__).resolve().parent;BASE=ROOT/'runtime_selftest_v2';BASE.mkdir(exist_ok=True)
+ROOT=Path(__file__).resolve().parent;BASE=ROOT/'runtime_selftest_final';BASE.mkdir(exist_ok=True)
 FAKE='''import argparse,json,os,time,sys
 from pathlib import Path
 p=argparse.ArgumentParser();p.add_argument('--root');p.add_argument('--job');a=p.parse_args();r=Path(a.root);j=json.loads(Path(a.job).read_text());o=r/'jobs'/j['id'];c=o/'counter.json';n=json.loads(c.read_text())if c.exists()else 0;c.write_text(json.dumps(n+1));t=time.process_time();duration=float(j.get('cpu',.12));x=1
@@ -36,4 +36,5 @@ while time.monotonic()<end:
  time.sleep(.03)
 assert n==2;p.kill();p.wait();p2=launch(r);s=waitstate(r,{'all_tasks_completed'});p2.wait(timeout=5);q=summary(r);assert q['attempts'][0]==2 and q['attempts'][3]==0 and abs(q['attempts'][1]-q['attempts'][2])<1e-12;results['leader_recovery']={'state':s['state'],**q}
 r=create('integrity',[{'id':'a','ordinal':0,'cpu':1.5}],1);p=launch(r);waitstate(r,{'running'});(r/'PAUSE').write_text('{}');s=waitstate(r,{'paused_integrity'});p.wait(timeout=5);results['integrity']={'state':s['state'],**summary(r)}
+r=create('watchdog_recovery',[{'id':'a','ordinal':0,'cpu':2.},{'id':'b','ordinal':1,'cpu':2.}]);subprocess.run([sys.executable,str(r/'start_background.py'),'--root',str(r)],stdout=subprocess.DEVNULL,check=True);waitstate(r,{'running'});wd=json.loads((r/'watchdog.json').read_text());before=json.loads((r/'leader.json').read_text());os.kill(wd['pid'],signal.SIGKILL);subprocess.run([sys.executable,str(r/'start_background.py'),'--root',str(r)],stdout=subprocess.DEVNULL,check=True);s=waitstate(r,{'all_tasks_completed'});after=json.loads((r/'leader.json').read_text());assert before['pid']==after['pid']and before['start_ticks']==after['start_ticks'];q=summary(r);assert q['attempts'][0]==2 and q['attempts'][3]==0;results['watchdog_recovery']={'state':s['state'],'leader_identity_unchanged':True,**q}
 (ROOT/'runtime_selftest_verification.json').write_text(json.dumps({'arithmetic_fake_worker_only':True,'real_DFT_started':False,'old_ML_modified':False,'tests':results},indent=2));print(json.dumps(results,indent=2))
