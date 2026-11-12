@@ -45,4 +45,4 @@ PYTHONDONTWRITEBYTECODE=1 .runtime/bin/python scripts/audit_supplemental_multire
 
 实际审计作为**独立有界阶段**记录资源，不重置、不篡改NN或Q账本。默认180进程CPU秒、600秒wall、单线程/单CPU、RSS1.5GiB best effort、AS10GiB及OS CPU硬上限，另记录每个实际重放模型的CPU/时间和整个审计阶段的峰值RSS。硬终止没有健康闭合收据，不能算完成。
 
-M−C是本轮同参数表示比较。C−单支α还涉及来自原612点的α_long表示，因此不能将该差值全部因果归于参数容量。全部任务仍为已曝光开发或极小新类入组探索，不能据此与历史96.0234%直接计算新提升，也不能将新增表示数当作新增独立样品数。
+错误混种分类成绩已按2026-11-12用户决定撤回；论文使用main的paper/current白名单。

@@ -83,4 +83,4 @@ PYTHONPATH=/workspace/research4/.runtime/quantum-upgrade-site:/workspace/researc
 - 新实际DFT、93频率、化学峰归属或分类准确率改善：NOT_RUN。
 - 实际root授权、预算分配和新科学结果：NOT_RUN。
 
-任何后续实际运行均由root在Spinosin优先事项完成、磁盘/内存/CPU/截止时间允许后决定。当前酸枣仁主线与96.0234%既有模型不变。
+错误混种分类成绩已按2026-11-12用户决定撤回；论文使用main的paper/current白名单。

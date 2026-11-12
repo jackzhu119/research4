@@ -17,4 +17,4 @@
 
 `progress_snapshot_review.json`给出UTC捕获范围、逐点源证据SHA、全部重算值及结构核验。`completed_geometry_snapshots/`为本次已完成点的原样复制；`active_*.snapshot`是当时一次读取的文本前缀，后续原文件继续追加不表示本快照失效，也不表示本快照代表最终状态。`paired_snapshot_timings.json`只读取已捕获事件建立逐点配对，没有再读取活动源。
 
-本次没有获得或解释任何斯皮诺素频率，不改动分类器及96.0234%历史结果。最终科研结论应在实际计算阶段退出后另作审计，不能将这里的审计PASS写成几何优化完成。
+错误混种分类成绩已按2026-11-12用户决定撤回；论文使用main的paper/current白名单。
