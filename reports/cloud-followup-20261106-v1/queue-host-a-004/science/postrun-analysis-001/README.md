@@ -52,4 +52,4 @@ Rebuilt atom-centred grids with gradient_grid_response=False do not form an exac
 ## 证据及边界
 
 小文件逐个重算SHA。CHK/HDF等检查点和大数组只记录原生产者封存SHA及当前大小，未读其内容，不能称已独立重哈希。
-所有失败成本保留。IR强度NOT_COMPUTED，无峰归属、无新分类准确率；96.0234%保持既有内部交叉验证语义。标准品、HPLC/LC-MS及独立新批次仍NOT_RUN。
+错误混种分类成绩已按2026-11-12用户决定撤回；论文使用main的paper/current白名单。

@@ -99,7 +99,7 @@ nonzero historical zero-gradient, disclose its old boot, and never label it a
 new-boot fresh gradient or minimum verification. Live proof/PID/birth/UID/boot
 must be new; archived source closure evidence stays historical. No timers or
 hourly chat reports. Continue to report IR intensity as NOT_COMPUTED and leave
-the existing96.0234% classifier result unchanged.
+错误混种分类成绩已按2026-11-12用户决定撤回；论文使用main的paper/current白名单。
 
 ## Two-account cloud continuation (2026-11-06)
 
@@ -125,7 +125,7 @@ merge. Each account must use its own authorized GitHub connection.
 The prior Spinosin219-mode run is computationally complete with25 substantial
 imaginary modes; minimum and chemical-mechanism qualification remain false.
 IR intensities are NOT_COMPUTED. No theoretical result changes the historical
-96.0234% internal-CV classifier result. No further laboratory data are expected:
+错误混种分类成绩已按2026-11-12用户决定撤回；论文使用main的paper/current白名单。
 standard THz/HPLC/LC-MS and independent-batch gaps remain explicit limitations.
 
 ## PySCF Spinosin pilot (2026-10-31 client date)
@@ -147,7 +147,7 @@ fresh same-method gradient checks before Hessian. Completed frequency calculatio
 and a positive-frequency minimum are distinct statuses; also require complete
 3N-6 modes and all-real-positive checks. IR intensity is NOT_COMPUTED.
 Theory–experiment proximity is exploratory, not chemical assignment, and no
-theoretical frequency enters the existing classifiers or changes96.0234%.
+错误混种分类成绩已按2026-11-12用户决定撤回；论文使用main的paper/current白名单。
 
 ## External pretraining experiment (2026-10-31)
 

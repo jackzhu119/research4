@@ -175,4 +175,4 @@ in the test itself; slice assignment corrected it before the passing run.
 
 Only after these gates may root run Spinosin. All 219 modes, signed imaginary
 frequencies, IR `NOT_COMPUTED`, and experimental-peak interpretation limits remain
-unchanged. No theoretical information enters the 96.0234% classifier.
+错误混种分类成绩已按2026-11-12用户决定撤回；论文使用main的paper/current白名单。
