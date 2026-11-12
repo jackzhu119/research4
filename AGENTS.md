@@ -1,3 +1,8 @@
+<!-- corrected-paper-policy-20261112 -->
+## Current user decision: withdraw mislabeled results
+
+The 2026-11-12 user instruction withdraws pre-correction mixed 枣仁/酸枣仁 classifier outputs and old-prediction relabeling from current repository results and paper writing. This supersedes older requests to retain or cite those scores. Use only main:paper/current and its explicit manifest for paper claims. Preserve raw spectra, shared source code, corrected 1305/V4/B outputs and quantum computations. Do not rebuild removed paper bundles or import withdrawn results from Git history into current paper inputs.
+
 # Research data conventions
 
 The user's current data decision, effective 2026-11-08, is recorded in
