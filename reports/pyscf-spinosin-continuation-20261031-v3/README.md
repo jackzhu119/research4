@@ -39,5 +39,5 @@ dimensions, hashes and actual completed blocks. Checkpointing is SAVE_ONLY until
 a separately validated loader exists. Do not advertise cross-process cache
 recovery as implemented. Do not read an active HDF5 checkpoint.
 
-The original spectra, historical classifiers, the 96.0234% internal accuracy,
+错误混种分类成绩已按2026-11-12用户决定撤回；论文使用main的paper/current白名单。
 the old pilot/V2 records, and `main` are unchanged.

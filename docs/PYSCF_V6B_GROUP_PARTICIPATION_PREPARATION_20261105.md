@@ -30,7 +30,7 @@ PySCF保存的是Cartesian位移，`d=m^(-1/2)e`，因此此处乘质量而不�
 
 真实符合条件后才生成：219×22＝4818行 `mode_group_participation.csv`、219行 `partition_participation.csv`、固定0.1–1.5 THz低频视图，以及 `low_mode_group_participation_not_IR.png/.pdf`。热图将互斥组与重叠组分开；无窗口模式时明确写无模式，不补峰、不匹配实验候选。真实审计结果与来源哈希写入 `checks.json` 和新source绑定的artifact index。
 
-这些无量纲份额不是能量、IR强度、吸收贡献或化学峰归属；OH参与不能证明氢键。单模式符号与整体尺度不改变份额，但简并子空间内换基会改变单模式份额；不把排名视为唯一物理分解。孤立构象不等于药材固体，结果不进入分类器、不修改96.0234%。不生成新XYZ运动；仅引用真实独立分析已生成的显示动画。
+错误混种分类成绩已按2026-11-12用户决定撤回；论文使用main的paper/current白名单。
 
 ## 复现与当前状态
 

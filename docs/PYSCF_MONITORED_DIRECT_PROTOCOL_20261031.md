@@ -69,7 +69,7 @@ Only actual qualified modes may enter the 0.1-1.5 THz comparison table. Frequenc
 proximity does not establish a constituent's identity in solid medicinal plant
 material. The isolated-molecule calculation does not include a crystal lattice,
 collective intermolecular motion or the complete matrix. No theoretical peak is
-used to modify the existing 96.0234% classifier in this mechanism pilot.
+错误混种分类成绩已按2026-11-12用户决定撤回；论文使用main的paper/current白名单。
 
 Hessian intermediates are saved locally with hashes. Current checkpointing is
 save-only: cross-process loading/recovery must not be advertised until separately

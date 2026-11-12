@@ -111,6 +111,6 @@ uses 1 cm^-1 = 0.0299792458 THz without fitting a scaling factor to those peaks.
 Keep all fixed experimental candidates, not only attractive nearest matches.
 Proximity does not establish chemical attribution in solid medicinal material.
 
-No theoretical frequency enters the existing 96.0234% classifier. Water and
+错误混种分类成绩已按2026-11-12用户决定撤回；论文使用main的paper/current白名单。
 ethanol are software controls, not additional medicinal-plant samples or
 Spinosin modes. Report DONE/PARTIAL/NOT_RUN/BLOCKED according to actual evidence.
