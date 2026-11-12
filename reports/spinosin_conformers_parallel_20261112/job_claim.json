@@ -1,0 +1,49 @@
+{
+  "schema": "research4-molecular-job-claim-v1",
+  "claimed_at_utc": "2026-11-12T10:58:40.663Z",
+  "owner_thread": "01a1becc-eeef-70e2-a36c-60ce19a7d034",
+  "environment": "ccarenv_b64_Y2NhcmVudl9hMTBhMWQxOWUzMzQ4MTkxOTU3ODM2ZjU1YmE2NTRhZA",
+  "root": "/workspace/chemistry_supplement_20261112",
+  "state": "preparing",
+  "authorization_cpu_seconds": 900000,
+  "scope": "Two previously unrun, distinct spinosin starting conformers C002 and C003; PBE/def2-SVP df-grid5 optimization, stationary-point audit, two-step Hessian and dipole derivatives",
+  "jobs": [
+    {
+      "id": "spinosin_C002_df_grid5",
+      "molecule": "spinosin",
+      "conformer": "C002",
+      "profile": "df-grid5",
+      "threads": 1,
+      "max_memory_mb": 2200,
+      "xyz_sha256": "b651dedc1e52a91937d3a9c88911ba2f583f55bd589c07ccaddf21a5ff6647b3"
+    },
+    {
+      "id": "spinosin_C003_df_grid5",
+      "molecule": "spinosin",
+      "conformer": "C003",
+      "profile": "df-grid5",
+      "threads": 1,
+      "max_memory_mb": 2200,
+      "xyz_sha256": "b89423175036d35a32dc669c89a2dd8e4929f0290c934e2eea48922372f613d0"
+    }
+  ],
+  "source_commit": "2eb6b6e1dfe6627f24c8f97ea268bdec8f636bcb",
+  "starting_geometry_qualified": false,
+  "existing_other_host_thread": "6af5984c-1390-8191-b29f-4c731337b015",
+  "existing_other_host_tasks": [
+    "publication_spinosin df-grid5",
+    "ir_calycosin",
+    "ir_spinosin"
+  ],
+  "early_stopping": "No accuracy, no-improvement, walltime or retry-count stop of the queue. Scientific convergence checks determine result qualification; CPU budget remains a hard aggregate cap.",
+  "status": "Background not yet started; actual PID/checkpoint status will be published separately.",
+  "conformer_source_commit": "cd4b50c37c1e26064f9f15f340d30e20ac386458",
+  "identity_inchikey": "VGGSULWDCMWZPO-ODEMIOGVSA-N",
+  "heavy_atom_aligned_rmsd_angstrom": {
+    "C001_C002": 0.5799,
+    "C001_C003": 2.39198,
+    "C002_C003": 2.39312
+  },
+  "claim_correction": "Initial grid7 proposal superseded before any calculations: other host's future C001 escalation includes grid7. Distinct conformer optimization selected to avoid duplicate starting jobs.",
+  "scope_limits": "MMFF energies only rank starting models; final DFT geometries may converge to the same basin. These are not independent experimental samples."
+}
