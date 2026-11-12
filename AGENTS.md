@@ -1,3 +1,8 @@
+<!-- corrected-paper-policy-20261112 -->
+## Current user decision: withdraw mislabeled results
+
+The 2026-11-12 user instruction withdraws pre-correction mixed 枣仁/酸枣仁 classifier outputs and old-prediction relabeling from current repository results and paper writing. This supersedes older requests to retain or cite those scores. Use only main:paper/current and its explicit manifest for paper claims. Preserve raw spectra, shared source code, corrected 1305/V4/B outputs and quantum computations. Do not rebuild removed paper bundles or import withdrawn results from Git history into current paper inputs.
+
 # 2026-11-08 species correction takes precedence
 
 The user confirmed that legacy ZY01/ZY02 are 枣仁 (355 records), while ZY03–ZY07 are 酸枣仁 (500). Do not describe legacy96.0234% as pure酸枣仁 origin accuracy. Current confirmed registry has18workbooks/1672records:364枣仁,500酸枣仁,403黄芪,405天麻; roles999TRAIN/334CAL/339PRED. Default to data/active_workbooks.json and the fixed correction snapshot/experiment plan, not historical raw-file discovery. Preserve all old results; new pure-kind experiments refit all learned transforms in TRAIN only. Spinosin molecular results stay separate from unconfirmed chemical assignments in mixed spectra. This branch archives the previous registry under data/archive/pre_species_reconciliation_20261108/. The following older instructions apply only within their explicitly historical scopes and do not override this correction.
