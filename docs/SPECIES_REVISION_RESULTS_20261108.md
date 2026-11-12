@@ -12,14 +12,6 @@
 
 ![酸枣仁分类、少样本校准和跨物种迁移结果](../data/research/species_revision_20261108/figures/species_revision_results.png)
 
-## 原来的实验可以怎样保留
-
-原七类是ZY01—ZY07来源组，现确认ZY01、ZY02为枣仁，其余五组为酸枣仁。历史R2七分类821/855＝96.02%必须改称混合种类的来源组识别，不能继续称纯酸枣仁产地鉴别。[2]
-
-独立重算旧OOF后，R2按种类折叠为852/855＝99.65%。原七分类在酸枣仁500条子集内的正确数由R0的428增加到R2的470，贡献全部48个新增正确中的42个。因此，标签问题影响任务定义和论文结论，现有证据没有表明前期算法改进全部无效。这些数值只是旧预测的回顾性拆解，不是新训练的二分类或五分类成绩。[2]
-
-本次直接复用17个历史源码模块，逐文件Git blob与研究提交 `3fc996e99cce8ff5799b5a2af9b565f982dfc899` 完全相同。R0的8候选、R2先36个MC配置再96个SVM配置、训练内宏F1优先规则，以及原编码器、SNV和锚定实现均被保留。修改的是任务、类别数、输入入口和评价边界。[1,3–4]
-
 ## 固定划分已经逐样品保存
 
 原855份的训练／校准／预测角色全部继承历史名单，没有重新洗牌。新增817份按相同约60%／20%／20%补齐。每份样品只有一个角色，所有任务共享主名单。[1]
@@ -87,7 +79,6 @@ R2训练内两折宏F1为0.8900，R0为0.8432；本次固定预测上R0反而更
 
 B−A依种子为−1、＋2、−7个百分点，平均−2.00个百分点；B−Aextra平均−1.33个百分点。B加弱校准的均值约79.30%—79.33%，仍低于A。该固定设置没有显示稳定正迁移，不能推广成“任何跨物种方法都不可能”；三个种子也不足以建立跨批次统计结论。[4]
 
-前期旧混合任务也出现黄芪＋天麻预训练85.38%低于仅目标87.06%的结果。本轮标签修正后，负迁移方向仍在，但任务、划分和辅助训练范围已有变化，不能把两轮准确率直接相减当成标签修正的因果效果。方法主线暂保留SVM／MC对照，迁移作为明确报告正负结果的扩展实验。[2–4]
 
 ## 实验方向怎样调整
 
@@ -119,7 +110,6 @@ python scripts/render_species_revision_figures.py
 ## 来源与可检查记录
 
 1. [当前有效清单](../data/active_workbooks.json)、[独立性用户声明](../data/annotations/specimen_independence_user_declaration_20261108.json)、[固定逐样品名单](../data/research/species_revision_20261108/split_manifest.csv)、[划分与作用边界](../data/research/species_revision_20261108/protocol.json)、[特征质量核查](../data/research/species_revision_20261108/feature_audit.json)、[历史源码复用证明](../data/research/species_revision_20261108/code_reuse.json)。
-2. [历史OOF重新解释及hash](../data/research/species_revision_20261108/historical_relabel_audit.json)；原迁移报告[96轮预算对照](https://github.com/jackzhu119/research4/blob/592a62aef75d25252b7513330f9944a9fa4c08dd/docs/CONSERVATIVE_CROSS_PLANT_BUDGET_ABLATION_20261104.md)。
 3. [六项分类完整结果](../data/research/species_revision_20261108/classification/summary.json)、[便于读取的全部设置均值CSV](../data/research/species_revision_20261108/classification/metrics_overview.csv)、[分类冻结配置](../data/research/species_revision_20261108/classification/frozen_config.json)、[酸枣仁逐样品预测](../data/research/species_revision_20261108/classification/acid_origins/predictions.csv.gz)。
 4. [跨物种迁移结果](../data/research/species_revision_20261108/transfer/result.json)、[逐种子配对结果](../data/research/species_revision_20261108/transfer/paired_source_transfer.csv)、[详细方法与校准结果](../data/research/species_revision_20261108/transfer/README.md)、[重载复现](../data/research/species_revision_20261108/transfer/native_replay.json)。
 5. [独立指标核查记录](../data/research/species_revision_20261108/independent_results_validation.json)、[独立复核脚本](../scripts/validate_species_revision_results.py)、[实验方案](SPECIES_REVISION_EXPERIMENT_PLAN_20261108.md)。
