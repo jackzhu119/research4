@@ -47,6 +47,6 @@
 
 [原编号说明](processed/zaoren_20261031/README.md)、`样本N_编号对照.csv`、旧核验JSON及[酸枣仁_编号对照表.xlsx](processed/zaoren_20261031/酸枣仁_编号对照表.xlsx)保留当时的名称、hash与操作证据。历史字段不当作现路径，当前对应见本轮名称表和有效清单。旧808行和1258行版本叙述均不再代表当前数据范围。
 
-历史[批准方案](../docs/APPROVED_ZAOREN_EXPERIMENT_PLAN.md)及[实验报告](https://github.com/jackzhu119/research4/blob/research/algorithm-review-and-baselines-20261030/docs/ZAOREN_APPROVED_EXECUTION_REPORT.md)的原结果继续保留。原7组现已知包含355条枣仁与500条酸枣仁，因此旧实验是混合种类的匿名组内部验证，不是经确认的纯酸枣仁产地鉴别；不将旧成绩移用于本轮18表。本轮只整理文件及标签，没有重跑模型。
+早期错误混种分类派生结果已按2026-11-12用户决定撤回；论文只使用默认main的paper/current清单。原谱与当前种类、产地标签保留。
 
 后续同种类内产地识别或小样本校准需要重新核对种类、产地、独立样品与批次的划分；独立新批次的支持集和查询集仍待补充。
