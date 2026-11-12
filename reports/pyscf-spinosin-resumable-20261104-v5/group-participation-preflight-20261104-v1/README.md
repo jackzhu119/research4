@@ -70,4 +70,4 @@ chosen basis within degenerate mode subspaces, although sign and global
 per-mode scaling leave them invariant. Isolated-conformer modes do not establish
 solid-herb chemical peak assignments. IR remains `NOT_COMPUTED`; no frequency
 or participation quantity enters the classifiers or changes the existing
-96.0234% classification result.
+错误混种分类成绩已按2026-11-12用户决定撤回；论文使用main的paper/current白名单。

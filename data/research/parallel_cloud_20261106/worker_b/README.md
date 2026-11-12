@@ -15,4 +15,4 @@ B worker为 `scripts/research4_parallel_b_quantum_20261106.py`。默认CLI始终
 
 输出工件path为checkout-relative，适合整体回传后在A解析。实际PID/proof/output_directory中的B绝对路径只描述B的运行观察，不是A需满足的进程身份。
 
-IR强度始终NOT_COMPUTED。水只是软件Opt/Freq控制；原儿茶酸/Calycosin是辅助孤立分子研究，不能替换酸枣仁Spinosin任务、原始光谱、分类器或实验样品。没有纯品THz或同样品HPLC/LC-MS配对时，不确认药材峰归属或声称提升96.0234%历史内部CV。
+错误混种分类成绩已按2026-11-12用户决定撤回；论文使用main的paper/current白名单。

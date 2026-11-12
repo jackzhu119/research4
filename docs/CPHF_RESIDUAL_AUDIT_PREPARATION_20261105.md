@@ -89,4 +89,4 @@ E1fresh(Y)-E1saved = Voccupied(Y)-Voccupied(X)
   --atom-index ACTUAL_ATOM_ID --threads 2 --output FRESH_REPORT
 ```
 
-水/乙醇必须额外加 `--control-validation`；检查整块时以 `--whole-block` 替代 `--atom-index`。原生算子、方法、IR状态和历史96.0234%分类结果均不改变。
+错误混种分类成绩已按2026-11-12用户决定撤回；论文使用main的paper/current白名单。

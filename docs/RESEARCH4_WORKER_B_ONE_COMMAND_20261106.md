@@ -24,4 +24,4 @@ bash -o pipefail -c 'curl -fsSL --max-time 60 https://raw.githubusercontent.com/
 
 `bash -n`、实际`--check-only`及7个离线集成检查通过。测试覆盖无副作用预检、参数错误、模拟完整委派、写失败阻断、完整SHA校验、未知目录保留、继承认证保护；模拟Git和子bash不执行真实clone、push、安装或Q。B原包另有真实水Opt/Freq与字节级临时Git回传证据，见原quickstart。新bootstrap没有冒充第二台机器已启动或已获得写权限。
 
-后台可在实例存活时独立于聊天继续；实例停机/销毁没有运行保证。水控制、药材优化、频率、独立复核和Git回传分别以实际结果确认。IR强度NOT_COMPUTED，不改变原96.0234%分类基线。
+错误混种分类成绩已按2026-11-12用户决定撤回；论文使用main的paper/current白名单。
