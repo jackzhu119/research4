@@ -81,7 +81,7 @@ resource scheduling is root's responsibility between genuinely closed phases.
 These results have a new V6B schema and new proofs. The old frozen a2 analyzer
 and observer pin the V5 consumer and **do not automatically accept V6B outputs**.
 A reviewed V6B postprocessing gate is still needed before any new mechanism
-qualification. No V6B values enter the classifiers or change96.0234%.
+错误混种分类成绩已按2026-11-12用户决定撤回；论文使用main的paper/current白名单。
 
 Preparation command (no quantum work):
 

@@ -19,7 +19,7 @@
 
 仅通过同方法父优化、fresh梯度、完整219个正频及原始Hessian复核的孤立分子模式，才进入实验候选峰比较。孤立分子与固态药材中的晶格、氢键和集体振动不同；频率接近不确认化学归属。IR强度为`NOT_COMPUTED`，不绘制虚构吸收强度。
 
-本批次不修改酸枣仁光谱、标签、分类器或既有96.0234%分类结果，也不声称分子计算提高了分类准确率。RSS轮询属于尽力监测，24GiB地址空间不等于24GiB物理内存。
+错误混种分类成绩已按2026-11-12用户决定撤回；论文使用main的paper/current白名单。
 
 实际证据：[分析汇总](../reports/pyscf-spinosin-continuation-20261031-v3/final-analysis/summary.json)、[阶段成本与状态](../reports/pyscf-spinosin-continuation-20261031-v3/final-analysis/phase_status_and_resources.csv)、[失败证据](../reports/pyscf-spinosin-continuation-20261031-v3/final-analysis/actual_failure_evidence.json)、[理论与实验候选位置对照](../reports/pyscf-spinosin-continuation-20261031-v3/final-analysis/experiment_theory_pairs.csv)。
 
