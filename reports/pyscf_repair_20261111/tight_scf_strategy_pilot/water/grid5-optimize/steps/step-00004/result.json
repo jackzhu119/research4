@@ -1,0 +1,155 @@
+{
+  "schema": "research4-pyscf-frequency-repair-core-v1",
+  "status": "DONE",
+  "input_fingerprint": "ffb222af3c48152c0e3f93720c3ec39f89fa50154057635f739ffb7cd7bf3594",
+  "settings": {
+    "xc": "PBE",
+    "basis": "def2-SVP",
+    "charge": 0,
+    "spin": 0,
+    "dispersion": "NONE_EXPLICIT",
+    "density_fitting": false,
+    "direct_scf_tol": 1e-14,
+    "conv_tol_hartree": 1e-12,
+    "conv_tol_grad": 1e-08,
+    "fresh_orbital_gradient_acceptance": 1e-08,
+    "fresh_energy_difference_acceptance_hartree": 1e-10,
+    "electron_count_acceptance": 1e-07,
+    "grid_response": true,
+    "full_native_veff_every_cycle": true,
+    "threads": 2,
+    "max_memory_mb": 5000,
+    "grid_level": 5,
+    "grid_pruning": "PySCF_default_NWChem",
+    "grid_construction": "native_atom_centered_rebuilt_for_each_geometry"
+  },
+  "symbols": [
+    "O",
+    "H",
+    "H"
+  ],
+  "coordinates_bohr": [
+    [
+      -1.0525999061846376e-13,
+      -5.355856221688862e-15,
+      -0.03240180755724877
+    ],
+    [
+      1.4318336377639047,
+      -9.562820642313898e-14,
+      1.1262009037778928
+    ],
+    [
+      -1.431833637764149,
+      1.0100681426446516e-13,
+      1.1262009037778602
+    ]
+  ],
+  "started_at_utc": "2026-11-11T03:21:08.248792+00:00",
+  "attempt_path": "/workspace/research4/reports/pyscf_repair_20261111/jobs/water/grid5-optimize/steps/step-00004/attempt-001",
+  "array_refs": {
+    "coordinates_bohr": {
+      "path": "/workspace/research4/reports/pyscf_repair_20261111/jobs/water/grid5-optimize/steps/step-00004/coordinates_bohr.npy",
+      "sha256": "22caff5f2b67377242cec37e106668063d487dc9e1102dd1d68846afdada9ffa"
+    },
+    "gradient": {
+      "path": "/workspace/research4/reports/pyscf_repair_20261111/jobs/water/grid5-optimize/steps/step-00004/gradient.npy",
+      "sha256": "62b0c8f0f691d76ddb3bdea35d71da08d5445ac7fc10d4e533d2c97ba5802060"
+    },
+    "dipole_au": {
+      "path": "/workspace/research4/reports/pyscf_repair_20261111/jobs/water/grid5-optimize/steps/step-00004/dipole_au.npy",
+      "sha256": "56c0071666257acd0a32aabb1c4e5a9f964ad6173cf74f245397390161829d2b"
+    },
+    "density": {
+      "path": "/workspace/research4/reports/pyscf_repair_20261111/jobs/water/grid5-optimize/steps/step-00004/.local/density.npy",
+      "sha256": "381b55f6bda835d01ab49c0a9ff2e05bc51dd05ac971c362a854f48db4c716b5"
+    }
+  },
+  "qualified": true,
+  "native_converged": true,
+  "energy_hartree": -76.27258264336857,
+  "gradient": [
+    [
+      -9.113122592768352e-16,
+      -9.052253162861761e-17,
+      1.7015473474657483e-09
+    ],
+    [
+      -5.440092820663267e-14,
+      5.750023573876016e-16,
+      -8.507747839558988e-10
+    ],
+    [
+      5.573319583618286e-14,
+      -4.792430868554589e-16,
+      -8.507725635098495e-10
+    ]
+  ],
+  "dipole_au": [
+    -8.770761894538737e-15,
+    5.330569054053885e-15,
+    0.7760601522617359
+  ],
+  "gradient_path": "/workspace/research4/reports/pyscf_repair_20261111/jobs/water/grid5-optimize/steps/step-00004/gradient.npy",
+  "density_path": "/workspace/research4/reports/pyscf_repair_20261111/jobs/water/grid5-optimize/steps/step-00004/.local/density.npy",
+  "nuclear_gradient_rms": 6.946537962316273e-10,
+  "nuclear_gradient_max": 1.7015473474657483e-09,
+  "electronic_audit": {
+    "native_converged": true,
+    "fresh_energy_hartree": -76.27258264336857,
+    "native_energy_hartree": -76.27258264336857,
+    "fresh_energy_difference_hartree": 0.0,
+    "fresh_orbital_gradient_norm": 3.2528955028969726e-09,
+    "electron_count": 10.0,
+    "expected_electron_count": 10,
+    "electron_count_error": 0.0,
+    "qualified": true,
+    "quality_warnings": []
+  },
+  "quality_warnings": [],
+  "calls": [
+    {
+      "solver": "NATIVE_DIIS",
+      "native_converged": true,
+      "audit": {
+        "native_converged": true,
+        "fresh_energy_hartree": -76.27258264336874,
+        "native_energy_hartree": -76.27258264336872,
+        "fresh_energy_difference_hartree": -1.4210854715202004e-14,
+        "fresh_orbital_gradient_norm": 1.1526455977258853e-08,
+        "electron_count": 10.000000000000005,
+        "expected_electron_count": 10,
+        "electron_count_error": 5.329070518200751e-15,
+        "qualified": false,
+        "quality_warnings": [
+          "FRESH_ORBITAL_GRADIENT_TARGET_NOT_MET"
+        ]
+      },
+      "wall_seconds": 0.3579372639997018
+    },
+    {
+      "solver": "NEWTON_SEED",
+      "native_converged": false
+    },
+    {
+      "solver": "NEWTON_SEED_NATIVE_POLISH",
+      "native_converged": true,
+      "audit": {
+        "native_converged": true,
+        "fresh_energy_hartree": -76.27258264336857,
+        "native_energy_hartree": -76.27258264336857,
+        "fresh_energy_difference_hartree": 0.0,
+        "fresh_orbital_gradient_norm": 3.2528955028969726e-09,
+        "electron_count": 10.0,
+        "expected_electron_count": 10,
+        "electron_count_error": 0.0,
+        "qualified": true,
+        "quality_warnings": []
+      },
+      "wall_seconds": 8.45953093800017
+    }
+  ],
+  "wall_seconds": 8.99064741300026,
+  "cpu_seconds": 17.766308722,
+  "finished_at_utc": "2026-11-11T03:21:17.239466+00:00"
+}

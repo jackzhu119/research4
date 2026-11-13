@@ -1,0 +1,65 @@
+{
+  "schema": "research4-additional-resource-authorizations-v1",
+  "grants": [
+    {
+      "grant_id": "user-additional-90000-cpu-seconds-20261111",
+      "recorded_at_utc": "2026-11-11T13:28:36.250272+00:00",
+      "display_timezone": "Asia/Shanghai",
+      "original_request": "运行的怎么样，我追加90000cpu时权限",
+      "unit_clarification": "90,000 CPU秒（约25核小时）",
+      "additional_authorized_cpu_seconds": 90000,
+      "equivalent_core_hours": 25,
+      "scope": "Continue the existing PySCF frequency-repair calculations, including Calycosin and Spinosin.",
+      "authorization_is_additional": true,
+      "observed_worker_pid": 4663,
+      "observed_worker_cpu_seconds_at_recording": 76294.03,
+      "observed_supervisor_cpu_seconds_at_recording": 10.45,
+      "accounting_note": "These are observed process CPU counters at recording, not a reconstruction of all historical computation. Do not add overlapping per-point/phase ledgers. No cumulative historical authorization amount is inferred.",
+      "worker_restarted": false,
+      "frozen_scientific_inputs_modified": false,
+      "new_execution_cutoffs_added": false
+    },
+    {
+      "grant_id": "user-additional-990000-cpu-seconds-20261111",
+      "recorded_at_utc": "2026-11-11T14:35:46.019842+00:00",
+      "display_timezone": "Asia/Shanghai",
+      "original_request": "继续追加 99 万秒 cpu 时，确保连接上这个追加时间不要中断",
+      "additional_authorized_cpu_seconds": 990000,
+      "equivalent_core_hours": 275,
+      "scope": "Seamlessly continue the current PySCF repair queue, including Calycosin and Spinosin, from durable checkpoints.",
+      "authorization_is_additional": true,
+      "observed_instance": "6074c6977ca74316ae487c7d12e1a07a",
+      "observed_worker_pid": 4663,
+      "observed_worker_cpu_seconds_at_recording": 84421.3,
+      "observed_supervisor_pid": 4660,
+      "observed_supervisor_cpu_seconds_at_recording": 11.89,
+      "worker_restarted": false,
+      "frozen_scientific_inputs_modified": false,
+      "new_execution_cutoffs_added": false,
+      "continuity_note": "The existing supervisor has no CPU/wall-time/retry-count cutoff. Appending this authorization does not restart or modify the running scientific computation; no 90000-second stopping threshold needs resetting."
+    },
+    {
+      "grant_id": "user-additional-100000-cpu-hours-20261112-explicit-unit-confirmation",
+      "recorded_at_utc": "2026-11-12T23:42:53.722255+00:00",
+      "display_timezone": "Asia/Shanghai",
+      "original_request": "进展如何，补上授权 10 万 cpu 时继续运行",
+      "explicit_unit_confirmation": "100,000 CPU小时",
+      "additional_authorized_cpu_seconds": 360000000,
+      "equivalent_core_hours": 100000,
+      "authorization_is_additional": true,
+      "scope": "Continue the existing frozen PySCF frequency repair queue and checkpoint recovery; not a request to consume the whole allowance or expand task scope.",
+      "does_not_provision_platform_resources": true,
+      "previous_instance": "e65192f9e7244b758df662d3766db7c6",
+      "previous_worker_pid": 629,
+      "observed_worker_cpu_seconds_at_recording": null,
+      "cpu_accounting_note": "Prior process is absent after environment restoration; no final counter is invented or reset. Preserve previous grants and distinguish overlapping ledgers.",
+      "frozen_scientific_inputs_modified": false,
+      "new_execution_cutoffs_added": false
+    }
+  ],
+  "recorded_additional_authorization_summary": {
+    "additional_cpu_seconds": 361080000,
+    "equivalent_core_hours": 100300.0,
+    "scope": "Sum of explicit additional grants recorded in this file only; earlier historical authorizations are not inferred or replaced. This records user permission, not purchased/provisioned cloud CPU credits."
+  }
+}
