@@ -76,3 +76,10 @@ The user's current data decision, effective 2026-11-08, is recorded in
   Any new origin study must account for kind, group and batch confounding;
   sample-level validation is not a real cross-batch experiment. New-batch
   calibration still needs independently annotated support/query batches.
+
+
+## Current quantum queue assignment (2026-11-13)
+
+The user explicitly stopped Calycosin and requested return of its existing partial results, assigning the available compute to Spinosin. Do not automatically relaunch `background_pyscf_repair_20261111.py` or the old four-molecule serial queue: that would restart the stopped Calycosin task. Calycosin has 90/396 qualified displacement points, not a complete frequency spectrum; preserve the partial-data handoff and stop receipt. Resume Calycosin only on a new explicit user instruction.
+
+Spinosin is owned by branch `research/spinosin-direct-20261113`, worktree `/workspace/research4-spinosin`, and `scripts/background_pyscf_spinosin_direct_20261113.py --launch`. Its output is `reports/pyscf_spinosin_direct_20261113/`; use this dedicated supervisor after environment restoration. It uses the four-CPU allocation, with PySCF max_memory=10000 MB to leave operating-system and temporary-buffer headroom. Original frozen chemistry modules stay unchanged. Check actual process/heartbeat state rather than treating saved RUNNING metadata as proof of a live process. CPU authorizations are permissions, not purchased cloud credits or guarantees against platform suspension.
