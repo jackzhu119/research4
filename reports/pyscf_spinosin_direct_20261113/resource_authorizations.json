@@ -1,0 +1,91 @@
+{
+  "schema": "research4-spinosin-resource-authorizations-v1",
+  "grants": [
+    {
+      "grant_id": "user-additional-90000-cpu-seconds-20261111",
+      "recorded_at_utc": "2026-11-11T13:28:36.250272+00:00",
+      "display_timezone": "Asia/Shanghai",
+      "original_request": "运行的怎么样，我追加90000cpu时权限",
+      "unit_clarification": "90,000 CPU秒（约25核小时）",
+      "additional_authorized_cpu_seconds": 90000,
+      "equivalent_core_hours": 25,
+      "scope": "Continue the existing PySCF frequency-repair calculations, including Calycosin and Spinosin.",
+      "authorization_is_additional": true,
+      "observed_worker_pid": 4663,
+      "observed_worker_cpu_seconds_at_recording": 76294.03,
+      "observed_supervisor_cpu_seconds_at_recording": 10.45,
+      "accounting_note": "These are observed process CPU counters at recording, not a reconstruction of all historical computation. Do not add overlapping per-point/phase ledgers. No cumulative historical authorization amount is inferred.",
+      "worker_restarted": false,
+      "frozen_scientific_inputs_modified": false,
+      "new_execution_cutoffs_added": false
+    },
+    {
+      "grant_id": "user-additional-990000-cpu-seconds-20261111",
+      "recorded_at_utc": "2026-11-11T14:35:46.019842+00:00",
+      "display_timezone": "Asia/Shanghai",
+      "original_request": "继续追加 99 万秒 cpu 时，确保连接上这个追加时间不要中断",
+      "additional_authorized_cpu_seconds": 990000,
+      "equivalent_core_hours": 275,
+      "scope": "Seamlessly continue the current PySCF repair queue, including Calycosin and Spinosin, from durable checkpoints.",
+      "authorization_is_additional": true,
+      "observed_instance": "6074c6977ca74316ae487c7d12e1a07a",
+      "observed_worker_pid": 4663,
+      "observed_worker_cpu_seconds_at_recording": 84421.3,
+      "observed_supervisor_pid": 4660,
+      "observed_supervisor_cpu_seconds_at_recording": 11.89,
+      "worker_restarted": false,
+      "frozen_scientific_inputs_modified": false,
+      "new_execution_cutoffs_added": false,
+      "continuity_note": "The existing supervisor has no CPU/wall-time/retry-count cutoff. Appending this authorization does not restart or modify the running scientific computation; no 90000-second stopping threshold needs resetting."
+    },
+    {
+      "grant_id": "user-additional-100000-cpu-hours-20261112-explicit-unit-confirmation",
+      "recorded_at_utc": "2026-11-12T23:42:53.722255+00:00",
+      "display_timezone": "Asia/Shanghai",
+      "original_request": "进展如何，补上授权 10 万 cpu 时继续运行",
+      "explicit_unit_confirmation": "100,000 CPU小时",
+      "additional_authorized_cpu_seconds": 360000000,
+      "equivalent_core_hours": 100000,
+      "authorization_is_additional": true,
+      "scope": "Continue the existing frozen PySCF frequency repair queue and checkpoint recovery; not a request to consume the whole allowance or expand task scope.",
+      "does_not_provision_platform_resources": true,
+      "previous_instance": "e65192f9e7244b758df662d3766db7c6",
+      "previous_worker_pid": 629,
+      "observed_worker_cpu_seconds_at_recording": null,
+      "cpu_accounting_note": "Prior process is absent after environment restoration; no final counter is invented or reset. Preserve previous grants and distinguish overlapping ledgers.",
+      "frozen_scientific_inputs_modified": false,
+      "new_execution_cutoffs_added": false
+    },
+    {
+      "grant_id": "user-additional-900000-cpu-seconds-20261114T082841Z",
+      "recorded_at_utc": "2026-11-14T08:30:45.007168+00:00",
+      "display_timezone": "Asia/Shanghai",
+      "original_request": "进展如何，追加 90 万 cpu 秒授权",
+      "additional_authorized_cpu_seconds": 900000,
+      "equivalent_core_hours": 250,
+      "authorization_is_additional": true,
+      "scope": "Continue standalone Spinosin; Calycosin remains stopped by explicit user instruction.",
+      "instance": "cc1f9aa729fc430abaac172f31d9e356",
+      "observed_worker_pid": 606,
+      "observed_worker_cpu_seconds_at_recording": 110913.73,
+      "observed_supervisor_pid": 595,
+      "observed_supervisor_cpu_seconds_at_recording": 13.85,
+      "worker_restarted": false,
+      "frozen_scientific_inputs_modified": false,
+      "new_execution_cutoffs_added": false,
+      "does_not_provision_platform_resources": true
+    }
+  ],
+  "recorded_additional_authorization_summary": {
+    "additional_cpu_seconds": 361980000,
+    "equivalent_core_hours": 100550.0,
+    "scope": "Sum of unique explicit additional grant entries in this canonical ledger, including inherited entries exactly once. Not purchased cloud credits, remaining balance, or a reconstruction of total historical spending.",
+    "current_task": "Standalone Spinosin only; Calycosin remains stopped."
+  },
+  "canonical_for_standalone_spinosin": true,
+  "inherited_authorization_record": {
+    "source_path": "reports/pyscf_repair_20261111/resource_authorizations.json",
+    "source_sha256": "aa3f9cb77132deaca07da92065f66824ae5b325537c4872e00956c0bc193d6cd",
+    "note": "Earlier grant entries copied for continuity, not new grants. Do not sum this ledger with its legacy mirror."
+  }
+}
