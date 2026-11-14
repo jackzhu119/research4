@@ -1,0 +1,59 @@
+{
+  "schema": "research4-all-round-ml-verification-v1",
+  "status": "COMPLETE",
+  "all_requested_checks_passed": true,
+  "started_at_utc": "2026-11-12T01:45:10.158750+00:00",
+  "source_commits": [
+    "647f069c1ed4d56b098689571f43074b581a0cc0",
+    "b051733989161517a68c4a60cce75766880c95f5",
+    "2d5062d79d760682eaeaf61f02f56d78a02f29ce"
+  ],
+  "verification_scope": "B1-5 full sealed predictions and frozen roles; all 1305 legacy and 330 V4 saved predictions; portable paper bundle; initial meta-learning backup",
+  "components": {
+    "b1": {
+      "status": "COMPLETE",
+      "receipt": "reports/all_round_validation_20261112/ml/b1.json"
+    },
+    "b2": {
+      "status": "COMPLETE",
+      "receipt": "reports/all_round_validation_20261112/ml/b2.json"
+    },
+    "b3": {
+      "status": "COMPLETE",
+      "receipt": "reports/all_round_validation_20261112/ml/b3.json"
+    },
+    "b4": {
+      "status": "COMPLETE",
+      "receipt": "reports/all_round_validation_20261112/ml/b4.json"
+    },
+    "b5": {
+      "status": "COMPLETE",
+      "receipt": "reports/all_round_validation_20261112/ml/b5.json"
+    },
+    "paper_bundle": {
+      "status": "COMPLETE",
+      "receipt": "reports/all_round_validation_20261112/ml/paper_bundle.json"
+    },
+    "meta_backup": {
+      "status": "COMPLETE",
+      "receipt": "reports/all_round_validation_20261112/ml/meta_backup.json"
+    },
+    "species_all_predictions": {
+      "status": "COMPLETE",
+      "receipt": "reports/all_round_validation_20261112/ml/species_all_predictions.json"
+    }
+  },
+  "limitations": [
+    "All B comparisons remain exploratory internal TRAIN-only evidence on previously exposed specimens.",
+    "Real new-batch evaluation remains NOT_RUN_NEEDS_NEW_BATCH_DATA; CPU work cannot supply missing batches.",
+    "The portable paper bundle checks saved hashes, counts and confusion matrices, not every original model replay.",
+    "Raw saved-prediction replay validates prior metrics; it does not rerun all trained models or create independent evidence.",
+    "Continuous meta-learning is not a finished training round: only its initial 45-checkpoint backup is verified here.",
+    "No molecular IR calculation or chemical peak assignment is performed by this ML verifier."
+  ],
+  "paper_ready_certificate": false,
+  "new_batch_evaluation": "NOT_RUN_NEEDS_NEW_BATCH_DATA",
+  "no_model_fitted": true,
+  "finished_at_utc": "2026-11-12T01:54:36.958182+00:00",
+  "cpu_seconds": 453.43037000000004
+}
