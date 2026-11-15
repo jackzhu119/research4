@@ -2,7 +2,11 @@
 
 Tracing absorption information in terahertz discrimination of medicinal materials
 
-Ziyuan Zhu
+Ziyuan Zhu, Jiayi Ren, Shuyu Zhou, Mengting Zhu, Yin Shen*
+
+College of Artificial Intelligence Medicine, Chongqing Medical University, Chongqing, China
+
+*Corresponding author: Yin Shen; shenyin285819016@126.com
 
 This supplement provides the complete computational specification, specimen allocation, representation controls, fixed role classification and adaptation results, mechanism experiments, and qualified molecular reference calculations. Numerical classifier results use the corrected material categories and the current paper evidence manifest. The machine readable tables preserve all included positive and negative settings.
 
@@ -224,4 +228,4 @@ Source files are provided through the frozen paper manifest, including registry 
 
 Specimen level prediction replay, immutable source objects, current workbook hashes and role counts have been checked in the archived acceptance receipts. Rechecking saved predictions does not refit the original models. Classification validation remains internal to the represented collection, and the B analyses remain exploratory TRAIN only comparisons on previously exposed specimens. A genuinely new batch support/query experiment has not been run because independently annotated new batches are not available. The incomplete continuous meta learning work is not reported as a completed result.
 
-AI assistance used Codex for repository inspection, evidence aggregation and classification, manuscript language editing and checking, and code design and review. The supplementary evidence files identify the underlying measured data and archived numerical outputs. Scientific interpretation and final author approval remain the author's responsibility.
+AI assistance used Codex for repository inspection, evidence aggregation and classification, manuscript language editing and checking, and code design and review. The supplementary evidence files identify the underlying measured data and archived numerical outputs. The authors are responsible for the scientific interpretation. All authors reviewed and approved the manuscript, supplementary material and submission.

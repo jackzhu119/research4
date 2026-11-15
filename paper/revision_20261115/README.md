@@ -2,6 +2,8 @@
 
 本版本基于 `paper/current/manifest.json` 允许的纠正后分类结果，以及单独验收的原儿茶酸分子计算。上传旧稿中的错误混种结果、旧预测重标记分析和93族旧汇总不进入本版本。
 
+作者顺序与贡献已根据本次确认同步到正文、补充材料、标题页和投稿信：Ziyuan Zhu、Jiayi Ren、Shuyu Zhou、Mengting Zhu、Yin Shen；通讯作者为Yin Shen（shenyin285819016@126.com）。五位作者使用相同单位及工作地址，全部邮箱和声明保存在标题页与[作者信息记录](AUTHORSHIP.json)。全体作者已审阅并批准投稿，无利益冲突，无资金支持。
+
 ## 阅读顺序
 
 1. [英文正文](01_Manuscript_Optimized.docx)：吸收变量信息路径、特征预算和有效支持标签机制。

@@ -56,7 +56,7 @@ def setup(kind):
         d.styles[n].paragraph_format.space_after=Pt(6)
         d.styles[n].paragraph_format.keep_with_next=True
     d.styles['Caption'].font.size=Pt(10)
-    d.core_properties.author='Ziyuan Zhu';d.core_properties.title='Research4 revised manuscript'
+    d.core_properties.author='Ziyuan Zhu; Jiayi Ren; Shuyu Zhou; Mengting Zhu; Yin Shen';d.core_properties.title='Research4 revised manuscript'
     foot=s.footer.paragraphs[0];foot.alignment=WD_ALIGN_PARAGRAPH.CENTER
     r=text_run(foot,'',9);field=OxmlElement('w:fldSimple');field.set(qn('w:instr'),'PAGE');r._r.addnext(field)
     return d
@@ -182,7 +182,9 @@ def from_text(source,filename,kind):
         if line.startswith('# '):
             p=paragraph(d,line[2:],'Title');p.alignment=WD_ALIGN_PARAGRAPH.CENTER;continue
         if line.startswith('### '):paragraph(d,line[4:],'Heading 2');continue
-        if line.startswith('## '):paragraph(d,line[3:],'Heading 1');continue
+        if line.startswith('## '):
+            if kind=='main' and line=='## Tables':d.add_page_break()
+            paragraph(d,line[3:],'Heading 1');continue
         if line.startswith('Table S'):caption(d,line);continue
         if line.startswith('Figure S1.'):
             p=d.add_paragraph();p.alignment=WD_ALIGN_PARAGRAPH.CENTER
