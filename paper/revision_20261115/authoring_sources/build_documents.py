@@ -239,6 +239,76 @@ def from_text(source,filename,kind):
         for border in list(root.iter(qn('w:pBdr'))):border.getparent().remove(border)
     target=DELIVERY/filename;d.save(target);print(target)
 
+def bilingual_document():
+    from docx.text.paragraph import Paragraph
+    from docx.table import Table
+    translations=json.loads((OUT/'bilingual_translation.json').read_text())
+    # Source-form citation keys and the rendered AMA runs must resolve to the same translation.
+    for english,chinese in list(translations.items()):
+        rendered=re.sub(r'\[(\d+(?:[,–-]\d+)*)\]',lambda m:m.group(1).replace('–','\u2060–\u2060').replace('-','\u2060-\u2060').replace(',',',\u2060'),english)
+        translations.setdefault(rendered,chinese)
+    source=Document(DELIVERY/'01_Manuscript_Optimized.docx')
+    d=setup('bilingual');missing=[];picture=0;references=False;pending_caption=None;table_count=0;translated_paragraphs=0
+    image_names=['fig1_spectra_current.png','fig2_feature_budget.png','fig3_selected_modalities.png','fig4_adaptation_controls.png']
+    def translation(text):
+        if text in translations:return translations[text]
+        clean=text.replace('\u2060','')
+        if clean in translations:return translations[clean]
+        missing.append(text);return text
+    def chinese_paragraph(text,style=None):
+        p=paragraph(d,text,style)
+        p.paragraph_format.space_after=Pt(8);p.paragraph_format.line_spacing=1.15
+        for run in p.runs:
+            run.font.size=Pt(11.5 if style in ['Heading 1','Heading 2'] else 11)
+            run._element.get_or_add_rPr().rFonts.set(qn('w:eastAsia'),'Noto Serif CJK SC')
+        if style=='Title':p.alignment=WD_ALIGN_PARAGRAPH.CENTER
+        return p
+    for element in source.element.body:
+        if element.tag==qn('w:sectPr'):continue
+        if element.tag==qn('w:tbl'):
+            table_count+=1;original=Table(element,source)
+            d.element.body.insert(len(d.element.body)-1,copy.deepcopy(element))
+            if pending_caption:chinese_paragraph(pending_caption,'Caption');pending_caption=None
+            headers=[translation(c.text) for c in original.rows[0].cells]
+            rows=[]
+            for row in original.rows[1:]:
+                cells=[]
+                for c in row.cells:
+                    text=c.text
+                    cells.append(translation(text) if any(ch.isalpha() for ch in text) else text)
+                rows.append(cells)
+            widths=[c.width.inches if c.width else 1 for c in original.columns]
+            table(d,headers,rows,widths)
+            continue
+        p=Paragraph(element,source);text=p.text.strip()
+        if element.find('.//'+qn('w:drawing')) is not None:
+            q=d.add_paragraph();q.alignment=WD_ALIGN_PARAGRAPH.CENTER;q.paragraph_format.keep_with_next=True
+            q.add_run().add_picture(str(FIGURES/image_names[picture]),width=Inches(6.5));picture+=1
+            continue
+        if element.find('.//'+qn('m:oMath')) is not None:
+            d.element.body.insert(len(d.element.body)-1,copy.deepcopy(element));continue
+        if text=='References':references=True
+        if text=='Tables':references=False
+        cloned=copy.deepcopy(element);d.element.body.insert(len(d.element.body)-1,cloned)
+        if not text or (references and re.match(r'^\d+\. ',text)):continue
+        chinese=translation(text)
+        if chinese==text:continue
+        if re.match(r'^Table [IV]+\s',text):
+            pending_caption=chinese;continue
+        english=Paragraph(cloned,d)
+        english.paragraph_format.keep_with_next=True
+        st=p.style.name if p.style is not None else 'Normal'
+        style=st if st in ['Title','Heading 1','Heading 2','Heading 3','Caption'] else None
+        chinese_paragraph(chinese,style);translated_paragraphs+=1
+    assert picture==4 and table_count==4
+    if missing:raise ValueError('Missing bilingual translations: '+json.dumps(list(dict.fromkeys(missing)),ensure_ascii=False))
+    for root in [d.element,d.styles.element]:
+        for border in list(root.iter(qn('w:pBdr'))):border.getparent().remove(border)
+    d.core_properties.title='Manuscript English Chinese parallel review'
+    target=DELIVERY/'07_Manuscript_EN_ZH.docx';d.save(target)
+    (DELIVERY/'BILINGUAL_VERIFICATION.json').write_text(json.dumps({'status':'PASS','main_document_sha256':__import__('hashlib').sha256((DELIVERY/'01_Manuscript_Optimized.docx').read_bytes()).hexdigest(),'parallel_document_sha256':__import__('hashlib').sha256(target.read_bytes()).hexdigest(),'translated_prose_blocks':translated_paragraphs,'english_tables':table_count,'chinese_tables':table_count,'figures':picture,'untranslated_requested_strings':[],'references':'Original English bibliography retained','figure_labels':'Original English plot labels retained; captions translated'},ensure_ascii=False,indent=2)+'\n')
+    print(target)
+
 if __name__=='__main__':
     targets={
         'main':('manuscript_source.txt','01_Manuscript_Optimized.docx','main'),
@@ -246,9 +316,12 @@ if __name__=='__main__':
         'report':('revision_report_source.txt','03_论文优化与清理说明.docx','report'),
         'cover':('cover_source.txt','04_Cover_Letter.docx','cover'),
         'title':('title_source.txt','05_Title_Page.docx','title'),
-        'checklist':('submission_fields_source.txt','06_投稿前信息补齐表.docx','checklist')}
+        'guide':('submission_guide_source.txt','06_投稿文件说明.docx','guide'),
+        'declarations':('declarations_source.txt','08_Declarations.docx','declarations')}
     parser=argparse.ArgumentParser(description='Build all document deliverables or selected targets')
-    parser.add_argument('targets',nargs='*',choices=list(targets))
-    selected=parser.parse_args().targets or list(targets)
+    parser.add_argument('targets',nargs='*',choices=list(targets)+['bilingual'])
+    selected=parser.parse_args().targets or list(targets)+['bilingual']
     for key in selected:
-        src,filename,kind=targets[key];from_text(OUT/src,filename,kind)
+        if key=='bilingual':bilingual_document()
+        else:
+            src,filename,kind=targets[key];from_text(OUT/src,filename,kind)
