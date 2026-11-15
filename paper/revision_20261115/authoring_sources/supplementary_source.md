@@ -12,7 +12,7 @@ ORCID (Ziyuan Zhu): https://orcid.org/0009-0005-1153-4926
 
 ORCID (Yin Shen): https://orcid.org/0000-0002-3221-7875
 
-This supplement provides the complete computational specification, specimen allocation, representation controls, fixed role classification and adaptation results, mechanism experiments, and qualified molecular reference calculations. Numerical classifier results use the corrected material categories and the current paper evidence manifest. The machine readable tables preserve all included positive and negative settings.
+This supplement provides the complete computational specification, specimen allocation, representation controls, workbook held out material classification, fixed role source classification and adaptation results, mechanism experiments, and qualified molecular reference calculations. Numerical classifier results use the corrected material categories and the current paper evidence manifest. The machine readable tables preserve all included positive and negative settings.
 
 ## S1 Materials acquisition and specimen allocation
 
@@ -109,22 +109,24 @@ A separate reanalysis of the source-matched saved V4 predictions used 5000 speci
 
 The archived primary comparison includes a 500 draw physical specimen cluster bootstrap with seed 20261108. Each sampled identifier retains all three paired repeat predictions. For example, the LDA minus SNV α MC20 accuracy interval is −4.33 to 1.33 percentage points. These conditional exploratory intervals characterize the archived fits and specimen population. They are separate from any later fixed budget bootstrap calculation and do not incorporate independently sampled batch variation or a complete model refitting bootstrap.
 
-## S5 Fixed role tasks calibration and complete refitting
+## S5 Workbook held out material classification and fixed role source tasks
 
 Table S4. Task definitions and denominators.
 
-|Task|Classes|TRAIN|CAL|PRED|Correct PRED with common fixed SVM|
+|Task and validation|Classes|Training n per fit|Separate CAL|Evaluated n|Correct|
 |---|---|---|---|---|---|
-|Zaoren versus Suanzaoren|2|516|174|174|174/174|
-|Four materials|4|999|334|339|331/339|
+|Zaoren versus Suanzaoren, LOWO (10 folds)|2|514–861|0|864|854/864|
+|Four materials, LOWO (18 folds)|4|1322–1669|0|1672|1097/1672|
 |Suanzaoren source groups|5|300|100|100|85/100|
 |Zaoren source groups|5|216|74|74|72/74|
 |Huangqi source groups|4|241|80|82|69/82|
 |Tianma source groups|4|242|80|83|81/83|
 
-The common fixed baseline uses all 612 absorption coordinates, row SNV, TRAIN fitted StandardScaler and a class balanced RBF SVM with C = 10, gamma = scale and seed 42. It performs no variable selection or task specific hyperparameter search and excludes CAL. Other eligible source configurations in the binary and Suanzaoren tasks use TRAIN only twofold selection; the remaining source tasks use prespecified fixed parameters where tiny groups preclude stratified tuning. Task populations overlap and their scores are not consecutive improvements on one benchmark.
+The common fixed baseline uses all 612 absorption coordinates, row SNV and a class balanced RBF SVM with C = 10, gamma = scale and seed 42. Material discrimination uses 10-fold binary and 18-fold four-material LOWO validation. Every fold reserves all records of one workbook for evaluation and uses all remaining eligible workbooks for fitting, with a fresh StandardScaler fitted only on those training records. All historical TRAIN/CAL/PRED records enter this protocol; zero in the separate CAL column indicates that no distinct calibration partition is used. Settings are fixed and no model selection is performed. Metrics are computed from one out-of-workbook prediction per specimen. Every held-out workbook contains one material category, so its accuracy is that category’s recall; fold-wise macro-F1 is not averaged. Source-group tasks retain their original TRAIN/PRED evaluation and unused CAL allocation. The archived fixed-role comparisons remain in the supplementary tables; their task-specific selection and tiny-group fixed-setting rules are unchanged.
 
-The four material result has macro F1 0.9751 and balanced accuracy 97.50%. Zaoren source accuracy is 97.30%, macro F1 is 0.5972 and balanced accuracy is 60.00%. The largest source contributes 70 of its 74 PRED specimens, and a majority reference obtains 70/74 correct. The three additional Zaoren groups each have one specimen in each frozen role. Full source class recalls and confusion counts are retained in the attached tables.
+The binary LOWO result is 854/864 correct, accuracy 98.8426%, macro-F1 0.988086 and balanced accuracy 98.6264%; all 10 errors occur in the Yan’an Zaoren workbook (340/350 correct). Four-material LOWO gives 1097/1672 correct, accuracy 65.6100%, macro-F1 0.614330 and balanced accuracy 63.1291%. Recalls are 166/364 for Zaoren, 498/500 for Suanzaoren, 325/403 for Huangqi and 108/405 for Tianma. Equal-weight workbook mean accuracies are 99.7143% and 72.4189% for the binary and four-material tasks. The four-material Tianma workbooks have 0/100, 87/102, 16/103 and 5/100 correct predictions. The Zaoren workbook sizes are 350, 5, 3, 3 and 3; holding out the largest leaves only 14 Zaoren training specimens. Thus workbook counts alone do not imply balanced source coverage. Supplementary_LOWO.xlsx preserves all fold results, per-specimen predictions and confusion counts.
+
+Zaoren source accuracy under the frozen-role protocol remains 97.30%, macro-F1 0.5972 and balanced accuracy 60.00%. The largest source contributes 70 of its 74 PRED specimens, and a majority reference obtains 70/74 correct. The three additional Zaoren groups each have one specimen in each frozen role. Full source class recalls and confusion counts are retained in the attached tables.
 
 Frozen score adaptation and complete CAL refitting answer separate questions. Two prespecified score adapters use regularization 1, or regularization 1000 with blend 0.05. Support budgets are one, three, five and ten specimens per class with 20 support draws where feasible. Source SVC.predict voting is compared with its own source control. Score argmax adaptation uses a separate zero support argmax control with fixed score column order; changes between SVC voting and score argmax are not treated as learned adaptation. Complete refitting uses locked source hyperparameters and fits every transformation, selector and classifier anew on TRAIN plus CAL.
 
@@ -220,7 +222,7 @@ Figure S1. Qualified isolated molecule IR predictions for protocatechuic acid at
 
 ## S9 Reproducibility and evidence files
 
-Corrected comparisons comprise the original 1305 tasks (225 classical and 1080 neural) and 330 V4 tasks (15 classical and 315 neural), totalling 1635. B1–B5 add 1380 task bundles. These counts describe computational comparisons on overlapping specimens. Backups and continuations are counted once; historical filenames do not change the corrected label definitions. Complete settings and provenance are supplied in the protocol register.
+Corrected comparisons comprise the original 1305 tasks (225 classical and 1080 neural) and 330 V4 tasks (15 classical and 315 neural), totalling 1635. B1–B5 add 1380 task bundles. Material LOWO adds 28 separate fixed-pipeline fits (Supplementary_LOWO.xlsx). These counts describe computational comparisons on overlapping specimens. Backups and continuations are counted once; historical filenames do not change the corrected label definitions. Complete settings and provenance are supplied in the protocol register.
 
 The frozen evidence manifest supplies specimen roles, feature audits, settings, predictions, paired effects, confusion counts and B-round summaries. The V4 source is commit b051733989161517a68c4a60cce75766880c95f5; the common fixed-role classification source is commit 0156e2189d13456d1faf05ebfd53d86eeeb4f5e7. Acquisition conditions follow the investigator declaration of 12 November 2026. Molecular qualification is verified separately.
 

@@ -92,6 +92,7 @@ metadata = {
     'word_count_scope': 'Word paragraphs and tables including references and captions; excludes equation objects and figure text',
     'main_figures': 5, 'main_tables': 4, 'supplementary_figures': 1,
     'references': 28,
+    'material_discrimination_validation': 'Leave-one-workbook-out: binary10 folds/864 specimens; four materials18 folds/1672 specimens',
     'competing_interests': 'None declared', 'funding': 'No financial support',
     'all_authors_approve_and_accept_responsibility': True,
     'first_and_corresponding_author_orcids_confirmed': True,
@@ -167,7 +168,9 @@ save_json(BASE / 'DELIVERY_VERIFICATION.json', {
     'ai_disclosure_manuscript_revision_wording_verified': True,
     'embedded_final_figure_hashes_match': True,
     'english_chinese_table_numeric_values_match': True,
-    'classifier_training_performed': False, 'quantum_calculations_started': False,
+    'classifier_training_performed': True, 'quantum_calculations_started': False,
+    'classifier_training_scope': 'Only the two material-discrimination LOWO tasks:28 fixed-pipeline fits. All source-group, representation and mechanism results are preserved.',
+    'kind_lowo_verification': 'KIND_LOWO_VERIFICATION.json',
     'evidence_entry': 'paper/current/manifest.json', 'authorship_confirmation': 'AUTHORSHIP.json',
     'all_authors_approve_and_accept_responsibility': True,
     'prior_parameter_completion_workflow_retired': True,
@@ -187,7 +190,8 @@ def deliverable_files(directory):
 manifest = {
     'schema': 'research4-final-submission-delivery-v2', 'date': '2026-11-15',
     'classifier_source_manifest_sha256': digest(ROOT / 'paper/current/manifest.json'),
-    'no_new_model_fits': True, 'no_withdrawn_classifier_outputs': True,
+    'no_new_model_fits': False, 'no_withdrawn_classifier_outputs': True,
+    'new_model_fit_scope': 'Only material-discrimination LOWO:10 binary and18 four-material folds; no model search.',
     'files': [{'path': str(p.relative_to(BASE)), 'bytes': p.stat().st_size, 'sha256': digest(p)}
               for p in deliverable_files(BASE) if p != BASE / 'FILE_MANIFEST.json']
 }
@@ -205,6 +209,7 @@ with TemporaryDirectory(prefix='research4-final-') as scratch:
         '02_Supplementary_Information.docx': submit / '04_Supplementary_Information.docx',
         '08_Declarations.docx': submit / '05_Declarations.docx',
         'Supplementary_Tables.xlsx': submit / 'Supplementary_Tables.xlsx',
+        'Supplementary_LOWO.xlsx': submit / 'Supplementary_LOWO.xlsx',
         'Supplementary_Data_S1.zip': evidence / 'Supplementary_Data_S1.zip',
         'SUBMISSION_METADATA.json': submit / 'SUBMISSION_METADATA.json',
         '07_Manuscript_EN_ZH.docx': author_review / '01_Manuscript_EN_ZH.docx',

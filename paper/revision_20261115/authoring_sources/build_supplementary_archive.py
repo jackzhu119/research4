@@ -28,6 +28,9 @@ with tempfile.TemporaryDirectory() as scratch:
         rel=str(path.relative_to(CURRENT));copy(path,Path('protocols')/path.name,rel)
     for i in range(1,6):
         rel=f'results/B{i}/results_summary.json';copy(CURRENT/rel,Path('mechanism_summaries')/f'B{i}.json',rel)
+    for item in source_manifest['files']:
+        if item['path'].startswith('results/kind_lowo_20261115/'):
+            copy(CURRENT/item['path'],Path('kind_lowo')/Path(item['path']).relative_to('results/kind_lowo_20261115'),item['path'])
     derived=EVIDENCE/'derived_checks'
     for path in sorted(derived.glob('*')):
         if path.is_file() and path.suffix in ['.csv','.gz','.json'] and not path.name.startswith('withdrawn_'):
@@ -40,7 +43,7 @@ with tempfile.TemporaryDirectory() as scratch:
             if path.is_file():copy(path,Path('accepted_molecular')/folder/path.relative_to(molecular/folder))
     for name in ['molecular_table_verification.json','verify_molecular_tables.py']:
         copy(molecular/name,Path('accepted_molecular')/name)
-    receipt={'schema':'research4-submission-data-v1','classifier_manifest_sha256':hashlib.sha256((CURRENT/'manifest.json').read_bytes()).hexdigest(),'canonical_raw_spectra':'https://github.com/jackzhu119/research4/tree/main/data','experimental_data_provider':'Yin Shen','first_author_orcid':'https://orcid.org/0009-0005-1153-4926','corresponding_orcid':'https://orcid.org/0000-0002-3221-7875','author_orcids':{'Ziyuan Zhu':'https://orcid.org/0009-0005-1153-4926','Yin Shen':'https://orcid.org/0000-0002-3221-7875'},'dataset_use':'Shared research resource also used in other supervised studies; no exclusive-use claim','new_model_training':False,'files':records}
+    receipt={'schema':'research4-submission-data-v1','classifier_manifest_sha256':hashlib.sha256((CURRENT/'manifest.json').read_bytes()).hexdigest(),'canonical_raw_spectra':'https://github.com/jackzhu119/research4/tree/main/data','experimental_data_provider':'Yin Shen','first_author_orcid':'https://orcid.org/0009-0005-1153-4926','corresponding_orcid':'https://orcid.org/0000-0002-3221-7875','author_orcids':{'Ziyuan Zhu':'https://orcid.org/0009-0005-1153-4926','Yin Shen':'https://orcid.org/0000-0002-3221-7875'},'dataset_use':'Shared research resource also used in other supervised studies; no exclusive-use claim','new_model_training':True,'new_model_fit_scope':'Only material LOWO:10 binary and18 four-material fixed-pipeline fits','files':records}
     (stage/'SOURCE_MANIFEST.json').write_text(json.dumps(receipt,ensure_ascii=False,indent=2)+'\n')
     (stage/'README.txt').write_text('Supplementary Data S1\n\n'
       'Manuscript: Terahertz fingerprints and machine learning for complementary discrimination of medicinal materials\n'
@@ -53,8 +56,9 @@ with tempfile.TemporaryDirectory() as scratch:
       'specimen_inputs: recorded labels, frozen roles, workbook registry and nominal header thickness annotations.\n'
       'protocols and mechanism_summaries: the locked analysis definitions and mechanism endpoints.\n'
       'derived_checks and verified_v4_sources: archived predictions/features and the feature-budget reanalysis.\n'
+      'kind_lowo: the fixed-pipeline workbook-held-out material protocol, complete grouped partitions and out-of-workbook predictions.\n'
       'accepted_molecular: the two qualified protocatechuic-acid mode and infrared calculations and numerical checks.\n\n'
-      'The 18 original spectral workbooks are available from the repository data registry and are not duplicated in this archive. Four workbook views describe the same specimens. Task counts and repeated predictions do not increase physical specimen counts. No new classifier training or quantum calculations were run during manuscript preparation.\n\n'
+      'The 18 original spectral workbooks are available from the repository data registry and are not duplicated in this archive. Four workbook views describe the same specimens. Task counts and repeated predictions do not increase physical specimen counts. Only the material-discrimination LOWO analysis adds classifier fits (10 binary and18 four-material folds); all source-group, representation and mechanism results remain archived, and no new quantum calculations were run.\n\n'
       'Canonical repository: https://github.com/jackzhu119/research4\n'
       'SOURCE_MANIFEST.json identifies copied data by SHA-256 and records the source paths.\n')
     target=BASE/'Supplementary_Data_S1.zip'

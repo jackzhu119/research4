@@ -3,7 +3,8 @@
 
 Sources are immutable, allowlisted Git objects already present locally. This
 script performs no network access, training, model selection or scientific fit.
-Large predictions/models remain at their pinned source commits.
+Large predictions/models remain at their pinned source commits; the compact
+kind-only workbook-held-out predictions are explicitly included for audit.
 """
 
 import argparse
@@ -32,6 +33,20 @@ VERIFIED = "516de760b3bf72143269f76c904cc35df7b69f76"
 FIXED = "data/research/species_revision_20261108"
 BUNDLE = "reports/paper-evidence-20261109"
 V4 = "data/research/evidence_validation_20261108_v4"
+LOWO = "627a0975bdc61ef7cd95742265c3b500c879deae"
+LOWO_SOURCE = "reports/kind_lowo_20261115"
+LOWO_VIEW = "results/kind_lowo_20261115"
+LOWO_TASKS = {
+    "four_kinds": (1672, 18, ("枣仁", "酸枣仁", "黄芪", "天麻")),
+    "binary_kinds": (864, 10, ("枣仁", "酸枣仁")),
+}
+LOWO_FILES = (
+    "protocol.json", "summary.json", "dataset_audit.json", "verification.json",
+    "independent_audit.json", "planned_folds.json", "record_index.csv", "feature_axis.csv",
+) + tuple(task + "/" + name for task in LOWO_TASKS for name in (
+    "summary.json", "oof_predictions.csv", "fold_metrics.csv", "kind_recall.csv",
+    "pooled_confusion.csv", "pooled_confusion_normalized.csv", "fold_splits.json",
+))
 B_ROUNDS = [
     ("B1", "76966534df314e5bcb108a1fdccd611d1ad52910", "b_mechanism_20261110", 105),
     ("B2", "ad21deecbb53371f9b4547646a2aa985d8f617fb", "b_mechanism_followup_20261110", 345),
@@ -113,6 +128,7 @@ def allowed_fixed_sources():
             sources.add((sha, "reports/" + directory + "/" + name))
     for name in ("summary.json", "species_all_predictions.json"):
         sources.add((VERIFIED, "reports/all_round_validation_20261112/ml/" + name))
+    sources.update((LOWO, LOWO_SOURCE + "/" + name) for name in LOWO_FILES)
     return sources
 
 
@@ -224,6 +240,8 @@ def build():
     for name in ("summary.json", "species_all_predictions.json"):
         add("acceptance/all_round_" + name, VERIFIED,
             "reports/all_round_validation_20261112/ml/" + name)
+    for name in LOWO_FILES:
+        add(LOWO_VIEW + "/" + name, LOWO, LOWO_SOURCE + "/" + name)
 
     overview = {
         "schema": "research4-corrected-paper-view-v1",
@@ -245,6 +263,17 @@ def build():
         "acquisition_declaration": DECLARATION,
         "paper_methods": "methods/MATERIALS_AND_METHODS_ZH.md",
         "workbook_and_record_splits": "methods/data_splits.xlsx",
+        "kind_discrimination_evaluation": {
+            "protocol": "leave-one-workbook-out",
+            "source_commit": LOWO, "result_directory": LOWO_VIEW,
+            "tasks": {task: {"records": records, "folds": folds}
+                      for task, (records, folds, _) in LOWO_TASKS.items()},
+            "scope": "Only binary-kind and four-kind discrimination use this workbook-held-out protocol; existing origin, representation, transfer and support analyses retain their own protocols and bytes.",
+            "interpretation": "Retrospective validation within the existing collection, not prospective independent procurement or acquisition-batch validation.",
+            "independent_verification_command": "python scripts/verify_kind_lowo_20261115.py",
+            "arrays_retained_at_source": [LOWO_SOURCE + "/features.npz"] + [
+                LOWO_SOURCE + "/" + task + "/fit_parameters.npz" for task in LOWO_TASKS],
+        },
     }
     generated = {
         "overview.json": encoded(overview),
@@ -276,6 +305,123 @@ def build():
     }
     current_path("manifest.json").write_bytes(encoded(manifest))
     return verify(methods)
+
+
+def verify_kind_lowo(manifest, frozen_rows):
+    """Check pinned copies and saved out-of-workbook coverage without fitting."""
+    rows = {row["path"]: row for row in manifest["files"]}
+    for name in LOWO_FILES:
+        row = rows.get(LOWO_VIEW + "/" + name, {})
+        if (row.get("source_commit"), row.get("source_path"), row.get("transformation")) != (
+            LOWO, LOWO_SOURCE + "/" + name, "byte_copy"
+        ):
+            raise ValueError("Missing or redirected LOWO source: " + name)
+
+    def read_json(name):
+        return json.loads(current_path(LOWO_VIEW + "/" + name).read_text())
+
+    def read_csv(name):
+        return csv_rows(current_path(LOWO_VIEW + "/" + name).read_bytes())
+
+    protocol = read_json("protocol.json")
+    summary = read_json("summary.json")
+    audit = read_json("dataset_audit.json")
+    receipt = read_json("verification.json")
+    independent = read_json("independent_audit.json")
+    if (receipt["status"], independent["status"]) != ("PASS", "PASS"):
+        raise ValueError("LOWO source acceptance is incomplete")
+    if (protocol["protocol_id"] != summary["protocol_id"]
+        or protocol["dataset_version"] != "2026-11-08-confirmed-origin-kind-v1"
+        or protocol["hyperparameter_search"] is not False
+        or set(protocol["tasks"]) != set(LOWO_TASKS)
+        or set(summary["tasks"]) != set(LOWO_TASKS)
+        or not all(summary[key] is True for key in (
+            "all_positive_and_negative_outcomes_retained", "no_model_selection_under_lowo",
+            "no_original_role_reassignments"))):
+        raise ValueError("LOWO protocol or scope differs")
+    if (audit["records"], audit["workbooks"]) != (1672, 18) or not (
+        audit["dataset_sha256"] == summary["dataset_sha256"] == receipt["dataset_sha256"]
+    ):
+        raise ValueError("LOWO dataset identity or count differs")
+    # README/manifest hashes describe the original pre-extension context. Keep
+    # those source receipts unchanged; only frozen analysis inputs match today.
+    for path, sha in protocol["input_sha256"].items():
+        if path.startswith("paper/current/inputs/") or path == "paper/current/protocols/fixed_classification.json":
+            if digest((ROOT / path).read_bytes()) != sha:
+                raise ValueError("LOWO frozen input differs: " + path)
+    records = read_csv("record_index.csv")
+    by_id = {row["record_id"]: row for row in records}
+    frozen = {row["record_id"]: row for row in frozen_rows}
+    if len(records) != 1672 or len(by_id) != 1672 or set(by_id) != set(frozen):
+        raise ValueError("LOWO specimen index differs")
+    for record_id, row in by_id.items():
+        if any(row[key] != frozen[record_id][key] for key in (
+            "physical_sample_id", "source_workbook", "species", "origin_group_id", "dataset_version"
+        )) or row["historical_role"] != frozen[record_id]["role"]:
+            raise ValueError("LOWO corrected label, workbook or frozen role differs: " + record_id)
+    if len(read_csv("feature_axis.csv")) != 612:
+        raise ValueError("LOWO requires 612 original absorption coordinates")
+    plans = read_json("planned_folds.json")
+    if set(plans) != set(LOWO_TASKS):
+        raise ValueError("LOWO fold plans have unexpected tasks")
+    checked = {}
+    for task, (n_records, n_folds, labels) in LOWO_TASKS.items():
+        task_result = read_json(task + "/summary.json")
+        predictions = read_csv(task + "/oof_predictions.csv")
+        splits = read_json(task + "/fold_splits.json")
+        fold_metrics = read_csv(task + "/fold_metrics.csv")
+        eligible = {key for key, row in by_id.items() if row["species"] in labels}
+        workbooks = {by_id[key]["source_workbook"] for key in eligible}
+        if (len(eligible), len(workbooks), len(splits), len(fold_metrics), len(plans[task])) != (
+            n_records, n_folds, n_folds, n_folds, n_folds
+        ) or task_result != summary["tasks"][task]:
+            raise ValueError("LOWO task counts or summaries differ: " + task)
+        if (task_result["n_folds"], task_result["n_workbooks"], task_result["metrics"]["n_records"]) != (
+            n_folds, n_folds, n_records
+        ) or task_result["all_records_tested_exactly_once"] is not True:
+            raise ValueError("LOWO task coverage declaration differs: " + task)
+        if Counter(row["record_id"] for row in predictions) != Counter({key: 1 for key in eligible}):
+            raise ValueError("LOWO requires exactly one out-of-workbook prediction per ID: " + task)
+        plans_by_id = {row["fold_id"]: row for row in plans[task]}
+        metrics_by_id = {row["fold_id"]: row for row in fold_metrics}
+        if len(plans_by_id) != n_folds or len(metrics_by_id) != n_folds or len({row["fold_id"] for row in splits}) != n_folds:
+            raise ValueError("LOWO repeated fold identifier: " + task)
+        heldout = []
+        for fold in splits:
+            fold_id = fold["fold_id"]
+            workbook = fold["heldout_workbook"]
+            heldout.append(workbook)
+            test_ids = {key for key in eligible if by_id[key]["source_workbook"] == workbook}
+            train_ids = eligible - test_ids
+            predicted_ids = {row["record_id"] for row in predictions if row["fold_id"] == fold_id}
+            if (not test_ids or set(fold["test_record_ids"]) != test_ids
+                or set(fold["train_record_ids"]) != train_ids or predicted_ids != test_ids
+                or set(plans_by_id[fold_id]["test_record_ids"]) != test_ids
+                or plans_by_id[fold_id]["heldout_workbook"] != workbook
+                or set(fold["test_workbooks"]) != {workbook}
+                or set(fold["train_workbooks"]) != workbooks - {workbook}
+                or {by_id[key]["species"] for key in train_ids} != set(labels)
+                or int(metrics_by_id[fold_id]["n_test"]) != len(test_ids)
+                or int(metrics_by_id[fold_id]["n_train"]) != len(train_ids)):
+                raise ValueError("LOWO complete-workbook partition differs: " + fold_id)
+        if Counter(heldout) != Counter({workbook: 1 for workbook in workbooks}):
+            raise ValueError("LOWO must hold out each workbook exactly once: " + task)
+        for row in predictions:
+            if (row["task"] != task or row["true_kind"] != by_id[row["record_id"]]["species"]
+                or row["source_workbook"] != by_id[row["record_id"]]["source_workbook"]
+                or row["predicted_kind"] not in labels
+                or int(row["correct"]) != int(row["true_kind"] == row["predicted_kind"])):
+                raise ValueError("LOWO prediction identity or label differs: " + task)
+        counts = Counter((row["true_kind"], row["predicted_kind"]) for row in predictions)
+        metrics = task_result["metrics"]
+        correct = sum(counts[label, label] for label in labels)
+        if (metrics["class_order"] != list(labels) or metrics["n_correct"] != correct
+            or metrics["confusion_counts"] != [[counts[a, b] for b in labels] for a in labels]
+            or abs(metrics["accuracy"] - correct / n_records) > 1e-12):
+            raise ValueError("LOWO pooled saved metrics differ from predictions: " + task)
+        checked[task] = {"folds": n_folds, "records": n_records, "each_record_tested_once": True}
+    return {"source_commit": LOWO, "copied_files": len(LOWO_FILES), "tasks": checked,
+            "new_model_fits_by_verifier": 0}
 
 
 def verify(expected_methods=None):
@@ -371,6 +517,7 @@ def verify(expected_methods=None):
             raise ValueError("Incomplete B mechanism round")
         if result["e05_status"] != "NOT_RUN_NEEDS_NEW_BATCH_DATA":
             raise ValueError("New-batch scope unexpectedly changed")
+    lowo_check = verify_kind_lowo(manifest, frame)
     result = {"schema": "research4-current-paper-verification-v1", "status": "PASS",
               "checked_at_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
               "manifest_sha256": digest(current_path("manifest.json").read_bytes()),
@@ -379,6 +526,7 @@ def verify(expected_methods=None):
               "methods_artifacts": len(method_paths), "methods_roles_recomputed_from_frozen_ids": True,
               "acquisition_declaration_date": "2026-11-12", "polyethylene_reference_correction_user_confirmed": True,
               "corrected_jobs": 1635, "b_unique_task_bundles": 1380,
+              "kind_workbook_heldout_validation": lowo_check,
               "no_new_fit": True,
               "scope": "Current-view bytes, immutable Git source objects, active workbook hashes and corrected labels/counts; not a rerun of all original models or external validation."}
     current_path("verification.json").write_bytes(encoded(result))
@@ -395,6 +543,7 @@ README = """# 当前论文结果入口：种类与产地修正后
 |---|---|
 |[材料、仪器、公式与划分写作稿](methods/MATERIALS_AND_METHODS_ZH.md)／[Excel明细](methods/data_splits.xlsx)|四药材统一测量条件；按18份有效Excel与逐ID冻结角色统计，另保留实际列头标称厚度|
 |[任务范围](tables/task_scope.csv)／[六项固定留出](tables/fixed_classification.csv)|枣仁/酸枣仁二分类、四种类分类，以及酸枣仁、枣仁、黄芪、天麻各自的来源分类；训练/校准/预测数量分别登记|
+|[种类判别按工作簿留一验证](results/kind_lowo_20261115/summary.json)／[固定协议](results/kind_lowo_20261115/protocol.json)|仅二种类与四种类主判别采用LOWO：10折864份、18折1672份；包含每工作簿指标、每ID折外预测、完整划分和独立核验回执；其余任务保留原协议与结果|
 |[固定留出迁移](tables/fixed_transfer_paired.csv)|三种子目标单训、额外目标预训、黄芪/天麻跨种类预训；负迁移保留|
 |[主模型表](tables/all_final_model_settings.csv)|修正后原1305矩阵与新增V4 330项的已保存摘要；不同划分/预算分开解释|
 |[协议目录](tables/corrected_protocol_register.csv)|仅修正后主线57项；display_id中的C1305对应原来源的OLD命名|
@@ -407,6 +556,7 @@ README = """# 当前论文结果入口：种类与产地修正后
 ## 任务边界
 
 - 纯酸枣仁来源只包含ZY03—ZY07；纯枣仁来源包含ZY01、ZY02、ZR01—ZR03，种类标签分开。
+- 种类判别LOWO按完整工作簿逐一留出，每份样品恰有一次折外预测；原TRAIN/CAL/PRED仍作为来源记录保留，不改写冻结角色。原固定留出种类结果保留供溯源，不能替代LOWO的主种类指标；来源判别、特征预算、迁移与支持集分析不改用LOWO。该评价仍基于既有集合，不能视为新采购、采集日期、仪器或真实独立新批次的前瞻验证。
 - 枣仁新增三个来源各只有3份实物，每个角色1份；相关比率是小样本描述，不应与酸枣仁五来源300TRAIN三次五折成绩直接排名。
 - `legacy_TRAIN_*`、`OLD-*`及`P-CV-OLD`出现在来源表中时，指修正种类后的原1305矩阵，不是修正前旧855混种结果；算法名`legacy_lambda1`也不是数据版本。
 - 原1305最终轻量摘要仅汇总源模型预测，不覆盖全部校准明细；完整预测和校准输出保留于固定的纠正来源Git归档。本目录不复制大型预测包或模型权重，保留其已完成复核的来源链。
@@ -415,6 +565,8 @@ README = """# 当前论文结果入口：种类与产地修正后
 - `acceptance/`里的回执描述原固定提交的核验范围；新生成的`verification.json`只认证本目录文件、标签、计数与来源，不能当作全部模型重训或外部新批次认证。
 
 维护命令：`python scripts/build_current_paper_results.py --build` 按固定白名单生成；`python scripts/build_current_paper_results.py --verify` 校验本地文件、固定Git原件与18份有效原谱。两者均不联网、不训练模型。
+
+LOWO独立只读复核：`python scripts/verify_kind_lowo_20261115.py`。所复制回执中的README/manifest输入哈希对应原计算时的历史上下文，不能改写成扩展后当前包的哈希；特征矩阵和两任务拟合参数NPZ保留在固定来源提交，当前只复制22份必要协议、摘要、预测、划分和核验文件。
 
 仪器和采购信息来自[本轮用户声明](../../data/annotations/acquisition_conditions_user_declaration_20261112.json)。新增方法表读取原Excel实际列头和冻结角色，Excel依赖版本见[requirements-paper-methods.txt](../../scripts/requirements-paper-methods.txt)；原始光谱与冻结分配保持不变。
 """

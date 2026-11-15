@@ -176,12 +176,18 @@ def main_table(d,key):
         caption(d,'Table II  Absorption classification of materials and source groups')
         x=pd.read_csv(ROOT/'paper/current/tables/fixed_classification.csv');x=x[(x.model=='full_svm')&(x.method=='source_only')].set_index('task')
         names={'binary_kinds':'Suanzaoren vs Zaoren','four_kinds':'Four materials','acid_origins':'Suanzaoren sources','jujube_origins':'Zaoren sources','huangqi_origins':'Huangqi sources','tianma_origins':'Tianma sources'}
+        lowo=json.loads((ROOT/'paper/current/results/kind_lowo_20261115/summary.json').read_text())['tasks']
         cls={'binary_kinds':2,'four_kinds':4,'acid_origins':5,'jujube_origins':5,'huangqi_origins':4,'tianma_origins':4}
         rows=[]
         for k,name in names.items():
-            z=x.loc[k];n=int(z.prediction_count);rows.append([name,cls[k],f'{round(z.accuracy_mean*n)}/{n}',f'{100*z.accuracy_mean:.2f}',f'{z.macro_f1_mean:.4f}',f'{100*z.balanced_accuracy_mean:.2f}'])
-        table(d,['Task','Classes','Correct / PRED','Accuracy %','Macro F1','Balanced accuracy %'],rows,[2.0,.55,.95,.95,.85,1.2])
-        note(d,'All rows use 612 α coordinates, SNV, TRAIN-fitted scaling, balanced RBF SVM, C=10 and gamma=scale; CAL is unused. Tasks overlap in specimens. TRAIN-majority accuracies are 57.47%, 29.50%, 20.00%, 94.59%, 26.83% and 25.30% in row order.')
+            if k in lowo:
+                result=lowo[k];z=result['metrics'];n=z['n_records']
+                rows.append([name,cls[k],f"LOWO ({result['n_folds']} folds)",f"{z['n_correct']}/{n}",f"{100*z['accuracy']:.2f}",f"{z['macro_f1']:.4f}",f"{100*z['balanced_accuracy']:.2f}"])
+            else:
+                z=x.loc[k];n=int(z.prediction_count)
+                rows.append([name,cls[k],'Fixed roles',f'{round(z.accuracy_mean*n)}/{n}',f'{100*z.accuracy_mean:.2f}',f'{z.macro_f1_mean:.4f}',f'{100*z.balanced_accuracy_mean:.2f}'])
+        table(d,['Task','Classes','Validation','Correct / evaluated','Accuracy %','Macro F1','Balanced accuracy %'],rows,[1.5,.65,.8,1.0,.85,.8,.95])
+        note(d,'LOWO pools one out-of-workbook prediction per material-task specimen; source tasks retain frozen TRAIN/PRED roles. All rows use 612 α coordinates, SNV, balanced RBF SVM, C=10 and gamma=scale, with scaling fitted only on the corresponding training data. Source-task TRAIN-majority accuracies are 20.00%, 94.59%, 26.83% and 25.30% in source-row order. Tasks overlap in specimens; the protocols have different evaluation units.')
     elif key=='primary':
         caption(d,'Table III  Nested validation of spectral representations')
         # Use exact replayed current metrics, with archived retained K means.
@@ -234,6 +240,10 @@ def from_text(source,filename,kind):
             p.add_run().add_picture(str(FIGURES/'Fig_S_quantum_accepted_PCA.png'),width=Inches(6.0));p.paragraph_format.keep_with_next=True
             paragraph(d,line);continue
         p=paragraph(d,line)
+        if kind=='supplement' and '## S9 Reproducibility and evidence files' in lines[:i]:
+            p.paragraph_format.line_spacing=1.06
+            p.paragraph_format.space_after=Pt(4)
+            for r in p.runs:r.font.size=Pt(10.5)
         if re.match(r'^\[\d+\]',line):
             p.paragraph_format.line_spacing=1.03
             for r in p.runs:r.font.size=Pt(10)
@@ -275,7 +285,9 @@ def bilingual_document():
         if element.tag==qn('w:tbl'):
             table_count+=1;original=Table(element,source)
             d.element.body.insert(len(d.element.body)-1,copy.deepcopy(element))
-            if pending_caption:chinese_paragraph(pending_caption,'Caption');pending_caption=None
+            if pending_caption:
+                chinese_paragraph(pending_caption,'Caption').paragraph_format.keep_with_next=True
+                pending_caption=None
             headers=[translation(c.text) for c in original.rows[0].cells]
             rows=[]
             for row in original.rows[1:]:

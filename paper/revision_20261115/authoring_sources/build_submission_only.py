@@ -53,7 +53,8 @@ Do not upload this ZIP as the main manuscript.
 03_Cover_Letter.docx: Cover letter.
 04_Supplementary_Information.docx: Supplemental material.
 Supplementary_Tables.xlsx and Supplementary_B1.xlsx through
-Supplementary_B5.xlsx: Supplemental data; each workbook is below 10 MiB.
+Supplementary_B5.xlsx, plus Supplementary_LOWO.xlsx: Supplemental data;
+each workbook is below 10 MiB.
 Figures/Figure_1.eps through Figures/Figure_5.eps: Five main figures.
 Supplementary_Figure/Figure_S1.eps: Supplementary figure S1.
 Optional/Declarations.docx: Use only if the system asks for a separate
@@ -96,6 +97,7 @@ def document_text(document):
 def source_mapping():
     mapping = dict(DOCUMENTS)
     mapping['Supplementary_Tables.xlsx'] = 'Supplementary_Tables.xlsx'
+    mapping['Supplementary_LOWO.xlsx'] = 'Supplementary_LOWO.xlsx'
     for number in range(1, 6):
         name = f'Supplementary_B{number}.xlsx'
         mapping[name] = name
@@ -104,7 +106,7 @@ def source_mapping():
     mapping['figures/Fig_S_quantum_accepted_PCA.eps'] = (
         'Supplementary_Figure/Figure_S1.eps'
     )
-    require(len(mapping) == 17, 'Expected 17 submission files plus README.')
+    require(len(mapping) == 18, 'Expected 18 submission files plus README.')
     return mapping
 
 
@@ -192,7 +194,7 @@ def main():
     payloads['README.txt'] = readme_data
     entries.append({'path': 'README.txt', 'source': 'embedded upload instructions',
                     'bytes': len(readme_data), 'sha256': sha256(readme_data)})
-    require(len(payloads) == 18, 'Expected exactly 18 archive entries.')
+    require(len(payloads) == 19, 'Expected exactly 19 archive entries.')
     target = OUTPUT / ARCHIVE_NAME
     with zipfile.ZipFile(target, 'w', compression=zipfile.ZIP_DEFLATED,
                          compresslevel=9) as archive:
@@ -205,7 +207,7 @@ def main():
                             compresslevel=9)
     with zipfile.ZipFile(target) as archive:
         require(archive.testzip() is None, 'Submission ZIP CRC validation failed.')
-        require(len(archive.namelist()) == 18, 'Unexpected ZIP entry count.')
+        require(len(archive.namelist()) == 19, 'Unexpected ZIP entry count.')
         require(all(not name.endswith('/') for name in archive.namelist()),
                 'Unexpected directory entries in ZIP.')
         for row in entries:
@@ -217,9 +219,9 @@ def main():
         'schema': 'research4-submission-only-verification-v1',
         'status': 'PASS', 'file': ARCHIVE_NAME,
         'bytes': target.stat().st_size, 'sha256': sha256(target.read_bytes()),
-        'archive_entries': 18, 'package_root': PACKAGE_ROOT,
+        'archive_entries': 19, 'package_root': PACKAGE_ROOT,
         'main_figures': 5, 'supplementary_figures': 1,
-        'supplementary_workbooks': 6, 'english_journal_documents': 5,
+        'supplementary_workbooks': 7, 'english_journal_documents': 5,
         'declarations_are_optional': True,
         'main_native_equations': 8, 'main_editable_tables': 4,
         'all_source_hashes_match_canonical_manifest': True,

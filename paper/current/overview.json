@@ -41,5 +41,28 @@
   },
   "acquisition_declaration": "data/annotations/acquisition_conditions_user_declaration_20261112.json",
   "paper_methods": "methods/MATERIALS_AND_METHODS_ZH.md",
-  "workbook_and_record_splits": "methods/data_splits.xlsx"
+  "workbook_and_record_splits": "methods/data_splits.xlsx",
+  "kind_discrimination_evaluation": {
+    "protocol": "leave-one-workbook-out",
+    "source_commit": "627a0975bdc61ef7cd95742265c3b500c879deae",
+    "result_directory": "results/kind_lowo_20261115",
+    "tasks": {
+      "four_kinds": {
+        "records": 1672,
+        "folds": 18
+      },
+      "binary_kinds": {
+        "records": 864,
+        "folds": 10
+      }
+    },
+    "scope": "Only binary-kind and four-kind discrimination use this workbook-held-out protocol; existing origin, representation, transfer and support analyses retain their own protocols and bytes.",
+    "interpretation": "Retrospective validation within the existing collection, not prospective independent procurement or acquisition-batch validation.",
+    "independent_verification_command": "python scripts/verify_kind_lowo_20261115.py",
+    "arrays_retained_at_source": [
+      "reports/kind_lowo_20261115/features.npz",
+      "reports/kind_lowo_20261115/four_kinds/fit_parameters.npz",
+      "reports/kind_lowo_20261115/binary_kinds/fit_parameters.npz"
+    ]
+  }
 }
