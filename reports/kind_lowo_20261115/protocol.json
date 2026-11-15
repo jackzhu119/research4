@@ -1,0 +1,80 @@
+{
+  "common_baseline_source": [
+    {
+      "commit": "0156e2189d13456d1faf05ebfd53d86eeeb4f5e7",
+      "path": "scripts/run_species_revision_classification.py",
+      "sha256": "f82937a846ae8020c287188cbbcaabafb94f9f28ea361d61c4485403e514ec5a"
+    },
+    {
+      "commit": "0156e2189d13456d1faf05ebfd53d86eeeb4f5e7",
+      "path": "src/herb_spectra/spectral_models.py",
+      "sha256": "7bf02ba3086dba052c12ae1df3369c7168c571fb0504ae1162d7193c92d92527"
+    },
+    {
+      "commit": "0156e2189d13456d1faf05ebfd53d86eeeb4f5e7",
+      "path": "scripts/prepare_species_revision_features.py",
+      "sha256": "d3187d2d67b0af241f46e06b1733dc1c84e02d24b8b16bda187158cb09096a9e"
+    }
+  ],
+  "dataset_version": "2026-11-08-confirmed-origin-kind-v1",
+  "estimator": {
+    "C": 10.0,
+    "break_ties": false,
+    "class": "sklearn.svm.SVC",
+    "class_weight": "balanced",
+    "decision_function_shape": "ovr",
+    "gamma": "scale",
+    "kernel": "rbf",
+    "random_state": 42
+  },
+  "features": "612 absorption coordinates at original paired frequency points in the inclusive 0.1-1.5 THz interval; no interpolation, selection or metadata predictors",
+  "hyperparameter_search": false,
+  "input_sha256": {
+    "AGENTS.md": "ace7bd0e81a23c453b78d3b367b00b7ce954bca310132975392660b366ef7a4b",
+    "data/active_workbooks.json": "d771713855e56c8c47b5e96dc0530233d2cf0e5a3d15e2cd13d00aaed35eee54",
+    "paper/current/README.md": "3bda1eee8558b866bb999a74c2243bde4e7f2c4171f440bb303c77cf1c8d595d",
+    "paper/current/inputs/active_workbooks.json": "dd9ec7728590dde2574f64b9664148465c85d7b618311494c613c32b4d879f95",
+    "paper/current/inputs/feature_audit.json": "a5a3a6424af44c2a700c0b27e5f711c386ebd6b725050f5ea27dc2fcfab588b3",
+    "paper/current/inputs/metadata.csv": "fee5e3053c7958da8f0ddadd01de9994efe9669c671e3c1aed72a6cd01639ff1",
+    "paper/current/inputs/split_manifest.csv": "0767e3165984a4e0e4ae782d69fdea6f410bfe36bce05ec72f8eadca982317d4",
+    "paper/current/manifest.json": "9923490b0f2a5d750fb16551f39212078355c0fea4449162a309361d110db68d",
+    "paper/current/protocols/fixed_classification.json": "c99cbab339ba79d4356e409cdf96ee27f1c1a993d12b5b11206c4ae0a029bdec"
+  },
+  "interpretation": "Retrospective workbook-group validation on existing corrected spectra; holding out a workbook does not establish prospective, independent procurement, acquisition-date, instrument or new-batch generalization.",
+  "new_validation_protocol": true,
+  "parameters_inherited_from": "Existing corrected-kind full_svm baseline; no tuning under this validation protocol",
+  "preprocessing": [
+    "Per-spectrum SNV using sample standard deviation (ddof=1)",
+    "StandardScaler fit only on the training workbooks in the current fold"
+  ],
+  "protocol_id": "kind-lowo-fixed-full-snv-rbf-svc-20261115",
+  "reporting": "Retain every fold and both tasks, including errors. Report pooled accuracy/macro-F1/balanced accuracy and kind recalls, per-workbook true-kind recall, equal-weight workbook mean accuracy and per-fold training-majority baseline. No per-fold macro-F1 for single-true-kind workbooks.",
+  "script_sha256": "d2500f9ad54a8f0c524c86da9b764f10e28ce72dd585b16b4dc35b524ffe95d9",
+  "software": {
+    "numpy": "2.3.5",
+    "openpyxl": "3.1.5",
+    "python": "3.12.14",
+    "scikit_learn": "1.8.0"
+  },
+  "split_rule": "For each task, hold out each complete workbook once; fit on all other eligible workbooks. Original TRAIN/CAL/PRED roles are retained only as provenance, with all roles included in this new protocol.",
+  "tasks": {
+    "binary_kinds": {
+      "folds": 10,
+      "labels": [
+        "枣仁",
+        "酸枣仁"
+      ],
+      "records": 864
+    },
+    "four_kinds": {
+      "folds": 18,
+      "labels": [
+        "枣仁",
+        "酸枣仁",
+        "黄芪",
+        "天麻"
+      ],
+      "records": 1672
+    }
+  }
+}
