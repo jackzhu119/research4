@@ -1,0 +1,203 @@
+{
+  "status": "PASS",
+  "scope": "Read-only audit of corrected pinned implementation and saved evidence; no model training",
+  "sources": [
+    {
+      "commit": "b051733989161517a68c4a60cce75766880c95f5",
+      "path": "scripts/research4_matched_feature_validation_20261108_v4.py",
+      "sha256": "3c195ba927844c2e78e17ca0b77502edf69efa5dc0bc784ae07dd2f64567a151"
+    },
+    {
+      "commit": "b051733989161517a68c4a60cce75766880c95f5",
+      "path": "src/herb_spectra/selection.py",
+      "sha256": "477d1f0404d8d170fb2bba91bbb5e24d311fb94cf7a20cfd8a7781b93064206f"
+    },
+    {
+      "commit": "b051733989161517a68c4a60cce75766880c95f5",
+      "path": "src/herb_spectra/staged_nested_search.py",
+      "sha256": "c180225f6ebad218b18aa4b9785907a95a41c7e9cf7a0c2dbbc31cf4f2ea58c5"
+    },
+    {
+      "commit": "b051733989161517a68c4a60cce75766880c95f5",
+      "path": "src/herb_spectra/classification.py",
+      "sha256": "793a550f46522bc2e69acf922b39e104a0e94b5eb058905f987a91d0f16a08b2"
+    },
+    {
+      "commit": "bbab5a9de3f3e79fe8b12dd5e06c29547e3b9778",
+      "path": "scripts/b_round4_models_20261111.py",
+      "sha256": "b96350d43b1b7ec73e8e13f88c21760f1b724411429479a8c2ed18a5fbf4381b"
+    }
+  ],
+  "verified_run_count": 15,
+  "partition_seeds": [
+    42,
+    20261031,
+    20261108
+  ],
+  "master_specimens": 300,
+  "classes": 5,
+  "per_class_master": 60,
+  "outer_fit": 240,
+  "outer_query": 60,
+  "inner_fit": 120,
+  "inner_validation": 120,
+  "MC_selector_seed": 42,
+  "MC_fraction_nominal": 0.8,
+  "MC_samples_per_class_outer_fit": 39,
+  "MC_samples_per_class_inner_fit": 20,
+  "MC_draw_total_outer": 195,
+  "MC_draw_total_inner": 100,
+  "PLS_components": 2,
+  "PLS_X_and_onehot_y_standardization_ddof": 0,
+  "coefficient_stability_sd_ddof": 1,
+  "epsilon": "1e-12 * max(1.0, max(sd))",
+  "importance": "L2 norm across one-versus-rest coefficient absolute mean/sd ratios",
+  "topK_score_tie": "stable original candidate index; selected indices returned coordinate sorted",
+  "K_values": [
+    31,
+    62,
+    123,
+    184,
+    245
+  ],
+  "C_values": [
+    0.1,
+    1,
+    10,
+    100
+  ],
+  "gamma_rule_order": [
+    "scale",
+    "scale_x0.1",
+    "scale_x10"
+  ],
+  "gamma_scale": "1/(K * Var_all_elements(selected training matrix)), ddof=0; if variance=0 -> 1",
+  "weight_grid_declared_order": [
+    1,
+    0.5,
+    0.25
+  ],
+  "inner_selection_order": [
+    "higher arithmetic mean of two macro-F1",
+    "higher mean balanced accuracy",
+    "higher mean accuracy",
+    "lower K",
+    "lower C",
+    "declared gamma order",
+    "declared weight order"
+  ],
+  "primary_SNValpha_mean_K": 220.6,
+  "primary_SNValpha_retained_Ks": [
+    245,
+    245,
+    245,
+    184,
+    245,
+    184,
+    245,
+    184,
+    184,
+    245,
+    184,
+    245,
+    245,
+    245,
+    184
+  ],
+  "primary_SNValpha_fraction_removed": 0.6395424836601307,
+  "joint_K62_alpha_occurrences": 930,
+  "joint_K62_n_occurrences": 0,
+  "K62_mean_Jaccard": 0.011112257275481825,
+  "B4_fiveclass_K10_controls": {
+    "identity": {
+      "contexts": 15,
+      "mean_accuracy": 0.8,
+      "C": [
+        10.0
+      ],
+      "C_times_labeled_n": [
+        1900.0
+      ]
+    },
+    "source_mass_only": {
+      "contexts": 15,
+      "mean_accuracy": 0.8,
+      "C": [
+        12.63157894736842
+      ],
+      "C_times_labeled_n": [
+        2400.0
+      ]
+    },
+    "source_support_fixed_C": {
+      "contexts": 15,
+      "mean_accuracy": 0.8377777777777777,
+      "C": [
+        10.0
+      ],
+      "C_times_labeled_n": [
+        2400.0
+      ]
+    },
+    "source_support_normalized_mass": {
+      "contexts": 15,
+      "mean_accuracy": 0.8377777777777777,
+      "C": [
+        7.916666666666667
+      ],
+      "C_times_labeled_n": [
+        1900.0
+      ]
+    }
+  },
+  "equations": [
+    {
+      "id": "coefficient_stability",
+      "latex": "\\begin{aligned}\n\\overline{\\beta}_{gj}&=\\frac{1}{M}\\sum_{b=1}^{M}\\beta_{gj}^{(b)}, &\ns_{gj}&=\\left[\\frac{1}{M-1}\\sum_{b=1}^{M}(\\beta_{gj}^{(b)}-\\overline{\\beta}_{gj})^{2}\\right]^{1/2},\\\\\nq_{gj}&=\\frac{|\\overline{\\beta}_{gj}|}{\\max(s_{gj},\\varepsilon)}, &\nS_j&=\\left(\\sum_{g=1}^{G}q_{gj}^{2}\\right)^{1/2},\\\\\n\\varepsilon&=10^{-12}\\max\\!\\left(1,\\max_{g,j}s_{gj}\\right).\n\\end{aligned}",
+      "source": {
+        "commit": "b051733989161517a68c4a60cce75766880c95f5",
+        "path": "src/herb_spectra/selection.py",
+        "sha256": "477d1f0404d8d170fb2bba91bbb5e24d311fb94cf7a20cfd8a7781b93064206f"
+      },
+      "line": "218-250"
+    },
+    {
+      "id": "TopK",
+      "latex": "\\mathcal{J}_{K}=\\underset{\\mathcal{J}\\subseteq\\{1,\\ldots,p\\},\\,|\\mathcal{J}|=K}{\\operatorname{arg\\,max}}\\ \\sum_{j\\in\\mathcal{J}}S_j .",
+      "source": {
+        "commit": "b051733989161517a68c4a60cce75766880c95f5",
+        "path": "scripts/research4_matched_feature_validation_20261108_v4.py",
+        "sha256": "3c195ba927844c2e78e17ca0b77502edf69efa5dc0bc784ae07dd2f64567a151"
+      },
+      "line": "214-220; selection.py:249-250"
+    },
+    {
+      "id": "inner_selection",
+      "latex": "\\widehat{\\theta}=\\underset{\\theta\\in\\Theta}{\\operatorname{arg\\,max}}\\ \\frac{1}{2}\\sum_{v=1}^{2}\\operatorname{MacroF1}\\!\\left(\\mathbf{y}_{v},\\widehat{f}_{\\theta,\\mathcal{D}_{-v}}(\\mathbf{X}_{v})\\right),\\qquad\\theta=(K,C,\\eta).",
+      "source": {
+        "commit": "b051733989161517a68c4a60cce75766880c95f5",
+        "path": "scripts/research4_matched_feature_validation_20261108_v4.py",
+        "sha256": "3c195ba927844c2e78e17ca0b77502edf69efa5dc0bc784ae07dd2f64567a151"
+      },
+      "line": "266-294,333-407"
+    },
+    {
+      "id": "loss_mass_control",
+      "latex": "C_{\\mathrm{refit}}=C_{\\mathrm{source}}\\frac{N_{\\mathrm{source}}}{N_{\\mathrm{source}}+N_{\\mathrm{support}}},\\qquad C_{\\mathrm{refit}}(N_{\\mathrm{source}}+N_{\\mathrm{support}})=C_{\\mathrm{source}}N_{\\mathrm{source}}.",
+      "source": {
+        "commit": "bbab5a9de3f3e79fe8b12dd5e06c29547e3b9778",
+        "path": "scripts/b_round4_models_20261111.py",
+        "sha256": "b96350d43b1b7ec73e8e13f88c21760f1b724411429479a8c2ed18a5fbf4381b"
+      },
+      "line": "94-105,122-200"
+    }
+  ],
+  "interpretation_constraints": [
+    "MC-UVE/PLS/SVM/nested cross-validation are established methods; manuscript contribution is the study-specific budget-matched and control-based workflow.",
+    "MC20 vs MC100 supports 80% fewer coefficient draws at equal observed mean accuracy, not a full-runtime reduction or statistical equivalence.",
+    "K62 joint87.11% vs SNValpha81.00% must also retain rawalpha88.78%.",
+    "Changed absorption subsets plus independently inner-selected SVM settings are not a uniquely isolated causal subset effect.",
+    "C normalization is an analytic mechanism control in fixed Source coordinates, not a new optimization theorem.",
+    "15 repeated folds reuse 300 specimens; not 900 independent specimens or independent external confirmation."
+  ]
+}

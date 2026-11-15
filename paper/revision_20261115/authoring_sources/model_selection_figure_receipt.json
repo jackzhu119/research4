@@ -1,0 +1,105 @@
+{
+  "schema": "research4-model-selection-schematic-v1",
+  "status": "PASS",
+  "scope": "Principal balanced five-source Suanzaoren repeated nested MC20–SVM analysis",
+  "new_model_fits": 0,
+  "raw_or_frozen_data_modified": false,
+  "physical_specimens": 300,
+  "specimens_per_source": 60,
+  "sources": [
+    {
+      "path": "paper/current/inputs/split_manifest.csv",
+      "sha256": "0767e3165984a4e0e4ae782d69fdea6f410bfe36bce05ec72f8eadca982317d4"
+    },
+    {
+      "path": "paper/revision_20261115/Supplementary_Data_S1/derived_checks/feature_source_verification.json",
+      "sha256": "6274fcfb2bd01cd0ab869e94e3c4986c8f173a781c5c08de04f25d0d68b66fca"
+    },
+    {
+      "path": "paper/revision_20261115/Supplementary_Data_S1/derived_checks/verified_v4_sources/runs/matched_r42_f0/job_manifest.json",
+      "sha256": "5bd1dc34374d8ce2fe155b4be9fb62a2e4ec7e2fa0e8ab57ab70680b74ef7ab3"
+    },
+    {
+      "path": "paper/current/manifest.json",
+      "sha256": "9923490b0f2a5d750fb16551f39212078355c0fea4449162a309361d110db68d"
+    }
+  ],
+  "outer_folds": 5,
+  "partition_seeds": [
+    42,
+    20261031,
+    20261108
+  ],
+  "outer_train": 240,
+  "outer_test": 60,
+  "inner_folds": 2,
+  "outer_test_to_selection_edge": false,
+  "independent_specimens_not_multiplied_by_repeats": true,
+  "pipeline": "Spectral candidates → training-only processing → MC coefficient scores → top K → RBF SVM → retained-variable trace",
+  "score": {
+    "q_gj": "abs(mean_beta_gj) / max(sd_beta_gj, epsilon)",
+    "sd_ddof": 1,
+    "S_j": "sqrt(sum_g(q_gj**2)); g=1..5",
+    "epsilon_caption_definition": "1e-12 * max(1, max_gj(sd_beta_gj))"
+  },
+  "drawing": {
+    "width_inches": 6.5,
+    "height_inches": 5.6,
+    "min_label_font_points": 7,
+    "dpi": 1200,
+    "outer_frame": true,
+    "white_background": true,
+    "transparency": false,
+    "greek_math_style": "upright with math roman",
+    "latin_math_variables": "italic"
+  },
+  "primary_inner_selected_K_distinguished_from_prescribed_K": true,
+  "outputs": [
+    {
+      "path": "figures/Fig_model_selection.png",
+      "sha256": "12b923521ab95cc0f1f73af8efe9a5d103a416b903750af2d0a87b8a038f5436",
+      "bytes": 1705322,
+      "pixels": [
+        7800,
+        6720
+      ],
+      "dpi": [
+        1199.9976,
+        1199.9976
+      ],
+      "color_mode": "RGBA"
+    },
+    {
+      "path": "figures/Fig_model_selection.tiff",
+      "sha256": "5a86d7ac805ffcf64d691ebbf4d4768de5cf5ca657f66c7f6cee9bd427438b0a",
+      "bytes": 4008724,
+      "pixels": [
+        7800,
+        6720
+      ],
+      "dpi": [
+        1200.0,
+        1200.0
+      ],
+      "color_mode": "RGB",
+      "compression": "tiff_lzw"
+    },
+    {
+      "path": "figures/Fig_model_selection.pdf",
+      "sha256": "6f5697b82c0801c543be7ed56f50d897b7a0ec21fbc56006bfa256cea06f6747",
+      "bytes": 36900,
+      "font_embedding_report": "name                                 type              encoding         emb sub uni object ID\n------------------------------------ ----------------- ---------------- --- --- --- ---------\nEVICAO+DejaVuSans-Bold               CID TrueType      Identity-H       yes yes yes     15  0\nGCWXDV+DejaVuSans-Oblique            CID TrueType      Identity-H       yes yes yes     22  0\nBMQQDV+DejaVuSans                    CID TrueType      Identity-H       yes yes yes     29  0\n"
+    },
+    {
+      "path": "figures/Fig_model_selection.eps",
+      "sha256": "542d85ebafa7be6b10ad4a5f91b9ff584889f005ba9fa2f976e139f038c90e67",
+      "bytes": 130180,
+      "ghostscript_interpretation": "PASS"
+    },
+    {
+      "path": "figures/Fig_model_selection.svg",
+      "sha256": "18fa6cc9b1d36310744f7bca972f0e9fe771c9b0d6b8ecb784bff46099e0557d",
+      "bytes": 54003
+    }
+  ]
+}

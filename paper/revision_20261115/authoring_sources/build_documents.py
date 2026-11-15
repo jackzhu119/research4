@@ -19,13 +19,18 @@ EQS={
 'transfer':r'T(\omega)=\frac{4n(\omega)}{[n(\omega)+1]^2}\exp\!\left[-\frac{\alpha(\omega)d}{2}\right]\exp\!\left[-i\frac{[n(\omega)-1]\omega d}{c}\right]',
 'index':r'n(\omega)=1+\frac{c\Phi(\omega)}{\omega d}',
 'absorption':r'\alpha(\omega)=-\frac{2}{d}\ln\!\left\{|T(\omega)|\frac{[n(\omega)+1]^2}{4n(\omega)}\right\}',
+'coefficient_moments':r'\begin{aligned}\bar{\beta}_{gj}&=\frac{1}{M}\sum_{m=1}^{M}\beta_{gj}^{(m)}\\s_{gj}&=\left[\frac{1}{M-1}\sum_{m=1}^{M}\left(\beta_{gj}^{(m)}-\bar{\beta}_{gj}\right)^2\right]^{1/2}\end{aligned}',
+'multiclass_score':r'q_{gj}=\frac{|\bar{\beta}_{gj}|}{\max(s_{gj},\varepsilon)},\qquad S_j=\left(\sum_{g=1}^{G}q_{gj}^{\,2}\right)^{1/2}',
+'budget_selection':r'\mathcal{J}_{K}^{\star}=\underset{\substack{\mathcal{J}\subseteq\{1,\ldots,p\}\\|\mathcal{J}|=K}}{\operatorname{arg\,max}}\ \sum_{j\in\mathcal{J}}S_j',
+'inner_selection':r'\theta^{\star}=\underset{\theta\in\Theta}{\operatorname{arg\,max}}\ \frac{1}{L}\sum_{\ell=1}^{L}F_{1,\mathrm{macro}}\!\left(\mathbf{y}_{\ell},\widehat{\mathbf{y}}_{\ell}^{(\theta)}\right),\qquad L=2',
+'loss_control':r'C_{\mathrm{norm}}=C_{\mathrm{src}}\frac{N_{\mathrm{src}}}{N_{\mathrm{src}}+N_{\mathrm{sup}}}',
 }
 with tempfile.TemporaryDirectory() as td:
     f=Path(td)/'equations.md'; f.write_text('\n\n'.join('$$'+x+'$$' for x in EQS.values()))
     subprocess.run(['pandoc',str(f),'-o',str(Path(td)/'equations.docx')],check=True)
     ed=Document(Path(td)/'equations.docx')
     equations={key:copy.deepcopy(node) for key,node in zip(EQS,ed.element.findall('.//'+qn('m:oMathPara')))}
-assert len(equations)==3
+assert len(equations)==8
 
 def text_run(p,text,size=None,bold=False):
     r=p.add_run(text);r.bold=bold
@@ -50,6 +55,10 @@ def setup(kind):
     normal.paragraph_format.line_spacing=1.18 if kind=='main' else 1.12
     normal.paragraph_format.space_after=Pt(6)
     normal.paragraph_format.widow_control=True
+    if kind=='report':
+        normal.font.size=Pt(10.5)
+        normal.paragraph_format.line_spacing=1.06
+        normal.paragraph_format.space_after=Pt(5)
     for n,pt in [('Title',16),('Heading 1',13),('Heading 2',12),('Heading 3',11.5)]:
         d.styles[n].font.size=Pt(pt);d.styles[n].font.bold=n!='Title'
         d.styles[n].paragraph_format.space_before=Pt(12 if n!='Title' else 0)
@@ -191,7 +200,7 @@ def main_table(d,key):
         note(d,'15 contexts each contain Source190/Support50/Query60 within the same 300 TRAIN specimens. Percentages summarize 900 related Query predictions. Full refitting and frozen-transform refitting use different operations. Complete endpoint sources and paired intervals are supplied in the supplementary data.')
 
 def add_figure(d,key):
-    names={'spectra':'fig1_spectra_current.png','budget':'fig2_feature_budget.png','modality':'fig3_selected_modalities.png','adaptation':'fig4_adaptation_controls.png'}
+    names={'model':'Fig_model_selection.png','spectra':'fig1_spectra_current.png','budget':'fig2_feature_budget.png','modality':'fig3_selected_modalities.png','adaptation':'fig4_adaptation_controls.png'}
     caps=json.loads((OUT/'figure_captions.json').read_text())
     p=d.add_paragraph();p.alignment=WD_ALIGN_PARAGRAPH.CENTER;p.add_run().add_picture(str(FIGURES/names[key]),width=Inches(6.5))
     p.paragraph_format.keep_with_next=True
@@ -222,7 +231,7 @@ def from_text(source,filename,kind):
         if line.startswith('Table S'):caption(d,line);continue
         if line.startswith('Figure S1.'):
             p=d.add_paragraph();p.alignment=WD_ALIGN_PARAGRAPH.CENTER
-            p.add_run().add_picture(str(FIGURES/'Fig_S_quantum_accepted_PCA.png'),width=Inches(6.5));p.paragraph_format.keep_with_next=True
+            p.add_run().add_picture(str(FIGURES/'Fig_S_quantum_accepted_PCA.png'),width=Inches(6.0));p.paragraph_format.keep_with_next=True
             paragraph(d,line);continue
         p=paragraph(d,line)
         if re.match(r'^\[\d+\]',line):
@@ -247,7 +256,7 @@ def bilingual_document():
         translations.setdefault(rendered,chinese)
     source=Document(DELIVERY/'01_Manuscript_Optimized.docx')
     d=setup('bilingual');missing=[];picture=0;references=False;pending_caption=None;table_count=0;translated_paragraphs=0
-    image_names=['fig1_spectra_current.png','fig2_feature_budget.png','fig3_selected_modalities.png','fig4_adaptation_controls.png']
+    image_names=['Fig_model_selection.png','fig1_spectra_current.png','fig2_feature_budget.png','fig3_selected_modalities.png','fig4_adaptation_controls.png']
     def translation(text):
         if text in translations:return translations[text]
         clean=text.replace('\u2060','')
@@ -298,7 +307,7 @@ def bilingual_document():
         st=p.style.name if p.style is not None else 'Normal'
         style=st if st in ['Title','Heading 1','Heading 2','Heading 3','Caption'] else None
         chinese_paragraph(chinese,style);translated_paragraphs+=1
-    assert picture==4 and table_count==4
+    assert picture==5 and table_count==4
     if missing:raise ValueError('Missing bilingual translations: '+json.dumps(list(dict.fromkeys(missing)),ensure_ascii=False))
     for root in [d.element,d.styles.element]:
         for border in list(root.iter(qn('w:pBdr'))):border.getparent().remove(border)

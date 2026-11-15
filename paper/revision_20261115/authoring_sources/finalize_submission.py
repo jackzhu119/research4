@@ -90,7 +90,7 @@ metadata = {
     'common_work_address': authorship['shared_work_address'],
     'main_manuscript_word_count_approximate': word_count,
     'word_count_scope': 'Word paragraphs and tables including references and captions; excludes equation objects and figure text',
-    'main_figures': 4, 'main_tables': 4, 'supplementary_figures': 1,
+    'main_figures': 5, 'main_tables': 4, 'supplementary_figures': 1,
     'references': 28,
     'competing_interests': 'None declared', 'funding': 'No financial support',
     'all_authors_approve_and_accept_responsibility': True,
@@ -132,7 +132,7 @@ for path in sorted(BASE.glob('*.docx')):
                       'ooxml_zip_integrity': 'PASS', 'no_placeholder_tokens': True})
 assert len(documents) == 8
 assert not (BASE / '06_投稿前信息补齐表.docx').exists()
-expected_figures = ['fig1_spectra_current', 'fig2_feature_budget', 'fig3_selected_modalities',
+expected_figures = ['Fig_model_selection', 'fig1_spectra_current', 'fig2_feature_budget', 'fig3_selected_modalities',
                     'fig4_adaptation_controls', 'Fig_S_quantum_accepted_PCA']
 embedded = {}
 for name in ['01_Manuscript_Optimized.docx', '02_Supplementary_Information.docx', '07_Manuscript_EN_ZH.docx']:
@@ -140,16 +140,31 @@ for name in ['01_Manuscript_Optimized.docx', '02_Supplementary_Information.docx'
         embedded[name] = {hashlib.sha256(archive.read(n)).hexdigest() for n in archive.namelist() if n.startswith('word/media/')}
 for idx, name in enumerate(expected_figures):
     h = digest(BASE / 'figures' / f'{name}.png')
-    expected_docs = ['02_Supplementary_Information.docx'] if idx == 4 else ['01_Manuscript_Optimized.docx', '07_Manuscript_EN_ZH.docx']
+    expected_docs = ['02_Supplementary_Information.docx'] if idx == len(expected_figures)-1 else ['01_Manuscript_Optimized.docx', '07_Manuscript_EN_ZH.docx']
     assert all(h in embedded[d] for d in expected_docs), name
 style = read_json(BASE / 'authoring_sources/figure_style_receipt.json')
 assert style['status'] == 'PASS' and style['png_export_dpi'] >= 800 and style['tiff_export_dpi'] == 1200
 assert style['frame']['outer_figure_rectangle'] and style['frame']['four_spines_each_panel']
 for row in style['outputs']:
     assert digest(BASE / row['path']) == row['sha256']
+model_style = read_json(BASE / 'authoring_sources/model_selection_figure_receipt.json')
+assert model_style['status'] == 'PASS' and model_style['drawing']['outer_frame']
+assert model_style['drawing']['dpi'] == 1200
+for row in model_style['outputs']:
+    assert digest(BASE / row['path']) == row['sha256']
+assert len(main.inline_shapes) == 5
+assert len(main.element.findall('.//' + qn('m:oMath'))) == 8
+for doc in [main, Document(BASE / '02_Supplementary_Information.docx'), parallel]:
+    text = document_text(doc)
+    assert not re.search(r'calycosin|spinosin|毛蕊异黄酮|斯皮诺素|assisted manuscript drafting', text, re.I)
+assert 'assisted manuscript revision, literature searches, and the preparation and checking of analysis and plotting code' in document_text(main)
 save_json(BASE / 'DELIVERY_VERIFICATION.json', {
     'status': 'PASS', 'documents': documents, 'visual_review': review,
     'figure_style_receipt': 'authoring_sources/figure_style_receipt.json',
+    'model_selection_figure_receipt': 'authoring_sources/model_selection_figure_receipt.json',
+    'main_figures': 5, 'native_editable_equations': 8,
+    'unreported_molecule_narration_removed': True,
+    'ai_disclosure_manuscript_revision_wording_verified': True,
     'embedded_final_figure_hashes_match': True,
     'english_chinese_table_numeric_values_match': True,
     'classifier_training_performed': False, 'quantum_calculations_started': False,
@@ -206,7 +221,7 @@ with TemporaryDirectory(prefix='research4-final-') as scratch:
     for i,name in enumerate(expected_figures,1):
         for ext in ['png', 'pdf', 'svg', 'tiff', 'eps']:
             target_dir = evidence / 'vector_figures' if ext == 'svg' else (submit / 'figures' if ext in ['tiff','eps'] else author_review / 'figure_previews')
-            target_name = f'Figure_{i}' if i<5 else 'Figure_S1'
+            target_name = f'Figure_{i}' if i<len(expected_figures) else 'Figure_S1'
             shutil.copy2(BASE / 'figures' / f'{name}.{ext}', target_dir / f'{target_name}.{ext}')
     for folder in ['Supplementary_Data_S1', 'authoring_sources']:
         shutil.copytree(BASE / folder, evidence / folder, ignore=shutil.ignore_patterns('__pycache__', '*.pyc'))
@@ -218,7 +233,7 @@ with TemporaryDirectory(prefix='research4-final-') as scratch:
         '本文件夹保留完整冻结证据与写作来源，不需全部上传期刊。\n'
         'Supplementary_Data_S1：冻结的纠正后来源、协议、预测与验收。历史记录中的缺失字段保持原貌，不是本次待补清单。\n'
         'authoring_sources：最终英文源稿、完整中文翻译和构建脚本；脚本在原仓库路径运行。\n'
-        'vector_figures：5张图的SVG源版；上传用EPS及1200 dpi TIFF在01_Submit/figures，PDF/PNG审阅版在02_Review/figure_previews。\n'
+        'vector_figures：6张图的SVG源版；上传用EPS及1200 dpi TIFF在01_Submit/figures，PDF/PNG审阅版在02_Review/figure_previews。\n'
         'REPOSITORY_FILE_MANIFEST.json对应仓库paper/revision_20261115路径；压缩包的实际路径与哈希见根目录PACKAGE_MANIFEST.json。\n'
         'VISUAL_REVIEW.json和DELIVERY_VERIFICATION.json记录最终页面检查及文档结构。\n')
     (stage / 'README_使用说明.txt').write_text(
