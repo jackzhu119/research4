@@ -1,9 +1,9 @@
 from pathlib import Path
-import copy,json,re,subprocess,tempfile
+import copy,json,re,subprocess,tempfile,argparse
 import pandas as pd
 from docx import Document
 from docx.shared import Inches,Pt,RGBColor
-from docx.enum.text import WD_ALIGN_PARAGRAPH
+from docx.enum.text import WD_ALIGN_PARAGRAPH,WD_TAB_ALIGNMENT
 from docx.enum.table import WD_TABLE_ALIGNMENT,WD_CELL_VERTICAL_ALIGNMENT
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
@@ -63,10 +63,47 @@ def setup(kind):
 
 def paragraph(d,text,style=None):
     p=d.add_paragraph(style=style)
+    is_reference=bool(re.match(r'^\[\d+\]\s',text))
+    if is_reference:text=re.sub(r'^\[(\d+)\]\s',r'\1. ',text)
     # Preserve source wording; simple Markdown bold is converted to native runs.
     for i,part in enumerate(re.split(r'\*\*(.*?)\*\*',text)):
-        if part:text_run(p,part,bold=bool(i%2) or style in ['Heading 1','Heading 2','Heading 3'])
+        if not part:continue
+        for piece in re.split(r'(\[\d+(?:[,–-]\d+)*\])',part):
+            if not piece:continue
+            citation=not is_reference and bool(re.fullmatch(r'\[\d+(?:[,–-]\d+)*\]',piece))
+            value=piece[1:-1] if citation else piece
+            if citation:
+                value=value.replace('–','\u2060–\u2060').replace('-', '\u2060-\u2060').replace(',', ',\u2060')
+            run=text_run(p,value,bold=bool(i%2) or style in ['Heading 1','Heading 2','Heading 3'])
+            if citation:run.font.superscript=True
+    if is_reference:
+        journals=['Hong Kong Chinese Materia Medica Standards','Food Chem X','J Appl Spectrosc','TrAC Trends Anal Chem','Anal Chim Acta','BMC Bioinformatics','J Mach Learn Res','Chemom Intell Lab Syst','Anal Chem','J Chem Phys','Phys Rev Lett','Phys Chem Chem Phys']
+        pattern='('+'|'.join(re.escape(j) for j in sorted(journals,key=len,reverse=True))+')'
+        content=p.text;p.clear()
+        for piece in re.split(pattern,content):
+            if piece:
+                run=text_run(p,piece)
+                if piece in journals:run.italic=True
     return p
+
+def numbered_equation(d,key):
+    p=d.add_paragraph()
+    p.paragraph_format.tab_stops.add_tab_stop(Inches(3.25),WD_TAB_ALIGNMENT.CENTER)
+    p.paragraph_format.tab_stops.add_tab_stop(Inches(6.5),WD_TAB_ALIGNMENT.RIGHT)
+    p.paragraph_format.space_before=Pt(4);p.paragraph_format.space_after=Pt(8)
+    text_run(p,'\t')
+    math=copy.deepcopy(equations[key].find(qn('m:oMath')))
+    # The journal sets Greek symbols and the imaginary unit in upright type.
+    for run in math.iter(qn('m:r')):
+        value=''.join(node.text or '' for node in run.iter(qn('m:t')))
+        if re.fullmatch(r'[Α-Ωα-ω]+',value) or value=='i':
+            props=run.find(qn('m:rPr'))
+            if props is None:props=OxmlElement('m:rPr');run.insert(0,props)
+            sty=props.find(qn('m:sty'))
+            if sty is None:sty=OxmlElement('m:sty');props.append(sty)
+            sty.set(qn('m:val'),'p')
+    p._p.append(math)
+    text_run(p,'\t('+str(list(EQS).index(key)+1)+')')
 
 def table(d,headers,rows,widths=None):
     t=d.add_table(rows=1, cols=len(headers));t.alignment=WD_TABLE_ALIGNMENT.CENTER;t.autofit=False
@@ -178,7 +215,7 @@ def from_text(source,filename,kind):
         if line.startswith('[TABLE:'):main_table(d,line[7:-1]);continue
         if line.startswith('[FIGURE:'):add_figure(d,line[8:-1]);continue
         if line.startswith('[EQUATION:'):
-            p=d.add_paragraph();p._p.append(copy.deepcopy(equations[line[10:-1]]));continue
+            numbered_equation(d,line[10:-1]);continue
         if line.startswith('# '):
             p=paragraph(d,line[2:],'Title');p.alignment=WD_ALIGN_PARAGRAPH.CENTER;continue
         if line.startswith('### '):paragraph(d,line[4:],'Heading 2');continue
@@ -202,8 +239,16 @@ def from_text(source,filename,kind):
         for border in list(root.iter(qn('w:pBdr'))):border.getparent().remove(border)
     target=DELIVERY/filename;d.save(target);print(target)
 
-from_text(OUT/'manuscript_source.txt','01_Manuscript_Optimized.docx','main')
-from_text(OUT/'supplementary_source.md','02_Supplementary_Information.docx','supplement')
-from_text(OUT/'revision_report_source.txt','03_论文优化与清理说明.docx','report')
-from_text(OUT/'cover_source.txt','04_Cover_Letter.docx','cover')
-from_text(OUT/'title_source.txt','05_Title_Page.docx','title')
+if __name__=='__main__':
+    targets={
+        'main':('manuscript_source.txt','01_Manuscript_Optimized.docx','main'),
+        'supplement':('supplementary_source.md','02_Supplementary_Information.docx','supplement'),
+        'report':('revision_report_source.txt','03_论文优化与清理说明.docx','report'),
+        'cover':('cover_source.txt','04_Cover_Letter.docx','cover'),
+        'title':('title_source.txt','05_Title_Page.docx','title'),
+        'checklist':('submission_fields_source.txt','06_投稿前信息补齐表.docx','checklist')}
+    parser=argparse.ArgumentParser(description='Build all document deliverables or selected targets')
+    parser.add_argument('targets',nargs='*',choices=list(targets))
+    selected=parser.parse_args().targets or list(targets)
+    for key in selected:
+        src,filename,kind=targets[key];from_text(OUT/src,filename,kind)
