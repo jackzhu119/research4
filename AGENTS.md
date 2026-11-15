@@ -25,6 +25,7 @@ The user explicitly withdrew pre-correction mixed 枣仁/酸枣仁 classifier re
 ## Branches and quantum work
 
 - User-facing downloadable deliverables must use English file/link labels and short public HTTPS download URLs that save files to the user's computer. Do not give workspace/server paths or long raw-commit download URLs. The `dl` publication branch may provide short root-level artifact aliases after the final files have been verified.
+- Keep both user-confirmed author identifiers in current submission files: first author Ziyuan Zhu, ORCID `0009-0005-1153-4926`; corresponding author Yin Shen, ORCID `0000-0002-3221-7875`. The first-author identifier was supplied by screenshot and matched to the public ORCID name on 2026-11-15. Label each by name; do not substitute one for the other or infer an email change from the screenshot.
 
 - `docs/repository/` is a dated operational inventory, not another paper-result allowlist. Withdrawn classifier rounds are excluded. A chat, open PR or commit date alone does not prove liveness.
 - Quantum calculations, controls, arrays, sealed numerical protocols and job ledgers are outside this deletion. Preserve them. Judge each molecule/model by real stationary-point, mode and IR acceptance; water controls or ML validation do not certify all targets or peak assignments.

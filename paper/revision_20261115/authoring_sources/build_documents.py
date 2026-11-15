@@ -56,7 +56,8 @@ def setup(kind):
         d.styles[n].paragraph_format.space_after=Pt(6)
         d.styles[n].paragraph_format.keep_with_next=True
     d.styles['Caption'].font.size=Pt(10)
-    d.core_properties.author='Ziyuan Zhu; Jiayi Ren; Shuyu Zhou; Mengting Zhu; Yin Shen';d.core_properties.title='Research4 revised manuscript'
+    d.core_properties.author='Ziyuan Zhu; Jiayi Ren; Shuyu Zhou; Mengting Zhu; Yin Shen'
+    d.core_properties.comments='';d.core_properties.keywords='';d.core_properties.last_modified_by=''
     foot=s.footer.paragraphs[0];foot.alignment=WD_ALIGN_PARAGRAPH.CENTER
     r=text_run(foot,'',9);field=OxmlElement('w:fldSimple');field.set(qn('w:instr'),'PAGE');r._r.addnext(field)
     return d
@@ -123,7 +124,7 @@ def table(d,headers,rows,widths=None):
         for c,v in zip(cells,row):c.text=str(v)
     borders=OxmlElement('w:tblBorders')
     for name in ['top','left','bottom','right','insideH','insideV']:
-        b=OxmlElement('w:'+name);b.set(qn('w:val'),'single');b.set(qn('w:sz'),'4');b.set(qn('w:color'),'D9D9D9');borders.append(b)
+        b=OxmlElement('w:'+name);b.set(qn('w:val'),'single' if name in ['top','bottom'] else 'nil');b.set(qn('w:sz'),'6');b.set(qn('w:color'),'000000');borders.append(b)
     t._tbl.tblPr.append(borders)
     for ri,row in enumerate(t.rows):
         trpr=row._tr.get_or_add_trPr();trpr.append(OxmlElement('w:cantSplit'))
@@ -135,7 +136,7 @@ def table(d,headers,rows,widths=None):
                 m=OxmlElement('w:'+edge);m.set(qn('w:w'),str(val));m.set(qn('w:type'),'dxa');marg.append(m)
             tcpr.append(marg)
             if ri==0:
-                sh=OxmlElement('w:shd');sh.set(qn('w:fill'),'E8EDF2');tcpr.append(sh)
+                cb=OxmlElement('w:tcBorders');bottom=OxmlElement('w:bottom');bottom.set(qn('w:val'),'single');bottom.set(qn('w:sz'),'4');bottom.set(qn('w:color'),'000000');cb.append(bottom);tcpr.append(cb)
             for p in c.paragraphs:
                 p.paragraph_format.space_after=Pt(0);p.paragraph_format.line_spacing=1.05
                 p.alignment=WD_ALIGN_PARAGRAPH.LEFT if ci==0 or len(c.text)>22 else WD_ALIGN_PARAGRAPH.CENTER
@@ -156,14 +157,14 @@ def note(d,text):
 
 def main_table(d,key):
     if key=='dataset':
-        caption(d,'Table I  Material collection and frozen specimen roles')
+        caption(d,'Table I  Material collection and specimen allocation')
         x=pd.read_csv(ROOT/'paper/current/methods/dataset_by_species.csv').set_index('species')
         mapping={'酸枣仁':'Suanzaoren','枣仁':'Zaoren','黄芪':'Huangqi','天麻':'Tianma'}
         rows=[[label,*[int(x.loc[s,c]) for c in ['workbooks','records','train','calibration','prediction']]] for s,label in mapping.items()]
-        rows.append(['Total',18,1672,999,334,339]);table(d,['Material','Books','Total','TRAIN','CAL','PRED'],rows,[1.7,.7,.85,.85,.8,.8])
+        rows.append(['Total',18,1672,999,334,339]);table(d,['Material','Workbooks','Total','TRAIN','CAL','PRED'],rows,[1.7,.7,.85,.85,.8,.8])
         note(d,'The principal nested analysis uses 300 Suanzaoren TRAIN specimens. Each of its five groups contains 100 specimens assigned 60/20/20. Four workbook views describe the same specimens. Frozen roles are specimen partitions within the recorded collection.')
     elif key=='tasks':
-        caption(d,'Table II  Common fixed absorption SVM across material and source tasks')
+        caption(d,'Table II  Absorption classification of materials and source groups')
         x=pd.read_csv(ROOT/'paper/current/tables/fixed_classification.csv');x=x[(x.model=='full_svm')&(x.method=='source_only')].set_index('task')
         names={'binary_kinds':'Suanzaoren vs Zaoren','four_kinds':'Four materials','acid_origins':'Suanzaoren sources','jujube_origins':'Zaoren sources','huangqi_origins':'Huangqi sources','tianma_origins':'Tianma sources'}
         cls={'binary_kinds':2,'four_kinds':4,'acid_origins':5,'jujube_origins':5,'huangqi_origins':4,'tianma_origins':4}
@@ -173,7 +174,7 @@ def main_table(d,key):
         table(d,['Task','Classes','Correct / PRED','Accuracy %','Macro F1','Balanced accuracy %'],rows,[2.0,.55,.95,.95,.85,1.2])
         note(d,'All rows use 612 α coordinates, SNV, TRAIN-fitted scaling, balanced RBF SVM, C=10 and gamma=scale; CAL is unused. Tasks overlap in specimens. TRAIN-majority accuracies are 57.47%, 29.50%, 20.00%, 94.59%, 26.83% and 25.30% in row order.')
     elif key=='primary':
-        d.add_page_break();caption(d,'Table III  Complete internally selected representation comparison')
+        caption(d,'Table III  Nested validation of spectral representations')
         # Use exact replayed current metrics, with archived retained K means.
         x=pd.read_csv(ANALYSIS/'feature_primary_replayed.csv').set_index('family')
         specs=[('alpha_snv20','SNV α MC20–SVM',220.6),('alpha_snv100','SNV α MC100–SVM',216.5),('alpha_raw20','Raw α MC20–SVM',204.3),('alpha_snv_stability5x20','SNV α five MC20 streams–SVM',216.5),('fullalpha_shrinkLDA','Full α shrinkage LDA',612),('concat_both_snv20','Joint SNV n + SNV α MC20–SVM',216.5),('weighted_concat_nraw_asnv20','Weighted raw n + SNV α',232.8),('block_half_nraw_asnv20','Equal-block raw n + SNV α',236.9),('concat_nraw_asnv20','Joint raw n + SNV α MC20–SVM',228.7),('n_raw20','Raw n MC20–SVM',149.3),('fullalpha_MLP','Full α MLP',612),('n_snv20','SNV n MC20–SVM',224.7)]
@@ -191,12 +192,8 @@ def main_table(d,key):
 
 def add_figure(d,key):
     names={'spectra':'fig1_spectra_current.png','budget':'fig2_feature_budget.png','modality':'fig3_selected_modalities.png','adaptation':'fig4_adaptation_controls.png'}
-    caps={
-    'spectra':'Fig. 1. Current exported absorption and refractive-index spectra of the 300 Suanzaoren TRAIN specimens. Lines are source-group means over 60 specimens per group, calculated directly from the five unchanged active workbooks and frozen TRAIN identifiers. Absorption retains the original exported scale; refractive index is dimensionless. The horizontal axis follows the recorded THz convention.',
-    'budget':(FIGURES/'feature_figure_captions.txt').read_text().split('\n\n')[0],
-    'modality':(FIGURES/'feature_figure_captions.txt').read_text().split('\n\n')[1],
-    'adaptation':(ANALYSIS/'fig4_caption.txt').read_text().strip()}
-    d.add_page_break();p=d.add_paragraph();p.alignment=WD_ALIGN_PARAGRAPH.CENTER;p.add_run().add_picture(str(FIGURES/names[key]),width=Inches(6.5))
+    caps=json.loads((OUT/'figure_captions.json').read_text())
+    p=d.add_paragraph();p.alignment=WD_ALIGN_PARAGRAPH.CENTER;p.add_run().add_picture(str(FIGURES/names[key]),width=Inches(6.5))
     p.paragraph_format.keep_with_next=True
     p=paragraph(d,caps[key]);p.paragraph_format.line_spacing=1.05
     for r in p.runs:r.font.size=Pt(10)
@@ -237,6 +234,7 @@ def from_text(source,filename,kind):
     # The bundled reference template can carry a blue paragraph border in Title.
     for root in [d.element,d.styles.element]:
         for border in list(root.iter(qn('w:pBdr'))):border.getparent().remove(border)
+    d.core_properties.title=d.paragraphs[0].text if d.paragraphs else 'Manuscript'
     target=DELIVERY/filename;d.save(target);print(target)
 
 def bilingual_document():

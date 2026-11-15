@@ -15,6 +15,7 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
+from matplotlib.colors import to_rgb
 from PIL import Image
 
 ROOT = next(p for p in Path(__file__).resolve().parents if (p / 'data/active_workbooks.json').exists())
@@ -73,7 +74,7 @@ plt.rcParams.update({
     'xtick.major.width': .7, 'ytick.major.width': .7,
     'xtick.major.size': 3, 'ytick.major.size': 3,
     'legend.fontsize': 7.6, 'legend.frameon': False,
-    'pdf.fonttype': 42, 'svg.fonttype': 'none',
+    'pdf.fonttype': 42, 'ps.fonttype': 42, 'svg.fonttype': 'none',
     'savefig.facecolor': 'white', 'figure.facecolor': 'white',
     'lines.linewidth': 1.25, 'lines.markersize': 4.0,
 })
@@ -105,16 +106,32 @@ def save(fig, name):
     boxes += [(t.get_text(), t.get_window_extent(renderer)) for t in fig.texts]
     for label, box in boxes:
         assert box.x0 >= bounds.x0 and box.y0 >= bounds.y0 and box.x1 <= bounds.x1 and box.y1 <= bounds.y1, (name, label, tuple(box.bounds))
-    for extension in ['png', 'pdf', 'svg']:
+    for extension in ['png', 'tiff', 'pdf', 'eps', 'svg']:
         path = FIGURES / f'{name}.{extension}'
-        fig.savefig(path, dpi=600, facecolor='white')
+        if extension == 'tiff':
+            # Use the same rendered pixels as PNG, with no alpha channel.
+            with Image.open(FIGURES / f'{name}.png') as png:
+                assert png.getextrema()[-1] == (255, 255), 'PNG background must be opaque'
+                png.convert('RGB').save(path, compression='tiff_lzw', dpi=(1200, 1200))
+        else:
+            fig.savefig(path, dpi=1200, facecolor='white')
         row = {'path': str(path.relative_to(BASE)),
                'sha256': hashlib.sha256(path.read_bytes()).hexdigest(),
                'bytes': path.stat().st_size}
-        if extension == 'png':
+        if extension in ['png', 'tiff']:
             with Image.open(path) as image:
                 row['pixels'] = list(image.size)
-                row['dpi'] = list(image.info['dpi'])
+                row['dpi'] = [float(value) for value in image.info['dpi']]
+                row['color_mode'] = image.mode
+                if extension == 'tiff':
+                    assert image.mode == 'RGB' and image.info['compression'] == 'tiff_lzw'
+                    assert tuple(image.info['dpi']) == (1200, 1200)
+                    row['compression'] = image.info['compression']
+                    row['opacity'] = 'RGB, no alpha channel'
+        if extension == 'eps':
+            assert path.read_bytes().startswith(b'%!PS-Adobe-3.0 EPSF-3.0')
+            row['eps_header_valid'] = True
+            row['transparency'] = 'No partial transparency; original tints rendered as solid RGB'
         OUTPUTS.append(row)
     plt.close(fig)
 
@@ -237,7 +254,8 @@ def adaptation_figure():
     ax.axvline(80, color=GREY, lw=.95, ls=(0, (4, 2)), zorder=1)
     for i, (_, row) in enumerate(d.iterrows()):
         yy = y[i]; value = row.accuracy_percent
-        ax.plot([80, value], [yy, yy], color=colors[i], lw=1.5, alpha=.65, zorder=2)
+        line_colour = tuple(.65 * c + .35 for c in to_rgb(colors[i]))
+        ax.plot([80, value], [yy, yy], color=line_colour, lw=1.5, zorder=2)
         ax.scatter(value, yy, s=34, color=colors[i], edgecolor='white', linewidth=.65, zorder=3)
         left = value < 80
         ax.text(value + (-.32 if left else .32), yy, f'{value:.2f}%',
@@ -259,7 +277,7 @@ def molecular_figure():
     fig, axs = plt.subplots(1, 2, figsize=(6.5, 3.55), gridspec_kw={'width_ratios': [1, 1.5]})
     fig.subplots_adjust(left=.085, right=.97, bottom=.24, top=.89, wspace=.37)
     for ax in axs:
-        ax.axvspan(.1, 1.5, color='#DCE5EE', alpha=.85, label='Analysis interval')
+        ax.axvspan(.1, 1.5, color='#E1E9F1', label='Analysis interval')
         ax.vlines(direct.signed_frequency_THz, 0, direct.IR_intensity_km_mol,
                   color=BLUE, lw=1.6, label='Direct integrals')
         ax.vlines(ri.signed_frequency_THz, 0, ri.IR_intensity_km_mol,
@@ -291,8 +309,12 @@ if __name__ == '__main__':
         'schema': 'research4-final-figure-style-v1', 'status': 'PASS',
         'purpose': 'User-requested visual refinement and complete rectangular frames',
         'source_manifest_sha256': hashlib.sha256((CURRENT / 'manifest.json').read_bytes()).hexdigest(),
-        'width_inches': 6.5, 'png_export_dpi': 600,
-        'vector_formats': ['PDF', 'SVG'],
+        'width_inches': 6.5, 'png_export_dpi': 1200, 'tiff_export_dpi': 1200,
+        'raster_formats': ['PNG', 'TIFF (LZW, RGB, opaque)'],
+        'vector_formats': ['PDF', 'EPS', 'SVG'],
+        'font_embedding': {'PDF': 'TrueType (pdf.fonttype 42)', 'EPS': 'TrueType (ps.fonttype 42)', 'SVG': 'Editable text'},
+        'eps_transparency': 'All partial-alpha tints replaced by equivalent solid RGB colours',
+        'artwork_resolution_basis': 'SAGE line artwork minimum 800 dpi; exported at 1200 dpi',
         'frame': {'outer_figure_rectangle': True, 'four_spines_each_panel': True, 'linewidth_points': .8},
         'plot_values_unchanged': True, 'new_classifier_training': False,
         'new_quantum_calculations': False, 'frozen_evidence_modified': False,

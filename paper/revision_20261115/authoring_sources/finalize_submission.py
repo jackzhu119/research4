@@ -38,11 +38,18 @@ def document_text(doc):
 
 review = read_json(BASE / 'VISUAL_REVIEW.json')
 assert review['status'] == 'PASS'
+tables_receipt = read_json(BASE / 'SUBMISSION_TABLES_VERIFICATION.json')
+assert tables_receipt['status'] == 'PASS'
+for workbook in tables_receipt['workbooks']:
+    assert digest(BASE / workbook['file']) == workbook['sha256']
+    assert (BASE / workbook['file']).stat().st_size < 10 * 1024 * 1024
+assert read_json(BASE / 'JOURNAL_COMPLIANCE.json')['status'] == 'FILE_REQUIREMENTS_REVIEW_PASS'
 for item in review['files']:
     assert digest(BASE / item['path']) == item['sha256'], f"Visual review is stale: {item['path']}"
 
 authorship = read_json(BASE / 'AUTHORSHIP.json')
 assert len(authorship['authors']) == 5
+assert authorship['authors'][0]['orcid'].endswith('0009-0005-1153-4926')
 assert authorship['authors'][-1]['orcid'].endswith('0000-0002-3221-7875')
 authorship['submission_status'] = 'Final files prepared for author upload; no journal submission performed'
 save_json(BASE / 'AUTHORSHIP.json', authorship)
@@ -77,6 +84,7 @@ metadata = {
     'abstract': abstract.strip(),
     'keywords': [x.strip() for x in keywords.split(';')],
     'authors': authorship['authors'],
+    'author_orcids': {a['name']: a['orcid'] for a in authorship['authors'] if a.get('orcid')},
     'common_affiliation': authorship['shared_affiliation'],
     'common_affiliation_zh': authorship['shared_affiliation_zh'],
     'common_work_address': authorship['shared_work_address'],
@@ -86,6 +94,7 @@ metadata = {
     'references': 28,
     'competing_interests': 'None declared', 'funding': 'No financial support',
     'all_authors_approve_and_accept_responsibility': True,
+    'first_and_corresponding_author_orcids_confirmed': True,
     'manuscript_under_consideration_elsewhere': False,
     'experimental_data_provider': 'Yin Shen',
     'dataset_shared_for_other_supervised_studies': True,
@@ -101,7 +110,7 @@ save_json(BASE / 'SUBMISSION_METADATA.json', metadata)
 readiness = read_json(BASE / 'SUBMISSION_READINESS.json')
 readiness.update(submission_files_prepared=True, package_assembly_state='COMPLETE',
                  main_manuscript_word_count_approximate=word_count,
-                 figures_restyled_and_framed=True, figure_png_dpi=600,
+                 figures_restyled_and_framed=True, figure_png_dpi=1200,
                  full_manuscript_en_zh_completed=True,
                  reference_count=28, motivation_and_contributions_revised=True)
 save_json(BASE / 'SUBMISSION_READINESS.json', readiness)
@@ -134,7 +143,7 @@ for idx, name in enumerate(expected_figures):
     expected_docs = ['02_Supplementary_Information.docx'] if idx == 4 else ['01_Manuscript_Optimized.docx', '07_Manuscript_EN_ZH.docx']
     assert all(h in embedded[d] for d in expected_docs), name
 style = read_json(BASE / 'authoring_sources/figure_style_receipt.json')
-assert style['status'] == 'PASS' and style['png_export_dpi'] == 600
+assert style['status'] == 'PASS' and style['png_export_dpi'] >= 800 and style['tiff_export_dpi'] == 1200
 assert style['frame']['outer_figure_rectangle'] and style['frame']['four_spines_each_panel']
 for row in style['outputs']:
     assert digest(BASE / row['path']) == row['sha256']
@@ -150,6 +159,8 @@ save_json(BASE / 'DELIVERY_VERIFICATION.json', {
     'references_verified': 28,
     'motivation_and_contributions_revised': True,
     'narrative_revision_receipt': 'authoring_sources/NARRATIVE_REVISION.json',
+    'journal_compliance': 'JOURNAL_COMPLIANCE.json',
+    'supplementary_tables_verification': 'SUBMISSION_TABLES_VERIFICATION.json',
     'journal_submission_performed': False
 })
 
@@ -178,7 +189,8 @@ with TemporaryDirectory(prefix='research4-final-') as scratch:
         '04_Cover_Letter.docx': submit / '03_Cover_Letter.docx',
         '02_Supplementary_Information.docx': submit / '04_Supplementary_Information.docx',
         '08_Declarations.docx': submit / '05_Declarations.docx',
-        'Supplementary_Data_S1.zip': submit / 'Supplementary_Data_S1.zip',
+        'Supplementary_Tables.xlsx': submit / 'Supplementary_Tables.xlsx',
+        'Supplementary_Data_S1.zip': evidence / 'Supplementary_Data_S1.zip',
         'SUBMISSION_METADATA.json': submit / 'SUBMISSION_METADATA.json',
         '07_Manuscript_EN_ZH.docx': author_review / '01_Manuscript_EN_ZH.docx',
         '06_投稿文件说明.docx': author_review / '02_投稿文件说明.docx',
@@ -186,12 +198,16 @@ with TemporaryDirectory(prefix='research4-final-') as scratch:
     }
     for source_name, target in mapping.items():
         shutil.copy2(BASE / source_name, target)
+    for i in range(1,6):
+        shutil.copy2(BASE / f'Supplementary_B{i}.xlsx', submit / f'Supplementary_B{i}.xlsx')
     (submit / 'figures').mkdir()
     (evidence / 'vector_figures').mkdir()
-    for name in expected_figures:
-        for ext in ['png', 'pdf', 'svg']:
-            target_dir = evidence / 'vector_figures' if ext == 'svg' else submit / 'figures'
-            shutil.copy2(BASE / 'figures' / f'{name}.{ext}', target_dir)
+    (author_review / 'figure_previews').mkdir()
+    for i,name in enumerate(expected_figures,1):
+        for ext in ['png', 'pdf', 'svg', 'tiff', 'eps']:
+            target_dir = evidence / 'vector_figures' if ext == 'svg' else (submit / 'figures' if ext in ['tiff','eps'] else author_review / 'figure_previews')
+            target_name = f'Figure_{i}' if i<5 else 'Figure_S1'
+            shutil.copy2(BASE / 'figures' / f'{name}.{ext}', target_dir / f'{target_name}.{ext}')
     for folder in ['Supplementary_Data_S1', 'authoring_sources']:
         shutil.copytree(BASE / folder, evidence / folder, ignore=shutil.ignore_patterns('__pycache__', '*.pyc'))
     for path in BASE.iterdir():
@@ -202,7 +218,7 @@ with TemporaryDirectory(prefix='research4-final-') as scratch:
         '本文件夹保留完整冻结证据与写作来源，不需全部上传期刊。\n'
         'Supplementary_Data_S1：冻结的纠正后来源、协议、预测与验收。历史记录中的缺失字段保持原貌，不是本次待补清单。\n'
         'authoring_sources：最终英文源稿、完整中文翻译和构建脚本；脚本在原仓库路径运行。\n'
-        'vector_figures：5张图的SVG源版；实际上传PNG/PDF在01_Submit/figures。\n'
+        'vector_figures：5张图的SVG源版；上传用EPS及1200 dpi TIFF在01_Submit/figures，PDF/PNG审阅版在02_Review/figure_previews。\n'
         'REPOSITORY_FILE_MANIFEST.json对应仓库paper/revision_20261115路径；压缩包的实际路径与哈希见根目录PACKAGE_MANIFEST.json。\n'
         'VISUAL_REVIEW.json和DELIVERY_VERIFICATION.json记录最终页面检查及文档结构。\n')
     (stage / 'README_使用说明.txt').write_text(
@@ -210,9 +226,9 @@ with TemporaryDirectory(prefix='research4-final-') as scratch:
         '01_Submit：英文正文、标题页、投稿信、英文补充材料、声明、数据附件与最终图片。\n'
         '02_Review：完整正文中英对照及中文使用说明，供作者审阅。\n'
         '03_Evidence：完整冻结证据、源稿、翻译、构建代码和哈希核验，供追溯。\n\n'
-        '请先阅读02_Review/02_投稿文件说明.docx。图有600 dpi PNG及矢量PDF，每图择一上传。\n'
+        '请先阅读02_Review/02_投稿文件说明.docx。生产图提供1200 dpi TIFF及EPS，每图择一上传；补充表格优先使用XLSX。\n'
         '正文按实际数据标注和已确认条件完成，旧实验参数补齐表已经撤下。冻结证据中的历史缺失字段保留原貌。\n'
-        '全体作者及Yin Shen通讯标记、ORCID、共同单位与责任声明已写入文件；数据来源已说明，亦用于导师其他指导研究。\n'
+        '全体作者、Ziyuan Zhu第一作者ORCID、Yin Shen通讯标记及ORCID、共同单位与责任声明已写入文件；数据来源已说明，亦用于导师其他指导研究。\n'
         '文件准备完成，未代为向期刊提交。账号持有人在系统授权ORCID、预览生成PDF后执行提交。\n\n'
         '仓库：https://github.com/jackzhu119/research4\n'
         '当前修订：https://github.com/jackzhu119/research4/pull/19\n'

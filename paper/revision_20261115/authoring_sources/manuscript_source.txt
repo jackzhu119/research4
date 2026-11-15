@@ -6,7 +6,9 @@ College of Artificial Intelligence Medicine, Chongqing Medical University, Chong
 
 *Corresponding author: Yin Shen; shenyin285819016@126.com
 
-ORCID: https://orcid.org/0000-0002-3221-7875
+ORCID (Ziyuan Zhu): https://orcid.org/0009-0005-1153-4926
+
+ORCID (Yin Shen): https://orcid.org/0000-0002-3221-7875
 
 ## Abstract
 
@@ -33,6 +35,8 @@ Accordingly, we propose and evaluate a workflow connecting recorded terahertz re
 ### Materials and optical acquisition
 
 The measured experimental dataset was provided by the corresponding author, Yin Shen, for the present analyses. The collection contained 18 workbooks and 1,672 specimen records: Suanzaoren, 500; Zaoren, 364; Huangqi, 403; and Tianma, 405 (Table I). Commercial products were purchased online with the source labels recorded in the dataset. Separate investigator declarations covered specimen independence for the original 855 records and the additional 817 records. The five Suanzaoren groups were Inner Mongolia, Lingshi in Shanxi, Bozhou in Anhui, Shijiazhuang in Hebei and a separately labelled Shanxi group. Each comprised 100 specimens from one declared source batch. The two Shanxi labels were preserved as distinct recorded groups. Throughout this article, source discrimination refers to these recorded groups.
+
+[TABLE:dataset]
 
 The four materials shared an acquisition framework. Preparation equipment comprised an XQM-0.4L planetary ball mill, a DHG101-0B drying oven, an FA2104N electronic balance and an Atlas TM 15T manual press. Transmission measurements were made in the terahertz laboratory of the National Engineering Research Center for Information Technology in Agriculture using a TERA K15 system (Menlo Systems, Germany). The reported optical wavelength and optical power were 1,550 nm and 33 mW, respectively. Measurements were performed at 292 K in a nitrogen-purged enclosure with humidity below 4%. A blank polyethylene pellet supplied the reference response, followed by acquisition of the sample response. Polyethylene-reference response correction was confirmed by the investigator.
 
@@ -86,11 +90,15 @@ The original corrected matrix, the additional representation matrix and the five
 
 Protocatechuic acid was evaluated as an isolated neutral molecule using PBE/def2-SVP in PySCF.[25,26,27] Two accepted numerical realizations were considered: direct Coulomb treatment with integration grid level 5 and RI-J density fitting with grid level 5. Each realization had its own accepted stationary-point and mode evidence and independently evaluated dipole derivatives for infrared intensities. A nonlinear 17-atom molecule has 45 vibrational modes. We used the complete accepted 45-mode tables and the sealed numerical acceptance records, rather than selecting individual frequencies from incomplete jobs. Frequencies were converted using 1 cm⁻¹ = 0.0299792458 THz. The scope is a local isolated-molecule harmonic model; no solid-state spectrum or constituent concentration was inferred. Numerical differentiation settings and the complete frequency–intensity tables appear in Supplementary Section S8.
 
+Figures were plotted from the recorded numerical tables using Matplotlib and exported as 1200 dpi raster files and vector graphics.
+
 ## Results and discussion
 
 ### A common absorption classifier across materials and sources
 
 The common absorption baseline correctly classified all 174 Suanzaoren–Zaoren PRED specimens and 331/339 specimens across four materials (Table II). The four-material macro-F1 was 0.9751 and balanced accuracy was 97.50%. These results establish useful separation of the recorded materials with a single preprocessing and classifier recipe. Huangqi and Tianma therefore contribute direct application cases within the study, alongside the seed-material comparison.
+
+[TABLE:tasks]
 
 The same recipe produced source-group accuracies of 85/100 for Suanzaoren, 69/82 for Huangqi and 81/83 for Tianma. These tasks differ in class structure and represented source composition. Their results describe the available collections rather than a sequence of performance improvements. Source-group classification also has a different target from material discrimination: the former evaluates variation among specimens assigned to the same material, whereas the latter can use differences between material categories.
 
@@ -98,7 +106,13 @@ Zaoren illustrates the importance of class-balanced reporting. Its 72/74 accurac
 
 ### Absorption supplies the strongest internally selected representations
 
+Source-group mean absorption and refractive-index spectra for the 300 Suanzaoren TRAIN specimens are shown in Fig. 1.
+
+[FIGURE:spectra]
+
 Within the balanced five-source Suanzaoren task, SNV absorption with MC20–SVM achieved 93.44% mean nested-validation accuracy and macro-F1 0.9344 (Table III). The mean retained count was 220.6 of the 612 absorption coordinates. Raw-absorption MC20 achieved 93.22%, and MC100 with SNV absorption achieved the same mean accuracy as MC20. Thus, the central result is a discriminative absorption representation with an explicit feature budget; the 0.22-percentage-point SNV–raw difference does not establish a distinct accuracy advance.
+
+[TABLE:primary]
 
 The modality comparison provides a clearer spectroscopic distinction. Raw refractive index achieved 83.67%, while SNV refractive index achieved 62.56%. In contrast, both raw and SNV absorption retained approximately 93% accuracy. Removing a spectrum’s overall level and scale therefore affected the two exported representations differently. This observation identifies a representation-dependent contribution of spectral level and shape within the collection. It does not isolate a particular chemical or preparation factor responsible for that contribution.
 
@@ -108,7 +122,11 @@ The internally selected joint SNV pool achieved 91.67%, and the weighted and equ
 
 The fixed-budget comparison revealed a result that the primary accuracy table alone does not explain (Fig. 2). At K = 62, selection from the joint SNV n + SNV α pool achieved 87.11%, compared with 81.00% for SNV α alone. Both final classifiers received 62 predictors, approximately one tenth of the single absorption grid. The paired mean difference was 6.11 percentage points, with a reproduced 5,000-draw specimen-cluster interval of 2.33–10.00 percentage points. Raw-absorption selection at the same budget achieved 88.78%, establishing that the joint-pool gain is specific to the matched SNV comparison. All five budget comparisons appear in the figure and Supplementary Table S3. The internally selected K result remains the primary performance estimate; K = 62 is a prescribed-budget comparison.
 
+[FIGURE:budget]
+
 Inspection of the retained coordinates identified the information pathway. Every one of the 15 joint-pool outer refits at K = 62 selected 62 absorption variables and zero refractive-index variables. Across those refits, all 930 feature occurrences were absorption coordinates (Fig. 3). Consequently, the restricted-budget gain can be obtained by a final absorption-only predictor matrix even when refractive-index candidates participated in ranking. This is a concrete distinction between integrating candidate information and retaining both modalities in prediction.
+
+[FIGURE:modality]
 
 The two selection procedures also chose substantially different absorption subsets, with a mean Jaccard overlap of 0.0111 at K = 62. Equal predictor width and identical final modality therefore do not imply an identical spectral representation. PLS coefficient-stability ranking is conditioned on the complete candidate covariance structure. Adding a signal block can change that ranking and the absorption coordinates retained by the final SVM. The observed result supports this candidate-pool interpretation; it does not by itself identify which individual added variable caused a ranking change or separate subset effects from the independently inner-selected SVM settings.
 
@@ -117,6 +135,10 @@ The practical implication is to document three quantities when evaluating select
 ### Additional-label gains arise primarily from effective supervision
 
 The Source/Support/Query controls identify a second information pathway (Table IV; Fig. 4). The frozen five-source classifier achieved 80.00% accuracy with 190 Source specimens in each context. Adding 10 true Support labels per class and refitting the full pipeline increased accuracy to 83.89%. Across 900 correlated Query predictions, refitting corrected 49 source-model errors and introduced 14 errors, giving a net increase of 35 correct predictions. This comparison concerns additional supervision within the 300-specimen TRAIN population.
+
+[TABLE:adaptation]
+
+[FIGURE:adaptation]
 
 Most of that gain remained when the Source scaler and kernel gamma were frozen: refitting with the valid Support labels achieved 83.78%, a paired increase of 3.78 percentage points with a descriptive specimen-cluster 95% interval of 2.11–5.67 percentage points. Re-estimating the scaler and gamma yielded 83.89%, close to the frozen-transform result. The decomposition therefore locates the main contribution in the updated supervised decision function. It supplies a direct explanation for the label-budget effect without assigning it to a change in measurement conditions.
 
@@ -154,7 +176,7 @@ This study presents a machine-learning workflow for complementary terahertz disc
 
 The first author thanks the supervisor and corresponding author, Yin Shen, for providing the experimental data and for guidance and support in manuscript preparation and submission.
 
-OpenAI ChatGPT/Codex assisted repository inspection, organization and checking of archived evidence, manuscript drafting and language revision, and preparation and checking of analysis and plotting code. This revision used existing spectra, saved classifier predictions, selected-feature records and accepted molecular outputs. It did not train new classifiers or initiate new molecular calculations. Figures were generated programmatically from recorded data. The authors are responsible for the manuscript and scientific interpretation.
+OpenAI ChatGPT/Codex assisted manuscript drafting and revision, literature searches, and the preparation and checking of analysis and plotting code. The authors reviewed the output and take full responsibility for the content.
 
 ## Author contributions
 
@@ -190,11 +212,11 @@ All authors accept responsibility for the accuracy and integrity of the work. Th
 
 ### Data availability
 
-The experimental data were supplied by the corresponding author, Yin Shen, as part of a shared research resource also used in other supervised studies. The present manuscript reports the analyses and results described here. The active spectra, recorded material/source labels, frozen specimen roles and corrected classifier results are available at https://github.com/jackzhu119/research4. The classifier evidence entry point is paper/current/README.md and its fixed-source manifest, anchored to main commit 167d1d2. The accompanying revised evidence package contains current result tables, derived feature-budget checks, qualified molecular frequency–intensity tables and source receipts. Molecular source commits and the complete numerical acceptance records are identified separately in Supplementary Section S8.
+The spectra, recorded material and source labels, specimen allocations, classifier results and analysis protocols supporting this study are available at https://github.com/jackzhu119/research4 and in the accompanying supplementary data. The experimental dataset was supplied by the corresponding author, Yin Shen, as a shared research resource also used in other supervised studies. The input registry and source manifest identify the files analyzed here. Molecular frequency and infrared tables and their numerical verification records are provided in Supplementary Section S8.
 
 ## Supplemental material
 
-Supplemental Material provides the acquisition-record inventory, complete workbook and specimen roles, computational settings, full primary and fixed-budget comparisons, all corrected fixed-role and transfer results, the five support-mechanism rounds, qualified molecular tables and an evidence map. The corrected matrices contain 1,305 original and 330 additional task settings; the five mechanism rounds contain 1,380 unique task bundles. These counts describe computations on overlapping specimens.
+Supplemental Material provides acquisition information, specimen allocation, computational settings, complete representation and feature-budget comparisons, support-label controls, transfer results and molecular frequency–intensity tables.
 
 ## References
 
@@ -253,21 +275,3 @@ Supplemental Material provides the acquisition-record inventory, complete workbo
 [27] Weigend F, Ahlrichs R. Balanced basis sets of split valence, triple zeta valence and quadruple zeta valence quality for H to Rn: Design and assessment of accuracy. Phys Chem Chem Phys. 2005;7:3297–3305. doi:10.1039/B508541A.
 
 [28] Rodionova OY, Titova AV, Pomerantsev AL. Discriminant analysis is an inappropriate method of authentication. TrAC Trends Anal Chem. 2016;78:17–22. doi:10.1016/j.trac.2016.01.010.
-
-## Tables
-
-[TABLE:dataset]
-
-[TABLE:tasks]
-
-[TABLE:primary]
-
-[TABLE:adaptation]
-
-[FIGURE:spectra]
-
-[FIGURE:budget]
-
-[FIGURE:modality]
-
-[FIGURE:adaptation]

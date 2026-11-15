@@ -2,7 +2,7 @@
 
 本版本面向Applied Spectroscopy，使用`paper/current/manifest.json`允许的纠正后分类结果及单独验收的两套原儿茶酸分子计算。错误混种模型、旧预测重贴标签分析和旧混合汇总不进入论文。
 
-作者顺序：Ziyuan Zhu、Jiayi Ren、Shuyu Zhou、Mengting Zhu、Yin Shen。Yin Shen为末位通讯作者，邮箱shenyin285819016@126.com，ORCID为https://orcid.org/0000-0002-3221-7875。全部作者单位为重庆医科大学人工智能医学学院；英文单位、共同工作地址、邮箱与贡献见[标题页](05_Title_Page.docx)和[作者信息](AUTHORSHIP.json)。
+作者顺序：Ziyuan Zhu、Jiayi Ren、Shuyu Zhou、Mengting Zhu、Yin Shen。第一作者Ziyuan Zhu的ORCID为https://orcid.org/0009-0005-1153-4926。Yin Shen为末位通讯作者，邮箱shenyin285819016@126.com，ORCID为https://orcid.org/0000-0002-3221-7875。两项ORCID按姓名分别列明，已核验公开记录与校验位。全部作者单位为重庆医科大学人工智能医学学院；英文单位、共同工作地址、邮箱与贡献见[标题页](05_Title_Page.docx)和[作者信息](AUTHORSHIP.json)。
 
 全体作者批准投稿并对准确性和完整性负责；无利益冲突，无资金支持，本稿未在其他期刊同时审理。实测数据由导师及通讯作者提供，也用于其指导的其他学生研究；稿件不宣称独占数据。
 
@@ -18,10 +18,14 @@
 |[06 投稿文件说明](06_投稿文件说明.docx)|上传类型、系统元信息和账户操作说明|
 |[07 全文中英对照](07_Manuscript_EN_ZH.docx)|逐段正文、声明、图注及4张表的中文对照，供作者审阅|
 |[08 独立声明](08_Declarations.docx)|系统要求单独声明文件时使用|
-|[Supplementary Data S1](Supplementary_Data_S1.zip)|精简的期刊数据附件，含纠正结果、预测/特征、协议、输入划分和两套合格分子模式/IR|
+|[Supplementary Data S1](Supplementary_Data_S1.zip)|完整数据来源归档；期刊优先使用6份标准XLSX，归档保留纠正结果、预测/特征、协议、输入划分和两套合格分子模式/IR|
 |[投稿元信息](SUBMISSION_METADATA.json)|可复制的题目、摘要、关键词、作者、声明和字数|
 
-四张主图与一张补充图在[figures](figures/)中，统一采用完整外框、600 dpi PNG和PDF/SVG矢量版本。上传时每图选择系统接受的一个版本，避免重复登记。
+四张主图与一张补充图在[figures](figures/)中，由Matplotlib直接按记录的数值表绘制，统一完整外框。生产版提供1200 dpi RGB LZW TIFF及EPS，另备嵌入字体的PDF、PNG和SVG版本。上传时每图选择系统接受的一个版本，避免重复登记。四张可编辑表及四张主图已放回正文对应位置，表格采用简洁横线样式。
+
+期刊补充数据优先使用6份标准XLSX：Supplementary_Tables.xlsx和Supplementary_B1.xlsx至Supplementary_B5.xlsx，均小于10 MiB，保留全部纳入表格的正负结果。来源SHA及逐格读回核查见[数据表核验](SUBMISSION_TABLES_VERIFICATION.json)。完整S1 ZIP保留为来源归档。
+
+最终结构、引用、图件、作者及声明核查见[期刊格式核查](JOURNAL_COMPLIANCE.json)。正文已清除内部修订说明、占位符、评论与修订标记；按Applied Spectroscopy所链接的Sage政策，在致谢保留一条简短工具使用披露，无逐图AI标注。
 
 中英对照保留原始英文参考文献和图内英文坐标、图例，另附中文图注与表格。其内容与最终英文稿对应，参见[双语核验](BILINGUAL_VERIFICATION.json)。
 

@@ -40,13 +40,14 @@ with tempfile.TemporaryDirectory() as scratch:
             if path.is_file():copy(path,Path('accepted_molecular')/folder/path.relative_to(molecular/folder))
     for name in ['molecular_table_verification.json','verify_molecular_tables.py']:
         copy(molecular/name,Path('accepted_molecular')/name)
-    receipt={'schema':'research4-submission-data-v1','classifier_manifest_sha256':hashlib.sha256((CURRENT/'manifest.json').read_bytes()).hexdigest(),'canonical_raw_spectra':'https://github.com/jackzhu119/research4/tree/main/data','experimental_data_provider':'Yin Shen','corresponding_orcid':'https://orcid.org/0000-0002-3221-7875','dataset_use':'Shared research resource also used in other supervised studies; no exclusive-use claim','new_model_training':False,'files':records}
+    receipt={'schema':'research4-submission-data-v1','classifier_manifest_sha256':hashlib.sha256((CURRENT/'manifest.json').read_bytes()).hexdigest(),'canonical_raw_spectra':'https://github.com/jackzhu119/research4/tree/main/data','experimental_data_provider':'Yin Shen','first_author_orcid':'https://orcid.org/0009-0005-1153-4926','corresponding_orcid':'https://orcid.org/0000-0002-3221-7875','author_orcids':{'Ziyuan Zhu':'https://orcid.org/0009-0005-1153-4926','Yin Shen':'https://orcid.org/0000-0002-3221-7875'},'dataset_use':'Shared research resource also used in other supervised studies; no exclusive-use claim','new_model_training':False,'files':records}
     (stage/'SOURCE_MANIFEST.json').write_text(json.dumps(receipt,ensure_ascii=False,indent=2)+'\n')
     (stage/'README.txt').write_text('Supplementary Data S1\n\n'
       'Manuscript: Terahertz fingerprints and machine learning for complementary discrimination of medicinal materials\n'
       'Authors: Ziyuan Zhu, Jiayi Ren, Shuyu Zhou, Mengting Zhu and Yin Shen\n'
       'Corresponding author: Yin Shen; shenyin285819016@126.com\n'
-      'ORCID: https://orcid.org/0000-0002-3221-7875\n\n'
+      'ORCID (Ziyuan Zhu, first author): https://orcid.org/0009-0005-1153-4926\n'
+      'ORCID (Yin Shen, corresponding author): https://orcid.org/0000-0002-3221-7875\n\n'
       'The measured dataset was supplied by the corresponding author and is a shared resource used in other supervised research. This archive supports the analyses reported in the present manuscript.\n\n'
       'corrected_tables: all included corrected positive and negative settings, task definitions, model settings, paired effects and B1-B5 results.\n'
       'specimen_inputs: recorded labels, frozen roles, workbook registry and nominal header thickness annotations.\n'

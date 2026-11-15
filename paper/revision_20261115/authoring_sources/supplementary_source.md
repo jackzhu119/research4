@@ -8,7 +8,9 @@ College of Artificial Intelligence Medicine, Chongqing Medical University, Chong
 
 *Corresponding author: Yin Shen; shenyin285819016@126.com
 
-ORCID: https://orcid.org/0000-0002-3221-7875
+ORCID (Ziyuan Zhu): https://orcid.org/0009-0005-1153-4926
+
+ORCID (Yin Shen): https://orcid.org/0000-0002-3221-7875
 
 This supplement provides the complete computational specification, specimen allocation, representation controls, fixed role classification and adaptation results, mechanism experiments, and qualified molecular reference calculations. Numerical classifier results use the corrected material categories and the current paper evidence manifest. The machine readable tables preserve all included positive and negative settings.
 
