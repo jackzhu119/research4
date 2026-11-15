@@ -1,9 +1,7 @@
-# Verified manuscript downloads
-
-Reference count: 28. English manuscript: 20 pages. Bilingual manuscript: 35 pages.
+# Final manuscript downloads
 
 - [Submission Package](https://github.com/jackzhu119/research4/raw/dl/Submission.zip)
 - [Bilingual Manuscript](https://github.com/jackzhu119/research4/raw/dl/Bilingual.docx)
 - [English Manuscript](https://github.com/jackzhu119/research4/raw/dl/Manuscript.docx)
 
-SOURCE.json identifies the source revision and SHA-256 hashes. The package contains journal files, bilingual review documents and full provenance. No journal submission has been performed.
+Named ORCIDs for Ziyuan Zhu and Yin Shen are included. Journal files contain 1200 dpi TIFF/EPS artwork and six standard data workbooks. SOURCE.json records the source revision and SHA-256 hashes. Files are prepared for author submission; no journal submission has been performed.
