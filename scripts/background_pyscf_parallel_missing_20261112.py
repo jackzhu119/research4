@@ -352,7 +352,7 @@ def publish(paths):
                     continue
                 if path.suffix.lower() == '.npy' and 'density' in path.name.lower():
                     continue
-                if path.suffix.lower() in ('.json', '.csv', '.md', '.xyz', '.npy', '.npz') and path.stat().st_size < 8 * 1024 * 1024:
+                if path.suffix.lower() in ('.json', '.csv', '.md', '.xyz', '.npy', '.npz', '.log') and path.stat().st_size < 8 * 1024 * 1024:
                     candidates.append(path)
             relative = sorted({str(p.relative_to(paths.root)) for p in candidates if p.exists()})
             for offset in range(0, len(relative), 100):
