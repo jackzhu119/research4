@@ -1,0 +1,9 @@
+# Publication and report CPU enforcement
+
+The original cumulative authorization remains 1,360,000 CPU seconds. The frozen scientific protocol, original budget ledger, job queue and historical CPU charges are unchanged.
+
+The original `budget_guard.py` continues to enforce its normal cumulative charges. Because this publication's manually launched report and exporter are not its watchdog children, `supplemental_budget_guard.py` adds a separate persistent, monotone charge: the report's 270.39-second conservative receipt, the export/upload process's CPU high-water plus uncertain tail, the supplementary guard's own CPU plus uncertain tail, and a 1,000-second conservative allowance for short publication/control processes. The allowance is a deduction from the original authorization, not a measured-spending claim or added budget.
+
+The supplementary enforcer triggers at `original_guard_total + supplementary_charge >= original_guard_trigger` (normally1,358,000), preserving the original2,000-second shutdown reserve. It writes `CPU_BUDGET_STOP.json` with reason `supplemental_publication_cpu_budget_exhausted`, then uses the canonical STOP/SIGTERM path only on verified current boot/PID/start identities. The frozen supervisor labels every STOP-path exit `stopped_by_user`; the CPU marker supplies the accurate resource-stop reason. No new authorization is implied.
+
+For any later authorized recovery, inspect STOP/terminal states and the existing ledgers first. Run the original guard and this supplementary guard before canonical `start_background.py`; retain `publication_cpu_ledger.json` across boots. The supplementary guard can be launched detached with Python's subprocess API, or in the foreground with `python ml_publication_20261115/supplemental_budget_guard.py`. It must remain alive while subsequent training consumes this original budget. Its status file reports the combined conservative charge and remaining original cap.

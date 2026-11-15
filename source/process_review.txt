@@ -1,0 +1,60 @@
+独立后台研究：持久化、CPU预算与故障审查（2026-11-10）
+本任务只读检查环境并提出设计建议；未启动正式训练，未修改root调度程序。
+
+1. 实测环境
+- /proc可见5逻辑CPU；cgroup cpu.max=400000 100000，实际上限4核。因此4个单线程训练进程合理，不能按5核估算吞吐。
+- memory.max=17179869184字节（16GiB），无swap；检查时memory.current约535MB，memory.events中oom/oom_kill均为0。
+- cgroup2挂载rw，但目录和cgroup.procs由root拥有，agent无写权限，不能创建研究专用子cgroup。容器级cpu.stat还包含Codex和服务进程，不能直接当研究CPU记账。
+- SC_CLK_TCK=100；Python3.12.14；RLIMIT_CPU目前无限制。
+- PID1是tail -f /dev/null。不要依赖它reap训练子进程或提供应用级重启保障。
+- 90000CPU秒=25核时；4核持续忙碌时理想运行约22500秒=6小时15分钟wall，另有I/O、排队和节流。CPU秒不等于货币费用，不能从这些计数推断实际账单。
+
+2. 脱离当前会话及启动验收
+- 推荐短launcher使用subprocess.Popen(start_new_session=True, stdin=DEVNULL, stdout=持久日志文件, stderr=STDOUT, close_fds=True)，launcher退出；或等价setsid+nohup且所有stdio重定向。仅加&或nohup并不足以证明已脱离原会话。
+- supervisor自己写出PID、PGID、SID、/proc PID starttime、boot_id、启动时间、配置hash。随后用另一次独立exec验证supervisor PPID=1、SID=PID；workers的PPID应为supervisor。
+- Popen/setsid返回的launcher PID未必是最终daemon PID；最终身份以supervisor自行写出的记录为准。
+- 至少取得两次独立状态快照，证明实际worker累计CPU增加、有效任务处于训练阶段并有真实fit日志/检查点，而非仅有活PID或心跳。
+- 所有BLAS/OpenMP线程环境变量在导入NumPy/sklearn前置1，并用threadpoolctl核实；禁止训练worker再fork并行池，否则CPU和内存预算模型失效。
+
+3. CPU记账：只选一种终值来源，避免重复
+- 每个worker attempt有唯一attempt_id，另存(pid,starttime,boot_id)，不能仅靠PID防重或识别恢复进程。
+- 活进程CPU可读/proc/PID/stat的utime+stime除以CLK_TCK。解析应先定位最后一个')'，因为comm字段可带空格/括号；不要直接split整个stat并按固定位置取值。
+- 正常退出后由supervisor使用os.wait4读取ru_utime+ru_stime，作为该attempt唯一最终CPU值。一个attempt的终值只入账一次；失败、OOM、SIGSEGV和重试的实际CPU同样计入，不因没有模型产物而免账。
+- 稳定总数=已reap且已入账attempt终值之和+尚未入账的活attempt最新累计CPU。reap状态转移与终值写账必须是一个SQLite事务；不能一边保留该PID的活CPU快照，一边又把wait4终值加入。
+- 如果改用resource.getrusage(RUSAGE_CHILDREN)，它已包含被wait的子进程累计usage，不能再加这些attempt的wait4终值或旧/proc快照。需记录supervisor启动时基线且只统计对应时期；不建议把RUSAGE_CHILDREN与逐attempt账本混成两个独立加项。
+- 当前设计应禁止worker产生训练孙进程；否则pid的cutime/cstime、孙进程自己的CPU及wait4返回的后代usage容易重计。supervisor本身的RUSAGE_SELF应单列，明确硬预算是训练CPU还是全研究CPU。
+- 心跳保存单调的累计CPU而非对未经确认的采样delta多次相加。保留observed_actual_cpu、final_verified_cpu、reserved_cpu、uncertain_cpu_upper_bound等不同字段。
+
+4. 90000CPU秒临界控制
+- 仅每几秒轮询四个worker的CPU然后kill不能严格保证不越界；采样/调度延迟可能带来约workers×poll_interval的超额。
+- 推荐CPU lease：每次启动worker/attempt先在事务中预留一个最大CPU额度；所有未决lease上界与已验证消耗及停机安全余量之和不得超过90000。每个进程同时设RLIMIT_CPU软/硬限额作为supervisor失联后的后备，而非只依赖中心轮询。
+- RLIMIT_CPU是进程累计CPU限制，单位为整数秒，信号处理和内核粒度仍有误差。应为每个并行进程留至少1–2秒及监控/终结开销的余量；不要宣称用户态采样可精确卡在90000.000000秒。若全研究CPU计入，还须为supervisor留受控余量。
+- 正常任务结束且wait4终值确认后，仅退还该lease未使用部分；不得同时退还已消耗部分。worker损坏/失联时不应把未确认尾段当零。
+- 临近预算不再启动一个无上限大任务；使用已冻结的小粒度真实训练任务或让现有任务在预留范围内结束。worker也在fit边界检查自身CPU剩余额度；不能通过空转、重复写心跳、sleep或无实质训练的验证凑CPU。
+- 到硬预算或安全上界，停止派发，标记完成/预算停止，向task-owned进程组发SIGTERM，短宽限后SIGKILL，wait4收齐状态，最后写终态和未完成任务。不要为了保存一个正在C扩展里长时间不返回的模型突破预算。
+
+5. 不能因准确率/有限队列而提前结束
+- 调度停止条件只取CPU预算、用户停止或明确致命基础设施故障；不能读取best_accuracy来决定停机或延长时间。
+- 预先冻结与结果无关的足量种子、fold、模型族/超参数任务；可用冻结的ordinal-to-seed确定性生成规则分批填充SQLite，避免一次插入数百万行。若静态预加载部分耗尽，应从该既定规则继续生成，不得把队列暂空解释为研究完成。
+- 失败配置按预先定义的有限重试规则处理，超限后记录失败并转下一个有效预定义任务。不能反复立刻失败、无工作睡眠或空转却把“后台仍运行”说成“训练仍进行”。
+- 如果所有有效任务都因同一依赖/输入/基础设施错误无法运行，应进入明确fault状态，保留原因；不能伪装达成90000CPU秒。云环境强制终止也应标interrupted而非研究完成。
+- 所有重复仍是同一数据的重复训练/分区敏感性，不能把重复次数记成新样本或独立外部验证，也不能按外层最高分无限追分。
+
+6. SQLite、检查点与恢复
+- WAL，synchronous=FULL，busy_timeout，短BEGIN IMMEDIATE写事务；训练过程不得持有队列写锁。任务领取和attempt创建应原子化。
+- 任务状态至少queued/running/completed/failed/interrupted；attempt另外保留退出码、信号、stderr、开始/最后心跳、final CPU、CPU lease、输入/协议hash、检查点hash。
+- 文件写临时路径，flush+fsync，atomic rename，并fsync父目录；确认文件完整后再将任务标completed。启动恢复时核对“文件已成但DB未成”和“DB完成但文件缺失”两种撕裂状态。
+- resume必须验证冻结配置/输入hash和split身份。checkpoint粒度应是一个已完成的outer-fold或独立训练单元，不应在失败后把半成品当有效外层结果。
+- supervisor用flock或SQLite唯一锁阻止两个领导者同时派发；重启时先检查旧PID+starttime+boot_id，不得直接把所有running置queued导致双跑。
+- 注意supervisor一旦死亡，旧workers可能成为PID1的子进程；新supervisor无法wait4这些非子进程。没有专用持久cgroup记账时，不能保证拿到它们最后的真实CPU。可终止/隔离遗留worker，按最后累计快照到lease上界保守记不确定区间，未知尾段不退预算；明确区分验证CPU和保守预算扣款，不能把预留上界报告成真实训练消耗。
+- workers自行周期性提交CPU累计和完成收据可缩小失联不确定区间；无法彻底消除SIGKILL到最后心跳之间的尾段。若要求绝对无损且跨supervisor故障的精确账，需要可控的独立cgroup/外部进程监控服务，本环境普通agent权限不能保证。
+
+7. OOM、段错误及断主会话
+- 四worker总内存应留足supervisor、数组副本和文件缓存余量；16GiB配额下每worker目标RSS约3GiB以下。若用RLIMIT_AS，应先验证ML库正常加载，避免错误地把虚拟地址空间当RSS。
+- 记录cgroup memory.events增量和wait4退出信号。SIGKILL可能是OOM或预算强杀，应结合task日志/监控原因分类，不能仅从-9断言OOM。
+- SIGSEGV/SIGABRT时保存attempt状态与stderr，计CPU，有限重试；只有预先冻结的后续配置可继续。原失败结果不得悄悄替换成成功分数。
+- worker不直接执行外部脚本，避免意外子进程；如果确实需进程树，所有子进程加入task-owned PGID并可完整终止，且重新设计CPU计账。
+- launcher退出、当前工具会话结束、用户断开浏览器与云环境生命周期是不同事件。setsid/nohup能保护本地会话脱离，不能阻止云环境休眠、容器销毁或平台回收；检查点有助于恢复，但不能诚实保证一定连续跑满90000CPU秒。
+
+启动确认的最小证据清单
+独立exec确认PPID1/SID身份；4个单线程worker真实训练；两次CPU单调增量；已冻结队列/协议与budget=90000；SQLite可读并记录running attempts；状态/日志/停止入口的绝对路径；实际CPU和预算预留分开；物理云生命周期限制已告知。满足后可按用户要求结束聊天，无须等待整个预算训练完成。

@@ -1,0 +1,49 @@
+{
+  "status": "healthy",
+  "snapshot_utc": "2026-11-10T11:10:19.128875+00:00",
+  "sqlite_access": {
+    "URI_mode": "ro",
+    "query_only": true,
+    "transaction": "BEGIN read snapshot, rollback, close before filesystem result checks"
+  },
+  "job_counts": {
+    "completed": 652,
+    "running": 4,
+    "queued": 8481
+  },
+  "attempt_counts": {
+    "succeeded": 652,
+    "running": 4
+  },
+  "completed_results_checked": 652,
+  "completed_non_testing_checked": 652,
+  "completed_actual_fit_receipts": 652,
+  "jobs_with_failures_or_errors": 0,
+  "systemic_error_pattern": "none observed",
+  "frozen_queue": {
+    "DB_jobs": 9137,
+    "manifest_jobs": 9137,
+    "all_DB_job_configs_match_frozen_manifest": true
+  },
+  "CPU_ledger": {
+    "terminal_attempts": 652,
+    "active_attempts": 4,
+    "terminal_verified_actual_CPU_seconds": 3842.97417,
+    "terminal_conservative_charge_seconds": 3842.97417,
+    "terminal_finalization_event_actual_CPU_sum": 3842.97417,
+    "one_finalization_per_terminal_attempt": true,
+    "charged_at_least_actual_and_observed": true,
+    "final_sources": {
+      "wait4_exactly_once": 652
+    },
+    "accounting_code_rule": "Terminal attempts contribute charged_cpu once; active attempts contribute separate leases/observed values. Actual totals are terminal wait4 values, not summed heartbeat observations.",
+    "no_double_CPU_terminal_sum_discrepancy": true
+  },
+  "blocking_issues": [],
+  "scope_limits": [
+    "No outer performance scores inspected or used for method scheduling.",
+    "PID/start/boot/lock and sealed-file hashes are checked independently by root.",
+    "Completed filesystem outputs are immutable job artifacts; live active jobs may advance after this consistent DB snapshot."
+  ],
+  "new_training_or_queue_mutation": false
+}

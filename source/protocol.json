@@ -1,0 +1,357 @@
+{
+  "schema": "thz-mechanism-background-protocol-v1",
+  "frozen_at_utc": "2026-11-10T10:51:31.919531+00:00",
+  "authorized_cpu_budget_seconds": 1360000,
+  "cpu_budget_seconds": 1360000,
+  "max_workers": 4,
+  "blas_threads_per_worker": 1,
+  "worker_cpu_lease_seconds": 1800,
+  "management_cpu_reserve_seconds": 500,
+  "poll_seconds": 2,
+  "max_attempts": 3,
+  "accuracy_early_stop": false,
+  "score_adaptive_scheduling": false,
+  "input_path": "/workspace/applied_spectroscopy_revision/background_study_20261110/inputs/current1672_paired612.npz",
+  "input_sha256": "76bde1b77584f9a6aba0e97cbb4fee2cb702f2da727fd26084c1f16209217b73",
+  "outer_cv": {
+    "n_splits": 5,
+    "shuffle": true,
+    "seed_rule": "extend_manifest.seed_for(repeat); SHA256 frozen prefix"
+  },
+  "inner_cv": {
+    "n_splits": 5,
+    "n_repeats": 2,
+    "must_be_training_only": true
+  },
+  "scope": "Retrospective internal re-evaluation of existing specimens; no independent external validation",
+  "selection_metric": "macro_f1, then balanced_accuracy, then accuracy, then predeclared complexity/order",
+  "reporting": {
+    "complete_outer_repeats_only": true,
+    "bootstrap_unit": "physical specimen, stratified by class; retain repeated predictions within specimen",
+    "split_variation": "descriptive; repeats are not independent specimens",
+    "chemical_mechanism": "blocked: no same-ID quantified chemistry or validated reference bands"
+  },
+  "queue_rule": "Initial paired blocks: 3 new split seeds MC20; same3 MC100; firstseed MC500 convergence. Extend with32 fixed seeds, MC100 every8th andMC500 every32nd. Method order and variants frozen; never read outer scores.",
+  "stop_conditions": [
+    "authorized CPU safety budget reached",
+    "user requested stop",
+    "irrecoverable infrastructure/input failure"
+  ],
+  "resume_policy": "same durable CPU ledger; PID/starttime/boot identity; conservative charge for uncertain orphan tail; no reset",
+  "platform_limit": "Local detached supervisor/watchdog cannot prevent cloud suspension or environment destruction.",
+  "worker_spec": {
+    "version": "bounded-real-nested-worker-v1",
+    "enabled_families": [
+      "baseline",
+      "selection",
+      "spacing",
+      "coverage",
+      "rank_context",
+      "retain_drop",
+      "amplitude",
+      "permutation",
+      "material"
+    ],
+    "variants": {
+      "baseline": [
+        "svm_alpha_snv",
+        "lda_alpha_raw_snv",
+        "plsda_alpha_raw_snv",
+        "svm_joint_both_snv",
+        "lda_joint_both_snv",
+        "svm_n_raw",
+        "svm_n_snv"
+      ],
+      "selection": [
+        "alpha_snv",
+        "joint_both_snv",
+        "joint_nraw_asnv",
+        "alpha_raw",
+        "alpha_snv_c2_k62",
+        "joint_both_snv_c2_k62",
+        "joint_nraw_asnv_c2_k62"
+      ],
+      "spacing": [
+        "alpha_gap2_k62_c2",
+        "alpha_gap4_k62_c2",
+        "alpha_gap8_k62_c2",
+        "alpha_inner_gap_k62_c2"
+      ],
+      "coverage": [
+        "uniform_k62",
+        "uniform_k123",
+        "uniform_k245",
+        "uniform_k490",
+        "binmean_k62",
+        "binmean_k123",
+        "binmean_k245",
+        "binmean_k490",
+        "random_k62",
+        "random_k123",
+        "random_k245",
+        "random_k490"
+      ],
+      "rank_context": [
+        "true_n",
+        "shuffle_n",
+        "class_shuffle_n",
+        "true_raw_n",
+        "shuffle_raw_n",
+        "class_shuffle_raw_n",
+        "duplicate_alpha",
+        "gaussian_noise"
+      ],
+      "retain_drop": [
+        "joint_both_snv",
+        "joint_nraw_asnv"
+      ],
+      "amplitude": [
+        "svm_alpha_raw",
+        "svm_snv_plus_mean_sd",
+        "svm_mean_sd_only"
+      ],
+      "permutation": [
+        "svm_alpha_snv",
+        "lda_alpha_raw_snv",
+        "mc_alpha_snv"
+      ],
+      "material": [
+        "four_svm_alpha_snv",
+        "four_lda_alpha_raw_snv",
+        "four_plsda_alpha_raw_snv",
+        "binary_svm_alpha_snv",
+        "four_svm_alpha_snv_fixed_C10",
+        "binary_svm_alpha_snv_fixed_C10"
+      ]
+    },
+    "variant_interface": "job.variant is one fixed string from variants[family]; default is first listed. NEVER varies with fold/ordinal.",
+    "mc_draws_supported": [
+      20,
+      100,
+      500
+    ],
+    "single_run_variants": {
+      "material": [
+        "four_svm_alpha_snv_fixed_C10",
+        "binary_svm_alpha_snv_fixed_C10"
+      ]
+    },
+    "data_tasks": {
+      "core300": "material_labels==酸枣仁 AND roles==train, exactly300; target group_ids",
+      "material": "fixed train/PRED roles; CAL unused; material target; material jobs only fold0"
+    },
+    "outer": {
+      "folds": 5,
+      "splitter": "StratifiedKFold(shuffle=True,random_state=job.seed)",
+      "shared_across_all_core_variants": true
+    },
+    "inner": {
+      "folds": 5,
+      "repetitions": 2,
+      "seed_rule": "SHA256(\"inner5x2|20261110|\"+str(job.seed)), first8hex as uint32; same seed across family variants and folds",
+      "scoring": "mean macro-F1, then balanced accuracy, accuracy, smaller K, fewer PLS components, smaller gap, prefer full retain, lower C, gamma multiplier order0.1/1/10, raw before SNV"
+    },
+    "search": {
+      "K": [
+        31,
+        62,
+        123,
+        184,
+        245,
+        367,
+        490,
+        612
+      ],
+      "PLS_ranking_components": [
+        2,
+        4,
+        8,
+        12,
+        16
+      ],
+      "SVM_C": [
+        0.1,
+        1.0,
+        10.0,
+        100.0
+      ],
+      "SVM_gamma_multipliers": [
+        0.1,
+        1.0,
+        10.0
+      ],
+      "PLSDA_components": [
+        2,
+        4,
+        8,
+        12,
+        16
+      ]
+    },
+    "fixed_controls": {
+      "selection_*_c2_k62": "fixed components2,K62; SVM tuned",
+      "spacing": "fixed components2,K62; exact-cardinality dynamic programming; gaps2/4/8 or inner-selected1/2/4/8",
+      "rank_context": "fixed components2,K62; raw-n and SNV-n contexts distinguished; rank in [context,alpha_snv], take top62 alpha scores; final classifier onlyalpha; training-only context construction",
+      "coverage": "uniform endpoint-inclusive indices, contiguous-bin mean or one frozen random index set per seed/K (same across all outerfolds and their innerfits)",
+      "retain_drop": "choose full versus selected-alpha-only inside inner search alongside K/components/C/gamma; exact selected joint numerical gamma retained after deletion; empty alpha uses predefined training-prior DummyClassifier",
+      "amplitude": "raw alpha versus SNV alpha versus SNV plus per-spectrum raw mean/SD or only mean/SD",
+      "permutation": "fixed global permutation of core group labels before stratified nested splitting; distinct null target, never real-source metrics",
+      "material": "material reference context only; fixed roles, fold0 only, no PRED feedback; fixed_C10 variants use C10/gamma-scale and run only repeat0"
+    },
+    "checkpoints": "rank_cache per inner/current training/PLScomponent; all candidate scores atomically after each inner fold; selection.json sealed before outer refit/prediction; resume verifies unchanged job/input/spec/code hashes",
+    "receipt": "cpu_receipt.json in finally, process_time seconds for current invocation; heartbeat has current and cumulative lineage CPU; return0 success,75 CPU/signal interruption,1 error",
+    "chemistry": "No measured paired chemistry supplied: no chemical-prior training family is enabled. Spacing/context are structural diagnostics, not chemical validation.",
+    "resource": "One process, no subprocesses, BLAS1. RLIMIT_CPU soft limit plus bounded1-second hard grace (inherited hard limit respected). Signal checkpoints retained."
+  },
+  "sealed_files": {
+    "study_worker.py": "570d4af4e39083d0e3ec60afae0a21eb137bd2ea272a49168bc346368fd998cd",
+    "worker_spec.json": "3483b5bb3af6ac16f912d2c62c03ad6626b202eaf076a61f197aba3f2bb1b9a5",
+    "supervisor.py": "3adaa4a6161e32b67e9951e13e9aa41a82e1fcd93532ff697c91884eaa99708f",
+    "start_background.py": "ac004d66bea55d923def4d224511a3a4bc0c3e4a383a4ac76accd27df378b770",
+    "extend_manifest.py": "9d64bf2c4a0fcddc05115a64238d49f35b62db024ca91bbd814f2c7b2f44ed0f",
+    "PRE_REGISTERED_DESIGN_zh.md": "cefd50e0b12e35d7a37787ea2157c0c981e93af609c4be8443f2a246cf55a7df",
+    "inputs/current1672_paired612.npz": "76bde1b77584f9a6aba0e97cbb4fee2cb702f2da727fd26084c1f16209217b73"
+  },
+  "python": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+  "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
+  "budget_authorization_history": [
+    {
+      "authorization_id": "20261111T003508Z_additional_10000",
+      "authorized_at_utc": "2026-11-11T00:35:08.343261+00:00",
+      "user_authorization": "追加10,000 CPU秒",
+      "previous_authorized_cpu_seconds": 90000,
+      "additional_authorized_cpu_seconds": 10000,
+      "cumulative_authorized_cpu_seconds": 100000,
+      "resume_unfinished_tasks": true,
+      "prior_protocol_sha256": "47e8386ba6b7ef084a50bef71d7041c2bbd850a4c11a6a55220a3bef4d31d226",
+      "prior_training_conservative_charge_seconds": 88583.180857,
+      "prior_table_sha256": {
+        "jobs": "41f5b5cd782e1352d501a342b3966d9bde42748db14b30f650ca7d7d641344b2",
+        "attempts": "9563214c6a361107f6ac920f6822cf754c13aae66d37f70cbd8a5988d0dfaaf2"
+      },
+      "archive_path": "/workspace/applied_spectroscopy_revision/background_study_20261110/authorizations/20261111T003508Z_additional_10000",
+      "scientific_configuration_changed": false,
+      "prior_CPU_ledger_reset": false
+    },
+    {
+      "authorization_id": "20261111T021249Z_additional_90000",
+      "authorized_at_utc": "2026-11-11T02:12:49.882402+00:00",
+      "user_authorization": "追加90000秒cpu预算",
+      "previous_authorized_cpu_seconds": 100000,
+      "additional_authorized_cpu_seconds": 90000,
+      "cumulative_authorized_cpu_seconds": 190000,
+      "resume_unfinished_tasks": true,
+      "prior_protocol_sha256": "2e0f684ce00ede51c0eb7d7fba695a82e7a559d6451bf651e068028fe6342377",
+      "prior_training_conservative_charge_seconds": 98103.562769,
+      "prior_table_sha256": {
+        "jobs": "ad69d46296c9a8e8b05964e1fd32841fc1c3c3b9ece277652918c8a86d27d8d0",
+        "attempts": "5027d1a5aa26bcd5567e8bd56a4e7f551b47bb5a6f7b3e62c557bb2be79767b1"
+      },
+      "archive_path": "/workspace/applied_spectroscopy_revision/background_study_20261110/authorizations/20261111T021249Z_additional_90000",
+      "scientific_configuration_changed": false,
+      "prior_CPU_ledger_reset": false
+    },
+    {
+      "authorization_id": "20261111T080014Z_additional_90000_live",
+      "authorized_at_utc": "2026-11-11T08:00:15.389468+00:00",
+      "user_authorization": "继续添加90000秒cpu时",
+      "previous_authorized_cpu_seconds": 190000,
+      "additional_authorized_cpu_seconds": 90000,
+      "cumulative_authorized_cpu_seconds": 280000,
+      "prior_protocol_sha256": "d79d3cd9295176958e4da3caecef350f631ff3ec510abcb7bc442c2599291c66",
+      "prior_table_sha256": {
+        "jobs": "87d15c03fa8b868e0501f2fa39f85ef8446168ae7cf29f63dc2ad4a0e3f2f9b8",
+        "attempts": "e28371ea4d8c8a08788645c7a9e011c7ba479c5584b6b79244453f319979aec6"
+      },
+      "archive_table_sha256": {
+        "jobs": "87d15c03fa8b868e0501f2fa39f85ef8446168ae7cf29f63dc2ad4a0e3f2f9b8",
+        "attempts": "f43266b4958dc7f16be6d62d4f75e0bcdde77889a5e7b273df135df78fa8df5e"
+      },
+      "archive_is_online_snapshot": true,
+      "archive_path": "/workspace/applied_spectroscopy_revision/background_study_20261110/authorizations/20261111T080014Z_additional_90000_live",
+      "scientific_configuration_changed": false,
+      "CPU_ledger_reset": false,
+      "current_workers_interrupted": false,
+      "activation": "dynamic_guard_now; next_supervisor_at_natural_budget_boundary",
+      "previous_leader": {
+        "pid": 1500,
+        "pgid": 1500,
+        "sid": 1500,
+        "start_ticks": 638136,
+        "boot_id": "37de80a7-ea8f-4c81-885d-2100dfd19318",
+        "run_id": "36c5067fdd5649eea823d803c1cf2468",
+        "started_utc": "2026-11-11T02:12:58.715990+00:00",
+        "protocol_sha256": "d79d3cd9295176958e4da3caecef350f631ff3ec510abcb7bc442c2599291c66"
+      },
+      "current_phase_cpu_budget_seconds": 190000.0
+    },
+    {
+      "authorization_id": "20261111T132654Z_additional_90000_live",
+      "authorized_at_utc": "2026-11-11T13:26:55.967366+00:00",
+      "user_authorization": "运行的怎么样，我追加90000cpu时权限",
+      "previous_authorized_cpu_seconds": 280000,
+      "additional_authorized_cpu_seconds": 90000,
+      "cumulative_authorized_cpu_seconds": 370000,
+      "prior_protocol_sha256": "ef7b0fe6d353204a5462b7df8ab7450de65fab2dd8d07107debe617760e33654",
+      "prior_table_sha256": {
+        "jobs": "890a24dfa4200d7b5b5d29523f0ca06147967f20e2dfd1f2c2e6720a077780e6",
+        "attempts": "67bcaff72a5d0aa26870d61662df658470dd2643ef167fa62a654a766c452d62"
+      },
+      "archive_table_sha256": {
+        "jobs": "890a24dfa4200d7b5b5d29523f0ca06147967f20e2dfd1f2c2e6720a077780e6",
+        "attempts": "67bcaff72a5d0aa26870d61662df658470dd2643ef167fa62a654a766c452d62"
+      },
+      "archive_is_online_snapshot": true,
+      "archive_path": "/workspace/applied_spectroscopy_revision/background_study_20261110/authorizations/20261111T132654Z_additional_90000_live",
+      "scientific_configuration_changed": false,
+      "CPU_ledger_reset": false,
+      "current_workers_interrupted": false,
+      "activation": "dynamic_guard_now; next_supervisor_at_natural_budget_boundary",
+      "previous_leader": {
+        "pid": 23156,
+        "pgid": 23156,
+        "sid": 23156,
+        "start_ticks": 3431037,
+        "boot_id": "37de80a7-ea8f-4c81-885d-2100dfd19318",
+        "run_id": "5db12ee6d1c6470784ed27bfd9945399",
+        "started_utc": "2026-11-11T09:58:27.706573+00:00",
+        "protocol_sha256": "ef7b0fe6d353204a5462b7df8ab7450de65fab2dd8d07107debe617760e33654"
+      },
+      "current_phase_cpu_budget_seconds": 280000.0
+    },
+    {
+      "authorization_id": "20261111T144315Z_additional_990000_live",
+      "authorized_at_utc": "2026-11-11T14:43:16.345113+00:00",
+      "user_authorization": "继续追加 99 万秒 cpu 时，确保连接上这个追加时间不要中断",
+      "previous_authorized_cpu_seconds": 370000,
+      "additional_authorized_cpu_seconds": 990000,
+      "cumulative_authorized_cpu_seconds": 1360000,
+      "prior_protocol_sha256": "41ec1a51bd1f98919bf3e4d00c27325073ecde78001d55f63489c30078aea908",
+      "prior_table_sha256": {
+        "jobs": "fd8f70102f5186769622162a43b047cda74bd090c5397c03c956e2a8f3fb6d1d",
+        "attempts": "b65f7fcd024bf03d5850eebbe515140780fb9e7f7a1d8f334777a3342cc88b92"
+      },
+      "archive_table_sha256": {
+        "jobs": "fd8f70102f5186769622162a43b047cda74bd090c5397c03c956e2a8f3fb6d1d",
+        "attempts": "b65f7fcd024bf03d5850eebbe515140780fb9e7f7a1d8f334777a3342cc88b92"
+      },
+      "archive_is_online_snapshot": true,
+      "archive_path": "/workspace/applied_spectroscopy_revision/background_study_20261110/authorizations/20261111T144315Z_additional_990000_live",
+      "scientific_configuration_changed": false,
+      "CPU_ledger_reset": false,
+      "current_workers_interrupted": false,
+      "activation": "dynamic_guard_now; next_supervisor_at_natural_budget_boundary",
+      "previous_leader": {
+        "pid": 23156,
+        "pgid": 23156,
+        "sid": 23156,
+        "start_ticks": 3431037,
+        "boot_id": "37de80a7-ea8f-4c81-885d-2100dfd19318",
+        "run_id": "5db12ee6d1c6470784ed27bfd9945399",
+        "started_utc": "2026-11-11T09:58:27.706573+00:00",
+        "protocol_sha256": "ef7b0fe6d353204a5462b7df8ab7450de65fab2dd8d07107debe617760e33654"
+      },
+      "current_phase_cpu_budget_seconds": 280000.0
+    }
+  ]
+}

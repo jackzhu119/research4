@@ -1,0 +1,164 @@
+{
+  "version": "bounded-real-nested-worker-v1",
+  "enabled_families": [
+    "baseline",
+    "selection",
+    "spacing",
+    "coverage",
+    "rank_context",
+    "retain_drop",
+    "amplitude",
+    "permutation",
+    "material"
+  ],
+  "variants": {
+    "baseline": [
+      "svm_alpha_snv",
+      "lda_alpha_raw_snv",
+      "plsda_alpha_raw_snv",
+      "svm_joint_both_snv",
+      "lda_joint_both_snv",
+      "svm_n_raw",
+      "svm_n_snv"
+    ],
+    "selection": [
+      "alpha_snv",
+      "joint_both_snv",
+      "joint_nraw_asnv",
+      "alpha_raw",
+      "alpha_snv_c2_k62",
+      "joint_both_snv_c2_k62",
+      "joint_nraw_asnv_c2_k62"
+    ],
+    "spacing": [
+      "alpha_gap2_k62_c2",
+      "alpha_gap4_k62_c2",
+      "alpha_gap8_k62_c2",
+      "alpha_inner_gap_k62_c2"
+    ],
+    "coverage": [
+      "uniform_k62",
+      "uniform_k123",
+      "uniform_k245",
+      "uniform_k490",
+      "binmean_k62",
+      "binmean_k123",
+      "binmean_k245",
+      "binmean_k490",
+      "random_k62",
+      "random_k123",
+      "random_k245",
+      "random_k490"
+    ],
+    "rank_context": [
+      "true_n",
+      "shuffle_n",
+      "class_shuffle_n",
+      "true_raw_n",
+      "shuffle_raw_n",
+      "class_shuffle_raw_n",
+      "duplicate_alpha",
+      "gaussian_noise"
+    ],
+    "retain_drop": [
+      "joint_both_snv",
+      "joint_nraw_asnv"
+    ],
+    "amplitude": [
+      "svm_alpha_raw",
+      "svm_snv_plus_mean_sd",
+      "svm_mean_sd_only"
+    ],
+    "permutation": [
+      "svm_alpha_snv",
+      "lda_alpha_raw_snv",
+      "mc_alpha_snv"
+    ],
+    "material": [
+      "four_svm_alpha_snv",
+      "four_lda_alpha_raw_snv",
+      "four_plsda_alpha_raw_snv",
+      "binary_svm_alpha_snv",
+      "four_svm_alpha_snv_fixed_C10",
+      "binary_svm_alpha_snv_fixed_C10"
+    ]
+  },
+  "variant_interface": "job.variant is one fixed string from variants[family]; default is first listed. NEVER varies with fold/ordinal.",
+  "mc_draws_supported": [
+    20,
+    100,
+    500
+  ],
+  "single_run_variants": {
+    "material": [
+      "four_svm_alpha_snv_fixed_C10",
+      "binary_svm_alpha_snv_fixed_C10"
+    ]
+  },
+  "data_tasks": {
+    "core300": "material_labels==酸枣仁 AND roles==train, exactly300; target group_ids",
+    "material": "fixed train/PRED roles; CAL unused; material target; material jobs only fold0"
+  },
+  "outer": {
+    "folds": 5,
+    "splitter": "StratifiedKFold(shuffle=True,random_state=job.seed)",
+    "shared_across_all_core_variants": true
+  },
+  "inner": {
+    "folds": 5,
+    "repetitions": 2,
+    "seed_rule": "SHA256(\"inner5x2|20261110|\"+str(job.seed)), first8hex as uint32; same seed across family variants and folds",
+    "scoring": "mean macro-F1, then balanced accuracy, accuracy, smaller K, fewer PLS components, smaller gap, prefer full retain, lower C, gamma multiplier order0.1/1/10, raw before SNV"
+  },
+  "search": {
+    "K": [
+      31,
+      62,
+      123,
+      184,
+      245,
+      367,
+      490,
+      612
+    ],
+    "PLS_ranking_components": [
+      2,
+      4,
+      8,
+      12,
+      16
+    ],
+    "SVM_C": [
+      0.1,
+      1.0,
+      10.0,
+      100.0
+    ],
+    "SVM_gamma_multipliers": [
+      0.1,
+      1.0,
+      10.0
+    ],
+    "PLSDA_components": [
+      2,
+      4,
+      8,
+      12,
+      16
+    ]
+  },
+  "fixed_controls": {
+    "selection_*_c2_k62": "fixed components2,K62; SVM tuned",
+    "spacing": "fixed components2,K62; exact-cardinality dynamic programming; gaps2/4/8 or inner-selected1/2/4/8",
+    "rank_context": "fixed components2,K62; raw-n and SNV-n contexts distinguished; rank in [context,alpha_snv], take top62 alpha scores; final classifier onlyalpha; training-only context construction",
+    "coverage": "uniform endpoint-inclusive indices, contiguous-bin mean or one frozen random index set per seed/K (same across all outerfolds and their innerfits)",
+    "retain_drop": "choose full versus selected-alpha-only inside inner search alongside K/components/C/gamma; exact selected joint numerical gamma retained after deletion; empty alpha uses predefined training-prior DummyClassifier",
+    "amplitude": "raw alpha versus SNV alpha versus SNV plus per-spectrum raw mean/SD or only mean/SD",
+    "permutation": "fixed global permutation of core group labels before stratified nested splitting; distinct null target, never real-source metrics",
+    "material": "material reference context only; fixed roles, fold0 only, no PRED feedback; fixed_C10 variants use C10/gamma-scale and run only repeat0"
+  },
+  "checkpoints": "rank_cache per inner/current training/PLScomponent; all candidate scores atomically after each inner fold; selection.json sealed before outer refit/prediction; resume verifies unchanged job/input/spec/code hashes",
+  "receipt": "cpu_receipt.json in finally, process_time seconds for current invocation; heartbeat has current and cumulative lineage CPU; return0 success,75 CPU/signal interruption,1 error",
+  "chemistry": "No measured paired chemistry supplied: no chemical-prior training family is enabled. Spacing/context are structural diagnostics, not chemical validation.",
+  "resource": "One process, no subprocesses, BLAS1. RLIMIT_CPU soft limit plus bounded1-second hard grace (inherited hard limit respected). Signal checkpoints retained."
+}

@@ -1,0 +1,334 @@
+{
+  "schema": "independent_data_audit_v1",
+  "NPZ_sha256": "76bde1b77584f9a6aba0e97cbb4fee2cb702f2da727fd26084c1f16209217b73",
+  "NPZ_keys": [
+    "record_ids",
+    "group_ids",
+    "physical_sample_ids",
+    "material_labels",
+    "roles",
+    "X_alpha",
+    "X_n",
+    "axis",
+    "workbook_sha"
+  ],
+  "metadata_and_material_strings_match": true,
+  "exact_material_strings": [
+    "天麻",
+    "枣仁",
+    "酸枣仁",
+    "黄芪"
+  ],
+  "material_role_counts": [
+    {
+      "material": "天麻",
+      "N": 405,
+      "source_groups": 4,
+      "TRAIN": 242,
+      "CAL": 80,
+      "PRED": 83
+    },
+    {
+      "material": "枣仁",
+      "N": 364,
+      "source_groups": 5,
+      "TRAIN": 216,
+      "CAL": 74,
+      "PRED": 74
+    },
+    {
+      "material": "酸枣仁",
+      "N": 500,
+      "source_groups": 5,
+      "TRAIN": 300,
+      "CAL": 100,
+      "PRED": 100
+    },
+    {
+      "material": "黄芪",
+      "N": 403,
+      "source_groups": 4,
+      "TRAIN": 241,
+      "CAL": 80,
+      "PRED": 82
+    }
+  ],
+  "all_values_finite": true,
+  "unique_record_IDs": 1672,
+  "unique_physical_IDs": 1672,
+  "no_full_pairwise_matrix_constructed": true,
+  "complete_exact_hash_check": {
+    "alpha": {
+      "distinct_row_hashes": 1672,
+      "duplicate_hash_groups": 0,
+      "duplicate_unique_specimens": 0,
+      "duplicate_unordered_pairs": 0
+    },
+    "n": {
+      "distinct_row_hashes": 1672,
+      "duplicate_hash_groups": 0,
+      "duplicate_unique_specimens": 0,
+      "duplicate_unordered_pairs": 0
+    },
+    "paired_alpha_n": {
+      "distinct_row_hashes": 1672,
+      "duplicate_hash_groups": 0,
+      "duplicate_unique_specimens": 0,
+      "duplicate_unordered_pairs": 0
+    }
+  },
+  "cross_role_ID_intersections": [
+    {
+      "role1": "train",
+      "role2": "calibration",
+      "shared_record_IDs": 0,
+      "shared_physical_IDs": 0,
+      "shared_source_groups": 18
+    },
+    {
+      "role1": "train",
+      "role2": "prediction",
+      "shared_record_IDs": 0,
+      "shared_physical_IDs": 0,
+      "shared_source_groups": 18
+    },
+    {
+      "role1": "calibration",
+      "role2": "prediction",
+      "shared_record_IDs": 0,
+      "shared_physical_IDs": 0,
+      "shared_source_groups": 18
+    }
+  ],
+  "core300_recheck": {
+    "max_abs_alpha": 0.0,
+    "max_abs_n": 0.0,
+    "tolerance": 1e-12
+  },
+  "bounded_similarity_check": {
+    "seed": 20261110,
+    "RNG": "numpy.default_rng",
+    "unique_pairs_evaluated": 23944,
+    "all_possible_unordered_pairs": 1396956,
+    "pair_fraction_evaluated": 0.01714012467107053,
+    "design": "20,000 uniform unordered pairs plus1,000 TRAIN/PRED pairs sampled within each of4 materials; de-duplicated union.",
+    "chunk_rows": 512,
+    "summary": [
+      {
+        "sample_scope": "all_unique_sampled_pairs",
+        "modality": "alpha",
+        "sampled_unique_unordered_pairs": 23944,
+        "Pearson_r_ge_0.99_n": 2638,
+        "Pearson_r_ge_0.99_fraction": 0.1101737387236886,
+        "Pearson_r_ge_0.999_n": 8,
+        "Pearson_r_ge_0.999_fraction": 0.0003341129301703976,
+        "Pearson_r_ge_0.9999_n": 0,
+        "relative_RMS_le_0.001_n": 0,
+        "relative_RMS_le_0.01_n": 0,
+        "both_relative_RMS_le_0.01_and_Pearson_r_ge_0.999_n": 0,
+        "minimum_sampled_relative_RMS": 0.022402197246223186,
+        "median_sampled_Pearson_r": 0.9711098289839157,
+        "maximum_sampled_Pearson_r": 0.9992553707728039
+      },
+      {
+        "sample_scope": "all_unique_sampled_pairs",
+        "modality": "n",
+        "sampled_unique_unordered_pairs": 23944,
+        "Pearson_r_ge_0.99_n": 293,
+        "Pearson_r_ge_0.99_fraction": 0.012236886067490812,
+        "Pearson_r_ge_0.999_n": 10,
+        "Pearson_r_ge_0.999_fraction": 0.000417641162712997,
+        "Pearson_r_ge_0.9999_n": 0,
+        "relative_RMS_le_0.001_n": 0,
+        "relative_RMS_le_0.01_n": 192,
+        "both_relative_RMS_le_0.01_and_Pearson_r_ge_0.999_n": 4,
+        "minimum_sampled_relative_RMS": 0.0017257615416294268,
+        "median_sampled_Pearson_r": 0.45415687752379075,
+        "maximum_sampled_Pearson_r": 0.9996963133515253
+      },
+      {
+        "sample_scope": "global_uniform_pairs",
+        "modality": "alpha",
+        "sampled_unique_unordered_pairs": 20000,
+        "Pearson_r_ge_0.99_n": 1900,
+        "Pearson_r_ge_0.99_fraction": 0.095,
+        "Pearson_r_ge_0.999_n": 8,
+        "Pearson_r_ge_0.999_fraction": 0.0004,
+        "Pearson_r_ge_0.9999_n": 0,
+        "relative_RMS_le_0.001_n": 0,
+        "relative_RMS_le_0.01_n": 0,
+        "both_relative_RMS_le_0.01_and_Pearson_r_ge_0.999_n": 0,
+        "minimum_sampled_relative_RMS": 0.022402197246223186,
+        "median_sampled_Pearson_r": 0.9671425204859547,
+        "maximum_sampled_Pearson_r": 0.9992553707728039
+      },
+      {
+        "sample_scope": "global_uniform_pairs",
+        "modality": "n",
+        "sampled_unique_unordered_pairs": 20000,
+        "Pearson_r_ge_0.99_n": 203,
+        "Pearson_r_ge_0.99_fraction": 0.01015,
+        "Pearson_r_ge_0.999_n": 6,
+        "Pearson_r_ge_0.999_fraction": 0.0003,
+        "Pearson_r_ge_0.9999_n": 0,
+        "relative_RMS_le_0.001_n": 0,
+        "relative_RMS_le_0.01_n": 133,
+        "both_relative_RMS_le_0.01_and_Pearson_r_ge_0.999_n": 2,
+        "minimum_sampled_relative_RMS": 0.0017257615416294268,
+        "median_sampled_Pearson_r": 0.43243942888194215,
+        "maximum_sampled_Pearson_r": 0.9996842939589198
+      },
+      {
+        "sample_scope": "天麻_TRAIN_vs_PRED",
+        "modality": "alpha",
+        "sampled_unique_unordered_pairs": 1000,
+        "Pearson_r_ge_0.99_n": 192,
+        "Pearson_r_ge_0.99_fraction": 0.192,
+        "Pearson_r_ge_0.999_n": 0,
+        "Pearson_r_ge_0.999_fraction": 0.0,
+        "Pearson_r_ge_0.9999_n": 0,
+        "relative_RMS_le_0.001_n": 0,
+        "relative_RMS_le_0.01_n": 0,
+        "both_relative_RMS_le_0.01_and_Pearson_r_ge_0.999_n": 0,
+        "minimum_sampled_relative_RMS": 0.04032470221847437,
+        "median_sampled_Pearson_r": 0.9821243834110894,
+        "maximum_sampled_Pearson_r": 0.9989536673795001
+      },
+      {
+        "sample_scope": "天麻_TRAIN_vs_PRED",
+        "modality": "n",
+        "sampled_unique_unordered_pairs": 1000,
+        "Pearson_r_ge_0.99_n": 57,
+        "Pearson_r_ge_0.99_fraction": 0.057,
+        "Pearson_r_ge_0.999_n": 2,
+        "Pearson_r_ge_0.999_fraction": 0.002,
+        "Pearson_r_ge_0.9999_n": 0,
+        "relative_RMS_le_0.001_n": 0,
+        "relative_RMS_le_0.01_n": 23,
+        "both_relative_RMS_le_0.01_and_Pearson_r_ge_0.999_n": 1,
+        "minimum_sampled_relative_RMS": 0.002107936711551554,
+        "median_sampled_Pearson_r": 0.7079597143171316,
+        "maximum_sampled_Pearson_r": 0.9996963133515253
+      },
+      {
+        "sample_scope": "枣仁_TRAIN_vs_PRED",
+        "modality": "alpha",
+        "sampled_unique_unordered_pairs": 1000,
+        "Pearson_r_ge_0.99_n": 313,
+        "Pearson_r_ge_0.99_fraction": 0.313,
+        "Pearson_r_ge_0.999_n": 0,
+        "Pearson_r_ge_0.999_fraction": 0.0,
+        "Pearson_r_ge_0.9999_n": 0,
+        "relative_RMS_le_0.001_n": 0,
+        "relative_RMS_le_0.01_n": 0,
+        "both_relative_RMS_le_0.01_and_Pearson_r_ge_0.999_n": 0,
+        "minimum_sampled_relative_RMS": 0.026803424573441186,
+        "median_sampled_Pearson_r": 0.9857907891327655,
+        "maximum_sampled_Pearson_r": 0.9987234860130926
+      },
+      {
+        "sample_scope": "枣仁_TRAIN_vs_PRED",
+        "modality": "n",
+        "sampled_unique_unordered_pairs": 1000,
+        "Pearson_r_ge_0.99_n": 18,
+        "Pearson_r_ge_0.99_fraction": 0.018,
+        "Pearson_r_ge_0.999_n": 1,
+        "Pearson_r_ge_0.999_fraction": 0.001,
+        "Pearson_r_ge_0.9999_n": 0,
+        "relative_RMS_le_0.001_n": 0,
+        "relative_RMS_le_0.01_n": 28,
+        "both_relative_RMS_le_0.01_and_Pearson_r_ge_0.999_n": 1,
+        "minimum_sampled_relative_RMS": 0.003382264926425528,
+        "median_sampled_Pearson_r": 0.5766901257049599,
+        "maximum_sampled_Pearson_r": 0.9992541222539515
+      },
+      {
+        "sample_scope": "酸枣仁_TRAIN_vs_PRED",
+        "modality": "alpha",
+        "sampled_unique_unordered_pairs": 1000,
+        "Pearson_r_ge_0.99_n": 0,
+        "Pearson_r_ge_0.99_fraction": 0.0,
+        "Pearson_r_ge_0.999_n": 0,
+        "Pearson_r_ge_0.999_fraction": 0.0,
+        "Pearson_r_ge_0.9999_n": 0,
+        "relative_RMS_le_0.001_n": 0,
+        "relative_RMS_le_0.01_n": 0,
+        "both_relative_RMS_le_0.01_and_Pearson_r_ge_0.999_n": 0,
+        "minimum_sampled_relative_RMS": 0.08445980951849237,
+        "median_sampled_Pearson_r": 0.9672466349711358,
+        "maximum_sampled_Pearson_r": 0.9830498337756672
+      },
+      {
+        "sample_scope": "酸枣仁_TRAIN_vs_PRED",
+        "modality": "n",
+        "sampled_unique_unordered_pairs": 1000,
+        "Pearson_r_ge_0.99_n": 4,
+        "Pearson_r_ge_0.99_fraction": 0.004,
+        "Pearson_r_ge_0.999_n": 0,
+        "Pearson_r_ge_0.999_fraction": 0.0,
+        "Pearson_r_ge_0.9999_n": 0,
+        "relative_RMS_le_0.001_n": 0,
+        "relative_RMS_le_0.01_n": 0,
+        "both_relative_RMS_le_0.01_and_Pearson_r_ge_0.999_n": 0,
+        "minimum_sampled_relative_RMS": 0.016051415197532563,
+        "median_sampled_Pearson_r": 0.43513818865938936,
+        "maximum_sampled_Pearson_r": 0.9943714345170536
+      },
+      {
+        "sample_scope": "黄芪_TRAIN_vs_PRED",
+        "modality": "alpha",
+        "sampled_unique_unordered_pairs": 1000,
+        "Pearson_r_ge_0.99_n": 245,
+        "Pearson_r_ge_0.99_fraction": 0.245,
+        "Pearson_r_ge_0.999_n": 0,
+        "Pearson_r_ge_0.999_fraction": 0.0,
+        "Pearson_r_ge_0.9999_n": 0,
+        "relative_RMS_le_0.001_n": 0,
+        "relative_RMS_le_0.01_n": 0,
+        "both_relative_RMS_le_0.01_and_Pearson_r_ge_0.999_n": 0,
+        "minimum_sampled_relative_RMS": 0.04683644738962525,
+        "median_sampled_Pearson_r": 0.9843569028774807,
+        "maximum_sampled_Pearson_r": 0.9984721079407074
+      },
+      {
+        "sample_scope": "黄芪_TRAIN_vs_PRED",
+        "modality": "n",
+        "sampled_unique_unordered_pairs": 1000,
+        "Pearson_r_ge_0.99_n": 16,
+        "Pearson_r_ge_0.99_fraction": 0.016,
+        "Pearson_r_ge_0.999_n": 1,
+        "Pearson_r_ge_0.999_fraction": 0.001,
+        "Pearson_r_ge_0.9999_n": 0,
+        "relative_RMS_le_0.001_n": 0,
+        "relative_RMS_le_0.01_n": 13,
+        "both_relative_RMS_le_0.01_and_Pearson_r_ge_0.999_n": 0,
+        "minimum_sampled_relative_RMS": 0.0028774802611657,
+        "median_sampled_Pearson_r": 0.6496540961925019,
+        "maximum_sampled_Pearson_r": 0.999103703937532
+      }
+    ],
+    "near_highcorr_flagged_pair_n": 4,
+    "limitation": "This sample cannot rule out all near duplicates in1,396,956 possible pairs. High Pearson similarity of smooth spectral shapes is not evidence of identical physical specimens or an acquisition artifact. Raw magnitude distance is retained alongside shape correlation."
+  },
+  "material_task_scope": {
+    "binary_N": 864,
+    "binary_roles": {
+      "TRAIN": 516,
+      "CAL": 174,
+      "PRED": 174
+    },
+    "four_material_N": 1672,
+    "four_material_roles": {
+      "TRAIN": 999,
+      "CAL": 334,
+      "PRED": 339
+    },
+    "all18_source_groups_in_all3_roles": true,
+    "batch_ID_nonempty_n": 0,
+    "interpretation": "The archived100% binary and97.64% four-material task scores concern specimen splits among represented source groups. No ID overlap or exact spectra duplicates does not remove source-batch/preparation/instrument confounding; no batch identifiers or independent botanical/chemical verification are supplied."
+  },
+  "model_fits": 0,
+  "quantum_calculations": 0,
+  "audit_wall_seconds": 0.8802280339987192,
+  "audit_CPU_seconds": 0.8796271840000001
+}

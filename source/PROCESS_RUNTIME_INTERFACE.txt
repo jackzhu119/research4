@@ -1,0 +1,25 @@
+后台调度接口与记账边界
+
+启动：python start_background.py --root /absolute/study/root
+只读：python start_background.py --root /absolute/study/root --status
+停止：python start_background.py --root /absolute/study/root --stop
+也可创建root/STOP。停止会保留检查点和账本；watchdog不重启用户停止或预算终态。
+
+独立测试：python supervisor.py --root /tmp/isolated-fake-study
+正式任务的worker、protocol、job_manifest和数据均从指定root读取。调度源码不读取准确率决定停机。
+
+最终状态：budget_exhausted、stopped_by_user、fatal_configuration_error。
+waiting_manifest表示预冻结任务需要确定性扩展，不表示研究完成。supervisor会调用root/extend_manifest.py --root ROOT，按原冻结规则补充队列。
+
+持久文件：queue.sqlite3（WAL/FULL）、status.json、leader.json、watchdog.json、attempts/<attempt_id>/stdout.log与identity.json、jobs/<job_id>/训练检查点/结果。
+同一job重试复用jobs目录；同时最多一个attempt处理一个job。真实失败最多3次；CPU受限退出75及有预算依据的SIGXCPU中断可恢复，不视为准确率择优重试。
+
+90000秒是总CPU上限。正式协议为管理进程保留500秒，因此训练CPU保守额度为89500秒；管理保留额度不冒充已完成训练CPU。每worker预留lease1800秒时，软CPU限1798秒、硬限1799秒，另1秒保守覆盖内核计时粒度。最小派发lease3秒，预算尾部不足3秒会按安全边际停止，不空转凑时。
+
+正常直接子进程CPU终值采用wait4且每attempt只入账一次。活跃/proc及heartbeat累计值仅作实时观测，不再叠加到已reap终值。failed/retried训练也计实际CPU。
+
+supervisor死后遗留worker不能被新进程wait4。恢复时以pid/starttime/boot_id身份监控；最终不退还无法验证的lease尾段，按整lease保守扣预算，并另报可验证CPU与不确定上界。该保守扣款不应写成真实训练消耗。尝试结果仅当complete=true且status=complete方可标completed。
+
+watchdog每15秒检查领导进程是否存活，600秒异步生成汇总，预算/用户停止终态生成最后汇总后退出。所有训练worker有自己的SID/PGID，停止worker不会把supervisor记账进程一起杀掉。
+
+setsid/脱离当前会话并不能保证云容器不休眠/回收/销毁。进度和检查点支持恢复，但不能保证平台生命周期之外连续运行；该限制应在用户确认中保留。
