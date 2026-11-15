@@ -11,6 +11,10 @@
 | 斯皮诺素修复 | 排队 | 本轮尚未启动 |
 | 分类数值复核 | 已完成，不重新训练 | B1—5及1305＋330项已保存预测复核通过；不重建撤回的旧论文包 |
 
+## 最新上传核验
+
+最新上传已确认远端提交 `37b0687e3761b2fd420c713f3c51ff59c97a078f`，核验 14905 个工件、98519891 字节。见 [最新上传回执](upload_receipt_20261115_latest.json) 与 [最新逐工件SHA清单](upload_manifest_20261115_latest.json)。清单绑定该不可变快照；后续运行状态会继续更新。
+
 ## 已完成IR结果原件
 
 - RI-J/grid5：[逐模式CSV](quantum/ir/jobs/f626f77fcebb7b9e5bdf10c3725664b4754e01232361b3c209106da04b4206f6/round00000/ir_modes.csv)、[完整数组NPZ](quantum/ir/jobs/f626f77fcebb7b9e5bdf10c3725664b4754e01232361b3c209106da04b4206f6/round00000/ir_arrays.npz)、[验收结果](quantum/ir/jobs/f626f77fcebb7b9e5bdf10c3725664b4754e01232361b3c209106da04b4206f6/round00000/result.json)、[封印](quantum/ir/jobs/f626f77fcebb7b9e5bdf10c3725664b4754e01232361b3c209106da04b4206f6/round00000/COMPLETE.json)。
