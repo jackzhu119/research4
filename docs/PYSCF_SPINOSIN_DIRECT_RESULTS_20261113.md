@@ -22,3 +22,7 @@
 [独立核验记录](../reports/pyscf_spinosin_direct_20261113/checkpoint_verification_20261115_8evaluations.json)；[可恢复完整数据包](../reports/pyscf_spinosin_direct_20261113/spinosin_results_20261115_8evaluations.zip)。
 
 用户累计追加授权100550核小时是计算许可，不是云平台充值或实例寿命保证。正式论文结果使用遵守main:paper/current及其manifest，本检查点不构成稳定最低点或固体THz峰归属。
+
+## 本次上传与续算
+
+全部现有结果快照已推送，提交 `063f9f4b0fa6bae3dd24ec18d273902650a0c357`。随后已恢复4线程、10000 MB设置的独立后台，继续第9次求值。上传回执见 `reports/pyscf_spinosin_direct_20261113/upload_receipt_20261115.json`。云实例暂停或恢复仍可能使进程消失，保存状态不能代替实际存活核验。
