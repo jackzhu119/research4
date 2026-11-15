@@ -1,18 +1,79 @@
 {
-  "at_utc": "2026-11-14T08:31:00.120655+00:00",
+  "at_utc": "2026-11-15T07:14:07.695391+00:00",
+  "at_beijing": "2026-11-15T15:14:07.695407+08:00",
   "verified": true,
   "authorization_cpu_seconds": 1990000.0,
   "tasks_alive": {
     "quantum_publication": true,
     "quantum_ir": true
   },
+  "process_commands": [
+    {
+      "role": "supervisor",
+      "pid": 693,
+      "sid": 693,
+      "command": "/workspace/validation-venv/bin/python /workspace/research4/reports/all_round_validation_20261112/.background/authorization_extension_frozen/scripts/extend_all_round_validation_20261112.py --root /workspace/research4 --supervise ",
+      "cpu_limit": "Max cpu time              unlimited            unlimited            seconds   "
+    },
+    {
+      "role": "guard",
+      "pid": 694,
+      "sid": 694,
+      "command": "/workspace/validation-venv/bin/python /workspace/research4/reports/all_round_validation_20261112/.background/authorization_extension_frozen/scripts/extend_all_round_validation_20261112.py --root /workspace/research4 --guard ",
+      "cpu_limit": "Max cpu time              unlimited            unlimited            seconds   "
+    },
+    {
+      "role": "quantum_publication",
+      "pid": 695,
+      "sid": 695,
+      "command": "/workspace/validation-venv/bin/python /workspace/research4/reports/all_round_validation_20261112/.background/frozen/scripts/run_all_round_quantum_20261112.py --root /workspace/research4 --publication-once ",
+      "cpu_limit": "Max cpu time              unlimited            unlimited            seconds   "
+    },
+    {
+      "role": "quantum_ir",
+      "pid": 696,
+      "sid": 696,
+      "command": "/workspace/validation-venv/bin/python /workspace/research4/reports/all_round_validation_20261112/.background/frozen/scripts/run_all_round_quantum_20261112.py --root /workspace/research4 --ir-once ",
+      "cpu_limit": "Max cpu time              unlimited            unlimited            seconds   "
+    }
+  ],
+  "scientific_progress": {
+    "publication": {
+      "checkpoint_token": 2132,
+      "molecule": "calycosin",
+      "profile": "df-grid5",
+      "stage": "FULL_NUMERICAL_DERIVATIVES",
+      "case": "/workspace/research4/reports/all_round_validation_20261112/quantum/publication/jobs/calycosin/df-grid5/round000",
+      "heartbeat_at_utc": "2026-11-15T07:13:34.655977+00:00",
+      "step_bohr": 0.001,
+      "coordinate": 29,
+      "sign": -1,
+      "molecule_displacements_completed": 257,
+      "molecule_displacements_planned": 396
+    },
+    "ir": {
+      "molecule": "calycosin",
+      "profile": "df-grid5",
+      "source_id": "d2f61d359fb8e80c51d8ffdaca21289debc01c1eef6f398dea07b71e0b195f11",
+      "round": 0,
+      "stage": "REFINED_CARTESIAN_DIPOLE",
+      "heartbeat_at_utc": "2026-11-15T07:13:44.264779+00:00",
+      "coordinate": 5,
+      "step_bohr": 0.001,
+      "sign": -1,
+      "mode_index_one_based": 45,
+      "planned_points": 90,
+      "precursor_id": "a340b8c7445ed612794966df45466da24f6cdbbf0ff12870247647f41d7e2bbd",
+      "source_minimum_qualified": false
+    }
+  },
   "cpu": {
     "schema": "all-round-cgroup-cpu-v1",
     "authorized_cpu_seconds": 1990000.0,
-    "observed_cpu_seconds": 616588.236912,
-    "conservative_cpu_seconds": 773854.014632,
-    "uncertain_upper_cpu_seconds": 157265.77772,
-    "remaining_cpu_seconds": 1216145.9853679999,
+    "observed_cpu_seconds": 775408.142274,
+    "conservative_cpu_seconds": 1095917.695806,
+    "uncertain_upper_cpu_seconds": 320509.553532,
+    "remaining_cpu_seconds": 894082.3041940001,
     "counter_epochs": [
       {
         "counter_cpu_seconds": 854.814477,
@@ -102,17 +163,39 @@
         "counter_baseline_cpu_seconds": 0.0,
         "first_observed_counter_cpu_seconds": 3.279805,
         "scope": "Entire dedicated environment cgroup, including this task preparation",
-        "last_counter_cpu_seconds": 230.400224,
-        "last_sampled_at_utc": "2026-11-14T08:30:59.931321+00:00",
-        "last_sampled_monotonic": 127.630724202
+        "last_counter_cpu_seconds": 87853.783532,
+        "last_sampled_at_utc": "2026-11-14T14:47:19.548312+00:00",
+        "last_sampled_monotonic": 22707.247712256,
+        "unobserved_tail_after_cgroup_loss": "UNKNOWN actual CPU; separately charged conservative capacity-times-gap upper bound",
+        "uncertain_upper_cpu_seconds": 163243.775812,
+        "uncertain_tail_gap_seconds": 40810.943953
+      },
+      {
+        "counter_cpu_seconds": 5.582491,
+        "boot_id": "cb1fa37b-a8cf-467d-8adf-fdbfd1da4985",
+        "cpu_capacity": 4.0,
+        "sampled_monotonic": 271.17488141,
+        "cgroup_device": 24,
+        "cgroup_inode": 161,
+        "counter_path": "/sys/fs/cgroup/cpu.stat",
+        "sampled_at_utc": "2026-11-15T02:07:30.492265+00:00",
+        "counter_baseline_cpu_seconds": 0.0,
+        "first_observed_counter_cpu_seconds": 5.582491,
+        "scope": "Entire dedicated environment cgroup, including this task preparation",
+        "last_counter_cpu_seconds": 71196.522054,
+        "last_sampled_at_utc": "2026-11-15T07:14:07.538840+00:00",
+        "last_sampled_monotonic": 18668.221464813
       }
     ],
     "not_wall_time": true,
     "early_cpu_reserve_seconds": 0,
-    "updated_at_utc": "2026-11-14T08:30:59.931349+00:00",
+    "updated_at_utc": "2026-11-15T07:14:07.538872+00:00",
     "sampling_interval_seconds": 0.5,
     "boundary_overshoot_cpu_seconds": 0.0,
     "historical_other_chat_budgets_included": false,
     "lifetime_guarantee": false
-  }
+  },
+  "uploaded_snapshot_commit": "e2ce8315879d75883c2494184ad0fe87269edac1",
+  "upload_verified_before_resuming": true,
+  "new_cpu_authorization_added_this_turn": false
 }
