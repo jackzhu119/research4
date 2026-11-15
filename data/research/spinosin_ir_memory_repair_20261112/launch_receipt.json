@@ -1,0 +1,131 @@
+{
+  "recorded_at_china": "2026-11-12T21:45:40.986003+08:00",
+  "status_is_handoff_snapshot": true,
+  "status": "C003_BLOCKED_GRID_RECOVERY_ACTIVE_C008_AUTO_GATE_WAIT",
+  "live_process_snapshot": [
+    {
+      "case_id": "C003",
+      "supervisor_pid": 10599,
+      "supervisor_alive": true,
+      "worker_alive": true,
+      "worker_pid": 10601,
+      "manual_STOP_present": false,
+      "supervisor_heartbeat_at_utc": "2026-11-12T13:45:33.875145+00:00",
+      "execution": {
+        "active_computation": true,
+        "attempt_id": "95c94f3fe361409c940470351402a0d8",
+        "case_id": "C003",
+        "computed": false,
+        "cpu_affinity": [
+          0,
+          1
+        ],
+        "cpu_wall_quality_retry_round_stop_limit": null,
+        "current_point": null,
+        "grid_block_size": 2048,
+        "heartbeat_at_utc": "2026-11-12T13:45:39.288072+00:00",
+        "input_hash": "5dbedaa70e1b2b8d4338303d26c0d3f22fcabdd88629b43df556f4a00a38e449",
+        "ir_verified": false,
+        "last_progress_at_utc": "2026-11-12T13:41:54.172571+00:00",
+        "max_memory_mb": 3000,
+        "measured_cpu_seconds": 443.176894318,
+        "memory_events": {
+          "high": 0,
+          "low": 0,
+          "max": 500,
+          "oom": 3,
+          "oom_group_kill": 0,
+          "oom_kill": 2
+        },
+        "minimum_verified": false,
+        "parallel_start_gate": "C008 awaits a real qualified C003 gradient",
+        "phase": "geometry_opt",
+        "pid": 10601,
+        "process_cpu_seconds": 443.176921317,
+        "progress_event": {
+          "case_id": "C003",
+          "checkpoint_committed": true,
+          "generation": 0,
+          "optimization_chunk": 0,
+          "stage": "geometry_chunk_started"
+        },
+        "rss_high_water_bytes": 2979098624,
+        "status": "GEOMETRY_OPT",
+        "temporary_disk_free_bytes": 9441312768,
+        "threads": 2,
+        "waiting_for_new_protocol": false,
+        "workspace_disk_free_bytes": 6830940160
+      },
+      "shared_authorized_cpu_hours": 1090774,
+      "completion_receipt_present": false,
+      "log_path": "/workspace/research4/reports/spinosin_ir_memory_repair_20261112/supervisors/C003/logs/worker-00000001-20261112T134153.478514Z.log"
+    },
+    {
+      "case_id": "C008",
+      "supervisor_pid": 10610,
+      "supervisor_alive": true,
+      "worker_alive": true,
+      "worker_pid": 10611,
+      "manual_STOP_present": false,
+      "supervisor_heartbeat_at_utc": "2026-11-12T13:45:34.843256+00:00",
+      "execution": {
+        "active_computation": false,
+        "attempt_id": "6b8204e1bb1143a5825eae10e50e7ee7",
+        "case_id": "C008",
+        "computed": false,
+        "cpu_affinity": [
+          2,
+          3
+        ],
+        "cpu_wall_quality_retry_round_stop_limit": null,
+        "current_point": null,
+        "grid_block_size": 2048,
+        "heartbeat_at_utc": "2026-11-12T13:45:40.127751+00:00",
+        "input_hash": "5a647d8a60b02eea19f94370baed6e285151b01dd9b5c8f642a7faded64adb90",
+        "ir_verified": false,
+        "last_progress_at_utc": "2026-11-12T13:41:54.981544+00:00",
+        "max_memory_mb": 3000,
+        "measured_cpu_seconds": 7.743916738999999,
+        "memory_events": {
+          "high": 0,
+          "low": 0,
+          "max": 500,
+          "oom": 3,
+          "oom_group_kill": 0,
+          "oom_kill": 2
+        },
+        "minimum_verified": false,
+        "parallel_start_gate": "C008 awaits a real qualified C003 gradient",
+        "phase": "waiting_for_peer_gradient",
+        "pid": 10611,
+        "process_cpu_seconds": 7.74395093,
+        "progress_event": {
+          "active_computation": false,
+          "checkpoint_committed": false,
+          "leader_case": "C003",
+          "phase": "waiting_for_peer_gradient"
+        },
+        "rss_high_water_bytes": 119721984,
+        "status": "WAITING_FOR_PEER_GRADIENT",
+        "temporary_disk_free_bytes": 9441312768,
+        "threads": 2,
+        "waiting_for_new_protocol": false,
+        "workspace_disk_free_bytes": 6830940160
+      },
+      "shared_authorized_cpu_hours": 1090774,
+      "completion_receipt_present": false,
+      "log_path": "/workspace/research4/reports/spinosin_ir_memory_repair_20261112/supervisors/C008/logs/worker-00000001-20261112T134154.383142Z.log"
+    }
+  ],
+  "old_oom_count_baseline": 2,
+  "new_oom_count_observed": 0,
+  "first_complete_spinosin_gradient_verified_at_handoff": false,
+  "actual_production_frequencies_completed": false,
+  "actual_production_IR_completed": false,
+  "shared_existing_authorized_cpu_hours": 1090774,
+  "additional_authorization_this_status_turn": 0,
+  "runtime_cpu_retry_stop_limits": null,
+  "case_008_policy": "Automatically start after complete qualified C003 75-atom gradient, source/code and array/audit SHA chain validate; heartbeat while waiting, no wait timeout.",
+  "original_method_grid_quality_criteria_retained": true,
+  "host_uptime_guaranteed": false
+}

@@ -1,0 +1,53 @@
+{
+  "checked_at_utc": "2026-11-12T11:27:01.185027+00:00",
+  "new_unit_tests_passed": 32,
+  "module_counts": {
+    "science": 13,
+    "ir": 9,
+    "operations": 10
+  },
+  "root_joint_test_elapsed_seconds": 2.451,
+  "independent_review": "No blocking issues; independently passed same32 tests and full 75-atom two-case synthetic dimension checks",
+  "synthetic_production_dimension_validation": {
+    "actual_spinosin_scf": false,
+    "cases": [
+      "C003",
+      "C008"
+    ],
+    "finite_difference_points_per_case": 900,
+    "replay_additional_solves": 0,
+    "cross_case_reuse_rejected": true
+  },
+  "real_water_control": {
+    "actual_native_pyscf": true,
+    "status": "COMPLETE",
+    "minimum_verified": true,
+    "ir_verified": true,
+    "paper_ready_molecular_harmonic_data": true,
+    "gradient_points": 36,
+    "directional_control_points": 14,
+    "additional_ir_points": 37,
+    "wall_seconds": 98.71,
+    "last_reported_gradient_max_hartree_per_bohr": 1.996e-09,
+    "last_reported_gradient_rms_hartree_per_bohr": 8.255e-10,
+    "complete_archive_manifest": "data/research/spinosin_ir_gap_fill_20261112/water_control_archive_manifest.json"
+  },
+  "implementation_sha256": {
+    "scripts/spinosin_gap_science_20261112.py": "63a3ceefbc5c85c183c78f59a581e6cc809a3ea343ba7ea15aed017ead52fa21",
+    "scripts/spinosin_gap_ir_20261112.py": "4ebd51bdd92ce7c771bbd81d33f11ff70e1c3cd3dc310d534b93242a458c1539",
+    "scripts/run_spinosin_ir_gap_20261112.py": "ed4dfa73652034647727681479b4153e0c7a6add4a6957955be02d0b6b1639a7",
+    "scripts/manage_spinosin_ir_gap_20261112.py": "a00ac089b1e22cfcbb8499f38a7db0c52748b6bb91fca9007aa489a2fce0a2a1"
+  },
+  "operational_limits": {
+    "metric": null,
+    "cpu_budget": null,
+    "wall_duration": null,
+    "retry_count": null,
+    "global_geometry_rounds": null
+  },
+  "known_limits": [
+    "RI-J max_memory is an algorithm hint rather than an RSS hard limit.",
+    "Rare unsupported IR backend paths remain unqualified and retry; they do not build dense DF tensors or grant false qualification.",
+    "Finite available numerical routes may require waiting_refinement; liveness does not prove active computation."
+  ]
+}

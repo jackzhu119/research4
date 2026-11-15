@@ -1,0 +1,210 @@
+{
+  "schema": "research4-native-blocked-full-df-water-gradient-v1",
+  "status": "PASS_ENGINEERING_ONLY",
+  "started_at_utc": "2026-11-12T13:38:37.257315+00:00",
+  "finished_at_utc": "2026-11-12T13:38:39.602181+00:00",
+  "molecule": {
+    "symbols": [
+      "O",
+      "H",
+      "H"
+    ],
+    "coordinates_bohr": [
+      [
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        1.43,
+        0.0,
+        1.11
+      ],
+      [
+        -1.43,
+        0.0,
+        1.11
+      ]
+    ],
+    "nuclear_stationary_point_assumed": false
+  },
+  "model": {
+    "xc": "PBE",
+    "basis": "def2-SVP",
+    "auxbasis": "def2-universal-jkfit",
+    "grid_level": 5,
+    "partition": "original_becke",
+    "grid_response": true,
+    "auxbasis_response": true,
+    "SCF_conv_tol_hartree": 1e-12,
+    "SCF_conv_tol_grad": 1e-09,
+    "SCF_native_converged": true,
+    "energy_hartree": -76.27204658762652,
+    "dipole_au": [
+      -1.7985612998927536e-14,
+      1.0184448891633609e-15,
+      0.7623539900131404
+    ]
+  },
+  "gradient_units": "Hartree/Bohr",
+  "both_gradients_share_same_SCF_density": true,
+  "requested_block_size": 2048,
+  "effective_block_size": 2016,
+  "atomic_grid_points": 90058,
+  "blocks_done": 46,
+  "native_gradient_max_abs": 0.022557355484372543,
+  "native_vs_blocked_max_absolute_difference": 2.220446049250313e-15,
+  "previous_terminal_observation": {
+    "native_vs_blocked_max_absolute_difference": 2.220446049250313e-15,
+    "blocks": 46,
+    "atomic_grid_points": 90058,
+    "scope": "Earlier identical-parameter engineering invocation; current arrays and measured difference below are separately archived"
+  },
+  "timing": {
+    "SCF_cpu_seconds": 1.612077042,
+    "SCF_wall_seconds": 1.6122632000042358,
+    "native_gradient_cpu_seconds": 0.44121601900000007,
+    "native_gradient_wall_seconds": 0.4415816510008881,
+    "blocked_gradient_cpu_seconds": 0.27552669200000013,
+    "blocked_gradient_wall_seconds": 0.27565694299846655,
+    "total_cpu_seconds": 2.344483468,
+    "total_wall_seconds": 2.345163350997609
+  },
+  "peak_process_RSS_bytes": 265871360,
+  "RSS_scope": "This water process peak includes SCF, native and blocked gradients; not a 75-atom memory bound",
+  "threads": 1,
+  "max_memory_MB_hint": 1000,
+  "python_executable": "/workspace/research4/.venv-quantum-gap-20261112/bin/python",
+  "adapter_provenance": {
+    "design": {
+      "schema": "research4-bounded-pbe-full-grid-response-v1",
+      "default_grid_block_size": 2048,
+      "AO_mask_alignment": 56,
+      "effective_block_rule": "Floor requested size to a multiple of native BLKSIZE when >=BLKSIZE; otherwise use requested tiny block",
+      "supported_pyscf_version": "2.13.0",
+      "supported_xc": "PBE",
+      "supported_xc_type": "GGA",
+      "supported_partition": "original_becke",
+      "supported_density": "one real closed-shell Hermitian RKS density",
+      "quadrature": "Original atomic grid/radial/pruning/Becke formulas, weights, nuclear grid-owner identity retained",
+      "responses": [
+        "XC nuclear AO derivative",
+        "Becke weight response",
+        "grid-coordinate response"
+      ],
+      "unsupported_behavior": "Explicit exception; never fall back to unbounded full-atom response",
+      "partial_blocks_are_scientific_checkpoints": false
+    },
+    "adapter_sha256": "f20523a2aaaf66b6634c8977920a1bc1539428d75a399bf61c4c42f900fb0a5f",
+    "pyscf_version": "2.13.0",
+    "native_rks_file_sha256": "cffc3e9efa10cf1b547d757e9d165c1000377e9159c794f87464a79c8c93ab46",
+    "native_partition_source_sha256": "9f20d3a392a8c23499b643da6f0bf72e73d33185802b0d87d22c497c8616efc6",
+    "native_full_response_source_sha256": "a5c68ddac21a15d4325a9a0332b42bf8ee09e9d904696c6f67a6697406245616",
+    "native_AO_mask_BLKSIZE": 56
+  },
+  "runtime_adapter_audit": {
+    "geometry_hash": "c5d7e4b8cf1934330bf401e4f0fc8fe5b0131097250dae997ca0c4f80aeec2d6",
+    "geometry_hash_definition": "SHA256 of contiguous little-endian float64 (<f8) Bohr Cartesian bytes, atom order preserved",
+    "coordinates_shape": [
+      3,
+      3
+    ],
+    "atom_count": 3,
+    "nao": 24,
+    "requested_block_size": 2048,
+    "effective_block_size": 2016,
+    "started_at_utc": "2026-11-12T13:38:39.324883+00:00",
+    "active": false,
+    "completed": true,
+    "partition_blocks_generated": 46,
+    "blocks_done": 46,
+    "grid_points_done": 90058,
+    "largest_partition_grid_block": 2016,
+    "largest_partition_derivative_bytes": 435456,
+    "largest_partition_derivative_shape": [
+      3,
+      3,
+      3,
+      2016
+    ],
+    "largest_AO_derivative_bytes": 3870720,
+    "largest_AO_derivative_shape": [
+      10,
+      2016,
+      24
+    ],
+    "owner_atoms_seen": [
+      0,
+      1,
+      2
+    ],
+    "responses_retained": [
+      "XC nuclear AO derivative",
+      "Becke weight response",
+      "grid-coordinate response"
+    ],
+    "max_memory_hint_MB": 2000.0,
+    "bound": {
+      "requested_block_size": 2048,
+      "effective_block_size": 2016,
+      "partition_derivative_shape_bound": [
+        3,
+        3,
+        3,
+        2016
+      ],
+      "partition_derivative_bytes_bound": 435456,
+      "AO_derivative_shape_bound": [
+        10,
+        2016,
+        24
+      ],
+      "AO_derivative_bytes_bound": 3870720,
+      "partition_freed_before_AO_evaluation": true,
+      "scope": "These dominant adapter tensors only; not a bound on complete process RSS"
+    },
+    "finished_at_utc": "2026-11-12T13:38:39.586539+00:00"
+  },
+  "artifacts": {
+    "coordinates_bohr": {
+      "path": "/workspace/research4/reports/spinosin_ir_memory_repair_20261112/engineering/native_blocked_water/coordinates_bohr.npy",
+      "sha256": "acf3376727672cdf243546077fd293ab6e94fbedd16d8448f72a39d83b8464bc",
+      "shape": [
+        3,
+        3
+      ],
+      "dtype": "float64"
+    },
+    "density_matrix": {
+      "path": "/workspace/research4/reports/spinosin_ir_memory_repair_20261112/engineering/native_blocked_water/density_matrix.npy",
+      "sha256": "53df7974b3695e8224b2384d43f633071c8813fddbf0288fc3fec2f9044a874b",
+      "shape": [
+        24,
+        24
+      ],
+      "dtype": "float64"
+    },
+    "native_gradient_hartree_per_bohr": {
+      "path": "/workspace/research4/reports/spinosin_ir_memory_repair_20261112/engineering/native_blocked_water/native_gradient_hartree_per_bohr.npy",
+      "sha256": "23c02637b0da21012bde25435648b84eeaefb84a431d269133af99fab4743e16",
+      "shape": [
+        3,
+        3
+      ],
+      "dtype": "float64"
+    },
+    "blocked_gradient_hartree_per_bohr": {
+      "path": "/workspace/research4/reports/spinosin_ir_memory_repair_20261112/engineering/native_blocked_water/blocked_gradient_hartree_per_bohr.npy",
+      "sha256": "3680ab8be2b6d8310ee1cab8c6cc6c6162656dc0f8becee274882d9a1b6fb0a5",
+      "shape": [
+        3,
+        3
+      ],
+      "dtype": "float64"
+    }
+  },
+  "limitations": [
+    "Nonstationary water geometry; no minimum or IR completion claim",
+    "No Spinosin or large molecular SCF/gradient executed by this engineering run"
+  ]
+}

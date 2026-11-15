@@ -1,0 +1,264 @@
+{
+  "schema": "research4-native-backend-water-gradient-engineering-smoke-v1",
+  "status": "PASS_ENGINEERING_ONLY",
+  "started_at_utc": "2026-11-12T11:05:01.301304+00:00",
+  "script": "/workspace/scratch/native_water_vendor_gradient_smoke_20261112.py",
+  "script_sha256": "918599479e869d9b74c5312d9edf99e400ce015aff80ccc6525583f276790419",
+  "vendor_manifest": "/workspace/research4/data/research/spinosin_ir_gap_fill_20261112/vendor_provenance.json",
+  "vendor_manifest_sha256": "6a83889eab791c8950fa1925603a7ffa9e250fd9753315bb790e23e660765929",
+  "vendor_files_sha256": {
+    "scripts/quantum_gap_vendor_20261112/pyscf_publication_core_20261111.py": "69a178f2d2a0311698af72724221c13deaefb65ac8b192b8f63c5491c602029d",
+    "scripts/quantum_gap_vendor_20261112/pyscf_publication_quality_20261111.py": "3a989e441fdc66f64ec32591115c146a9029a8038b6c4f11e7ae81ad7c8e4003",
+    "scripts/quantum_gap_vendor_20261112/pyscf_repair_modes_20261111.py": "668bac1235d70b9350ef0aa35d861687e3bccfd9ec7d8e0292bf7b79682c7b66",
+    "scripts/quantum_gap_vendor_20261112/run_pyscf_publication_20261111.py": "7dbc162a460a5bc56b7ed211d8631a9558b5d7f9ab2de2616d2040f5fae5f09f",
+    "scripts/quantum_gap_vendor_20261112/pyscf_ir_core_20261111.py": "6ae3072b92e13eb43f36c1992f61fdac8e66bcb356120eb4a1d9e711216fca5a",
+    "scripts/quantum_gap_vendor_20261112/pyscf_ir_quality_20261111.py": "f5fb5d27a22afb1ba216ea28b48d87cec040d857a067f1f9944bb085b52f1933"
+  },
+  "artifact_directory": "/workspace/research4/reports/spinosin_ir_gap_fill_20261112/engineering/water_gradient_smoke",
+  "runtime": {
+    "pyscf": "2.13.0",
+    "numpy": "2.3.5",
+    "scipy": "1.17.0",
+    "h5py": "3.16.0",
+    "geometric": "1.1.1"
+  },
+  "threads_requested": 1,
+  "max_memory_mb": 1000,
+  "thread_environment_before_numpy_import": {
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "NUMEXPR_NUM_THREADS": "1",
+    "VECLIB_MAXIMUM_THREADS": "1",
+    "BLIS_NUM_THREADS": "1"
+  },
+  "molecule": {
+    "symbols": [
+      "O",
+      "H",
+      "H"
+    ],
+    "coordinates_bohr": [
+      [
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        1.43,
+        0.0,
+        1.11
+      ],
+      [
+        -1.43,
+        0.0,
+        1.11
+      ]
+    ],
+    "charge": 0,
+    "spin": 0,
+    "expected_electron_count": 10,
+    "geometry_scope": "Fixed engineering input; not optimized and not assumed stationary"
+  },
+  "units": {
+    "coordinates": "Bohr",
+    "energy": "Hartree",
+    "nuclear_gradient": "Hartree/Bohr",
+    "total_dipole": "atomic units"
+  },
+  "profiles": {
+    "df-grid5": {
+      "status": "DONE",
+      "qualified": true,
+      "settings": {
+        "xc": "PBE",
+        "basis": "def2-SVP",
+        "charge": 0,
+        "spin": 0,
+        "dispersion": "NONE_EXPLICIT",
+        "density_fitting": true,
+        "direct_scf_tol": 1e-14,
+        "conv_tol_hartree": 1e-12,
+        "conv_tol_grad": 1e-08,
+        "fresh_orbital_gradient_acceptance": 1e-08,
+        "fresh_energy_difference_acceptance_hartree": 1e-10,
+        "electron_count_acceptance": 1e-07,
+        "grid_response": true,
+        "full_native_veff_every_cycle": true,
+        "effective_potential_update": "Full effective potential from the current density; no delta-DM update.",
+        "small_rho_cutoff": 0,
+        "electronic_recovery_order": [
+          "NATIVE_DIIS",
+          "TIGHT_NATIVE_POLISH",
+          "NEWTON_SEED_NATIVE_POLISH"
+        ],
+        "polish_conv_tol_hartree": 1e-12,
+        "polish_conv_tol_grad": 2e-09,
+        "threads": 1,
+        "max_memory_mb": 1000,
+        "profile": "df-grid5",
+        "grid_level": 5,
+        "density_fitting_auxbasis": "def2-universal-jkfit",
+        "auxbasis_response": true,
+        "model_scope": "Density-fitted Coulomb/JK integrals with def2-universal-jkfit; PBE XC quadrature remains numerical. This is a model approximation relative to the direct-integral reference, not a direct-SCF result.",
+        "internal_stability_max_repairs": 3,
+        "grid_pruning": "PySCF_default_NWChem",
+        "grid_construction": "native_atom_centered_rebuilt_for_each_geometry"
+      },
+      "observed_pyscf_num_threads": 1,
+      "energy_hartree": -76.27204658762649,
+      "gradient_hartree_per_bohr": [
+        [
+          1.2200704695269848e-16,
+          -1.928561452886699e-17,
+          0.022557355907209864
+        ],
+        [
+          -0.010649938816995164,
+          -4.134926148011151e-16,
+          -0.011278677953601601
+        ],
+        [
+          0.010649938816993387,
+          4.257389742204118e-16,
+          -0.011278677953603156
+        ]
+      ],
+      "total_dipole_au": [
+        2.020605904817785e-14,
+        3.746616306842713e-17,
+        0.7623539949629343
+      ],
+      "nuclear_gradient_rms": 0.010488585604774423,
+      "nuclear_gradient_max": 0.022557355907209864,
+      "gradient_response": {
+        "grid_response": true,
+        "auxbasis_response": true
+      },
+      "electronic_audit": {
+        "native_converged": true,
+        "fresh_energy_hartree": -76.27204658762649,
+        "native_energy_hartree": -76.27204658762649,
+        "fresh_energy_difference_hartree": 0.0,
+        "fresh_orbital_gradient_norm": 8.632116246241446e-09,
+        "electron_count": 10.0,
+        "expected_electron_count": 10,
+        "electron_count_error": 0.0,
+        "qualified": true,
+        "quality_warnings": []
+      },
+      "point_cpu_seconds": 1.4849705930000003,
+      "point_wall_seconds": 1.5396050049967016,
+      "point_input_fingerprint": "2e911ce5633841d12bf64ee59c1fa407f7bf60f0d88c5c9fcb8eae9941ef3d92",
+      "point_result_path": "/workspace/research4/reports/spinosin_ir_gap_fill_20261112/engineering/water_gradient_smoke/df-grid5/result.json",
+      "point_result_sha256": "e3e3baf361da506b94ce94a3775c523c89fec31e077c25fafb40f9927e9368bc",
+      "array_references_verified": true
+    },
+    "direct-grid5": {
+      "status": "DONE",
+      "qualified": true,
+      "settings": {
+        "xc": "PBE",
+        "basis": "def2-SVP",
+        "charge": 0,
+        "spin": 0,
+        "dispersion": "NONE_EXPLICIT",
+        "density_fitting": false,
+        "direct_scf_tol": 1e-14,
+        "conv_tol_hartree": 1e-12,
+        "conv_tol_grad": 1e-08,
+        "fresh_orbital_gradient_acceptance": 1e-08,
+        "fresh_energy_difference_acceptance_hartree": 1e-10,
+        "electron_count_acceptance": 1e-07,
+        "grid_response": true,
+        "full_native_veff_every_cycle": true,
+        "effective_potential_update": "Full effective potential from the current density; no delta-DM update.",
+        "small_rho_cutoff": 0,
+        "electronic_recovery_order": [
+          "NATIVE_DIIS",
+          "TIGHT_NATIVE_POLISH",
+          "NEWTON_SEED_NATIVE_POLISH"
+        ],
+        "polish_conv_tol_hartree": 1e-12,
+        "polish_conv_tol_grad": 2e-09,
+        "threads": 1,
+        "max_memory_mb": 1000,
+        "profile": "direct-grid5",
+        "grid_level": 5,
+        "density_fitting_auxbasis": null,
+        "auxbasis_response": false,
+        "model_scope": "Native direct electron repulsion integrals; no density fitting.",
+        "internal_stability_max_repairs": 3,
+        "grid_pruning": "PySCF_default_NWChem",
+        "grid_construction": "native_atom_centered_rebuilt_for_each_geometry"
+      },
+      "observed_pyscf_num_threads": 1,
+      "energy_hartree": -76.27201979160313,
+      "gradient_hartree_per_bohr": [
+        [
+          1.068902631855576e-15,
+          -7.838405251690234e-17,
+          0.022561014759224562
+        ],
+        [
+          -0.010652410047968353,
+          3.430510721633605e-16,
+          -0.01128050737961206
+        ],
+        [
+          0.010652410047966132,
+          -2.6403429148647717e-16,
+          -0.011280507379611171
+        ]
+      ],
+      "total_dipole_au": [
+        -7.327471962526033e-15,
+        -2.6802537614618944e-16,
+        0.7623572142022099
+      ],
+      "nuclear_gradient_rms": 0.010490454709501712,
+      "nuclear_gradient_max": 0.022561014759224562,
+      "gradient_response": {
+        "grid_response": true,
+        "auxbasis_response": false
+      },
+      "electronic_audit": {
+        "native_converged": true,
+        "fresh_energy_hartree": -76.27201979160313,
+        "native_energy_hartree": -76.27201979160314,
+        "fresh_energy_difference_hartree": 1.4210854715202004e-14,
+        "fresh_orbital_gradient_norm": 8.721609072716908e-09,
+        "electron_count": 9.999999999999998,
+        "expected_electron_count": 10,
+        "electron_count_error": -1.7763568394002505e-15,
+        "qualified": true,
+        "quality_warnings": []
+      },
+      "point_cpu_seconds": 1.1323073320000003,
+      "point_wall_seconds": 1.1455418589976034,
+      "point_input_fingerprint": "baec22e9a43035aecdc06284fe16ad4b286920c370d656a79784f34128d1f54d",
+      "point_result_path": "/workspace/research4/reports/spinosin_ir_gap_fill_20261112/engineering/water_gradient_smoke/direct-grid5/result.json",
+      "point_result_sha256": "8faaa0b2158d905978182a0ca92593c6425064b2cf15f178a435c3a5843b3a68",
+      "array_references_verified": true
+    }
+  },
+  "scientific_scope": "Only actual backend electronic audit, nuclear gradient response and total-dipole API validation on water",
+  "not_demonstrated": [
+    "nuclear stationary point",
+    "local minimum",
+    "harmonic frequencies",
+    "IR completion",
+    "electronic stability test",
+    "Spinosin results"
+  ],
+  "upstream_budget_or_publisher_invoked": false,
+  "same_geometry_direct_comparison": {
+    "energy_df_minus_direct_hartree": -2.6796023362862798e-05,
+    "gradient_difference_max_hartree_per_bohr": 3.6588520146985104e-06,
+    "total_dipole_difference_norm_au": 3.2192392755980848e-06,
+    "interpretation": "Finite diagnostics between distinct DF/direct numerical models; not a fitted agreement criterion or a claim of minimum/IR validation"
+  },
+  "finished_at_utc": "2026-11-12T11:05:04.003929+00:00",
+  "actual_process_cpu_seconds": 3.119285375,
+  "actual_wall_seconds": 3.2540178839990404
+}

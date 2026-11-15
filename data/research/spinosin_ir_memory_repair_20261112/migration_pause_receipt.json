@@ -1,0 +1,121 @@
+{
+  "recorded_at_utc": "2026-11-12T13:21:23.612768+00:00",
+  "reason": "Controlled migration after kernel OOM kills at original full-atom Becke grid-response gradient; preserve current SCF warm-start before stopping unsafe repeated attempts. No metric, duration or CPU authorization boundary triggered this manual intervention.",
+  "cgroup_memory_events_before": "low 0\nhigh 0\nmax 500\noom 3\noom_kill 2\noom_group_kill 0\n",
+  "old_status_snapshot": [
+    {
+      "case_id": "C003",
+      "supervisor_pid": 8842,
+      "supervisor_alive": true,
+      "worker_alive": true,
+      "worker_pid": 9153,
+      "manual_STOP_present": false,
+      "supervisor_heartbeat_at_utc": "2026-11-12T13:21:18.302206+00:00",
+      "execution": {
+        "active_computation": true,
+        "attempt_id": "fbeae1bd82134d3fbe87ea3b685c3f5f",
+        "case_id": "C003",
+        "computed": false,
+        "cpu_affinity": [
+          0,
+          1
+        ],
+        "cpu_wall_quality_retry_round_stop_limit": null,
+        "current_point": null,
+        "heartbeat_at_utc": "2026-11-12T13:21:18.997085+00:00",
+        "input_hash": "bc5d6805d6b25e757bc0558d85b5022983eef14cebb3000691ce8998a6ed13b2",
+        "ir_verified": false,
+        "last_progress_at_utc": "2026-11-12T12:28:21.122020+00:00",
+        "max_memory_mb": 3000,
+        "measured_cpu_seconds": 13575.653925911,
+        "minimum_verified": false,
+        "phase": "geometry_opt",
+        "pid": 9153,
+        "process_cpu_seconds": 6274.792499763999,
+        "progress_event": {
+          "case_id": "C003",
+          "checkpoint_committed": true,
+          "generation": 0,
+          "optimization_chunk": 1,
+          "stage": "geometry_chunk_started"
+        },
+        "rss_high_water_bytes": 3035615232,
+        "status": "GEOMETRY_OPT",
+        "temporary_disk_free_bytes": 9441312768,
+        "threads": 2,
+        "waiting_for_new_protocol": false,
+        "workspace_disk_free_bytes": 6836285440
+      },
+      "shared_authorized_cpu_hours": 1090774,
+      "completion_receipt_present": false,
+      "log_path": "/workspace/research4/reports/spinosin_ir_gap_fill_20261112/supervisors/C003/logs/worker-00000002-20261112T122820.683630Z.log"
+    },
+    {
+      "case_id": "C008",
+      "supervisor_pid": 8847,
+      "supervisor_alive": true,
+      "worker_alive": true,
+      "worker_pid": 9150,
+      "manual_STOP_present": false,
+      "supervisor_heartbeat_at_utc": "2026-11-12T13:21:17.699181+00:00",
+      "execution": {
+        "active_computation": true,
+        "attempt_id": "09bf73113c374971871b509de5a6b2a9",
+        "case_id": "C008",
+        "computed": false,
+        "cpu_affinity": [
+          2,
+          3
+        ],
+        "cpu_wall_quality_retry_round_stop_limit": null,
+        "current_point": null,
+        "heartbeat_at_utc": "2026-11-12T13:21:18.811317+00:00",
+        "input_hash": "8257c5ebd508662ab4bb7aee2ab2db3f14a4c44fafab25b98897ebc37beef383",
+        "ir_verified": false,
+        "last_progress_at_utc": "2026-11-12T12:28:20.892430+00:00",
+        "max_memory_mb": 3000,
+        "measured_cpu_seconds": 13579.859568676002,
+        "minimum_verified": false,
+        "phase": "geometry_opt",
+        "pid": 9150,
+        "process_cpu_seconds": 6272.102273966,
+        "progress_event": {
+          "case_id": "C008",
+          "checkpoint_committed": true,
+          "generation": 0,
+          "optimization_chunk": 1,
+          "stage": "geometry_chunk_started"
+        },
+        "rss_high_water_bytes": 3035385856,
+        "status": "GEOMETRY_OPT",
+        "temporary_disk_free_bytes": 9441312768,
+        "threads": 2,
+        "waiting_for_new_protocol": false,
+        "workspace_disk_free_bytes": 6836285440
+      },
+      "shared_authorized_cpu_hours": 1090774,
+      "completion_receipt_present": false,
+      "log_path": "/workspace/research4/reports/spinosin_ir_gap_fill_20261112/supervisors/C008/logs/worker-00000002-20261112T122820.383676Z.log"
+    }
+  ],
+  "actions": [
+    {
+      "case_id": "C003",
+      "old_worker_pid": 9153,
+      "signal": "SIGKILL after recovery snapshot verified; current native solver cannot stop safely before next dangerous gradient allocation",
+      "warm_density_path": "reports/spinosin_ir_memory_repair_20261112/recovery_inputs/C003/warm_density.npy",
+      "warm_density_sha256": "8c94828adfb3b8387dfc1fa818f7dda1d4aa0a97636606787dced8a331425294",
+      "recovery_receipt": "reports/spinosin_ir_memory_repair_20261112/recovery_inputs/C003/recovery_input.json",
+      "old_stop_path": "reports/spinosin_ir_gap_fill_20261112/supervisors/C003/STOP"
+    },
+    {
+      "case_id": "C008",
+      "old_worker_pid": 9150,
+      "signal": "SIGKILL after recovery snapshot verified; current native solver cannot stop safely before next dangerous gradient allocation",
+      "warm_density_path": "reports/spinosin_ir_memory_repair_20261112/recovery_inputs/C008/warm_density.npy",
+      "warm_density_sha256": "0b3e0c625770b1f4021aee51b65a5fc8081f49c43fbe5f36f66be035009b5d17",
+      "recovery_receipt": "reports/spinosin_ir_memory_repair_20261112/recovery_inputs/C008/recovery_input.json",
+      "old_stop_path": "reports/spinosin_ir_gap_fill_20261112/supervisors/C008/STOP"
+    }
+  ]
+}

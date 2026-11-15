@@ -1,0 +1,123 @@
+{
+  "observed_at_utc": "2026-11-12T13:31:11.743554+00:00",
+  "original_task": "spinosin_ir_gap_fill_20261112",
+  "original_case_ids": [
+    "C003",
+    "C008"
+  ],
+  "original_killed_at_utc": "2026-11-12T12:28:15+00:00",
+  "original_returncode": -9,
+  "kernel_memory_events": "low 0\nhigh 0\nmax 500\noom 3\noom_kill 2\noom_group_kill 0\n",
+  "kernel_memory_peak_bytes": 17179869184,
+  "kernel_memory_limit_bytes": 17179869184,
+  "committed_optimization_gradients_before_repair": 0,
+  "first_hessian_completed": false,
+  "ir_completed": false,
+  "cause": "Whole-atom Becke partition-response dpbecke allocation plus AO arrays and double-buffer liveness. Native max_memory does not bound this code path.",
+  "dpbecke_shape": [
+    75,
+    75,
+    3,
+    42978
+  ],
+  "dpbecke_bytes_single": 5802030000,
+  "operator_recovery": "Old attempts stopped after both currently readable SCF warm-start snapshots were preserved and independently checked. No old scientific input/code/result was overwritten.",
+  "old_status_after_pause": [
+    {
+      "case_id": "C003",
+      "supervisor_pid": 8842,
+      "supervisor_alive": false,
+      "worker_alive": false,
+      "worker_pid": null,
+      "manual_STOP_present": true,
+      "supervisor_heartbeat_at_utc": "2026-11-12T13:21:23.724787+00:00",
+      "execution": {
+        "active_computation": true,
+        "attempt_id": "fbeae1bd82134d3fbe87ea3b685c3f5f",
+        "case_id": "C003",
+        "computed": false,
+        "cpu_affinity": [
+          0,
+          1
+        ],
+        "cpu_wall_quality_retry_round_stop_limit": null,
+        "current_point": null,
+        "heartbeat_at_utc": "2026-11-12T13:21:18.997085+00:00",
+        "input_hash": "bc5d6805d6b25e757bc0558d85b5022983eef14cebb3000691ce8998a6ed13b2",
+        "ir_verified": false,
+        "last_progress_at_utc": "2026-11-12T12:28:21.122020+00:00",
+        "max_memory_mb": 3000,
+        "measured_cpu_seconds": 13575.653925911,
+        "minimum_verified": false,
+        "phase": "geometry_opt",
+        "pid": 9153,
+        "process_cpu_seconds": 6274.792499763999,
+        "progress_event": {
+          "case_id": "C003",
+          "checkpoint_committed": true,
+          "generation": 0,
+          "optimization_chunk": 1,
+          "stage": "geometry_chunk_started"
+        },
+        "rss_high_water_bytes": 3035615232,
+        "status": "GEOMETRY_OPT",
+        "temporary_disk_free_bytes": 9441312768,
+        "threads": 2,
+        "waiting_for_new_protocol": false,
+        "workspace_disk_free_bytes": 6836285440
+      },
+      "shared_authorized_cpu_hours": 1090774,
+      "completion_receipt_present": false,
+      "log_path": "/workspace/research4/reports/spinosin_ir_gap_fill_20261112/supervisors/C003/logs/worker-00000002-20261112T122820.683630Z.log"
+    },
+    {
+      "case_id": "C008",
+      "supervisor_pid": 8847,
+      "supervisor_alive": false,
+      "worker_alive": false,
+      "worker_pid": null,
+      "manual_STOP_present": true,
+      "supervisor_heartbeat_at_utc": "2026-11-12T13:21:23.717782+00:00",
+      "execution": {
+        "active_computation": true,
+        "attempt_id": "09bf73113c374971871b509de5a6b2a9",
+        "case_id": "C008",
+        "computed": false,
+        "cpu_affinity": [
+          2,
+          3
+        ],
+        "cpu_wall_quality_retry_round_stop_limit": null,
+        "current_point": null,
+        "heartbeat_at_utc": "2026-11-12T13:21:18.811317+00:00",
+        "input_hash": "8257c5ebd508662ab4bb7aee2ab2db3f14a4c44fafab25b98897ebc37beef383",
+        "ir_verified": false,
+        "last_progress_at_utc": "2026-11-12T12:28:20.892430+00:00",
+        "max_memory_mb": 3000,
+        "measured_cpu_seconds": 13579.859568676002,
+        "minimum_verified": false,
+        "phase": "geometry_opt",
+        "pid": 9150,
+        "process_cpu_seconds": 6272.102273966,
+        "progress_event": {
+          "case_id": "C008",
+          "checkpoint_committed": true,
+          "generation": 0,
+          "optimization_chunk": 1,
+          "stage": "geometry_chunk_started"
+        },
+        "rss_high_water_bytes": 3035385856,
+        "status": "GEOMETRY_OPT",
+        "temporary_disk_free_bytes": 9441312768,
+        "threads": 2,
+        "waiting_for_new_protocol": false,
+        "workspace_disk_free_bytes": 6836285440
+      },
+      "shared_authorized_cpu_hours": 1090774,
+      "completion_receipt_present": false,
+      "log_path": "/workspace/research4/reports/spinosin_ir_gap_fill_20261112/supervisors/C008/logs/worker-00000002-20261112T122820.383676Z.log"
+    }
+  ],
+  "migration_receipt": "reports/spinosin_ir_memory_repair_20261112/migration_pause_receipt.json",
+  "scientific_scope": "Preserve same geometry, grid, XC/basis and analytic response formula; change bounded-memory evaluation order under a new fingerprint, requalify all scientific results."
+}
