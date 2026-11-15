@@ -1,6 +1,6 @@
 # Supplementary information
 
-Tracing absorption information in terahertz discrimination of medicinal materials
+Terahertz fingerprints and machine learning for complementary discrimination of medicinal materials
 
 Ziyuan Zhu, Jiayi Ren, Shuyu Zhou, Mengting Zhu, Yin Shen*
 

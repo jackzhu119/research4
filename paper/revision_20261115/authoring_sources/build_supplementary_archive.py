@@ -43,7 +43,7 @@ with tempfile.TemporaryDirectory() as scratch:
     receipt={'schema':'research4-submission-data-v1','classifier_manifest_sha256':hashlib.sha256((CURRENT/'manifest.json').read_bytes()).hexdigest(),'canonical_raw_spectra':'https://github.com/jackzhu119/research4/tree/main/data','experimental_data_provider':'Yin Shen','corresponding_orcid':'https://orcid.org/0000-0002-3221-7875','dataset_use':'Shared research resource also used in other supervised studies; no exclusive-use claim','new_model_training':False,'files':records}
     (stage/'SOURCE_MANIFEST.json').write_text(json.dumps(receipt,ensure_ascii=False,indent=2)+'\n')
     (stage/'README.txt').write_text('Supplementary Data S1\n\n'
-      'Manuscript: Tracing absorption information in terahertz discrimination of medicinal materials\n'
+      'Manuscript: Terahertz fingerprints and machine learning for complementary discrimination of medicinal materials\n'
       'Authors: Ziyuan Zhu, Jiayi Ren, Shuyu Zhou, Mengting Zhu and Yin Shen\n'
       'Corresponding author: Yin Shen; shenyin285819016@126.com\n'
       'ORCID: https://orcid.org/0000-0002-3221-7875\n\n'

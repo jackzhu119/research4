@@ -1,11 +1,11 @@
-# 最终投稿包下载
+# Final submission downloads
 
-这里保存已经完成核验的完整投稿压缩包，供浏览器直接下载。内容与最终英文稿、中英对照及完整证据包一致，没有重新修改稿件或数据。
+本版已重写药材鉴定与太赫兹补充应用的研究动机、强化消融贡献，并将参考文献从15篇增至28篇。英文正文20页，中英对照35页；完整包包含全部8份Word、加框高清图件、数据附件和溯源材料。
 
-- [下载完整投稿包（ZIP，18.7 MB）](https://github.com/jackzhu119/research4/raw/refs/heads/codex/corrected-paper-revision-20261115/paper/downloads/research4_Final_Submission_20261115.zip)
-- [下载全文中英对照（Word）](https://github.com/jackzhu119/research4/raw/790ecd09499e6d6e4f5f4b43769aca7666ced18a/paper/revision_20261115/07_Manuscript_EN_ZH.docx)
-- [下载英文正文（Word）](https://github.com/jackzhu119/research4/raw/790ecd09499e6d6e4f5f4b43769aca7666ced18a/paper/revision_20261115/01_Manuscript_Optimized.docx)
+- [Submission Package](https://github.com/jackzhu119/research4/raw/dl/Submission.zip)
+- [Bilingual Manuscript](https://github.com/jackzhu119/research4/raw/dl/Bilingual.docx)
+- [English Manuscript](https://github.com/jackzhu119/research4/raw/dl/Manuscript.docx)
 
-压缩包含`01_Submit`、`02_Review`、`03_Evidence`三部分。其289个条目的CRC和文件哈希已核验，完整包SHA-256见[下载核验](DOWNLOAD_VERIFICATION.json)。
+所有链接使用英文文件名和简短HTTPS路径，可下载到本地电脑。若浏览器未自动下载，可使用“链接另存为”。
 
-若浏览器显示文件页面，点击下载按钮即可；如直接显示内容，可使用“另存为”并保留原扩展名。
+完整包约18.8 MB，分为`01_Submit`、`02_Review`和`03_Evidence`。其291个条目的CRC及每个文件哈希均已核验。文件标识、SHA-256和当前下载地址见[Verification](DOWNLOAD_VERIFICATION.json)。

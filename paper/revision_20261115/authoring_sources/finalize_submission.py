@@ -83,6 +83,7 @@ metadata = {
     'main_manuscript_word_count_approximate': word_count,
     'word_count_scope': 'Word paragraphs and tables including references and captions; excludes equation objects and figure text',
     'main_figures': 4, 'main_tables': 4, 'supplementary_figures': 1,
+    'references': 28,
     'competing_interests': 'None declared', 'funding': 'No financial support',
     'all_authors_approve_and_accept_responsibility': True,
     'manuscript_under_consideration_elsewhere': False,
@@ -101,7 +102,8 @@ readiness = read_json(BASE / 'SUBMISSION_READINESS.json')
 readiness.update(submission_files_prepared=True, package_assembly_state='COMPLETE',
                  main_manuscript_word_count_approximate=word_count,
                  figures_restyled_and_framed=True, figure_png_dpi=600,
-                 full_manuscript_en_zh_completed=True)
+                 full_manuscript_en_zh_completed=True,
+                 reference_count=28, motivation_and_contributions_revised=True)
 save_json(BASE / 'SUBMISSION_READINESS.json', readiness)
 source_check = read_json(ROOT / 'paper/current/verification.json')
 assert source_check['status'] == 'PASS'
@@ -117,7 +119,7 @@ for path in sorted(BASE.glob('*.docx')):
         assert archive.testzip() is None
     documents.append({'file': path.name, 'sha256': digest(path), 'tables': len(doc.tables),
                       'inline_figures': len(doc.inline_shapes),
-                      'editable_equations': len(doc.element.findall('.//' + qn('m:oMathPara'))),
+                      'editable_equations': len(doc.element.findall('.//' + qn('m:oMath'))),
                       'ooxml_zip_integrity': 'PASS', 'no_placeholder_tokens': True})
 assert len(documents) == 8
 assert not (BASE / '06_投稿前信息补齐表.docx').exists()
@@ -145,6 +147,9 @@ save_json(BASE / 'DELIVERY_VERIFICATION.json', {
     'evidence_entry': 'paper/current/manifest.json', 'authorship_confirmation': 'AUTHORSHIP.json',
     'all_authors_approve_and_accept_responsibility': True,
     'prior_parameter_completion_workflow_retired': True,
+    'references_verified': 28,
+    'motivation_and_contributions_revised': True,
+    'narrative_revision_receipt': 'authoring_sources/NARRATIVE_REVISION.json',
     'journal_submission_performed': False
 })
 

@@ -77,7 +77,7 @@ def paragraph(d,text,style=None):
             run=text_run(p,value,bold=bool(i%2) or style in ['Heading 1','Heading 2','Heading 3'])
             if citation:run.font.superscript=True
     if is_reference:
-        journals=['Hong Kong Chinese Materia Medica Standards','Food Chem X','J Appl Spectrosc','TrAC Trends Anal Chem','Anal Chim Acta','BMC Bioinformatics','J Mach Learn Res','Chemom Intell Lab Syst','Anal Chem','J Chem Phys','Phys Rev Lett','Phys Chem Chem Phys']
+        journals=['Hong Kong Chinese Materia Medica Standards','Food Chem X','J Appl Spectrosc','TrAC Trends Anal Chem','Anal Chim Acta','BMC Bioinformatics','J Mach Learn Res','Chemom Intell Lab Syst','Anal Chem','J Chem Phys','Phys Rev Lett','Phys Chem Chem Phys','Phytochem Anal','J Chromatogr B Analyt Technol Biomed Life Sci','Laser Photon Rev','J Pharm Pharmacol','Crit Rev Anal Chem','Microchem J','Infrared Phys Technol','Front Bioeng Biotechnol','IEEE J Sel Top Quantum Electron','Appl Spectrosc','Mach Learn']
         pattern='('+'|'.join(re.escape(j) for j in sorted(journals,key=len,reverse=True))+')'
         content=p.text;p.clear()
         for piece in re.split(pattern,content):
