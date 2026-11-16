@@ -1,5 +1,5 @@
 {
-  "status": "BLOCKED_MISSING_ARTIFACT",
+  "status": "COMPLETED",
   "archived_totals": {
     "archived_attempt_count": 83048,
     "ledger_attempt_count": 83048,
@@ -37,7 +37,7 @@
     "old attempts do not all record peak RSS and serialized pipeline bytes",
     "fit counters are completing-attempt or last-heartbeat lower bounds when failure happened before final receipt"
   ],
-  "benchmark_runs_completed": 0,
+  "benchmark_runs_completed": 12,
   "benchmark_matrix": {
     "contexts": [
       0,
@@ -60,7 +60,860 @@
     "estimated_pls_fits": 18600
   },
   "benchmark_scope": "new sequential single-worker MC20 cold starts or explicitly labeled resume; fills measurement gaps, not replacement archived performance",
-  "benchmark_receipts": [],
+  "benchmark_receipts": [
+    {
+      "status": "COMPLETED",
+      "benchmark_id": "context0_baseline_lda",
+      "context_index": 0,
+      "method": "baseline_lda",
+      "context_manifest_sha256": "8c31d1f5b7c5ccda71f27586a8f928be32855368be84cb1e19c703a31407c4f1",
+      "split_sha256": "3db349e3f3e8d3a1c9b5260edf84e2917f2d0b75f8d8c845930e3d4c56d7df8d",
+      "input_sha256": "76bde1b77584f9a6aba0e97cbb4fee2cb702f2da727fd26084c1f16209217b73",
+      "source_code_sha256": "570d4af4e39083d0e3ec60afae0a21eb137bd2ea272a49168bc346368fd998cd",
+      "execution_mode": "cold_start",
+      "prior_attempt_count": 0,
+      "cpu_seconds_this_attempt": 3.0790536250000002,
+      "wall_seconds_this_attempt": 3.1136120339999707,
+      "new_classifier_fits_this_attempt": 21,
+      "new_pls_fits_this_attempt": 0,
+      "theoretical_classifier_fits_without_dedup": 21,
+      "fit_count_limit": "actual cache/signature dedup may reduce counts; counters are actual new fits",
+      "search_and_io_overhead_cpu_seconds": 0.9784511639999978,
+      "peak_rss_kib": 213616,
+      "serialized_pipeline_bytes": 3058224,
+      "serialized_pipeline_sha256": "c705646051eb18fb257488c6a6ff389ef792e4ce34df94163f4337c0c579ba20",
+      "final_dimension": 612,
+      "input_dependency_points": 612,
+      "hardware": {
+        "platform": "Linux-7.0.0-1019-azure-x86_64-with-glibc2.43",
+        "machine": "x86_64",
+        "processor": "",
+        "logical_cpus": 4
+      },
+      "software": {
+        "python": "3.11.18 (main, Oct 26 2026, 02:48:29) [GCC 15.2.0]",
+        "numpy": "2.3.5",
+        "sklearn": "1.8.0"
+      },
+      "threads": [
+        {
+          "user_api": "blas",
+          "internal_api": "openblas",
+          "num_threads": 1,
+          "prefix": "libscipy_openblas",
+          "filepath": "/opt/hostedtoolcache/Python/3.11.18/x64/lib/python3.11/site-packages/numpy.libs/libscipy_openblas64_-fdde5778.so",
+          "version": "0.3.30",
+          "threading_layer": "pthreads",
+          "architecture": "SkylakeX"
+        },
+        {
+          "user_api": "blas",
+          "internal_api": "openblas",
+          "num_threads": 1,
+          "prefix": "libscipy_openblas",
+          "filepath": "/opt/hostedtoolcache/Python/3.11.18/x64/lib/python3.11/site-packages/scipy.libs/libscipy_openblas-6cdc3b4a.so",
+          "version": "0.3.30",
+          "threading_layer": "pthreads",
+          "architecture": "SkylakeX"
+        },
+        {
+          "user_api": "openmp",
+          "internal_api": "openmp",
+          "num_threads": 1,
+          "prefix": "libgomp",
+          "filepath": "/opt/hostedtoolcache/Python/3.11.18/x64/lib/python3.11/site-packages/scikit_learn.libs/libgomp-e985bcbb.so.1.0.0",
+          "version": null
+        }
+      ],
+      "thread_configuration": {
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1"
+      },
+      "score_used_for_continuation": false
+    },
+    {
+      "status": "COMPLETED",
+      "benchmark_id": "context0_baseline_svm",
+      "context_index": 0,
+      "method": "baseline_svm",
+      "context_manifest_sha256": "8c31d1f5b7c5ccda71f27586a8f928be32855368be84cb1e19c703a31407c4f1",
+      "split_sha256": "3db349e3f3e8d3a1c9b5260edf84e2917f2d0b75f8d8c845930e3d4c56d7df8d",
+      "input_sha256": "76bde1b77584f9a6aba0e97cbb4fee2cb702f2da727fd26084c1f16209217b73",
+      "source_code_sha256": "570d4af4e39083d0e3ec60afae0a21eb137bd2ea272a49168bc346368fd998cd",
+      "execution_mode": "cold_start",
+      "prior_attempt_count": 0,
+      "cpu_seconds_this_attempt": 1.638186324,
+      "wall_seconds_this_attempt": 1.6539520020000964,
+      "new_classifier_fits_this_attempt": 41,
+      "new_pls_fits_this_attempt": 0,
+      "theoretical_classifier_fits_without_dedup": 121,
+      "fit_count_limit": "actual cache/signature dedup may reduce counts; counters are actual new fits",
+      "search_and_io_overhead_cpu_seconds": 1.0615386229999997,
+      "peak_rss_kib": 195516,
+      "serialized_pipeline_bytes": 946976,
+      "serialized_pipeline_sha256": "ef767f40fe4c153bbfad28b243de31e7f210b04bcec56c6b435576f45ff085d5",
+      "final_dimension": 612,
+      "input_dependency_points": 612,
+      "hardware": {
+        "platform": "Linux-7.0.0-1019-azure-x86_64-with-glibc2.43",
+        "machine": "x86_64",
+        "processor": "",
+        "logical_cpus": 4
+      },
+      "software": {
+        "python": "3.11.18 (main, Oct 26 2026, 02:48:29) [GCC 15.2.0]",
+        "numpy": "2.3.5",
+        "sklearn": "1.8.0"
+      },
+      "threads": [
+        {
+          "user_api": "blas",
+          "internal_api": "openblas",
+          "num_threads": 1,
+          "prefix": "libscipy_openblas",
+          "filepath": "/opt/hostedtoolcache/Python/3.11.18/x64/lib/python3.11/site-packages/numpy.libs/libscipy_openblas64_-fdde5778.so",
+          "version": "0.3.30",
+          "threading_layer": "pthreads",
+          "architecture": "SkylakeX"
+        },
+        {
+          "user_api": "blas",
+          "internal_api": "openblas",
+          "num_threads": 1,
+          "prefix": "libscipy_openblas",
+          "filepath": "/opt/hostedtoolcache/Python/3.11.18/x64/lib/python3.11/site-packages/scipy.libs/libscipy_openblas-6cdc3b4a.so",
+          "version": "0.3.30",
+          "threading_layer": "pthreads",
+          "architecture": "SkylakeX"
+        },
+        {
+          "user_api": "openmp",
+          "internal_api": "openmp",
+          "num_threads": 1,
+          "prefix": "libgomp",
+          "filepath": "/opt/hostedtoolcache/Python/3.11.18/x64/lib/python3.11/site-packages/scikit_learn.libs/libgomp-e985bcbb.so.1.0.0",
+          "version": null
+        }
+      ],
+      "thread_configuration": {
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1"
+      },
+      "score_used_for_continuation": false
+    },
+    {
+      "status": "COMPLETED",
+      "benchmark_id": "context0_selection",
+      "context_index": 0,
+      "method": "selection",
+      "context_manifest_sha256": "8c31d1f5b7c5ccda71f27586a8f928be32855368be84cb1e19c703a31407c4f1",
+      "split_sha256": "3db349e3f3e8d3a1c9b5260edf84e2917f2d0b75f8d8c845930e3d4c56d7df8d",
+      "input_sha256": "76bde1b77584f9a6aba0e97cbb4fee2cb702f2da727fd26084c1f16209217b73",
+      "source_code_sha256": "570d4af4e39083d0e3ec60afae0a21eb137bd2ea272a49168bc346368fd998cd",
+      "execution_mode": "cold_start",
+      "prior_attempt_count": 0,
+      "cpu_seconds_this_attempt": 27.507342968,
+      "wall_seconds_this_attempt": 27.75546638800006,
+      "new_classifier_fits_this_attempt": 1441,
+      "new_pls_fits_this_attempt": 5100,
+      "theoretical_classifier_fits_without_dedup": 4801,
+      "fit_count_limit": "actual cache/signature dedup may reduce counts; counters are actual new fits",
+      "search_and_io_overhead_cpu_seconds": 3.7732952839999534,
+      "peak_rss_kib": 203168,
+      "serialized_pipeline_bytes": 164912,
+      "serialized_pipeline_sha256": "112401cf60c3108ee9f9440aece70bc15e36d9693a915760b16e921ec53e88ed",
+      "final_dimension": 184,
+      "input_dependency_points": 612,
+      "hardware": {
+        "platform": "Linux-7.0.0-1019-azure-x86_64-with-glibc2.43",
+        "machine": "x86_64",
+        "processor": "",
+        "logical_cpus": 4
+      },
+      "software": {
+        "python": "3.11.18 (main, Oct 26 2026, 02:48:29) [GCC 15.2.0]",
+        "numpy": "2.3.5",
+        "sklearn": "1.8.0"
+      },
+      "threads": [
+        {
+          "user_api": "blas",
+          "internal_api": "openblas",
+          "num_threads": 1,
+          "prefix": "libscipy_openblas",
+          "filepath": "/opt/hostedtoolcache/Python/3.11.18/x64/lib/python3.11/site-packages/numpy.libs/libscipy_openblas64_-fdde5778.so",
+          "version": "0.3.30",
+          "threading_layer": "pthreads",
+          "architecture": "SkylakeX"
+        },
+        {
+          "user_api": "blas",
+          "internal_api": "openblas",
+          "num_threads": 1,
+          "prefix": "libscipy_openblas",
+          "filepath": "/opt/hostedtoolcache/Python/3.11.18/x64/lib/python3.11/site-packages/scipy.libs/libscipy_openblas-6cdc3b4a.so",
+          "version": "0.3.30",
+          "threading_layer": "pthreads",
+          "architecture": "SkylakeX"
+        },
+        {
+          "user_api": "openmp",
+          "internal_api": "openmp",
+          "num_threads": 1,
+          "prefix": "libgomp",
+          "filepath": "/opt/hostedtoolcache/Python/3.11.18/x64/lib/python3.11/site-packages/scikit_learn.libs/libgomp-e985bcbb.so.1.0.0",
+          "version": null
+        }
+      ],
+      "thread_configuration": {
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1"
+      },
+      "score_used_for_continuation": false
+    },
+    {
+      "status": "COMPLETED",
+      "benchmark_id": "context0_spacing",
+      "context_index": 0,
+      "method": "spacing",
+      "context_manifest_sha256": "8c31d1f5b7c5ccda71f27586a8f928be32855368be84cb1e19c703a31407c4f1",
+      "split_sha256": "3db349e3f3e8d3a1c9b5260edf84e2917f2d0b75f8d8c845930e3d4c56d7df8d",
+      "input_sha256": "76bde1b77584f9a6aba0e97cbb4fee2cb702f2da727fd26084c1f16209217b73",
+      "source_code_sha256": "570d4af4e39083d0e3ec60afae0a21eb137bd2ea272a49168bc346368fd998cd",
+      "execution_mode": "cold_start",
+      "prior_attempt_count": 0,
+      "cpu_seconds_this_attempt": 3.594213559,
+      "wall_seconds_this_attempt": 3.6229113019999204,
+      "new_classifier_fits_this_attempt": 161,
+      "new_pls_fits_this_attempt": 1100,
+      "theoretical_classifier_fits_without_dedup": 481,
+      "fit_count_limit": "actual cache/signature dedup may reduce counts; counters are actual new fits",
+      "search_and_io_overhead_cpu_seconds": 1.2634154259999923,
+      "peak_rss_kib": 198228,
+      "serialized_pipeline_bytes": 78080,
+      "serialized_pipeline_sha256": "13b34c364734e5679d953632d011c84cb7a4a79c80e7d87097202281f677bd33",
+      "final_dimension": 62,
+      "input_dependency_points": 612,
+      "hardware": {
+        "platform": "Linux-7.0.0-1019-azure-x86_64-with-glibc2.43",
+        "machine": "x86_64",
+        "processor": "",
+        "logical_cpus": 4
+      },
+      "software": {
+        "python": "3.11.18 (main, Oct 26 2026, 02:48:29) [GCC 15.2.0]",
+        "numpy": "2.3.5",
+        "sklearn": "1.8.0"
+      },
+      "threads": [
+        {
+          "user_api": "blas",
+          "internal_api": "openblas",
+          "num_threads": 1,
+          "prefix": "libscipy_openblas",
+          "filepath": "/opt/hostedtoolcache/Python/3.11.18/x64/lib/python3.11/site-packages/numpy.libs/libscipy_openblas64_-fdde5778.so",
+          "version": "0.3.30",
+          "threading_layer": "pthreads",
+          "architecture": "SkylakeX"
+        },
+        {
+          "user_api": "blas",
+          "internal_api": "openblas",
+          "num_threads": 1,
+          "prefix": "libscipy_openblas",
+          "filepath": "/opt/hostedtoolcache/Python/3.11.18/x64/lib/python3.11/site-packages/scipy.libs/libscipy_openblas-6cdc3b4a.so",
+          "version": "0.3.30",
+          "threading_layer": "pthreads",
+          "architecture": "SkylakeX"
+        },
+        {
+          "user_api": "openmp",
+          "internal_api": "openmp",
+          "num_threads": 1,
+          "prefix": "libgomp",
+          "filepath": "/opt/hostedtoolcache/Python/3.11.18/x64/lib/python3.11/site-packages/scikit_learn.libs/libgomp-e985bcbb.so.1.0.0",
+          "version": null
+        }
+      ],
+      "thread_configuration": {
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1"
+      },
+      "score_used_for_continuation": false
+    },
+    {
+      "status": "COMPLETED",
+      "benchmark_id": "context1_baseline_lda",
+      "context_index": 1,
+      "method": "baseline_lda",
+      "context_manifest_sha256": "8c31d1f5b7c5ccda71f27586a8f928be32855368be84cb1e19c703a31407c4f1",
+      "split_sha256": "b53d384b6689647f94bd10765294914fa1701efc8814706d6b6428643018fcbe",
+      "input_sha256": "76bde1b77584f9a6aba0e97cbb4fee2cb702f2da727fd26084c1f16209217b73",
+      "source_code_sha256": "570d4af4e39083d0e3ec60afae0a21eb137bd2ea272a49168bc346368fd998cd",
+      "execution_mode": "cold_start",
+      "prior_attempt_count": 0,
+      "cpu_seconds_this_attempt": 3.0950654220000002,
+      "wall_seconds_this_attempt": 3.1099764580001192,
+      "new_classifier_fits_this_attempt": 21,
+      "new_pls_fits_this_attempt": 0,
+      "theoretical_classifier_fits_without_dedup": 21,
+      "fit_count_limit": "actual cache/signature dedup may reduce counts; counters are actual new fits",
+      "search_and_io_overhead_cpu_seconds": 0.9754114400000016,
+      "peak_rss_kib": 213640,
+      "serialized_pipeline_bytes": 3058224,
+      "serialized_pipeline_sha256": "43eea8fba7c074e7d7391dc52de7d01c4265a70686e5ec334bd5047b2a841601",
+      "final_dimension": 612,
+      "input_dependency_points": 612,
+      "hardware": {
+        "platform": "Linux-7.0.0-1019-azure-x86_64-with-glibc2.43",
+        "machine": "x86_64",
+        "processor": "",
+        "logical_cpus": 4
+      },
+      "software": {
+        "python": "3.11.18 (main, Oct 26 2026, 02:48:29) [GCC 15.2.0]",
+        "numpy": "2.3.5",
+        "sklearn": "1.8.0"
+      },
+      "threads": [
+        {
+          "user_api": "blas",
+          "internal_api": "openblas",
+          "num_threads": 1,
+          "prefix": "libscipy_openblas",
+          "filepath": "/opt/hostedtoolcache/Python/3.11.18/x64/lib/python3.11/site-packages/numpy.libs/libscipy_openblas64_-fdde5778.so",
+          "version": "0.3.30",
+          "threading_layer": "pthreads",
+          "architecture": "SkylakeX"
+        },
+        {
+          "user_api": "blas",
+          "internal_api": "openblas",
+          "num_threads": 1,
+          "prefix": "libscipy_openblas",
+          "filepath": "/opt/hostedtoolcache/Python/3.11.18/x64/lib/python3.11/site-packages/scipy.libs/libscipy_openblas-6cdc3b4a.so",
+          "version": "0.3.30",
+          "threading_layer": "pthreads",
+          "architecture": "SkylakeX"
+        },
+        {
+          "user_api": "openmp",
+          "internal_api": "openmp",
+          "num_threads": 1,
+          "prefix": "libgomp",
+          "filepath": "/opt/hostedtoolcache/Python/3.11.18/x64/lib/python3.11/site-packages/scikit_learn.libs/libgomp-e985bcbb.so.1.0.0",
+          "version": null
+        }
+      ],
+      "thread_configuration": {
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1"
+      },
+      "score_used_for_continuation": false
+    },
+    {
+      "status": "COMPLETED",
+      "benchmark_id": "context1_baseline_svm",
+      "context_index": 1,
+      "method": "baseline_svm",
+      "context_manifest_sha256": "8c31d1f5b7c5ccda71f27586a8f928be32855368be84cb1e19c703a31407c4f1",
+      "split_sha256": "b53d384b6689647f94bd10765294914fa1701efc8814706d6b6428643018fcbe",
+      "input_sha256": "76bde1b77584f9a6aba0e97cbb4fee2cb702f2da727fd26084c1f16209217b73",
+      "source_code_sha256": "570d4af4e39083d0e3ec60afae0a21eb137bd2ea272a49168bc346368fd998cd",
+      "execution_mode": "cold_start",
+      "prior_attempt_count": 0,
+      "cpu_seconds_this_attempt": 1.659433381,
+      "wall_seconds_this_attempt": 1.673726446000046,
+      "new_classifier_fits_this_attempt": 41,
+      "new_pls_fits_this_attempt": 0,
+      "theoretical_classifier_fits_without_dedup": 121,
+      "fit_count_limit": "actual cache/signature dedup may reduce counts; counters are actual new fits",
+      "search_and_io_overhead_cpu_seconds": 1.0893482989999987,
+      "peak_rss_kib": 195780,
+      "serialized_pipeline_bytes": 922144,
+      "serialized_pipeline_sha256": "1402a02a4aadb9dc1f528ebc0930a3b0e513112962e040c6175c9e3ac7be9c08",
+      "final_dimension": 612,
+      "input_dependency_points": 612,
+      "hardware": {
+        "platform": "Linux-7.0.0-1019-azure-x86_64-with-glibc2.43",
+        "machine": "x86_64",
+        "processor": "",
+        "logical_cpus": 4
+      },
+      "software": {
+        "python": "3.11.18 (main, Oct 26 2026, 02:48:29) [GCC 15.2.0]",
+        "numpy": "2.3.5",
+        "sklearn": "1.8.0"
+      },
+      "threads": [
+        {
+          "user_api": "blas",
+          "internal_api": "openblas",
+          "num_threads": 1,
+          "prefix": "libscipy_openblas",
+          "filepath": "/opt/hostedtoolcache/Python/3.11.18/x64/lib/python3.11/site-packages/numpy.libs/libscipy_openblas64_-fdde5778.so",
+          "version": "0.3.30",
+          "threading_layer": "pthreads",
+          "architecture": "SkylakeX"
+        },
+        {
+          "user_api": "blas",
+          "internal_api": "openblas",
+          "num_threads": 1,
+          "prefix": "libscipy_openblas",
+          "filepath": "/opt/hostedtoolcache/Python/3.11.18/x64/lib/python3.11/site-packages/scipy.libs/libscipy_openblas-6cdc3b4a.so",
+          "version": "0.3.30",
+          "threading_layer": "pthreads",
+          "architecture": "SkylakeX"
+        },
+        {
+          "user_api": "openmp",
+          "internal_api": "openmp",
+          "num_threads": 1,
+          "prefix": "libgomp",
+          "filepath": "/opt/hostedtoolcache/Python/3.11.18/x64/lib/python3.11/site-packages/scikit_learn.libs/libgomp-e985bcbb.so.1.0.0",
+          "version": null
+        }
+      ],
+      "thread_configuration": {
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1"
+      },
+      "score_used_for_continuation": false
+    },
+    {
+      "status": "COMPLETED",
+      "benchmark_id": "context1_selection",
+      "context_index": 1,
+      "method": "selection",
+      "context_manifest_sha256": "8c31d1f5b7c5ccda71f27586a8f928be32855368be84cb1e19c703a31407c4f1",
+      "split_sha256": "b53d384b6689647f94bd10765294914fa1701efc8814706d6b6428643018fcbe",
+      "input_sha256": "76bde1b77584f9a6aba0e97cbb4fee2cb702f2da727fd26084c1f16209217b73",
+      "source_code_sha256": "570d4af4e39083d0e3ec60afae0a21eb137bd2ea272a49168bc346368fd998cd",
+      "execution_mode": "cold_start",
+      "prior_attempt_count": 0,
+      "cpu_seconds_this_attempt": 27.330836409,
+      "wall_seconds_this_attempt": 27.474583419000055,
+      "new_classifier_fits_this_attempt": 1441,
+      "new_pls_fits_this_attempt": 5100,
+      "theoretical_classifier_fits_without_dedup": 4801,
+      "fit_count_limit": "actual cache/signature dedup may reduce counts; counters are actual new fits",
+      "search_and_io_overhead_cpu_seconds": 3.7875737839999353,
+      "peak_rss_kib": 202884,
+      "serialized_pipeline_bytes": 186480,
+      "serialized_pipeline_sha256": "1414c66ff1b1b487d1f3cb7af2731a9b78b3ce073848e857c3ed1266cf3d54e9",
+      "final_dimension": 184,
+      "input_dependency_points": 612,
+      "hardware": {
+        "platform": "Linux-7.0.0-1019-azure-x86_64-with-glibc2.43",
+        "machine": "x86_64",
+        "processor": "",
+        "logical_cpus": 4
+      },
+      "software": {
+        "python": "3.11.18 (main, Oct 26 2026, 02:48:29) [GCC 15.2.0]",
+        "numpy": "2.3.5",
+        "sklearn": "1.8.0"
+      },
+      "threads": [
+        {
+          "user_api": "blas",
+          "internal_api": "openblas",
+          "num_threads": 1,
+          "prefix": "libscipy_openblas",
+          "filepath": "/opt/hostedtoolcache/Python/3.11.18/x64/lib/python3.11/site-packages/numpy.libs/libscipy_openblas64_-fdde5778.so",
+          "version": "0.3.30",
+          "threading_layer": "pthreads",
+          "architecture": "SkylakeX"
+        },
+        {
+          "user_api": "blas",
+          "internal_api": "openblas",
+          "num_threads": 1,
+          "prefix": "libscipy_openblas",
+          "filepath": "/opt/hostedtoolcache/Python/3.11.18/x64/lib/python3.11/site-packages/scipy.libs/libscipy_openblas-6cdc3b4a.so",
+          "version": "0.3.30",
+          "threading_layer": "pthreads",
+          "architecture": "SkylakeX"
+        },
+        {
+          "user_api": "openmp",
+          "internal_api": "openmp",
+          "num_threads": 1,
+          "prefix": "libgomp",
+          "filepath": "/opt/hostedtoolcache/Python/3.11.18/x64/lib/python3.11/site-packages/scikit_learn.libs/libgomp-e985bcbb.so.1.0.0",
+          "version": null
+        }
+      ],
+      "thread_configuration": {
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1"
+      },
+      "score_used_for_continuation": false
+    },
+    {
+      "status": "COMPLETED",
+      "benchmark_id": "context1_spacing",
+      "context_index": 1,
+      "method": "spacing",
+      "context_manifest_sha256": "8c31d1f5b7c5ccda71f27586a8f928be32855368be84cb1e19c703a31407c4f1",
+      "split_sha256": "b53d384b6689647f94bd10765294914fa1701efc8814706d6b6428643018fcbe",
+      "input_sha256": "76bde1b77584f9a6aba0e97cbb4fee2cb702f2da727fd26084c1f16209217b73",
+      "source_code_sha256": "570d4af4e39083d0e3ec60afae0a21eb137bd2ea272a49168bc346368fd998cd",
+      "execution_mode": "cold_start",
+      "prior_attempt_count": 0,
+      "cpu_seconds_this_attempt": 3.5749109050000003,
+      "wall_seconds_this_attempt": 3.5999221730000954,
+      "new_classifier_fits_this_attempt": 161,
+      "new_pls_fits_this_attempt": 1100,
+      "theoretical_classifier_fits_without_dedup": 481,
+      "fit_count_limit": "actual cache/signature dedup may reduce counts; counters are actual new fits",
+      "search_and_io_overhead_cpu_seconds": 1.2339680129999988,
+      "peak_rss_kib": 198264,
+      "serialized_pipeline_bytes": 79776,
+      "serialized_pipeline_sha256": "f9a801f793801fa9f9bc44b6da490dec504697432e6f2d5a32bc3ab60f3fa292",
+      "final_dimension": 62,
+      "input_dependency_points": 612,
+      "hardware": {
+        "platform": "Linux-7.0.0-1019-azure-x86_64-with-glibc2.43",
+        "machine": "x86_64",
+        "processor": "",
+        "logical_cpus": 4
+      },
+      "software": {
+        "python": "3.11.18 (main, Oct 26 2026, 02:48:29) [GCC 15.2.0]",
+        "numpy": "2.3.5",
+        "sklearn": "1.8.0"
+      },
+      "threads": [
+        {
+          "user_api": "blas",
+          "internal_api": "openblas",
+          "num_threads": 1,
+          "prefix": "libscipy_openblas",
+          "filepath": "/opt/hostedtoolcache/Python/3.11.18/x64/lib/python3.11/site-packages/numpy.libs/libscipy_openblas64_-fdde5778.so",
+          "version": "0.3.30",
+          "threading_layer": "pthreads",
+          "architecture": "SkylakeX"
+        },
+        {
+          "user_api": "blas",
+          "internal_api": "openblas",
+          "num_threads": 1,
+          "prefix": "libscipy_openblas",
+          "filepath": "/opt/hostedtoolcache/Python/3.11.18/x64/lib/python3.11/site-packages/scipy.libs/libscipy_openblas-6cdc3b4a.so",
+          "version": "0.3.30",
+          "threading_layer": "pthreads",
+          "architecture": "SkylakeX"
+        },
+        {
+          "user_api": "openmp",
+          "internal_api": "openmp",
+          "num_threads": 1,
+          "prefix": "libgomp",
+          "filepath": "/opt/hostedtoolcache/Python/3.11.18/x64/lib/python3.11/site-packages/scikit_learn.libs/libgomp-e985bcbb.so.1.0.0",
+          "version": null
+        }
+      ],
+      "thread_configuration": {
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1"
+      },
+      "score_used_for_continuation": false
+    },
+    {
+      "status": "COMPLETED",
+      "benchmark_id": "context2_baseline_lda",
+      "context_index": 2,
+      "method": "baseline_lda",
+      "context_manifest_sha256": "8c31d1f5b7c5ccda71f27586a8f928be32855368be84cb1e19c703a31407c4f1",
+      "split_sha256": "01580e5b6033f54528c3d08767e92603f3b22a23ad2fdc3ac798ebb1a5ecbd3b",
+      "input_sha256": "76bde1b77584f9a6aba0e97cbb4fee2cb702f2da727fd26084c1f16209217b73",
+      "source_code_sha256": "570d4af4e39083d0e3ec60afae0a21eb137bd2ea272a49168bc346368fd998cd",
+      "execution_mode": "cold_start",
+      "prior_attempt_count": 0,
+      "cpu_seconds_this_attempt": 3.0843744870000003,
+      "wall_seconds_this_attempt": 3.0999310019999484,
+      "new_classifier_fits_this_attempt": 21,
+      "new_pls_fits_this_attempt": 0,
+      "theoretical_classifier_fits_without_dedup": 21,
+      "fit_count_limit": "actual cache/signature dedup may reduce counts; counters are actual new fits",
+      "search_and_io_overhead_cpu_seconds": 0.9753703340000004,
+      "peak_rss_kib": 213320,
+      "serialized_pipeline_bytes": 3058224,
+      "serialized_pipeline_sha256": "82e3515c8ce33960de8aaa1a2fefc73ebf8b34061c5ff00bbd2dd72a04ae5a56",
+      "final_dimension": 612,
+      "input_dependency_points": 612,
+      "hardware": {
+        "platform": "Linux-7.0.0-1019-azure-x86_64-with-glibc2.43",
+        "machine": "x86_64",
+        "processor": "",
+        "logical_cpus": 4
+      },
+      "software": {
+        "python": "3.11.18 (main, Oct 26 2026, 02:48:29) [GCC 15.2.0]",
+        "numpy": "2.3.5",
+        "sklearn": "1.8.0"
+      },
+      "threads": [
+        {
+          "user_api": "blas",
+          "internal_api": "openblas",
+          "num_threads": 1,
+          "prefix": "libscipy_openblas",
+          "filepath": "/opt/hostedtoolcache/Python/3.11.18/x64/lib/python3.11/site-packages/numpy.libs/libscipy_openblas64_-fdde5778.so",
+          "version": "0.3.30",
+          "threading_layer": "pthreads",
+          "architecture": "SkylakeX"
+        },
+        {
+          "user_api": "blas",
+          "internal_api": "openblas",
+          "num_threads": 1,
+          "prefix": "libscipy_openblas",
+          "filepath": "/opt/hostedtoolcache/Python/3.11.18/x64/lib/python3.11/site-packages/scipy.libs/libscipy_openblas-6cdc3b4a.so",
+          "version": "0.3.30",
+          "threading_layer": "pthreads",
+          "architecture": "SkylakeX"
+        },
+        {
+          "user_api": "openmp",
+          "internal_api": "openmp",
+          "num_threads": 1,
+          "prefix": "libgomp",
+          "filepath": "/opt/hostedtoolcache/Python/3.11.18/x64/lib/python3.11/site-packages/scikit_learn.libs/libgomp-e985bcbb.so.1.0.0",
+          "version": null
+        }
+      ],
+      "thread_configuration": {
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1"
+      },
+      "score_used_for_continuation": false
+    },
+    {
+      "status": "COMPLETED",
+      "benchmark_id": "context2_baseline_svm",
+      "context_index": 2,
+      "method": "baseline_svm",
+      "context_manifest_sha256": "8c31d1f5b7c5ccda71f27586a8f928be32855368be84cb1e19c703a31407c4f1",
+      "split_sha256": "01580e5b6033f54528c3d08767e92603f3b22a23ad2fdc3ac798ebb1a5ecbd3b",
+      "input_sha256": "76bde1b77584f9a6aba0e97cbb4fee2cb702f2da727fd26084c1f16209217b73",
+      "source_code_sha256": "570d4af4e39083d0e3ec60afae0a21eb137bd2ea272a49168bc346368fd998cd",
+      "execution_mode": "cold_start",
+      "prior_attempt_count": 0,
+      "cpu_seconds_this_attempt": 1.6425429550000001,
+      "wall_seconds_this_attempt": 1.6737186870000187,
+      "new_classifier_fits_this_attempt": 41,
+      "new_pls_fits_this_attempt": 0,
+      "theoretical_classifier_fits_without_dedup": 121,
+      "fit_count_limit": "actual cache/signature dedup may reduce counts; counters are actual new fits",
+      "search_and_io_overhead_cpu_seconds": 1.0640715850000029,
+      "peak_rss_kib": 195932,
+      "serialized_pipeline_bytes": 951936,
+      "serialized_pipeline_sha256": "e94bb445c3e6d1b62a146ed73e7f3aa4f33a25d2742f5857a33c029b33cd7ffa",
+      "final_dimension": 612,
+      "input_dependency_points": 612,
+      "hardware": {
+        "platform": "Linux-7.0.0-1019-azure-x86_64-with-glibc2.43",
+        "machine": "x86_64",
+        "processor": "",
+        "logical_cpus": 4
+      },
+      "software": {
+        "python": "3.11.18 (main, Oct 26 2026, 02:48:29) [GCC 15.2.0]",
+        "numpy": "2.3.5",
+        "sklearn": "1.8.0"
+      },
+      "threads": [
+        {
+          "user_api": "blas",
+          "internal_api": "openblas",
+          "num_threads": 1,
+          "prefix": "libscipy_openblas",
+          "filepath": "/opt/hostedtoolcache/Python/3.11.18/x64/lib/python3.11/site-packages/numpy.libs/libscipy_openblas64_-fdde5778.so",
+          "version": "0.3.30",
+          "threading_layer": "pthreads",
+          "architecture": "SkylakeX"
+        },
+        {
+          "user_api": "blas",
+          "internal_api": "openblas",
+          "num_threads": 1,
+          "prefix": "libscipy_openblas",
+          "filepath": "/opt/hostedtoolcache/Python/3.11.18/x64/lib/python3.11/site-packages/scipy.libs/libscipy_openblas-6cdc3b4a.so",
+          "version": "0.3.30",
+          "threading_layer": "pthreads",
+          "architecture": "SkylakeX"
+        },
+        {
+          "user_api": "openmp",
+          "internal_api": "openmp",
+          "num_threads": 1,
+          "prefix": "libgomp",
+          "filepath": "/opt/hostedtoolcache/Python/3.11.18/x64/lib/python3.11/site-packages/scikit_learn.libs/libgomp-e985bcbb.so.1.0.0",
+          "version": null
+        }
+      ],
+      "thread_configuration": {
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1"
+      },
+      "score_used_for_continuation": false
+    },
+    {
+      "status": "COMPLETED",
+      "benchmark_id": "context2_selection",
+      "context_index": 2,
+      "method": "selection",
+      "context_manifest_sha256": "8c31d1f5b7c5ccda71f27586a8f928be32855368be84cb1e19c703a31407c4f1",
+      "split_sha256": "01580e5b6033f54528c3d08767e92603f3b22a23ad2fdc3ac798ebb1a5ecbd3b",
+      "input_sha256": "76bde1b77584f9a6aba0e97cbb4fee2cb702f2da727fd26084c1f16209217b73",
+      "source_code_sha256": "570d4af4e39083d0e3ec60afae0a21eb137bd2ea272a49168bc346368fd998cd",
+      "execution_mode": "cold_start",
+      "prior_attempt_count": 0,
+      "cpu_seconds_this_attempt": 27.347489584,
+      "wall_seconds_this_attempt": 27.428135468999926,
+      "new_classifier_fits_this_attempt": 1441,
+      "new_pls_fits_this_attempt": 5100,
+      "theoretical_classifier_fits_without_dedup": 4801,
+      "fit_count_limit": "actual cache/signature dedup may reduce counts; counters are actual new fits",
+      "search_and_io_overhead_cpu_seconds": 3.7705306169998813,
+      "peak_rss_kib": 202372,
+      "serialized_pipeline_bytes": 116432,
+      "serialized_pipeline_sha256": "b660e9746e8afbb03f3f8af8df1d09211c14c8e61a75bf155087be397677b091",
+      "final_dimension": 123,
+      "input_dependency_points": 612,
+      "hardware": {
+        "platform": "Linux-7.0.0-1019-azure-x86_64-with-glibc2.43",
+        "machine": "x86_64",
+        "processor": "",
+        "logical_cpus": 4
+      },
+      "software": {
+        "python": "3.11.18 (main, Oct 26 2026, 02:48:29) [GCC 15.2.0]",
+        "numpy": "2.3.5",
+        "sklearn": "1.8.0"
+      },
+      "threads": [
+        {
+          "user_api": "blas",
+          "internal_api": "openblas",
+          "num_threads": 1,
+          "prefix": "libscipy_openblas",
+          "filepath": "/opt/hostedtoolcache/Python/3.11.18/x64/lib/python3.11/site-packages/numpy.libs/libscipy_openblas64_-fdde5778.so",
+          "version": "0.3.30",
+          "threading_layer": "pthreads",
+          "architecture": "SkylakeX"
+        },
+        {
+          "user_api": "blas",
+          "internal_api": "openblas",
+          "num_threads": 1,
+          "prefix": "libscipy_openblas",
+          "filepath": "/opt/hostedtoolcache/Python/3.11.18/x64/lib/python3.11/site-packages/scipy.libs/libscipy_openblas-6cdc3b4a.so",
+          "version": "0.3.30",
+          "threading_layer": "pthreads",
+          "architecture": "SkylakeX"
+        },
+        {
+          "user_api": "openmp",
+          "internal_api": "openmp",
+          "num_threads": 1,
+          "prefix": "libgomp",
+          "filepath": "/opt/hostedtoolcache/Python/3.11.18/x64/lib/python3.11/site-packages/scikit_learn.libs/libgomp-e985bcbb.so.1.0.0",
+          "version": null
+        }
+      ],
+      "thread_configuration": {
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1"
+      },
+      "score_used_for_continuation": false
+    },
+    {
+      "status": "COMPLETED",
+      "benchmark_id": "context2_spacing",
+      "context_index": 2,
+      "method": "spacing",
+      "context_manifest_sha256": "8c31d1f5b7c5ccda71f27586a8f928be32855368be84cb1e19c703a31407c4f1",
+      "split_sha256": "01580e5b6033f54528c3d08767e92603f3b22a23ad2fdc3ac798ebb1a5ecbd3b",
+      "input_sha256": "76bde1b77584f9a6aba0e97cbb4fee2cb702f2da727fd26084c1f16209217b73",
+      "source_code_sha256": "570d4af4e39083d0e3ec60afae0a21eb137bd2ea272a49168bc346368fd998cd",
+      "execution_mode": "cold_start",
+      "prior_attempt_count": 0,
+      "cpu_seconds_this_attempt": 3.601227136,
+      "wall_seconds_this_attempt": 3.6244103530000302,
+      "new_classifier_fits_this_attempt": 161,
+      "new_pls_fits_this_attempt": 1100,
+      "theoretical_classifier_fits_without_dedup": 481,
+      "fit_count_limit": "actual cache/signature dedup may reduce counts; counters are actual new fits",
+      "search_and_io_overhead_cpu_seconds": 1.259192650000001,
+      "peak_rss_kib": 198308,
+      "serialized_pipeline_bytes": 74128,
+      "serialized_pipeline_sha256": "d92ea64032ad7c08c2c58bc2698c8d899892617f71a234f8fc2bcef6845edba8",
+      "final_dimension": 62,
+      "input_dependency_points": 612,
+      "hardware": {
+        "platform": "Linux-7.0.0-1019-azure-x86_64-with-glibc2.43",
+        "machine": "x86_64",
+        "processor": "",
+        "logical_cpus": 4
+      },
+      "software": {
+        "python": "3.11.18 (main, Oct 26 2026, 02:48:29) [GCC 15.2.0]",
+        "numpy": "2.3.5",
+        "sklearn": "1.8.0"
+      },
+      "threads": [
+        {
+          "user_api": "blas",
+          "internal_api": "openblas",
+          "num_threads": 1,
+          "prefix": "libscipy_openblas",
+          "filepath": "/opt/hostedtoolcache/Python/3.11.18/x64/lib/python3.11/site-packages/numpy.libs/libscipy_openblas64_-fdde5778.so",
+          "version": "0.3.30",
+          "threading_layer": "pthreads",
+          "architecture": "SkylakeX"
+        },
+        {
+          "user_api": "blas",
+          "internal_api": "openblas",
+          "num_threads": 1,
+          "prefix": "libscipy_openblas",
+          "filepath": "/opt/hostedtoolcache/Python/3.11.18/x64/lib/python3.11/site-packages/scipy.libs/libscipy_openblas-6cdc3b4a.so",
+          "version": "0.3.30",
+          "threading_layer": "pthreads",
+          "architecture": "SkylakeX"
+        },
+        {
+          "user_api": "openmp",
+          "internal_api": "openmp",
+          "num_threads": 1,
+          "prefix": "libgomp",
+          "filepath": "/opt/hostedtoolcache/Python/3.11.18/x64/lib/python3.11/site-packages/scikit_learn.libs/libgomp-e985bcbb.so.1.0.0",
+          "version": null
+        }
+      ],
+      "thread_configuration": {
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1"
+      },
+      "score_used_for_continuation": false
+    }
+  ],
   "input_dependency": "SNV uses all612 alpha inputs per spectrum even if classifier keeps62 features",
   "acquisition_time_reduction_inferred": false,
   "historical_stage_costs_reconstructed": false
