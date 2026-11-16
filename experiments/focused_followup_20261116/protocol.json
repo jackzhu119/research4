@@ -1,0 +1,308 @@
+{
+  "schema": "focused-followup-v1",
+  "experiment_id": "focused-followup-20261116-v1",
+  "authorization": {
+    "CPU_BUDGET_SECONDS": 990000,
+    "supersedes_pasted_budget_seconds": 36000,
+    "user_request": "我授权你99万cpu秒来运行",
+    "scope": "fixed supplemental evidence queue only; no score-adaptive extension",
+    "old_queue_restart": false,
+    "old_budget_inherited": false
+  },
+  "RUN_V4_BRIDGE": true,
+  "RUN_MLP_EXTENSION": false,
+  "RUN_MLP_FIXED_EPOCH": false,
+  "RUN_NEW_BATCH_TRAINING": false,
+  "CPU_BUDGET_SECONDS": 990000,
+  "MAX_WORKERS": 4,
+  "BLAS_THREADS_PER_WORKER": 1,
+  "PILOT_CPU_LIMIT_SECONDS": null,
+  "pilot_policy": "Measure first required context; no artificial 600-second abort. No score stopping.",
+  "BOOTSTRAP_REPLICATES": 10000,
+  "BOOTSTRAP_SEED": 20261116,
+  "fixed_sources": {
+    "paper": "47f3f69a8cf6d0cce063da702e818f5e093537de",
+    "v4": "71a303e089c7c7b7b2557d62372aaceda44e2f91",
+    "background": "93a607c8ce206a5bbbff22538233bdd0929bd04d",
+    "background_archive": "7a145aaab9be8a8d969452352b9c8e4a9697c6f1"
+  },
+  "source_head_check": {
+    "paper_remote_matches": true,
+    "background_remote_matches": true,
+    "archive_remote_matches": true,
+    "initial_workspace_head": "806584a",
+    "main_remote_head": "167d1d2b197cb2735a3fcb3c0110a382d7043ca6",
+    "experiment_base": "47f3f69a8cf6d0cce063da702e818f5e093537de"
+  },
+  "data_version": "2026-11-08-confirmed-origin-kind-v1",
+  "input_sha256": {
+    "background_npz": "76bde1b77584f9a6aba0e97cbb4fee2cb702f2da727fd26084c1f16209217b73",
+    "v4_train_npz": "33540088d94293a87501b9a995d3002689214c5a8ca6694398818b5af0fb9f13",
+    "paper_manifest": "2e9bc530ad8d3c4b8bba1b2051e2468b4ef1aae7555cfc3f69744ba69a3b946a",
+    "active_workbooks": "dd9ec7728590dde2574f64b9664148465c85d7b618311494c613c32b4d879f95",
+    "role_split": "0767e3165984a4e0e4ae782d69fdea6f410bfe36bce05ec72f8eadca982317d4",
+    "metadata": "fee5e3053c7958da8f0ddadd01de9994efe9669c671e3c1aed72a6cd01639ff1"
+  },
+  "scope": {
+    "specimens": 300,
+    "per_source": 60,
+    "sources": [
+      "ZY03",
+      "ZY04",
+      "ZY05",
+      "ZY06",
+      "ZY07"
+    ],
+    "paired_frequency_points": 612,
+    "independent_unit": "user-declared physical specimen; real batch identity remains as confirmed/unknown"
+  },
+  "v4": {
+    "repeat_seeds": [
+      42,
+      20261031,
+      20261108
+    ],
+    "outer_folds": 5,
+    "inner_folds": 2,
+    "actual_ids_required": true,
+    "C": [
+      0.1,
+      1,
+      10,
+      100
+    ],
+    "gamma_candidate_order": [
+      "scale",
+      "scale_x0.1",
+      "scale_x10"
+    ],
+    "class_weight": "balanced",
+    "representation": "full612 alpha row-SNV followed by training-fold StandardScaler",
+    "expected_fits": 375
+  },
+  "background": {
+    "outer_folds": 5,
+    "inner_folds": 5,
+    "inner_repeats": 2,
+    "MC_main": 20,
+    "candidate_ranges_source": "fixed source/protocol.json and source/study_worker.py SPEC, verified during recovery",
+    "K": [
+      31,
+      62,
+      123,
+      184,
+      245,
+      367,
+      490,
+      612
+    ],
+    "PLS_components": [
+      2,
+      4,
+      8,
+      12,
+      16
+    ],
+    "C": [
+      0.1,
+      1,
+      10,
+      100
+    ],
+    "gamma_multiplier_order": [
+      0.1,
+      1,
+      10
+    ],
+    "common_repeats": "intersection of actual complete5-fold repeat IDs across all primary MC20 methods in frozen ordinal order; audit expected330, do not assume",
+    "MC100_MC500": "separate descriptive reuse on true shared complete splits"
+  },
+  "comparisons": [
+    [
+      "selection/alpha_snv",
+      "baseline/svm_alpha_snv"
+    ],
+    [
+      "selection/alpha_snv",
+      "baseline/lda_alpha_raw_snv"
+    ],
+    [
+      "spacing/alpha_inner_gap_k62_c2",
+      "selection/alpha_snv_c2_k62"
+    ],
+    [
+      "spacing/alpha_inner_gap_k62_c2",
+      "coverage/uniform_k62"
+    ],
+    [
+      "rank_context/true_n",
+      "rank_context/shuffle_n"
+    ],
+    [
+      "spacing/alpha_inner_gap_k62_c2",
+      "selection/alpha_snv"
+    ]
+  ],
+  "comparison_interpretation": "post-results explanatory contrasts, not prospective preregistration or equivalence/noninferiority tests",
+  "metric_selection_order": [
+    "macro_f1",
+    "balanced_accuracy",
+    "accuracy",
+    "fixed complexity and candidate order"
+  ],
+  "bootstrap": {
+    "unit": "specimen stratified by source; retain all repeats/methods per sampled specimen",
+    "common_weights_all_methods": true,
+    "accuracy": "mean specimen correctness across repeats, then weighted specimen aggregate",
+    "macro_f1": "per-repeat weighted confusion matrices, then mean repeat F1; never per-sample F1",
+    "interval_label_zh": "固定存档预测的配对重采样区间",
+    "no_independent_repeat_t_test": true
+  },
+  "E2b": {
+    "contexts": "first3 common complete repeats in manifest order, fold0, no score selection",
+    "MC_seeds": [
+      2026111600,
+      2026111601,
+      2026111602,
+      2026111603,
+      2026111604,
+      2026111605,
+      2026111606,
+      2026111607,
+      2026111608,
+      2026111609,
+      2026111610,
+      2026111611,
+      2026111612,
+      2026111613,
+      2026111614,
+      2026111615,
+      2026111616,
+      2026111617,
+      2026111618,
+      2026111619,
+      2026111620,
+      2026111621,
+      2026111622,
+      2026111623,
+      2026111624,
+      2026111625,
+      2026111626,
+      2026111627,
+      2026111628,
+      2026111629
+    ],
+    "mc_draws": 20,
+    "components": 2,
+    "K": 62,
+    "settings": [
+      "alpha_only",
+      "true_n_ranking_context_final_alpha62"
+    ],
+    "paired_class_subsample_ids_required": true,
+    "new_rankings": 180,
+    "expected_PLS1_fits": 18000,
+    "no_classifier_training": true,
+    "derived_gaps": [
+      "none",
+      4,
+      "already_inner_selected_context_gap_fixed"
+    ]
+  },
+  "stability": {
+    "alpha_p": 612,
+    "joint_p": 1224,
+    "joint_alpha_projection_p": 612,
+    "grid_groups": [
+      4,
+      8,
+      16
+    ],
+    "group_anchor": 0,
+    "Nogueira": "Definition4; preserve negatives; zero denominator undefined; no acceptance threshold"
+  },
+  "E3": {
+    "contexts": "first3 common complete repeats all5folds",
+    "A": "selection/alpha_snv_c2_k62",
+    "B": "rank_context/true_n",
+    "numeric_gamma_swap_required": true,
+    "strict_diagonal_replay_required": true,
+    "max_new_fits": 60,
+    "no_outer_model_pick": true
+  },
+  "E4": {
+    "existing_attempts_first": true,
+    "cold_benchmark_only_if_evidence_gap": true,
+    "contexts": "same3 training contexts",
+    "methods": [
+      "baseline_svm",
+      "baseline_lda",
+      "selection",
+      "spacing"
+    ],
+    "single_worker": true,
+    "no_grid_expansion": true
+  },
+  "E5": {
+    "unknown_policy": "Only evidence-confirmed values; no alpha unit inference or data scaling",
+    "reconstruction_pairs": 12,
+    "reconstruction_requires": "raw paired signal and actual export/reference definition; otherwise explicit blocked"
+  },
+  "E7": {
+    "new_training_status": "BLOCKED_WAITING_NEW_BATCH_DATA",
+    "support_sizes_per_class": [
+      1,
+      3,
+      5,
+      10
+    ],
+    "query_usage": "evaluation only; no statistics, tuning, early-stop, fallback or method selection",
+    "hierarchy": [
+      "procurement_lot",
+      "preparation_batch",
+      "physical_specimen",
+      "pellet",
+      "technical_scan"
+    ]
+  },
+  "retry_policy": {
+    "numerical_failure": "record and do not drop negative result; no performance-based retry",
+    "infrastructure_failure": "bounded identical-config retry with all attempt CPU charged; no scientific config change"
+  },
+  "execution": {
+    "host": "GitHub Actions if verified",
+    "host_job_limit_seconds": 21600,
+    "segment_boundary_is_continuation": true,
+    "persistent_results": "per-task git commit and push; source cache saved between jobs",
+    "no_current_cloud_lifecycle_guarantee": true
+  },
+  "protected_paths": [
+    "paper/",
+    "data/",
+    "references/",
+    "scripts/",
+    "maintenance/",
+    "docs/",
+    "README.md",
+    "AGENTS.md",
+    "PAPER_RESULTS_POLICY.md"
+  ],
+  "statuses": [
+    "REUSED_VERIFIED",
+    "COMPLETED",
+    "PARTIAL_BUDGET",
+    "BLOCKED_MISSING_ARTIFACT",
+    "BLOCKED_WAITING_NEW_BATCH_DATA",
+    "SKIPPED_BY_CONFIG"
+  ],
+  "PRELAUNCH_CPU_CHARGE_SECONDS": 203,
+  "prelaunch_accounting": {
+    "observed_whole_container_cpu_seconds": 192.200096,
+    "conservative_charge_seconds": 203,
+    "new_classifier_fits": 0,
+    "new_pls_fits": 0,
+    "scope": "All CPU in this newly provisioned task container through protocol freeze, including code/source recovery, read-only verification and synthetic tests; includes platform startup overhead. Additional10seconds conservatively covers final sealing/publication tail.",
+    "runtime_exclusions": "Actions platform checkout/setup overhead and final publication tail outside Python measurement are not precise scientific task timings."
+  },
+  "frozen_at_utc": "2026-11-16T06:23:24.686384+00:00"
+}

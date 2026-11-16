@@ -1,0 +1,94 @@
+name: Focused follow-up 20261116
+
+on:
+  push:
+    branches: [research/focused-followup-20261116]
+    paths:
+      - .github/workflows/focused-followup.yml
+      - experiments/focused_followup_20261116/**
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: focused-followup-20261116
+  cancel-in-progress: false
+
+jobs:
+  study:
+    if: github.ref == 'refs/heads/research/focused-followup-20261116'
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    env:
+      OMP_NUM_THREADS: '1'
+      OPENBLAS_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+      BLIS_NUM_THREADS: '1'
+      NUMEXPR_NUM_THREADS: '1'
+      PYTHONUNBUFFERED: '1'
+      FOCUSED_MAX_WORKERS: '4'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research/focused-followup-20261116
+          fetch-depth: 1
+          lfs: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Restore immutable source evidence and computation cache
+        id: cache
+        uses: actions/cache/restore@v4
+        continue-on-error: true
+        with:
+          path: .cache/focused_followup_20261116
+          key: ${{ runner.os }}-focused-followup-20261116-v1-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: |
+            ${{ runner.os }}-focused-followup-20261116-v1-
+      - name: Run pending frozen tasks and publish checkpoints
+        id: study
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python experiments/focused_followup_20261116/orchestrate.py --publish --install-dependencies --max-wall-seconds 16200
+      - name: Save source evidence and resume cache before continuation
+        if: always()
+        uses: actions/cache/save@v4
+        continue-on-error: true
+        with:
+          path: .cache/focused_followup_20261116
+          key: ${{ runner.os }}-focused-followup-20261116-v1-${{ github.run_id }}-${{ github.run_attempt }}
+      - name: Preserve diagnostics even if publication failed
+        if: always()
+        uses: actions/upload-artifact@v4
+        continue-on-error: true
+        with:
+          name: focused-followup-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            reports/focused_followup_20261116/
+            experiments/focused_followup_20261116/protocol.json
+            experiments/focused_followup_20261116/queue.json
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Continue the same queue with a fresh hosted runner
+        if: always() && steps.study.outputs.needs_continue == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run focused-followup.yml --repo "$GITHUB_REPOSITORY" --ref research/focused-followup-20261116
+      - name: Write run status
+        if: always()
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          path = Path('reports/focused_followup_20261116/runtime/state.json')
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as out:
+              if path.exists():
+                  state = json.loads(path.read_text())
+                  out.write(f"Study status: {state['status']}\n\n")
+                  out.write(f"Cumulative measured CPU seconds: {state['cumulative_cpu_seconds']:.3f}\n\n")
+                  out.write(f"Remaining fixed tasks: {len(state.get('remaining_tasks', []))}\n")
+              else:
+                  out.write('No runtime state was produced; inspect setup logs.\n')
+          PY
