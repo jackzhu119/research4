@@ -36,6 +36,19 @@ V4 = "data/research/evidence_validation_20261108_v4"
 LOWO = "627a0975bdc61ef7cd95742265c3b500c879deae"
 LOWO_SOURCE = "reports/kind_lowo_20261115"
 LOWO_VIEW = "results/kind_lowo_20261115"
+FOLLOWUP = "5594d9c3326fcd607ee72fb7fc93895047de8f8a"
+FOLLOWUP_SOURCE = "reports/focused_followup_20261116"
+FOLLOWUP_VIEW = "results/focused_followup_20261116"
+FOLLOWUP_FILES = (
+    "e1/summary.json", "e1/oof_predictions.csv.gz", "e1/paired_prediction_errors.csv.gz",
+    "e1/paired_fold_differences.csv", "e1/outer_parameters.csv", "e1/frozen_sources.json",
+    "e2/v4_stability.json", "e2/v4_mask_registry.json", "e2/fixed_train_summary.json",
+    "e2/fixed_train_mc_stability.json", "e2/fixed_contexts.json",
+    "e3/summary.json", "e3/paired_factorial_effects.csv", "e3/effect_descriptions.csv",
+    "e6/summary.json", "e6/checkpoint_diagnostics.csv", "e6/existing_checkpoint_diagnostic_audit.json",
+) + tuple("e3/context%d/%s" % (context, name) for context in range(15) for name in (
+    "locked_design.json", "result.json", "specimen_predictions.csv",
+))
 LOWO_TASKS = {
     "four_kinds": (1672, 18, ("枣仁", "酸枣仁", "黄芪", "天麻")),
     "binary_kinds": (864, 10, ("枣仁", "酸枣仁")),
@@ -129,6 +142,7 @@ def allowed_fixed_sources():
     for name in ("summary.json", "species_all_predictions.json"):
         sources.add((VERIFIED, "reports/all_round_validation_20261112/ml/" + name))
     sources.update((LOWO, LOWO_SOURCE + "/" + name) for name in LOWO_FILES)
+    sources.update((FOLLOWUP, FOLLOWUP_SOURCE + "/" + name) for name in FOLLOWUP_FILES)
     return sources
 
 
@@ -242,6 +256,8 @@ def build():
             "reports/all_round_validation_20261112/ml/" + name)
     for name in LOWO_FILES:
         add(LOWO_VIEW + "/" + name, LOWO, LOWO_SOURCE + "/" + name)
+    for name in FOLLOWUP_FILES:
+        add(FOLLOWUP_VIEW + "/" + name, FOLLOWUP, FOLLOWUP_SOURCE + "/" + name)
 
     overview = {
         "schema": "research4-corrected-paper-view-v1",
@@ -257,6 +273,14 @@ def build():
         "continuous_meta_learning_final_results": "NOT_INCLUDED_NOT_FINISHED",
         "quantum_results": "NOT_INCLUDED_IN_THIS_CLASSIFICATION_VIEW",
         "new_model_fits_by_builder": 0,
+        "focused_followup": {
+            "source_commit": FOLLOWUP, "result_directory": FOLLOWUP_VIEW,
+            "E1": "Verified full612 SNV-alpha SVM bridge on the original V4 specimen IDs and inner/outer partitions; 375 historical fits, no new specimens.",
+            "E2": "Saved-mask stability; fixed-training MC-seed experiments are rankings only. Original source labels are preserved; the revision corrects the variation description in derived tables.",
+            "E3": "Exploratory crossed-mask assay at near-identical C/gamma; not an identifiable parameter-factor comparison or a repaired multi-gamma search.",
+            "E6": "Diagnostics of 15 previously fitted MLP checkpoints; no new neural-network training.",
+            "excluded": "Expanded-worker E0/E4 performance and cost claims are not admitted: the declared gamma grid collapsed in its transform cache. No corrected scientific rerun is claimed.",
+        },
         "scope": "All corrected positive and negative result settings are retained; internal exploration, not independent new-batch confirmation.",
         "large_outputs": "Weights, raw predictions and compressed restoration archives remain at their immutable corrected source commits; this view contains paper tables, summaries, protocols and validation provenance.",
         "aliases": {"legacy_TRAIN_* / OLD-* / P-CV-OLD": "Corrected-kind original 1305 matrix from 2026-11-08, not pre-correction mixed-kind results."},
@@ -297,7 +321,8 @@ def build():
         "files": sorted(records, key=lambda row: row["path"]),
         "excluded_from_paper": ["pre-correction seven-group mixed-kind results", "historical_relabel_audit.json",
                                 "historical_quantum_experiment_register.csv", "sources/history_quantum",
-                                "parallel_b_*.csv", "old bundle PASS/manifest certificates", "unfinished continuous meta-learning"],
+                                "parallel_b_*.csv", "old bundle PASS/manifest certificates", "unfinished continuous meta-learning",
+                                "expanded-worker E0/E4 multi-gamma performance and cost claims affected by cached gamma"],
         "verification_receipts": "Copied receipts describe original immutable corrected sources; they are not a certificate for this newly built view.",
         "methods_declaration": {"path": DECLARATION, "sha256": digest((ROOT / DECLARATION).read_bytes()),
                                 "authority": "User-confirmed common acquisition conditions; specimen roles remain frozen."},
@@ -424,6 +449,55 @@ def verify_kind_lowo(manifest, frozen_rows):
             "new_model_fits_by_verifier": 0}
 
 
+def verify_focused_followup(manifest, frozen_rows):
+    by_path = {row["path"]: row for row in manifest["files"]}
+    for name in FOLLOWUP_FILES:
+        row = by_path.get(FOLLOWUP_VIEW + "/" + name, {})
+        if row.get("source_commit") != FOLLOWUP or row.get("source_path") != FOLLOWUP_SOURCE + "/" + name:
+            raise ValueError("Focused follow-up source identity differs: " + name)
+    def read(name):
+        return json.loads(current_path(FOLLOWUP_VIEW + "/" + name).read_text())
+    eligible = {r["record_id"]: r for r in frozen_rows
+                if r["species"] == "酸枣仁" and r["role"] == "train"}
+    summary = read("e1/summary.json")
+    if (len(eligible) != 300 or summary["status"] != "COMPLETED"
+        or summary["missing_fold_indices"] or summary["actual_new_classifier_fits"] != 375):
+        raise ValueError("E1 source completion or specimen scope differs")
+    contexts = read("e1/frozen_sources.json")["contexts"]
+    if len(contexts) != 15:
+        raise ValueError("E1 requires fifteen archived outer contexts")
+    predictions = csv_rows(gzip.decompress(current_path(FOLLOWUP_VIEW + "/e1/oof_predictions.csv.gz").read_bytes()))
+    if (len(predictions) != 900
+        or Counter(r["record_id"] for r in predictions) != Counter({key: 3 for key in eligible})):
+        raise ValueError("E1 repeated predictions differ from the original 300 TRAIN specimens")
+    for context in contexts:
+        train, test = set(context["source_record_ids"]), set(context["outer_validation_record_ids"])
+        if len(train) != 240 or len(test) != 60 or train & test or train | test != set(eligible):
+            raise ValueError("E1 outer specimen isolation differs")
+        for inner in context["inner_partitions"]:
+            fit, valid = set(inner["fit_record_ids"]), set(inner["validation_record_ids"])
+            if len(fit) != 120 or len(valid) != 120 or fit & valid or fit | valid != train:
+                raise ValueError("E1 inner specimen isolation differs")
+        rows = [r for r in predictions if int(r["repeat_seed"]) == context["repeat_seed"]
+                and int(r["outer_fold"]) == context["outer_fold"]]
+        if len(rows) != 60 or {r["record_id"] for r in rows} != test:
+            raise ValueError("E1 predictions do not match the saved outer test IDs")
+    for row in predictions:
+        if (row["physical_sample_id"] != row["record_id"]
+            or row["y_true"] != eligible[row["record_id"]]["origin_group_id"]):
+            raise ValueError("E1 physical identity or corrected source label differs")
+    stable = read("e2/fixed_train_summary.json")
+    if stable["new_classifier_fits"] != 0 or stable["completed_paired_rank_tasks"] != 90:
+        raise ValueError("E2 ranking-only scope differs")
+    if not read("e6/existing_checkpoint_diagnostic_audit.json")["no_new_training"]:
+        raise ValueError("E6 is not the saved-checkpoint-only diagnostic")
+    return {"source_commit": FOLLOWUP, "copied_files": len(FOLLOWUP_FILES),
+            "E1_specimens": 300, "E1_predictions": 900, "E1_outer_contexts": 15,
+            "E1_historical_classifier_fits": 375, "E2_new_classifiers": 0,
+            "E3_scope": "Exploratory crossed masks at near-identical parameters; not a repaired gamma-grid comparison",
+            "new_model_fits_by_verifier": 0}
+
+
 def verify(expected_methods=None):
     manifest = json.loads(current_path("manifest.json").read_text())
     allowed = allowed_fixed_sources()
@@ -529,6 +603,7 @@ def verify(expected_methods=None):
               "kind_workbook_heldout_validation": lowo_check,
               "no_new_fit": True,
               "scope": "Current-view bytes, immutable Git source objects, active workbook hashes and corrected labels/counts; not a rerun of all original models or external validation."}
+    result["focused_followup_validation"] = verify_focused_followup(manifest, frame)
     current_path("verification.json").write_bytes(encoded(result))
     print(json.dumps(result, ensure_ascii=False))
     return 0
@@ -544,6 +619,8 @@ README = """# 当前论文结果入口：种类与产地修正后
 |[材料、仪器、公式与划分写作稿](methods/MATERIALS_AND_METHODS_ZH.md)／[Excel明细](methods/data_splits.xlsx)|四药材统一测量条件；按18份有效Excel与逐ID冻结角色统计，另保留实际列头标称厚度|
 |[任务范围](tables/task_scope.csv)／[六项固定留出](tables/fixed_classification.csv)|枣仁/酸枣仁二分类、四种类分类，以及酸枣仁、枣仁、黄芪、天麻各自的来源分类；训练/校准/预测数量分别登记|
 |[种类判别按工作簿留一验证](results/kind_lowo_20261115/summary.json)／[固定协议](results/kind_lowo_20261115/protocol.json)|仅二种类与四种类主判别采用LOWO：10折864份、18折1672份；包含每工作簿指标、每ID折外预测、完整划分和独立核验回执；其余任务保留原协议与结果|
+|[11月16日同划分全谱SVM对照](results/focused_followup_20261116/e1/summary.json)／[折外预测](results/focused_followup_20261116/e1/oof_predictions.csv.gz)|E1沿用V4的300酸枣仁TRAIN、15外折及原内层ID；375次已完成拟合，82.67%准确率；不增加独立样品数|
+|[特征稳定性](results/focused_followup_20261116/e2/fixed_train_summary.json)／[交叉掩码](results/focused_followup_20261116/e3/summary.json)／[MLP诊断](results/focused_followup_20261116/e6/existing_checkpoint_diagnostic_audit.json)|E2只做排名；固定训练集部分的原始variation标签有误，新稿派生表更正为MC种子变化。E3参数近乎相同，不识别独立参数效应；E6回放旧模型，不是新神经训练|
 |[固定留出迁移](tables/fixed_transfer_paired.csv)|三种子目标单训、额外目标预训、黄芪/天麻跨种类预训；负迁移保留|
 |[主模型表](tables/all_final_model_settings.csv)|修正后原1305矩阵与新增V4 330项的已保存摘要；不同划分/预算分开解释|
 |[协议目录](tables/corrected_protocol_register.csv)|仅修正后主线57项；display_id中的C1305对应原来源的OLD命名|
