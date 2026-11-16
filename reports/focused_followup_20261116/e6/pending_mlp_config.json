@@ -1,0 +1,61 @@
+{
+  "RUN_MLP_EXTENSION": false,
+  "RUN_MLP_FIXED_EPOCH": false,
+  "status": "SKIPPED_BY_CONFIG",
+  "protocol": "V4-compatible 3 repeats x5 outer x2 inner; frozen actual IDs from E1, separate from330 repeats",
+  "representation": "full612 alpha SNV(ddof1), training-fold StandardScaler",
+  "hidden_layer_sizes": [
+    [
+      32
+    ],
+    [
+      64
+    ]
+  ],
+  "alpha": [
+    0.0001,
+    0.001,
+    0.01
+  ],
+  "learning_rate_init": [
+    0.0003,
+    0.001
+  ],
+  "candidates": 12,
+  "solver": "adam",
+  "activation": "relu",
+  "batch_size": 32,
+  "max_iter": 300,
+  "validation_fraction": 0.2,
+  "n_iter_no_change": 15,
+  "tuning_seed": 42,
+  "final_optimization_seeds": [
+    42,
+    20261116,
+    20261117
+  ],
+  "inner_selection": "macro-F1 first, preserve original V4 candidate-order tie break",
+  "early_stopping_monitor": "sklearn internal accuracy; distinct from external macro-F1 selection",
+  "planned_fits_if_explicitly_enabled": 405,
+  "optional_fixed_epoch_extra_fits": 45,
+  "required_actual_logs": [
+    "gradient_train_ids",
+    "early_stopping_ids",
+    "inner_validation_ids",
+    "outer_test_ids",
+    "scaler_fit_ids",
+    "actual_epochs",
+    "best_epoch",
+    "loss_curve",
+    "validation_accuracy_curve",
+    "update_steps",
+    "model_sha256",
+    "predictions"
+  ],
+  "fixed_epoch_rule": "ceil(median of winning configuration inner-best epochs), no outer labels; explicitly verify actual completed epochs",
+  "limits": [
+    "outer-fit accuracy includes early-stop samples and is not pure gradient-train accuracy",
+    "fixed-epoch contrast changes both sample use and stopping",
+    "do not expand network/grid based on scores"
+  ]
+}

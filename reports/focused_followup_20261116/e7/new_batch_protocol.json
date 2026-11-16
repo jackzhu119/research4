@@ -1,0 +1,295 @@
+{
+  "protocol_id": "focused-new-real-batch-support-query-20261116-v1",
+  "status": "BLOCKED_WAITING_NEW_BATCH_DATA",
+  "training_enabled": false,
+  "tasks": [
+    {
+      "task": "binary_material",
+      "classes": [
+        "枣仁",
+        "酸枣仁"
+      ],
+      "target": "material identity"
+    },
+    {
+      "task": "four_material",
+      "classes": [
+        "枣仁",
+        "酸枣仁",
+        "黄芪",
+        "天麻"
+      ],
+      "target": "material identity"
+    },
+    {
+      "task": "five_source_closed_set",
+      "classes": [
+        "ZY03",
+        "ZY04",
+        "ZY05",
+        "ZY06",
+        "ZY07"
+      ],
+      "target": "酸枣仁 origin, all five labels present in training and test"
+    }
+  ],
+  "identity_hierarchy": [
+    "procurement_lot",
+    "preparation_batch",
+    "physical_specimen",
+    "pellet",
+    "technical_scan"
+  ],
+  "independence": "Require actual procurement/preparation/measurement evidence. Renaming, scans or repeated pellets do not create new independent batches.",
+  "example_sampling_structure": {
+    "real_procurement_lots_per_class": 3,
+    "batches_per_lot": 1,
+    "physical_specimens_per_batch": 30,
+    "pellets_per_specimen": 1,
+    "technical_scans_per_pellet": 2,
+    "roles": "first two independently documented lots development; third untouched final-test lot; every class in every role",
+    "support_pool_per_class_in_target_batch": 10,
+    "fixed_query_per_class_in_target_batch": 20,
+    "scope": "Illustrative operational design, not a powered or sufficient batch count; final batch Support use defines adaptation evaluation, not an untouched zero-shot endpoint"
+  },
+  "source_freeze": {
+    "before_target_access": [
+      "actual source IDs",
+      "source model bytes/hash",
+      "source scaler mean/scale",
+      "C and actual numeric gamma",
+      "class order",
+      "feature/sampling/update rules",
+      "cost convention"
+    ],
+    "default_model": "alpha612 SNV(ddof=1) StandardScaler RBF-SVM C10 gamma=scale balanced",
+    "selection": "Source-only inner validation; retain all prespecified arms; never select on Query"
+  },
+  "target_role_freeze": {
+    "unit": "physical specimen",
+    "roles": [
+      "support_pool",
+      "query"
+    ],
+    "max_support_per_class": 10,
+    "support_budgets_per_class": [
+      1,
+      3,
+      5,
+      10
+    ],
+    "draw_seeds": [
+      2026111600,
+      2026111601,
+      2026111602
+    ],
+    "nested_samples": true,
+    "query_identical_across_budgets_methods_draws": true,
+    "label_stratification": "uses true labels to satisfy per-class quota; log every screened label and costs including discarded candidates",
+    "query_access": "isolated evaluation only, after prediction artifact sealed; no cross-sample statistics, selection, thresholds, early stop, fallback or method choice",
+    "transductive": "Any Query-unlabeled distribution use requires separately named protocol and is forbidden in this one"
+  },
+  "methods": [
+    {
+      "key": "no_update",
+      "features": "source-fitted612 alpha SNV scaler",
+      "labels": "Source only",
+      "C": "C_source",
+      "gamma": "original actual numeric gamma",
+      "refit": false
+    },
+    {
+      "key": "true_labels_full_refit",
+      "features": "SNV rowwise; StandardScaler fitted Source+Support",
+      "labels": "Source+true Support",
+      "C": "C_source",
+      "gamma": "scale recomputed on fitted representation; B2F02 full-pipeline endpoint",
+      "refit": true
+    },
+    {
+      "key": "frozen_scaler_gamma_refit",
+      "features": "Source-fitted frozen scaler",
+      "labels": "Source+true Support",
+      "C": "C_source",
+      "gamma": "original actual numeric gamma",
+      "refit": true
+    },
+    {
+      "key": "constant_C_times_N_refit",
+      "features": "Source-fitted frozen scaler",
+      "labels": "Source+true Support",
+      "C": "C_source*N_source/(N_source+N_support)",
+      "gamma": "original actual numeric gamma",
+      "refit": true,
+      "basis": "B4H01 augmented mass-normalized arm"
+    },
+    {
+      "key": "source_loss_mass_control",
+      "features": "Source-fitted frozen scaler",
+      "labels": "Source only",
+      "C": "C_source*(N_source+N_support)/N_source",
+      "gamma": "original actual numeric gamma",
+      "refit": true,
+      "basis": "B4H01 source-only mass intervention"
+    },
+    {
+      "key": "unlabeled_support_statistics",
+      "features": "StandardScaler Source+Support spectra",
+      "labels": "Source labels only; Support true label values excluded",
+      "C": "C_source",
+      "gamma": "original actual numeric gamma",
+      "refit": true,
+      "basis": "B3G02; class-stratified Support sampling remains label-informed"
+    },
+    {
+      "key": "cyclic_wrong_support_labels",
+      "features": "StandardScaler Source+Support spectra",
+      "labels": "Source true; Support mapped to next class modulo frozen class order",
+      "C": "C_source",
+      "gamma": "original actual numeric gamma",
+      "refit": true,
+      "basis": "B3G02 artificial negative control, not a finding of mislabeled originals"
+    }
+  ],
+  "class_weight": "balanced inherited B1 model; document realized class effective C; no silent switch to B5I02 None",
+  "exact_inherited_definition_fragments": {
+    "B1_source_model": "alpha612 SNV(ddof=1) StandardScaler RBF-SVM C10 gamma=scale balanced",
+    "B2_F02": {
+      "scaler": [
+        "source_frozen",
+        "source_plus_support_refit"
+      ],
+      "gamma": [
+        "old_numeric_frozen",
+        "scale_recomputed"
+      ],
+      "k_per_class": [
+        1,
+        3,
+        5,
+        10
+      ],
+      "reuse": "refit_scaler/recomputed_gamma is the saved original full-pipeline model"
+    },
+    "B3_G02": {
+      "k_per_class": [
+        1,
+        3,
+        5,
+        10
+      ],
+      "gamma": "frozen actual numeric source gamma",
+      "scaler": "fit Source+Support spectra in all adaptation arms",
+      "arms": [
+        "Source-only labels with unlabeled Support statistics",
+        "Source+Support true labels (historical exact endpoint)",
+        "Source+Support with Support-only class-cyclic copied labels"
+      ],
+      "unlabeled_scope": "Support pool was originally class-stratified; this arm does not fit Support label values"
+    },
+    "B4_H01": {
+      "k_per_class": [
+        1,
+        3,
+        5,
+        10
+      ],
+      "coordinates": "frozen Source scaler and numeric gamma",
+      "source_C": 10.0,
+      "source_only_mass_C": "10*(N_source+N_support)/N_source",
+      "augmented_fixed_C": 10.0,
+      "augmented_mass_normalized_C": "10*N_source/(N_source+N_support)",
+      "selection": "derived loss-mass interventions, no Query-based C tuning"
+    },
+    "B5_I01": {
+      "scope": "selection uses outer Source only; outer Support/Query excluded",
+      "episode_seeds": [
+        501,
+        502,
+        503
+      ],
+      "pure_per_class_roles": {
+        "inner_source": 20,
+        "inner_support": 10,
+        "inner_validation": 8
+      },
+      "binary_per_class_roles": {
+        "inner_source": 90,
+        "inner_support": 10,
+        "inner_validation": 20
+      },
+      "candidate_methods": [
+        "identity",
+        "bias",
+        "mean_anchor",
+        "full_refit"
+      ],
+      "choice": "maximum mean inner validation Macro-F1 per K; round12 ties prefer identity,bias,mean_anchor,full_refit",
+      "outer_application": "choose first, then reuse exact saved outer candidate endpoint",
+      "limitation": "smaller Source-only inner problems may not transport to target Support domain"
+    },
+    "B5_I02": {
+      "ranking_inputs": "candidate spectra in frozen Source coordinates, Source scores and opaque hash keys; no candidate labels/Query",
+      "policies": [
+        "random_601",
+        "random_602",
+        "random_603",
+        "uncertainty",
+        "diversity"
+      ],
+      "total_label_budgets": "n_classes times [1,3,5,10]",
+      "ranking": "nested label-blind order; diversity is max-min coverage anchored by the Source centroid; class counts revealed after all orders fixed",
+      "full_refit": "C10, Source-frozen scaler/gamma, class_weight None to hold per-point C fixed",
+      "guarded_mean_anchor": "sum-loss lambda=number selected; Identity fallback if any Support class missing",
+      "reuse": "complete/canonical historical subsets and repeated canonical ordered-ID objectives do not refit",
+      "scope": "candidate pool was historically class-stratified; only within-pool ranking is label-blind"
+    }
+  },
+  "definition_sources": [
+    {
+      "path": "paper/current/protocols/B1.json",
+      "sha256": "1c60378082cf4c185e7aaa1373c65e88f67b6455297a5c3d53d659f6addcb77a",
+      "fixed_paper_commit": "47f3f69a8cf6d0cce063da702e818f5e093537de"
+    },
+    {
+      "path": "paper/current/protocols/B2.json",
+      "sha256": "faef9c9c9ccb11914134d7f387c2b1059b74640e89045f4b9b722cf096aa97f9",
+      "fixed_paper_commit": "47f3f69a8cf6d0cce063da702e818f5e093537de"
+    },
+    {
+      "path": "paper/current/protocols/B3.json",
+      "sha256": "2097969c83f26cc036ac9d6f4e264e3279543b585e98821eca033e68fe02fd5c",
+      "fixed_paper_commit": "47f3f69a8cf6d0cce063da702e818f5e093537de"
+    },
+    {
+      "path": "paper/current/protocols/B4.json",
+      "sha256": "5a7f4e4ceae6eacd6509de9bcec85d47f94b55fa4dee35de38abb62db012bd1e",
+      "fixed_paper_commit": "47f3f69a8cf6d0cce063da702e818f5e093537de"
+    },
+    {
+      "path": "paper/current/protocols/B5.json",
+      "sha256": "27d76b5c24fb06cc4a736332c0676f7e7f125e14bb73b87471ce8b46d9faee1c",
+      "fixed_paper_commit": "47f3f69a8cf6d0cce063da702e818f5e093537de"
+    }
+  ],
+  "metrics": [
+    "accuracy",
+    "balanced_accuracy",
+    "macro_f1",
+    "per_class_recall",
+    "confusion_matrix",
+    "paired_per_specimen_prediction_changes"
+  ],
+  "uncertainty": "Keep physical specimens nested in actual batches; report per-batch results. Repeated Support draws do not increase Query specimen/batch N. At currently one known batch/source, between-batch variance is not identifiable.",
+  "acceptance_before_training": [
+    "all metadata required fields populated from evidence",
+    "physical entities disjoint Source/Support/Query",
+    "actual lots present in Source and target for every class",
+    "frozen model+split+input hashes",
+    "paired reference/grid/unit audits passed for intended merge",
+    "Query inaccessible to fitting and selection",
+    "new training explicitly enabled in a new authorization"
+  ],
+  "entry_point": "python experiments/focused_followup_20261116/e5_e7_protocols.py --validate-new-batch metadata.csv",
+  "entry_point_effect": "metadata validation only; never fits or enables a model"
+}
