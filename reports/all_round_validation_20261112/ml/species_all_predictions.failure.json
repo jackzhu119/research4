@@ -1,0 +1,8 @@
+{
+  "status": "FAILED",
+  "component": "species_all_predictions",
+  "error_type": "RuntimeError",
+  "error": "Validator exit 1; see /workspace/research4/reports/all_round_validation_20261112/ml/species_predictions.log",
+  "traceback": "Traceback (most recent call last):\n  File \"/workspace/research4/scripts/verify_all_round_ml_20261112.py\", line 358, in main\n    receipt = action(Path(temporary))\n              ^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/research4/scripts/verify_all_round_ml_20261112.py\", line 353, in <lambda>\n    (\"species_all_predictions\", lambda stage: verify_species_predictions(root, durable, stage))]\n                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/research4/scripts/verify_all_round_ml_20261112.py\", line 322, in verify_species_predictions\n    run_validator(command, durable / \"species_predictions.log\", snapshot)\n  File \"/workspace/research4/scripts/verify_all_round_ml_20261112.py\", line 120, in run_validator\n    raise RuntimeError(f\"Validator exit {result.returncode}; see {log}\")\nRuntimeError: Validator exit 1; see /workspace/research4/reports/all_round_validation_20261112/ml/species_predictions.log\n",
+  "observed_at_utc": "2026-11-12T01:45:10.067879+00:00"
+}

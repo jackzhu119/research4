@@ -1,0 +1,92 @@
+{
+  "schema": "all-round-unattended-tasks-v1",
+  "authorized_cpu_seconds": 990000,
+  "freeze_paths": [
+    "scripts",
+    "src",
+    "requirements-pyscf-ir.txt",
+    "requirements-pyscf-publication-20261111.txt",
+    "requirements-pyscf-repair-20261111.txt",
+    "data/research/all_round_validation_20261112/authorization.json",
+    "reports/all_round_validation_20261112/source_snapshot.json",
+    "reports/all_round_validation_20261112/runtime_versions.json",
+    "data/research/pyscf_repair_20261111/inputs/acid_coordinates_bohr.npy",
+    "data/research/pyscf_repair_20261111/inputs/acid_density.npy",
+    "data/research/pyscf_repair_20261111/inputs/acid_historical_result.json",
+    "data/research/pyscf_repair_20261111/inputs/acid_symbols.json",
+    "data/research/pyscf_repair_20261111/inputs/calycosin_coordinates_bohr.npy",
+    "data/research/pyscf_repair_20261111/inputs/calycosin_density.npy",
+    "data/research/pyscf_repair_20261111/inputs/calycosin_historical_result.json",
+    "data/research/pyscf_repair_20261111/inputs/calycosin_symbols.json",
+    "data/research/pyscf_repair_20261111/inputs/provenance.json",
+    "data/research/pyscf_repair_20261111/inputs/spinosin_coordinates_bohr.npy",
+    "data/research/pyscf_repair_20261111/inputs/spinosin_historical_hessian.npy",
+    "data/research/pyscf_repair_20261111/inputs/spinosin_historical_result.json",
+    "data/research/pyscf_repair_20261111/inputs/spinosin_source.xyz",
+    "data/research/pyscf_repair_20261111/inputs/spinosin_symbols.json"
+  ],
+  "tasks": [
+    {
+      "id": "ml_verification",
+      "command": [
+        "{python}",
+        "{frozen}/scripts/adopt_all_round_ml_20261112.py",
+        "--root",
+        "{root}"
+      ],
+      "completion": {
+        "path": "reports/all_round_validation_20261112/ml/adoption.json",
+        "field": "status",
+        "equals": "COMPLETE"
+      }
+    },
+    {
+      "id": "quantum_publication",
+      "command": [
+        "{python}",
+        "{frozen}/scripts/run_all_round_quantum_20261112.py",
+        "--root",
+        "{root}",
+        "--publication-once"
+      ],
+      "completion": {
+        "path": "reports/all_round_validation_20261112/quantum/publication_summary.json",
+        "field": "status",
+        "equals": "COMPLETE"
+      }
+    },
+    {
+      "id": "quantum_ir",
+      "command": [
+        "{python}",
+        "{frozen}/scripts/run_all_round_quantum_20261112.py",
+        "--root",
+        "{root}",
+        "--ir-once"
+      ],
+      "completion": {
+        "path": "reports/all_round_validation_20261112/quantum/ir_summary.json",
+        "field": "status",
+        "equals": "COMPLETE"
+      }
+    }
+  ],
+  "publish_paths": [
+    "reports/all_round_validation_20261112",
+    "data/research/all_round_validation_20261112",
+    "docs/ALL_ROUND_VALIDATION_20261112.md",
+    "scripts/background_all_round_validation_20261112.py",
+    "scripts/run_all_round_quantum_20261112.py",
+    "scripts/verify_all_round_ml_20261112.py",
+    "tests/test_all_round_background_20261112.py",
+    "scripts/verify_saved_species_predictions_20261112.py",
+    "scripts/adopt_all_round_ml_20261112.py",
+    "tests/test_all_round_quantum_20261112.py"
+  ],
+  "no_performance_wall_failure_or_idle_cutoff": true,
+  "completion_requires_all_tasks": true,
+  "publish_exclude_globs": [
+    "reports/all_round_validation_20261112/ml/species_predictions/settings.jsonl",
+    "reports/all_round_validation_20261112/ml/species_predictions/pooled_oof.jsonl"
+  ]
+}

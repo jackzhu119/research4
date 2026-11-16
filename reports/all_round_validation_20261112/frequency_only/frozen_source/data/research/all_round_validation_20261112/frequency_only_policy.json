@@ -1,0 +1,46 @@
+{
+  "schema": "calycosin-frequency-only-execution-policy-v1",
+  "user_instruction": "终止导数计算全部算力投入到频率矩阵，取消后面的排队任务",
+  "source_scope_receipt": "data/research/all_round_validation_20261112/execution_scope_20261116.json",
+  "source_scope_receipt_sha256": "83bd77888c657e7bbd98b65e82ca4714ae9b0084cdbfb9525661f5e4e7c3ad8a",
+  "retained_task": "calycosin/df-grid5/round000 frequency matrix only",
+  "cancelled_tasks": [
+    "independent_ir_dipole_derivative_precomputation",
+    "all_followup_molecules_including_spinosin",
+    "future_ir_refinement_and_other_queued_research"
+  ],
+  "workers": [
+    {
+      "id": "frequency_matrix_0",
+      "command": [
+        "{python}",
+        "{frozen}/scripts/run_frequency_matrix_only_20261116.py",
+        "--root",
+        "{root}",
+        "--worker-id",
+        "0",
+        "--once"
+      ],
+      "threads": 2
+    },
+    {
+      "id": "frequency_matrix_1",
+      "command": [
+        "{python}",
+        "{frozen}/scripts/run_frequency_matrix_only_20261116.py",
+        "--root",
+        "{root}",
+        "--worker-id",
+        "1",
+        "--once"
+      ],
+      "threads": 2
+    }
+  ],
+  "completion": "reports/all_round_validation_20261112/frequency_only/summary.json",
+  "completion_seal": "reports/all_round_validation_20261112/frequency_only/COMPLETE.json",
+  "cumulative_authorization": "Existing additive ledger; no new grant and no reset",
+  "phase_budget_at_preparation_cpu_seconds": 2890000.0,
+  "new_geometry_profiles_molecules_or_ir_jobs_allowed": false,
+  "created_at_utc": "2026-11-16T07:19:55.687909+00:00"
+}

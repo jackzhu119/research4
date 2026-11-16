@@ -1,0 +1,85 @@
+{
+  "schema": "research4-pyscf-publication-core-v1",
+  "status": "DONE",
+  "input_fingerprint": "2acda62650bd86847d870635b2a77b5a9c164edd47b384a9de87df155a9202d8",
+  "settings": {
+    "xc": "PBE",
+    "basis": "def2-SVP",
+    "charge": 0,
+    "spin": 0,
+    "dispersion": "NONE_EXPLICIT",
+    "density_fitting": true,
+    "direct_scf_tol": 1e-14,
+    "conv_tol_hartree": 1e-12,
+    "conv_tol_grad": 1e-08,
+    "fresh_orbital_gradient_acceptance": 1e-08,
+    "fresh_energy_difference_acceptance_hartree": 1e-10,
+    "electron_count_acceptance": 1e-07,
+    "grid_response": true,
+    "full_native_veff_every_cycle": true,
+    "effective_potential_update": "Full effective potential from the current density; no delta-DM update.",
+    "small_rho_cutoff": 0,
+    "electronic_recovery_order": [
+      "NATIVE_DIIS",
+      "TIGHT_NATIVE_POLISH",
+      "NEWTON_SEED_NATIVE_POLISH"
+    ],
+    "polish_conv_tol_hartree": 1e-12,
+    "polish_conv_tol_grad": 2e-09,
+    "threads": 2,
+    "max_memory_mb": 5000,
+    "profile": "df-grid5",
+    "grid_level": 5,
+    "density_fitting_auxbasis": "def2-universal-jkfit",
+    "auxbasis_response": true,
+    "model_scope": "Density-fitted Coulomb/JK integrals with def2-universal-jkfit; PBE XC quadrature remains numerical. This is a model approximation relative to the direct-integral reference, not a direct-SCF result.",
+    "internal_stability_max_repairs": 3,
+    "grid_pruning": "PySCF_default_NWChem",
+    "grid_construction": "native_atom_centered_rebuilt_for_each_geometry"
+  },
+  "internal_stable": true,
+  "external_stable": true,
+  "real_to_complex_stable": true,
+  "rks_to_uks_stable": true,
+  "array_refs": {
+    "density": {
+      "path": "/workspace/research4/reports/all_round_validation_20261112/quantum/publication/jobs/calycosin/df-grid5/round000/electronic-stability-00/.local/stability_density.npy",
+      "sha256": "c6728367adb17f29546e1fb4d4dcc3b1f024a9f1bd09d70b5a580510f8f72c4b"
+    }
+  },
+  "started_at_utc": "2026-11-12T02:02:02.067477+00:00",
+  "internal_repair_attempts": [
+    {
+      "round": 0,
+      "checked_at_utc": "2026-11-12T02:05:31.456140+00:00",
+      "internal_stable": true
+    }
+  ],
+  "internal_repair_performed": false,
+  "geometry_reoptimization_required": false,
+  "density_path": "/workspace/research4/reports/all_round_validation_20261112/quantum/publication/jobs/calycosin/df-grid5/round000/electronic-stability-00/.local/stability_density.npy",
+  "supported_for_primary_hessian": true,
+  "initial_energy_hartree": -991.1781261600127,
+  "candidate_density_path": "/workspace/research4/reports/all_round_validation_20261112/quantum/publication/jobs/calycosin/df-grid5/round000/electronic-stability-00/.local/stability_density.npy",
+  "final_electronic_audit": {
+    "native_converged": true,
+    "fresh_energy_hartree": -991.1781261600136,
+    "native_energy_hartree": -991.1781261600127,
+    "fresh_energy_difference_hartree": -9.094947017729282e-13,
+    "fresh_orbital_gradient_norm": 9.005645065195749e-11,
+    "electron_count": 148.0000000000001,
+    "expected_electron_count": 148,
+    "electron_count_error": 1.1368683772161603e-13,
+    "qualified": true,
+    "quality_warnings": []
+  },
+  "final_energy_hartree": -991.1781261600136,
+  "energy_change_hartree": -9.094947017729282e-13,
+  "density_change_frobenius": 0.0,
+  "real_to_complex_lowest_eigenvalue_hartree": 0.79928581,
+  "external_native_return_status_scope": "PySCF2.13 rhf_external return_status reports RKS-to-UKS only; real-to-complex is explicitly parsed from native solver eigenvalue log.",
+  "finished_at_utc": "2026-11-12T03:31:57.867445+00:00",
+  "tested_electronic_stability_passed": true,
+  "electronic_state_disposition": "STABLE_REAL_CLOSED_SHELL_RKS",
+  "scope": "Actual RKS internal orbital repair plus RKS-to-UKS and real-to-complex tests; external or unknown/failed tests are not passes."
+}
