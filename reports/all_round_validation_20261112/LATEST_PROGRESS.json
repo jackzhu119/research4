@@ -1,8 +1,8 @@
 {
-  "schema": "all-round-results-upload-snapshot-v1",
-  "at_beijing": "2026-11-15T19:45:57.561765+08:00",
-  "scope": "Only this validation run; preserve raw spectra, corrected outputs and current paper-withdrawal policy.",
-  "runtime_at_snapshot": "ONLINE_AUTHORIZATION_EXTENDED; EXISTING_WORKER_IDENTITIES_UNCHANGED",
+  "schema": "all-round-results-current-scope-v2",
+  "at_beijing": "2026-11-16T15:25:45.254993+08:00",
+  "scope": "FREQUENCY_MATRIX_ONLY; current calycosin/df-grid5/round000 only; all later scientific tasks cancelled by user.",
+  "runtime_at_snapshot": "TWO_COOPERATIVE_TWO_THREAD_FREQUENCY_WORKERS_RUNNING",
   "molecular_ir_completed": [
     {
       "molecule": "acid",
@@ -70,19 +70,24 @@
     }
   ],
   "calycosin_frequency": {
-    "qualified_points": 279,
+    "qualified_points": 350,
     "planned_points": 396,
-    "status": "RUNNING"
+    "status": "RUNNING",
+    "worker_count": 2,
+    "threads_per_worker": 2,
+    "original_completed_points_preserved": 350,
+    "original_completed_point_hashes_unchanged": true,
+    "final_minimum_and_ir_qualification_granted": false
   },
   "calycosin_ir_precursor": {
-    "qualified_points": 237,
+    "status": "CANCELLED_BY_USER",
+    "partial_results_preserved": true,
+    "last_verified_qualified_points_before_stop": 317,
     "planned_points": 594,
-    "completed_first_step_points": 198,
-    "second_step_points": 39,
-    "second_step_planned_points": 198,
-    "status": "DERIVATIVE_PRECOMPUTATION_ONLY_NOT_FULL_IR_QUALIFICATION"
+    "last_count_is_historical_verified_progress_not_complete_ir": true,
+    "final_ir_qualification_granted": false
   },
-  "spinosin": "QUEUED_NOT_STARTED_IN_THIS_RUN",
+  "spinosin": "CANCELLED_BY_USER_NOT_STARTED_IN_THIS_RUN",
   "ml_verification": {
     "status": "COMPLETE",
     "all_requested_checks_passed": true,
@@ -91,10 +96,10 @@
   "cpu_accounting": {
     "schema": "all-round-cgroup-cpu-v1",
     "authorized_cpu_seconds": 2890000.0,
-    "observed_cpu_seconds": 838923.948307,
-    "conservative_cpu_seconds": 1159433.501839,
-    "uncertain_upper_cpu_seconds": 320509.553532,
-    "remaining_cpu_seconds": 1730566.498161,
+    "observed_cpu_seconds": 1038021.2914,
+    "conservative_cpu_seconds": 1435163.134872,
+    "uncertain_upper_cpu_seconds": 397141.84347200004,
+    "remaining_cpu_seconds": 1454836.865128,
     "counter_epochs": [
       {
         "counter_cpu_seconds": 854.814477,
@@ -203,18 +208,45 @@
         "counter_baseline_cpu_seconds": 0.0,
         "first_observed_counter_cpu_seconds": 5.582491,
         "scope": "Entire dedicated environment cgroup, including this task preparation",
-        "last_counter_cpu_seconds": 134712.328087,
-        "last_sampled_at_utc": "2026-11-15T11:45:57.161097+00:00",
-        "last_sampled_monotonic": 34977.843721817
+        "last_counter_cpu_seconds": 246100.046635,
+        "last_sampled_at_utc": "2026-11-15T19:42:55.785175+00:00",
+        "last_sampled_monotonic": 63596.467794838,
+        "unobserved_tail_after_cgroup_loss": "UNKNOWN actual CPU; separately charged conservative capacity-times-gap upper bound",
+        "uncertain_upper_cpu_seconds": 76632.28994,
+        "uncertain_tail_gap_seconds": 19158.072485
+      },
+      {
+        "counter_cpu_seconds": 2.92502,
+        "boot_id": "680939c6-a77c-4bd8-9241-84ab9f12139e",
+        "cpu_capacity": 4.0,
+        "sampled_monotonic": 67.433717076,
+        "cgroup_device": 24,
+        "cgroup_inode": 161,
+        "counter_path": "/sys/fs/cgroup/cpu.stat",
+        "sampled_at_utc": "2026-11-16T01:02:13.857660+00:00",
+        "counter_baseline_cpu_seconds": 0.0,
+        "first_observed_counter_cpu_seconds": 2.92502,
+        "scope": "Entire dedicated environment cgroup, including this task preparation",
+        "last_counter_cpu_seconds": 87709.624545,
+        "last_sampled_at_utc": "2026-11-16T07:25:45.153169+00:00",
+        "last_sampled_monotonic": 23078.729228444
       }
     ],
     "not_wall_time": true,
     "early_cpu_reserve_seconds": 0,
-    "updated_at_utc": "2026-11-15T11:45:57.161125+00:00",
+    "updated_at_utc": "2026-11-16T07:25:45.153199+00:00",
     "sampling_interval_seconds": 0.5,
     "boundary_overshoot_cpu_seconds": 0.0,
     "historical_other_chat_budgets_included": false,
     "lifetime_guarantee": false
   },
-  "paper_scope": "Actual qualified isolated-molecule local harmonic IR only; no solid-state peak assignment, global-minimum guarantee or independent-batch validation. Current paper citation requires main:paper/current manifest."
+  "paper_scope": "Actual qualified isolated-molecule local harmonic IR only; no solid-state peak assignment, global-minimum guarantee or independent-batch validation. Current paper citation requires main:paper/current manifest.",
+  "queued_tasks": [],
+  "cancelled_tasks": [
+    "independent_ir_dipole_derivative_precomputation",
+    "all_followup_molecules_including_spinosin",
+    "future_ir_refinement_and_other_queued_research"
+  ],
+  "current_control_entry": "scripts/background_frequency_only_20261116.py",
+  "launch_verification": "reports/all_round_validation_20261112/frequency_only/launch_verification.json"
 }
