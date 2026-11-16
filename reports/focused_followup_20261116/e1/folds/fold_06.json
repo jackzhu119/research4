@@ -1,0 +1,130 @@
+{
+  "status": "COMPLETED",
+  "context": 6,
+  "repeat_seed": 20261031,
+  "outer_fold": 1,
+  "source_freeze_sha256": "a1a078f95871f0b6214b5974c90b75677800fb548afbd5c88668a56aff9db975",
+  "actual_new_classifier_fits": 25,
+  "actual_new_pls_fits": 0,
+  "chosen": {
+    "config": {
+      "C": 10.0,
+      "gamma": "scale"
+    },
+    "mean_inner_metrics": {
+      "macro_f1": 0.8025935223261341,
+      "balanced_accuracy": 0.8041666666666667,
+      "accuracy": 0.8041666666666667
+    }
+  },
+  "numeric_gamma": 0.0016339869281045752,
+  "outer_metrics": {
+    "accuracy": 0.8333333333333334,
+    "balanced_accuracy": 0.8333333333333334,
+    "macro_f1": 0.8339926739926741,
+    "confusion_matrix": [
+      [
+        10,
+        0,
+        0,
+        2,
+        0
+      ],
+      [
+        1,
+        11,
+        0,
+        0,
+        0
+      ],
+      [
+        2,
+        0,
+        10,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        2,
+        10,
+        0
+      ],
+      [
+        0,
+        3,
+        0,
+        0,
+        9
+      ]
+    ],
+    "class_order": [
+      "ZY03",
+      "ZY04",
+      "ZY05",
+      "ZY06",
+      "ZY07"
+    ],
+    "per_source_recall": {
+      "ZY03": 0.8333333333333334,
+      "ZY04": 0.9166666666666666,
+      "ZY05": 0.8333333333333334,
+      "ZY06": 0.8333333333333334,
+      "ZY07": 0.75
+    }
+  },
+  "stages": [
+    {
+      "stage": "loading_and_per_spectrum_SNV",
+      "cpu_seconds": 0.055360144,
+      "wall_seconds": 0.05536819300004936,
+      "classifier_fits": 0,
+      "input_dimension": 612,
+      "between_specimen_statistics": false
+    },
+    {
+      "stage": "inner_search",
+      "inner_fold": 0,
+      "cpu_seconds": 0.13334226800000004,
+      "wall_seconds": 0.1422057519998816,
+      "classifier_fits": 12
+    },
+    {
+      "stage": "inner_search",
+      "inner_fold": 1,
+      "cpu_seconds": 0.12940436200000005,
+      "wall_seconds": 0.13789099000018723,
+      "classifier_fits": 12
+    },
+    {
+      "stage": "outer_fit_and_inference",
+      "cpu_seconds": 0.01746319499999993,
+      "wall_seconds": 0.018192711999972744,
+      "classifier_fits": 1,
+      "inference_cpu_seconds": 0.0038016800000000295
+    }
+  ],
+  "cpu_seconds_this_attempt": 0.39195632199999997,
+  "wall_seconds_this_attempt": 0.4106164009999702,
+  "training_dimension": 612,
+  "SNV_input_dependency": 612,
+  "peak_process_rss_bytes": 191823872,
+  "model_bytes": 1088818,
+  "support_vectors": 226,
+  "outer_train_ids_sha256": "c82be33a9125b9526d6cec2e376ee005a010d63a5550338b932cd5dced312102",
+  "outer_test_ids_sha256": "90c0555a4527478932cabb77febce2ace4880f90ce1b075922b21ee4b1643d58",
+  "runtime": {
+    "python": "3.11.18",
+    "numpy": "2.3.5",
+    "scipy": "1.17.0",
+    "scikit-learn": "1.8.0",
+    "joblib": "1.5.3"
+  },
+  "artifacts_sha256": {
+    "models/fold_06.joblib": "5a00ed67ad7bf27bfeaff8e5e6dd8dbfb92eef94c15c691f80458d7add19b793",
+    "predictions/fold_06.csv.gz": "c4012584c9627e36d72c6a6230f57d11756f80254fc52d5aaf15a13a76a97e1a",
+    "folds/fold_06_inner.json": "3e0c1bd72bf6173d4a9a073c31caae66e0d1ebfde972be0bbd444d6335b9d022",
+    "folds/fold_06_selection.json": "f71042ab5eae2940cb8ce555f493bbb271626afc5917323097159d10f3c50536"
+  }
+}
