@@ -1,0 +1,22 @@
+[
+  {
+    "name": "meta",
+    "sql": "CREATE TABLE meta(key TEXT PRIMARY KEY,value TEXT NOT NULL)"
+  },
+  {
+    "name": "jobs",
+    "sql": "CREATE TABLE jobs(id TEXT PRIMARY KEY,ordinal INTEGER UNIQUE NOT NULL,job_json TEXT NOT NULL,status TEXT NOT NULL DEFAULT 'queued',failure_count INTEGER NOT NULL DEFAULT 0,attempt_count INTEGER NOT NULL DEFAULT 0,result_path TEXT,last_error TEXT)"
+  },
+  {
+    "name": "attempts",
+    "sql": "CREATE TABLE attempts(id TEXT PRIMARY KEY,job_id TEXT NOT NULL,pid INTEGER,start_ticks INTEGER,boot_id TEXT,pgid INTEGER,status TEXT NOT NULL,lease_cpu REAL NOT NULL,observed_cpu REAL NOT NULL DEFAULT 0,verified_actual_cpu REAL NOT NULL DEFAULT 0,charged_cpu REAL NOT NULL DEFAULT 0,uncertain_upper_cpu REAL NOT NULL DEFAULT 0,final_source TEXT,started_utc TEXT,ended_utc TEXT,exit_code INTEGER,exit_signal INTEGER,out_dir TEXT,attempt_dir TEXT,heartbeat_path TEXT,last_heartbeat_utc TEXT)"
+  },
+  {
+    "name": "events",
+    "sql": "CREATE TABLE events(id INTEGER PRIMARY KEY AUTOINCREMENT,utc TEXT NOT NULL,event TEXT NOT NULL,detail TEXT NOT NULL)"
+  },
+  {
+    "name": "sqlite_sequence",
+    "sql": "CREATE TABLE sqlite_sequence(name,seq)"
+  }
+]
