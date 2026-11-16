@@ -103,7 +103,7 @@ for key in ['1','2','3','4','5','6']:
  entries[f'01_Submit/Figures/Figure_{key}.eps']=BASE/f'figures/Figure_{key}.eps'
 entries['01_Submit/Supplementary_Figure/Figure_S1.eps']=BASE/'figures/Figure_S1.eps'
 for i in range(1,6):entries[f'01_Submit/Supplementary_B{i}.xlsx']=OLD/f'Supplementary_B{i}.xlsx'
-for name in ['authoring_sources/REVIEW2_DECISIONS.json','authoring_sources/final_claim_check.md','EVIDENCE_MANIFEST.json','ARTIFACT_VERIFICATION.json','SUPPLEMENTARY_TABLES_VERIFICATION.json','JOURNAL_COMPLIANCE.json','VISUAL_REVIEW.json','FIGURE_QUALITY_REVIEW.json']:
+for name in ['authoring_sources/REVIEW2_DECISIONS.json','authoring_sources/final_claim_check.md','authoring_sources/SHANXI_LOCALIZED_PATCH.json','authoring_sources/SHANXI_EVIDENCE_CHECK.json','authoring_sources/VISUAL_SHANXI_MAIN_REVIEW.json','EVIDENCE_MANIFEST.json','ARTIFACT_VERIFICATION.json','SUPPLEMENTARY_TABLES_VERIFICATION.json','JOURNAL_COMPLIANCE.json','VISUAL_REVIEW.json','FIGURE_QUALITY_REVIEW.json']:
  entries['03_Evidence/'+name]=BASE/name
 for p in sorted((BASE/'analysis').iterdir()):
  if p.is_file():entries['03_Evidence/analysis/'+p.name]=p

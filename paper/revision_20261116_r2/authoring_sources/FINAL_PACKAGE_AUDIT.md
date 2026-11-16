@@ -1,11 +1,15 @@
-# Final package audit
+# Final localized update package audit
 
-**PASS** — independently inspected read-only on 16 November 2026. No package/source edits or uploads.
+**PASS** — independent read-only audit of `Update.zip` on 16 November 2026. No source/package edits, uploads or agent spawning.
 
-- `Submit.zip`: 20,895,843 bytes, 46 unique entries; ZIP CRC passes. SHA-256 `ca5a37194b0ec98d829ec223f6c3ac8b7b9b168056ee3a33478b50c4122e511d` matches the final package receipt.
-- All 45 manifest-listed members match their declared sizes and SHA-256 values, and are byte-identical to the declared repository sources. Manifest covers every archive member except itself.
-- Complete submission/read set present: seven DOCX files, six XLSX supplements, submission fields, six main EPS figures and one supplementary EPS, plus verification/evidence files. Every DOCX/XLSX internal archive passes CRC; each XLSX is below 10 MiB. EPS signatures, bounding boxes and font programs/references are present and figure bytes match final sources.
-- Original locked author/header and end-matter paragraphs match canonical XML in the English and bilingual manuscripts. AI disclosure occurs exactly once in each. Title-page/declarations author fields and cover-letter approval/AI/signature paragraphs match original templates, allowing only authorized title/figure-count/scientific-letter changes.
-- Packaged artifact and visual receipts are PASS and their seven document hashes match final R2 sources. All 77 reviewed-page indices are complete; all 77 final page PNG hashes match render2. Earlier direct visual review of the bilingual/notes files covered all 36 pages, with fresh review of all five changed pages and pixel-identical inheritance for the remainder.
+Package: 20,900,213 bytes; 49 unique entries; SHA-256 `f8efc63fae3a7e2ddbd0d795b2e082fe3d68f04af6a46f84f8f81d122292811a`. Values match the current final package receipt. Archive CRC passes. All 48 manifest-listed members match declared sizes/hashes and their current repository source bytes; coverage includes every archive member except the manifest itself.
 
-No defects found. This audit verifies package integrity and recorded final review; it does not establish user-side download success or journal submission.
+All requested submission/read files are present. Every DOCX/XLSX internal archive passes CRC. Six XLSX supplements remain below 10 MiB. Six main EPS figures and supplementary EPS retain valid signatures, bounding boxes and fonts and match source bytes.
+
+Against baseline commit `64d95fe4371521dd3c16cc0ee792a82332b570be`, independent canonical-XML comparison confirms exactly one inserted English manuscript paragraph, two inserted bilingual counterpart paragraphs, and one replaced supplementary paragraph. Only `word/document.xml` changed in these three DOCX archives; every other OOXML part is byte-identical. Source-block comparison confirms only `r3_errors` and `s5_errors` changed. The abstract source is exactly unchanged, and all unrelated document XML is unchanged.
+
+The other four DOCX files (title page, cover letter, declarations and revision notes), all packaged EPS figures and all XLSX supplements are byte-identical to baseline. Original author/header/end-matter XML matches the metadata lock in both manuscripts; AI disclosure occurs exactly once in each. Auxiliary author, approval, AI and signature fields retain the authorized baseline values.
+
+Current artifact/visual receipts are PASS and their seven DOCX hashes match final files. All 77 page indices are covered, and all 77 recorded PNG hashes match current review3 renders or unchanged review2/render2 renders. The localized patch, Shanxi evidence check and changed-main visual-review receipts are PASS. Direct review of changed pages is attributed to the current visual receipts; this package audit independently verifies their file/hash correspondence.
+
+No defects found. This verifies the localized package and preservation boundary; it does not establish user-side download success or journal submission.
