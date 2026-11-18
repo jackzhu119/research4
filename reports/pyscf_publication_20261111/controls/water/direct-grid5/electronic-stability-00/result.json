@@ -1,0 +1,85 @@
+{
+  "schema": "research4-pyscf-publication-core-v1",
+  "status": "DONE",
+  "input_fingerprint": "bb74557abf4470c900bd6dd05e05b326614b248be6a86b025613d99726f1c596",
+  "settings": {
+    "xc": "PBE",
+    "basis": "def2-SVP",
+    "charge": 0,
+    "spin": 0,
+    "dispersion": "NONE_EXPLICIT",
+    "density_fitting": false,
+    "direct_scf_tol": 1e-14,
+    "conv_tol_hartree": 1e-12,
+    "conv_tol_grad": 1e-08,
+    "fresh_orbital_gradient_acceptance": 1e-08,
+    "fresh_energy_difference_acceptance_hartree": 1e-10,
+    "electron_count_acceptance": 1e-07,
+    "grid_response": true,
+    "full_native_veff_every_cycle": true,
+    "effective_potential_update": "Full effective potential from the current density; no delta-DM update.",
+    "small_rho_cutoff": 0,
+    "electronic_recovery_order": [
+      "NATIVE_DIIS",
+      "TIGHT_NATIVE_POLISH",
+      "NEWTON_SEED_NATIVE_POLISH"
+    ],
+    "polish_conv_tol_hartree": 1e-12,
+    "polish_conv_tol_grad": 2e-09,
+    "threads": 2,
+    "max_memory_mb": 5000,
+    "profile": "direct-grid5",
+    "grid_level": 5,
+    "density_fitting_auxbasis": null,
+    "auxbasis_response": false,
+    "model_scope": "Native direct electron repulsion integrals; no density fitting.",
+    "internal_stability_max_repairs": 3,
+    "grid_pruning": "PySCF_default_NWChem",
+    "grid_construction": "native_atom_centered_rebuilt_for_each_geometry"
+  },
+  "internal_stable": true,
+  "external_stable": true,
+  "real_to_complex_stable": true,
+  "rks_to_uks_stable": true,
+  "array_refs": {
+    "density": {
+      "path": "/workspace/research4/reports/pyscf_publication_20261111/controls/water/direct-grid5/electronic-stability-00/.local/stability_density.npy",
+      "sha256": "6aea865c169ec3a9398b09d8ac6f577eb9c9c54ebe6a404959e9c71a33e16b71"
+    }
+  },
+  "started_at_utc": "2026-11-11T08:07:52.155666+00:00",
+  "internal_repair_attempts": [
+    {
+      "round": 0,
+      "checked_at_utc": "2026-11-11T08:07:52.968794+00:00",
+      "internal_stable": true
+    }
+  ],
+  "internal_repair_performed": false,
+  "geometry_reoptimization_required": false,
+  "density_path": "/workspace/research4/reports/pyscf_publication_20261111/controls/water/direct-grid5/electronic-stability-00/.local/stability_density.npy",
+  "supported_for_primary_hessian": true,
+  "initial_energy_hartree": -76.27258264336866,
+  "candidate_density_path": "/workspace/research4/reports/pyscf_publication_20261111/controls/water/direct-grid5/electronic-stability-00/.local/stability_density.npy",
+  "final_electronic_audit": {
+    "native_converged": true,
+    "fresh_energy_hartree": -76.27258264336868,
+    "native_energy_hartree": -76.27258264336868,
+    "fresh_energy_difference_hartree": 0.0,
+    "fresh_orbital_gradient_norm": 2.0008882315992084e-09,
+    "electron_count": 10.000000000000018,
+    "expected_electron_count": 10,
+    "electron_count_error": 1.7763568394002505e-14,
+    "qualified": true,
+    "quality_warnings": []
+  },
+  "final_energy_hartree": -76.27258264336868,
+  "energy_change_hartree": -1.4210854715202004e-14,
+  "density_change_frobenius": 0.0,
+  "real_to_complex_lowest_eigenvalue_hartree": 0.75389255,
+  "external_native_return_status_scope": "PySCF2.13 rhf_external return_status reports RKS-to-UKS only; real-to-complex is explicitly parsed from native solver eigenvalue log.",
+  "finished_at_utc": "2026-11-11T08:07:55.516641+00:00",
+  "tested_electronic_stability_passed": true,
+  "electronic_state_disposition": "STABLE_REAL_CLOSED_SHELL_RKS",
+  "scope": "Actual RKS internal orbital repair plus RKS-to-UKS and real-to-complex tests; external or unknown/failed tests are not passes."
+}
