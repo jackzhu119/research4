@@ -6,7 +6,7 @@ RI-J 近似、辅助基组、网格及步长按实际方法记录，不改称旧
 |分子|执行状态|分子谐振数据资格|实际方法|
 |---|---|---|---|
 |acid|QUALIFIED_LOCAL_HARMONIC_DATA|通过|df-grid5|
-|calycosin|PENDING_OR_CHECKPOINTED|尚未通过|待核验|
+|calycosin|QUALIFIED_LOCAL_HARMONIC_DATA|通过|df-grid5|
 |spinosin|PENDING_OR_CHECKPOINTED|尚未通过|待核验|
 
 可用范围：通过核验的孤立分子局部极小值及谐振/IR 预测。
