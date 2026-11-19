@@ -1,0 +1,78 @@
+{
+  "protocol_id": "b-mechanism-20261110-v1",
+  "base_commit": "b051733989161517a68c4a60cce75766880c95f5",
+  "inputs": {
+    "registry": "dd9ec7728590dde2574f64b9664148465c85d7b618311494c613c32b4d879f95",
+    "master_manifest": "0767e3165984a4e0e4ae782d69fdea6f410bfe36bce05ec72f8eadca982317d4",
+    "master_protocol": "a4d31c9a23711df97b2e3e883fd44065c7cbd5bbce3bd65c4efb46b6f6905f0c",
+    "array_sha256": {
+      "record_ids": "7d29172ba523a2ff5fde35806fde13f349d18d54b1d8c093f05e6a4776ae5136",
+      "X_alpha": "4f700e5630fa9512c14419745a4271f27072b6618ab163fc590258eeb253a704",
+      "X_n": "09f44da845c792ab938fb9350cfa1f118d480cc08e52726da0df093e6ea49da5",
+      "axis": "d65483d5c716636073babe33e9883abcdc55f5f797c603f45845eabf24d63ef3",
+      "X_alpha_transfer": "c0dbfae2c5835f9f98ea72372357d46b3797e4d451a13c7e641dd944464ba38f",
+      "X_n_transfer": "dfc02e1f19cbabe1a196fe68899519f74799e1afcfe70acd49afe992f789c32d",
+      "axis_transfer": "2e466c2312020d8d82ec5951d374714fa0bc8e1f8045095e332bcb4a50d0487c",
+      "origin_group_ids": "63fe9687b07ab4fd646a70730947856c13d12a914a2207253ce00d85dd118a10",
+      "species": "888ff728535d15757570c48d944c8000620a0bd50f5ec45fd0c7b3ee6d702b9c",
+      "origins": "83cd9074be6c401f2cfe87ee7794efa69ecbd69e10b7b23a452a8adfe4fef0f1",
+      "dataset_version": "ec39699677c72244f06bcec19fb9f39e547cc7dc64853a54aa98dbbd9aeadd7f"
+    },
+    "science_source_sha256": {
+      "scripts/run_b_mechanism_gap_20261110.py": "667355d991b4ae9947cf590fcb98aef8b1864b5e756d6c4e5369a33dd1fb6258",
+      "scripts/b_mechanism_engine_20261110.py": "3e2eef63182da23c2f7a3bbdac325a4bc4fcc71b46b2b0a29facd328edef3110",
+      "src/herb_spectra/__init__.py": "7ab151451e9996b82715b65cbe0fe6a58e68a471c0e50bc6e2a348d477afdb94",
+      "src/herb_spectra/benchmark.py": "e9d860268a022baf5a9ed726fc3ef0293b82daefdef7fbe5eba5d02654630994",
+      "src/herb_spectra/calibration.py": "b05ea9ddbcf6d79909b5795f596fe8d940c7c597d1af9b46481dd7e75aa36ace",
+      "src/herb_spectra/classification.py": "793a550f46522bc2e69acf922b39e104a0e94b5eb058905f987a91d0f16a08b2",
+      "src/herb_spectra/classification_transfer.py": "ac8b0e3dfefe7b5131f21fe32d603555bc1f4f03b5158dedfa55dc66446cbd02",
+      "src/herb_spectra/conservative_calibration.py": "b69871f7379f6b5e2e930429a357478e8b89fd68940bfc35e7372d8077a28472",
+      "src/herb_spectra/cross_plant_transfer.py": "79f15d8fa8d08a1744740dd4892a963546403bf60212222e9a1b8897f87d6e01",
+      "src/herb_spectra/image_feature_models.py": "bb3dae0710cbaf341a5a5a27457bb40a86521e20707519194f9a499ac59f1169",
+      "src/herb_spectra/io.py": "8b9cfe61a70ab64f56f131325e068a6452f0a26d04369f4a94a561fd6192fb3c",
+      "src/herb_spectra/leakage_guard.py": "9b5555be27fc634aae46f31e50a06f1950d238c83ff654df91a37c0cdd74748e",
+      "src/herb_spectra/multiplant_database.py": "fbfde791331c7bd4f27f48816c63003c696bc9894a9fbaa44accf703baee50eb",
+      "src/herb_spectra/selection.py": "477d1f0404d8d170fb2bba91bbb5e24d311fb94cf7a20cfd8a7781b93064206f",
+      "src/herb_spectra/spectral_models.py": "7bf02ba3086dba052c12ae1df3369c7168c571fb0504ae1162d7193c92d92527",
+      "src/herb_spectra/stability.py": "ab1a193eba58beec09b3615f8e39a78eb98b12bec8d09e32c1b3edf4453481be",
+      "src/herb_spectra/staged_nested_search.py": "c180225f6ebad218b18aa4b9785907a95a41c7e9cf7a0c2dbbc31cf4f2ea58c5",
+      "src/herb_spectra/upgrade_neural.py": "4ec65e407c197d9f666c72e9f4a5d79eee0045f823787df9e5b22f57dc43e773",
+      "src/herb_spectra/validation.py": "bb4e4761be2b020ece6352ff8a2e3e442247ca50dc748d25690401434b4c5bf8"
+    }
+  },
+  "source_model": "alpha612 SNV(ddof=1) StandardScaler RBF-SVM C10 gamma=scale balanced",
+  "k_per_class": [
+    0,
+    1,
+    3,
+    5,
+    10
+  ],
+  "outer_split_seeds": [
+    20261031,
+    20261108,
+    42
+  ],
+  "e01_sampling_seeds": [
+    42,
+    43,
+    44
+  ],
+  "methods": [
+    "Identity",
+    "Bias-only",
+    "Anchor lambda1",
+    "Weak lambda1000 blend0.05",
+    "Full pipeline retrain"
+  ],
+  "budget_policy": "No automatic CPU, accuracy, wall-time or pilot gate by latest user request; record actual CPU independently",
+  "query_policy": "master TRAIN only; no Query-label or original CAL/PRED model selection",
+  "e05": "NOT_RUN_NEEDS_NEW_BATCH_DATA",
+  "input_hash": "baf3d10125cf8df794343a87054ec2d79b52992b42f38de3154c7e87ec949e2f",
+  "design_not_copied": {
+    "task_count": 105,
+    "complete_source_sha256": "0070ea68b425ac87378c62c207fe46efc8dedbb66f8bf147ae2fe8c210659824",
+    "source_url": "https://github.com/jackzhu119/research4/blob/76966534df314e5bcb108a1fdccd611d1ad52910/reports/b_mechanism_20261110/frozen_protocol.json",
+    "scope": "Compact display only; this derivative is not the original frozen protocol."
+  }
+}

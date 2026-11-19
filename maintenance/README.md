@@ -8,4 +8,6 @@
 - `cleanup_manifest_20261112.json`：清理前后提交、删除/改写计数、保留对象与验证范围。
 - 论文当前允许来源由 [paper/current/manifest.json](../paper/current/manifest.json) 单独管理；文件齐全、种类、原谱和固定来源可用新的清洁包校验。
 
+再次整理、合并分支或接收旧论文材料后，运行 `python scripts/verify_withdrawn_results.py` 检查当前提交是否重新包含已撤回的结果路径或旧生成器。检查其他分支可重复传入 `--ref`，例如 `--ref HEAD --ref origin/main`；本检查不联网、不恢复旧输出、不按 `OLD-*` 或 `legacy_*` 名称误删修正后结果。随后运行 `python scripts/build_current_paper_results.py --verify` 核验论文白名单、原谱和固定来源。
+
 Git历史对象继续用于溯源，旧分类成绩不再有论文使用许可。清理后的普通提交没有重写Git历史；本记录也不是外部新批次合格认证。
