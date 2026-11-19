@@ -11,6 +11,11 @@ from docx.oxml.ns import qn
 
 from manuscript_content import TITLE,TITLE_ZH,KEYWORDS,KEYWORDS_ZH,BLOCKS,FIGURE_CAPTIONS,EQUATIONS
 from supplement_content import BLOCKS as SI_BLOCKS,OPTICAL_EQUATIONS
+from publication_metadata import (
+    AFFILIATIONS, AUTHORS, AUTHOR_NAMES, AUTHOR_APPROVAL, AUTHOR_APPROVAL_ZH,
+    AI_DISCLOSURE, AI_DISCLOSURE_ZH,
+    CONFLICTS, CONFLICTS_ZH, CORRESPONDING, DATA_PROVENANCE, DATA_PROVENANCE_ZH, ORIGINS_EN,
+)
 
 ROOT=Path(__file__).resolve().parents[3];BASE=ROOT/'paper/revision_20261116_r2';SRC=Path(__file__).parent
 AUTH=json.loads((SRC/'AUTHOR_METADATA_LOCK.json').read_text());REFS=json.loads((SRC/'references.json').read_text())
@@ -117,11 +122,34 @@ def setup(kind='main'):
         line=OxmlElement('w:lnNumType');line.set(qn('w:countBy'),'1');line.set(qn('w:restart'),'continuous');line.set(qn('w:distance'),'140');s._sectPr.append(line)
     f=s.footer.paragraphs[0];f.alignment=WD_ALIGN_PARAGRAPH.CENTER
     field=OxmlElement('w:fldSimple');field.set(qn('w:instr'),'PAGE');f._p.append(field)
-    d.core_properties.title=TITLE;d.core_properties.author=AUTH['core_author'];d.core_properties.last_modified_by=AUTH['core_last_modified_by'];d.core_properties.comments=''
+    d.core_properties.title=TITLE;d.core_properties.author='; '.join(AUTHOR_NAMES);d.core_properties.last_modified_by='';d.core_properties.comments=''
     return d
 
 def protected(d,entries):
     for item in entries:d.element.body.insert(-1,deepcopy(parse_xml(item['xml'])))
+
+def author_byline(paragraph):
+    paragraph.paragraph_format.line_spacing = 1.15
+    for index, author in enumerate(AUTHORS):
+        if index:
+            run(paragraph, ', ')
+        run(paragraph, author['name'])
+        marker = str(author['affiliation_id']) + ('*' if author['corresponding'] else '')
+        run(paragraph, marker).font.superscript = True
+
+
+def author_affiliation(paragraph, affiliation):
+    paragraph.paragraph_format.line_spacing = 1.15
+    run(paragraph, str(affiliation['id'])).font.superscript = True
+    run(paragraph, ' ' + affiliation['name'])
+
+
+def author_header(d):
+    author_byline(d.add_paragraph())
+    for affiliation in AFFILIATIONS:
+        author_affiliation(d.add_paragraph(), affiliation)
+    for item in AUTH['header'][2:]:
+        protected(d, [item])
 
 def caption(d,text):
     p=paragraph(d,text);p.paragraph_format.keep_with_next=True;p.paragraph_format.line_spacing=1.05
@@ -217,11 +245,13 @@ def add_main_table(d,key,bilingual=False):
         title,headers,rows,widths,foot=main_table_data(key,zh)
         caption(d,title);table(d,headers,rows,widths);note(d,foot)
 
-ORIGINS={'ZY01':'Yan’an, Shaanxi','ZY02':'Yunnan','ZY03':'Inner Mongolia','ZY04':'Lingshi, Shanxi','ZY05':'Bozhou, Anhui','ZY06':'Shijiazhuang, Hebei','ZY07':'Shanxi group','HQ01':'Qujing','HQ02':'Guyang, Inner Mongolia','HQ03':'Gansu','HQ04':'Datong, Shanxi','ZR01':'Yulin, Shaanxi','ZR02':'Liaoning','ZR03':'Inner Mongolia','TM01':'Leishan, Guizhou','TM02':'Changbai Mountain, Jilin','TM03':'Anhui, recorded label','TM04':'Yunnan'}
 def supplementary_table_data(key):
     if key=='workbooks':
         x=pd.read_csv(CURRENT/'methods/dataset_by_workbook.csv')
-        return 'Workbook groups and frozen roles',['Group','Material','Recorded source','n','TRAIN','CAL','PRED'],[[r.origin_group_id,NAMES[r.species],ORIGINS[r.origin_group_id],r.records,r.train,r.calibration,r.prediction] for r in x.itertuples()],[.65,.95,2.1,.5,.65,.6,.6]
+        ordered = pd.concat([x[x.species.eq(material)] for material in NAMES])
+        rows = [[NAMES[r.species], r.origin_group_id, ORIGINS_EN[r.origin_group_id], r.records,
+                 r.train, r.calibration, r.prediction] for r in ordered.itertuples()]
+        return 'Geographic groups and specimen splits by material',['Material','Group','Origin','Total','TRAIN','CAL','PRED'],rows,[1,.65,2.1,.5,.65,.6,.6]
     if key=='interface':
         return 'Reusable stages and model-specific choices',['Stage','Inputs and output','Relation to final classifier'],[
           ['Fit preprocessing','Fitting X → fitted transforms','Fit only inside the corresponding training subset'],
@@ -269,30 +299,46 @@ def supplementary_table_data(key):
         _,headers,rows,widths,_=main_table_data('support');return 'Full-spectrum support-label controls',headers,rows,widths
     raise KeyError(key)
 
+CONTRIBUTIONS_EN = (
+    'Ziyuan Zhu designed the experiments, optimized the algorithms and wrote the manuscript. '
+    'Jiayi Ren assisted with checking the experimental results and pushing updates to the GitHub repository. '
+    'Yiyi Yang performed the spectroscopic measurements and publicly shared the spectral data. '
+    'Wenchen Jiang revised the machine-learning code and compiled the experimental results. '
+    'Shuyu Zhou researched journal submission policies and assisted with organizing the supplementary files. '
+    'Mengting Zhu checked the manuscript grammar and verified the information entered in the final submission forms. '
+    'Yin Shen provided the experimental data and guided manuscript preparation and submission.'
+)
+CONTRIBUTIONS_ZH = (
+    'Ziyuan Zhu负责实验设计、算法优化和论文写作。Jiayi Ren协助核查实验结果及推送GitHub仓库更新。'
+    '杨易易操作光谱测量并公开分享光谱数据。蒋汶辰修改机器学习代码并汇总实验结果。'
+    'Shuyu Zhou查询期刊投稿政策并协助整理补充材料。Mengting Zhu检查论文语法并核对最终投稿表单。'
+    'Yin Shen提供实验数据并指导论文准备和投稿。'
+)
 END_ZH={
  'Acknowledgements':'致谢',
  AUTH['end_matter'][1]['text']:'第一作者感谢导师及通讯作者Yin Shen提供实验数据，并在论文撰写和投稿方面给予指导与支持。',
- AUTH['ai_disclosure']:'OpenAI ChatGPT/Codex辅助论文修改、文献检索，以及分析和绘图代码的准备与检查。作者审阅了输出，并对内容承担全部责任。',
  'Author contributions':'作者贡献',
- AUTH['author_contributions']:'Ziyuan Zhu负责实验设计、算法优化和论文写作。Jiayi Ren协助检查实验结果及向GitHub仓库推送更新。Shuyu Zhou查询投稿政策并协助整理补充文件。Mengting Zhu检查论文语法并核对最终投稿表单信息。Yin Shen提供实验数据，并指导论文准备和投稿。所有作者均审阅并批准稿件及其向Applied Spectroscopy投稿。',
  'Statements and declarations':'声明', 'Ethical considerations':'伦理事项',
  'This study analyzed herbal-material spectral records and involved neither human participants nor animals. Ethical approval was not required.':'本研究分析药材光谱记录，不涉及人体参与者或动物，无需伦理审批。',
  'Consent to participate':'参与同意','Not applicable.':'不适用。','Consent for publication':'发表同意',
  'Declaration of conflicting interest':'利益冲突声明',
- 'The authors declared no potential conflicts of interest with respect to the research, authorship, and/or publication of this article.':'作者声明，本研究、论文署名及发表不存在潜在利益冲突。',
  'Funding statement':'资金声明',
  'The authors received no financial support for the research, authorship or publication of this article.':'本研究、论文撰写和发表未获得资金支持。',
  'Author approval':'作者批准',
- 'All authors have read and approved the manuscript and its submission to Applied Spectroscopy.':'所有作者均已阅读并批准稿件及其向Applied Spectroscopy投稿。',
  'All authors accept responsibility for the accuracy and integrity of the work. This manuscript is not under consideration elsewhere.':'所有作者对工作的准确性和完整性承担责任。稿件未同时在其他期刊审理。',
 }
-DATA_AVAIL='The spectra, recorded material and source labels, specimen allocations, classifier results and analysis protocols supporting this study are available at https://github.com/jackzhu119/research4 and in the accompanying supplementary data. The experimental dataset was supplied by the corresponding author, Yin Shen, as a shared research resource also used in other supervised studies. The input registry and evidence manifest identify the files and protocol-specific analyses used here.'
-DATA_AVAIL_ZH='支撑本研究的光谱、记录材料与来源标签、样品分配、分类器结果及分析协议，可从https://github.com/jackzhu119/research4和配套补充数据获得。通讯作者Yin Shen提供实验数据，其属于亦用于其他指导研究的共享资源。输入登记和证据清单明确了本文采用的文件与各协议分析。'
+END_UPDATES={
+    AUTH['author_contributions']: (CONTRIBUTIONS_EN, CONTRIBUTIONS_ZH),
+    'The authors declared no potential conflicts of interest with respect to the research, authorship, and/or publication of this article.': (CONFLICTS, CONFLICTS_ZH),
+    'All authors have read and approved the manuscript and its submission to Applied Spectroscopy.': (AUTHOR_APPROVAL, AUTHOR_APPROVAL_ZH),
+}
+DATA_AVAIL='The spectra, material and origin labels, specimen splits, classifier results and analysis protocols are available at https://github.com/jackzhu119/research4 and in the supplementary data. '+DATA_PROVENANCE
+DATA_AVAIL_ZH='光谱、药材与产地标签、样品划分、分类结果及分析协议可从 https://github.com/jackzhu119/research4 及补充材料获得。'+DATA_PROVENANCE_ZH
 
 def make_main(bilingual=False):
     d=setup('parallel' if bilingual else 'main');paragraph(d,TITLE,'Title')
     if bilingual:paragraph(d,TITLE_ZH,'Title')
-    protected(d,AUTH['header'])
+    author_header(d)
     paragraph(d,'Abstract','Heading 1')
     if bilingual:paragraph(d,'中英文逐段对照','Heading 2')
     for block in BLOCKS:
@@ -310,9 +356,21 @@ def make_main(bilingual=False):
         elif kind=='figure':figure(d,block['key'],bilingual)
         elif kind=='table':add_main_table(d,block['key'],bilingual)
     for item in AUTH['end_matter']:
-        protected(d,[item])
-        if bilingual:
-            assert item['text'] in END_ZH,item['text'];paragraph(d,END_ZH[item['text']],item['style'] if item['style'].startswith('Heading') else None)
+        if item['text'] == AUTH['ai_disclosure']:
+            paragraph(d, 'AI disclosure', 'Heading 2')
+            paragraph(d, AI_DISCLOSURE)
+            if bilingual:
+                paragraph(d, 'AI 使用披露', 'Heading 3')
+                paragraph(d, AI_DISCLOSURE_ZH)
+        elif item['text'] in END_UPDATES:
+            english, chinese = END_UPDATES[item['text']]
+            paragraph(d, english)
+            if bilingual:
+                paragraph(d, chinese)
+        else:
+            protected(d,[item])
+            if bilingual:
+                paragraph(d,END_ZH[item['text']],item['style'] if item['style'].startswith('Heading') else None)
     paragraph(d,'Data availability','Heading 2');paragraph(d,DATA_AVAIL)
     if bilingual:paragraph(d,'数据可获得性','Heading 3');paragraph(d,DATA_AVAIL_ZH)
     paragraph(d,'Supplemental material','Heading 1');paragraph(d,'Supplemental Material provides specimen allocation, optical definitions, complete model and feature-budget comparisons, stability analyses, workbook-held-out outcomes, support-label controls and neural reference diagnostics. The accompanying workbooks preserve the corrected positive and negative results and source provenance.')
@@ -325,7 +383,7 @@ def make_main(bilingual=False):
     return d
 
 def make_supplement():
-    d=setup('supplement');paragraph(d,'Supplementary information','Title');paragraph(d,TITLE,'Heading 1');protected(d,AUTH['header']);n=0
+    d=setup('supplement');paragraph(d,'Supplementary information','Title');paragraph(d,TITLE,'Heading 1');author_header(d);n=0
     for block in SI_BLOCKS:
         kind=block['kind']
         if kind in ['h1','h2']:paragraph(d,block['en'],'Heading 1' if kind=='h1' else 'Heading 2')
@@ -341,16 +399,40 @@ def replace_paragraph(p,text):
     p.clear();run(p,text)
 
 def make_auxiliary():
-    for template in ['02_Title_Page.docx','Declarations.docx']:
-        d=Document(SRC/'templates'/template)
-        index=0 if template.startswith('02') else 1
-        replace_paragraph(d.paragraphs[index],TITLE if index==0 else 'Manuscript: '+TITLE)
-        if template.startswith('02'):
-            for p in d.paragraphs:
-                if p.text=='Five main figures and one supplementary figure':replace_paragraph(p,'Six main figures and one supplementary figure')
-        for root in [d.element,d.styles.element]:
-            for node in list(root.iter(qn('w:pBdr'))):node.getparent().remove(node)
-        d.save(BASE/('02_Title_Page.docx' if template.startswith('02') else '05_Declarations.docx'))
+    d = setup('title_page')
+    paragraph(d, TITLE, 'Title')
+    author_header(d)
+    paragraph(d, 'Work addresses', 'Heading 2')
+    for affiliation in AFFILIATIONS:
+        paragraph(d, f"Affiliation {affiliation['id']}: {affiliation['work_address']}")
+    paragraph(d, 'Author email addresses', 'Heading 2')
+    for author in AUTHORS:
+        paragraph(d, f"{author['name']}: {author['email']}")
+    paragraph(d, 'Declarations', 'Heading 2')
+    paragraph(d, CONFLICTS + ' No financial support was received for the research, authorship or publication of this article. '
+              + AUTHOR_APPROVAL + ' The authors accept responsibility for the accuracy and integrity of the work. '
+              'This manuscript is not under consideration elsewhere.')
+    paragraph(d, 'Prepared for Applied Spectroscopy. Six main figures and one supplementary figure.')
+    d.save(BASE/'02_Title_Page.docx')
+
+    d = Document(SRC/'templates/Declarations.docx')
+    for p in d.paragraphs:
+        if p.text.startswith('Manuscript:'):
+            replace_paragraph(p, 'Manuscript: ' + TITLE)
+        elif p.text.startswith('Authors:'):
+            replace_paragraph(p, 'Authors: ' + ', '.join(AUTHOR_NAMES))
+        elif p.text.startswith('The authors declared no potential conflicts'):
+            replace_paragraph(p, CONFLICTS)
+        elif p.text.startswith('All authors have read and approved'):
+            replace_paragraph(p, AUTHOR_APPROVAL + ' The authors accept responsibility for the accuracy and integrity of the work. This manuscript is not under consideration elsewhere.')
+        elif p.text.startswith('The measured experimental dataset was supplied'):
+            replace_paragraph(p, DATA_PROVENANCE)
+    d.core_properties.author = '; '.join(AUTHOR_NAMES)
+    d.core_properties.last_modified_by = ''
+    d.core_properties.comments = ''
+    for root in [d.element,d.styles.element]:
+        for node in list(root.iter(qn('w:pBdr'))):node.getparent().remove(node)
+    d.save(BASE/'05_Declarations.docx')
     d=Document(SRC/'templates/03_Cover_Letter.docx')
     updated={
       2:f'Please consider the manuscript “{TITLE}” for publication in Applied Spectroscopy.',
@@ -358,17 +440,27 @@ def make_auxiliary():
       4:'The collection comprises1,672 specimens in18 workbooks. In balanced five-source Suanzaoren analysis, the selected absorption workflow achieved93.44% mean accuracy with63.95% mean reduction in classifier input width. A newly available full-spectrum SVM on exactly the same inner and outer specimen IDs achieved82.67%, a10.78-percentage-point difference. Full-spectrum shrinkage LDA achieved91.78% and is retained as a strong comparator. The tested accuracy benefit is established for the SVM workflow, which supplies an explicit spectral-coordinate representation before classifier fitting.',
       5:'The ablations identify representation-dependent normalization behavior, changes in absorption subsets when the candidate pool changes, and a valid-supervision effect in separate full-spectrum label-update controls. Workbook-held-out evaluation gives98.84% accuracy for Suanzaoren–Zaoren discrimination and65.61% across all four materials, defining task-specific scope for further validation. These observed phenomena provide concrete directions for developing terahertz-assisted recognition of additional medicinal materials.',
       6:'The manuscript connects explicit spectral-coordinate selection with matched validation and controlled label updates, providing a reproducible analysis route for complementary medicinal-material identification. Complete protocol-specific comparisons, selection-repeatability estimates and source provenance accompany the submission.',
+      8:DATA_PROVENANCE + ' ' + AUTHOR_APPROVAL + ' The authors accept responsibility for the accuracy and integrity of the work. This manuscript is not under consideration elsewhere. ' + CONFLICTS + ' The authors received no financial support for the research, authorship or publication.',
     }
     for i,text in updated.items():replace_paragraph(d.paragraphs[i],tidy(text))
+    obsolete_disclosure = next(p for p in d.paragraphs if p.text.startswith('The use of OpenAI ChatGPT/Codex'))
+    obsolete_disclosure._p.getparent().remove(obsolete_disclosure._p)
     for root in [d.element,d.styles.element]:
         for node in list(root.iter(qn('w:pBdr'))):node.getparent().remove(node)
+    d.core_properties.author = CORRESPONDING['name']
+    d.core_properties.last_modified_by = ''
+    d.core_properties.comments = ''
     d.save(BASE/'03_Cover_Letter.docx')
 
-REVISION_ROWS=[('Stability based title / 稳定性标题', 'Accept / 接受', 'Specify coefficient stability in the title. Coefficient consistency defines ranking; saved-refit Φ = 0.8360 describes repeatability and is not the objective or chemical assignment.', '标题明确指向系数稳定性；系数一致性用于排名，保存重拟合的Φ = 0.8360仅描述重复性，不是优化目标或化学归属。'), ('Abstract length / 摘要长度', 'Modify / 修改', 'Keep the requested 200-word ceiling as an editorial constraint. The archived Applied Spectroscopy guidance does not establish this as a journal rule.', '保留所请求的200词上限作为编辑约束；归档期刊指南未确立该项期刊要求。'), ('Matched SVM and LDA / 匹配SVM及LDA', 'Accept with qualification / 限定接受', 'The 10.78-percentage-point gain concerns the matched full-spectrum SVM. The MC20-minus-LDA interval [−1.11, 4.44] pp includes zero; no LDA advantage, equivalence or universal ranking is established.', '10.78个百分点的收益针对匹配全谱SVM；MC20减LDA区间[−1.11, 4.44]个百分点包含零，未确立相对LDA优势、等效性或普遍排名。'), ('Kernel degradation mechanism / 核退化机制', 'Reject / 拒绝', 'The measured pipeline contrast does not isolate redundant coordinates as a cause of degraded kernel distances. Retain traceable coordinate reduction without a causal mechanism or runtime claim.', '流程比较未单独识别冗余坐标导致核距离退化的因果关系；保留可追溯坐标缩减，不声称机制或运行时间优势。'), ('Background expanded SVM scores / 背景扩展SVM成绩', 'Reject as corrected evidence / 不纳入修正证据', 'Do not import background 330-repeat, random/uniform, rank-context or SVM/MC permutation scores: affected SVM searches reuse the first cached gamma. These repeats differ from allowlisted V4 task bundles.', '不引入背景330次重复、随机或均匀、排名情境及SVM/MC置换成绩；相关SVM搜索复用首档缓存gamma。该背景重复不同于白名单V4任务包。'), ('Background non SVM baselines / 背景非SVM对照', 'Modify scope / 修改范围', 'PLS-DA and other non-SVM baselines are not gamma-defective on this evidence. Their numbers remain outside corrected-main evidence pending separate protocol and provenance admission.', '现有证据不表明PLS-DA等非SVM对照存在gamma缺陷；其数值仍须单独核查协议与来源并获准后方可纳入修正主证据。'), ('Permutation and n information / 置换与n信息', 'Reject proposed inference / 拒绝所提推断', 'Chance-level permutation would not certify absence of every leakage mode. Ranking perturbations do not prove n contains no information under other predictors.', '机会水平置换不能认证不存在任何泄漏；排名扰动也不能证明n在其他预测器下无信息。'), ('Recurrent source errors / 重复来源错误', 'Accept descriptively / 描述性接受', 'The three actual repeats contain 900 related primary predictions: ZY07→ZY04 accounts for 30 of 59 errors; eight specimens show it in all three repeats. No chemical or procurement mechanism is inferred.', '三次实际重复共有900条相关主预测；59次错误中30次为ZY07→ZY04，8份样品三次均如此。不推断化学或采购机制。'), ('ZY07 provenance / ZY07来源', 'Modify / 修改', 'Retain a separately recorded Shanxi source group and the user-declared specimen independence. Separate procurement occasions, verified origins and lot identifiers are not documented.', '保留单独记录的山西来源组及用户声明的样品独立性；未记录独立采购场次、经核验产地或批次编号。'), ('Fixed PRED T27 contrasts / 固定PRED的T27比较', 'Accept with qualification / 限定接受', 'Report full_svm 85/100, fixed_MC20 87/100 and R0 94/100 for Suanzaoren sources, and 331/339 versus 313/339 for four materials. R0 also uses 62 coordinates but changes preprocessing and C; these retrospective fixed-role results do not isolate a budget effect.', '报告酸枣仁来源full_svm为85/100、fixed_MC20为87/100、R0为94/100，以及四材料331/339对313/339。R0同为62坐标但改变预处理和C；回顾性固定角色结果不能单独识别预算效应。'), ('Protocol linkage and contribution / 协议联系与贡献', 'Modify / 修改', 'Describe a training-contained reusable ranking interface with measured matched-SVM benefit. LOWO, fixed PRED and full-spectrum support-label controls remain separate; other estimators need direct validation and support gains do not add to primary accuracy.', '描述限定于训练过程、可复用的排名接口及匹配SVM实测收益；LOWO、固定PRED和全谱支持标签对照分开，其他估计器须直接验证，支持收益不叠加主准确率。'), ('Author and AI fields / 作者及AI信息', 'Preserve / 保留', 'Original uploaded author, ORCID, email, institution, contribution, acknowledgement, approval, AI disclosure and provenance XML remain locked and verbatim.', '原上传作者、ORCID、邮箱、机构、贡献、致谢、批准、AI披露和来源XML保持锁定并逐字保留。')]
+REVISION_ROWS=[('Stability based title / 稳定性标题', 'Accept / 接受', 'Specify coefficient stability in the title. Coefficient consistency defines ranking; saved-refit Φ = 0.8360 describes repeatability and is not the objective or chemical assignment.', '标题明确指向系数稳定性；系数一致性用于排名，保存重拟合的Φ = 0.8360仅描述重复性，不是优化目标或化学归属。'), ('Abstract length / 摘要长度', 'Modify / 修改', 'Keep the requested 200-word ceiling as an editorial constraint. The archived Applied Spectroscopy guidance does not establish this as a journal rule.', '保留所请求的200词上限作为编辑约束；归档期刊指南未确立该项期刊要求。'), ('Matched SVM and LDA / 匹配SVM及LDA', 'Accept with qualification / 限定接受', 'The 10.78-percentage-point gain concerns the matched full-spectrum SVM. The MC20-minus-LDA interval [−1.11, 4.44] pp includes zero; no LDA advantage, equivalence or universal ranking is established.', '10.78个百分点的收益针对匹配全谱SVM；MC20减LDA区间[−1.11, 4.44]个百分点包含零，未确立相对LDA优势、等效性或普遍排名。'), ('Kernel degradation mechanism / 核退化机制', 'Reject / 拒绝', 'The measured pipeline contrast does not isolate redundant coordinates as a cause of degraded kernel distances. Retain traceable coordinate reduction without a causal mechanism or runtime claim.', '流程比较未单独识别冗余坐标导致核距离退化的因果关系；保留可追溯坐标缩减，不声称机制或运行时间优势。'), ('Background expanded SVM scores / 背景扩展SVM成绩', 'Reject as corrected evidence / 不纳入修正证据', 'Do not import background 330-repeat, random/uniform, rank-context or SVM/MC permutation scores: affected SVM searches reuse the first cached gamma. These repeats differ from allowlisted V4 task bundles.', '不引入背景330次重复、随机或均匀、排名情境及SVM/MC置换成绩；相关SVM搜索复用首档缓存gamma。该背景重复不同于白名单V4任务包。'), ('Background non SVM baselines / 背景非SVM对照', 'Modify scope / 修改范围', 'PLS-DA and other non-SVM baselines are not gamma-defective on this evidence. Their numbers remain outside corrected-main evidence pending separate protocol and provenance admission.', '现有证据不表明PLS-DA等非SVM对照存在gamma缺陷；其数值仍须单独核查协议与来源并获准后方可纳入修正主证据。'), ('Permutation and n information / 置换与n信息', 'Reject proposed inference / 拒绝所提推断', 'Chance-level permutation would not certify absence of every leakage mode. Ranking perturbations do not prove n contains no information under other predictors.', '机会水平置换不能认证不存在任何泄漏；排名扰动也不能证明n在其他预测器下无信息。'), ('Recurrent source errors / 重复来源错误', 'Accept descriptively / 描述性接受', 'The three actual repeats contain 900 related primary predictions: ZY07→ZY04 accounts for 30 of 59 errors; eight specimens show it in all three repeats. No chemical or procurement mechanism is inferred.', '三次实际重复共有900条相关主预测；59次错误中30次为ZY07→ZY04，8份样品三次均如此。不推断化学或采购机制。'), ('ZY07 provenance / ZY07来源', 'Modify / 修改', 'Use the confirmed Taiyuan, Shanxi locality for ZY07, with separate workbook and specimen identifiers.', 'ZY07采用已确认的山西太原产地，工作簿及样品标识独立。'), ('Fixed PRED T27 contrasts / 固定PRED的T27比较', 'Accept with qualification / 限定接受', 'Report full_svm 85/100, fixed_MC20 87/100 and R0 94/100 for Suanzaoren sources, and 331/339 versus 313/339 for four materials. R0 also uses 62 coordinates but changes preprocessing and C; these retrospective fixed-role results do not isolate a budget effect.', '报告酸枣仁来源full_svm为85/100、fixed_MC20为87/100、R0为94/100，以及四材料331/339对313/339。R0同为62坐标但改变预处理和C；回顾性固定角色结果不能单独识别预算效应。'), ('Protocol linkage and contribution / 协议联系与贡献', 'Modify / 修改', 'Describe a training-contained reusable ranking interface with measured matched-SVM benefit. LOWO, fixed PRED and full-spectrum support-label controls remain separate; other estimators need direct validation and support gains do not add to primary accuracy.', '描述限定于训练过程、可复用的排名接口及匹配SVM实测收益；LOWO、固定PRED和全谱支持标签对照分开，其他估计器须直接验证，支持收益不叠加主准确率。'), ('Authorship / 作者信息', 'Preserve / 保留', 'The 19 November author list supersedes the earlier byline. The published author details follow the current title page.', '作者署名以11月19日更新后的作者页为准。')]
 
 def make_revision_notes():
     d=setup('notes');paragraph(d,'Revision record and evidence checks','Title');paragraph(d,'修改记录与证据核查','Title')
     paragraph(d,TITLE);paragraph(d,TITLE_ZH)
+    paragraph(d,'Author and specimen information updated on 19 November 2026','Heading 2')
+    paragraph(d,'2026年11月19日作者与样品资料更新','Heading 3')
+    paragraph(d,'Yiyi Yang and Wenchen Jiang were added as the third and fourth authors. The manuscript records pharmacy procurement, Yang’s acquisition of the spectra at Southwest University, and the Taiyuan origin of ZY07. The supplementary table groups the 18 workbooks by commercial material and shows the specimen split for each origin.')
+    paragraph(d,'杨易易和蒋汶辰分别列为第三、第四作者。稿件写明药材从中药店购买，由杨易易在西南大学采集光谱，ZY07 产地为山西太原。补充表按商品药材类别归列18份工作簿，并列出各产地的样品划分。')
     paragraph(d,'Second review round, 16 November 2026. This record addresses doubao.txt and codex_revision_instructions.md against the corrected evidence allowlist and the two review audits. No scientific models were trained during this revision.')
     paragraph(d,'2026年11月16日第二轮审阅。本记录依据修正证据白名单及两份审阅核查，回应doubao.txt和codex_revision_instructions.md。本次修改未训练科学模型。')
     paragraph(d,'Accepted suggestions improve the title, scope, source-label description and descriptive contrasts. Modified or rejected suggestions are recorded below with their evidence limits. The contribution remains complementary medicinal-material discrimination with a training-contained ranking and selection workflow.')
@@ -379,8 +471,8 @@ def make_revision_notes():
     paragraph(d,'Evidence basis / 证据依据','Heading 1')
     paragraph(d,'The corrected publication view, pinned E1 bridge and saved primary predictions support the retained comparisons. Conditional paired intervals use 10,000 source-stratified physical-ID draws from saved predictions (seed 20261116). Repeated predictions preserve specimen identity and are not counted as independent specimens.')
     paragraph(d,'保留的比较以修正结果入口、固定E1桥接及保存主预测为依据。条件性配对区间使用保存预测，按来源分层进行10,000次实物ID抽样（种子20261116）；重复预测保持实物身份，不另计为独立样品。')
-    paragraph(d,'Submission files present the scientific results; the bilingual manuscript supports parallel reading. This author-facing record explains the second-round decisions and preserves the original uploaded author and AI disclosure fields.')
-    paragraph(d,'投稿文件呈现科学结果，中英文稿供对照阅读。本作者记录说明第二轮决定，原上传作者及AI披露字段保持原文。')
+    paragraph(d,'The English manuscript is the submission version. The bilingual manuscript and this record are for author review.')
+    paragraph(d,'英文正文为投稿版本。中英文稿与本记录供作者核阅。')
     d.save(BASE/'07_Revision_Notes_EN_ZH.docx')
 
 if __name__=='__main__':

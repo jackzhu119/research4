@@ -1,11 +1,12 @@
 from pathlib import Path
-import hashlib,json
+import hashlib,json,sys
 import numpy as np
 import pandas as pd
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle,FancyBboxPatch,FancyArrowPatch
+from publication_metadata import ORIGINS_EN
 
 ROOT=Path(__file__).resolve().parents[3]
 BASE=ROOT/'paper/revision_20261116_r2'
@@ -33,6 +34,30 @@ def box(ax,x,y,w,h,text,size=10,fill='#F4F6F8',bold=False):
     ax.add_patch(patch);ax.text(x,y,text,ha='center',va='center',fontsize=size,fontweight='bold' if bold else 'normal')
 def arrow(ax,a,b):ax.add_patch(FancyArrowPatch(a,b,arrowstyle='-|>',mutation_scale=10,lw=.85,color='#333333'))
 
+
+def make_source_figure(spectra):
+    names = {group: ORIGINS_EN[group] for group in ('ZY03', 'ZY04', 'ZY05', 'ZY06', 'ZY07')}
+    fig,axs=plt.subplots(1,2,figsize=(7.2,3.7));fig.subplots_adjust(left=.10,right=.965,bottom=.30,top=.90,wspace=.35)
+    for ax,mod,title,label in zip(axs,['alpha','n'],['(a) Absorption export','(b) Refractive-index export'],['Absorption (exported scale)','Refractive index, n (dimensionless)']):
+        for color,(group,name) in zip(COLORS,names.items()):
+            p=spectra[(spectra.group==group)&(spectra.modality==mod)]
+            assert len(p)==612 and p.specimens.eq(60).all()
+            ax.plot(p.frequency_thz,p['mean'],lw=1.35,color=color,label=name)
+        ax.set(xlabel='Frequency (THz)',ylabel=label,xlim=(.1,1.5));ax.set_title(title,loc='left');ax.grid(color='#E2E2E2',lw=.5)
+    handles,labels=axs[0].get_legend_handles_labels();fig.legend(handles,labels,loc='lower center',bbox_to_anchor=(.5,.025),ncol=3,frameon=False,fontsize=9)
+    save(fig,'Figure_2')
+
+
+spectra=pd.read_excel(SOURCE,sheet_name='Source_mean_spectra')
+manifest_path = OUT/'FIGURE_VERIFICATION.json'
+if sys.argv[1:] == ['--figure-2-only']:
+    make_source_figure(spectra)
+    receipt = json.loads(manifest_path.read_text())
+    revisions = {row['file']: row for row in outputs}
+    receipt['outputs'] = [revisions.get(row['file'], row) for row in receipt['outputs']]
+    manifest_path.write_text(json.dumps(receipt, ensure_ascii=False, indent=2)+'\n')
+    raise SystemExit()
+
 # Figure 1: schematic drawn from the saved validation and estimator definitions.
 fig,axs=plt.subplots(1,2,figsize=(7.2,6.6));fig.subplots_adjust(left=.035,right=.965,bottom=.105,top=.93,wspace=.10)
 for ax in axs:ax.set(xlim=(0,1),ylim=(0,1));ax.axis('off')
@@ -54,18 +79,8 @@ arrow(b,(.5,.22),(.5,.16));box(b,.5,.105,.92,.10,'Class-balanced RBF SVM\nUse in
 fig.text(.5,.052,'Ranking is separate from the classifier; model-specific budgets remain inner-selected.',ha='center',fontsize=9)
 fig.text(.5,.027,'Separate tasks: full-spectrum material LOWO and Source/Support/Query controls.',ha='center',fontsize=9)
 save(fig,'Figure_1')
+make_source_figure(spectra)
 
-spectra=pd.read_excel(SOURCE,sheet_name='Source_mean_spectra')
-names={'ZY03':'Inner Mongolia','ZY04':'Lingshi, Shanxi','ZY05':'Bozhou, Anhui','ZY06':'Shijiazhuang, Hebei','ZY07':'Shanxi group'}
-fig,axs=plt.subplots(1,2,figsize=(7.2,3.7));fig.subplots_adjust(left=.10,right=.965,bottom=.30,top=.90,wspace=.35)
-for ax,mod,title,label in zip(axs,['alpha','n'],['(a) Absorption export','(b) Refractive-index export'],['Absorption (exported scale)','Refractive index, n (dimensionless)']):
-    for color,(group,name) in zip(COLORS,names.items()):
-        p=spectra[(spectra.group==group)&(spectra.modality==mod)]
-        assert len(p)==612 and p.specimens.eq(60).all()
-        ax.plot(p.frequency_thz,p['mean'],lw=1.35,color=color,label=name)
-    ax.set(xlabel='Frequency (THz)',ylabel=label,xlim=(.1,1.5));ax.set_title(title,loc='left');ax.grid(color='#E2E2E2',lw=.5)
-handles,labels=axs[0].get_legend_handles_labels();fig.legend(handles,labels,loc='lower center',bbox_to_anchor=(.5,.025),ncol=3,frameon=False,fontsize=9)
-save(fig,'Figure_2')
 
 families=['alpha_snv20','alpha_raw20','alpha_snv100','fullalpha_shrinkLDA','concat_both_snv20','fullalpha_snv_svm_bridge','fullalpha_MLP']
 labels=['SNV α MC20','Raw α MC20','SNV α MC100','Full α LDA','Joint SNV MC20','Full SNV α SVM','Full α MLP']
