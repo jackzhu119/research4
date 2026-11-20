@@ -1,0 +1,28 @@
+{
+  "schema": "pyscf-independent-ir-v1",
+  "molecules": [
+    "acid",
+    "calycosin",
+    "spinosin"
+  ],
+  "authorized_cpu_seconds": 900000,
+  "scope": "isolated molecule local harmonic integrated IR, standard km/mol",
+  "primary_model": "exact upstream PBE/def2-SVP/noD3 profile, atom order and geometry",
+  "independent_checks": [
+    "SI and atomic-constant prefactors",
+    "mass Gram matrix",
+    "same-frame derivative vectors and strengths",
+    "three-step derivative sensitivity",
+    "all-mode simultaneous-displacement SCF dipoles",
+    "total-dipole rigid-body identities"
+  ],
+  "quality_failures_end_execution": false,
+  "maximum_refinement_rounds": null,
+  "maximum_retries": null,
+  "arbitrary_runtime_timeout": null,
+  "resource_boundary": "900000 measured cumulative CPU seconds; preserve partial results",
+  "source_publication": "Read-only upstream fetch; source scientific arrays and original points authenticated",
+  "nuclear_gradients_at_ir_points": false,
+  "source_mass_and_mode_convention": "Cartesian L columns; L.T M_amu L=I",
+  "never_delete_imaginary_modes_or_take_absolute_frequencies": true
+}
